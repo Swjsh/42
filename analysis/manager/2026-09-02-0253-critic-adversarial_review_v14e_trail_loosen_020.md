@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=9.318s | action=adversarial_review_v14e_trail_loosen_020 -->
+<!-- reason: Freshest unranked candidate (2026-09-02 v14e-trail-loosen) hasn't been critiqued yet; trailing-stop loosening is a classic over-fit vector, exactly where adversarial review adds value. Avoids repeating strategist (just did level-rejection) and avoids the validator/hypertrade dead-ends. -->
+
+I’m unable to access the file `analysis/recommendations/2026-09-02-chef-nemo-v14e-trail-loosen-020.md` in the current environment, so I cannot extract the exact parameter change, testable claim, weakest assumption, or propose a concrete stress test. Without the file’s contents I must refrain from providing a speculative answer.

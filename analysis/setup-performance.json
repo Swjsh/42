@@ -1,19 +1,19 @@
 {
   "BEARISH_REJECTION_RIDE_THE_RIBBON": {
-    "n_trades": 31,
-    "n_wins": 7,
-    "hit_rate": 0.2258,
-    "avg_return_pct": 18.72,
-    "stdev_return_pct": 90.48,
-    "max_win_pct": 291.84,
-    "max_loss_pct": -80.61,
-    "avg_hold_minutes": 26.4,
+    "n_trades": 131,
+    "n_wins": 49,
+    "hit_rate": 0.374,
+    "avg_return_pct": 0.148,
+    "stdev_return_pct": 0.6665,
+    "max_win_pct": 2.9183673469387754,
+    "max_loss_pct": -1.2222222222222223,
+    "avg_hold_minutes": 30.46,
     "n_correct_setups": 4,
     "n_excellent_grades": 1,
     "by_iv_regime": {
       "LOW": {
         "n": 0,
-        "wr": null
+        "wr": 0.0
       },
       "MID": {
         "n": 1,
@@ -21,63 +21,50 @@
       },
       "HIGH": {
         "n": 0,
-        "wr": null
+        "wr": 0.0
       }
     },
     "by_tod_bucket": {
       "OPEN_DRIVE": {
         "n": 0,
-        "wr": null
+        "wr": 0.0
       },
       "MORNING": {
-        "n": 11,
-        "wr": 0.1818
+        "n": 23,
+        "wr": 0.43478260869565216
       },
       "MIDDAY": {
-        "n": 15,
-        "wr": 0.3333
+        "n": 85,
+        "wr": 0.3411764705882353
       },
       "AFTERNOON": {
-        "n": 3,
-        "wr": 0.0
+        "n": 21,
+        "wr": 0.47619047619047616
       },
       "POWER_HOUR": {
         "n": 0,
-        "wr": null
+        "wr": 0.0
       }
     },
     "by_tape_assistance": {
       "dry": {
         "n": 0,
-        "wr": null
+        "wr": 0.0
       },
       "normal": {
         "n": 0,
-        "wr": null
+        "wr": 0.0
       },
       "favorable": {
         "n": 0,
-        "wr": null
+        "wr": 0.0
       },
       "exceptional": {
         "n": 0,
-        "wr": null
-      },
-      "unfavorable": {
-        "n": 1,
         "wr": 0.0
       }
     },
-    "by_archetype": {
-      "closed_bar_delay_bounce_trap": {
-        "n": 1,
-        "wr": 0.0
-      },
-      "self": {
-        "n": 3,
-        "wr": 1.0
-      }
-    },
+    "by_archetype": {},
     "by_grade_score": {
       "5": {
         "n": 1,
@@ -85,7 +72,7 @@
       },
       "4": {
         "n": 0,
-        "avg_pnl": null
+        "avg_pnl": 0.0
       },
       "3": {
         "n": 1,
@@ -93,7 +80,7 @@
       },
       "2": {
         "n": 0,
-        "avg_pnl": null
+        "avg_pnl": 0.0
       },
       "1": {
         "n": 2,
@@ -101,190 +88,78 @@
       },
       "0": {
         "n": 0,
-        "avg_pnl": null
+        "avg_pnl": 0.0
       }
     },
     "avg_hold_quality_pct": 0.0,
-    "last_updated": "2026-07-14T14:00:34-06:00"
-  },
-  "BULLISH_RECLAIM": {
-    "n_trades": 1,
-    "n_wins": 0,
-    "hit_rate": 0.0,
-    "avg_return_pct": -30.0,
-    "stdev_return_pct": null,
-    "max_win_pct": -30.0,
-    "max_loss_pct": -30.0,
-    "avg_hold_minutes": 6.0,
-    "n_correct_setups": 0,
-    "n_excellent_grades": 0,
-    "by_iv_regime": {
-      "LOW": {
-        "n": 0,
-        "wr": null
-      },
-      "MID": {
-        "n": 1,
-        "wr": 0.0
-      },
-      "HIGH": {
-        "n": 0,
-        "wr": null
-      }
-    },
-    "by_tod_bucket": {
-      "OPEN_DRIVE": {
-        "n": 0,
-        "wr": null
-      },
-      "MORNING": {
-        "n": 0,
-        "wr": null
-      },
-      "MIDDAY": {
-        "n": 0,
-        "wr": null
-      },
-      "AFTERNOON": {
-        "n": 0,
-        "wr": null
-      },
-      "POWER_HOUR": {
-        "n": 0,
-        "wr": null
-      }
-    },
-    "by_tape_assistance": {
-      "dry": {
-        "n": 0,
-        "wr": null
-      },
-      "normal": {
-        "n": 0,
-        "wr": null
-      },
-      "favorable": {
-        "n": 0,
-        "wr": null
-      },
-      "exceptional": {
-        "n": 0,
-        "wr": null
-      },
-      "unfavorable": {
-        "n": 0,
-        "wr": null
-      }
-    },
-    "by_archetype": {},
-    "by_grade_score": {
-      "5": {
-        "n": 0,
-        "avg_pnl": null
-      },
-      "4": {
-        "n": 0,
-        "avg_pnl": null
-      },
-      "3": {
-        "n": 0,
-        "avg_pnl": null
-      },
-      "2": {
-        "n": 0,
-        "avg_pnl": null
-      },
-      "1": {
-        "n": 1,
-        "avg_pnl": -18.0
-      },
-      "0": {
-        "n": 0,
-        "avg_pnl": null
-      }
-    },
-    "avg_hold_quality_pct": null,
-    "last_updated": "2026-07-14T14:00:34-06:00"
+    "last_updated": "2026-08-31T16:00:00-04:00"
   },
   "BULLISH_RECLAIM_RIDE_THE_RIBBON": {
-    "n_trades": 101,
-    "n_wins": 6,
-    "hit_rate": 0.0594,
-    "avg_return_pct": -22.6,
-    "stdev_return_pct": 24.66,
-    "max_win_pct": 89.82,
-    "max_loss_pct": -75.0,
-    "avg_hold_minutes": 14.5,
+    "n_trades": 302,
+    "n_wins": 106,
+    "hit_rate": 0.351,
+    "avg_return_pct": 0.1192,
+    "stdev_return_pct": 0.6999,
+    "max_win_pct": 4.601941747572815,
+    "max_loss_pct": -3.5357142857142856,
+    "avg_hold_minutes": 24.25,
     "n_correct_setups": 5,
     "n_excellent_grades": 1,
     "by_iv_regime": {
       "LOW": {
         "n": 0,
-        "wr": null
+        "wr": 0.0
       },
       "MID": {
         "n": 7,
-        "wr": 0.5714
+        "wr": 0.5714285714285714
       },
       "HIGH": {
         "n": 0,
-        "wr": null
+        "wr": 0.0
       }
     },
     "by_tod_bucket": {
       "OPEN_DRIVE": {
         "n": 0,
-        "wr": null
+        "wr": 0.0
       },
       "MORNING": {
-        "n": 24,
-        "wr": 0.0833
+        "n": 114,
+        "wr": 0.40350877192982454
       },
       "MIDDAY": {
-        "n": 36,
-        "wr": 0.0556
+        "n": 128,
+        "wr": 0.3046875
       },
       "AFTERNOON": {
-        "n": 38,
-        "wr": 0.0
+        "n": 57,
+        "wr": 0.3333333333333333
       },
       "POWER_HOUR": {
         "n": 0,
-        "wr": null
+        "wr": 0.0
       }
     },
     "by_tape_assistance": {
       "dry": {
         "n": 0,
-        "wr": null
+        "wr": 0.0
       },
       "normal": {
         "n": 0,
-        "wr": null
+        "wr": 0.0
       },
       "favorable": {
         "n": 0,
-        "wr": null
+        "wr": 0.0
       },
       "exceptional": {
         "n": 0,
-        "wr": null
-      },
-      "unfavorable": {
-        "n": 1,
         "wr": 0.0
       }
     },
-    "by_archetype": {
-      "bullish_reclaim_runner": {
-        "n": 1,
-        "wr": 1.0
-      },
-      "drift_chop_trap": {
-        "n": 1,
-        "wr": 0.0
-      }
-    },
+    "by_archetype": {},
     "by_grade_score": {
       "5": {
         "n": 1,
@@ -308,131 +183,27 @@
       },
       "0": {
         "n": 0,
-        "avg_pnl": null
+        "avg_pnl": 0.0
       }
     },
     "avg_hold_quality_pct": 48.5,
-    "last_updated": "2026-07-14T14:00:34-06:00"
-  },
-  "UNCATEGORIZED_HOLD_TO_EXPIRY": {
-    "n_trades": 1,
-    "n_wins": 0,
-    "hit_rate": 0.0,
-    "avg_return_pct": -93.75,
-    "stdev_return_pct": null,
-    "max_win_pct": -93.75,
-    "max_loss_pct": -93.75,
-    "avg_hold_minutes": 308.0,
-    "n_correct_setups": 0,
-    "n_excellent_grades": 0,
-    "by_iv_regime": {
-      "LOW": {
-        "n": 0,
-        "wr": null
-      },
-      "MID": {
-        "n": 1,
-        "wr": 0.0
-      },
-      "HIGH": {
-        "n": 0,
-        "wr": null
-      }
-    },
-    "by_tod_bucket": {
-      "OPEN_DRIVE": {
-        "n": 0,
-        "wr": null
-      },
-      "MORNING": {
-        "n": 0,
-        "wr": null
-      },
-      "MIDDAY": {
-        "n": 1,
-        "wr": 0.0
-      },
-      "AFTERNOON": {
-        "n": 0,
-        "wr": null
-      },
-      "POWER_HOUR": {
-        "n": 0,
-        "wr": null
-      }
-    },
-    "by_tape_assistance": {
-      "dry": {
-        "n": 0,
-        "wr": null
-      },
-      "normal": {
-        "n": 0,
-        "wr": null
-      },
-      "favorable": {
-        "n": 0,
-        "wr": null
-      },
-      "exceptional": {
-        "n": 0,
-        "wr": null
-      },
-      "unfavorable": {
-        "n": 1,
-        "wr": 0.0
-      }
-    },
-    "by_archetype": {
-      "hope_hold_to_zero": {
-        "n": 1,
-        "wr": 0.0
-      }
-    },
-    "by_grade_score": {
-      "5": {
-        "n": 0,
-        "avg_pnl": null
-      },
-      "4": {
-        "n": 0,
-        "avg_pnl": null
-      },
-      "3": {
-        "n": 0,
-        "avg_pnl": null
-      },
-      "2": {
-        "n": 0,
-        "avg_pnl": null
-      },
-      "1": {
-        "n": 1,
-        "avg_pnl": -300.0
-      },
-      "0": {
-        "n": 0,
-        "avg_pnl": null
-      }
-    },
-    "avg_hold_quality_pct": 0.0,
-    "last_updated": "2026-07-14T14:00:34-06:00"
+    "last_updated": "2026-08-31T16:00:00-04:00"
   },
   "UNCATEGORIZED_PROBE": {
     "n_trades": 1,
     "n_wins": 0,
     "hit_rate": 0.0,
-    "avg_return_pct": -43.33,
-    "stdev_return_pct": null,
-    "max_win_pct": -43.33,
-    "max_loss_pct": -43.33,
+    "avg_return_pct": null,
+    "stdev_return_pct": 0.0,
+    "max_win_pct": null,
+    "max_loss_pct": null,
     "avg_hold_minutes": 30.0,
     "n_correct_setups": 0,
     "n_excellent_grades": 0,
     "by_iv_regime": {
       "LOW": {
         "n": 0,
-        "wr": null
+        "wr": 0.0
       },
       "MID": {
         "n": 1,
@@ -440,17 +211,17 @@
       },
       "HIGH": {
         "n": 0,
-        "wr": null
+        "wr": 0.0
       }
     },
     "by_tod_bucket": {
       "OPEN_DRIVE": {
         "n": 0,
-        "wr": null
+        "wr": 0.0
       },
       "MORNING": {
         "n": 0,
-        "wr": null
+        "wr": 0.0
       },
       "MIDDAY": {
         "n": 1,
@@ -458,57 +229,48 @@
       },
       "AFTERNOON": {
         "n": 0,
-        "wr": null
+        "wr": 0.0
       },
       "POWER_HOUR": {
         "n": 0,
-        "wr": null
+        "wr": 0.0
       }
     },
     "by_tape_assistance": {
       "dry": {
         "n": 0,
-        "wr": null
+        "wr": 0.0
       },
       "normal": {
         "n": 0,
-        "wr": null
+        "wr": 0.0
       },
       "favorable": {
         "n": 0,
-        "wr": null
+        "wr": 0.0
       },
       "exceptional": {
         "n": 0,
-        "wr": null
-      },
-      "unfavorable": {
-        "n": 1,
         "wr": 0.0
       }
     },
-    "by_archetype": {
-      "drift_chop_trap": {
-        "n": 1,
-        "wr": 0.0
-      }
-    },
+    "by_archetype": {},
     "by_grade_score": {
       "5": {
         "n": 0,
-        "avg_pnl": null
+        "avg_pnl": 0.0
       },
       "4": {
         "n": 0,
-        "avg_pnl": null
+        "avg_pnl": 0.0
       },
       "3": {
         "n": 0,
-        "avg_pnl": null
+        "avg_pnl": 0.0
       },
       "2": {
         "n": 0,
-        "avg_pnl": null
+        "avg_pnl": 0.0
       },
       "1": {
         "n": 1,
@@ -516,27 +278,27 @@
       },
       "0": {
         "n": 0,
-        "avg_pnl": null
+        "avg_pnl": 0.0
       }
     },
     "avg_hold_quality_pct": 0.0,
-    "last_updated": "2026-07-14T14:00:34-06:00"
+    "last_updated": "2026-08-31T16:00:00-04:00"
   },
-  "UNCATEGORIZED_PROBE_MANUAL": {
+  "UNCATEGORIZED_HOLD_TO_EXPIRY": {
     "n_trades": 1,
     "n_wins": 0,
     "hit_rate": 0.0,
-    "avg_return_pct": -31.58,
-    "stdev_return_pct": null,
-    "max_win_pct": -31.58,
-    "max_loss_pct": -31.58,
-    "avg_hold_minutes": 16.0,
+    "avg_return_pct": null,
+    "stdev_return_pct": 0.0,
+    "max_win_pct": null,
+    "max_loss_pct": null,
+    "avg_hold_minutes": 308.0,
     "n_correct_setups": 0,
     "n_excellent_grades": 0,
     "by_iv_regime": {
       "LOW": {
         "n": 0,
-        "wr": null
+        "wr": 0.0
       },
       "MID": {
         "n": 1,
@@ -544,13 +306,108 @@
       },
       "HIGH": {
         "n": 0,
-        "wr": null
+        "wr": 0.0
       }
     },
     "by_tod_bucket": {
       "OPEN_DRIVE": {
         "n": 0,
-        "wr": null
+        "wr": 0.0
+      },
+      "MORNING": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "MIDDAY": {
+        "n": 1,
+        "wr": 0.0
+      },
+      "AFTERNOON": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "POWER_HOUR": {
+        "n": 0,
+        "wr": 0.0
+      }
+    },
+    "by_tape_assistance": {
+      "dry": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "normal": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "favorable": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "exceptional": {
+        "n": 0,
+        "wr": 0.0
+      }
+    },
+    "by_archetype": {},
+    "by_grade_score": {
+      "5": {
+        "n": 0,
+        "avg_pnl": 0.0
+      },
+      "4": {
+        "n": 0,
+        "avg_pnl": 0.0
+      },
+      "3": {
+        "n": 0,
+        "avg_pnl": 0.0
+      },
+      "2": {
+        "n": 0,
+        "avg_pnl": 0.0
+      },
+      "1": {
+        "n": 1,
+        "avg_pnl": -300.0
+      },
+      "0": {
+        "n": 0,
+        "avg_pnl": 0.0
+      }
+    },
+    "avg_hold_quality_pct": 0.0,
+    "last_updated": "2026-08-31T16:00:00-04:00"
+  },
+  "UNCATEGORIZED_PROBE_MANUAL": {
+    "n_trades": 1,
+    "n_wins": 0,
+    "hit_rate": 0.0,
+    "avg_return_pct": null,
+    "stdev_return_pct": 0.0,
+    "max_win_pct": null,
+    "max_loss_pct": null,
+    "avg_hold_minutes": 16.0,
+    "n_correct_setups": 0,
+    "n_excellent_grades": 0,
+    "by_iv_regime": {
+      "LOW": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "MID": {
+        "n": 1,
+        "wr": 0.0
+      },
+      "HIGH": {
+        "n": 0,
+        "wr": 0.0
+      }
+    },
+    "by_tod_bucket": {
+      "OPEN_DRIVE": {
+        "n": 0,
+        "wr": 0.0
       },
       "MORNING": {
         "n": 1,
@@ -558,61 +415,52 @@
       },
       "MIDDAY": {
         "n": 0,
-        "wr": null
+        "wr": 0.0
       },
       "AFTERNOON": {
         "n": 0,
-        "wr": null
+        "wr": 0.0
       },
       "POWER_HOUR": {
         "n": 0,
-        "wr": null
+        "wr": 0.0
       }
     },
     "by_tape_assistance": {
       "dry": {
         "n": 0,
-        "wr": null
+        "wr": 0.0
       },
       "normal": {
         "n": 0,
-        "wr": null
+        "wr": 0.0
       },
       "favorable": {
         "n": 0,
-        "wr": null
+        "wr": 0.0
       },
       "exceptional": {
         "n": 0,
-        "wr": null
-      },
-      "unfavorable": {
-        "n": 1,
         "wr": 0.0
       }
     },
-    "by_archetype": {
-      "manual_anticipation_at_resistance": {
-        "n": 1,
-        "wr": 0.0
-      }
-    },
+    "by_archetype": {},
     "by_grade_score": {
       "5": {
         "n": 0,
-        "avg_pnl": null
+        "avg_pnl": 0.0
       },
       "4": {
         "n": 0,
-        "avg_pnl": null
+        "avg_pnl": 0.0
       },
       "3": {
         "n": 0,
-        "avg_pnl": null
+        "avg_pnl": 0.0
       },
       "2": {
         "n": 0,
-        "avg_pnl": null
+        "avg_pnl": 0.0
       },
       "1": {
         "n": 1,
@@ -620,117 +468,865 @@
       },
       "0": {
         "n": 0,
-        "avg_pnl": null
+        "avg_pnl": 0.0
       }
     },
     "avg_hold_quality_pct": 0.0,
-    "last_updated": "2026-07-14T14:00:34-06:00"
+    "last_updated": "2026-08-31T16:00:00-04:00"
   },
-  "UNKNOWN": {
-    "n_trades": 16,
-    "n_wins": 3,
-    "hit_rate": 0.1875,
-    "avg_return_pct": -7.07,
-    "stdev_return_pct": 7.61,
-    "max_win_pct": 6.0,
-    "max_loss_pct": -17.32,
-    "avg_hold_minutes": null,
+  "BULLISH_RECLAIM": {
+    "n_trades": 1,
+    "n_wins": 0,
+    "hit_rate": 0.0,
+    "avg_return_pct": -0.3,
+    "stdev_return_pct": 0.0,
+    "max_win_pct": -0.3,
+    "max_loss_pct": -0.3,
+    "avg_hold_minutes": 6.0,
     "n_correct_setups": 0,
     "n_excellent_grades": 0,
     "by_iv_regime": {
       "LOW": {
         "n": 0,
-        "wr": null
+        "wr": 0.0
       },
       "MID": {
-        "n": 0,
-        "wr": null
+        "n": 1,
+        "wr": 0.0
       },
       "HIGH": {
         "n": 0,
-        "wr": null
+        "wr": 0.0
       }
     },
     "by_tod_bucket": {
       "OPEN_DRIVE": {
         "n": 0,
-        "wr": null
+        "wr": 0.0
       },
       "MORNING": {
         "n": 0,
-        "wr": null
+        "wr": 0.0
       },
       "MIDDAY": {
         "n": 0,
-        "wr": null
+        "wr": 0.0
       },
       "AFTERNOON": {
         "n": 0,
-        "wr": null
+        "wr": 0.0
       },
       "POWER_HOUR": {
         "n": 0,
-        "wr": null
+        "wr": 0.0
       }
     },
     "by_tape_assistance": {
       "dry": {
         "n": 0,
-        "wr": null
+        "wr": 0.0
       },
       "normal": {
         "n": 0,
-        "wr": null
+        "wr": 0.0
       },
       "favorable": {
         "n": 0,
-        "wr": null
+        "wr": 0.0
       },
       "exceptional": {
         "n": 0,
-        "wr": null
-      },
-      "unfavorable": {
-        "n": 0,
-        "wr": null
+        "wr": 0.0
       }
     },
     "by_archetype": {},
     "by_grade_score": {
       "5": {
         "n": 0,
-        "avg_pnl": null
+        "avg_pnl": 0.0
       },
       "4": {
         "n": 0,
-        "avg_pnl": null
+        "avg_pnl": 0.0
       },
       "3": {
         "n": 0,
-        "avg_pnl": null
+        "avg_pnl": 0.0
       },
       "2": {
         "n": 0,
-        "avg_pnl": null
+        "avg_pnl": 0.0
       },
       "1": {
-        "n": 0,
-        "avg_pnl": null
+        "n": 1,
+        "avg_pnl": -18.0
       },
       "0": {
         "n": 0,
-        "avg_pnl": null
+        "avg_pnl": 0.0
       }
     },
     "avg_hold_quality_pct": null,
-    "last_updated": "2026-07-14T14:00:34-06:00"
+    "last_updated": "2026-08-31T16:00:00-04:00"
   },
-  "_meta": {
-    "generator": "backtest/scripts/update_setup_performance.py",
-    "source": "journal/trades.csv",
-    "total_trades": 152,
-    "n_setups": 7,
-    "generated_at": "2026-07-14T14:00:34-06:00",
-    "note": "R-0007 fix: deterministic recompute replaces the dropped EOD-summary Step-8 LLM prose. Deployment gate (>=20 trades, hit_rate>=0.45) reads this; full-overwrite, never appends."
+  "UNKNOWN": {
+    "n_trades": 25,
+    "n_wins": 8,
+    "hit_rate": 0.32,
+    "avg_return_pct": 0.148,
+    "stdev_return_pct": 0.6389,
+    "max_win_pct": 0.8817204301075269,
+    "max_loss_pct": -0.2857142857142857,
+    "avg_hold_minutes": 16.4,
+    "n_correct_setups": 0,
+    "n_excellent_grades": 0,
+    "by_iv_regime": {
+      "LOW": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "MID": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "HIGH": {
+        "n": 0,
+        "wr": 0.0
+      }
+    },
+    "by_tod_bucket": {
+      "OPEN_DRIVE": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "MORNING": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "MIDDAY": {
+        "n": 2,
+        "wr": 0.5
+      },
+      "AFTERNOON": {
+        "n": 2,
+        "wr": 0.5
+      },
+      "POWER_HOUR": {
+        "n": 0,
+        "wr": 0.0
+      }
+    },
+    "by_tape_assistance": {
+      "dry": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "normal": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "favorable": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "exceptional": {
+        "n": 0,
+        "wr": 0.0
+      }
+    },
+    "by_archetype": {},
+    "by_grade_score": {
+      "5": {
+        "n": 0,
+        "avg_pnl": 0.0
+      },
+      "4": {
+        "n": 0,
+        "avg_pnl": 0.0
+      },
+      "3": {
+        "n": 0,
+        "avg_pnl": 0.0
+      },
+      "2": {
+        "n": 0,
+        "avg_pnl": 0.0
+      },
+      "1": {
+        "n": 0,
+        "avg_pnl": 0.0
+      },
+      "0": {
+        "n": 0,
+        "avg_pnl": 0.0
+      }
+    },
+    "avg_hold_quality_pct": null,
+    "last_updated": "2026-08-31T16:00:00-04:00"
+  },
+  "VWAP_CONTINUATION": {
+    "n_trades": 45,
+    "n_wins": 16,
+    "hit_rate": 0.3556,
+    "avg_return_pct": 0.039,
+    "stdev_return_pct": 0.4271,
+    "max_win_pct": 2.5035971223021583,
+    "max_loss_pct": -0.8148148148148148,
+    "avg_hold_minutes": 12.56,
+    "n_correct_setups": 0,
+    "n_excellent_grades": 0,
+    "by_iv_regime": {
+      "LOW": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "MID": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "HIGH": {
+        "n": 0,
+        "wr": 0.0
+      }
+    },
+    "by_tod_bucket": {
+      "OPEN_DRIVE": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "MORNING": {
+        "n": 45,
+        "wr": 0.35555555555555557
+      },
+      "MIDDAY": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "AFTERNOON": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "POWER_HOUR": {
+        "n": 0,
+        "wr": 0.0
+      }
+    },
+    "by_tape_assistance": {
+      "dry": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "normal": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "favorable": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "exceptional": {
+        "n": 0,
+        "wr": 0.0
+      }
+    },
+    "by_archetype": {},
+    "by_grade_score": {
+      "5": {
+        "n": 0,
+        "avg_pnl": 0.0
+      },
+      "4": {
+        "n": 0,
+        "avg_pnl": 0.0
+      },
+      "3": {
+        "n": 0,
+        "avg_pnl": 0.0
+      },
+      "2": {
+        "n": 0,
+        "avg_pnl": 0.0
+      },
+      "1": {
+        "n": 0,
+        "avg_pnl": 0.0
+      },
+      "0": {
+        "n": 0,
+        "avg_pnl": 0.0
+      }
+    },
+    "avg_hold_quality_pct": null,
+    "last_updated": "2026-08-31T16:00:00-04:00"
+  },
+  "TRENDLINE_BREAK_RETEST": {
+    "n_trades": 1,
+    "n_wins": 1,
+    "hit_rate": 1.0,
+    "avg_return_pct": 0.2625,
+    "stdev_return_pct": 0.0,
+    "max_win_pct": 0.26253687315634217,
+    "max_loss_pct": 0.26253687315634217,
+    "avg_hold_minutes": 8.0,
+    "n_correct_setups": 0,
+    "n_excellent_grades": 0,
+    "by_iv_regime": {
+      "LOW": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "MID": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "HIGH": {
+        "n": 0,
+        "wr": 0.0
+      }
+    },
+    "by_tod_bucket": {
+      "OPEN_DRIVE": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "MORNING": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "MIDDAY": {
+        "n": 1,
+        "wr": 1.0
+      },
+      "AFTERNOON": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "POWER_HOUR": {
+        "n": 0,
+        "wr": 0.0
+      }
+    },
+    "by_tape_assistance": {
+      "dry": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "normal": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "favorable": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "exceptional": {
+        "n": 0,
+        "wr": 0.0
+      }
+    },
+    "by_archetype": {},
+    "by_grade_score": {
+      "5": {
+        "n": 0,
+        "avg_pnl": 0.0
+      },
+      "4": {
+        "n": 0,
+        "avg_pnl": 0.0
+      },
+      "3": {
+        "n": 0,
+        "avg_pnl": 0.0
+      },
+      "2": {
+        "n": 0,
+        "avg_pnl": 0.0
+      },
+      "1": {
+        "n": 0,
+        "avg_pnl": 0.0
+      },
+      "0": {
+        "n": 0,
+        "avg_pnl": 0.0
+      }
+    },
+    "avg_hold_quality_pct": null,
+    "last_updated": "2026-08-31T16:00:00-04:00"
+  },
+  "bollinger_squeeze": {
+    "n_trades": 15,
+    "n_wins": 5,
+    "hit_rate": 0.3333,
+    "avg_return_pct": 0.0259,
+    "stdev_return_pct": 0.2526,
+    "max_win_pct": 0.49056603773584906,
+    "max_loss_pct": -0.1625,
+    "avg_hold_minutes": 5.4,
+    "n_correct_setups": 0,
+    "n_excellent_grades": 0,
+    "by_iv_regime": {
+      "LOW": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "MID": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "HIGH": {
+        "n": 0,
+        "wr": 0.0
+      }
+    },
+    "by_tod_bucket": {
+      "OPEN_DRIVE": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "MORNING": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "MIDDAY": {
+        "n": 8,
+        "wr": 0.375
+      },
+      "AFTERNOON": {
+        "n": 7,
+        "wr": 0.2857142857142857
+      },
+      "POWER_HOUR": {
+        "n": 0,
+        "wr": 0.0
+      }
+    },
+    "by_tape_assistance": {
+      "dry": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "normal": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "favorable": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "exceptional": {
+        "n": 0,
+        "wr": 0.0
+      }
+    },
+    "by_archetype": {},
+    "by_grade_score": {
+      "5": {
+        "n": 0,
+        "avg_pnl": 0.0
+      },
+      "4": {
+        "n": 0,
+        "avg_pnl": 0.0
+      },
+      "3": {
+        "n": 0,
+        "avg_pnl": 0.0
+      },
+      "2": {
+        "n": 0,
+        "avg_pnl": 0.0
+      },
+      "1": {
+        "n": 0,
+        "avg_pnl": 0.0
+      },
+      "0": {
+        "n": 0,
+        "avg_pnl": 0.0
+      }
+    },
+    "avg_hold_quality_pct": null,
+    "last_updated": "2026-08-31T16:00:00-04:00"
+  },
+  "vix_regime_dayside": {
+    "n_trades": 10,
+    "n_wins": 0,
+    "hit_rate": 0.0,
+    "avg_return_pct": -0.1075,
+    "stdev_return_pct": 0.0307,
+    "max_win_pct": -0.0759493670886076,
+    "max_loss_pct": -0.1476510067114094,
+    "avg_hold_minutes": 2.0,
+    "n_correct_setups": 0,
+    "n_excellent_grades": 0,
+    "by_iv_regime": {
+      "LOW": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "MID": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "HIGH": {
+        "n": 0,
+        "wr": 0.0
+      }
+    },
+    "by_tod_bucket": {
+      "OPEN_DRIVE": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "MORNING": {
+        "n": 10,
+        "wr": 0.0
+      },
+      "MIDDAY": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "AFTERNOON": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "POWER_HOUR": {
+        "n": 0,
+        "wr": 0.0
+      }
+    },
+    "by_tape_assistance": {
+      "dry": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "normal": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "favorable": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "exceptional": {
+        "n": 0,
+        "wr": 0.0
+      }
+    },
+    "by_archetype": {},
+    "by_grade_score": {
+      "5": {
+        "n": 0,
+        "avg_pnl": 0.0
+      },
+      "4": {
+        "n": 0,
+        "avg_pnl": 0.0
+      },
+      "3": {
+        "n": 0,
+        "avg_pnl": 0.0
+      },
+      "2": {
+        "n": 0,
+        "avg_pnl": 0.0
+      },
+      "1": {
+        "n": 0,
+        "avg_pnl": 0.0
+      },
+      "0": {
+        "n": 0,
+        "avg_pnl": 0.0
+      }
+    },
+    "avg_hold_quality_pct": null,
+    "last_updated": "2026-08-31T16:00:00-04:00"
+  },
+  "vwap_continuation": {
+    "n_trades": 7,
+    "n_wins": 0,
+    "hit_rate": 0.0,
+    "avg_return_pct": -0.078,
+    "stdev_return_pct": 0.0209,
+    "max_win_pct": -0.0625,
+    "max_loss_pct": -0.12096774193548387,
+    "avg_hold_minutes": 2.43,
+    "n_correct_setups": 0,
+    "n_excellent_grades": 0,
+    "by_iv_regime": {
+      "LOW": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "MID": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "HIGH": {
+        "n": 0,
+        "wr": 0.0
+      }
+    },
+    "by_tod_bucket": {
+      "OPEN_DRIVE": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "MORNING": {
+        "n": 7,
+        "wr": 0.0
+      },
+      "MIDDAY": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "AFTERNOON": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "POWER_HOUR": {
+        "n": 0,
+        "wr": 0.0
+      }
+    },
+    "by_tape_assistance": {
+      "dry": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "normal": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "favorable": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "exceptional": {
+        "n": 0,
+        "wr": 0.0
+      }
+    },
+    "by_archetype": {},
+    "by_grade_score": {
+      "5": {
+        "n": 0,
+        "avg_pnl": 0.0
+      },
+      "4": {
+        "n": 0,
+        "avg_pnl": 0.0
+      },
+      "3": {
+        "n": 0,
+        "avg_pnl": 0.0
+      },
+      "2": {
+        "n": 0,
+        "avg_pnl": 0.0
+      },
+      "1": {
+        "n": 0,
+        "avg_pnl": 0.0
+      },
+      "0": {
+        "n": 0,
+        "avg_pnl": 0.0
+      }
+    },
+    "avg_hold_quality_pct": null,
+    "last_updated": "2026-08-31T16:00:00-04:00"
+  },
+  "vwap_reclaim_failed_break": {
+    "n_trades": 9,
+    "n_wins": 2,
+    "hit_rate": 0.2222,
+    "avg_return_pct": -0.0925,
+    "stdev_return_pct": 0.0856,
+    "max_win_pct": 0.046875,
+    "max_loss_pct": -0.17391304347826086,
+    "avg_hold_minutes": 6.22,
+    "n_correct_setups": 0,
+    "n_excellent_grades": 0,
+    "by_iv_regime": {
+      "LOW": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "MID": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "HIGH": {
+        "n": 0,
+        "wr": 0.0
+      }
+    },
+    "by_tod_bucket": {
+      "OPEN_DRIVE": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "MORNING": {
+        "n": 9,
+        "wr": 0.2222222222222222
+      },
+      "MIDDAY": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "AFTERNOON": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "POWER_HOUR": {
+        "n": 0,
+        "wr": 0.0
+      }
+    },
+    "by_tape_assistance": {
+      "dry": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "normal": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "favorable": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "exceptional": {
+        "n": 0,
+        "wr": 0.0
+      }
+    },
+    "by_archetype": {},
+    "by_grade_score": {
+      "5": {
+        "n": 0,
+        "avg_pnl": 0.0
+      },
+      "4": {
+        "n": 0,
+        "avg_pnl": 0.0
+      },
+      "3": {
+        "n": 0,
+        "avg_pnl": 0.0
+      },
+      "2": {
+        "n": 0,
+        "avg_pnl": 0.0
+      },
+      "1": {
+        "n": 0,
+        "avg_pnl": 0.0
+      },
+      "0": {
+        "n": 0,
+        "avg_pnl": 0.0
+      }
+    },
+    "avg_hold_quality_pct": null,
+    "last_updated": "2026-08-31T16:00:00-04:00"
+  },
+  "VWAP_RECLAIM_FAILED_BREAK": {
+    "n_trades": 3,
+    "n_wins": 0,
+    "hit_rate": 0.0,
+    "avg_return_pct": -0.0951,
+    "stdev_return_pct": 0.0261,
+    "max_win_pct": -0.07692307692307693,
+    "max_loss_pct": -0.125,
+    "avg_hold_minutes": 8.67,
+    "n_correct_setups": 0,
+    "n_excellent_grades": 0,
+    "by_iv_regime": {
+      "LOW": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "MID": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "HIGH": {
+        "n": 0,
+        "wr": 0.0
+      }
+    },
+    "by_tod_bucket": {
+      "OPEN_DRIVE": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "MORNING": {
+        "n": 3,
+        "wr": 0.0
+      },
+      "MIDDAY": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "AFTERNOON": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "POWER_HOUR": {
+        "n": 0,
+        "wr": 0.0
+      }
+    },
+    "by_tape_assistance": {
+      "dry": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "normal": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "favorable": {
+        "n": 0,
+        "wr": 0.0
+      },
+      "exceptional": {
+        "n": 0,
+        "wr": 0.0
+      }
+    },
+    "by_archetype": {},
+    "by_grade_score": {
+      "5": {
+        "n": 0,
+        "avg_pnl": 0.0
+      },
+      "4": {
+        "n": 0,
+        "avg_pnl": 0.0
+      },
+      "3": {
+        "n": 0,
+        "avg_pnl": 0.0
+      },
+      "2": {
+        "n": 0,
+        "avg_pnl": 0.0
+      },
+      "1": {
+        "n": 0,
+        "avg_pnl": 0.0
+      },
+      "0": {
+        "n": 0,
+        "avg_pnl": 0.0
+      }
+    },
+    "avg_hold_quality_pct": null,
+    "last_updated": "2026-08-31T16:00:00-04:00"
   }
 }

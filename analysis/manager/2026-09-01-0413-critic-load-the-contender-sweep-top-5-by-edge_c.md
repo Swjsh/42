@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=3.722s | action=Load the contender-sweep top-5 by edge_c -->
+<!-- reason: Recent cycle did critique_sweep_representative and critique_gap_and_go; varying target to top-5 sweep ranking avoids the worker_fabrication escalation pattern flagged in queue.md and uses fresh sweep output. Contender sweep has 8835 rows and is the highest-value unranked artifact. -->
+
+The requested file `analysis/recommendations/contender-rank-2026-06-29.json` (or any newer sweep‑rank file in that directory) does not exist in the available context, so I cannot proceed with the analysis.

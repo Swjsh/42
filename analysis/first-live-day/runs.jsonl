@@ -1,1 +1,10 @@
 {"generated_at_et": "2026-09-03 00:32:54 ET", "review_date": "2026-09-02", "verdict": "GREEN", "failing_checks": [], "argv": ["--date", "2026-09-02"], "invoker": "direct"}
+{"generated_at_et": "2026-09-03 03:23:32 ET", "review_date": "2026-09-03", "verdict": "NO_DATA", "failing_checks": ["fleet_kill_switch:NO_DATA", "guards_full:YELLOW"], "argv": [], "invoker": "direct"}
+{"generated_at_et": "2026-09-03 03:23:38 ET", "review_date": "2026-09-02", "verdict": "YELLOW", "failing_checks": ["guards_full:YELLOW"], "argv": ["--date", "2026-09-02"], "invoker": "direct"}
+{"generated_at_et": "2026-09-03 16:30:02 ET", "review_date": "2026-09-03", "verdict": "YELLOW", "failing_checks": ["guards_full:YELLOW"], "argv": [], "invoker": "task"}
+{"generated_at_et": "2026-09-04 16:30:01 ET", "review_date": "2026-09-04", "verdict": "RED", "failing_checks": ["dms_cadence:RED", "dms_verdicts:RED", "eod_flatten_aggressive:YELLOW", "guards_full:YELLOW"], "argv": [], "invoker": "task"}
+{"generated_at_et": "2026-09-05 16:30:01 ET", "review_date": "2026-09-05", "verdict": "RED", "failing_checks": ["dms_cadence:RED", "dms_verdicts:RED", "eod_flatten_aggressive:RED", "fleet_kill_switch:NO_DATA", "guards_full:YELLOW"], "argv": [], "invoker": "task"}
+{"generated_at_et": "2026-09-06 16:30:01 ET", "review_date": "2026-09-06", "verdict": "RED", "failing_checks": ["dms_cadence:RED", "dms_verdicts:RED", "eod_flatten_aggressive:RED", "fleet_kill_switch:NO_DATA", "guards_full:YELLOW"], "argv": [], "invoker": "task"}
+{"generated_at_et": "2026-09-07 16:30:02 ET", "review_date": "2026-09-07", "verdict": "NO_DATA", "failing_checks": ["fleet_kill_switch:NO_DATA", "guards_full:YELLOW"], "argv": [], "invoker": "task"}
+{"generated_at_et": "2026-09-08 16:30:02 ET", "review_date": "2026-09-08", "verdict": "YELLOW", "failing_checks": ["guards_full:YELLOW"], "argv": [], "invoker": "task"}
+{"generated_at_et": "2026-09-10 16:30:01 ET", "review_date": "2026-09-10", "verdict": "YELLOW", "failing_checks": ["eod_flatten_aggressive:YELLOW", "guards_full:YELLOW"], "argv": [], "invoker": "task"}

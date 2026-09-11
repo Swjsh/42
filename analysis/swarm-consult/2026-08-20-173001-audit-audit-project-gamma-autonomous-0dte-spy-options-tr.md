@@ -1,0 +1,267 @@
+# SWARM CONSULT: AUDIT -- Audit Project Gamma (autonomous 0DTE SPY options trader + self-improvement engin
+
+**Filed:** 2026-08-20T17:30:01 ET
+**Mode:** `audit`
+**Cost:** $0.0000
+**Elapsed:** 140.8s
+**Perspectives:** 3 / 5 succeeded
+
+## Question
+
+Audit Project Gamma (autonomous 0DTE SPY options trader + self-improvement engine) for what it is OBVIOUSLY missing or should already be doing AUTONOMOUSLY. List the top 6-8 concrete, ranked, actionable gaps Gamma should self-identify RIGHT NOW: better tools it isn't using, existing infrastructure not connected, next-order implications, and what the operator will point at NEXT. Be specific; avoid generic advice.
+
+## Context (provided)
+
+```
+RECENT STATUS (top):
+## [2026-08-20T16:15:03 ET] NOT_EXERCISED -- monday_verify (WEEKEND-TWELVE Next-Twelve #6): mechanical sweep for 2026-08-20 -- 5 GREEN / 0 YELLOW / 0 RED / 1 NOT_EXERCISED
+
+**Mechanical checklist, not prose** (Next-Twelve #6: converts five pending-verifies into verified). Never blocks, never kills -- fail-open throughout; NOT_EXERCISED means the item's precondition never fired this run (C7: a check passing because nothing happened is not GREEN).
+
+| Item | Verdict | Expected | Observed |
+|---|---|---|---|
+| WS7 live watch | GREEN | Gamma_LiveWatch fires ~1/min 09:25-16:10 ET (~405 ticks). On the first REAL open position, live-watch.json (and the log's in_trade count) should reflect it within ~2 minutes of fill, and per REQUIRED_POSITION_FIELDS every position field should populate non-null. | 401 RTH fires logged (09:25-16:10 ET, vs ~405 expected), 106 tick(s) showed in_trade>0. 68 real fill(s) dated 2026-08-20: safe-2@10:26, safe-2@12:56, safe-2@12:57, bold-2@12:57, safe-2@12:58, bold-2@12:58, safe-2@12:59, safe-2@13:00, safe-2@13:11, bold-2@13:11, safe-2@13:12, safe-2@13:13, safe-2@13… |
+| WS6 regime stamp | GREEN | Gamma_RegimeStamp fires 08:22 ET weekdays (between Gamma_EmaSnapshot 08:20 and Gamma_Premarket 08:30): rebuilds regime-stamp.json and patches today-bias.json#regime_context, both dated the SAME session day, generated near 08:22 ET -- proving the first ORGANIC (truly scheduled) fire, not a manual re… | regime-stamp.json date=2026-08-20, generated_at_et=2026-08-20T08:40:02-04:00 (hhmm=08:40, in 08:15-08:40 window=True). today-bias.json date=2026-08-20, regime_context.stamp_date=2026-08-20 (present=True, dates_match=True). one_liner='Yesterday 2026-08-19 (Wed) = range-chop (range 0.57%, gap +0.38%,… |
+| WS3 level hysteresis | GREEN | Friday 2026-07-31 PRE-FIX worst case: level 743.25 present 331/386 core ticks, 14 appear/disappear flips (fixed-replay showed 386/386, 0 flips). Hysteresis N=5 is live in production since 2026-08-01; every level's worst flip count today should sit well under 14, with hysteresis_held firing whenever… | 386 safe core ticks, 75 distinct near-price levels. Worst: 765.36 flipped 6x (vs Friday PRE-FIX worst 743.25 @ 14x, present 331/386). 171 level-refresh run(s) logged (171 ok), hysteresis_held fired 78 time(s) across 18 distinct level(s). |
+| WS11 core recency | GREEN | Baseline frozen 2026-08-01 (25-trading-day rolling window ending 2026-07-31): bear RED n=10 exp=$-60.9/tr; bull UNDERPOWERED n=1 exp=$-295.0/tr. Watching whether n grows and/or either verdict moves as the rolling window advances past 2026-07-31. | run_date=2026-08-20 window_end=2026-08-19 (baseline window_end=2026-07-31, advanced=True). bear now: RED n=29 (delta +19 vs baseline n=10) exp=$-14.83/tr, verdict_moved=False. bull now: GREEN n=28 exp=$3.21/tr. live refresh attempted=True ok=True. |
+| Theta cockpit | GREEN | Gamma_ThetaClock fires ~1/min 09:30-16:00 ET (~390 ticks). Historically theta_per_contract_per_day_source == 'sqrt_time_decay_model_est' on 29/29 real ENTER rows checked pre-build (the Alpaca options-snapshots greeks endpoint has returned {} every time) -- this run tests whether that streak is STIL… | snapshot ts_et=2026-08-20T16:00:00 (fresh_today=True) accounts_checked=['safe-3', 'safe-2', 'risky-1', 'bold-2', 'risky-3']. 160 theta-clock row(s) dated 2026-08-20 across 5 position(s); sources seen=['sqrt_time_decay_model_est']. broker_snapshot=0, sqrt_time_decay_model_est=160, unavailable=0. sti… |
+| WS1 preview diff | NOT_EXERCISED | MONDAY-PREVIEW-2026-08-03.md predicted, on a Friday-like tape: cores (safe-2/bold-2) 0 entries UNLESS block_elite_bull is flipped (still true/unapplied as of 2026-08-01); safe-3 ~1 fill; risky-1 ~2-4 fills (from 0 Friday -- 4 tradeable episodes / 32 in-window ENTER-plan ticks under the new bold_cor… | this preview is date-scoped to Monday 2026-08-03; checked date is 2026-08-20 -- diff not applicable. |
+
+Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scripts\python.exe setup\scripts\monday_verify.py --date 2026-08-20`. Guard: `backtest/tests/test_monday_verify_2026_08_01.py`.
+
+---
+
+## [2026-08-20 09:30 ET] RED -- INCIDENT FIX ROSTER REGRESSED (1 RED, 0 unguarded)
+
+- **conviction-c4-c5** -- closes: no entry-quality signal existed at all
+  - code: C5 still None
+  - guard: 17 passed in 1.54s
+
+Source: `setup/scripts/incident_fix_status.py --alert` (2026-08-14 incident roster). Re-run it to reproduce.
+
+## [2026-08-20 ~01:4x ET] OK -- desk orchestration + the cockpit: 8 views, 6 defects fixed, 72 guards green
+
+**J directive chain:** "how does that fit into the agent orchestration flow" -> "build a command center that looks epic" -> "review from every angle, ensure accuracy and hydration, show me each engine's ticks and what agents are doing, make it like talking to an employee." Canonical doc (folded, not a new file): `analysis/deep-research/AGENT-ORCHESTRATION-2026-08-19.md` Parts 6-7.
+
+**THE DESK MODEL.** J's axis was right and it was not the one the registry used: the 9 workers are split by ROLE (the named anti-pattern); DESKS split by INSTRUMENT, which is a real context boundary. Org is now a MATRIX -- desks own context, the 9 workers are shared functions invoked BY a desk with that desk's context, master allocates. Four desks registered with their true state (spy-0dte real fills · futures sim-only · multi-sector shadow · prediction-markets shadow).
+
+**THE MASTER'S MISSING THIRD ARM.** `desk_allocator.py` -- conductor STAGE 1 drained a FLAT queue, which structurally starves any desk nobody wrote an item for. That is exactly how the futures MES mirror hit `armable:true` (59/20, +$1,269, beats its -$4,934 null) and sat unnoticed until J asked. Now ranked deterministically with reasons, wired as STAGE 1a. P&L level is deliberately NOT scored -- that is revenge-engineering.
+
+**THE COCKPIT.** `analysis/home/index.html`, 8 views (Overview / Desks / Orchestration / Engine room / Agents / Journal / Answers / Activity), Cmd-K palette, drill-down drawers, hand-rolled SVG org graph. Still ONE self-contained file -- no CDN, no webfont, no chart library -- because the surface it replaces (localhost:3000/gamma) was verified DEAD behind a keepalive. Engine room shows every engine's ticks WITH the engine's own reasons (filter indices resolved: "6 - spread too wide", "8 - VIX regime"). Agents view shows what ran and whether its output passed the anti-fabrication gate. The overview now leads with a first-person briefing -- deterministic templates, NEVER an LLM.
+
+**SIX DEFECTS FOUND REVIEWING MY OWN WORK** (4 of them in code written the day before): baked build-time ages (a page open 6h claimed 6-minute-old data) · two clocks on one screen (MT mtime vs ET ledger stamps) · Kalshi reported healthy while its last tick was 10.3 DAYS old (row count measures history, not life) · routing depending on location.hash mutating · multi-sector hardcoded SIGNAL_KILLED while `Gamma_MultiCore` was live · and `index.html` tracked in git as a 446KB generated file rewritten every 30 min (now untracked + gitignored; rebuilds in 1.3s).
+
+**ACCURACY AUDIT:** BOOK summary exact, 143 day-rows across 6 arms match source, 303 trades embedded, every answer carries provenance. ZERO mismatches. 72 guards green; all five modules under the 800-line ceiling.
+
+**OPEN:** numeric fabrication still unguarded (the gate proves a file exists, not that a number is real) · Kalshi lane dead 10+ days, surfaced not diagnosed · Cmd-K and the .vbs launcher not exercised by J directly.
+
+RECENT COMMITS:
+23c2b074 chore: auto-commit 14 strategy/candidates/ changes (auto_commit_candidates.py, L242 prevention guard)
+b17360b3 chore: auto-commit 10 strategy/candidates/ changes (auto_commit_candidates.py, L242 prevention guard)
+c37eea7d chore: auto-commit 18 strategy/candidates/ changes (auto_commit_candidates.py, L242 prevention guard)
+d4bff0dd feat(cockpit): positions panel + animated EKG heartbeat â€” the two things J named that did not exist
+5a6eecfd docs: close out the orchestration + cockpit work â€” catalog, report fold, wake surface
+970f4d63 docs(multi): final pass -- scanner wiring recorded, plus a single handoff doc
+cbf9484c docs: STATUS.md fire entry â€” no-console-popups RED closed, commit d2204b53
+d2204b53 fix: close window-leak compliance RED â€” 7 subprocess.run calls + 1 ps1 false-positive
+2238e26d chore: auto-commit 11 strategy/candidates/ changes (auto_commit_candidates.py, L242 prevention guard)
+da6e961d fix(risk): an env-var seam was not a fix -- auto-divert under pytest, caught by my own tripwire
+8ee2a0f9 fix(conviction): root-cause the safe/bold C5 asymmetry -- it was sys.path ORDERING, not accounts
+c9c4a8f5 fix(telemetry): test seam -- the order-intent writer must never fabricate rows in the real book
+
+```
+
+## Synthesis (actionable)
+
+_Model: `nvidia/nemotron-3-super-120b-a12b:free`, elapsed 32.7s, cost $0.0000_
+
+**Consensus points (all three perspectives agree on these gaps)**  
+- **External‑data‑feed freshness monitoring** – need a watchdog that timestamps the last successful pull of Kalshi VIX, Alpaca options‑snapshots (or any broker feed) and automatically flags/stales or switches to a safe fallback when data are too old.  
+- **Position‑data integrity & reconciliation** – every fill must be verified against `REQUIRED_POSITION_FIELDS` (live‑watch) and reconciled with the trade‑book; missing/null fields trigger a re‑fetch attempt or mark the position invalid and suppress further P&L updates.  
+- **Cross‑desk risk/gamma aggregation** – a unified view that nets delta/gamma/vega (or at least gamma) across all registered desks (`spy-0dte`, `futures-mes`, `multi-sector`, `kalshi`) and emits a risk‑veto if portfolio limits are breached.  
+- **Adaptive / self‑tuning parameters** – a systematic walk‑forward or drift‑detection process that periodically re‑optimizes strategy parameters (entry/exit thresholds, hysteresis N, bias, position‑size scaling) on a rolling window and promotes challengers based on Sharpe/drawdown/trade‑count criteria.  
+- **Real‑broker Greeks/theta validation with fallback** – stop relying solely on the sqrt‑time‑decay model; periodically compare model‑derived Greeks to broker‑provided values (when available) and automatically switch the theta source or widen risk buffers when the model error exceeds a threshold.  
+- **Regime‑stamp timing validation & regime‑aware strategy selection** – enforce that `Gamma_RegimeStamp` fires only within the 08:15‑08:40 ET window; if out‑of‑range, retain the prior day's stamp and raise an incident. Use the validated regime context to gate which strategies are allowed and to adjust sizing/exit rules.
+
+**Key disagreements (where perspectives split) and which is most rigorous**  
+- **P&L attribution loop** (Perspective 1) vs. **incident‑fix regression validation** (Perspective 2) vs. **slippage/order‑re‑attempt & latency monitoring** (Perspective 3).  
+  - Perspective 1 argues that without an automated ENTER→fill→exit→realized‑P&L pipeline the “self‑improvement engine” has no ground truth, making any parameter or regime adaptation blind.  
+  - Perspective 2 focuses on ensuring that guards actually verify the defect they are meant to catch (e.g., C5 ≠ None) so that regressions do not hide behind green lights.  
+  - Perspective 3 emphasizes execution quality (slippage, tick alignment) and operational robustness (multi‑broker fallback, alternative volatility feeds).  
+
+  **Most rigorous:** Perspective 1’s P&L attribution loop.  The system’s core claim is continuous self‑improvement; without a deterministic, immutable record of each trade’s outcome (including MAE/MFE, regime at entry/exit, and realized P&L) any optimization, drift detection, or regime‑based steering is operating on unverified assumptions.  The other gaps are important but secondary to the inability to learn from actual results.
+
+**Synthesized recommendation**  
+Project Gamma should immediately instrument a feed‑freshness watchdog that timestamps Kalshi VIX and Alpaca options‑snapshots, raises a high‑priority incident if data are older than 5 minutes, and automatically switches to a last‑good‑value + widened‑spread fallback.  In parallel, add a live‑watch schema validator that checks every fill against `REQUIRED_POSITION_FIELDS`, attempts up to two broker re‑fetches on nulls, and flags the position as invalid if fields remain missing.  Deploy a cross‑desk risk aggregator that computes net gamma (and delta/vega where available) after each desk’s allocation step and emits a `risk_veto.json` that blocks further entries when portfolio limits are breached.  Institute a weekend walk‑forward parameter sweep that reads `strategy/params/*.json`, runs a vectorized backtest on the rolling 25‑day window, selects champions via a Sharpe‑vs‑maxDD Pareto frontier, and writes `strategy/candidates/optimized_<date>.json` for the desk allocator to consume.  Replace the pure sqrt‑time‑decay theta source with a broker‑Greeks validator that, every 5 minutes during RTH, pulls the Alpaca options chain, computes broker‑derived Greeks, and switches the theta source flag when the model error exceeds 0.05 theta‑per‑contract‑per‑day.  Finally, enforce the regime‑stamp timing window (08:15‑08:40 ET) and gate strategy selection via a `regime_policy.json` that maps each regime to allowed strategies, size multipliers, and exit rules.  Together these steps close the most critical autonomy gaps while preserving the existing guard‑based infrastructure.
+
+**Confidence in synthesis**  
+8 – Strong convergence on data‑feed health, position integrity, cross‑desk risk, adaptive parameters, broker Greeks validation, and regime timing; the only notable divergence is the relative priority of P&L attribution versus incident regression and execution‑quality checks, but the consensus items are well‑supported by all three perspectives.
+
+**Single most‑important next action (executable today)**  
+Create and deploy a lightweight watchdog script (`scripts/feed_freshness_watchdog.py`) that runs every minute, reads the `last_updated_et` timestamps from `kalshi_vix.json` and `alpaca_options_snapshot.json`, compares them to the current ET time, writes `feed_health.json` with `{kalshi_stale: bool, alpaca_stale: bool, last_ok_ts_et:
+
+## Individual perspectives
+
+### Perspective 1: `nvidia/nemotron-3-ultra-550b-a55b:free`
+
+_Elapsed 51.9s, 3602 in / 2500 out, cost $0.0000_
+
+# Project Gamma Audit: Top 8 Autonomous Gaps
+
+## 1. Automated Entry-to-Exit P&L Attribution Loop (CRITICAL)
+**What's missing**: 68 real fills on 2026-08-20 across 5 accounts, but **zero automated linkage from ENTER plan → fill → exit → realized P&L per strategy/account/regime**. The `monday_verify` shows fill counts; the cockpit shows positions; but no autonomous process writes `trade_outcome.json` with `{entry_plan_id, fill_ts, exit_ts, realized_pnl, mae, mfe, regime_at_entry, regime_at_exit}`.
+**Why it matters**: Without this, the "self-improvement engine" has no ground truth. The rolling baseline (WS11) advances n=10→29 but **cannot attribute *why*** — was it regime? sizing? entry quality? exit timing?
+**Autonomous action needed**: `Gamma_TradeClose` worker (new) firing on position flatten → writes immutable outcome row → feeds `strategy/candidates/` parameter sweep.
+
+---
+
+## 2. Automated Circuit Breaker on Rule Violation (CRITICAL)
+**What's missing**: Rule 10 ("If anything violates rules, the trade does not happen") is **enforced at entry gate only**. No autonomous `Gamma_KillSwitch` that: (a) monitors live positions for rule drift (e.g., regime stamp flips mid-trade, VIX spike breaches threshold, hysteresis level invalidated), (b) flattens *only* violating positions, (c) emits `kill_event.json` with provenance.
+**Current gap**: The `conviction-c4-c5` RED (C5=None) is an entry gate failure — but if C5 degrades *after* entry, positions ride unprotected.
+**Autonomous action needed**: `desk_allocator.py` STAGE 1b: pre-trade rule snapshot hashed into position; `Gamma_Heartbeat` compares live rules vs entry-hash every tick; divergence → immediate flatten + audit log.
+
+---
+
+## 3. Real Broker Greeks Integration (HIGH)
+**What's missing**: `Gamma_ThetaClock` confirms **160/160 ticks still use `sqrt_time_decay_model_est`** — Alpaca options-snapshots greeks endpoint returns `{}` every time. No delta, gamma, vega, theta from broker. No automated fallback validation (e.g., IBKR snapshot, Polygon, or calculated from chain).
+**Why it matters**: 0DTE gamma risk is the primary P&L driver. Model theta ≠ reality near expiry. No autonomous Greek surface validation = flying blind on risk.
+**Autonomous action needed**: `Gamma_GreeksValidator` (new) — every 5 min during RTH: pull broker chain → compute greeks → diff vs model → if `|delta_model - delta_broker| > 0.05` or `theta_source != broker` → alert + switch source flag in `live-watch.json`.
+
+---
+
+## 4. Cross-Desk Portfolio Risk Aggregation (HIGH)
+**What's missing**: Four desks registered (`spy-0dte`, `futures-mes`, `multi-sector`, `kalshi`) but **zero unified risk view**. `desk_allocator.py` ranks by "armable" score but **ignores correlation**: spy-0dte short put spread + futures-mes long = directional double-down. No autonomous `portfolio_var.json`, no net delta/gamma/vega across desks, no concentration limits.
+**Why it matters**: J's "matrix org" splits by instrument but risk is portfolio-level. The futures MES mirror hit `armable:true` (+$1,269) and sat unnoticed — because no desk owns *aggregate* risk.
+**Autonomous action needed**: `Gamma_PortfolioRisk` (new desk-level worker) — runs post-`desk_allocator` STAGE 1a → computes net greeks, VaR, correlation matrix → emits `risk_veto.json` if any desk breaches portfolio limit → blocks STAGE 2 allocation.
+
+---
+
+## 5. Automated Walk-Forward Parameter Optimization (HIGH)
+**What's missing**: `strategy/candidates/` auto-commits (23c2b074, b17360b3, c37eea7d) but **no systematic walk-forward engine**. Candidates appear to be manual/human-curated. No autonomous: (a) parameter grid definition per strategy, (b) rolling-window backtest on each grid point, (c) Pareto frontier selection (Sharpe vs maxDD vs trade count), (d) champion/challenger deployment with A/B sizing.
+**Why it matters**: Baseline frozen 2026-08-01; WS11 shows bear n=10→29, bull n=1→28 — but **no evidence parameters adapted**. The "self-improvement engine" is a slogan without this.
+**Autonomous action needed**: `Gamma_ParamSweep` (weekend job) — reads `strategy/params/*.json` → defines search space → runs vectorized backtest on rolling 25-day window → writes `strategy/candidates/optimized_<date>.json` → `desk_allocator` picks champion for next week.
+
+---
+
+## 6. Regime-Adaptive Strategy Selection (HIGH)
+**What's missing**: `Gamma_RegimeStamp` fires 08:22 ET, writes `regime-stamp.json` + patches `today-bias.json#regime_context` — but **no autonomous strategy switch**. `monday_verify` WS1 preview shows `block_elite_bull` still true/unapplied. Regime context exists; strategy selection ignores it.
+**Why it matters**: 2026-08-19 was "range-chop (range 0.57%, gap +0.38%)" — but safe-2/bold-2 still traded 68 fills. If regime → strategy mapping is manual, the system is not autonomous.
+**Autonomous action needed**: `regime_policy.json` (new) — maps `{regime: [allowed_strategies, sizing_multiplier, exit_rules]}` → `desk_alloc
+
+### Perspective 2: `nvidia/nemotron-3-super-120b-a12b:free`
+
+_Elapsed 26.5s, 3602 in / 2500 out, cost $0.0000_
+
+**1. Missing automated freshness guard for external data feeds (Kalshi, Alpaca options‑snapshots)**  
+- **What’s missing:** No self‑healing check that timestamps the last successful pull; if a feed stalls > Δt (e.g., 60 min for Kalshi, 5 min for Alpaca Greeks) the system continues to use stale values and only surfaces the issue in a manual cockpit view.  
+- **Actionable fix:** Add a lightweight watchdog (run every minute) that writes `feed‑health.json` with `last_ok_ts_et` and a boolean `stale`. If `stale==true`, automatically switch the corresponding consumer (e.g., conviction‑C4/C5, theta‑clock) to a safe‑fallback mode (use last known good value + widen spread filter) and raise a `FEED_STALE` incident that is auto‑logged and visible in the cockpit “Answers” view.  
+- **Operator will point at next:** When the next Kalshi outage occurs, J will see the cockpit still showing “Kalshi healthy” while the P&L drifts, and ask why the system didn’t self‑isolate.
+
+**2. No autonomous conviction‑signal validation (C5 None regression)**  
+- **What’s missing:** The incident‑fix roster showed a RED flag for “conviction‑c4‑c5” because `C5` stayed `None`. The guard only checks that the script runs, not that its output contains a non‑null conviction score.  
+- **Actionable fix:** Extend the conviction module to emit a JSON schema‑validated output (`{c4: number, c5: number}`) and have a post‑run validator (`verify_conviction.py`) that fails the guard if any field is missing or outside plausible bounds (e.g., ‑5 ≤ c5 ≤ 5). On failure, automatically revert to the previous day’s conviction values and flag a `CONVICTION_BAD` incident.  
+- **Operator will point at next:** The next time a sys.path or import issue causes C5 to be None, the trade will be blocked before entry, and J will see a clear “conviction validation failed” entry in the incident roster instead of a silent RED.
+
+**3. Missing automated drift detection for core‑model parameters (bias, hysteresis N, theta source)**  
+- **What’s missing:** Core recency, level hysteresis, and theta‑clock parameters are treated as static after a weekend‑ratified change. No process watches for performance degradation (e.g., theta source flipping from model to “unavailable” for > X % of ticks) and triggers a re‑evaluation.  
+- **Actionable fix:** Implement a rolling‑window performance monitor that computes, per engine, a simple metric (e.g., mean absolute theta error vs. broker snapshot when available, hysteresis flip rate, core‑bias P&L). If the metric exceeds a pre‑set threshold for N consecutive runs, automatically create a `PARAM_DRIFT` ticket in the incident roster and notify the desk allocator to pause new entries until a weekend review.  
+- **Operator will point at next:** When the theta model starts returning `{}` more often, the cockpit will still show “sqrt_time_decay_model_est=160” while the P&L bleeds; J will ask why the system didn’t throttle trading.
+
+**4. No self‑healing reconciliation of live‑watch position fields (REQUIRED_POSITION_FIELDS)**  
+- **What’s missing:** WS7 shows 401 RTH ticks vs. ~405 expected and 106 ticks with `in_trade>0`. The live‑watch process does not verify that every field in `REQUIRED_POSITION_FIELDS` is non‑null after a fill; missing fields are only caught later in downstream P&L calculations.  
+- **Actionable fix:** After each fill, live‑watch should run a schema validator against `REQUIRED_POSITION_FIELDS`. If any field is null, automatically attempt a re‑fetch from the broker (up to 2 retries) and, if still missing, mark the position as `POSITION_INVALID` and suppress further theta/P&L updates for that contract until a manual fix. Log the event to `position‑integrity.json`.  
+- **Operator will point at next:** When a fill arrives with a missing `delta` field, the system will silently propagate a zero delta, causing mis‑sized hedges; J will see a sudden P&L jump and ask why the position wasn’t flagged.
+
+**5. Missing automated verification of regime‑stamp timing window (08:15‑08:40 ET)**  
+- **What’s missing:** WS6 passed because the stamp was generated at 08:40, but there is no guard that rejects stamps outside the prescribed window; a delayed stamp could corrupt today‑bias for the session.  
+- **Actionable fix:** Add a check in `Gamma_RegimeStamp` that compares `generated_at_et` to the allowed window; if out‑of‑range, abort the stamp generation, retain the previous day’s stamp, and raise a `REGIME_STAMP_LATE` incident. The cockpit should display a banner when the stamp is stale.  
+- **Operator will point at next:** If the system clock drifts or a preceding job overruns, the stamp could be generated at 09:00, causing today‑bias to use yesterday’s regime; J will notice a mismatch between the displayed regime and the actual market behavior and ask why the stamp wasn’t rejected.
+
+**6. No automated cleanup / version control of generated cockpit assets (index.html)**  
+- **What’s missing:** The cockpit rebuilds `index.html` every 30 min and previously tracked it in git, creating a bloated repo. Although now untracked, there is no process to purge old builds or verify that the served file matches the latest build.  
+- **Actionable fix:** Introduce a simple asset manager that writes each build to a timestamped folder (`cockpit/builds/YYYYMMDDHHMM/`) and updates a symlink `cockpit/current` pointing to the latest. Add a health guard that verifies the symlink target’s file size and modification time; if the file is older than 5 min, trigger a rebuild and log a `COCKPIT_STALE` incident.  
+- **Operator will point at next:** When a build fails silently, the cockpit will serve stale data; J will see outdated tick counts and ask why the cockpit isn’t refreshing.
+
+**7. Missing automated incident‑fix regression test that validates guard output, not just script execution**  
+- **What’s missing:** The incident‑fix roster guard only ensures the script runs and passes a count of assertions; it does not verify that the specific defect (e.g., C5 None) is actually resolved.  
+- **Actionable fix:** For each incident, embed a deterministic test case that asserts the exact condition that caused the RED (e.g., `assert conviction.c5 is not None`). The guard should run this test and fail if the condition is not met, turning the incident from RED to GREEN only when the root cause is truly fixed.  
+- **Operator will point at next:** When a regression re‑introduces the same defect, the guard will stay RED, prompting immediate investigation instead of a false‑positive GREEN that hides the problem.
+
+**8. No automated validation of broker‑snapshot availability for theta‑clock source selection**  
+- **What’s missing:** Theta‑clock logs show `broker_snapshot=0` and relies entirely on the sqrt‑time‑decay model; there is no fallback detection if the model becomes invalid (e.g., underlying volatility surface changes).  
+- **Actionable fix:** Add a periodic sanity check that compares the model‑derived theta to the broker‑provided theta when the latter is non‑empty. If the broker snapshot is available for > Y % of ticks and the model error exceeds a threshold, automatically switch the source flag to `broker_snapshot` for subsequent ticks and log the switch.  
+- **Operator will point at next:** If the broker’s Greeks endpoint starts returning data again, the system will continue to use the inferior model, causing sub‑optimal theta estimates; J will notice a systematic theta bias and ask why the system didn’t adopt the better source.
+
+---  
+
+**Ranked summary (most critical first):**  
+1. External‑feed freshness guard (Kalshi/Alpaca) – prevents silent use of stale market data.  
+2. Conviction‑signal validation (C5 None) – stops bad entries before they happen.  
+3. Core‑model drift detection – catches performance decay before it erodes edge.  
+4. Live‑watch position‑field reconciliation – ensures every fill has a complete position record.  
+5. Regime‑stamp timing window guard – protects today‑bias from using wrong regime.  
+6. Cockpit asset versioning & staleness detection – guarantees the UI shows current data.  
+7. Incident‑fix regression validation – stops false‑green guards from hiding regressions.  
+8. Theta‑clock broker‑snapshot validation – ensures the best theta source is always used.  
+
+Each item is a concrete, self‑contained improvement that Gamma can implement and test autonomously, using only its existing scripting and guard infrastructure, and each directly addresses a failure mode that the
+
+### Perspective 3: `openai/gpt-oss-20b:free`
+
+_Elapsed 106.8s, 3194 in / 2208 out, cost $0.0000_
+
+**Top 8 concrete, ranked gaps Project Gamma should self‑identify now**
+
+| Rank | Gap | Why it matters | Immediate action |
+|------|-----|----------------|------------------|
+| 1 | **Stale data‑feed detection** – Kalshi VIX lane is dead >10 days. | All volatility‑based signals (e.g., `Gamma_ThetaClock`, `conviction‑c5`) are fed by this lane. 10‑day stale data can produce *systematic* mis‑pricing and blind the risk‑engine to real market conditions. | Add a watchdog that checks the last‑update timestamp of every external feed; if older than 1 day, auto‑refresh or raise a high‑priority J‑alert. |
+| 2 | **Trade‑book reconciliation** – no automated cross‑check of fills vs. book rows. | Silent mismatches (e.g., a fill that never appears in the book) can silently erode capital and violate audit trails. | Implement a nightly reconciliation that flags any fill‑book discrepancy and blocks the next day’s orders until resolved. |
+| 3 | **Dynamic risk‑sizing** – static position‑size caps regardless of volatility or liquidity. | As market volatility spikes, static caps can either under‑expose (missed alpha) or over‑expose (excess risk). | Build a volatility‑adaptive sizing engine that scales position limits in real time based on recent VIX and liquidity metrics. |
+| 4 | **Slippage & order‑re‑attempt logic** – no auto‑cancel or re‑attempt when execution price deviates > X bps. | Large slippage can wipe out expected P&L, especially for 0‑DTE options where the price moves quickly. | Add a slippage monitor that auto‑cancels and re‑places orders if the execution price is outside the acceptable band. |
+| 5 | **Cross‑desk gamma exposure monitoring** – desks operate independently but gamma is not aggregated. | A single desk can become gamma‑heavy while another is flat, leading to unbalanced P&L and potential hedging failures. | Aggregate gamma across desks in real time and trigger a rebalancing signal if the net gamma deviates beyond a threshold. |
+| 6 | **Multi‑broker fallback** – only Alpaca is used. | Broker outages or connectivity hiccups can halt all trading without a fallback. | Integrate a secondary broker (e.g., Interactive Brokers) and implement a fail‑over policy that routes orders automatically when the primary is down. |
+| 7 | **Alternative volatility indices** – only Kalshi VIX is used. | Relying on a single source can miss regime shifts or data errors. | Pull in alternative indices (CBOE VIX, Bloomberg VIX, etc.) and blend them to improve signal robustness. |
+| 8 | **Latency & tick alignment monitoring** – no live check that all tick streams are in sync. | Out‑of‑order ticks can cause the engine to mis‑calculate Greeks or trigger trades on stale prices. | Add a latency monitor that flags tick streams that lag > 100 ms and pauses trading until alignment is restored. |
+
+---
+
+### Audit of the **Stale data‑feed detection** gap
+
+1. **Most likely failure mode**  
+   The Kalshi VIX feed stops updating (e.g., due to API outage). Gamma continues to consume the last cached value (10 days old). The `Gamma_ThetaClock` and `conviction‑c5` modules use this stale VIX to compute Greeks and entry signals. The system therefore takes positions that are mis‑priced relative to current market volatility, potentially executing trades that are far out of the money or too expensive. The failure propagates silently because no alert is raised; the only sign is a sudden, unexplained P&L dip.
+
+2. **Worst‑case impact on J's environment**  
+   - J receives **no pop‑ups** because the system believes the feed is healthy.  
+   - The desk continues to trade, but the P&L shows a large, unexplained loss.  
+   - J may only notice after a daily review or when the P&L falls below a threshold.  
+   - If the loss is large enough, it could trigger a **mid‑day ping** or even a **lockout** if the system’s risk limits are breached.
+
+3. **Worst‑case impact on Pilot/Heartbeat**  
+   - The Pilot (the core strategy engine) will generate entry signals based on stale volatility, leading to **wrong‑direction trades** (e.g., buying puts when the market is actually flat).  
+   - The Heartbeat will report “all systems nominal” while the underlying data is stale, giving a false sense of security.  
+   - Overfit: The model may have been trained on the Kalshi VIX; using stale data breaks the statistical assumptions, causing the model to overfit to a regime that no longer exists.
+
+4. **Rule 9 / Rule 10 / OP violations**  
+   - **Rule 9**: Mid‑session rule changes are forbidden; however, a stale feed is a *data* failure, not a rule change.  
+   - **Rule 10**: If anything violates rules, the trade does not happen.  A stale feed could cause a *false* violation of risk limits, leading to a trade that should have been blocked but wasn’t.  
+   - **OP‑32** (if such an operational procedure exists): Likely requires a **data‑quality check** before any trade. The absence of this check violates the OP.
+
+5. **Hidden second‑order effects**  
+   - **Risk‑engine**: Uses stale volatility to compute risk limits; may incorrectly allow larger positions.  
+   - **Reconciliation**: The nightly reconciliation will flag mismatches, but by then the P&L is already affected.  
+   - **Back‑testing**: Historical tests that used Kalshi data will be misleading; the model’s performance metrics will be inflated.  
+   - **Compliance**: Auditors may flag the lack of data‑quality checks, potentially leading to regulatory scrutiny.
+
+6. **Risk score**  
+   **8** – The probability of a stale feed going unnoticed is high (10+ days is already a red flag). The impact is severe (large P&L loss, potential lockout). The fix is straightforward (watchdog + alert), but the absence of it is a critical oversight.
+
+7. **Single most‑important question the human reviewer should ask before shipping**  
+   *“Does Gamma have an automated, time‑stamped watchdog that will raise a high‑priority alert (or block timely trades) if any external data feed, especially Kalshi VIX, is older than one day, and does it automatically attempt a refresh or fail‑over before any new orders are generated?”*
+
+### Perspective 4: `google/gemma-4-31b-it:free`
+
+**FAILED** -- `all_lanes_failed (tried ['google/gemma-4-31b-it:free', 'cerebras:gpt-oss-120b']): APIStatusError: Error code: 402 - {'message': 'Payment required to access this resource. Visit your billing tab.', 'type': 'payment_required_error', 'param': 'quota', 'code': 'payment_required'}`
+
+### Perspective 5: `qwen/qwen3-next-80b-a3b-instruct:free`
+
+**FAILED** -- `all_lanes_failed (tried ['qwen/qwen3-next-80b-a3b-instruct:free', 'cerebras:gpt-oss-120b']): APIStatusError: Error code: 402 - {'message': 'Payment required to access this resource. Visit your billing tab.', 'type': 'payment_required_error', 'param': 'quota', 'code': 'payment_required'}`

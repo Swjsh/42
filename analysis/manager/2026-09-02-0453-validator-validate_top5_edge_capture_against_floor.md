@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=validator lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=3.323s | action=validate_top5_edge_capture_against_floor -->
+<!-- reason: Last 3 outputs were all critic reviews of ITM-2 variants — need to rotate role. Validator gets the explicit data this time so it doesn't fall back to 'I don't know'. Contender sweep has 8835 rows and is mature; ranking top 5 against the 771 J-edge floor is the highest-value bounded check before any new ideation. -->
+
+I’m unable to access the file `analysis/recommendations/contender-rank-2026-06-29.json` or any other external files. Without the JSON data, I cannot compute the requested values or generate the table. Please provide the contents of the file (or the relevant contender entries) so I can proceed with the calculations.

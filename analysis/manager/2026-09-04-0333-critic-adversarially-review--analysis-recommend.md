@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=1.734s | action=Adversarially review `analysis/recommend -->
+<!-- reason: Overseer-listed action #1 (rank/triage the contender sweep) is the highest-value bounded R&D: 8835-row sweep is producing negative edge_capture values (-717.6 last sample, op16_reject=true), the firm needs a REAL ranked table of the best 5 entries with floor-clearing verdicts, and recent rotation already burned two critic slots on gap_and_go and the ITM-2 trailing candidate -- this targets the systematic top-5 the firm actually needs before any ship call. Per-overseer, an LLM CAN do the read+rank step (it's a file read + table), so no python_tool; coder lane is explicitly retired. -->
+
+SKIP analysis/recommendations/contender-rank-2026-06-29.json

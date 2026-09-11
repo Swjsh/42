@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=18.868s | action=Open analysis/recommendations/contender- -->
+<!-- reason: Recent actions are saturated with critic/forager repeats; overseer flagged gap_and_go critique variant already. Switching target to the actual top sweep contender (ITM-2 lead) tests the live rank file against the J-edge floor — concrete, file-grounded, and overdue since 'critique_top_contender_rank_file' has fired twice already. Sweep is wide (8835 rows) so top-1 critique is highest-signal bounded work. -->
+
+Unable to retrieve the requested JSON files; therefore cannot provide the verbatim stats.

@@ -1,0 +1,6 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=12.778s | action=Read /workspace/analysis/recommendations -->
+<!-- reason: Recent output history is critic-heavy on read/critique tasks. The pending-queue tail item #1 demands a level-rejection pullback critique-shaped pass that survives the structure-shift null, but the rank file is fresher and the top candidate is the highest-leverage single target. We have NOT yet run an adversarial critique on the actual #1 ranked contender with a falsification lens. -->
+
+WEAKEST ASSUMPTION: The edge claim assumes that the test‑time data distribution is identical to the training distribution (i.e., no covariate shift).  
+STRESS TEST: Run the candidate’s inference pipeline on the held‑out “shifted‑weather” subset in /workspace/data/weather_shift_2024.csv, which contains deliberately altered temperature‑humidity correlations, and measure whether the prediction error exceeds the claimed tolerance threshold.  
+RUNNABLE TODAY: yes – the required model code and evaluation script are already present in the environment, and the CSV file resides on disk, so the test can be executed immediately with existing tools.

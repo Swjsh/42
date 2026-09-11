@@ -1,0 +1,7 @@
+<!-- gamma_manager (FREE) | role=forager lane=google_aistudio::gemini-flash-lite-latest elapsed=1.397s | action=Read `analysis/recommendations/edgehunt- -->
+<!-- reason: Last 6 cycles were 4× critic + 1× validator + 1× strategist on the NLWB variant — heavy rotation through adversarial review without harvesting external evidence. Forager hasn't fired in this stretch. The gap_and_go and vwap_continuation edges are the two highest-stakes claims on the board (gap_and_go scorecard is already queued for critique per overseer plan item #4, but before a critic tears them apart, forager should surface whether free public data can independently falsify them — if a CBOE/Polygon free-tier pull can settle the debate, we save the critique budget; if not, that tells the critic exactly which assumption is the load-bearing one). Concrete, bounded, no hallucination risk because the prompt restricts to quoting what's in the file plus named well-known endpoints. -->
+
+| edge | N | OOS window | WF eff | sensitivity knob | free validation source URL | confidence it can actually test the claim (HIGH/MED/LOW) |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **gap_and_go** | 412 trades | 2024-01-01 to 2026-06-30 | 0.82 | Gap threshold ($0.50), Opening range duration (5m) | finance.yahoo.com (Historical daily prices for gap calculation) | MED |
+| **vwap_continuation** | 684 trades | 2023-06-01 to 2026-06-30 | 0.74 | VWAP deviation band (0.5%), Volume multiplier (1.5x) | polygon.io (Free tier for intraday minute aggregations and VWAP) | HIGH |

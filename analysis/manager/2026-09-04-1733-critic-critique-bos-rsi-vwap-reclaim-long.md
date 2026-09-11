@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=3.947s | action=critique-bos-rsi-vwap-reclaim-long -->
+<!-- reason: Last two actions were both critic on different targets; this is the freshest chef candidate from today's kitchen output and the BOS-rsi-vwap-reclaim family has not been adversarially reviewed yet. Avoided repeating gap_and_go (done) and exit-shape (done). -->
+
+I’m unable to access the contents of the file `2026-09-04-chef-nemo-bos-rsi-vwap-reclaim-long.md`, so I cannot evaluate its assumptions, conduct a stress‑test, or render a SHIP/SHIP‑WITH‑GUARDS/REJECT verdict. Please provide the file text or a summary for review.

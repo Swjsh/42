@@ -1,0 +1,5 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=8.365s | action=critique-newest-candidate-maxpain-magnet-reversion -->
+<!-- reason: Newest candidate in the kitchen queue (0 min old) and we just burned three critic slots on autopsy + edgehunt variants -- pivot to the freshest live candidate and apply the lag-strictness rule that killed the 2-bar-delay candidate yesterday. Maxpain reversion is a distinct family from VWAP/VIX plays we've been chewing on, so this is genuine rotation not repetition. -->
+
+FAIL  
+Fix: Adjust the entry logic to execute on the close of the second bar after the signal (T+2) and verify that the out‑of‑sample period does not overlap the in‑sample fitting window (e.g., shift the OOS start date to be strictly after the IS end date).

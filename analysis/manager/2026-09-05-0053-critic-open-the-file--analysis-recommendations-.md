@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=38.072s | action=Open the file `analysis/recommendations/ -->
+<!-- reason: Per overseer: rotate off recent critic verbs (exit-shape-dominance, gap_and_go, bos-rsi-vwap, 2026-09-04 autopsy, ITM-2 sweep label). This critic targets a SPECIFIC named candidate + SPECIFIC frozen result file with specific questions -- the exact concrete-narrow format the overseer demands, and addresses a 7-week-stale prereg the STATUS log flagged as 'control_floor_collision'. No hallucination risk: input files exist and are cited verbatim. -->
+
+Critique of bold-strike-axis prereg

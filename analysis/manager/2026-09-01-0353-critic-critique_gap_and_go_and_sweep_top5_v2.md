@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=4.677s | action=critique_gap_and_go_and_sweep_top5_v2 -->
+<!-- reason: Yesterday's fire closed the bearish_fill_bar gate revalidation but left the contender sweep (8835 rows) uncritiqued. The overseer's most recent escalation specifically called out a fabrication on gap_and_go critique (seen 3x) — re-grounding this on the actual file content (not a hallucinated config) is the cheapest way to retire that escalation and unblock the next sweep decision. Picking critic again because the prior critic action was the sweep-representative pass; this one targets a NAMED file with a specific falsification lens. -->
+
+SKIP: analysis/recommendations/edgehunt-gap_and_go.json, analysis/recommendations/contender-rank-2026-06-29.json

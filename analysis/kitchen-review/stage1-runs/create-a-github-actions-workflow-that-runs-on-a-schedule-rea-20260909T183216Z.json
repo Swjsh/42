@@ -1,0 +1,19 @@
+{
+  "generated_at": "2026-09-09T18:32:16+00:00",
+  "slug": "create-a-github-actions-workflow-that-runs-on-a-schedule-rea",
+  "task_id": "6e973a40-e4a4-46fc-bf43-891ae497ccfd",
+  "combo": {},
+  "engine": "backtest.autoresearch.overnight_grinder.evaluate_combo",
+  "engine_note": "MECHANISM EVIDENCE ONLY -- BS-synthetic option pricing over historical SPY/VIX bars (backtest.autoresearch.overnight_grinder.evaluate_combo -> lib.pricing.black_scholes). NOT real-fills evidence. Per memory project_free_kitchen_plan_b_hardened.md.",
+  "elapsed_s": 36.24,
+  "command": "backtest/.venv/Scripts/python.exe setup/scripts/kitchen_stage1_runner.py --combo-json '{}' --slug create-a-github-actions-workflow-that-runs-on-a-schedule-rea",
+  "result": {
+    "combo": {},
+    "error": "MemoryError((1, 25901), dtype('int64'))",
+    "trace": "Traceback (most recent call last):\n  File \"C:\\Users\\jackw\\Desktop\\42\\backtest\\autoresearch\\overnight_grinder.py\", line 193, in evaluate_combo\n    _, m = _runner.run_with_params(params, d, d, spy_j, vix_j)\n           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\jackw\\Desktop\\42\\backtest\\autoresearch\\runner.py\", line 287, in run_with_params\n    result = run_backtest(spy_df, vix_df, **kwargs)\n  File \"C:\\Users\\jackw\\Desktop\\42\\backtest\\lib\\orchestrator.py\", line 824, in run_backtest\n    spy_df = spy_df_full.loc[rth_mask].reset_index(drop=True)\n  File \"C:\\Users\\jackw\\Desktop\\42\\backtest\\.venv\\Lib\\site-packages\\pandas\\core\\frame.py\", line 6439, in reset_index\n    new_obj = self.copy(deep=None)\n  File \"C:\\Users\\jackw\\Desktop\\42\\backtest\\.venv\\Lib\\site-packages\\pandas\\core\\generic.py\", line 6833, in copy\n    data = self._mgr.copy(deep=deep)\n  File \"C:\\Users\\jackw\\Desktop\\42\\backtest\\.venv\\Lib\\site-packages\\pandas\\core\\internals\\managers.py\", line 612, in copy\n    res = self.apply(\"copy\", deep=deep)\n  File \"C:\\Users\\jackw\\Desktop\\42\\backtest\\.venv\\Lib\\site-packages\\pandas\\core\\internals\\managers.py\", line 363, in apply\n    applied = getattr(b, f)(**kwargs)\n  File \"C:\\Users\\jackw\\Desktop\\42\\backtest\\.venv\\Lib\\site-packages\\pandas\\core\\internals\\blocks.py\", line 822, in copy\n    values = values.copy()\nnumpy._core._exceptions._ArrayMemoryError: Unable to allocate 202. KiB for an array with shape (1, 25901) and data type int64\n",
+    "passed_floors": false,
+    "regressions": [
+      "execution_error"
+    ]
+  }
+}

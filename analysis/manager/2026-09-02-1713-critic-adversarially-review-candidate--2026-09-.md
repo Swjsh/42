@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=9.204s | action=Adversarially review candidate `2026-09- -->
+<!-- reason: Three consecutive critic calls in a row — overseer-correctable if I repeat, but a NEW target (overnight grinder) breaks the verb-streak on the same candidate family (vwap_ribbon_pullback). Overnight/overnight-grinder is also the family most exposed to the futures-broker ENTER_REFUSED pathology flagged RED this morning, so a stress-test is genuinely load-bearing. -->
+
+WEAKEST: The strategy assumes overnight slippage and market impact are negligible and constant across all market regimes.; STRESS: slippage_bps=0-5, window=2024-06-01 to 2024-08-31; VERDICT: REJECT

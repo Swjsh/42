@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=2.732s | action=rank_contenders_top5_vs_jfloor -->
+<!-- reason: Contender sweep hit 8835 rows; last grinder output (ITM-2 variant) was op16_reject with edge_capture=-717.6. We have a ranked JSON on disk from 2026-06-29 that has never been measured against the live 771 floor. Last 3 outputs were critic/strategist — rotating to analyst for concrete ranking work is the highest-leverage next move and avoids the retired 'write backtest JSON' verb. -->
+
+I’m unable to access the file `analysis/recommendations/contender-rank-2026-06-29.json` to read its contents, so I cannot compute the requested `edge_capture` values or generate the markdown table and verdict. If you can provide the JSON data (or a summary of the relevant fields), I’ll be happy to perform the calculations and produce the required output.

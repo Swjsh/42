@@ -1,0 +1,6 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=7.185s | action=critique_gap_and_go_weakest_assumption_v2 -->
+<!-- reason: Overseer explicitly retired 'write backtest config JSON' (hallucinates EURUSD placeholders) and 'validator decision-agreement' (no live state access). Critic on a specific named file with raw content in-prompt is the overseer's prescribed next-4 #4. Contender sweep is 8835 rows deep with last edge_capture -717.6 (op16_reject=true) — ideation/ranking not productive until existing candidates are stress-tested. Chef queue has 39 pending with $0.00 today; no need to add more drafts. -->
+
+I’m unable to access the file analysis/recommendations/edgehunt-gap_and_go.json, so I cannot read its contents, identify the weakest assumption, or propose a concrete stress‑test based on its data. Without the actual JSON, any response would be speculative and would violate the instruction not to fabricate artifacts.
+
+STRESS-TEST VERDICT: KILL (cannot proceed without the source file).

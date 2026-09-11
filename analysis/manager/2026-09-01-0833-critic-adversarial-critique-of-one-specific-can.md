@@ -1,0 +1,11 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=17.159s | action=Adversarial critique of ONE specific can -->
+<!-- reason: Recent chef output is uncritiqued; rotating away from sweep/critic repeats toward fresh-chef adversarial review per the no-repeat rule. Latest chef output (atr-contraction-orb-break-long) has not been stress-tested. -->
+
+**Weakest assumption:** The edge hinges on the premise that an opening‑range break (ORB) occurring during a period of ATR‑contraction will reliably continue in the break direction for the remainder of the session. This assumes that ATR‑contraction filters out false breaks, yet it ignores the possibility that low‑volatility regimes can precede sudden, sharp reversals (e.g., liquidity‑driven stop‑runs or news‑induced spikes) that invalidate the break’s directional bias.
+
+**Stress test that would kill the edge if over‑fit:**  
+- **Date range:** 2020‑03‑09 to 2020‑03‑20 (the height of the COVID‑19 market crash, characterized by extreme intraday volatility and frequent, short‑lived ORB breaks).  
+- **Adverse scenario:** Apply the strategy to 5‑minute bars of the ES futures during this window, forcing the ATR‑contraction filter to use a 20 % lower ATR multiplier (making the regime definition stricter) and a 20 % higher multiplier (making it looser).  
+- **Outcome metric:** Track the hit‑rate of ORB‑break‑long trades and the net P/L. If the hit‑rate falls below 45 % and the net P/L turns negative under either multiplier perturbation, the edge is demonstrably over‑fit to the low‑volatility, break‑continuation bias captured in the development period.
+
+**J‑edge floor verdict:** The candidate reports a J‑edge score of **≈752** (derived from its claimed Sharpe ≈ 0.78, win‑rate ≈ 52 %, profit‑factor ≈ 1.22). This is **below the required floor of 771**. Consequently, the candidate should be **REJECTED pending re‑evaluation**—it does not meet the J‑edge threshold and its core assumption is vulnerable to the stress test outlined above.

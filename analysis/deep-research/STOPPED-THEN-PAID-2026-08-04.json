@@ -1,0 +1,127 @@
+{
+ "_doc": "The deferred H-2026-08-0{4,8,16,21,29}-stop-noise study, finally run. J's question (verbatim, asked twice, unanswered until this file): 'the trades were labeled as stopped out and then paid... Did that get the full audit and backtest? I wanted us to get into those same trades and then fine tune them into the point that we actually stayed in them and then profited. Did that occur?' Answer: it did not occur before this study; it is run here, on the real production exit core, sequentially, with a same-methodology cross-check against the losing day this repo already audited five times.",
+ "generated_at": "2026-08-06T13:59:00-04:00",
+ "author": "Claude (Sonnet), read-only research fire, market open 2026-08-06 -- no trading-path file modified",
+ "sources": {
+  "cohort_definition": "analysis/autopsies/2026-08-04.md (trade_autopsy.py, H-2026-08-04-stop-noise hypothesis)",
+  "broker_fills": "re-pulled live this session via automation/state/fleet/fleet_broker.load_creds() + GET /v2/orders, all 5 arms, 2026-08-04 -- backtest/tools/_pull_08_04_broker_fills.py (read-only, GET-only)",
+  "trigger_levels": "cross-verified against 3 independent arms' own decisions.jsonl rows (risky-1, risky-3, safe-3) -- byte-identical trigger_level per shared signal",
+  "exit_core": "automation/state/fleet/exit_manager.py#plan_exit_actions via backtest/lib/exit_manager_walk.walk_exit_manager (NEVER simulator_real.simulate_trade_real)",
+  "options_data": "real 1-min OPRA, Alpaca REST, disk-cached backtest/data/highres/ (NOT 5-min -- OPTION-BAR-RESOLUTION-BIAS-2026-08-02 disclosure)",
+  "population_check": "backtest/tools/stop_width_fullhist_sweep.py re-run this session with one added cell (-30%) via backtest/tools/_pop_sweep_with_30.py (does not edit the original file; monkeypatches its STOP_WIDTHS list at runtime) -- 391-day/191-trade ribbon_ride population, 2025-01-02 to 2026-07-22, reproduces the frozen baseline exactly at -20%",
+  "08_05_cross_check_citation": "analysis/deep-research/EOD-2026-08-05-FULL-REVIEW.md + EOD-2026-08-05-STOPS.md (already-adversarially-reviewed; the 776C wave itself is INDEPENDENTLY RE-DERIVED here via the same walk_exit_manager harness used for 08-04, closing LENS 1's own self-flagged gap: 'the headline joint grid has no generating code in any committed tool')",
+  "new_tools_written": [
+   "backtest/tools/stopped_then_paid_2026_08_04.py (the main sequential replay harness)",
+   "backtest/tools/_pull_08_04_broker_fills.py (read-only broker order puller)",
+   "backtest/tools/_pop_sweep_with_30.py (thin wrapper, adds one cell to the existing population sweep without editing it)"
+  ]
+ },
+ "reconciliation": {
+  "method": "the 'live' grid cell is read DIRECTLY from real broker fills (not re-walked) -- a cell that changes nothing from history must reconcile to zero delta by construction, not by approximation. An earlier draft re-walked 'live' through the harness and found point-sampled 1-min bars (bar OPEN, not a continuous NBBO feed) do not always land on the exact historical stop-touch minute, which spuriously suppressed a real re-entry (risky-3's 763C 3rd entry) even at unchanged shape -- caught before reporting, fixed by reading real fills for width=None.",
+  "2026-08-04": {"n_legs": 15, "max_abs_delta_usd": 0.0, "sum_actual": -1111.0, "sum_harness": -1111.0, "whole_day_all_5_arms_reproduced": 3624.0, "whole_day_known_truth": 3624.0},
+  "2026-08-05": {"n_legs": 10, "max_abs_delta_usd": 0.0, "sum_actual": -1279.0, "sum_harness": -1279.0}
+ },
+ "cohort_2026_08_04": {
+  "n_legs": 15,
+  "actual_pnl_sum": -1111.0,
+  "families": {
+   "vwap_continuation": {"n_legs": 5, "actual_pnl_sum": -443.0, "contracts": ["C00762000 (risky-1, risky-3)", "C00763000 (risky-3 x2)", "C00765000 (risky-3)"], "stop_mode": "premium (trigger_level always None for this setup, on every arm regardless of exit_patch)", "live_stop": -0.06},
+   "ribbon_ride_bullish_reclaim": {"n_legs": 10, "actual_pnl_sum": -668.0, "contracts": ["C00768000 (bold-2,safe-3,risky-1,risky-3)", "C00769000 gen1 (bold-2,safe-3,risky-1,risky-3)", "C00772000 (safe-3,safe-2)"], "stop_mode": "structure (trigger_level populated, structure_stop_enabled=True globally, verified in params.json + aggressive/params.json)", "live_catastrophe_cap": -0.50}
+  }
+ },
+ "core_grid_2026_08_04": {
+  "note": "ALL 5 arms' ENTIRE real 2026-08-04 entry sequence walked sequentially per arm (not just the 15 cohort legs) -- suppression of a later real entry can only be judged correctly against the arm's whole day. all_legs is the primary, non-outcome-conditioned statistic; cohort_legs_only is a SECONDARY, explicitly outcome-conditioned figure (the 15 legs were selected BECAUSE they lost -- reading it alone repeats the exact winners-only-conditioning error EOD-2026-08-04-WINNERS.md already named and corrected, applied here to the losers side).",
+  "cells": [
+   {"label": "live", "all_legs": 3624.00, "cohort_legs_only": -1111.00, "n_suppressed": 0},
+   {"label": "-10%", "all_legs": 4648.50, "cohort_legs_only": 983.90, "n_suppressed": 8},
+   {"label": "-12%", "all_legs": 4542.68, "cohort_legs_only": 878.08, "n_suppressed": 8},
+   {"label": "-15%", "all_legs": 5151.35, "cohort_legs_only": 2112.25, "n_suppressed": 11},
+   {"label": "-20%", "all_legs": 5135.80, "cohort_legs_only": 2096.70, "n_suppressed": 11},
+   {"label": "-25%", "all_legs": 5135.80, "cohort_legs_only": 2096.70, "n_suppressed": 11},
+   {"label": "-30%", "all_legs": 5135.80, "cohort_legs_only": 2096.70, "n_suppressed": 11},
+   {"label": "-50% catastrophe-only", "all_legs": 5135.80, "cohort_legs_only": 2096.70, "n_suppressed": 11}
+  ],
+  "decomposition_by_family": {
+   "note": "the all_legs improvement is driven almost entirely by vwap_continuation; ribbon_ride is flat-to-slightly-negative under ANY width change tested, once winners are included (not cohort-only).",
+   "vwap_continuation": [
+    {"label": "live", "family_total": 721.00, "cohort_only": -443.00},
+    {"label": "-10%", "family_total": 1910.00, "cohort_only": 1284.50},
+    {"label": "-15% (plateau begins)", "family_total": 2450.70, "cohort_only": 2450.70}
+   ],
+   "ribbon_ride": [
+    {"label": "live", "family_total": 2903.00, "cohort_only": -668.00, "winners_only": 3571.00},
+    {"label": "-10%", "family_total": 2738.50, "cohort_only": -300.60, "winners_only": 3039.10},
+    {"label": "-20% (plateau)", "family_total": 2685.10, "cohort_only": -354.00, "winners_only": 3039.10}
+   ]
+  },
+  "the_decisive_mechanism": {
+   "leg": "risky-3, SPY260804C00763000, entry #1 09:50:09 @1.46 (the FIRST of the 3-entry sub-wave; real outcome -$40, stopped 09:52)",
+   "live": "stopped at 09:52 (-$40); arm goes flat; re-enters 09:54 (-$144, stopped); re-enters 09:57 (+$524, rides via TP1+trail to 10:23) -- the 3rd entry is the real winner",
+   "at_-10%_and_wider": "entry #1 itself is NEVER stopped -- it rides through the SAME move that entry #3 caught in reality, exiting via runner_stop @2.35 at 10:23 for +$528.80, essentially matching the real 3rd entry's outcome WITHOUT the two intervening stop-outs. Entries #2 and #3 are correctly SUPPRESSED (the arm never goes flat) -- the real +$524 winner does not vanish, its economic outcome is captured instead by entry #1 riding the same move.",
+   "second_layer": "at -15% and wider, an EARLIER position (risky-3's 09:46:09 C00762000 entry, -$104 live) ALSO stops surviving -- it rides the entire morning trend to +$670.00 via runner_stop at 10:25, which now suppresses the ENTIRE 763C sub-sequence (all 3 entries, including the would-be winner) AND the 765C re-entry. This is why -15% through -50% are numerically IDENTICAL: once the stop is wide enough that the FIRST touch of the trend survives to the runner, widening further changes nothing (the % stop is no longer the binding constraint -- the runner/trail mechanism is).",
+   "interpretation": "this is the task's own predicted 'sequential caveat' mechanism, confirmed exactly, PLUS a layer the task did not anticipate: on a trend day, a wide-enough stop does not just avoid losing the winner to suppression -- it makes the FIRST entry of a re-entry cascade become the winner, at equal or better economics, because Rule-4 one-position gating means only ONE vehicle is needed to capture one continuous move."
+  }
+ },
+ "cross_check_2026_08_05_776C": {
+  "note": "IDENTICAL harness, IDENTICAL widths, the direct vwap_continuation analog of 08-04's cohort (risky-1 + risky-3, C00776000). Independently re-derived from real broker fills + real 1-min OPRA -- NOT copied from the prior LENS 1/5 hand-rolled simulate() studies, which did not call plan_exit_actions and had no TP1/runner mechanics at all (LENS 1's own adversarial review flagged 'the headline joint grid has no generating code in any committed tool -- a clean clone cannot regenerate it').",
+  "cells": [
+   {"label": "live", "all_legs": -1279.00, "n_suppressed": 0},
+   {"label": "-10%", "all_legs": -877.20, "n_suppressed": 4},
+   {"label": "-12%", "all_legs": -1046.16, "n_suppressed": 4},
+   {"label": "-15%", "all_legs": -902.40, "n_suppressed": 6},
+   {"label": "-20% (best cell)", "all_legs": -613.00, "n_suppressed": 8},
+   {"label": "-25%", "all_legs": -766.25, "n_suppressed": 8},
+   {"label": "-30%", "all_legs": -919.50, "n_suppressed": 8},
+   {"label": "-50% catastrophe-only (worst cell)", "all_legs": -1532.50, "n_suppressed": 8}
+  ],
+  "never_profitable": "at NO tested width does the 776C wave cross into profit. Best case (-20%) is still a -$613.00 loss -- a real, mechanistically-explained improvement over live (-$1,279.00) but never a win.",
+  "mechanism_at_the_best_cell": "at -20%, entry #1 (09:58 @2.37) rides 22 minutes to 10:20 before finally stopping at 1.90 (-$237 for risky-1's 5 lots) -- this SUPPRESSES all 4 subsequent same-day re-entries (which in reality bled -$400/-$658 combined for risky-1/risky-3). The improvement is a suppression effect (fewer additions to a genuinely dying contract), identical in KIND to 08-04's mechanism -- but 776C never recovers (post-10:20 high $2.00, six cents under the cheapest of the 5 real entries $2.06; settled $0.01), so the SINGLE surviving position still loses money -- it just loses less than 5 separate entries would have. Widening further (-25% to -50%) makes the single surviving position's OWN loss grow faster than the suppression benefit, and by -50% it is worse than live.",
+  "correction_to_prior_lens1_headline": "LENS 1's EOD-2026-08-05-STOPS.md prose stated 'a wider stop does not save these trades, it loses more, in every cell' -- already flagged as an overstatement by that document's own adversarial review ('monotonicity holds at cap1 only'). This independent re-derivation, using the real production exit core with TP1/runner mechanics LENS 1's hand-rolled model did not have, confirms the underlying shape is genuinely non-monotonic (a real minimum near -20%, not a pricing-noise knife-edge) -- but the SUBSTANTIVE verdict LENS 1 reached (do not widen; it does not turn the day around) is UPHELD and sharpened, not overturned: no cell is ever profitable."
+ },
+ "population_cross_check_391_day": {
+  "note": "backtest/tools/stop_width_fullhist_sweep.py, ribbon_ride family, 2025-01-02 to 2026-07-22, 191 trades / 141 days. Re-run this session with an added -30% cell. IMPORTANT SCOPING DISCLOSURE: this population sweep varies premium_stop_pct ONLY -- it does NOT vary catastrophe_stop_pct, so it is a valid large-N cross-check for the vwap_continuation-style PREMIUM-stop axis (124 of 191 trades resolve premium mode) but provides ZERO evidence on the ribbon_ride CATASTROPHE-cap axis this study also tested on 08-04's ribbon legs (the 67 structure-mode trades in this population sit at a constant -50% catastrophe cap across every cell in this sweep, by construction of the existing tool). That gap is disclosed, not filled -- see verdict.",
+  "cells": [
+   {"stop": "-6% (near-vwap-live)", "total": 8036, "trend_like": 3466, "chop_like": 4504, "gap_fade_n30": -120.1, "gap_go_n37": 2870.6, "win_rate": 0.246},
+   {"stop": "-10%", "total": 6948, "trend_like": 3423, "chop_like": 3459, "gap_fade_n30": -367.2, "gap_go_n37": 3082.2, "win_rate": 0.257},
+   {"stop": "-12%", "total": 6107, "trend_like": 3201, "chop_like": 2840, "gap_fade_n30": -423.1, "gap_go_n37": 2965.7, "win_rate": 0.262},
+   {"stop": "-15%", "total": 6153, "trend_like": 4001, "chop_like": 2087, "gap_fade_n30": -596.1, "gap_go_n37": 2790.8, "win_rate": 0.283},
+   {"stop": "-20% (live ribbon_ride premium fallback)", "total": 4809, "trend_like": 3903, "chop_like": 840, "gap_fade_n30": -884.4, "gap_go_n37": 2911.1, "win_rate": 0.293},
+   {"stop": "-25%", "total": 4060, "trend_like": 3444, "chop_like": 550, "gap_fade_n30": -1172.6, "gap_go_n37": 2670.3, "win_rate": 0.304},
+   {"stop": "-30% (NEW this session)", "total": 4521, "trend_like": 4012, "chop_like": 443, "gap_fade_n30": -1460.8, "gap_go_n37": 2777.7, "win_rate": 0.325},
+   {"stop": "-50%", "total": 2176, "trend_like": 4534, "chop_like": -2423, "gap_fade_n30": -2703.8, "gap_go_n37": 3686.0, "win_rate": 0.356}
+  ],
+  "gap_fade_axis_is_the_load_bearing_one": "08-05 classified gap-fade (session high in the first minute, closed on the low). On this population's own gap-fade cohort (n=30), EVERY tested width from -6% to -50% is monotonically worse than the last as you widen: -120 -> -367 -> -423 -> -596 -> -884 -> -1,173 -> -1,461 -> -2,704. The new -30% cell (-1,461) sits exactly where a monotonic interpolation between -25% (-1,173) and -50% (-2,704) would put it -- no discontinuity, no exception. This is the strongest single piece of evidence against widening on 08-05's archetype, and it holds on a population 30x larger than the 776C wave alone.",
+  "trend_go_axis": "on gap-go (08-04's own archetype, n=37), the population is NOT monotonic -- -6% 2871 -> -10% 3082 (better) -> -12% 2966 -> -15% 2791 -> -20% 2911 -> -25% 2670 -> -30% 2778 -> -50% 3686 (best of all, but riding on a wide MC-uncertain tail per the archetype's own small-n character). Directionally consistent with 08-04's own cohort finding (wider does not hurt trend days, and can help) but noisier and non-monotonic even in-sample -- read as corroborating, not as a precise magnitude match."
+ },
+ "graveyard_check": {
+  "hold_to_time_stop_trail_only_no_tp1": {
+   "status": "CONFIRMED DEAD, book-wide, at -$451.50 over n=21 winners (git show HEAD:analysis/winner-autopsies/all.md)",
+   "distinction_from_this_study": "hold_to_time DISABLES TP1 entirely (tp1_premium_pct=999.0) and drops the stop to -95% (COUNTERFACTUALS dict, setup/scripts/trade_autopsy.py) -- it is 'no risk management except a near-total wipeout cap,' not 'a somewhat wider stop.' This study's CORE GRID never touches TP1/profit-lock/trail at any cell -- only the stop axis moves, and even the widest tested cell (-50% catastrophe-only) still runs full TP1 + trailing-runner management. Not the same lever, not the same population (this study's core grid is NOT winners-conditioned -- it reports all_legs, the full touched population, explicitly to avoid the winners-only trap the graveyard entry's ORIGINAL headline number fell into before its 2026-08-04 fix).",
+   "verdict": "this study's finding is NOT the graveyard entry wearing a new name -- it is a narrower, TP1-preserving, all-legs-scored variant that happens to rhyme with the same underlying intuition. It still fails the SAME cross-day test the graveyard entry would fail (see 08-05 cross-check) -- which is why the overall verdict is still a kill, on independent evidence, not a revival."
+  },
+  "pre_tp1_profit_lock_arm_scope_full": {
+   "status": "CONFIRMED DEAD, 5th time, cell E1 of exit-armscope-tp1-ab-2026-07-28.json: G1 aggregate -$482.10, G4 runner cohort -$7,758.85 (22 worse / 0 better), n=190 real OPRA",
+   "relevance": "a DIFFERENT axis entirely (when the trailing lock ARMS, not how wide the stop is) -- not retested here, cited only to confirm this study does not silently re-derive it under a new name. It does not."
+  }
+ },
+ "reconciliation_of_the_apparent_contradiction": {
+  "autopsy_claim": "H-2026-08-04-stop-noise: 'the live stop exits losers that then pay the thesis -- the stop is harvesting winners, not cutting losers' (16/16 fraction, later corrected to 15/15 on re-derivation)",
+  "08_05_audit_claim": "'the stop is not the problem... the five stop-outs were the only thing limiting the damage' (EOD-2026-08-05-STOPS.md)",
+  "both_are_true_because": "the 'stopped_then_paid' TAG (trade_autopsy.py#classify_position) requires only that the contract's HIGH at ANY point after the stop-out reaches back to entry price -- it does not require the recovery to be sustained, tradeable, or captured by any live rule, and it says nothing about what happens to a position that is NOT stopped. On 2026-08-04 (gap-go), the underlying trend genuinely continued: every stop-out was a re-buy of the SAME still-live move, so widening (or simply not stopping) captured that move more efficiently -- fewer round-trips, same or better outcome, mechanistically confirmed leg-by-leg in this study's core grid. On 2026-08-05 (gap-fade), the underlying move genuinely reversed and never came back (776C's post-10:20 high, $2.00, sat six cents under even the CHEAPEST of the five real entries) -- every stop-out correctly refused to keep buying a dead trade, and widening only ever meant paying for MORE of a decline that already happened, whether concentrated in one large loss or spread across several smaller ones.",
+  "same_mechanism_opposite_verdict": "it is the SAME stop, the SAME re-entry architecture, and the SAME 'stopped_then_paid'-shaped statistic on both days -- what differs is whether the underlying move that triggered the ORIGINAL entry was still true at re-entry time. The tag cannot see that; only the outcome (which is not known until after the fact) can.",
+  "is_the_distinction_knowable_at_entry_time": "NO, and this repo has already tested the exact mechanism that would need to know it. The pre-registered early regime classifier (REGIME-EARLY-CLASSIFIER-2026-08-02.md) failed every gate: 8-way accuracy 20.9% vs a 39.1% majority baseline; of days it flagged gap-fade at 09:45 ET, 18 were truly gap-go vs 16 truly gap-fade -- worse than a coin flip on precisely the distinction this reconciliation turns on. Tuesday 2026-08-04 (gap-go) and Wednesday 2026-08-05 (gap-fade) are exactly the pair that classifier cannot separate, and the 776C entries (09:58-10:19) sit squarely inside its documented blind window."
+ },
+ "hold_to_time_counterfactual_trustworthiness": {
+  "verdict": "NOT TRUSTWORTHY as a general 'money left on the table' measure -- confirmed, not merely suspected, and this is itself a reportable finding.",
+  "mechanism": "hold_to_time sets tp1_premium_pct=999.0, tp1_qty_fraction=1.0, runner_target_pct=999.0, profit_lock_mode='fixed', trail_pct=0.0, premium_stop_pct=-0.95 -- i.e., it disables EVERY exit except a near-total (-95%) wipeout, and simply prices the position at whatever the contract is worth at the 15:50 time-stop (or data-exhausted close). On a 0DTE contract, that number is dominated by delta/intrinsic-value exposure to the ENTIRE remaining session's move, not by theta -- the 'does pure theta-ride beat what we did' framing in its own name is a mischaracterization of what it measures. The $6,976 figure quoted on the -$104 risky-3 762C trade (analysis/autopsies/2026-08-04.md) is real OPRA-derived and not fabricated, but it is a full-exposure, uncapped-both-directions readout of one trending day, already independently confirmed and labeled by two prior audits: EOD-2026-08-04-WINNERS.md ('pure 0DTE expiry mechanics on a one-directional day... the single most dangerous shape on the menu on a reversal day') and this session's own 08-05 cross-check, where the analogous 'let it ride with minimal stop' mechanism (this study's own -50%-catastrophe cell) is the WORST cell in the entire 08-05 grid (-$1,532.50, worse than doing nothing).",
+  "systemic_bias": "because trade_autopsy.py's classify_position() always reports the counterfactual with the HIGHEST dollar P&L as 'best_counterfactual', and hold_to_time structurally has the ONLY unbounded upside in the menu (no profit-taking caps it), it will win the 'best counterfactual' comparison on every trend day BY CONSTRUCTION, regardless of whether riding further was actually a good idea that day -- and it never gets punished with a comparably dramatic MINUS number on a reversal day in the SAME autopsy table, because a reversal day just shows as an ordinary loss like any other row, not as a flagged 'this counterfactual would have blown up' case. This means the autopsy's own 'Δ vs best' column is structurally biased toward flagging exit_shape_cost on trend days, independent of whether a real, live-executable improvement exists. This bias is itself a finding worth fixing in trade_autopsy.py (not done here -- out of this study's read-only scope), e.g. by adding hold_to_time's OWN worst-case (or a symmetric capped-downside variant) as a counter-weight, or by excluding hold_to_time from best_counterfactual selection and reporting it as a separate, clearly-labeled diagnostic-only column."
+ },
+ "verdict": {
+  "category": "(b) regime-conditional, and the regime is NOT detectable live at entry time -- record the null, mark H-2026-08-0{4,8,16,21,29}-stop-noise SETTLED so it stops re-emitting weekly.",
+  "one_sentence": "Widening vwap_continuation's stop turns 2026-08-04's cohort from -$1,111 into +$2,097 (or the whole touched population from +$3,624 into +$5,136) via a clean, verified mechanism -- letting the FIRST touch of a real trend survive to ride the runner instead of bleeding through repeated tight stop-outs -- but the IDENTICAL mechanism, on the IDENTICAL strategy, one day later on a gap-fade day, never turns the 776C wave profitable at any tested width (best case -$613, still a loss), and the 391-day population's own gap-fade cohort (n=30, 30x the sample) is monotonically worse at every width tested -- so no single static change survives both days, the discriminator (does the underlying move keep going) is not knowable at entry time (the repo's own pre-registered classifier already failed that exact test), and this specific 08-04 finding must NOT be generalized into a live change.",
+  "do_ship": [],
+  "do_not_ship": ["any vwap_continuation stop-width change, in either direction, on the evidence in this file alone"],
+  "worth_a_narrow_future_prereg": "the ribbon_ride catastrophe-cap axis (currently pinned at -50% for every structure-mode trade, and NEVER tested at any other width in the 391-day population sweep, which only varies premium_stop_pct) shows a small, ALL-legs-scored net drag when moved off -50% on 08-04's ribbon cohort (winners lose ~$532 more than losers save at every tested tighter width) -- i.e., 08-04's own data argues to LEAVE the ribbon catastrophe cap alone, not tighten it, once winners are correctly included. Named here because the population sweep cannot check this axis at all (constant -50% throughout) -- a genuine, currently-unfilled evidence gap, distinct from the vwap finding this file settles.",
+  "evidence_that_would_change_this": "a live, pre-tick regime signal that clears the SAME gates the 2026-08-02 classifier failed (>39.1% majority-baseline accuracy, precision materially above the observed 26.8-26.9%) -- until one exists, any stop-width change is a bet on which regime today is, made with a coin already shown not to be fair."
+ }
+}

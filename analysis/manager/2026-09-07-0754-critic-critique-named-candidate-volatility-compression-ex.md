@@ -1,0 +1,7 @@
+<!-- gamma_manager (FREE) | role=critic lane=ollama::qwen3:14b elapsed=12.955s | action=critique-named-candidate-volatility-compression-expansion-bos -->
+<!-- reason: Sweep is huge (8835 rows) and kitchen queue is 51 with 8 fresh chef drafts unreviewed. After 3 critic calls and NLWB ideation already in flight, the next uncritiqued candidate in the queue is the volatility-compression-expansion-bos draft. One bounded critique pass keeps the adversarial loop alive without overlapping prior actions. -->
+
+**Claim (1 sentence):** This variant asserts an edge through volatility-driven compression/expansion of data or processes, optimizing resource allocation during market swings.  
+**Single weakest assumption:** The assumption that volatility patterns are consistently predictable and alignable with compression/expansion cycles. Quote: *"Volatility forecasts enable precise BOS parameter tuning, ensuring compression during downturns and expansion during upturns."* If volatility is stochastic or nonstationary, the edge collapses.  
+**Concrete stress test:** Introduce a backtest knob to simulate sudden, unpredictable volatility spikes (e.g., 2008-level crashes or AI-driven market meltdowns) in `simulate_volatility_extremes.py`. If the system fails to compress/expansion effectively, the variant’s edge is invalidated.  
+**Verdict:** HOLD. The reliance on predictable volatility assumes a level of market regularity that contradicts real-world financial chaos, rendering the strategy fragile under extreme OOS conditions.

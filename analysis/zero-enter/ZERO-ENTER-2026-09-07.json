@@ -1,0 +1,31 @@
+{
+  "_doc": "zero_enter_autopsy.py output -- per-bar counterfactual table + day summary. Read-only autopsy, never a gate change. Schema matches analysis/zero-enter/ZERO-ENTER-2026-09-02.json (Z2, hand-validated).",
+  "schema_version": 1,
+  "bars": [
+    {
+      "ts_et": "2026-09-04T15:50:00-04:00",
+      "bar_close": 770.395,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "bear_score": 5,
+      "bull_score": 8,
+      "would_have_entered": false
+    }
+  ],
+  "day_summary": {
+    "trading_day": "2026-09-07",
+    "account": "safe",
+    "thesis_verbatim": null,
+    "thesis_direction": "MIXED",
+    "thesis_payoff_if_taken_net_of_costs": {
+      "computed": false,
+      "reason": "no bar this day scored >= threshold with zero blockers on the thesis side -- nothing to counterfactually price",
+      "payoff_usd": null
+    },
+    "dominant_blocker_day": 5,
+    "blocker_fire_count": 1,
+    "n_bars": 1,
+    "grade": "QUIET",
+    "grade_reason": "772 RTH ticks, 0 enters, 0 ticks scored >= 9 -- no high-conviction setup all day"
+  }
+}

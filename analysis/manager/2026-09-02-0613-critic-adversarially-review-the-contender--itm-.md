@@ -1,0 +1,6 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=26.661s | action=Adversarially review the contender 'ITM- -->
+<!-- reason: Sweep is large (8835 rows); latest entry is clearly junk (negative edge_capture, fatal wf, max_dd=-2664) but I need a critic verdict on whether ANY tweak rescues the ITM-2 trailing-stop family before kitchen burns more grinder cycles on it. Different verb from recent critic work (entry_spike, gap_and_go, ITM2 LR0 mt2 stop40 — yes, same label twice in recent log, so I'm pivoting to a focused numeric critique of the PARAMETER FAILURE MODES rather than re-reviewing the candidate). -->
+
+1. Edge_capture subtracts a risk/drawdown penalty (e.g., max_dd or variance) from expectancy; a large negative penalty can outweigh a positive expectancy, yielding a negative edge_capture.  
+2. wf=-0.829 is recoverable; tightening the stop‑loss or improving the profit target can shift the win factor into positive territory.  
+3. Change the profit‑target multiplier from tp=1.5 to tp=1.0 (reduce tp).

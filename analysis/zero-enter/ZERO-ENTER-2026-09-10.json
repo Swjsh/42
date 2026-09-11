@@ -1,0 +1,716 @@
+{
+  "_doc": "zero_enter_autopsy.py output -- per-bar counterfactual table + day summary. Read-only autopsy, never a gate change. Schema matches analysis/zero-enter/ZERO-ENTER-2026-09-02.json (Z2, hand-validated).",
+  "schema_version": 1,
+  "bars": [
+    {
+      "ts_et": "2026-09-09T15:55:00-04:00",
+      "bar_close": 762.425,
+      "dominant_blocker": 6,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 5,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T09:30:00-04:00",
+      "bar_close": 757.79,
+      "dominant_blocker": 1,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 5,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T09:35:00-04:00",
+      "bar_close": 758.43,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T09:40:00-04:00",
+      "bar_close": 758.135,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 5,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T09:45:00-04:00",
+      "bar_close": 758.66,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T09:50:00-04:00",
+      "bar_close": 757.32,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T09:55:00-04:00",
+      "bar_close": 756.81,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T10:00:00-04:00",
+      "bar_close": 757.26,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T10:05:00-04:00",
+      "bar_close": 756.75,
+      "dominant_blocker": 10,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T10:10:00-04:00",
+      "bar_close": 757.355,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T10:15:00-04:00",
+      "bar_close": 758.08,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T10:20:00-04:00",
+      "bar_close": 759.33,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T10:25:00-04:00",
+      "bar_close": 758.71,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 5,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T10:30:00-04:00",
+      "bar_close": 758.995,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T10:35:00-04:00",
+      "bar_close": 759.325,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T10:40:00-04:00",
+      "bar_close": 758.79,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T10:45:00-04:00",
+      "bar_close": 758.81,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T10:50:00-04:00",
+      "bar_close": 759.16,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T10:55:00-04:00",
+      "bar_close": 759.39,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T11:00:00-04:00",
+      "bar_close": 758.85,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T11:05:00-04:00",
+      "bar_close": 759.07,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T11:10:00-04:00",
+      "bar_close": 759.07,
+      "dominant_blocker": 9,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 5,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T11:15:00-04:00",
+      "bar_close": 759.01,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T11:20:00-04:00",
+      "bar_close": 759.3,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T11:25:00-04:00",
+      "bar_close": 759.185,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 5,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T11:30:00-04:00",
+      "bar_close": 759.42,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T11:35:00-04:00",
+      "bar_close": 759.22,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 5,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T11:40:00-04:00",
+      "bar_close": 759.42,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T11:45:00-04:00",
+      "bar_close": 759.135,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 5,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T11:50:00-04:00",
+      "bar_close": 758.65,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 5,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T11:55:00-04:00",
+      "bar_close": 758.56,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T12:00:00-04:00",
+      "bar_close": 758.54,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T12:05:00-04:00",
+      "bar_close": 758.095,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 5,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T12:10:00-04:00",
+      "bar_close": 758.155,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 5,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T12:15:00-04:00",
+      "bar_close": 758.12,
+      "dominant_blocker": 9,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T12:20:00-04:00",
+      "bar_close": 758.05,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T12:25:00-04:00",
+      "bar_close": 758.085,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T12:30:00-04:00",
+      "bar_close": 757.54,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 5,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T12:35:00-04:00",
+      "bar_close": 758.22,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T12:40:00-04:00",
+      "bar_close": 758.86,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T12:45:00-04:00",
+      "bar_close": 758.91,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T12:50:00-04:00",
+      "bar_close": 759.16,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T12:55:00-04:00",
+      "bar_close": 759.205,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T13:00:00-04:00",
+      "bar_close": 758.99,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 5,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T13:05:00-04:00",
+      "bar_close": 758.97,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T13:10:00-04:00",
+      "bar_close": 759.035,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T13:15:00-04:00",
+      "bar_close": 758.97,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "bear_score": 5,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T13:20:00-04:00",
+      "bar_close": 758.65,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T13:25:00-04:00",
+      "bar_close": 758.635,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T13:30:00-04:00",
+      "bar_close": 758.65,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T13:35:00-04:00",
+      "bar_close": 758.06,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 5,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T13:40:00-04:00",
+      "bar_close": 758.45,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 5,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T13:45:00-04:00",
+      "bar_close": 758.25,
+      "dominant_blocker": 9,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T13:50:00-04:00",
+      "bar_close": 758.36,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T13:55:00-04:00",
+      "bar_close": 758.305,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T14:00:00-04:00",
+      "bar_close": 757.98,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 5,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T14:05:00-04:00",
+      "bar_close": 757.74,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T14:10:00-04:00",
+      "bar_close": 757.74,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T14:15:00-04:00",
+      "bar_close": 757.71,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T14:20:00-04:00",
+      "bar_close": 757.8,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T14:25:00-04:00",
+      "bar_close": 757.69,
+      "dominant_blocker": null,
+      "blocker_detail": null,
+      "bear_score": 10,
+      "bull_score": 5,
+      "would_have_entered": true
+    },
+    {
+      "ts_et": "2026-09-10T14:30:00-04:00",
+      "bar_close": 757.61,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T14:35:00-04:00",
+      "bar_close": 757.83,
+      "dominant_blocker": 9,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T14:40:00-04:00",
+      "bar_close": 757.82,
+      "dominant_blocker": 9,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T14:45:00-04:00",
+      "bar_close": 757.8,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T14:50:00-04:00",
+      "bar_close": 757.95,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T14:55:00-04:00",
+      "bar_close": 757.775,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T15:00:00-04:00",
+      "bar_close": 757.335,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T15:05:00-04:00",
+      "bar_close": 757.97,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T15:10:00-04:00",
+      "bar_close": 757.83,
+      "dominant_blocker": 10,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T15:15:00-04:00",
+      "bar_close": 757.505,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T15:20:00-04:00",
+      "bar_close": 757.715,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T15:25:00-04:00",
+      "bar_close": 757.615,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T15:30:00-04:00",
+      "bar_close": 757.925,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T15:35:00-04:00",
+      "bar_close": 758.01,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T15:40:00-04:00",
+      "bar_close": 758.03,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-10T15:45:00-04:00",
+      "bar_close": 758.15,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 7,
+      "would_have_entered": false
+    }
+  ],
+  "day_summary": {
+    "trading_day": "2026-09-10",
+    "account": "safe",
+    "thesis_verbatim": "# Trading Journal -- 2026-09-10\n\n<!-- QUANT:BEGIN (deterministic; code-generated by fill_funnel.py; do not hand-edit) -->\n## Quantitative (deterministic -- computed from ledgers, not LLM)\n\nSource ledgers: `core-decisions.jsonl` + `fleet/*/decisions.jsonl` + trades CSVs. Generated 2026-09-10T16:00:23 ET. Funnel verdict: **GREEN**.\n\n| account | ticks | signals | ENTER | rule-blocked | attempted | accepted | filled | exited |\n|---|---|---|---|---|---|---|---|---|\n| core:bold CORE-BOLD (U67N) | 386 | 12 | 6 | 0 | 2 | 2 | 1 | 1 |\n| core:safe CORE-SAFE (46VG) | 386 | 12 | 0 | 0 | 0 | 0 | 0 | 0 |\n| fleet:risky-1 FLEET-FULLSEND-R (V0A4) | 384 | 1 | 1 | 0 | 1 | 1 | 1 | 1 |\n| fleet:safe-3 FLEET-TIGHT-S (T20H) | 384 | 1 | 1 | 0 | 1 | 1 | 1 | 1 |\n| **TOTAL** | 1540 | 26 | 8 | 0 | 4 | 4 | 3 | 3 |\n\n**Why each arm did / did not trade:**\n\n| account | traded | dominant cause | detail |\n|---|---|---|---|\n| core:bold CORE-BOLD (U67N) | yes | `TRADED` | TRADED -- 1 filled / 1 exited (1 from 6 primary ENTER verdicts); also blocked 16x (13x ENTRY_GATE_SKIP, 3x NOT_FLAT) |\n| core:safe CORE-SAFE (46VG) | **no** | `ENTRY_GATE_SKIP` | DID NOT TRADE -- dominant cause ENTRY_GATE_SKIP (18x): refused by an entry gate. 368 of 386 ticks had no setup at all. e.g. \"structure-veto: P entry blocked \u2014 price structure is 'uptrend' (wrong-way entry)\" x7; \"no setup passed scoring (neither bear nor bull)\" x6 |\n| fleet:risky-1 FLEET-FULLSEND-R (V0A4) | yes | `TRADED` | TRADED -- 1 filled / 1 exited (1 from 1 primary ENTER verdicts); also blocked 5x (3x ARM_GATE, 2x NOT_FLAT) |\n| fleet:safe-3 FLEET-TIGHT-S (T20H) | yes | `TRADED` | TRADED -- 1 filled / 1 exited (1 from 1 primary ENTER verdicts); also blocked 5x (3x ARM_GATE, 2x NOT_FLAT) |\n\n**ENTER events (8):**\n- 12:11 ET [core:bold] ENTER_BEAR SPY260910P00756000 x5 -> ACCEPTED (order 313e3418) -- BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier ELITE)\n- 12:12 ET [core:bold] ENTER_BEAR ? x? -> NOT_ATTEMPTED -- BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier ELITE)\n- 12:12 ET [fleet:risky-1] ENTER_BEAR SPY260910P00758000 x5 -> ACCEPTED (order 81c92488) -- ribbon_ride P (ELITE); qty clamped 12->5: FULL_SEND min size\n- 12:12 ET [fleet:safe-3] ENTER_BEAR SPY260910P00758000 x5 -> ACCEPTED (order da9ad2b8) -- ribbon_ride P (ELITE); qty capped 8->5: tight-ladder max_contracts_per_entry\n- 12:13 ET [core:bold] ENTER_BEAR ? x? -> NOT_ATTEMPTED -- BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier ELITE)\n- 14:33 ET [core:bold] ENTER_BEAR SPY260910P00756000 x5 -> ACCEPTED (order 284dc31b) -- BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier LEVEL)\n- 14:34 ET [core:bold] ENTER_BEAR ? x? -> NOT_ATTEMPTED -- BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier LEVEL)\n- 15:04 ET [core:bold] ENTER_BEAR ? x? -> NOT_ATTEMPTED -- BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier LEVEL)\n\n**Secondary-setup placements (extra_exec, 0 PLACED):**\n- [core:safe] bollinger_squeeze: 10x WATCH_NOT_ARMED\n- [core:safe] gap_and_go: 5x WATCH_NOT_ARMED\n\n**PLACE_FAIL reasons (verbatim from broker):**\n- none\n\n**Funnel flags:**\n- none\n\n**P&L (source: pnl-statement.json (T1, broker-truth)):**\n- [bold-2 CORE-BOLD (U67N)] 2 round trip(s): -190 (engine -190 / manual +0)\n- [risky-1 FLEET-FULLSEND-R (V0A4)] 2 round trip(s): -320 (engine -320 / manual +0)\n- [safe-3 FLEET-TIGHT-S (T20H)] 1 round trip(s): -280 (engine -280 / manual +0)\n- **Total recorded P&L: -790**\n\n<!-- QUANT:END -->\n\n<!-- FREE-TIER PRIMARY: this file was generated by a free-tier model. -->\n<!-- Task: eod-summary  Date: 2026-09-10  Model: nvidia/nemotron-3-super-120b-a12b:free  Cost: $0.0000 -->\n<!-- Omitted features (tool-dependent, skipped on free-tier path): Dark-pool aggregation step, Auto-merge with existing journal file (output is appended verbatim by wrapper), Shadow diff scorecard step -->\n\n## EOD Reflection  \n\n**Trade take\u2011rate:** The system generated 8 ENTER signals (quant total) but only 3 positions were filled (quant filled), giving a taken\u2011to\u2011signal ratio of 3\u20448\u202f\u2248\u202f37.5\u202f%. The remaining 5 signals were skipped or not attempted, primarily due to entry\u2011gate filters (ENTRY_GATE_SKIP) and flat\u2011position checks (NOT_FLAT).  \n\n**Rule breaks:** The quant shows zero rule\u2011blocked events across all accounts and no PLACE_FAIL reasons from the broker, indicating no observed rule violations today.  \n\n**Morning bias grade:** The pre\u2011market bias was \u201cno\u2011trade,\u201d yet the system executed 3 filled trades (quant filled) plus two aggressive reconcile fills. Because trades occurred despite a no\u2011trade directive, the bias call is graded **wrong**.  \n\n**Regime observations:**  \n1. The market exhibited choppy, range\u2011bound behavior\u2014spot remained tightly boxed between PML/support and PDC/resistance, with many setups rejected by entry gates.  \n2. Core\u2011safe received 12 signals but zero ENTERs, reflecting a lack of scoring\u2011qualified setups in either direction.  \n3. Fleet accounts each captured one ENTER and a filled trade, showing that only the highest\u2011conviction (ELITE tier) setups survived the gates.  \n\n**Pre\u2011market verification for tomorrow:** Confirm that the TV data anomaly is cleared\u2014i.e., chart_get_state returns correct 5\u2011minute OHLCV for SPY and quote_get(TVC:VIX) delivers genuine VIX values, ensuring reliable bias generation.",
+    "thesis_direction": "BEAR",
+    "thesis_payoff_if_taken_net_of_costs": {
+      "computed": false,
+      "reason": "no OPRA option cache for SPY260910P00758000 -- cannot price this day's counterfactual (fail-open null, not a fabricated number)",
+      "payoff_usd": null,
+      "symbol": "SPY260910P00758000"
+    },
+    "dominant_blocker_day": 8,
+    "blocker_fire_count": 61,
+    "n_bars": 77,
+    "grade": "regressing",
+    "grade_reason": "24 of 180 ticks scored >= 9 with NO gate blocker recorded (0 enters, 772 RTH ticks) -- possible funnel miss"
+  }
+}

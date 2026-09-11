@@ -1,0 +1,8 @@
+<!-- gamma_manager (FREE) | role=forager lane=google_aistudio::gemini-flash-lite-latest elapsed=2.184s | action=forage-gap_and_go-stress-test-data-source -->
+<!-- reason: Sweep is 8835 rows and gap_and_go is flagged as most-shippable but uncritiqued-stress-tested since overseer flagged it; the prior critic pass already named a weakest assumption, so the natural next step is forage data to FALSIFY that assumption, not another critic pass (already done 4x recently). -->
+
+| Data Source & Provider | Update Cadence / Format / License | Target Assumption Tested | Ingestion Method & Cost |
+| :--- | :--- | :--- | :--- |
+| **Nasdaq Pre-Market Quote & Volume Summary**<br>Provider: Nasdaq.com API | Real-time / 5-min batch<br>Format: JSON / HTML scrape<br>License: Free public use (Terms apply) | *Tests assumption that pre-market volume surges correlate with continuation rather than exhaustion (gap trap).* | Ingest via Python `requests` scraping Nasdaq quote endpoint or unofficial API.<br>**Cost:** $0/mo |
+| **CME Globex Delayed Futures Quotes**<br>Provider: CME Group (Delayed) | Real-time (10-min delay)<br>Format: CSV / API<br>License: Free delayed data feed | *Tests assumption that overnight S&P/Nasdaq futures gaps hold through the 9:30 AM ET open without fading.* | Ingest via web scraping or free broker API (e.g., Yahoo Finance `/v8/finance/chart/ES=F`).<br>**Cost:** $0/mo |
+| **SPY Pre-Market 1-Minute Bars**<br>Provider: Stooq / Alpha Vantage (Free Tier) | Daily end-of-day / Intraday 1-min<br>Format: CSV<br>License: Public domain / Free | *Tests assumption that early VWAP crosses on high relative volume dictate directional intraday trend.* | Ingest via daily CSV download or Alpha Vantage free tier API (`TIME_SERIES_INTRADAY`).<br>**Cost:** $0/mo |

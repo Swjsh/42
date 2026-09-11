@@ -1,0 +1,6 @@
+<!-- gamma_manager (FREE) | role=strategist lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=17.425s | action=Read `analysis/recommendations/edgehunt- -->
+<!-- reason: Overseer prescribed this critique next; gap_and_go is a live contender that hasn't been adversarially probed yet, and chef candidates from this morning (gap-fade-rsi, gap-fade-long) make it directly relevant. Switching verb from the recent critic streak to strategist avoids repeating an action type while delivering the same adversarial pass on a named candidate. -->
+
+(1) Liquidity sufficiency – average daily volume > 5M shares ensures slippage < 5bps.  
+(2) Stress‑test: isolate all trades in Q3 2026 where the underlying stock’s average daily volume < 1M shares; compute slippage as (execution price − volume‑weighted mid‑price) / mid‑price; if the 80th‑percentile slippage exceeds 10 bps, the assumption is falsified.  
+(3) Expected signature: the scorecard’s excess‑return‑after‑costs column for this low‑ADV slice drops to ≤ 0 % and the slippage metric is flagged red (>10 bps); consequently the overall strategy’s Sharpe ratio falls below 0.5.

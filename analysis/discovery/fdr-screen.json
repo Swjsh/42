@@ -1,0 +1,231 @@
+{
+  "groups_tested": 162,
+  "fdr_alpha": 0.1,
+  "survivors": [
+    {
+      "group": [
+        "level_rejection",
+        "long",
+        0.003,
+        "vix_lo"
+      ],
+      "n": 1318,
+      "mean_fwd": 0.0304,
+      "t": 5.2,
+      "p": 9.997774548451261e-08,
+      "bh_threshold": 0.00062,
+      "significant": true
+    },
+    {
+      "group": [
+        "level_rejection",
+        "long",
+        0.0015,
+        "vix_lo"
+      ],
+      "n": 1318,
+      "mean_fwd": 0.0229,
+      "t": 4.5,
+      "p": 3.4612667627000445e-06,
+      "bh_threshold": 0.00123,
+      "significant": true
+    },
+    {
+      "group": [
+        "trendline_rejection",
+        "long",
+        0.0015,
+        "vix_hi"
+      ],
+      "n": 338,
+      "mean_fwd": 0.0653,
+      "t": 3.78,
+      "p": 7.717931227037122e-05,
+      "bh_threshold": 0.00185,
+      "significant": true
+    },
+    {
+      "group": [
+        "level_rejection",
+        "long",
+        0.006,
+        "vix_lo"
+      ],
+      "n": 1318,
+      "mean_fwd": 0.0245,
+      "t": 3.77,
+      "p": 8.056908545007661e-05,
+      "bh_threshold": 0.00247,
+      "significant": true
+    },
+    {
+      "group": [
+        "trendline_rejection",
+        "short",
+        0.006,
+        "vix_lo"
+      ],
+      "n": 577,
+      "mean_fwd": 0.0286,
+      "t": 3.76,
+      "p": 8.467540457430376e-05,
+      "bh_threshold": 0.00309,
+      "significant": true
+    },
+    {
+      "group": [
+        "confluence+level_rejection+ribbon_flip",
+        "short",
+        0.006,
+        "vix_hi"
+      ],
+      "n": 100,
+      "mean_fwd": 0.1681,
+      "t": 3.63,
+      "p": 0.00013971176605734437,
+      "bh_threshold": 0.0037,
+      "significant": true
+    },
+    {
+      "group": [
+        "confluence+level_rejection+ribbon_flip",
+        "short",
+        0.003,
+        "vix_hi"
+      ],
+      "n": 100,
+      "mean_fwd": 0.1319,
+      "t": 3.25,
+      "p": 0.0005732467336694483,
+      "bh_threshold": 0.00432,
+      "significant": true
+    },
+    {
+      "group": [
+        "confluence+level_rejection",
+        "short",
+        0.0015,
+        "vix_hi"
+      ],
+      "n": 1030,
+      "mean_fwd": 0.0307,
+      "t": 3.06,
+      "p": 0.0011068078090256924,
+      "bh_threshold": 0.00494,
+      "significant": true
+    },
+    {
+      "group": [
+        "trendline_rejection",
+        "short",
+        0.003,
+        "vix_lo"
+      ],
+      "n": 577,
+      "mean_fwd": 0.0226,
+      "t": 2.97,
+      "p": 0.0014933760864818864,
+      "bh_threshold": 0.00556,
+      "significant": true
+    },
+    {
+      "group": [
+        "confluence+level_rejection+ribbon_flip",
+        "short",
+        0.0015,
+        "vix_hi"
+      ],
+      "n": 100,
+      "mean_fwd": 0.107,
+      "t": 2.93,
+      "p": 0.001688916560572212,
+      "bh_threshold": 0.00617,
+      "significant": true
+    },
+    {
+      "group": [
+        "level_reclaim+ribbon_flip",
+        "long",
+        0.0015,
+        "vix_lo"
+      ],
+      "n": 30,
+      "mean_fwd": 0.0996,
+      "t": 2.92,
+      "p": 0.001723528194293011,
+      "bh_threshold": 0.00679,
+      "significant": true
+    },
+    {
+      "group": [
+        "level_reclaim",
+        "long",
+        0.003,
+        "vix_lo"
+      ],
+      "n": 472,
+      "mean_fwd": 0.0242,
+      "t": 2.76,
+      "p": 0.0028994995981730066,
+      "bh_threshold": 0.00741,
+      "significant": true
+    },
+    {
+      "group": [
+        "confluence+level_reclaim+ribbon_flip",
+        "long",
+        0.006,
+        "vix_hi"
+      ],
+      "n": 33,
+      "mean_fwd": 0.15,
+      "t": 2.67,
+      "p": 0.0038486736884090116,
+      "bh_threshold": 0.00802,
+      "significant": true
+    },
+    {
+      "group": [
+        "trendline_rejection",
+        "long",
+        0.003,
+        "vix_hi"
+      ],
+      "n": 338,
+      "mean_fwd": 0.0477,
+      "t": 2.48,
+      "p": 0.006631152662584919,
+      "bh_threshold": 0.00864,
+      "significant": true
+    },
+    {
+      "group": [
+        "level_reclaim",
+        "long",
+        0.0015,
+        "vix_lo"
+      ],
+      "n": 472,
+      "mean_fwd": 0.0188,
+      "t": 2.44,
+      "p": 0.007256186010159304,
+      "bh_threshold": 0.00926,
+      "significant": true
+    },
+    {
+      "group": [
+        "confluence+level_reclaim+ribbon_flip",
+        "long",
+        0.003,
+        "vix_hi"
+      ],
+      "n": 33,
+      "mean_fwd": 0.1333,
+      "t": 2.4,
+      "p": 0.008304878604428355,
+      "bh_threshold": 0.00988,
+      "significant": true
+    }
+  ],
+  "n_survivors": 16
+}

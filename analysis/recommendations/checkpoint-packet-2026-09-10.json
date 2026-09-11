@@ -1,5 +1,5 @@
 {
-  "generated_at_et": "2026-09-10T01:05:43",
+  "generated_at_et": "2026-09-10T23:30:02",
   "generation_date": "2026-09-10",
   "generated_by": "setup/scripts/checkpoint_packet.py",
   "inventory_source": "analysis/recommendations/checkpoint-2026-09-29-inventory.json",
@@ -53,14 +53,14 @@
       "decision_rule_verbatim": "status field: 'KILL -- forward shadow ledger (n=28 sessions/arm) fails all 3 frozen arm-bar criteria'. _ship_gates_frozen_before_looking required all 3 to pass; ladger shows extras -$13.8K/arm over 28 sessions.",
       "reversible_action": "Retire Gamma_BoldTierRail scheduled task + stop appending to ladder-rung-shadow-ledger.jsonl. git revert restores the task if evidence is later disputed.",
       "verdict": "RULE MET",
-      "n": 60,
+      "n": 62,
       "numbers": {
-        "ledger_rows": 60,
+        "ledger_rows": 62,
         "rows_per_arm": {
-          "risky-3": 30,
-          "risky-1": 30
+          "risky-3": 31,
+          "risky-1": 31
         },
-        "total_delta_pnl": -29897.0,
+        "total_delta_pnl": -31057.0,
         "status": "KILL -- forward shadow ledger (n=28 sessions/arm) fails all 3 frozen arm-bar criteria"
       },
       "note": "Retirement rule MET = the prereg's own adjudicated status is a terminal KILL ('KILL -- forward shadow ledger (n=28 sessions/arm) fails all 3 frozen arm-bar criteria'). hand_check: confirmed 2026-09-05 (direct ledger read: risky-1=28 rows, risky-3=28 rows, total_delta_pnl=-27345.0 -- matches the goal's own 'extras -$13.8K/arm over 28 sessions' to within the aggregation the goal text describes; status field itself is the terminal KILL that drives the verdict).",
@@ -77,9 +77,9 @@
       "decision_rule_verbatim": "status: 'FROZEN_BEFORE_ANY_RESULT -- 10-30 checkpoint candidate'. Aggregated evidence from z5 backfill named in file as the evidence source; question_for_10_30 field states the open question verbatim.",
       "reversible_action": "None shipped -- prereg only, evidence accrues in analysis/zero-enter/ZERO-ENTER-*.json nightly.",
       "verdict": "INSUFFICIENT N",
-      "n": 7,
+      "n": 8,
       "numbers": {
-        "zero_enter_day_files": 7,
+        "zero_enter_day_files": 8,
         "status": "FROZEN_BEFORE_ANY_RESULT -- 10-30 checkpoint candidate"
       },
       "note": "10-30 checkpoint candidate; frozen before any result as of this generation."
@@ -145,9 +145,9 @@
       "decision_rule_verbatim": "decision_rule.ACT_tighten_cadence_or_limit_exit: 'median (fired_tick_bleed - last_clean_check_bleed) > 10pp AND median (fill_bleed - fired_tick_bleed) > 3pp, consistently across >=2 of the 3 arms.' statistics.min_additional_fills=15, min_additional_trading_days=10.",
       "reversible_action": "On ACT: DRAFT param change (tick_cadence.minutes / exit-order-type) written up for next weekend ratification (Rule 9) -- never applied mid-week. On NO_ACTION: leave tickers-lane exits exactly as configured.",
       "verdict": "INSUFFICIENT N",
-      "n": 6,
+      "n": 7,
       "numbers": {
-        "theta_budget_fills": 6,
+        "theta_budget_fills": 7,
         "trading_days": 0,
         "min_fills": 15,
         "min_days": 10
@@ -166,13 +166,13 @@
       "decision_rule_verbatim": "day_throttle_shadow.py: 'SHADOW ONLY. Neither threshold refuses anything live. This script writes measurements.' catastrophe-cap-shadow-ledger.jsonl rows carry would_have_been_better_held / delta_vs_actual per stopped trade -- read as an aggregate, no frozen n-threshold ships a change by itself.",
       "reversible_action": "None shipped -- both remain measurement-only; any indicted tightening is filed as a fresh prereg for 09-29 (reduction) or 10-30, never applied from this read directly.",
       "verdict": "PROVISIONAL",
-      "n": 626,
+      "n": 632,
       "numbers": {
-        "catastrophe_cap_fires": 40,
+        "catastrophe_cap_fires": 41,
         "cap_better_held": 16,
-        "cap_worse_held": 24,
-        "day_throttle_rows": 586,
-        "t2_would_block": 170,
+        "cap_worse_held": 25,
+        "day_throttle_rows": 591,
+        "t2_would_block": 171,
         "t6_would_block": 29
       },
       "note": "Shadow-read only -- no frozen ship threshold in scope for this row; numbers are the accruing evidence base, PROVISIONAL by construction (never cite as confirming evidence for a config change). hand_check: confirmed 2026-09-05 (direct read of both jsonl files: cap_rows=39 (better_held=15/worse_held=24), throttle_rows=581 (T-2=170/T-6=29); n=620 = fills, not ticks -- one row per stopped trade / trade entry in each ledger respectively)."
@@ -369,14 +369,14 @@
       "decision_rule_verbatim": "n_min_per_pool=15 forward cap fires per pool (post 2026-09-08 freeze). ACT: ATM pool n>=15 AND CAP_70 (-70%) clears all 4 reused gates (G_AGGREGATE/G_MAJORITY/G_DROP_BEST/G_TAIL) on the ATM pool alone -> file a forward paper trial of -70% on the ATM pool. NULL: anything else, including G_AGGREGATE alone (parent study rightly refused that). OTM pool outcome reported only, never applied by this prereg.",
       "reversible_action": "On ACT at 10-30: per-arm params exit key premium_stop_pct -0.5 -> -0.7 for the ATM pool only, applied with GAMMA_FREEZE_OVERRIDE per checkpoint procedure; revert = git revert.",
       "verdict": "INSUFFICIENT N",
-      "n": 0,
+      "n": 1,
       "numbers": {
-        "atm_pool_forward_n": 0,
+        "atm_pool_forward_n": 1,
         "otm_pool_forward_n": 0,
         "n_min_per_pool": 15,
         "frozen_at_date": "2026-09-08",
         "has_cap_70_counterfactual_column": false,
-        "total_ledger_rows": 40
+        "total_ledger_rows": 41
       },
       "note": "FROZEN_BEFORE_ANY_RESULT -- forward accrual only counts catastrophe-cap-shadow-ledger.jsonl rows dated strictly after this prereg's own frozen_at_et (2026-09-08); the pre-freeze disclosure look the prereg was filed on is excluded from n by construction. ATM pool needs n>=15 forward cap fires AND a cap_70_counterfactual_pnl ledger column (does not exist yet -- only held_to_eod_counterfactual_pnl is recorded) before the ACT gate math can even be attempted; until then this row correctly reports INSUFFICIENT_N rather than guessing NOT_MET/MET on a rule that cannot yet be evaluated."
     }

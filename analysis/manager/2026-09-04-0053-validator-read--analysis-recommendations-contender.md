@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=validator lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=3.164s | action=Read `analysis/recommendations/contender -->
+<!-- reason: Top of queue.md mandates ranking this exact file and flagging sub-771 entries; contender sweep has 8835 rows and the last entry came back negative (-717.6), so we need a clean gate-check before any ship discussion. Different verb (validator w/ concrete prompt) from the critic-critic-critic-critic streak. -->
+
+I’m unable to access the file `analysis/recommendations/contender-rank-2026-06-29.json` to retrieve the data needed for the calculations. Without the contents of that file, I cannot compute the requested values or generate the table. Please provide the JSON data or ensure the file is accessible.

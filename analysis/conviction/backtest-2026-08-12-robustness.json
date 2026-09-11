@@ -1,0 +1,897 @@
+{
+  "n_all": 205,
+  "n_level_anchored": 134,
+  "n_extra_setup": 71,
+  "H1_setup_class": {
+    "extra_setup_cohort": {
+      "n": 71,
+      "pnl": -1834.0,
+      "win_rate": 0.239,
+      "mean_ror": -0.0392,
+      "score_distribution": {
+        "0": 60,
+        "1": 11
+      }
+    },
+    "level_anchored_cohort": {
+      "n": 134,
+      "pnl": 602.0,
+      "win_rate": 0.313,
+      "mean_ror": 0.0565,
+      "score_distribution": {
+        "0": 39,
+        "1": 23,
+        "3": 13,
+        "4": 35,
+        "5": 20,
+        "6": 4
+      }
+    },
+    "buckets_level_anchored_only": {
+      "0": {
+        "n": 39,
+        "total_pnl": 1151.0,
+        "mean_pnl": 29.51,
+        "win_rate": 0.385,
+        "mean_ror": 0.1479,
+        "median_ror": -0.0513,
+        "n_days": 9
+      },
+      "1": {
+        "n": 23,
+        "total_pnl": 1637.0,
+        "mean_pnl": 71.17,
+        "win_rate": 0.478,
+        "mean_ror": 0.2275,
+        "median_ror": 0.0,
+        "n_days": 5
+      },
+      "3": {
+        "n": 13,
+        "total_pnl": -1437.0,
+        "mean_pnl": -110.54,
+        "win_rate": 0.231,
+        "mean_ror": -0.1707,
+        "median_ror": -0.1771,
+        "n_days": 5
+      },
+      "4": {
+        "n": 35,
+        "total_pnl": 550.0,
+        "mean_pnl": 15.71,
+        "win_rate": 0.314,
+        "mean_ror": 0.0497,
+        "median_ror": -0.1818,
+        "n_days": 8
+      },
+      "5": {
+        "n": 20,
+        "total_pnl": -1109.0,
+        "mean_pnl": -55.45,
+        "win_rate": 0.05,
+        "mean_ror": -0.1307,
+        "median_ror": -0.1172,
+        "n_days": 5
+      },
+      "6": {
+        "n": 4,
+        "total_pnl": -190.0,
+        "mean_pnl": -47.5,
+        "win_rate": 0.25,
+        "mean_ror": -0.0854,
+        "median_ror": -0.3891,
+        "n_days": 1
+      }
+    },
+    "spearman_all": -0.1717,
+    "spearman_level_anchored_only": -0.1688
+  },
+  "H2_day_concentration": {
+    "n_high_score": 24,
+    "n_days_high_score": 5,
+    "high_score_pnl_by_day": {
+      "2026-07-17": -22.0,
+      "2026-07-31": -80.0,
+      "2026-08-07": -628.0,
+      "2026-08-10": -310.0,
+      "2026-08-12": -259.0
+    },
+    "high_score_mean_ror": -0.1232,
+    "low_score_mean_ror": 0.0957,
+    "high_score_mean_ror_drop_worst_day": {
+      "dropped_day": "2026-08-07",
+      "n_left": 19,
+      "mean_ror": -0.1013,
+      "total_pnl": -671.0
+    },
+    "high_score_mean_ror_drop_best_day": {
+      "dropped_day": "2026-07-17",
+      "n_left": 18,
+      "mean_ror": -0.158,
+      "total_pnl": -1277.0
+    },
+    "high_score_win_rate": 0.083,
+    "low_score_win_rate": 0.364
+  },
+  "H3_per_arm": {
+    "bold-2": {
+      "n": 19,
+      "spearman": -0.4397,
+      "buckets": {
+        "0": {
+          "n": 9,
+          "total_pnl": -157.0,
+          "mean_pnl": -17.44,
+          "win_rate": 0.444,
+          "mean_ror": 0.3014,
+          "median_ror": -0.0455,
+          "n_days": 4
+        },
+        "1": {
+          "n": 2,
+          "total_pnl": 554.0,
+          "mean_pnl": 277.0,
+          "win_rate": 0.5,
+          "mean_ror": 0.3909,
+          "median_ror": 0.3909,
+          "n_days": 1
+        },
+        "3": {
+          "n": 1,
+          "total_pnl": -93.0,
+          "mean_pnl": -93.0,
+          "win_rate": 0.0,
+          "mean_ror": -0.1771,
+          "median_ror": -0.1771,
+          "n_days": 1
+        },
+        "4": {
+          "n": 5,
+          "total_pnl": -800.0,
+          "mean_pnl": -160.0,
+          "win_rate": 0.0,
+          "mean_ror": -0.3427,
+          "median_ror": -0.4275,
+          "n_days": 4
+        },
+        "5": {
+          "n": 1,
+          "total_pnl": -10.0,
+          "mean_pnl": -10.0,
+          "win_rate": 0.0,
+          "mean_ror": -0.025,
+          "median_ror": -0.025,
+          "n_days": 1
+        },
+        "6": {
+          "n": 1,
+          "total_pnl": -270.0,
+          "mean_pnl": -270.0,
+          "win_rate": 0.0,
+          "mean_ror": -0.4463,
+          "median_ror": -0.4463,
+          "n_days": 1
+        }
+      }
+    },
+    "risky-1": {
+      "n": 33,
+      "spearman": -0.1463,
+      "buckets": {
+        "0": {
+          "n": 12,
+          "total_pnl": 157.0,
+          "mean_pnl": 13.08,
+          "win_rate": 0.417,
+          "mean_ror": 0.0143,
+          "median_ror": -0.0105,
+          "n_days": 3
+        },
+        "1": {
+          "n": 4,
+          "total_pnl": 625.0,
+          "mean_pnl": 156.25,
+          "win_rate": 0.5,
+          "mean_ror": 0.2012,
+          "median_ror": 0.1468,
+          "n_days": 4
+        },
+        "3": {
+          "n": 2,
+          "total_pnl": -355.0,
+          "mean_pnl": -177.5,
+          "win_rate": 0.0,
+          "mean_ror": -0.3342,
+          "median_ror": -0.3342,
+          "n_days": 2
+        },
+        "4": {
+          "n": 10,
+          "total_pnl": 433.0,
+          "mean_pnl": 43.3,
+          "win_rate": 0.4,
+          "mean_ror": 0.0876,
+          "median_ror": -0.0746,
+          "n_days": 6
+        },
+        "5": {
+          "n": 5,
+          "total_pnl": -205.0,
+          "mean_pnl": -41.0,
+          "win_rate": 0.0,
+          "mean_ror": -0.1051,
+          "median_ror": -0.1429,
+          "n_days": 4
+        }
+      }
+    },
+    "risky-3": {
+      "n": 28,
+      "spearman": -0.137,
+      "buckets": {
+        "0": {
+          "n": 7,
+          "total_pnl": 690.0,
+          "mean_pnl": 98.57,
+          "win_rate": 0.286,
+          "mean_ror": 0.1547,
+          "median_ror": -0.1828,
+          "n_days": 6
+        },
+        "1": {
+          "n": 7,
+          "total_pnl": -182.0,
+          "mean_pnl": -26.0,
+          "win_rate": 0.429,
+          "mean_ror": 0.1869,
+          "median_ror": -0.0485,
+          "n_days": 4
+        },
+        "3": {
+          "n": 2,
+          "total_pnl": -306.0,
+          "mean_pnl": -153.0,
+          "win_rate": 0.0,
+          "mean_ror": -0.4189,
+          "median_ror": -0.4189,
+          "n_days": 2
+        },
+        "4": {
+          "n": 6,
+          "total_pnl": 691.0,
+          "mean_pnl": 115.17,
+          "win_rate": 0.5,
+          "mean_ror": 0.2931,
+          "median_ror": 0.2909,
+          "n_days": 5
+        },
+        "5": {
+          "n": 5,
+          "total_pnl": -429.0,
+          "mean_pnl": -85.8,
+          "win_rate": 0.2,
+          "mean_ror": -0.2115,
+          "median_ror": -0.2742,
+          "n_days": 5
+        },
+        "6": {
+          "n": 1,
+          "total_pnl": 362.0,
+          "mean_pnl": 362.0,
+          "win_rate": 1.0,
+          "mean_ror": 0.8829,
+          "median_ror": 0.8829,
+          "n_days": 1
+        }
+      }
+    },
+    "safe-2": {
+      "n": 28,
+      "spearman": -0.1958,
+      "buckets": {
+        "0": {
+          "n": 11,
+          "total_pnl": 461.0,
+          "mean_pnl": 41.91,
+          "win_rate": 0.364,
+          "mean_ror": 0.1639,
+          "median_ror": -0.1026,
+          "n_days": 6
+        },
+        "1": {
+          "n": 5,
+          "total_pnl": 11.0,
+          "mean_pnl": 2.2,
+          "win_rate": 0.4,
+          "mean_ror": 0.1656,
+          "median_ror": 0.0,
+          "n_days": 4
+        },
+        "3": {
+          "n": 4,
+          "total_pnl": -225.0,
+          "mean_pnl": -56.25,
+          "win_rate": 0.25,
+          "mean_ror": -0.165,
+          "median_ror": -0.2302,
+          "n_days": 3
+        },
+        "4": {
+          "n": 3,
+          "total_pnl": 279.0,
+          "mean_pnl": 93.0,
+          "win_rate": 0.333,
+          "mean_ror": 0.1361,
+          "median_ror": -0.2623,
+          "n_days": 1
+        },
+        "5": {
+          "n": 4,
+          "total_pnl": -214.0,
+          "mean_pnl": -53.5,
+          "win_rate": 0.0,
+          "mean_ror": -0.1432,
+          "median_ror": -0.0912,
+          "n_days": 3
+        },
+        "6": {
+          "n": 1,
+          "total_pnl": -141.0,
+          "mean_pnl": -141.0,
+          "win_rate": 0.0,
+          "mean_ror": -0.4052,
+          "median_ror": -0.4052,
+          "n_days": 1
+        }
+      }
+    },
+    "safe-3": {
+      "n": 26,
+      "spearman": -0.2155,
+      "buckets": {
+        "1": {
+          "n": 5,
+          "total_pnl": 629.0,
+          "mean_pnl": 125.8,
+          "win_rate": 0.6,
+          "mean_ror": 0.302,
+          "median_ror": 0.1538,
+          "n_days": 3
+        },
+        "3": {
+          "n": 4,
+          "total_pnl": -458.0,
+          "mean_pnl": -114.5,
+          "win_rate": 0.5,
+          "mean_ror": 0.0309,
+          "median_ror": -0.0775,
+          "n_days": 4
+        },
+        "4": {
+          "n": 11,
+          "total_pnl": -53.0,
+          "mean_pnl": -4.82,
+          "win_rate": 0.273,
+          "mean_ror": 0.0374,
+          "median_ror": -0.1618,
+          "n_days": 7
+        },
+        "5": {
+          "n": 5,
+          "total_pnl": -251.0,
+          "mean_pnl": -50.2,
+          "win_rate": 0.0,
+          "mean_ror": -0.0866,
+          "median_ror": -0.0376,
+          "n_days": 4
+        },
+        "6": {
+          "n": 1,
+          "total_pnl": -141.0,
+          "mean_pnl": -141.0,
+          "win_rate": 0.0,
+          "mean_ror": -0.373,
+          "median_ror": -0.373,
+          "n_days": 1
+        }
+      }
+    }
+  },
+  "H4_c1_corrected": {
+    "n_rows_corrected": 15,
+    "note": "+2 forced on every row whose trigger level WAS in the engine's own logged levels_active but which the level reconstruction did not carry. C2 stays 0 on these rows (the record's memory metadata is unknown), so this is an upper bound on C1 and still a lower bound on the total.",
+    "score_distribution": {
+      "0": 99,
+      "1": 19,
+      "3": 28,
+      "4": 35,
+      "5": 20,
+      "6": 4
+    },
+    "spearman_all": -0.1451,
+    "spearman_level_anchored": -0.1221,
+    "buckets_level_anchored": {
+      "0": {
+        "n": 39,
+        "total_pnl": 1151.0,
+        "mean_pnl": 29.51,
+        "win_rate": 0.385,
+        "mean_ror": 0.1479,
+        "median_ror": -0.0513,
+        "n_days": 9
+      },
+      "1": {
+        "n": 8,
+        "total_pnl": -881.0,
+        "mean_pnl": -110.12,
+        "win_rate": 0.125,
+        "mean_ror": -0.317,
+        "median_ror": -0.4839,
+        "n_days": 3
+      },
+      "3": {
+        "n": 28,
+        "total_pnl": 1081.0,
+        "mean_pnl": 38.61,
+        "win_rate": 0.464,
+        "mean_ror": 0.1982,
+        "median_ror": -0.0531,
+        "n_days": 6
+      },
+      "4": {
+        "n": 35,
+        "total_pnl": 550.0,
+        "mean_pnl": 15.71,
+        "win_rate": 0.314,
+        "mean_ror": 0.0497,
+        "median_ror": -0.1818,
+        "n_days": 8
+      },
+      "5": {
+        "n": 20,
+        "total_pnl": -1109.0,
+        "mean_pnl": -55.45,
+        "win_rate": 0.05,
+        "mean_ror": -0.1307,
+        "median_ror": -0.1172,
+        "n_days": 5
+      },
+      "6": {
+        "n": 4,
+        "total_pnl": -190.0,
+        "mean_pnl": -47.5,
+        "win_rate": 0.25,
+        "mean_ror": -0.0854,
+        "median_ror": -0.3891,
+        "n_days": 1
+      }
+    },
+    "ratchet_floor5": {
+      "floor": 5,
+      "n_taken": 21,
+      "n_blocked": 184,
+      "blocked_share": 0.898,
+      "suppressed_pnl": -22.0,
+      "kept_pnl": -1210.0,
+      "kept_expectancy": -57.62,
+      "baseline_expectancy": -6.01,
+      "kept_win_rate": 0.095,
+      "kept_mean_ror": -0.1296,
+      "baseline_mean_ror": 0.0233,
+      "null_p05": -487.0,
+      "null_median": 159.0,
+      "null_p95": 835.0,
+      "p_observed_le_null": 0.32525,
+      "verdict": "NULL: suppression indistinguishable from random; kept cohort WORSE than baseline"
+    }
+  },
+  "H5_floor_sweep_all": {
+    "2": {
+      "floor": 2,
+      "n_taken": 63,
+      "n_blocked": 142,
+      "blocked_share": 0.693,
+      "suppressed_pnl": 762.0,
+      "kept_pnl": -1994.0,
+      "kept_expectancy": -31.65,
+      "baseline_expectancy": -6.01,
+      "kept_win_rate": 0.175,
+      "kept_mean_ror": -0.0559,
+      "baseline_mean_ror": 0.0233,
+      "null_p05": -631.0,
+      "null_median": 823.0,
+      "null_p95": 2190.0,
+      "p_observed_le_null": 0.4724,
+      "verdict": "NULL: suppression indistinguishable from random; kept cohort WORSE than baseline"
+    },
+    "3": {
+      "floor": 3,
+      "n_taken": 51,
+      "n_blocked": 154,
+      "blocked_share": 0.751,
+      "suppressed_pnl": -303.0,
+      "kept_pnl": -929.0,
+      "kept_expectancy": -18.22,
+      "baseline_expectancy": -6.01,
+      "kept_win_rate": 0.196,
+      "kept_mean_ror": -0.0221,
+      "baseline_mean_ror": 0.0233,
+      "null_p05": -1365.0,
+      "null_median": 95.0,
+      "null_p95": 1464.0,
+      "p_observed_le_null": 0.33145,
+      "verdict": "NULL: suppression indistinguishable from random; kept cohort WORSE than baseline"
+    },
+    "4": {
+      "floor": 4,
+      "n_taken": 39,
+      "n_blocked": 166,
+      "blocked_share": 0.81,
+      "suppressed_pnl": 261.0,
+      "kept_pnl": -1493.0,
+      "kept_expectancy": -38.28,
+      "baseline_expectancy": -6.01,
+      "kept_win_rate": 0.179,
+      "kept_mean_ror": -0.0427,
+      "baseline_mean_ror": 0.0233,
+      "null_p05": -1374.0,
+      "null_median": -70.0,
+      "null_p95": 1065.0,
+      "p_observed_le_null": 0.67305,
+      "verdict": "NULL: suppression indistinguishable from random; kept cohort WORSE than baseline"
+    },
+    "5": {
+      "floor": 5,
+      "n_taken": 21,
+      "n_blocked": 184,
+      "blocked_share": 0.898,
+      "suppressed_pnl": -22.0,
+      "kept_pnl": -1210.0,
+      "kept_expectancy": -57.62,
+      "baseline_expectancy": -6.01,
+      "kept_win_rate": 0.095,
+      "kept_mean_ror": -0.1296,
+      "baseline_mean_ror": 0.0233,
+      "null_p05": -487.0,
+      "null_median": 159.0,
+      "null_p95": 835.0,
+      "p_observed_le_null": 0.32525,
+      "verdict": "NULL: suppression indistinguishable from random; kept cohort WORSE than baseline"
+    },
+    "6": {
+      "floor": 6,
+      "n_taken": 4,
+      "n_blocked": 201,
+      "blocked_share": 0.98,
+      "suppressed_pnl": -1042.0,
+      "kept_pnl": -190.0,
+      "kept_expectancy": -47.5,
+      "baseline_expectancy": -6.01,
+      "kept_win_rate": 0.25,
+      "kept_mean_ror": -0.0854,
+      "baseline_mean_ror": 0.0233,
+      "null_p05": -1168.0,
+      "null_median": -798.0,
+      "null_p95": -600.0,
+      "p_observed_le_null": 0.33685,
+      "verdict": "NULL: suppression indistinguishable from random; kept cohort WORSE than baseline"
+    }
+  },
+  "H5_floor_sweep_level_anchored": {
+    "2": {
+      "floor": 2,
+      "n_taken": 63,
+      "n_blocked": 71,
+      "blocked_share": 0.53,
+      "suppressed_pnl": 2596.0,
+      "kept_pnl": -1994.0,
+      "kept_expectancy": -31.65,
+      "baseline_expectancy": 4.49,
+      "kept_win_rate": 0.175,
+      "kept_mean_ror": -0.0559,
+      "baseline_mean_ror": 0.0565,
+      "null_p05": 1158.0,
+      "null_median": 2401.0,
+      "null_p95": 3649.0,
+      "p_observed_le_null": 0.5953,
+      "verdict": "NULL: suppression indistinguishable from random; kept cohort WORSE than baseline"
+    },
+    "3": {
+      "floor": 3,
+      "n_taken": 51,
+      "n_blocked": 83,
+      "blocked_share": 0.619,
+      "suppressed_pnl": 1531.0,
+      "kept_pnl": -929.0,
+      "kept_expectancy": -18.22,
+      "baseline_expectancy": 4.49,
+      "kept_win_rate": 0.196,
+      "kept_mean_ror": -0.0221,
+      "baseline_mean_ror": 0.0565,
+      "null_p05": 357.0,
+      "null_median": 1617.0,
+      "null_p95": 2865.0,
+      "p_observed_le_null": 0.4562,
+      "verdict": "NULL: suppression indistinguishable from random; kept cohort WORSE than baseline"
+    },
+    "4": {
+      "floor": 4,
+      "n_taken": 39,
+      "n_blocked": 95,
+      "blocked_share": 0.709,
+      "suppressed_pnl": 2095.0,
+      "kept_pnl": -1493.0,
+      "kept_expectancy": -38.28,
+      "baseline_expectancy": 4.49,
+      "kept_win_rate": 0.179,
+      "kept_mean_ror": -0.0427,
+      "baseline_mean_ror": 0.0565,
+      "null_p05": 242.0,
+      "null_median": 1496.0,
+      "null_p95": 2517.0,
+      "p_observed_le_null": 0.8072,
+      "verdict": "NULL: suppression indistinguishable from random; kept cohort WORSE than baseline"
+    },
+    "5": {
+      "floor": 5,
+      "n_taken": 21,
+      "n_blocked": 113,
+      "blocked_share": 0.843,
+      "suppressed_pnl": 1812.0,
+      "kept_pnl": -1210.0,
+      "kept_expectancy": -57.62,
+      "baseline_expectancy": 4.49,
+      "kept_win_rate": 0.095,
+      "kept_mean_ror": -0.1296,
+      "baseline_mean_ror": 0.0565,
+      "null_p05": 1310.0,
+      "null_median": 1756.0,
+      "null_p95": 2178.0,
+      "p_observed_le_null": 0.58285,
+      "verdict": "NULL: suppression indistinguishable from random; kept cohort WORSE than baseline"
+    },
+    "6": {
+      "floor": 6,
+      "n_taken": 4,
+      "n_blocked": 130,
+      "blocked_share": 0.97,
+      "suppressed_pnl": 792.0,
+      "kept_pnl": -190.0,
+      "kept_expectancy": -47.5,
+      "baseline_expectancy": 4.49,
+      "kept_win_rate": 0.25,
+      "kept_mean_ror": -0.0854,
+      "baseline_mean_ror": 0.0565,
+      "null_p05": 666.0,
+      "null_median": 792.0,
+      "null_p95": 1234.0,
+      "p_observed_le_null": 0.5024,
+      "verdict": "NULL: suppression indistinguishable from random; kept cohort WORSE than baseline"
+    }
+  },
+  "H5_flat_floor_no_ratchet": {
+    "2": {
+      "floor": 2,
+      "n_taken": 72,
+      "n_blocked": 133,
+      "blocked_share": 0.649,
+      "suppressed_pnl": 954.0,
+      "kept_pnl": -2186.0,
+      "kept_expectancy": -30.36,
+      "baseline_expectancy": -6.01,
+      "kept_win_rate": 0.222,
+      "kept_mean_ror": -0.0477,
+      "baseline_mean_ror": 0.0233,
+      "null_p05": -541.0,
+      "null_median": 888.0,
+      "null_p95": 2220.0,
+      "p_observed_le_null": 0.5297,
+      "verdict": "NULL: suppression indistinguishable from random; kept cohort WORSE than baseline"
+    },
+    "3": {
+      "floor": 3,
+      "n_taken": 72,
+      "n_blocked": 133,
+      "blocked_share": 0.649,
+      "suppressed_pnl": 954.0,
+      "kept_pnl": -2186.0,
+      "kept_expectancy": -30.36,
+      "baseline_expectancy": -6.01,
+      "kept_win_rate": 0.222,
+      "kept_mean_ror": -0.0477,
+      "baseline_mean_ror": 0.0233,
+      "null_p05": -541.0,
+      "null_median": 888.0,
+      "null_p95": 2220.0,
+      "p_observed_le_null": 0.5297,
+      "verdict": "NULL: suppression indistinguishable from random; kept cohort WORSE than baseline"
+    },
+    "4": {
+      "floor": 4,
+      "n_taken": 59,
+      "n_blocked": 146,
+      "blocked_share": 0.712,
+      "suppressed_pnl": -483.0,
+      "kept_pnl": -749.0,
+      "kept_expectancy": -12.69,
+      "baseline_expectancy": -6.01,
+      "kept_win_rate": 0.22,
+      "kept_mean_ror": -0.0206,
+      "baseline_mean_ror": 0.0233,
+      "null_p05": -1315.0,
+      "null_median": 168.0,
+      "null_p95": 1506.0,
+      "p_observed_le_null": 0.2301,
+      "verdict": "NULL: suppression indistinguishable from random; kept cohort WORSE than baseline"
+    },
+    "5": {
+      "floor": 5,
+      "n_taken": 24,
+      "n_blocked": 181,
+      "blocked_share": 0.883,
+      "suppressed_pnl": 67.0,
+      "kept_pnl": -1299.0,
+      "kept_expectancy": -54.12,
+      "baseline_expectancy": -6.01,
+      "kept_win_rate": 0.083,
+      "kept_mean_ror": -0.1232,
+      "baseline_mean_ror": 0.0233,
+      "null_p05": -413.0,
+      "null_median": 266.0,
+      "null_p95": 954.0,
+      "p_observed_le_null": 0.31875,
+      "verdict": "NULL: suppression indistinguishable from random; kept cohort WORSE than baseline"
+    },
+    "6": {
+      "floor": 6,
+      "n_taken": 4,
+      "n_blocked": 201,
+      "blocked_share": 0.98,
+      "suppressed_pnl": -1042.0,
+      "kept_pnl": -190.0,
+      "kept_expectancy": -47.5,
+      "baseline_expectancy": -6.01,
+      "kept_win_rate": 0.25,
+      "kept_mean_ror": -0.0854,
+      "baseline_mean_ror": 0.0233,
+      "null_p05": -1168.0,
+      "null_median": -798.0,
+      "null_p95": -600.0,
+      "p_observed_le_null": 0.33685,
+      "verdict": "NULL: suppression indistinguishable from random; kept cohort WORSE than baseline"
+    }
+  },
+  "H7_independence": {
+    "n_fills": 205,
+    "n_distinct_signals": 88,
+    "fanout": 2.33,
+    "buckets_all_signals": {
+      "0": {
+        "n_signals": 54,
+        "n_fills": 99,
+        "signal_win_rate": 0.241,
+        "mean_ror": 0.0103,
+        "total_pnl": -283.0,
+        "n_days": 18
+      },
+      "1": {
+        "n_signals": 12,
+        "n_fills": 34,
+        "signal_win_rate": 0.417,
+        "mean_ror": 0.0344,
+        "total_pnl": 1237.0,
+        "n_days": 9
+      },
+      "3": {
+        "n_signals": 5,
+        "n_fills": 13,
+        "signal_win_rate": 0.6,
+        "mean_ror": 0.0278,
+        "total_pnl": -1437.0,
+        "n_days": 5
+      },
+      "4": {
+        "n_signals": 11,
+        "n_fills": 35,
+        "signal_win_rate": 0.364,
+        "mean_ror": 0.1096,
+        "total_pnl": 550.0,
+        "n_days": 8
+      },
+      "5": {
+        "n_signals": 5,
+        "n_fills": 20,
+        "signal_win_rate": 0.0,
+        "mean_ror": -0.1628,
+        "total_pnl": -1109.0,
+        "n_days": 5
+      },
+      "6": {
+        "n_signals": 1,
+        "n_fills": 4,
+        "signal_win_rate": 0.0,
+        "mean_ror": -0.0854,
+        "total_pnl": -190.0,
+        "n_days": 1
+      }
+    },
+    "buckets_level_anchored_signals": {
+      "0": {
+        "n_signals": 21,
+        "n_fills": 39,
+        "signal_win_rate": 0.238,
+        "mean_ror": 0.0804,
+        "total_pnl": 1151.0,
+        "n_days": 9
+      },
+      "1": {
+        "n_signals": 8,
+        "n_fills": 23,
+        "signal_win_rate": 0.375,
+        "mean_ror": 0.1087,
+        "total_pnl": 1637.0,
+        "n_days": 5
+      },
+      "3": {
+        "n_signals": 5,
+        "n_fills": 13,
+        "signal_win_rate": 0.6,
+        "mean_ror": 0.0278,
+        "total_pnl": -1437.0,
+        "n_days": 5
+      },
+      "4": {
+        "n_signals": 11,
+        "n_fills": 35,
+        "signal_win_rate": 0.364,
+        "mean_ror": 0.1096,
+        "total_pnl": 550.0,
+        "n_days": 8
+      },
+      "5": {
+        "n_signals": 5,
+        "n_fills": 20,
+        "signal_win_rate": 0.0,
+        "mean_ror": -0.1628,
+        "total_pnl": -1109.0,
+        "n_days": 5
+      },
+      "6": {
+        "n_signals": 1,
+        "n_fills": 4,
+        "signal_win_rate": 0.0,
+        "mean_ror": -0.0854,
+        "total_pnl": -190.0,
+        "n_days": 1
+      }
+    },
+    "high_score_signals": {
+      "n_signals": 6,
+      "n_winning_signals": 0,
+      "n_fills": 24,
+      "total_pnl": -1299.0,
+      "baseline_signal_win_rate_level_anchored": 0.294,
+      "binomial_p_at_baseline_wr": 0.1237,
+      "reading": "the ENTIRE high-conviction evidence base is these signals; the per-FILL win rate overstates the sample by the fan-out factor"
+    },
+    "spearman_signal_level": -0.0855,
+    "spearman_signal_level_anchored": -0.025
+  },
+  "H8_role_side_coherence": {
+    "COHERENT": {
+      "n_fills": 15,
+      "n_signals": 4,
+      "win_rate": 0.067,
+      "mean_ror": -0.3466,
+      "total_pnl": -2349.0
+    },
+    "INCOHERENT": {
+      "n_fills": 57,
+      "n_signals": 18,
+      "win_rate": 0.263,
+      "mean_ror": 0.0309,
+      "total_pnl": 163.0
+    },
+    "verdict": "NOT SUPPORTED on this population: the sign is the opposite of the hypothesis and both cells rest on <20 signals -- do not add C1 role-gating on this evidence"
+  }
+}

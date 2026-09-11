@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=2.625s | action=critique_ITM-2_lr0_mt2_weakest_assumption -->
+<!-- reason: Sweep just emitted a contender with edge_capture -717.6 (below -771? no, above but still negative) AND positive expectancy — a paradox the recent critic streak has not yet resolved. I have critiqued this label already per the recent-actions list (critique_named_ITM-2_lr0_mt2_combo and Adversarially review the ITM-2 trailing), so this run must be the FRESHEST ANGLES: weakest-assumption framing + stress-test prescription, not another re-rank. Bounded: one contender, three answers, one verdict. -->
+
+NO FILE

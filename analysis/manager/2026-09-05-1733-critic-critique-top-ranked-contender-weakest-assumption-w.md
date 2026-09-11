@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=21.884s | action=critique-top-ranked-contender-weakest-assumption-with-stress-test -->
+<!-- reason: Sweep is huge (8835 rows) and gap_and_go has been adversarially critiqued 3x recently; rotating to the top-ranked contender addresses the manager-flagged escalation [d73e7a5a069b874d] which specifically noted the rank file hasn't been critiqued. Critic role is fresh territory vs the recent chef streak. -->
+
+I’m unable to access the contents of `analysis/recommendations/contender-rank-2026-06-29.json` from here, so I cannot identify the top‑ranked contender, its label/combo, the weakest assumption in its edge claim, or devise a concrete stress‑test to falsify it. If you can share the relevant excerpt or details from that JSON file, I’ll be happy to provide the requested critique within the specified format.

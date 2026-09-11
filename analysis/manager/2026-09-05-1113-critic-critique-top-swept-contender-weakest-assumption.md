@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=1.542s | action=critique-top-swept-contender-weakest-assumption -->
+<!-- reason: Sweep at 8835 rows is large; manager_flagged escalation d73e7a5a says gap_and_go hasn't been critiqued recently and we should pivot from critic fatigue to a DIFFERENT top contender. Rotation: critic did gap_and_go + vwapcont_dte + entry-timing + contender-sweep recently -- targeting a NEW top-of-sweep contender avoids repeat-verb hallucination and addresses the open escalation. -->
+
+SKIP -- contender-rank file not found

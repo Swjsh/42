@@ -1,0 +1,10 @@
+<!-- gamma_manager (FREE) | role=critic lane=ollama::qwen3:14b elapsed=13.203s | action=critique_named_ITM-2_lr0_mt2_combo -->
+<!-- reason: Freshest negative-edge contender in the sweep; the overseer's note #1 is exactly this kind of rank/triage work, and I haven't done a critic review on this specific ITM-2 combo yet (only 'critique_ITM-2-lr0-mt2-stop40-tp150-trailing' was in the log -- the verbatim sweep label here may differ; verifying it's not a repeat is the point). Negative edge_capture + severe WF decay is the textbook reject signature; getting a named defect on record before the sweep churns is high-leverage. -->
+
+(1) **VERDICT: REJECT** (edge_capture=-717.6 < 771 J-edge floor; walk_forward=-0.829 indicates severe overfit).  
+
+(2) **Expectancy vs. edge_capture**: Expectancy is likely per-trade (positive $9.07), while edge_capture nets costs/slippage over the full portfolio. The discrepancy suggests the strategy may have a statistical edge in isolation but fails to survive real-world friction, or the metrics are computed on different windows (e.g., expectancy on in-sample, edge_capture on out-of-sample).  
+
+(3) **Mechanical defect**: The trailing stop (-40%) interacts adversarially with the hard stop, creating **whipsaw** during volatile moves. With WR=33%, the +150% TP rarely triggers, but the trailing stop exacerbates losses on losing trades, amplifying drawdowns (max_dd=-$2,664). The low WR also implies poor win-rate despite positive expectancy, suggesting the strategy relies on rare, high-reward wins that are not robust.  
+
+(4) **Concrete test**: Re-run the combo with **stop=-25%** and **TP=+80%** (controlled variant). If edge_capture improves significantly while maintaining WR>33%, it would suggest the original parameters were overfit; if not, the core logic is flawed.

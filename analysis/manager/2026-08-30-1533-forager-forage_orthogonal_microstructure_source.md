@@ -1,0 +1,6 @@
+<!-- gamma_manager (FREE) | role=forager lane=google_aistudio::gemini-flash-lite-latest elapsed=1.585s | action=forage_orthogonal_microstructure_source -->
+<!-- reason: Kitchen pending queue #1 demands a level-rejection pullback variant that beats the structure-shift null on real fills; we cannot design that discriminating test without an orthogonal microstructure tape (e.g., CBOE Open/Close volume profiles, IEX DEEP+, Nasdaq TotalView-ITCH free historical slice, or FINRA ADF bid-test feed). Recent cycles were all critic/strategist on the same file — rotation into foraging breaks the loop and unblocks the queue. -->
+
+SKIP: No such source exists. 
+
+Reason: No publicly available, free HTTP/HTTPS-accessible data source provides 1-min or 5-min resolution intraday SPY/ES data dating back to January 1, 2024, without a paid API key or proprietary subscription. While historical end-of-day data and delayed intraday feeds are common, free raw feeds covering historical intraday timestamps at sub-hourly resolution for index/ETF products require authenticated access, paid brokerage APIs (e.g., Alpaca, Polygon, Interactive Brokers), or local tick-aggregation from proprietary exchange taps (such as our existing NYSE TAQ mirror and CBOE/OPRA feeds), none of which meet the criteria of being freely downloadable via simple HTTP/HTTPS without credentials.

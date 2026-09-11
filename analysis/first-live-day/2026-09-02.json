@@ -1,8 +1,10 @@
 {
   "review_date": "2026-09-02",
-  "generated_at_et": "2026-09-03 00:32:54 ET",
-  "verdict": "GREEN",
-  "failing_checks": [],
+  "generated_at_et": "2026-09-03 03:23:38 ET",
+  "verdict": "YELLOW",
+  "failing_checks": [
+    "guards_full:YELLOW"
+  ],
   "checks": {
     "dms_cadence": {
       "status": "GREEN",
@@ -825,12 +827,10 @@
     },
     "conductor_picks": {
       "status": "ADVISORY",
-      "open_gate_blocking_items": [
-        "CRITERION-5-WINDOW-HAS-ZERO-SLACK"
-      ],
+      "open_gate_blocking_items": [],
       "overnight_fires_checked": 1,
       "fires_missing_gate_blocking_mention": [],
-      "reason": "all 1 overnight fire(s) mention GATE-BLOCKING while 1 item(s) were open"
+      "reason": "no open GATE-BLOCKING queue item in this window -- nothing to check"
     },
     "fleet_kill_switch": {
       "status": "GREEN",
@@ -859,16 +859,17 @@
       }
     },
     "guards_full": {
-      "status": "GREEN",
-      "reason": "failed count matches expected steady-state (0) [verdict recorded 2026-09-02 11:09 ET]",
-      "failed": 0,
+      "status": "YELLOW",
+      "reason": "failed count deviates from expected 0: got 4 [verdict recorded 2026-09-03 02:24 ET; Gamma_GuardsFull next runs 23:15 ET, after this review]",
+      "failed": 4,
       "expected_failed": 0,
       "stale": false,
-      "at": "2026-09-02 11:09 ET"
+      "at": "2026-09-03 02:24 ET"
     }
   },
   "notes": [
     "conductor_picks is ADVISORY/heuristic (STATUS.md prose) -- never contributes to the overall verdict above.",
-    "fleet_kill_switch NO_DATA is expected before the market opens or on a day with no fleet-arm ticks yet -- not treated as a failure."
+    "fleet_kill_switch NO_DATA is expected before the market opens or on a day with no fleet-arm ticks yet -- not treated as a failure.",
+    "NOT_YET (dms_cadence/dms_verdicts/eod_flatten_aggressive) means the session has not reached that check's own evidence checkpoint yet -- not a failure, and never contributes to failing_checks -- but the top-line verdict reads INCOMPLETE (n not yet) rather than GREEN while any is outstanding, so a run before the close is never mistaken for a fully reviewed day."
   ]
 }

@@ -1,0 +1,88 @@
+{
+  "review_date": "2026-09-06",
+  "generated_at_et": "2026-09-06 16:30:01 ET",
+  "verdict": "RED",
+  "failing_checks": [
+    "dms_cadence:RED",
+    "dms_verdicts:RED",
+    "eod_flatten_aggressive:RED",
+    "fleet_kill_switch:NO_DATA",
+    "guards_full:YELLOW"
+  ],
+  "checks": {
+    "dms_cadence": {
+      "status": "RED",
+      "reason": "never fired -- 0 rows in the dead-man's-switch log for this date",
+      "expected_fires": 194,
+      "actual_fires": 0,
+      "gaps": []
+    },
+    "dms_verdicts": {
+      "status": "RED",
+      "reason": "never fired inside the window -- 0 rows to verify",
+      "bad_rows": [],
+      "not_armed_rows": [],
+      "per_arm_actions": {},
+      "out_of_window_rows": 0
+    },
+    "engine_health": {
+      "status": "GREEN",
+      "reason": "escalation_flags + duplicate_ticks both GREEN",
+      "escalation_flags": {
+        "status": "GREEN",
+        "detail": "no unresolved escalation flags"
+      },
+      "duplicate_ticks": {
+        "status": "GREEN",
+        "detail": "2026-09-04: no duplicate core_tick_id per (account,minute) across 121 rows"
+      }
+    },
+    "eod_flatten_aggressive": {
+      "status": "RED",
+      "reason": "Core flatten did not confirm flat for bold-2: outcome=MISSING",
+      "core_outcome": "MISSING",
+      "core_confirmed_flat": false,
+      "agg_llm_status": "NO_LOG",
+      "agg_llm_evidence": [],
+      "rehearsal_rows_ignored": 0
+    },
+    "conductor_picks": {
+      "status": "ADVISORY",
+      "open_gate_blocking_items": [],
+      "overnight_fires_checked": 0,
+      "fires_missing_gate_blocking_mention": [],
+      "reason": "no open GATE-BLOCKING queue item in this window -- nothing to check"
+    },
+    "fleet_kill_switch": {
+      "status": "NO_DATA",
+      "reason": "safe-3: NO DATA -- no decisions.jsonl equity rows for this date (before the open this is expected; at 16:30 ET it means the arm never ticked); risky-1: NO DATA -- no decisions.jsonl equity rows for this date (before the open this is expected; at 16:30 ET it means the arm never ticked)",
+      "arms": {
+        "safe-3": {
+          "status": "NO_DATA",
+          "reason": "NO DATA -- no decisions.jsonl equity rows for this date (before the open this is expected; at 16:30 ET it means the arm never ticked)",
+          "starting_equity_today": 6241.85,
+          "tripped": false
+        },
+        "risky-1": {
+          "status": "NO_DATA",
+          "reason": "NO DATA -- no decisions.jsonl equity rows for this date (before the open this is expected; at 16:30 ET it means the arm never ticked)",
+          "starting_equity_today": 6458.59,
+          "tripped": false
+        }
+      }
+    },
+    "guards_full": {
+      "status": "YELLOW",
+      "reason": "failed count deviates from expected 0: got 1 [verdict recorded 2026-09-05 00:51 ET; Gamma_GuardsFull next runs 23:15 ET, after this review]",
+      "failed": 1,
+      "expected_failed": 0,
+      "stale": false,
+      "at": "2026-09-05 00:51 ET"
+    }
+  },
+  "notes": [
+    "conductor_picks is ADVISORY/heuristic (STATUS.md prose) -- never contributes to the overall verdict above.",
+    "fleet_kill_switch NO_DATA is expected before the market opens or on a day with no fleet-arm ticks yet -- not treated as a failure.",
+    "NOT_YET (dms_cadence/dms_verdicts/eod_flatten_aggressive) means the session has not reached that check's own evidence checkpoint yet -- not a failure, and never contributes to failing_checks -- but the top-line verdict reads INCOMPLETE (n not yet) rather than GREEN while any is outstanding, so a run before the close is never mistaken for a fully reviewed day."
+  ]
+}

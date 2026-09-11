@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=strategist lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=5.521s | action=T-AUTOPSY-H-2026-09-04 claims `sum_stop_ -->
+<!-- reason: T-AUTOPSY is proposed, not signed off; the 37x dominance ratio smells like an aggregate-counterfact-bias artifact and the recent run is 3x critic — exactly the kind of claim that needs adversarial pressure before we spend W7 on confirmatory. Strategist is fresh this cycle and the prompt is narrow enough to produce a real verdict. -->
+
+FAIL – the autopsy’s dominance claim rests on the assumption that the counterfactual exit is a fixed‑TP% shape that ignores the structure‑stop logic that generated the negative P&L, making the comparison biased (see analysis/autopsies/2026-09-04.md:18).

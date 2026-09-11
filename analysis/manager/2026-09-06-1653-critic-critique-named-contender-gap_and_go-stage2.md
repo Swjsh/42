@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=2.938s | action=critique-named-contender-gap_and_go-stage2 -->
+<!-- reason: Sweep is huge (8835 rows), gap_and_go is the most-shippable contender but hasn't been adversarially critiqued since the critique-gap_and_go-weakest-assumption pass — this directly addresses manager_flagged escalation [d73e7a5a069b874d] and is the highest-leverage R&D use of the day. Critic lane has been overused recently but this is a NAMED, SPECIFIC critique on the named contender, not a generic review. -->
+
+SKIP: cannot read contender-rank-2026-06-29.json

@@ -1,0 +1,8 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=9.329s | action=critique-newest-candidate-vwap-mean-reversion-with-rsi-divergence -->
+<!-- reason: Sweep is grinding on ITM-2 stop variants (last: edge_capture -717.6, op16_reject true). Newest chef output is a fresh VWAP-MR+RSI variant that has not been critiqued; the family is high-volume (8 candidates today) so a single sharp critique beats a fourth sibling. -->
+
+**Critique of `2026-09-05-chef-nemo-vwap-mean-reversion-with-rsi-divergence.md`**
+
+- **Look‑ahead:** I cannot access the file’s contents to quote the exact rule, so I cannot determine whether the RSI divergence is confirmed on the close of the divergence bar or uses the current bar’s high/low.  
+- **Sample independence:** Without the specific signal‑generation logic, I cannot estimate the mean inter‑signal time or assess whether consecutive VWAP touches produce clustered signals; thus I cannot state whether the effective sample size approximates n or is roughly halved.  
+- **Single weakest assumption & stress‑test:** The edge claim likely hinges on the assumption that RSI divergence reliably predicts a mean‑reverting move after a VWAP touch. A concrete stress‑test to falsify this would be to run the strategy on a synthetic price series where VWAP touches are preserved but RSI values are randomized (destroying any true divergence‑price relationship); if the strategy’s performance collapses to break‑even or worse, the assumption is invalidated.

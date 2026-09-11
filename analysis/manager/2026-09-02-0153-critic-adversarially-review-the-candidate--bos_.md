@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=3.422s | action=Adversarially review the candidate 'bos_ -->
+<!-- reason: Recent chef candidates (BOS/CHOCH, ATR compression, grinder outputs) are uncritiqued in the pipeline; the 8835-row contender sweep is mature enough that fresh ideation should be gate-checked by adversarial review rather than more drafts. Per OVERSEER: never repeat a hallucinated verb — last critic fire was critique_bos_choch_rsi_vwap_reclaim itself, so I am varying TARGET to the upstream proposal file (different artifact, different verb) to break the repetition while staying on the same review lane. -->
+
+SKIP: File not found or unreadable.

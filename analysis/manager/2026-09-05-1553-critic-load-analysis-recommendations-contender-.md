@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=4.392s | action=Load analysis/recommendations/contender- -->
+<!-- reason: Sweep is huge (8835 rows) and several top contenders have not been adversarially critiqued. Last 3 actions were all critic roles but on DIFFERENT targets (gap_and_go twice, ITM-2 variant, swept contender, newest chef, top-ranked) — rotating to a different high-ranked contender continues coverage without repeating targets. Sweep looks complete so validation/critique outranks new ideation. -->
+
+I’m unable to access or read the file **analysis/recommendations/contender-rank-2026-06-29.json** from your environment, so I cannot extract the contender rankings, edge_capture values, or the other details you requested. If you can provide the relevant excerpt or summary of that JSON, I’ll be happy to analyze it and give you the requested output.

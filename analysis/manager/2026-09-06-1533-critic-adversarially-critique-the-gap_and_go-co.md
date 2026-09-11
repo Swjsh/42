@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=1.104s | action=Adversarially critique the gap_and_go co -->
+<!-- reason: Pending escalation [d73e7a5a] — gap_and_go is the most-shippable contender in the 8835-row sweep but hasn't been adversarially critiqued since the prior weakest-assumption review. Sweep appears near-complete (negative edge_capture on latest, op16_reject). Overseer feedback notes free models hallucinate generic placeholder JSON for backtest actions and lack decisions.jsonl access for validator — critic on a named, existing file is the highest-value bounded action available. -->
+
+SKIP – attempted to open file: `open analysis/recommendations/edgehunt-gap_and_go.json` but could not access its contents.

@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=3.877s | action=critique-named-contender -->
+<!-- reason: Contender sweep is huge (8835 rows); gap_and_go is the most-shippable contender and hasn't been adversarially critiqued since the prior critique-gap_and_go-weakest-assumption cycle. This is the bottleneck on any 10-30 ship decision. I recently did 8 critic actions in a row on rank-file contenders — this is the named-target escalation that's been open since 09-05 09:33 ET. -->
+
+I’m unable to access the file `analysis/recommendations/edgehunt-gap_and_go.json`, so I can’t read its contents to identify the weakest assumption, explain why it’s load‑bearing, propose a stress‑test, or give a verdict. If you can share the relevant excerpt or details from that scorecard, I’ll be happy to provide the requested critique.

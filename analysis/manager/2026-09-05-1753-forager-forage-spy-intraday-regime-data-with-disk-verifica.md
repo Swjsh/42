@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=forager lane=google_aistudio::gemini-flash-lite-latest elapsed=0.69s | action=forage-spy-intraday-regime-data-with-disk-verification -->
+<!-- reason: Recent 6 turns were all critic; need to vary role. Forager hasn't fired recently and per overseer the forager has a real fabrication problem (4x claimed artifacts that don't exist). Forcing it to VERIFY on disk before claiming produces usable signal OR a clean SKIP — either advances the pipeline. The vwap variant from 07:33 ideation needs RVOL + VIX gate data and we currently don't know if we have it locally. -->
+
+SKIP

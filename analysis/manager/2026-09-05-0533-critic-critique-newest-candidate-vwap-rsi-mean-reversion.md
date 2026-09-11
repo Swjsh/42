@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=1.626s | action=critique-newest-candidate-vwap-rsi-mean-reversion -->
+<!-- reason: Last 8 actions were ALL critic variants on candidates; the queue file and 'You RECENTLY did' block have no coder/strategist/forager/chef entries in days. Time to break the critic streak and pick something the kitchen just produced that hasn't been touched: the newest chef candidate (vwap_mean_reversion_with_rsi_divergence, 2026-09-05) is freshest in `Recent candidates` and a mean-reversion+RSI-divergence combo on 0DTE is exactly the kind of edge that hides a look-ahead in the divergence definition -- worth a sharp adversarial read before it gets cooked into the sweep. Critique rotates target (different file) while staying in role. -->
+
+SKIP: File not found

@@ -1,6 +1,6 @@
 # 🌙 EOD deep reports — INDEX
 
-> Auto-generated `2026-08-09 14:24:14 Sunday EDT` by obsidian_vault_sync.py -- graph hub, do not edit.
+> Auto-generated `2026-09-10 16:45:01 Thursday EDT` by obsidian_vault_sync.py -- graph hub, do not edit.
 
 ## 2026-08
 
@@ -9,6 +9,11 @@
 - [[analysis/eod-deep/eod-deep-2026-08-05|eod-deep-2026-08-05]]
 - [[analysis/eod-deep/eod-deep-2026-08-06|eod-deep-2026-08-06]]
 - [[analysis/eod-deep/eod-deep-2026-08-07|eod-deep-2026-08-07]]
+- [[analysis/eod-deep/eod-deep-2026-08-11|eod-deep-2026-08-11]]
+- [[analysis/eod-deep/eod-deep-2026-08-12|eod-deep-2026-08-12]]
+- [[analysis/eod-deep/eod-deep-2026-08-19|eod-deep-2026-08-19]]
+- [[analysis/eod-deep/eod-deep-2026-08-20|eod-deep-2026-08-20]]
+- [[analysis/eod-deep/eod-deep-2026-08-21|eod-deep-2026-08-21]]
 
 ## 2026-07
 

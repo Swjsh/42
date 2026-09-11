@@ -1,0 +1,121 @@
+{
+  "model": "nvidia/nemotron-3-super-120b-a12b:free",
+  "n": 10,
+  "agreement": 0.8,
+  "threshold": 0.85,
+  "graduated": false,
+  "verdict": "NOT TRUSTED \u2014 Gamma stays in the loop",
+  "cases": [
+    {
+      "design": "WR-only full split (the trap that fooled us)",
+      "expected": false,
+      "smart": false,
+      "score": 1,
+      "agree": true,
+      "flags": [
+        "hard-fail: metric only win-rate (no expectancy)",
+        "hard-fail: no out-of-sample split (full data)",
+        "soft-demerit: over-fit potential (multiple knob combos)"
+      ],
+      "gamma_why": "judged on win-rate alone, no expectancy, no OOS"
+    },
+    {
+      "design": "expectancy but NO OOS, claims edge",
+      "expected": false,
+      "smart": false,
+      "score": 2,
+      "agree": true,
+      "flags": [
+        "no out-of-sample / walk-forward split when claiming edge"
+      ],
+      "gamma_why": "no out-of-sample split while claiming edge"
+    },
+    {
+      "design": "absurd positive stop",
+      "expected": false,
+      "smart": false,
+      "score": 2,
+      "agree": true,
+      "flags": [
+        "absurd positive stop"
+      ],
+      "gamma_why": "stop is positive (nonsense)"
+    },
+    {
+      "design": "drawdown-only, no edge metric",
+      "expected": false,
+      "smart": true,
+      "score": 5,
+      "agree": false,
+      "flags": [],
+      "gamma_why": "risk metric only, no expectancy/edge metric, no OOS"
+    },
+    {
+      "design": "overfit: 1 filter combo, no OOS, single stop, full",
+      "expected": false,
+      "smart": false,
+      "score": 1,
+      "agree": true,
+      "flags": [
+        "win-rate-only metric (no expectancy)",
+        "no out-of-sample / walk-forward split",
+        "overfit risk: single filter combo"
+      ],
+      "gamma_why": "WR-only + no OOS + many filters disabled (loose+unvalidated)"
+    },
+    {
+      "design": "expectancy + OOS + tight-stop sweep",
+      "expected": true,
+      "smart": true,
+      "score": 8,
+      "agree": true,
+      "flags": [
+        "no null/baseline"
+      ],
+      "gamma_why": "proper metric + OOS + stop sweep"
+    },
+    {
+      "design": "payoff ratio + OOS",
+      "expected": true,
+      "smart": true,
+      "score": 5,
+      "agree": true,
+      "flags": [],
+      "gamma_why": "asymmetry metric + OOS"
+    },
+    {
+      "design": "VIX-regime stratified expectancy",
+      "expected": true,
+      "smart": false,
+      "score": 2,
+      "agree": false,
+      "flags": [
+        "no_out_of_sample_split",
+        "full_data_usage"
+      ],
+      "gamma_why": "stratified expectancy surfaces regime-dependence (the OOS truth)"
+    },
+    {
+      "design": "bull side expectancy + OOS",
+      "expected": true,
+      "smart": true,
+      "score": 9,
+      "agree": true,
+      "flags": [
+        "no_null_baseline"
+      ],
+      "gamma_why": "legit bull-side expectancy + OOS"
+    },
+    {
+      "design": "expectancy OOS, minimal but sound",
+      "expected": true,
+      "smart": true,
+      "score": 8,
+      "agree": true,
+      "flags": [
+        "no null/baseline"
+      ],
+      "gamma_why": "expectancy + OOS present \u2014 minimal but legitimate"
+    }
+  ]
+}

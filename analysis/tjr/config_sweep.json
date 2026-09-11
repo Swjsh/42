@@ -1,0 +1,470 @@
+[
+  {
+    "symbol": "MES",
+    "variant": "baseline_structure_rr2",
+    "n": 196,
+    "win_rate": 30.1,
+    "expectancy_R": 0.031,
+    "total_R": 6.09,
+    "profit_factor": 1.04,
+    "net_usd": -1625.47,
+    "max_dd_usd": -2989.97,
+    "oos_n": 98,
+    "oos_expectancy_R": -0.026,
+    "outcomes": {
+      "target": 50,
+      "stop": 135,
+      "time_exit": 11
+    }
+  },
+  {
+    "symbol": "MES",
+    "variant": "stop_at_sweep_wick",
+    "n": 183,
+    "win_rate": 40.4,
+    "expectancy_R": -0.079,
+    "total_R": -14.38,
+    "profit_factor": 0.85,
+    "net_usd": -1891.25,
+    "max_dd_usd": -2279.35,
+    "oos_n": 92,
+    "oos_expectancy_R": -0.14,
+    "outcomes": {
+      "target": 19,
+      "stop": 89,
+      "time_exit": 75
+    }
+  },
+  {
+    "symbol": "MES",
+    "variant": "rr3_target",
+    "n": 195,
+    "win_rate": 27.2,
+    "expectancy_R": 0.034,
+    "total_R": 6.61,
+    "profit_factor": 1.05,
+    "net_usd": -1776.77,
+    "max_dd_usd": -3132.52,
+    "oos_n": 98,
+    "oos_expectancy_R": 0.011,
+    "outcomes": {
+      "target": 33,
+      "stop": 140,
+      "time_exit": 22
+    }
+  },
+  {
+    "symbol": "MES",
+    "variant": "rr1.5_target",
+    "n": 198,
+    "win_rate": 31.8,
+    "expectancy_R": -0.066,
+    "total_R": -13.06,
+    "profit_factor": 0.9,
+    "net_usd": -3297.3,
+    "max_dd_usd": -3913.49,
+    "oos_n": 99,
+    "oos_expectancy_R": -0.121,
+    "outcomes": {
+      "target": 58,
+      "stop": 133,
+      "time_exit": 7
+    }
+  },
+  {
+    "symbol": "MES",
+    "variant": "fixed_rr_no_draw",
+    "n": 198,
+    "win_rate": 33.8,
+    "expectancy_R": -0.001,
+    "total_R": -0.19,
+    "profit_factor": 1.0,
+    "net_usd": -2234.18,
+    "max_dd_usd": -3106.64,
+    "oos_n": 99,
+    "oos_expectancy_R": -0.067,
+    "outcomes": {
+      "target": 62,
+      "stop": 129,
+      "time_exit": 7
+    }
+  },
+  {
+    "symbol": "MES",
+    "variant": "am_session_only_1130",
+    "n": 78,
+    "win_rate": 25.6,
+    "expectancy_R": -0.111,
+    "total_R": -8.69,
+    "profit_factor": 0.85,
+    "net_usd": -1580.38,
+    "max_dd_usd": -1740.4,
+    "oos_n": 39,
+    "oos_expectancy_R": -0.138,
+    "outcomes": {
+      "target": 19,
+      "stop": 57,
+      "time_exit": 2
+    }
+  },
+  {
+    "symbol": "MES",
+    "variant": "am_killzone_1030",
+    "n": 10,
+    "win_rate": 10.0,
+    "expectancy_R": -0.664,
+    "total_R": -6.64,
+    "profit_factor": 0.26,
+    "net_usd": -789.74,
+    "max_dd_usd": -789.74,
+    "oos_n": 5,
+    "oos_expectancy_R": -0.329,
+    "outcomes": {
+      "target": 1,
+      "stop": 9,
+      "time_exit": 0
+    }
+  },
+  {
+    "symbol": "MES",
+    "variant": "tight_sequence_windows",
+    "n": 86,
+    "win_rate": 27.9,
+    "expectancy_R": -0.105,
+    "total_R": -9.02,
+    "profit_factor": 0.85,
+    "net_usd": -1862.34,
+    "max_dd_usd": -2111.77,
+    "oos_n": 43,
+    "oos_expectancy_R": -0.373,
+    "outcomes": {
+      "target": 20,
+      "stop": 62,
+      "time_exit": 4
+    }
+  },
+  {
+    "symbol": "MES",
+    "variant": "loose_sequence_windows",
+    "n": 272,
+    "win_rate": 30.5,
+    "expectancy_R": 0.011,
+    "total_R": 2.98,
+    "profit_factor": 1.02,
+    "net_usd": -2595.47,
+    "max_dd_usd": -3439.17,
+    "oos_n": 136,
+    "oos_expectancy_R": 0.013,
+    "outcomes": {
+      "target": 70,
+      "stop": 187,
+      "time_exit": 15
+    }
+  },
+  {
+    "symbol": "MES",
+    "variant": "stop_cap_10pts",
+    "n": 167,
+    "win_rate": 31.1,
+    "expectancy_R": 0.08,
+    "total_R": 13.44,
+    "profit_factor": 1.12,
+    "net_usd": -943.2,
+    "max_dd_usd": -2467.68,
+    "oos_n": 84,
+    "oos_expectancy_R": 0.019,
+    "outcomes": {
+      "target": 46,
+      "stop": 115,
+      "time_exit": 6
+    }
+  },
+  {
+    "symbol": "MES",
+    "variant": "one_trade_per_day",
+    "n": 164,
+    "win_rate": 28.7,
+    "expectancy_R": -0.018,
+    "total_R": -2.97,
+    "profit_factor": 0.97,
+    "net_usd": -2089.01,
+    "max_dd_usd": -2989.28,
+    "oos_n": 82,
+    "oos_expectancy_R": -0.135,
+    "outcomes": {
+      "target": 40,
+      "stop": 115,
+      "time_exit": 9
+    }
+  },
+  {
+    "symbol": "MES",
+    "variant": "htf_240m_pool",
+    "n": 153,
+    "win_rate": 26.1,
+    "expectancy_R": -0.124,
+    "total_R": -18.99,
+    "profit_factor": 0.83,
+    "net_usd": -3561.67,
+    "max_dd_usd": -3939.63,
+    "oos_n": 77,
+    "oos_expectancy_R": -0.209,
+    "outcomes": {
+      "target": 30,
+      "stop": 112,
+      "time_exit": 11
+    }
+  },
+  {
+    "symbol": "MES",
+    "variant": "swings_3_3",
+    "n": 129,
+    "win_rate": 31.0,
+    "expectancy_R": 0.014,
+    "total_R": 1.76,
+    "profit_factor": 1.02,
+    "net_usd": -1321.27,
+    "max_dd_usd": -2785.77,
+    "oos_n": 65,
+    "oos_expectancy_R": 0.065,
+    "outcomes": {
+      "target": 31,
+      "stop": 86,
+      "time_exit": 12
+    }
+  },
+  {
+    "symbol": "MNQ",
+    "variant": "baseline_structure_rr2",
+    "n": 205,
+    "win_rate": 25.9,
+    "expectancy_R": -0.11,
+    "total_R": -22.47,
+    "profit_factor": 0.85,
+    "net_usd": -3579.74,
+    "max_dd_usd": -4159.36,
+    "oos_n": 103,
+    "oos_expectancy_R": -0.128,
+    "outcomes": {
+      "target": 45,
+      "stop": 151,
+      "time_exit": 9
+    }
+  },
+  {
+    "symbol": "MNQ",
+    "variant": "stop_at_sweep_wick",
+    "n": 195,
+    "win_rate": 48.7,
+    "expectancy_R": 0.193,
+    "total_R": 37.67,
+    "profit_factor": 1.44,
+    "net_usd": 5703.6,
+    "max_dd_usd": -2136.52,
+    "oos_n": 98,
+    "oos_expectancy_R": 0.332,
+    "outcomes": {
+      "target": 30,
+      "stop": 78,
+      "time_exit": 87
+    }
+  },
+  {
+    "symbol": "MNQ",
+    "variant": "rr3_target",
+    "n": 203,
+    "win_rate": 23.6,
+    "expectancy_R": -0.034,
+    "total_R": -6.98,
+    "profit_factor": 0.95,
+    "net_usd": -2438.8,
+    "max_dd_usd": -3901.62,
+    "oos_n": 102,
+    "oos_expectancy_R": -0.071,
+    "outcomes": {
+      "target": 31,
+      "stop": 154,
+      "time_exit": 18
+    }
+  },
+  {
+    "symbol": "MNQ",
+    "variant": "rr1.5_target",
+    "n": 207,
+    "win_rate": 30.4,
+    "expectancy_R": -0.091,
+    "total_R": -18.87,
+    "profit_factor": 0.87,
+    "net_usd": -2907.42,
+    "max_dd_usd": -3164.79,
+    "oos_n": 104,
+    "oos_expectancy_R": -0.003,
+    "outcomes": {
+      "target": 56,
+      "stop": 143,
+      "time_exit": 8
+    }
+  },
+  {
+    "symbol": "MNQ",
+    "variant": "fixed_rr_no_draw",
+    "n": 207,
+    "win_rate": 32.9,
+    "expectancy_R": -0.018,
+    "total_R": -3.82,
+    "profit_factor": 0.97,
+    "net_usd": -2175.46,
+    "max_dd_usd": -2376.08,
+    "oos_n": 104,
+    "oos_expectancy_R": -0.007,
+    "outcomes": {
+      "target": 66,
+      "stop": 138,
+      "time_exit": 3
+    }
+  },
+  {
+    "symbol": "MNQ",
+    "variant": "am_session_only_1130",
+    "n": 95,
+    "win_rate": 26.3,
+    "expectancy_R": -0.114,
+    "total_R": -10.8,
+    "profit_factor": 0.85,
+    "net_usd": -2190.96,
+    "max_dd_usd": -2684.62,
+    "oos_n": 48,
+    "oos_expectancy_R": 0.054,
+    "outcomes": {
+      "target": 21,
+      "stop": 70,
+      "time_exit": 4
+    }
+  },
+  {
+    "symbol": "MNQ",
+    "variant": "am_killzone_1030",
+    "n": 9,
+    "win_rate": 22.2,
+    "expectancy_R": -0.144,
+    "total_R": -1.3,
+    "profit_factor": 0.81,
+    "net_usd": 26.62,
+    "max_dd_usd": -454.66,
+    "oos_n": 5,
+    "oos_expectancy_R": 0.54,
+    "outcomes": {
+      "target": 1,
+      "stop": 7,
+      "time_exit": 1
+    }
+  },
+  {
+    "symbol": "MNQ",
+    "variant": "tight_sequence_windows",
+    "n": 92,
+    "win_rate": 27.2,
+    "expectancy_R": -0.017,
+    "total_R": -1.59,
+    "profit_factor": 0.98,
+    "net_usd": -983.94,
+    "max_dd_usd": -2144.52,
+    "oos_n": 46,
+    "oos_expectancy_R": -0.319,
+    "outcomes": {
+      "target": 22,
+      "stop": 66,
+      "time_exit": 4
+    }
+  },
+  {
+    "symbol": "MNQ",
+    "variant": "loose_sequence_windows",
+    "n": 280,
+    "win_rate": 26.8,
+    "expectancy_R": -0.053,
+    "total_R": -14.71,
+    "profit_factor": 0.93,
+    "net_usd": -2847.96,
+    "max_dd_usd": -4608.46,
+    "oos_n": 140,
+    "oos_expectancy_R": 0.017,
+    "outcomes": {
+      "target": 66,
+      "stop": 204,
+      "time_exit": 10
+    }
+  },
+  {
+    "symbol": "MNQ",
+    "variant": "stop_cap_10pts",
+    "n": 11,
+    "win_rate": 18.2,
+    "expectancy_R": -0.279,
+    "total_R": -3.07,
+    "profit_factor": 0.66,
+    "net_usd": -411.1,
+    "max_dd_usd": -623.88,
+    "oos_n": 6,
+    "oos_expectancy_R": 0.322,
+    "outcomes": {
+      "target": 2,
+      "stop": 9,
+      "time_exit": 0
+    }
+  },
+  {
+    "symbol": "MNQ",
+    "variant": "one_trade_per_day",
+    "n": 175,
+    "win_rate": 28.0,
+    "expectancy_R": -0.038,
+    "total_R": -6.65,
+    "profit_factor": 0.95,
+    "net_usd": -1746.06,
+    "max_dd_usd": -2785.24,
+    "oos_n": 88,
+    "oos_expectancy_R": -0.061,
+    "outcomes": {
+      "target": 42,
+      "stop": 125,
+      "time_exit": 8
+    }
+  },
+  {
+    "symbol": "MNQ",
+    "variant": "htf_240m_pool",
+    "n": 176,
+    "win_rate": 28.4,
+    "expectancy_R": 0.078,
+    "total_R": 13.71,
+    "profit_factor": 1.11,
+    "net_usd": 117.4,
+    "max_dd_usd": -2641.74,
+    "oos_n": 88,
+    "oos_expectancy_R": 0.349,
+    "outcomes": {
+      "target": 40,
+      "stop": 125,
+      "time_exit": 11
+    }
+  },
+  {
+    "symbol": "MNQ",
+    "variant": "swings_3_3",
+    "n": 127,
+    "win_rate": 27.6,
+    "expectancy_R": -0.074,
+    "total_R": -9.41,
+    "profit_factor": 0.9,
+    "net_usd": -1724.02,
+    "max_dd_usd": -2239.02,
+    "oos_n": 64,
+    "oos_expectancy_R": 0.032,
+    "outcomes": {
+      "target": 25,
+      "stop": 90,
+      "time_exit": 12
+    }
+  }
+]

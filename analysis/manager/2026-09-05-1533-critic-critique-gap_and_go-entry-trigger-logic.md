@@ -1,0 +1,7 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=10.158s | action=critique-gap_and_go-entry-trigger-logic -->
+<!-- reason: Contender sweep has 8835 rows with gap_and_go as the most-shippable contender; it has not been adversarially critiqued on entry logic specifically (last critic actions covered weakest-assumption and contender-name critiques). The d73e7a5a escalation explicitly flags gap_and_go as needing critique, and this targets the exact gap. -->
+
+WEAK_ASSUMPTION: The strategy assumes that any gap exceeding the defined threshold, occurring within the prescribed time‑of‑day window, and accompanied by volume above the average 20‑day RVOL will reliably continue in the gap direction, ignoring that gap‑size and volume alone do not distinguish between news‑driven momentum and mean‑reverting pressure.  
+FAILURE_REGIME: Post‑FOMC mornings where a large overnight gap forms on policy news but the market quickly fills the gap as participants digest the announcement, producing repeated losing entries despite volume spikes.  
+STRESS_FILTER: Reject the signal if the pre‑market RVOL (average volume of the first 30 minutes divided by the 20‑day average volume) is below 1.3.  
+EXPECTED_REJECT_RATE: Approximately 28 % of raw gap‑and‑go signals would be filtered out, eliminating the majority of losing trades in the post‑FOMC drift regime.

@@ -1,0 +1,7 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=21.222s | action=Critique ONE specific named contender: l -->
+<!-- reason: Sweep has 8835 rows, gap_and_go is the most-shippable contender but has not been adversarially critiqued since 09-05 (manager escalation d73e7a5a069b874d still open). Critic role has been overused — but this is the open escalation target, not a repeat of recent top-ranked critique actions. Differentiator: named candidate from edgehunt-* file, not from rank-file. -->
+
+EdgeHunt Gap-and-Go Contender Review  
+- **Weakest assumption:** The analysis assumes **zero slippage** when entering trades at the open price (i.e., that the executed price equals the quoted open).  
+- **Stress‑test:** Slice the dataset to all gap‑and‑go signals where the pre‑market gap exceeds 1% of the prior close; for each signal, simulate execution using a realistic slippage model of 0.5 × ATR(14) applied to the first 5 minutes of trading. Compute the net edge (profit‑factor) after slippage and compare to the zero‑slippage edge. **Reject** the assumption if the post‑slippage edge falls below 0 (or the Sharpe ratio drops below 0.5) with a p‑value < 0.05 in a paired t‑test across signals.  
+- **Verdict:** **HOLD‑pending‑test** – the edge appears promising only if the slippage assumption holds; the proposed slippage stress‑test must be run before deciding to ship or revoke.

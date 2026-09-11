@@ -242,3 +242,15 @@
 {"date": "2026-09-04", "arm": "bold-2", "second_wave_summary": {"present": false, "reason": "no first wave taken this arm/day"}, "capture_rate": null}
 {"date": "2026-09-04", "arm": "safe-3", "second_wave_summary": {"present": false, "reason": "no first wave taken this arm/day"}, "capture_rate": null}
 {"date": "2026-09-04", "arm": "risky-1", "second_wave_summary": {"present": false, "reason": "no first wave taken this arm/day"}, "capture_rate": null}
+{"date": "2026-09-07", "arm": "safe-2", "second_wave_summary": {"present": false, "reason": "no first wave taken this arm/day"}, "capture_rate": null}
+{"date": "2026-09-07", "arm": "bold-2", "second_wave_summary": {"present": false, "reason": "no first wave taken this arm/day"}, "capture_rate": null}
+{"date": "2026-09-07", "arm": "safe-3", "second_wave_summary": {"present": false, "reason": "no first wave taken this arm/day"}, "capture_rate": null}
+{"date": "2026-09-07", "arm": "risky-1", "second_wave_summary": {"present": false, "reason": "no first wave taken this arm/day"}, "capture_rate": null}
+{"date": "2026-09-08", "arm": "safe-2", "second_wave_summary": {"present": false, "reason": "no first wave taken this arm/day"}, "capture_rate": null}
+{"date": "2026-09-08", "arm": "bold-2", "second_wave_summary": {"present": false, "reason": "no first wave taken this arm/day"}, "capture_rate": null}
+{"date": "2026-09-08", "arm": "safe-3", "second_wave_summary": {"present": false, "reason": "no first wave taken this arm/day"}, "capture_rate": null}
+{"date": "2026-09-08", "arm": "risky-1", "second_wave_summary": {"present": false, "reason": "no first wave taken this arm/day"}, "capture_rate": null}
+{"date": "2026-09-10", "arm": "safe-2", "second_wave_summary": {"present": false, "reason": "no first wave taken this arm/day"}, "capture_rate": null}
+{"date": "2026-09-10", "arm": "bold-2", "second_wave_summary": {"present": false, "reason": "no first wave taken this arm/day"}, "capture_rate": null}
+{"date": "2026-09-10", "arm": "safe-3", "second_wave_summary": {"present": false, "reason": "no first wave taken this arm/day"}, "capture_rate": null}
+{"date": "2026-09-10", "arm": "risky-1", "second_wave_summary": {"present": false, "reason": "no first wave taken this arm/day"}, "capture_rate": null}

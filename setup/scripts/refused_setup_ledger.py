@@ -33,7 +33,9 @@ import argparse
 import csv
 import datetime as dt
 import json
+import os
 import sys
+import traceback
 from pathlib import Path
 from typing import Any, Iterable, Optional
 
@@ -42,6 +44,52 @@ STATE = REPO / "automation" / "state"
 DECISIONS = STATE / "core-decisions.jsonl"
 OUT_DIR = REPO / "analysis" / "refusals"
 HIGHRES = REPO / "backtest" / "data" / "highres"
+
+# INSTRUMENTATION (W10, 2026-09-10 -- GOAL-WHY-THIS-WEEK). The 14:20 ET fire on 2026-09-10
+# exited 0 in 8 seconds having written nothing to `analysis/refusals/` -- and there was
+# nothing anywhere (not even a partial file, not a traceback) to say WHY, because (a)
+# run_cmd_hidden.py's own launcher discards captured stdout/stderr whenever the task action
+# omits `--log` (this one does), and (b) `main()` had no verification step: `build()`
+# computing a `doc` dict and PRINTING a summary from it is not evidence the file actually
+# landed on disk. A producer that can exit 0 while writing nothing, with the one channel
+# that could explain it silently discarded, is exactly C7 ("silent success is failure").
+#
+# RUN_LOG is a side channel independent of the run_cmd_hidden pipe: every invocation now
+# writes a "start" event as the FIRST executable statement in main() (before argparse can
+# raise, before any import-time side effect gets a chance to fire), then a "built" event
+# per target date (or a "crash" event with the full traceback -- the one thing the discarded
+# stderr pipe would have carried) before main() either returns or (new) raises. If tomorrow's
+# 14:20 fire reproduces the no-op, this file tells us whether the process ever started at
+# all (a "start" row absent = something outside this script, e.g. the launcher chain, never
+# got this far) or started and then vanished/crashed (a "start" row present with no matching
+# "built"/"crash" = killed mid-run -- but see the reaper discussion below) or ran to
+# completion and STILL failed to persist (a "built" row whose write_ok=false -- a disk/path
+# problem, not a logic problem).
+#
+# Reaper hypothesis (setup/scripts/_shared.ps1#Stop-StaleClaudeProcesses, C8) is DISCARDED
+# for this specific incident on the evidence already in hand: the reaper kills python.exe
+# older than 5 minutes, and the observed fire's own exit was logged 8 seconds after launch
+# (automation/state/logs/run-cmd-hidden-2026-09-10.log, pid=13028, 14:20:01 -> 14:20:09) --
+# far short of the 5-minute threshold. RUN_LOG does not re-litigate that; it is kept here in
+# writing so the next session does not re-open a ruled-out hypothesis.
+RUN_LOG = OUT_DIR / "_run-log.jsonl"
+
+
+def _write_run_log(event: str, **fields: Any) -> None:
+    """Best-effort append-only breadcrumb, independent of stdout/stderr (which the hidden
+    launcher discards on this task). Never raises -- a logging failure must not mask or
+    replace the real failure it exists to explain."""
+    try:
+        OUT_DIR.mkdir(parents=True, exist_ok=True)
+        row = {"ts_et": et_now().isoformat(timespec="seconds"), "event": event,
+               "pid": os.getpid(), **fields}
+        with RUN_LOG.open("a", encoding="utf-8") as fh:
+            fh.write(json.dumps(row, default=str) + "\n")
+    except Exception as exc:  # noqa: BLE001 -- logging itself must never crash the run
+        try:
+            print(f"[refusals] WARNING: run-log write failed ({exc})")
+        except Exception:  # noqa: BLE001 -- even print() can fail under a headless pythonw
+            pass
 
 # A refusal is only interesting if the setup was REAL. Score-only ticks with no trigger are
 # noise -- the engine is supposed to sit on those, and counting them would drown the signal.
@@ -438,7 +486,59 @@ def build(date: str, do_score: bool, do_fetch: bool = False) -> dict:
     return doc
 
 
+def _build_and_verify(date: str, do_score: bool, do_fetch: bool) -> dict:
+    """`build()`, then PROVE it landed on disk before trusting its return value.
+
+    Why this exists: `build()` returning a `doc` dict was, until now, treated as proof of
+    success -- `main()` printed a summary straight from it and returned 0. But a dict in
+    memory is not a file on disk. If ANY future change (or an environment difference this
+    session could not reproduce -- a permissions quirk, a redirected working directory, a
+    partial write) causes the write to fail or be skipped while `build()` still returns
+    normally, this must be the thing that catches it, not the next session finding an empty
+    `analysis/refusals/` directory again. FAIL LOUD: raise, don't return an unverified doc.
+    """
+    out_path = OUT_DIR / f"{date}.json"
+    before_bytes = out_path.stat().st_size if out_path.exists() else None
+    doc = build(date, do_score, do_fetch)
+
+    write_ok = out_path.exists() and out_path.stat().st_size > 0
+    _write_run_log("built", date=date, ticks_read=doc["_meta"]["ticks_read"],
+                   n_episodes=doc["n_episodes"], n_scored=doc["n_scored"],
+                   write_ok=write_ok, path=str(out_path), before_bytes=before_bytes,
+                   after_bytes=out_path.stat().st_size if out_path.exists() else None)
+    if not write_ok:
+        raise RuntimeError(
+            f"refused_setup_ledger: build({date!r}) returned normally "
+            f"(n_episodes={doc['n_episodes']}) but {out_path} does not exist / is empty -- "
+            "refusing to report success. See analysis/refusals/_run-log.jsonl for the "
+            "'built' row with write_ok=false.")
+    return doc
+
+
 def main() -> int:
+    # FIRST executable statement in main() -- before argparse can raise, before any
+    # target-list math, before a single byte of decisions.jsonl is read. If tomorrow's
+    # 14:20 fire produces no "start" row in analysis/refusals/_run-log.jsonl, the process
+    # never reached this line and the cause is outside this script (the launcher chain --
+    # wscript -> run_exe_hidden.vbs -> pythonw -> run_cmd_hidden.py -> pythonw -- not
+    # refused_setup_ledger.py's own logic).
+    _write_run_log("start", argv=sys.argv[1:], executable=sys.executable,
+                   cwd=str(Path.cwd()), file=str(Path(__file__).resolve()))
+    try:
+        return _main_body()
+    except BaseException as exc:  # noqa: BLE001 -- deliberately broad: this is the LAST
+        # chance to record why, because run_cmd_hidden.py (the launcher) captures this
+        # process's stdout/stderr into an in-memory pipe and DISCARDS it whenever the task
+        # action omits --log (this task's action does). Without this, a crash traceback --
+        # the one piece of evidence that would explain a silent failure -- reaches no disk
+        # anywhere. BaseException (not Exception) so a SystemExit raised deep in some
+        # imported module's own top-level code is logged too, not silently let through.
+        _write_run_log("crash", exc_type=type(exc).__name__, exc=str(exc),
+                       traceback=traceback.format_exc())
+        raise
+
+
+def _main_body() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--date", default=None, help="session date (default: today ET)")
     ap.add_argument("--score", action="store_true",
@@ -469,7 +569,7 @@ def main() -> int:
 
     doc = None
     for t in targets:
-        d = build(t, a.score, a.fetch)
+        d = _build_and_verify(t, a.score, a.fetch)
         if t == date:
             doc = d
         else:
@@ -483,6 +583,7 @@ def main() -> int:
         usd = f"  scored {agg['scored']}, ${agg['usd']:+.2f}" if agg["scored"] else "  (unscored)"
         print(f"   {name:<32} {agg['episodes']:>3} episode(s){usd}")
     print(f"[refusals] -> {OUT_DIR / (date + '.json')}")
+    _write_run_log("done", date=date)
     return 0
 
 

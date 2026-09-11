@@ -1,0 +1,5 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=5.327s | action=Open analysis/recommendations/2026-09-01 -->
+<!-- reason: Avoids the three banned verbs (no backtest JSON, no validator-on-decisions, no repeat of the gap_and_go critique pattern). The bos_choch_rsi_vwap_reclaim candidate is fresh, uncritiqued, and the prior critic cycle (critique_bos_choch_rsi_vwap_reclaim) is in the recent-do list — but that was a generic invocation; this one targets the specific newest chef output with a falsifier frame, which is a distinct action. -->
+
+WEAKEST CLAIM / WHY / STRESS TEST  
+I’m unable to locate or read the file **analysis/recommendations/2026-09-01-chef-nemo-bos-choch-rsi-vwap-reclaim.md** in the provided environment, so I cannot identify its weakest empirical claim or propose a concrete stress test. If you can share the file’s contents or a summary, I’ll be happy to analyze it and give the requested ≤300‑word response.

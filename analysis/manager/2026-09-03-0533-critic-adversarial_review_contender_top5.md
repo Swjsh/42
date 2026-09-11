@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=28.034s | action=adversarial_review_contender_top5 -->
+<!-- reason: Sweep is COMPLETE (8835 rows) and overseer action #1 maps to this exact artifact; I just rotated through 8 critic actions so picking this fulfills 'prioritize validating/critiquing its top contenders' without verb repetition (different artifact + different angle). -->
+
+I’m unable to access the file `analysis/recommendations/contender-rank-2026-06-29.json` in the current environment, so I cannot extract the top‑5 entries or determine their parameters, weak links, or appropriate stress‑tests. Without the file’s contents I would be inventing data, which violates the instruction not to invent parameters not present in the file. Therefore I cannot fulfill the request as specified.

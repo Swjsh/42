@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=10.218s | action=critique_sniper_stage2_grinder_top_keeper -->
+<!-- reason: Recent 4 cycles were all critic-on-sweep. Pivoting to a SPECIFIC named candidate (not a re-sweep) targets the freshest keeper and varies the target. Keeps role=critic (overdue rotation would be strategist/forager next cycle). Bounded — reads one file, asks 4 narrow questions, ≤400 words. Avoids the forbidden 'critique_gap_and_go_weakest_assumption' verb flagged in the worker_fabrication escalation. -->
+
+I cannot access the contents of 2026-08-31-chef-nemo-sniper-stage2-grinder-top-keeper.md, so I cannot quote its parameters or identify its weakest assumption, failure mode, parameter tweak, or falsifying historical test without inventing details. Please provide the file text for a concrete critique.

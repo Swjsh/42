@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=6.872s | action=adversarial_review_grinder_shotgun_scalper_stage2_20260903_0621 -->
+<!-- reason: Latest chef candidate from the kitchen queue has zero adversarial review yet and is the freshest uncritiqued draft; overseer just retired the backtest-config verb so critic is the only viable lane for it; cheap bounded work that gates shipping. -->
+
+I’m unable to access the file `2026-09-03-chef-nemo-grinder-shotgun-scalper-stage2-20260903-0621.md`, so I can’t review its scorecard, identify the weakest assumption, propose a falsifying stress‑test, or give a ship/reject recommendation with line‑number citations. Please provide the file contents or confirm that I can read it, and I’ll proceed with the requested analysis.

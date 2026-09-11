@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=validator lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=9.47s | action=verify_fleet_signal_unreadable_delays -->
+<!-- reason: FLEET-SIGNAL-UNREADABLE-WITH-POSITION is HIGH-priority, bundle-candidate for 09-29, and the verification step is the gating read before any kill-type fix is designed. Previous action was strategist (NLWB) and the three before were critics — validator role is the rotation gap and exactly the role needed for a join-style read-only check. This is bounded, ready, and decision-relevant for the next bundle. -->
+
+I’m unable to access the requested file / workspace/analysis/deep‑research/FLEET‑SIGNAL‑UNREADABLE‑WITH‑POSITION‑EXTRACTION‑2026‑09‑03.md (or any newer extractor output) from here, so I cannot compute the unreadable‑tick counts, open‑position ticks, structure_stop exits, or timing differences for the fleet arms. Without that data I cannot produce the required table or verdict.

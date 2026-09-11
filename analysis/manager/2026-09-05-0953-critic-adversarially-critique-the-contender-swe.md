@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=5.652s | action=Adversarially critique the contender-swe -->
+<!-- reason: Contender sweep is huge (8835 rows) and gap_and_go was already critiqued twice recently per manager_flagged escalation; the rank file hasn't been adversarially reviewed yet and the top entry is the next-best ship candidate. Rote critic-rotation per OVERSEER, but the target is fresh. -->
+
+I’m unable to access the file `analysis/recommendations/contender-rank-2026-06-29.json` from this environment, so I cannot load the data, identify the top‑scoring row, or perform the requested adversarial critique. Without the JSON contents I cannot provide the label, combo tuple, weakest assumption, stress‑test, or SHIP/REVOKE/NEEDS‑MORE‑DATA verdict. Please supply the file contents or confirm that the data is available locally for me to proceed.

@@ -1,6 +1,6 @@
 [
   {
-    "generated_at_et": "2026-09-03T03:43:53",
+    "generated_at_et": "2026-09-10T16:52:02",
     "fills": "BROKER",
     "evidence_class": "broker fills",
     "n_trips": 3,
@@ -83,7 +83,7 @@
     ]
   },
   {
-    "generated_at_et": "2026-09-03T03:43:54",
+    "generated_at_et": "2026-09-10T16:52:02",
     "fills": "SIMULATED",
     "evidence_class": "mechanism only -- simulated fills are never edge evidence",
     "n_trips": 11,
@@ -368,7 +368,7 @@
     ]
   },
   {
-    "generated_at_et": "2026-09-03T03:43:54",
+    "generated_at_et": "2026-09-10T16:52:02",
     "fills": "UNKNOWN",
     "evidence_class": "undisclosed -- data hygiene issue",
     "n_trips": 0,

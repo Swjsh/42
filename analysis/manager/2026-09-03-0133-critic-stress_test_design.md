@@ -1,0 +1,6 @@
+<!-- gamma_manager (FREE) | role=critic lane=ollama::qwen3:14b elapsed=27.95s | action=stress_test_design -->
+<!-- reason: Sweep is mass-grinding (8835 rows, latest edge_capture -717.6). Recent history shows 3 critic actions in last 8 cycles plus strategist already critiqued gap_and_go weakest assumption — but that was on a stale snapshot. Scorecard is fresh and under-reviewed; we need a named weakness + a runnable falsifier before promoting any gap_and_go variant. Varys target vs the prior gap_and_go critique which hit a different artifact. -->
+
+The weakest assumption is the **intraday VWAP reclaim timing**—assuming gaps will be reclaimed within a fixed window (e.g., 1–2 hours post-gap). This ignores market regime shifts (e.g., liquidity crunches, news events) that could delay or prevent reclaims.  
+
+**Stress test**: Use `backtest/historical_gap_reclaim_analysis.py` to simulate scenarios where gaps occur during low-liquidity hours (e.g., pre-market) and force reclaims to occur only after 4+ hours. Compare P&L against the baseline scorecard. If the strategy’s edge collapses under this condition, the assumption is falsified. This leverages existing gap-reclaim data in `analysis/gap_fill_timings.csv` to stress-test timing sensitivity.

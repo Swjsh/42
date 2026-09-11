@@ -1,0 +1,6 @@
+<!-- gamma_manager (FREE) | role=critic lane=ollama::qwen3:14b elapsed=14.247s | action=Read analysis/recommendations/edgehunt-g -->
+<!-- reason: Sweep shows 8835 rows and looks near-complete; the overseer-prescribed critique of gap_and_go is the next high-value bounded R&D action and has not been done at this depth yet (prior 'critique_gap_and_go_assumption' was generic). Targets a specific named candidate with a specific question per the action rubric. -->
+
+**Header:** Edge Claim Weakness and Falsification Test  
+**Weakness:** The analysis assumes gap-fill rate persistence across regimes without conditioning on intraday volatility shifts (e.g., crisis vs. calm periods). This overlooks potential regime dependence in gap behavior, which could invalidate reliance on historical fill rates during extreme volatility.  
+**Falsification Test:** Re-run the gap-fill metric on the 2008-2009 crisis period (Jan 2008–Dec 2009), slicing data by intraday volatility quartiles (using 10-day realized volatility). Compare fill rates in high-volatility quartiles to the training period’s average. If fill rates in crisis high-volatility days deviate by >20% from historical norms, the assumption is falsified.

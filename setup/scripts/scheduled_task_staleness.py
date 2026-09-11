@@ -705,7 +705,56 @@ TASK_OUTPUT_MAP: dict = {
     # using the SAME generic ran-but-output-didn't-move check every other row uses --
     # no new logic, just closing the one file the audit line specifically named.
     "Gamma_Home": ("automation/state/autonomy-report.json", "computed_at"),
+    # W11 (GOAL-WHY-THIS-WEEK-2026-09-10): Gamma_TradeAutopsy wasn't even in this map --
+    # its output freshness was never checked at all, on top of the content-blindness fixed
+    # by check_trade_autopsy_data_quality() below. Both gaps close together.
+    "Gamma_TradeAutopsy": ("automation/state/trade-autopsy-last.json", "generated_at"),
 }
+
+# W11 (GOAL-WHY-THIS-WEEK-2026-09-10): trade_autopsy.py's exit_shape_parity_study bar-fetch
+# component intermittently 403s on Alpaca's /v1beta1/options/bars right after the 16:00 ET
+# close (OPRA indexing-lag on the freshly-closed 0DTE contract -- reproduced this session:
+# the identical request replayed minutes/hours later with the same creds returns 200 with a
+# full bar count, so this is NOT an entitlement or malformed-request defect). main() writes
+# an honest `pnl_status` ("verified"/"flat"/"unverified_no_bars") and NEVER lies about
+# net_pnl -- but main() also deliberately always `return 0` ("notify-only: never propagate a
+# failure"), and this file's own output_freshness check only asks "did the timestamp
+# advance", never "was the DATA any good". Task Scheduler + the timestamp-only freshness
+# check can BOTH read GREEN on a day the component came back completely blind. This is the
+# content-level check neither of those catches.
+TRADE_AUTOPSY_LAST_JSON = "automation/state/trade-autopsy-last.json"
+
+
+def check_trade_autopsy_data_quality(root: Path = ROOT) -> dict:
+    """RED when trade-autopsy-last.json's own `pnl_status` says the bar-fetch component
+    came back blind (`unverified_no_bars`) -- regardless of exit code or output timestamp.
+    UNKNOWN when the file is missing/unreadable or carries no recognized status (fail-open,
+    same contract as every other check in this module)."""
+    p = root / TRADE_AUTOPSY_LAST_JSON
+    entry: dict = {"task": "Gamma_TradeAutopsy", "output": TRADE_AUTOPSY_LAST_JSON}
+    try:
+        if not p.exists():
+            entry.update(verdict="UNKNOWN", reason=f"output file missing: {TRADE_AUTOPSY_LAST_JSON}")
+            return entry
+        data = json.loads(p.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        entry.update(verdict="UNKNOWN", reason=f"output file unreadable: {TRADE_AUTOPSY_LAST_JSON}")
+        return entry
+    status = data.get("pnl_status")
+    date = data.get("date")
+    entry["date"] = date
+    if status == "unverified_no_bars":
+        entry.update(verdict="RED", reason=(
+            f"{date}: pnl_status=unverified_no_bars -- {data.get('n_no_bars')} of "
+            f"{data.get('n_positions_found')} closed engine position(s) had no option bars "
+            "after retries (Alpaca options-bar 403/indexing-lag). Task Scheduler shows this "
+            "fire GREEN (exit 0, honoring the notify-only contract) -- only this content "
+            "check catches it."))
+    elif status in ("verified", "flat"):
+        entry.update(verdict="GREEN", reason=f"{date}: pnl_status={status}")
+    else:
+        entry.update(verdict="UNKNOWN", reason=f"{date}: unrecognized pnl_status={status!r}")
+    return entry
 
 
 def read_output_stamp(rel_path: str, stamp_field: str, root: Path = ROOT) -> tuple:
@@ -799,6 +848,7 @@ def build_report(rows: Optional[list[dict]], now: Optional[dt.datetime] = None,
     exit_codes = check_exit_codes(latest, script_to_task_map(rows or []))
     exit_codes += check_missing_launches(rows or [], launched, window_start, now)
     output_freshness = check_output_freshness(rows_by_name, now)
+    data_quality = [check_trade_autopsy_data_quality(root=ROOT)]
 
     if rows is None:
         return {
@@ -808,6 +858,7 @@ def build_report(rows: Optional[list[dict]], now: Optional[dt.datetime] = None,
             "counts": {}, "tasks": [], "findings": [],
             "exit_codes": exit_codes,
             "output_freshness": output_freshness,
+            "data_quality": data_quality,
         }
 
     holds = parse_quiet_holds(quiet_log_text, now=now)
@@ -837,6 +888,7 @@ def build_report(rows: Optional[list[dict]], now: Optional[dt.datetime] = None,
         "tasks": sorted(tasks, key=lambda t: t["name"]),
         "exit_codes": exit_codes,
         "output_freshness": output_freshness,
+        "data_quality": data_quality,
     }
 
 
@@ -868,6 +920,7 @@ def post_output_freshness_status(report: dict, status_path: Optional[Path] = Non
     status_path = STATUS_MD if status_path is None else status_path
     reds = [f for f in report.get("exit_codes", []) if f.get("verdict") == "RED"]
     reds += [f for f in report.get("output_freshness", []) if f.get("verdict") == "RED"]
+    reds += [f for f in report.get("data_quality", []) if f.get("verdict") == "RED"]
     if not reds:
         return skb.upsert(TASK_OUTPUT_FRESHNESS_MARKER, None, status_path=status_path)
     parts = [f"{f.get('task') or f.get('script') or '?'}[{f.get('kind', 'output_stale')}]"

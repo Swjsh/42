@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=5.778s | action=critique_market_structure_shift_vwap_pullback_long_v2 -->
+<!-- reason: Avoid repeating recent verbs (critic: critique_gap_and_go*, ideate_level_rejection done 2x). Critic action is fresh, but TARGET is different: structure-shift vwap pullback long, not gap_and_go. This candidate sits at the top of the recent candidates list and queue.md explicitly demands a null pre-registration before any further work on the level+structure-shift family. Pre-registering the null requires first identifying the weakest assumption to test. -->
+
+SKIP: Unable to access the file `2026-08-31-chef-nemo-market-structure-shift-vwap-pullback-long.md` because the file system is not available in this environment.

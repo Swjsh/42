@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=critic lane=ollama::qwen3:14b elapsed=10.872s | action=Adversarially critique `analysis/recomme -->
+<!-- reason: The chef-fabricated nlwb-pullback-reclaim artifact (escalation ff6ce5055ab88552, 2026-09-05 14:53 ET) is unverified AND this name is new — not in my last 3 critic actions (gap_and_go-weakest-assumption, opening-range-vwap-divergence-meanrev x4). Verifying + critiquing resolves a flagged escalation AND advances the contender sweep critique queue (sweep is 8835 rows, manager_flagged ae654bcadb9c0c59 wants gap_and_go and adjacent edges adversarially reviewed). -->
+
+SKIP: artifact missing at analysis/recommendations/nlwb-pullback-reclaim-20260905-1453.txt

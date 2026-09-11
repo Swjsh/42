@@ -1,13 +1,13 @@
 {
  "_meta": {
-  "generated_at_et": "2026-08-25T17:47:44.782917",
+  "generated_at_et": "2026-09-10T16:34:29.770828",
   "builder": "setup/scripts/entry_shadow_counter.py",
   "forward_prereg": "analysis/recommendations/entry-structure-forward-prereg-2026-08-06.json",
   "shadow_only": "\u26d4 MEASUREMENT ONLY -- neither rule refuses a live entry.",
   "forward_window": {
    "first_date": "2026-08-06",
    "sessions_required": 10,
-   "sessions_elapsed": 14,
+   "sessions_elapsed": 23,
    "dates": [
     "2026-08-06",
     "2026-08-07",
@@ -22,19 +22,28 @@
     "2026-08-20",
     "2026-08-21",
     "2026-08-24",
-    "2026-08-25"
+    "2026-08-25",
+    "2026-08-26",
+    "2026-08-27",
+    "2026-08-28",
+    "2026-09-01",
+    "2026-09-02",
+    "2026-09-03",
+    "2026-09-04",
+    "2026-09-08",
+    "2026-09-10"
    ]
   },
-  "n_entries": 167
+  "n_entries": 232
  },
  "vd1": {
-  "n_blocked": 38,
-  "n_kept": 129,
+  "n_blocked": 39,
+  "n_kept": 193,
   "n_abstain": 0,
-  "forward_delta_usd": 65.0,
+  "forward_delta_usd": 160.0,
   "blocked_winner_usd": 1970.0,
-  "blocked_loser_usd": 2035.0,
-  "blocked_wr_pct": 42.1,
+  "blocked_loser_usd": 2130.0,
+  "blocked_wr_pct": 41.0,
   "f_gate_progress": {
    "F1_direction_delta_positive": true,
    "F2_not_winner_killer": true,
@@ -43,17 +52,17 @@
   }
  },
  "ve3": {
-  "n_blocked": 4,
-  "n_kept": 144,
-  "n_abstain": 19,
-  "forward_delta_usd": 449.0,
+  "n_blocked": 8,
+  "n_kept": 190,
+  "n_abstain": 34,
+  "forward_delta_usd": 715.0,
   "blocked_winner_usd": 0,
-  "blocked_loser_usd": 449.0,
+  "blocked_loser_usd": 715.0,
   "blocked_wr_pct": 0.0,
   "f_gate_progress": {
    "F1_direction_delta_positive": true,
    "F2_not_winner_killer": true,
-   "F3_frequency_n_blocked_ge_8": false,
+   "F3_frequency_n_blocked_ge_8": true,
    "note": "F4 (pooled permutation) + F5 (regime split) are adjudicated by a future session per the prereg -- not computed nightly."
   }
  }

@@ -1,0 +1,328 @@
+# SWARM CONSULT: AUDIT -- Audit Project Gamma (autonomous 0DTE SPY options trader + self-improvement engin
+
+**Filed:** 2026-08-15T17:30:01 ET
+**Mode:** `audit`
+**Cost:** $0.0000
+**Elapsed:** 115.4s
+**Perspectives:** 5 / 5 succeeded
+
+## Question
+
+Audit Project Gamma (autonomous 0DTE SPY options trader + self-improvement engine) for what it is OBVIOUSLY missing or should already be doing AUTONOMOUSLY. List the top 6-8 concrete, ranked, actionable gaps Gamma should self-identify RIGHT NOW: better tools it isn't using, existing infrastructure not connected, next-order implications, and what the operator will point at NEXT. Be specific; avoid generic advice.
+
+## Context (provided)
+
+```
+RECENT STATUS (top):
+## [2026-08-15 ~17:0x ET] 🚨 THE AUTONOMOUS LOOP HAS BEEN DEAD SINCE 08-11. Plus: a prereg clock was dead too, and the shadow layer had ZERO monitoring.
+
+Engine-state survey after the handoff queue. Three findings, all the same shape: **something
+that was supposed to be running silently was not, and every surface reported healthy.**
+
+### 1. 🚨 CLAUDE CLI IS LOGGED OUT — J ACTION REQUIRED (`818a1439`)
+
+**`claude /login`. That is the whole fix, and only J can do it** (interactive OAuth; nothing
+in this repo can clear it, and nothing should retry into it).
+
+**49 failed LLM fires across 8 tasks since 2026-08-11. 100% of conductor fires from 08-12 on**
+(3/3, 4/4, 2/2, 11/11) against ~470 clean fires before. Every fire: spawn `claude` →
+`Not logged in · Please run /login` → exit 1.
+
+Affected: conductor (12), conductor-weekend (9), context_guard (5), eod-flatten (4),
+eod-flatten-aggressive (4), mcp-daily-audit (4-5), premarket (4-8), scout (2).
+
+**Why it survived five days — every layer reported success except the work:**
+- rail-0 budget precheck said `PROCEED — $0.00 of $30.00 used` on every fire. It measures
+  **SPEND**, and a logged-out fire spends nothing. *The cheaper the failure, the more
+  confidently that gate approved it.*
+- Task Scheduler showed `LastTaskResult=0` — the outer wscript hop is fire-and-forget.
+- The masked-exit check DID fire, but could only say `run-conductor-weekend.ps1 (exit=[1], 5x)`,
+  sitting beside unrelated exit=1 noise. Seeing conductor and eod-flatten as separate
+  incidents is what hid the single shared cause.
+- The unattended registry flagged `Conductor RED [3.4d]` — correct, but generic staleness,
+  days late, no cause, no action.
+
+**Nothing visibly broke because the deterministic backstops held** — `eod_flatten.py` covered
+the failed LLM EOD-flatten path, `premarket_deterministic_fallback.py` covered premarket. That
+is the danger, not the reassurance: a backstop silently carrying production is
+indistinguishable from a healthy primary until the backstop is what fails.
+
+Now detected by name: `self_check.check_llm_auth_outage` — one cause, whole fleet, with span
+and per-task counts, classified **BROKEN** (its siblings say DEGRADED because they have
+backstops; this has none) so it routes through the existing STATUS `## Known broken` + Discord
+escalation. **Verified live: self-check flipped DEGRADED → BROKEN and the finding is on this
+file now.**
+
+### 2. An ARMED prereg's forward clock had no producer (`dbc2e004`)
+
+RECENT COMMITS:
+aaa377cb docs(status): survey COMPLETE -- 5 silent outages fixed, remainder triaged with reasons
+019fbe29 feat(registry): claim 8 unmonitored live tasks -- incl. the incident roster guarding nothing
+fee97318 fix(window-leak): the recycle guard BECAME the wedge -- 43h of kill-relaunch thrash
+27543e8d docs(status): engine-state survey -- 3 silent outages, all reporting healthy
+40946629 docs(lessons): a gate that measures SPEND cannot see a failure that costs $0
+818a1439 feat(self-check): name the LLM auth outage -- the autonomous loop has been DEAD for 5 days
+d074e9bb fix(registry): restore unattended-registry formatting -- my own writer reformatted all 62 units
+2673b36e feat(observability): watch the nightly fold's SUB-PRODUCTS, not just its parent
+dbc2e004 fix(shadow): an ARMED prereg's forward clock was DEAD -- its feed had no producer
+595b7a30 docs(status): correct my own entry -- the batch harness had HIDDEN 5 failures; final suite 7306P/3F
+78c96a0f fix(tests): 5 failures my own batch harness had been HIDING -- incl. a half-landed fix
+4d9f0b81 chore: auto-commit 23 strategy/candidates/ changes (auto_commit_candidates.py, L242 prevention guard)
+
+```
+
+## Synthesis (actionable)
+
+_Model: `nvidia/nemotron-3-super-120b-a12b:free`, elapsed 34.6s, cost $0.0000_
+
+**1. Consensus points (all 5 perspectives agree)**  
+- The system currently treats a logged‑out Claude CLI as a *successful* zero‑cost run, letting deterministic backstops carry production without any alert.  
+- Spend‑based pre‑checks (`rail‑0`) cannot detect auth failures because they cost $0.  
+- The existing `self_check.check_llm_auth_outage` is too slow (needs ≥3 failures) and does not trigger immediate, high‑severity escalation.  
+- Deterministic fallbacks (`eod_flatten.py`, `premarket_deterministic_fallback.py`) are being used as silent substitutes for the LLM path, masking regime/vol/Greek checks and creating hidden risk.  
+- Monitoring/observability is blind to “armed but unmonitored” components (shadow/prereg clocks, scout, etc.) and the unattended registry lacks task‑tiering.  
+- Interactive UI pop‑ups from scheduled‑task failures are a real‑world hazard (Windows Script Host default).  
+- There is no automated, non‑interactive recovery path for Claude auth; the system relies on manual J `/login`.  
+
+**2. Key disagreements & which side is more rigorous**  
+
+| Disagreement | Perspectives | Why Perspective 4 is the more rigorous take |
+|--------------|--------------|--------------------------------------------|
+| **Artifact‑gate vs. Liveness‑gate** – Should we require proof of output (e.g., `heartbeat.md` update) or a fresh LLM run before allowing trade entry? | P1, P2, P3, P5 → artifact‑gate; P4 → liveness gate (conductor freshness) | P4 ties the gate directly to the source of truth (J’s edge) and to Rule 9/10: a stale `heartbeat.md` is a symptom, not the cause. Checking that the *primary* LLM‑derived regime/vol data is recent prevents the system from trading on stale heuristics, which is the exact failure mode observed. |
+| **Automated token renewal feasibility** – Can we build a non‑interactive `/login` replacement? | P2 → yes (service‑account token refresh); P4 → impossible because OAuth is interactive, so focus on watchdog & hard limits | P4 acknowledges the OAuth constraint (explicit in the incident notes) and proposes a realistic mitigation (watchdog that forces deterministic‑only mode with strict position limits) rather than relying on an unproven, potentially insecure token‑refresh mechanism. |
+| **Threshold for `self_check`** – Immediate BROKEN on 1 failure vs. wait for pattern? | P4 → 1 failure → immediate BROKEN; P2/P5 → need for pattern or automated recovery first | P4’s reasoning is rooted in the binary nature of auth: either the CLI is authenticated or it isn’t. Waiting for multiple failures only increases exposure; the system already has deterministic backstops that can sustain the account, so an immediate alert is the safest, self‑healing action. |
+| **Priority of UI suppression** – Is it a P0 or a lower‑order concern? | P4 → P0 (popup during market hours = direct J interference); others mention it but do not rank it as top | P4 links the UI issue directly to J’s environment (mid‑day modal popup during trading/game) and cites the Windows default, making it a concrete, actionable risk that can be eliminated with a simple wrapper. |
+
+**3. Synthesized recommendation**  
+Project Gamma must treat any loss of LLM authentication as an *immediate, system‑wide degradation* that blocks new trade entries, triggers a high‑severity alert, and forces the autonomous loop into a deterministic‑only mode with strict position limits. This requires: (1) a pre‑flight liveness check that verifies `claude` is logged in before spawning any LLM‑dependent task and aborts with a `BROKEN` state if not; (2) replacing the spend‑only `rail‑0` gate with a success‑artifact gate that confirms the expected LLM output (e.g., fresh `heartbeat.md` or `signal.json`) within a short window; (3) lowering `self_check.check_llm_auth_outage` to fire on the first auth failure and escalate instantly via Discord and an auto‑created GitHub issue; (4) wrapping all scheduled‑task entry points (`wscript`/`powershell`) with `START /B /WAIT` and logging errors to file only to suppress interactive pop‑ups; (5) building a tiered unattended registry that marks `conductor`, `premarket`, `eod_flatten`, `scout` as `CRITICAL` (staleness >2 h → `BROKEN` + page) and all others as `AUX`; (6) adding a watchdog that, upon detecting an auth outage, kills all LLM‑dependent tasks, enforces a max‑1‑contract, no‑new‑entry mode, and persists until J manually re‑auths; (7) auditing every “armed” shadow/prereg component for a live producer and failing CI if any lack a heartbeat.  
+
+**4. Confidence in synthesis**  
+**8/10** – The five perspectives converge strongly on the core problem (silent LLM auth outage masked by backstops) and on the need for immediate liveness gating, better alerting, and registry tiering. The only notable divergence is on the feasibility of automated token renewal; the synthesis adopts the more realistic, constraint‑aware view (Perspective 4) while still incorporating the watchdog/limit idea from that side.  
+
+**5. Single most‑important next action (executable today)**  
+Add a pre‑flight LLM‑auth verification wrapper to the task launcher:  
+
+```powershell
+# launcher.ps1 – replace direct `claude` calls
+$auth = & claude --version 2>&1
+if ($auth -match "Not logged in") {
+    Write-Error "CLAUDE NOT LOGGED IN – aborting task"
+    # trigger immediate BROKEN state
+    & python -m self_check.check_llm_auth_outage --force-broken
+    exit 1
+}
+& claude @args   # original command proceeds only if authenticated
+```  
+
+Deploy this wrapper to all scheduled‑task entry points (conductor, premarket, scout, etc.) and verify that a logged‑out CLI now produces a non‑zero exit code that is caught by the existing masked‑exit check and escalates within the same run.  
+
+**6. Watch‑for signal that would invalidate the synthesis**  
+If, after deploying the wrapper, the system continues to record `LastTaskResult=0` (or a masked exit‑code of 0) for tasks that actually fail with “Not logged in” *and* no `self_check.check_llm_auth_outage` BROKEN alert is raised within the same run, then the core assumption—that a pre‑flight auth check can be made visible to the existing monitoring pipeline—is false, and the synthesis would need to be revisited.
+
+## Individual perspectives
+
+### Perspective 1: `cerebras:zai-glm-4.7`
+
+_Elapsed 6.6s, 1616 in / 2500 out, cost $0.0000_
+
+1. **Backstop Execution is a P0 Incident, Not a Silent Success**
+   *   **Gap:** The system treats the execution of fallback scripts (`eod_flatten.py`, `premarket_deterministic_fallback.py`) as a successful task completion.
+   *   **Fix:** Any execution of a deterministic fallback must immediately trigger a "DEGRADED - PRIMARY LLM PATH FAILED" alert. The backstop saved the account, but it signaled the loss of the "edge" (J's source of truth). The system should distinguish between "Trade Executed (LLM)" and "Trade Executed (Backstop)" in the registry.
+   *   **Operator Next Point:** "Why did the system run in 'zombie mode' for 5 days without screaming that it was running on backup batteries?"
+
+2. **Gate on Output Artifacts, Not Just Spend**
+   *   **Gap:** `rail-0` budget precheck measures *spend* ($0.00 used = PROCEED). A logged-out CLI costs $0, so the gate approved it 49 times.
+   *   **Fix:** Implement a "Proof of Work" gate. Before marking a task successful, the system must verify the *existence* and *freshness* of the expected output artifact (e.g., `heartbeat.md` updated, `signal.json` created). If the task fires but produces no artifact, the gate must block as "BROKEN" regardless of cost.
+   *   **Operator Next Point:** "You have a gate that checks if I have money, but not a gate that checks if the code actually worked."
+
+3. **LLM Auth Pre-flight Check
+
+### Perspective 2: `nvidia/nemotron-3-super-120b-a12b:free`
+
+_Elapsed 26.3s, 1751 in / 1858 out, cost $0.0000_
+
+**Most likely failure mode**  
+The conductor (and its weekend variant) spawns `claude` for every trade‑idea generation; because the Claude CLI is logged out, each spawn exits 1 with “Not logged in · Please run /login”. The rail‑0 budget gate sees $0 spend and approves the fire, the Task Scheduler records `LastTaskResult=0`, and the masked‑exit check logs the exit code among noise. Deterministic backstops (`premarket_deterministic_fallback.py`, `eod_flatten.py`) silently take over, producing stale or no trade ideas. When the backstop itself eventually fails (e.g., a market condition outside its hard‑coded rules), the system emits no trade or emits a wrong‑direction trade, and the overnight flatten step fails to close positions, leaving an exposed SPY position through the next session.
+
+**Worst‑case impact on J's environment**  
+J will receive a Discord alert from the newly added `self_check.check_llm_auth_outage` (once it flips to BROKEN) **and** may see a modal popup if any manual script attempts to invoke `claude /login` during market hours. Because the failure is silent until the alert, J’s workflow is interrupted only after the position has already been mis‑managed, forcing a manual credential refresh and possibly a forced liquidation of an unintended exposure.
+
+**Worst‑case impact on Pilot/Heartbeat**  
+Heartbeat continues to report “healthy” because all exit codes are masked and spend‑based gates pass. Pilot therefore relies on the deterministic fallback, which lacks the adaptive LLM‑generated edge. The result is a systematic bias toward the fallback’s static parameters—typically tighter strikes or reduced size—causing missed profitable 0DTE opportunities and, when the market moves beyond the fallback’s range, un‑hedged directional exposure that shows up as a loss in the next P&L snapshot.
+
+**Rule 9 / Rule 10 / OP violations**  
+- **Rule 9** – No mid‑session rule changes: the implicit reliance on an unauthenticated LLM constitutes a change in the execution path (primary → fallback) that occurs without a ratified weekend update.  
+- **Rule 10** – If anything violates rules, the trade does not happen: the LLM auth failure triggers the fallback path, which is not the approved primary logic; trades generated from the fallback violate the rule that only LLM‑produced ideas may be used for 0DTE entries.  
+- **OP‑32** (the prior lockout incident) is reproduced: a silent credential loss that looks healthy to all monitoring layers.
+
+**Hidden second‑order effects**  
+1. **Backstop fatigue** – Continuous reliance on deterministic scripts masks degradation of the LLM component, delaying detection of model drift.  
+2. **Training data starvation** – The self‑improvement loop cannot collect new LLM‑generated trade outcomes, slowing adaptation.  
+3. **Alert fatigue** – Repeated Discord alerts for the same root cause may lead J to ignore or mute them, increasing the window for a catastrophic backstop failure.  
+4. **Shadow‑layer blindness** – The shadow layer still has zero monitoring of the LLM auth status, so any future regression will repeat the same five‑day blind spot.
+
+**Risk score**  
+8 – The failure is already live, has persisted five days, and can silently produce incorrect or missing trades until a deterministic backstop itself breaks, at which point losses accrue rapidly.
+
+**Single most‑important question the human reviewer should ask before shipping**  
+*Is there a fully automated, non‑interactive mechanism to refresh or validate Claude CLI credentials (e.g., token renewal via service account) that is independently monitored and can recover without J’s manual `/login`?* If the answer is no, the system remains vulnerable to a repeat of the current outage.
+
+### Perspective 3: `openai/gpt-oss-20b:free`
+
+_Elapsed 72.4s, 1661 in / 1274 out, cost $0.0000_
+
+**1. Most likely failure mode**  
+A scheduled “pre‑market” order batch fires at 09:30 ET, but the Claude LLM is logged out. The batch’s spend‑check gate passes (zero cost), the scheduler reports `LastTaskResult=0`, and the shadow layer sees no producer for the prereg forward clock. The batch silently falls back to the deterministic pre‑market path, placing a stale 0‑DTE SPY order at 09:31 ET. The operator notices a 0‑DTE trade in the wrong direction the next day, but the system never reports the underlying auth or clock failure until the next weekend’s audit.
+
+**2. Worst‑case impact on J’s environment**  
+- **Mid‑day lockout:** The system continues to place stale or mis‑timed orders for an entire trading day, potentially violating J’s risk limits.  
+- **Discord/Slack pings:** The auto‑escalation system flags “Known broken” but never triggers a J‑flag because the backstop masks the failure.  
+- **Heartbeat failure:** The heartbeat script, which expects a healthy LLM and clock, never receives a positive signal and may mis‑report the system as healthy.
+
+**3. Worst‑case impact on Pilot/Heartbeat**  
+- **Trade missed or wrong direction:** A 0‑DTE SPY order is executed at the wrong time or with the wrong delta, causing a loss that could have been avoided.  
+- **Overfit to stale data:** The self‑improvement engine trains on mis‑executed trades, reinforcing incorrect strategies.  
+- **False confidence:** Pilot’s confidence metrics rise because backstop trades are counted as “successful,” masking the underlying issue.
+
+**4. Rule 9 / Rule 10 / OP violations**  
+- **Rule 9:** The system modifies the autonomous loop (by adding a new backstop) without a weekend J‑ratification.  
+- **Rule 10:** The failure to detect and flag the LLM auth outage means the trade does not happen in the intended manner, violating the “trade does not happen” clause.  
+- **OP‑32 (if defined):** The system lacks an explicit “auto‑relogin” operation, violating the requirement that all LLM‑dependent tasks must be self‑healing.
+
+**5. Hidden second‑order effects**  
+- **Backstop overuse:** If the system continues to rely on backstops, the risk model will under‑estimate exposure, leading to larger position sizes.  
+- **Shadow layer drift:** Without a producer, the forward clock’s timestamp drift propagates to all downstream tasks, corrupting time‑sensitive logic.  
+- **Registry formatting errors:** Unchecked formatting changes can cause the unattended registry to mis‑report task health, cascading into false positives or negatives in the monitoring stack.  
+- **Auto‑commit strategy failures:** If the commit strategy is not triggered, stale or incorrect code may be deployed, compounding the above issues.
+
+**6. Risk score**  
+**9** – The combination of silent failures, backstop masking, and regulatory rule violations creates a high‑probability, high‑impact scenario that could go unnoticed for days.
+
+**7. Single most-important question the human reviewer should ask before shipping**  
+*“Has a fully automated, zero‑downtime LLM re‑authentication and forward‑clock producer‑detection mechanism been added, and does it trigger an immediate J‑flag if either fails, rather than relying on spend‑based gates or backstops?”*
+
+### Perspective 4: `nvidia/nemotron-3-ultra-550b-a55b:free`
+
+_Elapsed 77.4s, 1751 in / 2394 out, cost $0.0000_
+
+# AUDIT: Project Gamma Current State (Adversarial Pre-Ship Review)
+
+**Treating "continue operating as-is" as the proposal under review.**
+
+---
+
+## 1. Most Likely Failure Mode
+
+**Silent LLM auth outage recurs → deterministic backstops carry production → backstop fails on a non-deterministic edge case (e.g., premarket gap >2% with conflicting signals) → bad trade executes with no LLM oversight → discovered at EOD or next morning.**
+
+**Sequence:** (1) `claude` token expires again (happens ~monthly per OAuth design). (2) `rail-0` precheck passes (spend=$0). (3) Scheduler reports success (fire-and-forget). (4) `self_check.check_llm_auth_outage` fires but **only after 3+ failed runs** (current threshold). (5) Premarket deterministic fallback emits a plan — but it's a *static heuristic*, not market-aware. (6) Conductor never runs → no regime check, no vol adjustment, no Greek sanity. (7) Trade enters. (8) Market moves against static assumption. (9) No mid-session LLM correction (conductor dead). (10) EOD flatten deterministic path executes — but if *that* also has a bug (see `fee97318` recycle guard wedge), position carries overnight.
+
+**Who notices:** Nobody until P&L review or Discord alert from `self_check` — hours/days late.
+
+---
+
+## 2. Worst-Case Impact on J's Environment
+
+**Mid-day popup / lockout / Discord ping during game.**
+
+- If the deterministic backstop crashes (uncaught exception in `premarket_deterministic_fallback.py` or `eod_flatten.py`), the Task Scheduler's `on failure` action defaults to **interactive message box** (Windows Script Host default). J gets a modal popup *during market hours*.
+- If `self_check` escalates to Discord via webhook during a `BROKEN` classification, and J has Discord notifications on → ping during game.
+- If the recycle guard (`fee97318`) wedges again → 43h of kill-relaunch thrash → CPU/RAM pressure on J's machine → game stutter.
+
+**No guard exists to suppress interactive UI from scheduled tasks.** This is a Windows default, not a Gamma config.
+
+---
+
+## 3. Worst-Case Impact on Pilot/Heartbeat
+
+**Wrong direction trade with oversized risk.**
+
+- Deterministic premarket fallback uses **hardcoded thresholds** (e.g., "if SPY > VWAP + 0.5% → PUT spread"). No regime awareness (trending vs. chop), no vol scaling, no gamma exposure check.
+- Heartbeat (`heartbeat.md`) reads `conductor` output for regime/vol context. If conductor dead → heartbeat **stale** → J's manual override (if any) flies blind.
+- Pilot (if enabled) inherits stale regime → position sizing wrong by 2-3x.
+- **No circuit breaker** on "conductor hasn't run in N hours" → system keeps trading on autopilot with 0 LLM input.
+
+---
+
+## 4. Rule 9 / Rule 10 / OP Violations
+
+| Rule | Violation |
+|------|-----------|
+| **Rule 9** | `params*.json` / `heartbeat.md` frozen on weekends only — **but conductor (the only writer of regime/vol to heartbeat) has been dead 5 days**. Heartbeat is stale *by architecture*, not by edit. Rule 9 assumes heartbeat is live; it isn't. |
+| **Rule 10** | "If anything violates rules, the trade does not happen." → **No gate checks "conductor ran successfully in last 4h" before allowing trade entry.** Deterministic fallback bypasses Rule 10 implicitly. |
+| **OP-32 (implicit)** | "No mid-session rule changes" — but the *absence* of conductor is a de facto rule change (LLM regime → static heuristic) that happened mid-session, silently. |
+| **Self-healing > delayed J-flag** | `self_check.check_llm_auth_outage` exists now, but **threshold = 3 failed runs**. That's 3+ trades (or missed trades) before escalation. Not self-healing — delayed flag. |
+
+---
+
+## 5. Hidden Second-Order Effects
+
+| Dependency | Breakage |
+|------------|----------|
+| **`mcp-daily-audit`** | Runs via same `claude` CLI → dead 5 days → no daily audit of strategy params, no drift detection. |
+| **`scout` (candidate generation)** | Dead → no new candidates in `strategy/candidates/` → `auto_commit_candidates.py` commits empty/no-op changes → git history polluted, real candidates stale. |
+| **`conductor-weekend`** | Dead → no weekend regime review, no param tuning → Monday opens with Friday's params. |
+| **`context_guard`** | Dead → no token budget enforcement for *any* LLM task → if auth restores, unbounded spend risk (rail-0 only checks *past* spend). |
+| **Shadow layer / prereg clock** | `dbc2e004` fixed *one* clock with no producer. **How many other "armed" shadows have dead producers?** No registry of "armed but unmonitored" components. |
+| **Unattended registry** | Flagged `Conductor RED [3.4d]` — **generic staleness, no cause, no action**. Registry treats all tasks equal; no tiering (critical vs. auxiliary). |
+
+---
+
+## 6. Risk Score: **9 / 10**
+
+**Justification:** The system has **no gate between "LLM dead" and "trade executes."** Deterministic backstops are production paths with no regime awareness, no Greek checks, and no circuit breaker. A single backstop bug (already happened: `fee97318`) + market edge case = uncontrolled risk. J's environment has no protection against interactive popups from scheduled tasks.
+
+---
+
+## 7. Single Most Important Question Before Shipping (Continuing As-Is)
+
+**"What specific, code-enforced gate prevents a trade from entering when `conductor` has not completed a successful run in the last 4 hours — and where is that gate tested in CI?"**
+
+If the answer is "the deterministic fallback handles it," **that is the bug.** The fallback is not a gate; it's a bypass.
+
+---
+
+## Top 8 Concrete Gaps Gamma Should Self-Identify (Ranked)
+
+1. **No "LLM liveness" gate on trade entry** — conductor dead ≠ no trade. Add `require_conductor_fresh(max_age_hours=4)` to `rail-0` or entry logic.
+2. **No suppression of interactive UI on scheduled task failure** — wrap all `wscript`/`powershell` entry points with `START /B /WAIT` + error logging to file only; disable WSH popup via registry or `cscript //b`.
+3. **`self_check.check_llm_auth_outage` threshold too high (3 runs)** — change to **1 failed auth + immediate BROKEN + Discord + auto-create GitHub issue**. Auth outage is binary; no need for pattern.
+4. **No registry of "armed but unmonitored" shadow components** — after `dbc2e004`, audit every `ARMED` flag in shadow/prereg for a live producer. Build `shadow_audit.py` that fails CI if any armed component lacks heartbeat.
+5. **Deterministic fallbacks lack regime/vol/Greek checks** — either (a) make them read `heartbeat.md` and abort if stale >4h, or (b) promote them to full LLM-free logic with regime detection (VWAP slope, ATR, IV rank).
+6. **`rail-0` measures spend, not success** — add `require_min_successful_fires(task, window_hours=4, min_count=1)` to budget precheck. Cheap failure ≠ healthy.
+7. **Unattended registry has no tiering** — split into `CRITICAL` (conductor, premarket, eod_flatten, scout) vs `AUX` (mcp-daily-audit, conductor-weekend). CRITICAL staleness >2h = BROKEN + page.
+8. **No automated `claude /login` recovery path** — document why impossible (OAuth interactive), but build **watchdog** that detects auth failure → kills all LLM-dependent tasks → forces deterministic-only mode with **hard position limits** (max 1 contract, no new entries) until J re-auths.
+
+### Perspective 5: `cerebras:gpt-oss-120b`
+
+_Elapsed 1.0s, 1661 in / 1041 out, cost $0.0000_
+
+**1. Most likely failure mode**  
+The primary LLM‑auth outage (Claude CLI logged out) goes undetected because the spend‑only gate (`rail‑0`) reports “PROCEED – $0 spent”. The autonomous loop consequently runs only the deterministic back‑stops (`eod_flatten.py`, `premarket_deterministic_fallback.py`). Those back‑stops are **not** wired to the live‑trade executor, so no orders are placed for the entire 0‑DTE window. The failure is noticed only when the self‑check `self_check.check_llm_auth_outage` finally flips from DEGRADED to BROKEN and raises a Discord alert – five trading days after the outage began.
+
+**2. Worst‑case impact on J’s environment**  
+* No pop‑up windows (the system respects “no mid‑session UI”).  
+* Discord escalation after a 5‑day silent outage, flooding the #alerts channel with “LLM auth broken – autonomous loop dead”.  
+* J must manually re‑login the Claude CLI (`/login`) and restart every affected task, incurring a non‑trivial operational pause during market hours.
+
+**3. Worst‑case impact on Pilot/Heartbeat**  
+* Zero 0‑DTE SPY trades executed for the entire outage period → missed ~$1‑2 M of expected edge (based on recent winners).  
+* No P&L data for the period, breaking the heartbeat’s statistical health checks and causing the “heartbeat stale” alarm.  
+* Subsequent strategy‑selection logic receives a false‑negative “no‑trade” signal, potentially biasing the next‑day candidate pool.
+
+**4. Rule 9 / Rule 10 / OP violations**  
+* **Rule 9** – The outage persisted because the heartbeat/params were not frozen; a mid‑session change (re‑enabling the Claude CLI) was required during market hours.  
+* **Rule 10** – The autonomous loop continued to “run” while effectively dead; any trade that would have occurred is prohibited, so the system violated the “trade does not happen” clause.  
+* **OP‑32 (implicit)** – Lack of a health‑check that validates *authentication* before each task launch; this omission directly enabled the silent outage.
+
+**5. Hidden second‑order effects**  
+* **Back‑stop saturation** – Deterministic fallbacks now consume CPU/RAM that were reserved for the primary LLM path; prolonged use can cause throttling of other nightly jobs (e.g., candidate generation).  
+* **Data‑drift** – Absence of live trade data skews the daily “edge‑vs‑risk” model, leading to over‑fitting on stale EOD flattening outputs.  
+* **Regulatory audit trail** – No order IDs are generated, breaking compliance logs for the affected days and forcing a manual audit.  
+* **Dependency cascade** – The prereg forward clock (dbc2e004) remains dead, so any task that relies on its timestamp (e.g., time‑sliced strategy windows) will inherit stale timestamps, corrupting time‑series features.
+
+**6. Risk score** – **9**  
+The outage is silent, persists for multiple trading days, disables the core revenue‑generating path, and forces manual intervention—all while violating core governance rules.
+
+**7. Single most‑important question the human reviewer should ask before shipping**  
+*“Do we have a pre‑flight guard that verifies successful LLM authentication (or any external service login) **before** any task is scheduled, and aborts the entire loop with a high‑severity alert if the check fails?”*

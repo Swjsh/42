@@ -1,0 +1,11 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=4.183s | action=critique-vwap-continuation-rvol-vix-gate-named-candidate -->
+<!-- reason: Recent outputs were 4 critic actions in a row on gap_and_go / nlwb / top-ranked — rotating to the freshest un-critiqued ideation variant (vwap_continuation_rvol_vix_gate) avoids repeating the same target. Critic role is the right call because ideation is unvalidated and the overseer flagged ideation-only outputs as low-yield; adversarial review forces a falsification test. -->
+
+WEAK_ASSUMPTION  
+The edge hinges on the premise that a VWAP reclaim accompanied by an RVOL ≥ 1.5 (20‑bar lookback) reliably signals a short‑term mean‑reversion bounce that will persist for at least 30 minutes. This assumes that elevated relative volume reflects genuine institutional participation rather than transient noise or algorithmic spoofing, and that the VWAP level remains a meaningful support/resistance anchor after the open. In reality, RVOL spikes can be driven by liquidity grabs, news‑induced order flow imbalances, or high‑frequency scalping that quickly reverses, making the subsequent price move unpredictable and often opposite to the expected continuation.
+
+KILL_REGIME  
+The strategy would be silently annihilated on strong, directional trend days—such as the 2022 “inflation‑shock” sessions or FOMC announcement days—where price moves decisively away from VWAP on high volume and never reverts within the 30‑minute window. In these regimes, the VWAP reclaim is merely a pull‑back within a larger trend, the RVOL filter fails to distinguish genuine accumulation from trend‑following aggression, and the fixed 30‑minute hold exposes the trade to adverse moves that exceed the ATR‑based stop and target.
+
+STRESS_TEST  
+Run a single out‑of‑sample backtest on the 2022‑01‑01 to 2022‑06‑30 period (covering multiple FOMC meetings, OPEX weeks, and high‑volatility trend days) using the exact parameter set. If the strategy’s net profit‑factor falls below 1.0 or the win‑rate drops under 40 % during this window, the edge is falsified. No parameter changes are needed; the adverse regime itself serves as the stress test.

@@ -1,6 +1,6 @@
 # 📊 analysis/ — reviews, weeklies, one-offs
 
-> Auto-generated `2026-09-04 02:46:42 Friday EDT` by obsidian_vault_sync.py -- graph hub, do not edit.
+> Auto-generated `2026-09-10 16:45:01 Thursday EDT` by obsidian_vault_sync.py -- graph hub, do not edit.
 
 ## winning-trade-map
 
@@ -11,6 +11,7 @@
 
 - [[analysis/whole-engine-null/2026-09-01|2026-09-01]]
 - [[analysis/whole-engine-null/2026-09-02|2026-09-02]]
+- [[analysis/whole-engine-null/2026-09-04|2026-09-04]]
 
 ## weekly
 
@@ -29,6 +30,13 @@
 - [[analysis/weekly/2026-W33|2026-W33]]
 - [[analysis/weekly/2026-W34|2026-W34]]
 - [[analysis/weekly/2026-W35|2026-W35]]
+- [[analysis/weekly/2026-W36|2026-W36]]
+
+## trendline-v2
+
+- [[analysis/trendline-v2/RESULTS-2026-09-09|RESULTS-2026-09-09]]
+- [[analysis/trendline-v2/RESULTS-2026-09-10-attribution-study|RESULTS-2026-09-10-attribution-study]]
+- [[analysis/trendline-v2/RESULTS-2026-09-10-trade-outcome-ab|RESULTS-2026-09-10-trade-outcome-ab]]
 
 ## token-forensics
 
@@ -46,6 +54,12 @@
 
 - [[analysis/skill-tune/chart-data-verify-2026-05-19T00-00-36+00-00|chart-data-verify-2026-05-19T00-00-36+00-00]]
 
+## right-tail
+
+- [[analysis/right-tail/CAPTURE-GAP-2026-09-05|CAPTURE-GAP-2026-09-05]]
+- [[analysis/right-tail/SUMMARY|SUMMARY]]
+- [[analysis/right-tail/WAVE-DAY-CONDITIONS-2026-09-05|WAVE-DAY-CONDITIONS-2026-09-05]]
+
 ## regime-stress
 
 - [[analysis/regime-stress/REGIME-STRESS-2026-09-02|REGIME-STRESS-2026-09-02]]
@@ -59,6 +73,10 @@
 - [[analysis/harness-fidelity/FULLHIST-ANCHOR-DRIFT-2026-09-03|FULLHIST-ANCHOR-DRIFT-2026-09-03]]
 - [[analysis/harness-fidelity/REGIME-CONDITIONED-VALIDATION-2026-09-03|REGIME-CONDITIONED-VALIDATION-2026-09-03]]
 - [[analysis/harness-fidelity/WALKER-MAGNITUDE-2026-09-03|WALKER-MAGNITUDE-2026-09-03]]
+
+## gate-net-cost
+
+- [[analysis/gate-net-cost/GATE-NET-COST-2026-09-05|GATE-NET-COST-2026-09-05]]
 
 ## futures-eod
 
@@ -82,6 +100,10 @@
 - [[analysis/futures-eod/2026-09-01|2026-09-01]]
 - [[analysis/futures-eod/2026-09-02|2026-09-02]]
 - [[analysis/futures-eod/2026-09-03|2026-09-03]]
+- [[analysis/futures-eod/2026-09-04|2026-09-04]]
+- [[analysis/futures-eod/2026-09-07|2026-09-07]]
+- [[analysis/futures-eod/2026-09-08|2026-09-08]]
+- [[analysis/futures-eod/2026-09-10|2026-09-10]]
 
 ## futures
 
@@ -93,11 +115,18 @@
 - [[analysis/fleet-weekly/risky-divergence-2026-08-09|risky-divergence-2026-08-09]]
 - [[analysis/fleet-weekly/risky-divergence-2026-08-16|risky-divergence-2026-08-16]]
 - [[analysis/fleet-weekly/risky-divergence-2026-08-23|risky-divergence-2026-08-23]]
+- [[analysis/fleet-weekly/risky-divergence-2026-09-06|risky-divergence-2026-09-06]]
 
 ## first-live-day
 
 - [[analysis/first-live-day/2026-09-02|2026-09-02]]
 - [[analysis/first-live-day/2026-09-03|2026-09-03]]
+- [[analysis/first-live-day/2026-09-04|2026-09-04]]
+- [[analysis/first-live-day/2026-09-05|2026-09-05]]
+- [[analysis/first-live-day/2026-09-06|2026-09-06]]
+- [[analysis/first-live-day/2026-09-07|2026-09-07]]
+- [[analysis/first-live-day/2026-09-08|2026-09-08]]
+- [[analysis/first-live-day/2026-09-10|2026-09-10]]
 
 ## eod-deep
 
@@ -261,6 +290,7 @@
 - [[analysis/deep-research/2026-07-14-trendline-break-exhibit|2026-07-14-trendline-break-exhibit]]
 - [[analysis/deep-research/2026-07-14-vix-deadzone-map|2026-07-14-vix-deadzone-map]]
 - [[analysis/deep-research/2026-09-03-aetherops-ui-kit-port|2026-09-03-aetherops-ui-kit-port]]
+- [[analysis/deep-research/2026-09-05-tickers-sizing-risk-review|2026-09-05-tickers-sizing-risk-review]]
 - [[analysis/deep-research/ACCOUNT-IDENTITY-ALIGNMENT-2026-08-18|ACCOUNT-IDENTITY-ALIGNMENT-2026-08-18]]
 - [[analysis/deep-research/AGENT-ORCHESTRATION-2026-08-19|AGENT-ORCHESTRATION-2026-08-19]]
 - [[analysis/deep-research/ARM-PARTICIPATION-AND-GROWTH-2026-08-03|ARM-PARTICIPATION-AND-GROWTH-2026-08-03]]
@@ -469,6 +499,9 @@
 - [[analysis/eod-deep-2026-09-01|eod-deep-2026-09-01]]
 - [[analysis/eod-deep-2026-09-02|eod-deep-2026-09-02]]
 - [[analysis/eod-deep-2026-09-03|eod-deep-2026-09-03]]
+- [[analysis/eod-deep-2026-09-04|eod-deep-2026-09-04]]
+- [[analysis/eod-deep-2026-09-08|eod-deep-2026-09-08]]
+- [[analysis/eod-deep-2026-09-10|eod-deep-2026-09-10]]
 - [[analysis/expanded-gate-2026-05-31|expanded-gate-2026-05-31]]
 - [[analysis/futures-vs-options-control-2026-06-20|futures-vs-options-control-2026-06-20]]
 - [[analysis/go-live-gate|go-live-gate]]

@@ -1,0 +1,94 @@
+{
+ "days": [
+  "2026-08-24",
+  "2026-08-25",
+  "2026-08-26",
+  "2026-08-27",
+  "2026-08-28"
+ ],
+ "arms": {
+  "risky-1": {
+   "placed": 5,
+   "marginal_n": 0,
+   "marginal_closed_pnl": 0,
+   "marginal_unresolved": 0,
+   "entries": [
+    {
+     "ts_et": "2026-08-25T13:17:05.823956-04:00",
+     "minute": "2026-08-25T13:17",
+     "symbol": "SPY260825C00765000",
+     "strategy": "ribbon_ride",
+     "lane": "normal",
+     "quality": "ELITE",
+     "qty": 5,
+     "premium": 0.68,
+     "safe3_same_minute": true,
+     "core_safe_same_minute": null,
+     "marginal": false,
+     "real_pnl_closed": -100.0,
+     "n_round_trips_matched": 1
+    },
+    {
+     "ts_et": "2026-08-26T14:57:06.021160-04:00",
+     "minute": "2026-08-26T14:57",
+     "symbol": "SPY260826C00766000",
+     "strategy": "ribbon_ride",
+     "lane": "normal",
+     "quality": "ELITE",
+     "qty": 5,
+     "premium": 1.46,
+     "safe3_same_minute": true,
+     "core_safe_same_minute": null,
+     "marginal": false,
+     "real_pnl_closed": null,
+     "n_round_trips_matched": 0
+    },
+    {
+     "ts_et": "2026-08-27T09:42:05.213638-04:00",
+     "minute": "2026-08-27T09:42",
+     "symbol": "SPY260827C00768000",
+     "strategy": "ribbon_ride",
+     "lane": "normal",
+     "quality": "ELITE",
+     "qty": 5,
+     "premium": 1.67,
+     "safe3_same_minute": true,
+     "core_safe_same_minute": null,
+     "marginal": false,
+     "real_pnl_closed": 475.0,
+     "n_round_trips_matched": 1
+    },
+    {
+     "ts_et": "2026-08-27T11:52:06.010147-04:00",
+     "minute": "2026-08-27T11:52",
+     "symbol": "SPY260827C00770000",
+     "strategy": "ribbon_ride",
+     "lane": "normal",
+     "quality": "ELITE",
+     "qty": 5,
+     "premium": 1.15,
+     "safe3_same_minute": true,
+     "core_safe_same_minute": null,
+     "marginal": false,
+     "real_pnl_closed": 353.0,
+     "n_round_trips_matched": 1
+    },
+    {
+     "ts_et": "2026-08-28T10:22:05.849878-04:00",
+     "minute": "2026-08-28T10:22",
+     "symbol": "SPY260828C00771000",
+     "strategy": "ribbon_ride",
+     "lane": "normal",
+     "quality": "ELITE",
+     "qty": 5,
+     "premium": 1.83,
+     "safe3_same_minute": true,
+     "core_safe_same_minute": null,
+     "marginal": false,
+     "real_pnl_closed": 650.0,
+     "n_round_trips_matched": 1
+    }
+   ]
+  }
+ }
+}

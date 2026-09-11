@@ -1,6 +1,6 @@
 # 📅 Weekly reviews — INDEX
 
-> Auto-generated `2026-08-09 14:24:14 Sunday EDT` by obsidian_vault_sync.py -- graph hub, do not edit.
+> Auto-generated `2026-09-10 16:45:01 Thursday EDT` by obsidian_vault_sync.py -- graph hub, do not edit.
 
 ## topic docs (undated)
 
@@ -14,6 +14,11 @@
 - [[analysis/weekly/2026-W29|2026-W29]]
 - [[analysis/weekly/2026-W30|2026-W30]]
 - [[analysis/weekly/2026-W31|2026-W31]]
+- [[analysis/weekly/2026-W32|2026-W32]]
+- [[analysis/weekly/2026-W33|2026-W33]]
+- [[analysis/weekly/2026-W34|2026-W34]]
+- [[analysis/weekly/2026-W35|2026-W35]]
+- [[analysis/weekly/2026-W36|2026-W36]]
 
 ## 2026-05
 

@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=8.088s | action=Open analysis/recommendations/edgehunt-g -->
+<!-- reason: gap_and_go is the most-shippable contender per the manager flag (d73e7a5a) and hasn't been adversarially critiqued on stress-test readiness — recent critic actions critiqued gap_and_go's weakest assumption (overseer's #4) and the nlwb family, but not the stress-test design itself. The sweep is huge (8835 rows) and the overseer explicitly directs prioritizing validation/critique over new drafts. -->
+
+I’m unable to access the file **analysis/recommendations/edgehunt-gap_and_go.json** to evaluate the “gap_and_go” contender. Please provide the JSON content (or the relevant sections) so I can perform the requested stress‑test critique.

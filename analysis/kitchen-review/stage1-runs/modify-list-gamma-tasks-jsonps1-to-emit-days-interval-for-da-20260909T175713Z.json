@@ -1,0 +1,19 @@
+{
+  "generated_at": "2026-09-09T17:57:13+00:00",
+  "slug": "modify-list-gamma-tasks-jsonps1-to-emit-days-interval-for-da",
+  "task_id": "bc955145-d6e1-40e5-928f-56c09d067446",
+  "combo": {},
+  "engine": "backtest.autoresearch.overnight_grinder.evaluate_combo",
+  "engine_note": "MECHANISM EVIDENCE ONLY -- BS-synthetic option pricing over historical SPY/VIX bars (backtest.autoresearch.overnight_grinder.evaluate_combo -> lib.pricing.black_scholes). NOT real-fills evidence. Per memory project_free_kitchen_plan_b_hardened.md.",
+  "elapsed_s": 176.08,
+  "command": "backtest/.venv/Scripts/python.exe setup/scripts/kitchen_stage1_runner.py --combo-json '{}' --slug modify-list-gamma-tasks-jsonps1-to-emit-days-interval-for-da",
+  "result": {
+    "combo": {},
+    "error": "MemoryError((2, 17002), dtype('O'))",
+    "trace": "Traceback (most recent call last):\n  File \"C:\\Users\\jackw\\Desktop\\42\\backtest\\autoresearch\\overnight_grinder.py\", line 216, in evaluate_combo\n    res, m_wide = _runner.run_with_params(params, WIDE_START, WIDE_END, spy_w, vix_w)\n                  ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\jackw\\Desktop\\42\\backtest\\autoresearch\\runner.py\", line 287, in run_with_params\n    result = run_backtest(spy_df, vix_df, **kwargs)\n  File \"C:\\Users\\jackw\\Desktop\\42\\backtest\\lib\\orchestrator.py\", line 950, in run_backtest\n    _level_per_day[bar_date] = _detect_from_history(\n                               ~~~~~~~~~~~~~~~~~~~~^\n        full_history, bar_date, **(level_flags or {})\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  File \"C:\\Users\\jackw\\Desktop\\42\\backtest\\lib\\levels.py\", line 87, in _detect_from_history\n    history = history.copy()\n  File \"C:\\Users\\jackw\\Desktop\\42\\backtest\\.venv\\Lib\\site-packages\\pandas\\core\\generic.py\", line 6833, in copy\n    data = self._mgr.copy(deep=deep)\n  File \"C:\\Users\\jackw\\Desktop\\42\\backtest\\.venv\\Lib\\site-packages\\pandas\\core\\internals\\managers.py\", line 623, in copy\n    res._consolidate_inplace()\n    ~~~~~~~~~~~~~~~~~~~~~~~~^^\n  File \"C:\\Users\\jackw\\Desktop\\42\\backtest\\.venv\\Lib\\site-packages\\pandas\\core\\internals\\managers.py\", line 1807, in _consolidate_inplace\n    self.blocks = _consolidate(self.blocks)\n                  ~~~~~~~~~~~~^^^^^^^^^^^^^\n  File \"C:\\Users\\jackw\\Desktop\\42\\backtest\\.venv\\Lib\\site-packages\\pandas\\core\\internals\\managers.py\", line 2288, in _consolidate\n    merged_blocks, _ = _merge_blocks(\n                       ~~~~~~~~~~~~~^\n        list(group_blocks), dtype=dtype, can_consolidate=_can_consolidate\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  File \"C:\\Users\\jackw\\Desktop\\42\\backtest\\.venv\\Lib\\site-packages\\pandas\\core\\internals\\managers.py\", line 2313, in _merge_blocks\n    new_values = np.vstack([b.values for b in blocks])  # type: ignore[misc]\n  File \"C:\\Users\\jackw\\Desktop\\42\\backtest\\.venv\\Lib\\site-packages\\numpy\\_core\\shape_base.py\", line 290, in vstack\n    return _nx.concatenate(arrs, 0, dtype=dtype, casting=casting)\n           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nnumpy._core._exceptions._ArrayMemoryError: Unable to allocate 266. KiB for an array with shape (2, 17002) and data type object\n",
+    "passed_floors": false,
+    "regressions": [
+      "execution_error"
+    ]
+  }
+}

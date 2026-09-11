@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>EOD Deep-Dive — 2026-08-07</title>
+<style>
+:root {
+  --bg: #0d1117; --panel: #161b22; --panel-2: #1c2128; --border: #30363d;
+  --text: #c9d1d9; --text-dim: #8b949e;
+  --green: #3fb950; --green-bg: rgba(63, 185, 80, 0.15);
+  --red: #f85149; --red-bg: rgba(248, 81, 73, 0.15);
+  --gold: #d29922; --gold-bg: rgba(210, 153, 34, 0.15);
+  --blue: #58a6ff; --blue-bg: rgba(88, 166, 255, 0.15);
+  --purple: #bc8cff;
+}
+* { box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+       background: var(--bg); color: var(--text); margin: 0; padding: 24px; line-height: 1.5; }
+.container { max-width: 1280px; margin: 0 auto; }
+header { text-align: center; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 2px solid var(--border); }
+header .date { font-size: 14px; color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+header h1 { margin: 0; font-size: 36px; font-weight: 700; }
+header h1.green { color: var(--green); }
+header h1.red { color: var(--red); }
+header .setup { font-size: 16px; color: var(--purple); margin-top: 8px; font-family: 'SF Mono', Consolas, monospace; }
+header .pnl-headline { margin-top: 16px; font-size: 48px; font-weight: 800; font-family: 'SF Mono', Consolas, monospace; }
+header .pnl-pct { font-size: 24px; color: var(--text-dim); font-weight: normal; }
+.grid { display: grid; gap: 20px; }
+.grid-2 { grid-template-columns: 1fr 1fr; }
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-4 { grid-template-columns: repeat(4, 1fr); }
+.card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+.card-header { font-size: 12px; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+.card-value { font-size: 28px; font-weight: 700; font-family: 'SF Mono', Consolas, monospace; }
+.card-sub { color: var(--text-dim); font-size: 14px; margin-top: 4px; }
+.green { color: var(--green); } .red { color: var(--red); }
+.gold { color: var(--gold); } .blue { color: var(--blue); }
+section { margin: 32px 0; }
+section h2 { font-size: 18px; color: var(--text); border-left: 4px solid var(--green); padding-left: 12px; margin: 32px 0 16px; }
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 14px; }
+th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+th { color: var(--text-dim); font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; }
+td.mono { font-family: 'SF Mono', Consolas, monospace; }
+td.pnl-pos { color: var(--green); font-weight: 700; }
+td.pnl-neg { color: var(--red); font-weight: 700; }
+.score-bar { display: inline-block; width: 200px; height: 18px; background: var(--panel-2); border-radius: 3px; vertical-align: middle; overflow: hidden; }
+.score-bar > span { display: block; height: 100%; transition: width 0.3s; }
+.score-good > span { background: var(--green); }
+.score-mid > span { background: var(--gold); }
+.score-bad > span { background: var(--red); }
+.category-row { display: grid; grid-template-columns: 60px 200px 100px 240px 1fr; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.category-row .num { color: var(--text-dim); font-family: 'SF Mono', Consolas, monospace; }
+.category-row .name { font-weight: 600; text-transform: uppercase; font-size: 13px; letter-spacing: 1px; }
+.category-row .score { font-family: 'SF Mono', Consolas, monospace; font-weight: 700; }
+.category-row .narrative { color: var(--text-dim); font-size: 13px; }
+footer { text-align: center; color: var(--text-dim); font-size: 12px; margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border); }
+.warning-box { background: var(--gold-bg); border-left: 4px solid var(--gold); padding: 12px 16px; border-radius: 6px; margin: 12px 0; }
+</style></head><body>
+<div class="container">
+<header>
+<div class="date">EOD Deep-Dive · 2026-08-07 · Rule v15.3</div>
+<h1 class="red">Trading day</h1>
+<div class="setup">BULLISH_RECLAIM_RIDE_THE_RIBBON, bollinger_squeeze</div>
+<div class="pnl-headline red">$-2,687 <span class="pnl-pct">(-49.24%)</span></div>
+</header>
+<section><h2>Day at a glance</h2><div class="grid grid-4">
+<div class="card"><div class="card-header">Account equity</div><div class="card-value">$2,770</div><div class="card-sub">from $5,457</div></div>
+<div class="card"><div class="card-header">Trades</div><div class="card-value">17</div><div class="card-sub">34 total fills</div></div>
+<div class="card"><div class="card-header">Process score</div><div class="card-value score-mid">59.0/100</div><div class="card-sub">weighted across 12 dimensions</div></div>
+<div class="card"><div class="card-header">Edge capture</div><div class="card-value score-bad">0.0%</div><div class="card-sub">actual vs perfect-hindsight</div></div>
+</div></section>
+<section><h2>Market session</h2><table>
+<tr><th>Field</th><th>Value</th></tr>
+<tr><td>SPY H/L/C</td><td class="mono">770.81 / 770.66 / 770.73</td></tr>
+<tr><td>VIX close</td><td class="mono">16.0 (flat)</td></tr>
+<tr><td>Predicted regime</td><td>not_computed -- mechanical generator has no VIX/chart access; see today-bias.json#iv_regime</td></tr>
+</table></section>
+<section><h2>Trades</h2>
+<div class="card" style="margin-bottom: 20px;">
+<div class="card-header">trade_csv_1 · BULLISH_RECLAIM_RIDE_THE_RIBBON</div>
+<h3 style="margin: 4px 0 12px;">SPY 772C · long · score ?/?</h3>
+<div class="card-sub">Realized: <strong class="green">-$176.00</strong> (-16.5%) · Hold: 15 min · Doctrine: 80/100</div>
+<table><thead><tr><th>Time</th><th>Side</th><th>Qty</th><th>Price</th><th>Source</th><th>Reason</th></tr></thead><tbody>
+<tr><td class="mono">09:47:06</td><td>buy</td><td class="mono">8</td><td class="mono">$1.33</td><td>engine_heartbeat</td><td>entry</td></tr>
+<tr><td class="mono">10:02:07</td><td>sell</td><td class="mono">8</td><td class="mono">$1.11</td><td>engine_heartbeat</td><td>tp1_or_runner</td></tr>
+</tbody></table>
+<div class="card-header" style="margin-top: 16px;">COUNTERFACTUALS</div>
+<table><thead><tr><th>Scenario</th><th>P&amp;L</th><th>Δ vs actual</th><th>Method</th></tr></thead><tbody>
+<tr><td>perfect_hindsight</td><td class="mono">-$176.00</td><td class="mono pnl-pos">+$-0.00</td><td style="font-size: 12px; color: var(--text-dim);">All 8 contracts sold at peak premium $1.11. Actual scale-outs: $1.11.</td></tr>
+<tr><td>v14_doctrine</td><td class="mono">+$940.50</td><td class="mono pnl-neg">-$1,116.50</td><td style="font-size: 12px; color: var(--text-dim);">v14: TP1 5× @ 1.73 (+30% fixed) + runner 3× exit @ ~3.80 (ribbon flip ~12:00 ET, fixed-PL +10% floor 1.46 not breached)</td></tr>
+<tr><td>stepped_pl</td><td class="mono">-$176.00</td><td class="mono pnl-pos">+$0.00</td><td style="font-size: 12px; color: var(--text-dim);">HWM $4.01 = +140% gain → stepped rung 100-150% = 10% trail → floor $3.61. v15 trailing 20% floor was $3.21. Stepped would have offered $0.40/contract MORE protection, but target $4.18 fired before any trail floor was breached on either mode. Identical outcome TODAY. Differentiation on chop/retrace days.</td></tr>
+</tbody></table>
+</div>
+<div class="card" style="margin-bottom: 20px;">
+<div class="card-header">trade_csv_2 · BULLISH_RECLAIM_RIDE_THE_RIBBON</div>
+<h3 style="margin: 4px 0 12px;">SPY 772C · long · score ?/?</h3>
+<div class="card-sub">Realized: <strong class="green">-$384.00</strong> (-52.2%) · Hold: 97 min · Doctrine: 80/100</div>
+<table><thead><tr><th>Time</th><th>Side</th><th>Qty</th><th>Price</th><th>Source</th><th>Reason</th></tr></thead><tbody>
+<tr><td class="mono">12:37:06</td><td>buy</td><td class="mono">8</td><td class="mono">$0.92</td><td>engine_heartbeat</td><td>entry</td></tr>
+<tr><td class="mono">14:14:06</td><td>sell</td><td class="mono">8</td><td class="mono">$0.44</td><td>engine_heartbeat</td><td>tp1_or_runner</td></tr>
+</tbody></table>
+<div class="card-header" style="margin-top: 16px;">COUNTERFACTUALS</div>
+<table><thead><tr><th>Scenario</th><th>P&amp;L</th><th>Δ vs actual</th><th>Method</th></tr></thead><tbody>
+<tr><td>perfect_hindsight</td><td class="mono">-$384.00</td><td class="mono pnl-pos">+$0.00</td><td style="font-size: 12px; color: var(--text-dim);">All 8 contracts sold at peak premium $0.44. Actual scale-outs: $0.44.</td></tr>
+<tr><td>v14_doctrine</td><td class="mono">+$1,002.00</td><td class="mono pnl-neg">-$1,386.00</td><td style="font-size: 12px; color: var(--text-dim);">v14: TP1 5× @ 1.20 (+30% fixed) + runner 3× exit @ ~3.80 (ribbon flip ~12:00 ET, fixed-PL +10% floor 1.01 not breached)</td></tr>
+<tr><td>stepped_pl</td><td class="mono">-$384.00</td><td class="mono pnl-pos">+$0.00</td><td style="font-size: 12px; color: var(--text-dim);">HWM $4.01 = +140% gain → stepped rung 100-150% = 10% trail → floor $3.61. v15 trailing 20% floor was $3.21. Stepped would have offered $0.40/contract MORE protection, but target $4.18 fired before any trail floor was breached on either mode. Identical outcome TODAY. Differentiation on chop/retrace days.</td></tr>
+</tbody></table>
+</div>
+<div class="card" style="margin-bottom: 20px;">
+<div class="card-header">trade_csv_3 · BULLISH_RECLAIM_RIDE_THE_RIBBON</div>
+<h3 style="margin: 4px 0 12px;">SPY 772C · long · score ?/?</h3>
+<div class="card-sub">Realized: <strong class="green">-$19.00</strong> (-14.3%) · Hold: 15 min · Doctrine: 80/100</div>
+<table><thead><tr><th>Time</th><th>Side</th><th>Qty</th><th>Price</th><th>Source</th><th>Reason</th></tr></thead><tbody>
+<tr><td class="mono">09:47:07</td><td>buy</td><td class="mono">1</td><td class="mono">$1.33</td><td>engine_heartbeat</td><td>entry</td></tr>
+<tr><td class="mono">10:02:08</td><td>sell</td><td class="mono">1</td><td class="mono">$1.14</td><td>engine_heartbeat</td><td>tp1_or_runner</td></tr>
+</tbody></table>
+<div class="card-header" style="margin-top: 16px;">COUNTERFACTUALS</div>
+<table><thead><tr><th>Scenario</th><th>P&amp;L</th><th>Δ vs actual</th><th>Method</th></tr></thead><tbody>
+<tr><td>perfect_hindsight</td><td class="mono">-$19.00</td><td class="mono pnl-pos">+$0.00</td><td style="font-size: 12px; color: var(--text-dim);">All 1 contracts sold at peak premium $1.14. Actual scale-outs: $1.14.</td></tr>
+<tr><td>v14_doctrine</td><td class="mono">+$39.90</td><td class="mono pnl-neg">-$58.90</td><td style="font-size: 12px; color: var(--text-dim);">v14: TP1 1× @ 1.73 (+30% fixed) + runner 0× exit @ ~3.80 (ribbon flip ~12:00 ET, fixed-PL +10% floor 1.46 not breached)</td></tr>
+<tr><td>stepped_pl</td><td class="mono">-$19.00</td><td class="mono pnl-pos">+$0.00</td><td style="font-size: 12px; color: var(--text-dim);">HWM $4.01 = +140% gain → stepped rung 100-150% = 10% trail → floor $3.61. v15 trailing 20% floor was $3.21. Stepped would have offered $0.40/contract MORE protection, but target $4.18 fired before any trail floor was breached on either mode. Identical outcome TODAY. Differentiation on chop/retrace days.</td></tr>
+</tbody></table>
+</div>
+<div class="card" style="margin-bottom: 20px;">
+<div class="card-header">trade_csv_4 · BULLISH_RECLAIM_RIDE_THE_RIBBON</div>
+<h3 style="margin: 4px 0 12px;">SPY 772C · long · score ?/?</h3>
+<div class="card-sub">Realized: <strong class="green">-$76.00</strong> (-14.3%) · Hold: 15 min · Doctrine: 80/100</div>
+<table><thead><tr><th>Time</th><th>Side</th><th>Qty</th><th>Price</th><th>Source</th><th>Reason</th></tr></thead><tbody>
+<tr><td class="mono">09:47:08</td><td>buy</td><td class="mono">4</td><td class="mono">$1.33</td><td>engine_heartbeat</td><td>entry</td></tr>
+<tr><td class="mono">10:02:08</td><td>sell</td><td class="mono">4</td><td class="mono">$1.14</td><td>engine_heartbeat</td><td>tp1_or_runner</td></tr>
+</tbody></table>
+<div class="card-header" style="margin-top: 16px;">COUNTERFACTUALS</div>
+<table><thead><tr><th>Scenario</th><th>P&amp;L</th><th>Δ vs actual</th><th>Method</th></tr></thead><tbody>
+<tr><td>perfect_hindsight</td><td class="mono">-$76.00</td><td class="mono pnl-pos">+$0.00</td><td style="font-size: 12px; color: var(--text-dim);">All 4 contracts sold at peak premium $1.14. Actual scale-outs: $1.14.</td></tr>
+<tr><td>v14_doctrine</td><td class="mono">+$366.70</td><td class="mono pnl-neg">-$442.70</td><td style="font-size: 12px; color: var(--text-dim);">v14: TP1 3× @ 1.73 (+30% fixed) + runner 1× exit @ ~3.80 (ribbon flip ~12:00 ET, fixed-PL +10% floor 1.46 not breached)</td></tr>
+<tr><td>stepped_pl</td><td class="mono">-$76.00</td><td class="mono pnl-pos">+$0.00</td><td style="font-size: 12px; color: var(--text-dim);">HWM $4.01 = +140% gain → stepped rung 100-150% = 10% trail → floor $3.61. v15 trailing 20% floor was $3.21. Stepped would have offered $0.40/contract MORE protection, but target $4.18 fired before any trail floor was breached on either mode. Identical outcome TODAY. Differentiation on chop/retrace days.</td></tr>
+</tbody></table>
+</div>
+<div class="card" style="margin-bottom: 20px;">
+<div class="card-header">trade_csv_5 · BULLISH_RECLAIM_RIDE_THE_RIBBON</div>
+<h3 style="margin: 4px 0 12px;">SPY 772C · long · score ?/?</h3>
+<div class="card-sub">Realized: <strong class="green">-$192.00</strong> (-52.8%) · Hold: 98 min · Doctrine: 80/100</div>
+<table><thead><tr><th>Time</th><th>Side</th><th>Qty</th><th>Price</th><th>Source</th><th>Reason</th></tr></thead><tbody>
+<tr><td class="mono">12:37:07</td><td>buy</td><td class="mono">4</td><td class="mono">$0.91</td><td>engine_heartbeat</td><td>entry</td></tr>
+<tr><td class="mono">14:15:07</td><td>sell</td><td class="mono">4</td><td class="mono">$0.43</td><td>engine_heartbeat</td><td>tp1_or_runner</td></tr>
+</tbody></table>
+<div class="card-header" style="margin-top: 16px;">COUNTERFACTUALS</div>
+<table><thead><tr><th>Scenario</th><th>P&amp;L</th><th>Δ vs actual</th><th>Method</th></tr></thead><tbody>
+<tr><td>perfect_hindsight</td><td class="mono">-$192.00</td><td class="mono pnl-pos">+$0.00</td><td style="font-size: 12px; color: var(--text-dim);">All 4 contracts sold at peak premium $0.43. Actual scale-outs: $0.43.</td></tr>
+<tr><td>v14_doctrine</td><td class="mono">+$370.90</td><td class="mono pnl-neg">-$562.90</td><td style="font-size: 12px; color: var(--text-dim);">v14: TP1 3× @ 1.18 (+30% fixed) + runner 1× exit @ ~3.80 (ribbon flip ~12:00 ET, fixed-PL +10% floor 1.00 not breached)</td></tr>
+<tr><td>stepped_pl</td><td class="mono">-$192.00</td><td class="mono pnl-pos">+$0.00</td><td style="font-size: 12px; color: var(--text-dim);">HWM $4.01 = +140% gain → stepped rung 100-150% = 10% trail → floor $3.61. v15 trailing 20% floor was $3.21. Stepped would have offered $0.40/contract MORE protection, but target $4.18 fired before any trail floor was breached on either mode. Identical outcome TODAY. Differentiation on chop/retrace days.</td></tr>
+</tbody></table>
+</div>
+<div class="card" style="margin-bottom: 20px;">
+<div class="card-header">trade_csv_6 · BULLISH_RECLAIM_RIDE_THE_RIBBON</div>
+<h3 style="margin: 4px 0 12px;">SPY 772C · long · score ?/?</h3>
+<div class="card-sub">Realized: <strong class="green">-$48.00</strong> (-52.8%) · Hold: 98 min · Doctrine: 80/100</div>
+<table><thead><tr><th>Time</th><th>Side</th><th>Qty</th><th>Price</th><th>Source</th><th>Reason</th></tr></thead><tbody>
+<tr><td class="mono">12:37:08</td><td>buy</td><td class="mono">1</td><td class="mono">$0.91</td><td>engine_heartbeat</td><td>entry</td></tr>
+<tr><td class="mono">14:15:07</td><td>sell</td><td class="mono">1</td><td class="mono">$0.43</td><td>engine_heartbeat</td><td>tp1_or_runner</td></tr>
+</tbody></table>
+<div class="card-header" style="margin-top: 16px;">COUNTERFACTUALS</div>
+<table><thead><tr><th>Scenario</th><th>P&amp;L</th><th>Δ vs actual</th><th>Method</th></tr></thead><tbody>
+<tr><td>perfect_hindsight</td><td class="mono">-$48.00</td><td class="mono pnl-pos">+$0.00</td><td style="font-size: 12px; color: var(--text-dim);">All 1 contracts sold at peak premium $0.43. Actual scale-outs: $0.43.</td></tr>
+<tr><td>v14_doctrine</td><td class="mono">+$27.30</td><td class="mono pnl-neg">-$75.30</td><td style="font-size: 12px; color: var(--text-dim);">v14: TP1 1× @ 1.18 (+30% fixed) + runner 0× exit @ ~3.80 (ribbon flip ~12:00 ET, fixed-PL +10% floor 1.00 not breached)</td></tr>
+<tr><td>stepped_pl</td><td class="mono">-$48.00</td><td class="mono pnl-pos">+$0.00</td><td style="font-size: 12px; color: var(--text-dim);">HWM $4.01 = +140% gain → stepped rung 100-150% = 10% trail → floor $3.61. v15 trailing 20% floor was $3.21. Stepped would have offered $0.40/contract MORE protection, but target $4.18 fired before any trail floor was breached on either mode. Identical outcome TODAY. Differentiation on chop/retrace days.</td></tr>
+</tbody></table>
+</div>
+<div class="card" style="margin-bottom: 20px;">
+<div class="card-header">trade_csv_7 · BULLISH_RECLAIM_RIDE_THE_RIBBON</div>
+<h3 style="margin: 4px 0 12px;">SPY 774C · long · score ?/?</h3>
+<div class="card-sub">Realized: <strong class="green">-$204.00</strong> (-27.4%) · Hold: 15 min · Doctrine: 80/100</div>
+<table><thead><tr><th>Time</th><th>Side</th><th>Qty</th><th>Price</th><th>Source</th><th>Reason</th></tr></thead><tbody>
+<tr><td class="mono">09:47:09</td><td>buy</td><td class="mono">12</td><td class="mono">$0.62</td><td>engine_heartbeat</td><td>entry</td></tr>
+<tr><td class="mono">10:02:09</td><td>sell</td><td class="mono">12</td><td class="mono">$0.45</td><td>engine_heartbeat</td><td>tp1_or_runner</td></tr>
+</tbody></table>
+<div class="card-header" style="margin-top: 16px;">COUNTERFACTUALS</div>
+<table><thead><tr><th>Scenario</th><th>P&amp;L</th><th>Δ vs actual</th><th>Method</th></tr></thead><tbody>
+<tr><td>perfect_hindsight</td><td class="mono">-$204.00</td><td class="mono pnl-pos">+$0.00</td><td style="font-size: 12px; color: var(--text-dim);">All 12 contracts sold at peak premium $0.45. Actual scale-outs: $0.45.</td></tr>
+<tr><td>v14_doctrine</td><td class="mono">+$1,420.80</td><td class="mono pnl-neg">-$1,624.80</td><td style="font-size: 12px; color: var(--text-dim);">v14: TP1 8× @ 0.81 (+30% fixed) + runner 4× exit @ ~3.80 (ribbon flip ~12:00 ET, fixed-PL +10% floor 0.68 not breached)</td></tr>
+<tr><td>stepped_pl</td><td class="mono">-$204.00</td><td class="mono pnl-pos">+$0.00</td><td style="font-size: 12px; color: var(--text-dim);">HWM $4.01 = +140% gain → stepped rung 100-150% = 10% trail → floor $3.61. v15 trailing 20% floor was $3.21. Stepped would have offered $0.40/contract MORE protection, but target $4.18 fired before any trail floor was breached on either mode. Identical outcome TODAY. Differentiation on chop/retrace days.</td></tr>
+</tbody></table>
+</div>
+<div class="card" style="margin-bottom: 20px;">
+<div class="card-header">trade_csv_8 · BULLISH_RECLAIM_RIDE_THE_RIBBON</div>
+<h3 style="margin: 4px 0 12px;">SPY 774C · long · score ?/?</h3>
+<div class="card-sub">Realized: <strong class="green">-$204.00</strong> (-54.8%) · Hold: 34 min · Doctrine: 80/100</div>
+<table><thead><tr><th>Time</th><th>Side</th><th>Qty</th><th>Price</th><th>Source</th><th>Reason</th></tr></thead><tbody>
+<tr><td class="mono">12:40:08</td><td>buy</td><td class="mono">12</td><td class="mono">$0.31</td><td>engine_heartbeat</td><td>entry</td></tr>
+<tr><td class="mono">13:14:08</td><td>sell</td><td class="mono">12</td><td class="mono">$0.14</td><td>engine_heartbeat</td><td>tp1_or_runner</td></tr>
+</tbody></table>
+<div class="card-header" style="margin-top: 16px;">COUNTERFACTUALS</div>
+<table><thead><tr><th>Scenario</th><th>P&amp;L</th><th>Δ vs actual</th><th>Method</th></tr></thead><tbody>
+<tr><td>perfect_hindsight</td><td class="mono">-$204.00</td><td class="mono pnl-pos">+$0.00</td><td style="font-size: 12px; color: var(--text-dim);">All 12 contracts sold at peak premium $0.14. Actual scale-outs: $0.14.</td></tr>
+<tr><td>v14_doctrine</td><td class="mono">+$1,470.40</td><td class="mono pnl-neg">-$1,674.40</td><td style="font-size: 12px; color: var(--text-dim);">v14: TP1 8× @ 0.40 (+30% fixed) + runner 4× exit @ ~3.80 (ribbon flip ~12:00 ET, fixed-PL +10% floor 0.34 not breached)</td></tr>
+<tr><td>stepped_pl</td><td class="mono">-$204.00</td><td class="mono pnl-pos">+$0.00</td><td style="font-size: 12px; color: var(--text-dim);">HWM $4.01 = +140% gain → stepped rung 100-150% = 10% trail → floor $3.61. v15 trailing 20% floor was $3.21. Stepped would have offered $0.40/contract MORE protection, but target $4.18 fired before any trail floor was breached on either mode. Identical outcome TODAY. Differentiation on chop/retrace days.</td></tr>
+</tbody></table>
+</div>
+<div class="card" style="margin-bottom: 20px;">
+<div class="card-header">trade_csv_9 · BULLISH_RECLAIM_RIDE_THE_RIBBON</div>
+<h3 style="margin: 4px 0 12px;">SPY 772C · long · score ?/?</h3>
+<div class="card-sub">Realized: <strong class="green">-$51.00</strong> (-30.5%) · Hold: 15 min · Doctrine: 80/100</div>
+<table><thead><tr><th>Time</th><th>Side</th><th>Qty</th><th>Price</th><th>Source</th><th>Reason</th></tr></thead><tbody>
+<tr><td class="mono">09:46:34</td><td>buy</td><td class="mono">1</td><td class="mono">$1.67</td><td>engine_heartbeat</td><td>entry</td></tr>
+<tr><td class="mono">10:01:05</td><td>sell</td><td class="mono">1</td><td class="mono">$1.16</td><td>engine_heartbeat</td><td>tp1_or_runner</td></tr>
+</tbody></table>
+<div class="card-header" style="margin-top: 16px;">COUNTERFACTUALS</div>
+<table><thead><tr><th>Scenario</th><th>P&amp;L</th><th>Δ vs actual</th><th>Method</th></tr></thead><tbody>
+<tr><td>perfect_hindsight</td><td class="mono">-$51.00</td><td class="mono pnl-pos">+$0.00</td><td style="font-size: 12px; color: var(--text-dim);">All 1 contracts sold at peak premium $1.16. Actual scale-outs: $1.16.</td></tr>
+<tr><td>v14_doctrine</td><td class="mono">+$50.10</td><td class="mono pnl-neg">-$101.10</td><td style="font-size: 12px; color: var(--text-dim);">v14: TP1 1× @ 2.17 (+30% fixed) + runner 0× exit @ ~3.80 (ribbon flip ~12:00 ET, fixed-PL +10% floor 1.84 not breached)</td></tr>
+<tr><td>stepped_pl</td><td class="mono">-$51.00</td><td class="mono pnl-pos">+$0.00</td><td style="font-size: 12px; color: var(--text-dim);">HWM $4.01 = +140% gain → stepped rung 100-150% = 10% trail → floor $3.61. v15 trailing 20% floor was $3.21. Stepped would have offered $0.40/contract MORE protection, but target $4.18 fired before any trail floor was breached on either mode. Identical outcome TODAY. Differentiation on chop/retrace days.</td></tr>
+</tbody></table>
+</div>
+<div class="card" style="margin-bottom: 20px;">
+<div class="card-header">trade_csv_10 · BULLISH_RECLAIM_RIDE_THE_RIBBON</div>
+<h3 style="margin: 4px 0 12px;">SPY 772C · long · score ?/?</h3>
+<div class="card-sub">Realized: <strong class="green">-$102.00</strong> (-30.5%) · Hold: 15 min · Doctrine: 80/100</div>
+<table><thead><tr><th>Time</th><th>Side</th><th>Qty</th><th>Price</th><th>Source</th><th>Reason</th></tr></thead><tbody>
+<tr><td class="mono">09:46:34</td><td>buy</td><td class="mono">2</td><td class="mono">$1.67</td><td>engine_heartbeat</td><td>entry</td></tr>
+<tr><td class="mono">10:01:05</td><td>sell</td><td class="mono">2</td><td class="mono">$1.16</td><td>engine_heartbeat</td><td>tp1_or_runner</td></tr>
+</tbody></table>
+<div class="card-header" style="margin-top: 16px;">COUNTERFACTUALS</div>
+<table><thead><tr><th>Scenario</th><th>P&amp;L</th><th>Δ vs actual</th><th>Method</th></tr></thead><tbody>
+<tr><td>perfect_hindsight</td><td class="mono">-$102.00</td><td class="mono pnl-pos">+$0.00</td><td style="font-size: 12px; color: var(--text-dim);">All 2 contracts sold at peak premium $1.16. Actual scale-outs: $1.16.</td></tr>
+<tr><td>v14_doctrine</td><td class="mono">+$263.10</td><td class="mono pnl-neg">-$365.10</td><td style="font-size: 12px; color: var(--text-dim);">v14: TP1 1× @ 2.17 (+30% fixed) + runner 1× exit @ ~3.80 (ribbon flip ~12:00 ET, fixed-PL +10% floor 1.84 not breached)</td></tr>
+<tr><td>stepped_pl</td><td class="mono">-$102.00</td><td class="mono pnl-pos">+$0.00</td><td style="font-size: 12px; color: var(--text-dim);">HWM $4.01 = +140% gain → stepped rung 100-150% = 10% trail → floor $3.61. v15 trailing 20% floor was $3.21. Stepped would have offered $0.40/contract MORE protection, but target $4.18 fired before any trail floor was breached on either mode. Identical outcome TODAY. Differentiation on chop/retrace days.</td></tr>
+</tbody></table>
+</div>
+<div class="card" style="margin-bottom: 20px;">
+<div class="card-header">trade_csv_11 · BULLISH_RECLAIM_RIDE_THE_RIBBON</div>
+<h3 style="margin: 4px 0 12px;">SPY 773C · long · score ?/?</h3>
+<div class="card-sub">Realized: <strong class="green">-$122.00</strong> (-55.5%) · Hold: 19 min · Doctrine: 80/100</div>
+<table><thead><tr><th>Time</th><th>Side</th><th>Qty</th><th>Price</th><th>Source</th><th>Reason</th></tr></thead><tbody>
+<tr><td class="mono">12:07:07</td><td>buy</td><td class="mono">2</td><td class="mono">$1.10</td><td>engine_heartbeat</td><td>entry</td></tr>
+<tr><td class="mono">12:26:06</td><td>sell</td><td class="mono">2</td><td class="mono">$0.49</td><td>engine_heartbeat</td><td>tp1_or_runner</td></tr>
+</tbody></table>
+<div class="card-header" style="margin-top: 16px;">COUNTERFACTUALS</div>
+<table><thead><tr><th>Scenario</th><th>P&amp;L</th><th>Δ vs actual</th><th>Method</th></tr></thead><tbody>
+<tr><td>perfect_hindsight</td><td class="mono">-$122.00</td><td class="mono pnl-pos">+$0.00</td><td style="font-size: 12px; color: var(--text-dim);">All 2 contracts sold at peak premium $0.49. Actual scale-outs: $0.49.</td></tr>
+<tr><td>v14_doctrine</td><td class="mono">+$303.00</td><td class="mono pnl-neg">-$425.00</td><td style="font-size: 12px; color: var(--text-dim);">v14: TP1 1× @ 1.43 (+30% fixed) + runner 1× exit @ ~3.80 (ribbon flip ~12:00 ET, fixed-PL +10% floor 1.21 not breached)</td></tr>
+<tr><td>stepped_pl</td><td class="mono">-$122.00</td><td class="mono pnl-pos">+$0.00</td><td style="font-size: 12px; color: var(--text-dim);">HWM $4.01 = +140% gain → stepped rung 100-150% = 10% trail → floor $3.61. v15 trailing 20% floor was $3.21. Stepped would have offered $0.40/contract MORE protection, but target $4.18 fired before any trail floor was breached on either mode. Identical outcome TODAY. Differentiation on chop/retrace days.</td></tr>
+</tbody></table>
+</div>
+<div class="card" style="margin-bottom: 20px;">
+<div class="card-header">trade_csv_12 · BULLISH_RECLAIM_RIDE_THE_RIBBON</div>
+<h3 style="margin: 4px 0 12px;">SPY 773C · long · score ?/?</h3>
+<div class="card-sub">Realized: <strong class="green">-$366.00</strong> (-55.5%) · Hold: 19 min · Doctrine: 80/100</div>
+<table><thead><tr><th>Time</th><th>Side</th><th>Qty</th><th>Price</th><th>Source</th><th>Reason</th></tr></thead><tbody>
+<tr><td class="mono">12:07:07</td><td>buy</td><td class="mono">6</td><td class="mono">$1.10</td><td>engine_heartbeat</td><td>entry</td></tr>
+<tr><td class="mono">12:26:06</td><td>sell</td><td class="mono">6</td><td class="mono">$0.49</td><td>engine_heartbeat</td><td>tp1_or_runner</td></tr>
+</tbody></table>
+<div class="card-header" style="margin-top: 16px;">COUNTERFACTUALS</div>
+<table><thead><tr><th>Scenario</th><th>P&amp;L</th><th>Δ vs actual</th><th>Method</th></tr></thead><tbody>
+<tr><td>perfect_hindsight</td><td class="mono">-$366.00</td><td class="mono pnl-pos">+$0.00</td><td style="font-size: 12px; color: var(--text-dim);">All 6 contracts sold at peak premium $0.49. Actual scale-outs: $0.49.</td></tr>
+<tr><td>v14_doctrine</td><td class="mono">+$672.00</td><td class="mono pnl-neg">-$1,038.00</td><td style="font-size: 12px; color: var(--text-dim);">v14: TP1 4× @ 1.43 (+30% fixed) + runner 2× exit @ ~3.80 (ribbon flip ~12:00 ET, fixed-PL +10% floor 1.21 not breached)</td></tr>
+<tr><td>stepped_pl</td><td class="mono">-$366.00</td><td class="mono pnl-pos">+$0.00</td><td style="font-size: 12px; color: var(--text-dim);">HWM $4.01 = +140% gain → stepped rung 100-150% = 10% trail → floor $3.61. v15 trailing 20% floor was $3.21. Stepped would have offered $0.40/contract MORE protection, but target $4.18 fired before any trail floor was breached on either mode. Identical outcome TODAY. Differentiation on chop/retrace days.</td></tr>
+</tbody></table>
+</div>
+<div class="card" style="margin-bottom: 20px;">
+<div class="card-header">trade_csv_13 · BULLISH_RECLAIM_RIDE_THE_RIBBON</div>
+<h3 style="margin: 4px 0 12px;">SPY 773C · long · score ?/?</h3>
+<div class="card-sub">Realized: <strong class="green">-$305.00</strong> (-56.0%) · Hold: 19 min · Doctrine: 80/100</div>
+<table><thead><tr><th>Time</th><th>Side</th><th>Qty</th><th>Price</th><th>Source</th><th>Reason</th></tr></thead><tbody>
+<tr><td class="mono">12:07:09</td><td>buy</td><td class="mono">5</td><td class="mono">$1.09</td><td>engine_heartbeat</td><td>entry</td></tr>
+<tr><td class="mono">12:26:07</td><td>sell</td><td class="mono">5</td><td class="mono">$0.48</td><td>engine_heartbeat</td><td>tp1_or_runner</td></tr>
+</tbody></table>
+<div class="card-header" style="margin-top: 16px;">COUNTERFACTUALS</div>
+<table><thead><tr><th>Scenario</th><th>P&amp;L</th><th>Δ vs actual</th><th>Method</th></tr></thead><tbody>
+<tr><td>perfect_hindsight</td><td class="mono">-$305.00</td><td class="mono pnl-pos">+$0.00</td><td style="font-size: 12px; color: var(--text-dim);">All 5 contracts sold at peak premium $0.48. Actual scale-outs: $0.48.</td></tr>
+<tr><td>v14_doctrine</td><td class="mono">+$640.10</td><td class="mono pnl-neg">-$945.10</td><td style="font-size: 12px; color: var(--text-dim);">v14: TP1 3× @ 1.42 (+30% fixed) + runner 2× exit @ ~3.80 (ribbon flip ~12:00 ET, fixed-PL +10% floor 1.20 not breached)</td></tr>
+<tr><td>stepped_pl</td><td class="mono">-$305.00</td><td class="mono pnl-pos">+$0.00</td><td style="font-size: 12px; color: var(--text-dim);">HWM $4.01 = +140% gain → stepped rung 100-150% = 10% trail → floor $3.61. v15 trailing 20% floor was $3.21. Stepped would have offered $0.40/contract MORE protection, but target $4.18 fired before any trail floor was breached on either mode. Identical outcome TODAY. Differentiation on chop/retrace days.</td></tr>
+</tbody></table>
+</div>
+<div class="card" style="margin-bottom: 20px;">
+<div class="card-header">trade_csv_14 · BULLISH_RECLAIM_RIDE_THE_RIBBON</div>
+<h3 style="margin: 4px 0 12px;">SPY 775C · long · score ?/?</h3>
+<div class="card-sub">Realized: <strong class="green">-$18.00</strong> (-58.1%) · Hold: 18 min · Doctrine: 80/100</div>
+<table><thead><tr><th>Time</th><th>Side</th><th>Qty</th><th>Price</th><th>Source</th><th>Reason</th></tr></thead><tbody>
+<tr><td class="mono">12:07:10</td><td>buy</td><td class="mono">1</td><td class="mono">$0.31</td><td>engine_heartbeat</td><td>entry</td></tr>
+<tr><td class="mono">12:25:08</td><td>sell</td><td class="mono">1</td><td class="mono">$0.13</td><td>engine_heartbeat</td><td>tp1_or_runner</td></tr>
+</tbody></table>
+<div class="card-header" style="margin-top: 16px;">COUNTERFACTUALS</div>
+<table><thead><tr><th>Scenario</th><th>P&amp;L</th><th>Δ vs actual</th><th>Method</th></tr></thead><tbody>
+<tr><td>perfect_hindsight</td><td class="mono">-$18.00</td><td class="mono pnl-pos">+$0.00</td><td style="font-size: 12px; color: var(--text-dim);">All 1 contracts sold at peak premium $0.13. Actual scale-outs: $0.13.</td></tr>
+<tr><td>v14_doctrine</td><td class="mono">+$9.30</td><td class="mono pnl-neg">-$27.30</td><td style="font-size: 12px; color: var(--text-dim);">v14: TP1 1× @ 0.40 (+30% fixed) + runner 0× exit @ ~3.80 (ribbon flip ~12:00 ET, fixed-PL +10% floor 0.34 not breached)</td></tr>
+<tr><td>stepped_pl</td><td class="mono">-$18.00</td><td class="mono pnl-pos">+$0.00</td><td style="font-size: 12px; color: var(--text-dim);">HWM $4.01 = +140% gain → stepped rung 100-150% = 10% trail → floor $3.61. v15 trailing 20% floor was $3.21. Stepped would have offered $0.40/contract MORE protection, but target $4.18 fired before any trail floor was breached on either mode. Identical outcome TODAY. Differentiation on chop/retrace days.</td></tr>
+</tbody></table>
+</div>
+<div class="card" style="margin-bottom: 20px;">
+<div class="card-header">trade_csv_15 · BULLISH_RECLAIM_RIDE_THE_RIBBON</div>
+<h3 style="margin: 4px 0 12px;">SPY 775C · long · score ?/?</h3>
+<div class="card-sub">Realized: <strong class="green">-$198.00</strong> (-58.1%) · Hold: 18 min · Doctrine: 80/100</div>
+<table><thead><tr><th>Time</th><th>Side</th><th>Qty</th><th>Price</th><th>Source</th><th>Reason</th></tr></thead><tbody>
+<tr><td class="mono">12:07:10</td><td>buy</td><td class="mono">11</td><td class="mono">$0.31</td><td>engine_heartbeat</td><td>entry</td></tr>
+<tr><td class="mono">12:25:08</td><td>sell</td><td class="mono">11</td><td class="mono">$0.13</td><td>engine_heartbeat</td><td>tp1_or_runner</td></tr>
+</tbody></table>
+<div class="card-header" style="margin-top: 16px;">COUNTERFACTUALS</div>
+<table><thead><tr><th>Scenario</th><th>P&amp;L</th><th>Δ vs actual</th><th>Method</th></tr></thead><tbody>
+<tr><td>perfect_hindsight</td><td class="mono">-$198.00</td><td class="mono pnl-pos">+$0.00</td><td style="font-size: 12px; color: var(--text-dim);">All 11 contracts sold at peak premium $0.13. Actual scale-outs: $0.13.</td></tr>
+<tr><td>v14_doctrine</td><td class="mono">+$1,461.10</td><td class="mono pnl-neg">-$1,659.10</td><td style="font-size: 12px; color: var(--text-dim);">v14: TP1 7× @ 0.40 (+30% fixed) + runner 4× exit @ ~3.80 (ribbon flip ~12:00 ET, fixed-PL +10% floor 0.34 not breached)</td></tr>
+<tr><td>stepped_pl</td><td class="mono">-$198.00</td><td class="mono pnl-pos">+$0.00</td><td style="font-size: 12px; color: var(--text-dim);">HWM $4.01 = +140% gain → stepped rung 100-150% = 10% trail → floor $3.61. v15 trailing 20% floor was $3.21. Stepped would have offered $0.40/contract MORE protection, but target $4.18 fired before any trail floor was breached on either mode. Identical outcome TODAY. Differentiation on chop/retrace days.</td></tr>
+</tbody></table>
+</div>
+<div class="card" style="margin-bottom: 20px;">
+<div class="card-header">trade_csv_16 · BULLISH_RECLAIM_RIDE_THE_RIBBON</div>
+<h3 style="margin: 4px 0 12px;">SPY 773C · long · score ?/?</h3>
+<div class="card-sub">Realized: <strong class="green">-$183.00</strong> (-55.0%) · Hold: 19 min · Doctrine: 80/100</div>
+<table><thead><tr><th>Time</th><th>Side</th><th>Qty</th><th>Price</th><th>Source</th><th>Reason</th></tr></thead><tbody>
+<tr><td class="mono">12:06:35</td><td>buy</td><td class="mono">3</td><td class="mono">$1.11</td><td>engine_heartbeat</td><td>entry</td></tr>
+<tr><td class="mono">12:26:04</td><td>sell</td><td class="mono">3</td><td class="mono">$0.50</td><td>engine_heartbeat</td><td>tp1_or_runner</td></tr>
+</tbody></table>
+<div class="card-header" style="margin-top: 16px;">COUNTERFACTUALS</div>
+<table><thead><tr><th>Scenario</th><th>P&amp;L</th><th>Δ vs actual</th><th>Method</th></tr></thead><tbody>
+<tr><td>perfect_hindsight</td><td class="mono">-$183.00</td><td class="mono pnl-pos">+$0.00</td><td style="font-size: 12px; color: var(--text-dim);">All 3 contracts sold at peak premium $0.50. Actual scale-outs: $0.50.</td></tr>
+<tr><td>v14_doctrine</td><td class="mono">+$335.60</td><td class="mono pnl-neg">-$518.60</td><td style="font-size: 12px; color: var(--text-dim);">v14: TP1 2× @ 1.44 (+30% fixed) + runner 1× exit @ ~3.80 (ribbon flip ~12:00 ET, fixed-PL +10% floor 1.22 not breached)</td></tr>
+<tr><td>stepped_pl</td><td class="mono">-$183.00</td><td class="mono pnl-pos">+$0.00</td><td style="font-size: 12px; color: var(--text-dim);">HWM $4.01 = +140% gain → stepped rung 100-150% = 10% trail → floor $3.61. v15 trailing 20% floor was $3.21. Stepped would have offered $0.40/contract MORE protection, but target $4.18 fired before any trail floor was breached on either mode. Identical outcome TODAY. Differentiation on chop/retrace days.</td></tr>
+</tbody></table>
+</div>
+<div class="card" style="margin-bottom: 20px;">
+<div class="card-header">trade_csv_17 · bollinger_squeeze</div>
+<h3 style="margin: 4px 0 12px;">SPY 772P · short · score ?/?</h3>
+<div class="card-sub">Realized: <strong class="green">-$39.00</strong> (-16.2%) · Hold: 2 min · Doctrine: 80/100</div>
+<table><thead><tr><th>Time</th><th>Side</th><th>Qty</th><th>Price</th><th>Source</th><th>Reason</th></tr></thead><tbody>
+<tr><td class="mono">14:16:51</td><td>buy</td><td class="mono">3</td><td class="mono">$0.80</td><td>engine_heartbeat</td><td>entry</td></tr>
+<tr><td class="mono">14:19:04</td><td>sell</td><td class="mono">3</td><td class="mono">$0.67</td><td>engine_heartbeat</td><td>tp1_or_runner</td></tr>
+</tbody></table>
+<div class="card-header" style="margin-top: 16px;">COUNTERFACTUALS</div>
+<table><thead><tr><th>Scenario</th><th>P&amp;L</th><th>Δ vs actual</th><th>Method</th></tr></thead><tbody>
+<tr><td>perfect_hindsight</td><td class="mono">-$39.00</td><td class="mono pnl-pos">+$0.00</td><td style="font-size: 12px; color: var(--text-dim);">All 3 contracts sold at peak premium $0.67. Actual scale-outs: $0.67.</td></tr>
+<tr><td>v14_doctrine</td><td class="mono">+$348.00</td><td class="mono pnl-neg">-$387.00</td><td style="font-size: 12px; color: var(--text-dim);">v14: TP1 2× @ 1.04 (+30% fixed) + runner 1× exit @ ~3.80 (ribbon flip ~12:00 ET, fixed-PL +10% floor 0.88 not breached)</td></tr>
+<tr><td>stepped_pl</td><td class="mono">-$39.00</td><td class="mono pnl-pos">+$0.00</td><td style="font-size: 12px; color: var(--text-dim);">HWM $4.01 = +140% gain → stepped rung 100-150% = 10% trail → floor $3.61. v15 trailing 20% floor was $3.21. Stepped would have offered $0.40/contract MORE protection, but target $4.18 fired before any trail floor was breached on either mode. Identical outcome TODAY. Differentiation on chop/retrace days.</td></tr>
+</tbody></table>
+</div>
+</section>
+<section><h2>The 12 dimensions</h2>
+<div class="category-row">
+<div class="num">01</div>
+<div class="name">execution</div>
+<div class="score score-mid">77.0/100</div>
+<div class="score-bar score-mid"><span style="width: 77%"></span></div>
+<div class="narrative">17 trade(s). Avg fill-lag-vs-trigger unknown (0/17 trades had a resolvable trigger+fill pair). 0/17 trades had a partial-fill entry. Score 77.0/100 (timing=25/40, partial=30/30, slippage=22/30).</div>
+</div>
+<div class="category-row">
+<div class="num">02</div>
+<div class="name">detection</div>
+<div class="score score-mid">70.0/100</div>
+<div class="score-bar score-mid"><span style="width: 70%"></span></div>
+<div class="narrative">Phase 3 orchestrator-replay: 78 bars evaluated. Engine ENTERs: 5 | Actual trades: 17 | SKIPs: 46 | HOLDs: 27 | Verdict: INTRADAY_INCONSISTENT. engine fired AT actual entry (1/17) but ALSO produced 4 spurious ENTER(s) — mixed signal. Score 70/100.</div>
+</div>
+<div class="category-row">
+<div class="num">03</div>
+<div class="name">edge</div>
+<div class="score score-bad">0.0/100</div>
+<div class="score-bar score-bad"><span style="width: 0%"></span></div>
+<div class="narrative">Captured $-2,687 of $-2,687 perfect-hindsight = 0.0% edge capture.  v14 doctrine would have delivered $9,721 — v14 would have won by $12,408.  T75 stepped-PL gives identical outcome on TODAY (+$0 delta) — differentiation visible on chop/retrace days.</div>
+</div>
+<div class="category-row">
+<div class="num">04</div>
+<div class="name">doctrine</div>
+<div class="score score-good">100.0/100</div>
+<div class="score-bar score-good"><span style="width: 100%"></span></div>
+<div class="narrative">100% doctrine compliance. 17 trades, 0 rule breaks logged.</div>
+</div>
+<div class="category-row">
+<div class="num">05</div>
+<div class="name">risk</div>
+<div class="score score-mid">50.0/100</div>
+<div class="score-bar score-mid"><span style="width: 50%"></span></div>
+<div class="narrative">Max position 0.00% of equity (v15 gate: 20%). Day P&amp;L -41.2% / max-trade-loss -58.1% / max-qty 12. Score: 50/100 (size=30/30, budget=0/25, loss=0/25, qty=20/20).</div>
+</div>
+<div class="category-row">
+<div class="num">06</div>
+<div class="name">process</div>
+<div class="score score-mid">50.0/100</div>
+<div class="score-bar score-mid"><span style="width: 50%"></span></div>
+<div class="narrative">Process score 50/100. Journal: 2/6 sections, 11023B. Trades.csv: 17 rows for 17 trades. Decisions: 0 (0.0/trade, target ≥8). Hypothesis grades: 0 (no premarket predictions). Gaps: journal sections 2/6 / decisions/trade 0.0 (target ≥8) / hypothesis grades 0 (no premarket predictions found)</div>
+</div>
+<div class="category-row">
+<div class="num">07</div>
+<div class="name">macro</div>
+<div class="score score-bad">30.0/100</div>
+<div class="score-bar score-bad"><span style="width: 30%"></span></div>
+<div class="narrative">Predicted regime: not_computed -- mechanical generator has no VIX/chart access; see today-bias.json#iv_regime (catalyst: macro_calendar). Realized: tight_chop. News freshness: fresh. Score 30/100.</div>
+</div>
+<div class="category-row">
+<div class="num">08</div>
+<div class="name">technical</div>
+<div class="score score-mid">52.0/100</div>
+<div class="score-bar score-mid"><span style="width: 52%"></span></div>
+<div class="narrative">Hypothesis grades: 0/0 PASS. Key levels: 8 held / 3 broken. Ribbon close: BEAR (bias was: bullish). Score 52/100 (grades=15/40, levels=22/30, ribbon=15/30).</div>
+</div>
+<div class="category-row">
+<div class="num">09</div>
+<div class="name">engine_health</div>
+<div class="score score-mid">75.0/100</div>
+<div class="score-bar score-mid"><span style="width: 75%"></span></div>
+<div class="narrative">Pin chain: v15.3. Heartbeat ticks: 0/127 (0%). Watcher diag fires: 154/76 (203%). No silent-failure incidents detected.</div>
+</div>
+<div class="category-row">
+<div class="num">10</div>
+<div class="name">watcher_fleet</div>
+<div class="score score-mid">72.0/100</div>
+<div class="score-bar score-mid"><span style="width: 72%"></span></div>
+<div class="narrative">Diag fires: 154/76 (203% of expected). Fires with signals: 62 (40%). Watchers active: 12/6. Silent watchers: [&#x27;orb_watcher&#x27;, &#x27;v14_enhanced_watcher&#x27;, &#x27;vwap_watcher&#x27;, &#x27;premarket_fail_fade_watcher&#x27;]. Score 72/100.</div>
+</div>
+<div class="category-row">
+<div class="num">11</div>
+<div class="name">lessons</div>
+<div class="score score-good">100.0/100</div>
+<div class="score-bar score-good"><span style="width: 100%"></span></div>
+<div class="narrative">Lesson candidates detected: 0 (rule_breaks=0, ingest_warnings=0, journal_markers=0). All candidates queued — NEVER auto-written to LESSONS-LEARNED.md. Score 100/100.</div>
+</div>
+<div class="category-row">
+<div class="num">12</div>
+<div class="name">forensics</div>
+<div class="score score-mid">50.0/100</div>
+<div class="score-bar score-mid"><span style="width: 50%"></span></div>
+<div class="narrative">Winners analyzed: 0, losers: 17
+
+[Phase 2.3 disclosures]:</div>
+</div>
+<div class="category-row">
+<div class="num">13</div>
+<div class="name">tomorrow</div>
+<div class="score score-mid">65.0/100</div>
+<div class="score-bar score-mid"><span style="width: 65%"></span></div>
+<div class="narrative">Next trading day: 2026-08-10. Session H/L/C: 770.81 / 770.66 / 770.73. Macro events tomorrow: 0.</div>
+</div>
+</section>
+<section><h2>Research handoffs · feedback to backtest pipeline</h2>
+</section>
+<footer>Generated 2026-08-07T14:30:19 · Schema eod-deep-v1 · 17 trades · Process 59.0/100 · Edge 0.0%</footer>
+</div></body></html>

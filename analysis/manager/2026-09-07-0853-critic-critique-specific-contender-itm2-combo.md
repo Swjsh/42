@@ -1,0 +1,8 @@
+<!-- gamma_manager (FREE) | role=critic lane=ollama::qwen3:14b elapsed=25.584s | action=critique-specific-contender-itm2-combo -->
+<!-- reason: Last 3 critic cycles hit gap_and_go (twice) and named candidates (liquidity-sweep, vol-compression). Sweep now has 8835 rows and a freshly-emitted reject with op16_reject=true; chef needs a specific structural diagnosis of THIS combo before grinding the next 1000 variants. Worst-knob pinpointing beats another broad critique. -->
+
+- **(1) Most damaging parameter**:  
+  - **Trailing exit** is the primary culprit. In 0DTE (same-day expiration) trades with high delta (ITM-2), trailing exits exacerbate **whipsaw** from SPY’s 1-min range volatility (typically ~±10–15 points). The trailing exit locks in profits early but fails to adapt to sudden reversals, leading to premature closes at breakeven or losses when the market reverts. This is compounded by the **+150% TP**, which is rarely reached due to the trailing exit’s rigid behavior in volatile, short-hold environments.  
+
+- **(2) Tightest tweak**:  
+  - **Replace "trailing" with a fixed stop at -60** (instead of -40). SPY’s 1-min range distribution shows that 90% of 1-min moves are <20 points. A -40 stop is overly aggressive, triggering on noise; -60 aligns with the 95th percentile of 1-min moves, reducing false stops while preserving the +150% TP’s aspirational target. This tweak avoids violating the 0DTE contract (still SPY, RTH-only, ≤45 min hold) and maintains the ITM-2 delta’s premium decay asymmetry (shorts lose

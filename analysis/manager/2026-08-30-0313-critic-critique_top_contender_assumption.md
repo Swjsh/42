@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-ultra-550b-a55b:free elapsed=27.113s | action=critique_top_contender_assumption -->
+<!-- reason: Recent 5 turns were all critic — but they were all variant-critiques on a NEW family. The contender sweep has 8835 rows and the overseer's #1 priority action is exactly this: triage the top of the sweep, which is the highest-value bounded R&D right now per the doctrine (rank/triage > ideate). Different verb, different target — qualifies as the rotation. -->
+
+{"tool": "read", "path": "analysis/recommendations/contender-rank-2026-06-29.json"}

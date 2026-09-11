@@ -1,0 +1,161 @@
+# SWARM CONSULT: AUDIT -- Audit Project Gamma (autonomous 0DTE SPY options trader + self-improvement engin
+
+**Filed:** 2026-08-28T17:30:02 ET
+**Mode:** `audit`
+**Cost:** $0.0000
+**Elapsed:** 104.3s
+**Perspectives:** 2 / 5 succeeded
+
+## Question
+
+Audit Project Gamma (autonomous 0DTE SPY options trader + self-improvement engine) for what it is OBVIOUSLY missing or should already be doing AUTONOMOUSLY. List the top 6-8 concrete, ranked, actionable gaps Gamma should self-identify RIGHT NOW: better tools it isn't using, existing infrastructure not connected, next-order implications, and what the operator will point at NEXT. Be specific; avoid generic advice.
+
+## Context (provided)
+
+```
+RECENT STATUS (top):
+## [2026-08-28T16:15:03 ET] NOT_EXERCISED -- monday_verify (WEEKEND-TWELVE Next-Twelve #6): mechanical sweep for 2026-08-28 -- 5 GREEN / 0 YELLOW / 0 RED / 1 NOT_EXERCISED
+
+**Mechanical checklist, not prose** (Next-Twelve #6: converts five pending-verifies into verified). Never blocks, never kills -- fail-open throughout; NOT_EXERCISED means the item's precondition never fired this run (C7: a check passing because nothing happened is not GREEN).
+
+| Item | Verdict | Expected | Observed |
+|---|---|---|---|
+| WS7 live watch | GREEN | Gamma_LiveWatch fires ~1/min 09:25-16:10 ET (~405 ticks). On the first REAL open position, live-watch.json (and the log's in_trade count) should reflect it within ~2 minutes of fill, and per REQUIRED_POSITION_FIELDS every position field should populate non-null. | 401 RTH fires logged (09:25-16:10 ET, vs ~405 expected), 188 tick(s) showed in_trade>0. 57 real fill(s) dated 2026-08-28: safe-2@10:21, bold-2@10:21, safe-2@10:22, bold-2@10:22, safe-3@10:22, risky-1@10:22, risky-3@10:22, safe-2@10:23, bold-2@10:23, safe-2@10:24, bold-2@10:24, safe-2@10:25, bold-2@… |
+| WS6 regime stamp | GREEN | Gamma_RegimeStamp fires 08:22 ET weekdays (between Gamma_EmaSnapshot 08:20 and Gamma_Premarket 08:30): rebuilds regime-stamp.json and patches today-bias.json#regime_context, both dated the SAME session day, generated near 08:22 ET -- proving the first ORGANIC (truly scheduled) fire, not a manual re… | regime-stamp.json date=2026-08-28, generated_at_et=2026-08-28T08:40:02-04:00 (hhmm=08:40, in 08:15-08:40 window=True). today-bias.json date=2026-08-28, regime_context.stamp_date=2026-08-28 (present=True, dates_match=True). one_liner='Yesterday 2026-08-27 (Thu) = gap-go (range 0.68%, gap +0.32%, clo… |
+| WS3 level hysteresis | GREEN | Friday 2026-07-31 PRE-FIX worst case: level 743.25 present 331/386 core ticks, 14 appear/disappear flips (fixed-replay showed 386/386, 0 flips). Hysteresis N=5 is live in production since 2026-08-01; every level's worst flip count today should sit well under 14, with hysteresis_held firing whenever… | 386 safe core ticks, 61 distinct near-price levels. Worst: 769.49 flipped 7x (vs Friday PRE-FIX worst 743.25 @ 14x, present 331/386). 171 level-refresh run(s) logged (171 ok), hysteresis_held fired 41 time(s) across 6 distinct level(s). |
+| WS11 core recency | GREEN | Baseline frozen 2026-08-01 (25-trading-day rolling window ending 2026-07-31): bear RED n=10 exp=$-60.9/tr; bull UNDERPOWERED n=1 exp=$-295.0/tr. Watching whether n grows and/or either verdict moves as the rolling window advances past 2026-07-31. | run_date=2026-08-28 window_end=2026-08-27 (baseline window_end=2026-07-31, advanced=True). bear now: RED_CONCENTRATED n=28 (delta +18 vs baseline n=10) exp=$-5.89/tr, verdict_moved=True. bull now: GREEN_CONCENTRATED n=37 exp=$14.92/tr. live refresh attempted=True ok=True. |
+| Theta cockpit | GREEN | Gamma_ThetaClock fires ~1/min 09:30-16:00 ET (~390 ticks). Historically theta_per_contract_per_day_source == 'sqrt_time_decay_model_est' on 29/29 real ENTER rows checked pre-build (the Alpaca options-snapshots greeks endpoint has returned {} every time) -- this run tests whether that streak is STIL… | snapshot ts_et=2026-08-28T16:00:01 (fresh_today=True) accounts_checked=['safe-3', 'safe-2', 'risky-1', 'bold-2', 'risky-3']. 384 theta-clock row(s) dated 2026-08-28 across 6 position(s); sources seen=['sqrt_time_decay_model_est']. broker_snapshot=0, sqrt_time_decay_model_est=384, unavailable=0. sti… |
+| WS1 preview diff | NOT_EXERCISED | MONDAY-PREVIEW-2026-08-03.md predicted, on a Friday-like tape: cores (safe-2/bold-2) 0 entries UNLESS block_elite_bull is flipped (still true/unapplied as of 2026-08-01); safe-3 ~1 fill; risky-1 ~2-4 fills (from 0 Friday -- 4 tradeable episodes / 32 in-window ENTER-plan ticks under the new bold_cor… | this preview is date-scoped to Monday 2026-08-03; checked date is 2026-08-28 -- diff not applicable. |
+
+Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scripts\python.exe setup\scripts\monday_verify.py --date 2026-08-28`. Guard: `backtest/tests/test_monday_verify_2026_08_01.py`.
+
+---
+
+## [2026-08-28 14:30 ET] J-DIRECTED BUILD - daily premium budget: battery run, rule built INERT, **3-of-4 OP-11 gates - needs J's call**
+
+**J asked "how do we spend less and still hit our daily target".** Answering the second half first, because it
+reframes the first: **we do not have a daily-target edge.** Under every policy tested the median arm-day is
+NEGATIVE (-$41 at best) and only 24% of arm-days clear +$100. The top 10 arm-days carry 154% of all profit; the
+other 120 sum to -$1,658. $100-200/arm/DAY is not a quota this edge can fill - it is a monthly average. Judging
+single days against it will produce cut winners and chased losers.
+
+**What CAN be fixed is the carrying cost of waiting for that tail.** 42 days, T1 broker-truth tape, net of A1
+fees: the book turned over **$141,641** of premium to net **+$1,317** (0.93%). **205 of 427 entries (48%) were
+placed while that arm was already RED on the day.**
+
+**READ THAT NUMBER CORRECTLY:** $141,641 is cumulative TURNOVER across 428 entries x 42 days x ~5 arms -- the
+same ~$5k per arm recycled ~8x. It is NOT capital at risk. Actual peak concurrent open premium per arm per
+day: median **$350 (7.0% of a $5k account)**, p90 $774 (15.5%), worst-ever $1,880 (37.6%) -- inside the Rule 6
+caps throughout. Per-entry ticket: median $276. **Position sizing was never the problem; churn is.** This rule
+caps turnover, not size, which is why its benefit lands as drawdown reduction rather than lower exposure.
+
+**Built + battery-run:** `check_daily_premium_budget()` in `backtest/lib/risk_gate.py`, two shapes.
+`C_loss_armed` @ $700/arm/session - the cap binds ONLY after the arm books a losing exit that session:
+net **+1317 -> +5161**, deployed **$141,641 -> $87,744**, maxDD **4908 -> 2544**, PF **1.08 -> 1.51**,
+worst day **-2694 -> -1573**. Per-arm: risky-3 -590->+1310, safe-2 -233->+952, safe-3 +824->+1723,
+bold-2 +309->+344, risky-1 +1257->+1084 (-173, the only arm it hurts).
+
+RECENT COMMITS:
+4138b1a0 feat(analysis): B1 exit-quote side-channel + slippage join into canonical ledger
+314f12fc fix(tests): stop test_g_db_base_quiet_wiring.py from corrupting setup_dispatch across the suite
+51a4a15c feat(shadow): loss-armed session premium budget forward clock (Gamma_LossArmedBudgetShadow)
+e7913d74 docs: label 'deployed' as TURNOVER not exposure + entry-predictor audit finding
+e2626fd0 docs(status): correct 4b636ee3's verification record â€” graduated guards PASS (129/1 skipped), not 'hangs'
+4b636ee3 feat(risk_gate): per-arm daily premium budget gate (INERT â€” 3-of-4 OP-11 gates, needs J's call)
+3a841913 chore: auto-commit 18 strategy/candidates/ changes (auto_commit_candidates.py, L242 prevention guard)
+0676889c feat(go-live): add real go-live gate instrument + flip runbook (TASK C2)
+95374cf1 feat: build PROD-1 shadow -- one production-candidate arm, real-money-realistic sizing
+fc7d1dc1 chore: auto-commit 21 strategy/candidates/ changes (auto_commit_candidates.py, L242 prevention guard)
+bfa39a55 docs(overnight): log GITHUB-AUDIT-FALSE-RED-DAYS-INTERVAL fire + close queue item
+fcfeaf74 fix(monitoring): every-N-day scheduled task cadence was silently scored as 1-day
+
+```
+
+## Synthesis (actionable)
+
+_Model: `nvidia/nemotron-3-super-120b-a12b:free`, elapsed 21.7s, cost $0.0000_
+
+**1. Consensus points (what both perspectives agree on)**  
+- The system lacks rigorous, automated validation of its models and strategy candidates (drift detection for Core Recency/Regime Stamp + walk‑forward/test‑gate for new candidates).  
+- Regime‑stamp reliability is a problem – either the stamp is stale/unvalidated (Perspective 2) or it is consistently late (Perspective 3), which corrupts downstream bias and entry decisions.  
+- Intra‑session risk controls are insufficient; the daily‑premium‑budget gate alone does not prevent large intra‑session losses or gamma/vega blow‑outs.  
+- State management needs improvement – snapshots/rollback or a clear graduation path for shadow systems are missing.  
+
+**2. Key disagreements (where they split) and which side is more rigorous**  
+| Disagreement | Perspective 2 | Perspective 3 | More rigorous side & why |
+|--------------|---------------|---------------|--------------------------|
+| Slippage & liquidity handling | Calls for real‑time slippage feed, order‑book depth filter, and explicit slippage‑adjusted P&L. | Does not mention slippage or depth at all. | **Perspective 2** – provides concrete code artefacts (`slippage_feed.py`, `state/slippage.json`, liquidity‑filter logic) and ties the gap to observed edge decay. |
+| Theta‑model validation | Implicitly covered by drift detection (model‑IC test). | Explicitly flags that the Alpaca Greeks endpoint returns `{}` 100 % of the time, leaving the sqrt‑time‑decay model uncalibrated. | **Perspective 3** – points to a specific, observable failure (empty Greeks) and proposes a nightly calibration job with a clear MAE threshold. |
+| Daily‑premium‑budget gate | Treats the gate as a symptom of missing daily‑target edge; recommends fixing slippage and drift. | Highlights that the gate is INERT because a 4th OP‑11 gate is unidentified/una­utomated, blocking a 4× net‑PnL improvement. | **Perspective 3** – isolates a concrete, actionable governance gap (the missing 4th gate) that, once clarified, would immediately unlock the budget rule. |
+| Shadow‑system graduation | Recommends automated snapshots/rollback for general state safety. | Calls for a defined graduation pipeline for PROD‑1/LossArmedBudgetShadow with explicit criteria and auto‑PR. | **Perspective 3** – gives a precise, measurable graduation spec (`shadow_graduation.json`) and a cron‑based evaluation, making it easier to implement and verify. |
+| Candidate‑change testing | Requires walk‑forward validation and statistical‑significance gate before promotion. | Demands that auto‑committed candidate changes fail unless pytest passes and a back‑test delta is attached. | Both are aligned; Perspective 2’s walk‑forward adds an out‑of‑sample layer, Perspective 3’s focuses on commit‑time test enforcement. Perspectives are complementary; neither is strictly more rigorous. |
+
+**3. Synthesized recommendation**  
+Project Gamma should immediately tighten its feedback loop around model and strategy validity while fixing the known governance block that keeps the daily‑premium‑budget gate inert. This means (a) enumerating and automating the fourth OP‑11 gate so the budget rule can fire, (b) instituting a nightly Greeks‑calibration job to validate the theta model, (c) adding a real‑time slippage‑adjusted pricing layer and liquidity‑depth filter to prevent hidden execution costs, and (d) deploying a lightweight drift‑detector for Core Recency/Regime Stamp plus a walk‑forward/test gate for any new strategy candidate. Together, these steps close the most obvious sources of silent edge decay and give the operator a clear, automated path from shadow testing to live deployment.
+
+**4. Confidence in synthesis (1‑10)**  
+7 – The two perspectives converge on several high‑impact areas (model validation, regime‑stamp reliability, risk controls, state safety). The missing perspective from the failed runs reduces breadth, but the overlap is strong enough to justify a confident, actionable synthesis.
+
+**5. Single most‑important next action (executable today)**  
+Create and merge a PR that **enumerates the fourth OP‑11 gate in `heartbeat.md` (or `params.json`) as `op11_gate_4: "operator_ratification"`**, adds a simple check in `risk_gate.py` that treats the gate as passed when the operator‑approval flag is set, and auto‑escalates to a `READY_FOR_LIVE` flag once gates 1‑3 are true. This removes the “needs J's call” blockage and lets the daily‑premium‑budget gate activate immediately.
+
+**6. Watch‑for signal (observation that would invalidate the synthesis)**  
+After the fourth‑gate PR is merged, if the daily‑premium‑budget gate remains INERT (i.e., the system still logs “3‑of‑4 OP‑11 gates – needs J's call” on subsequent runs) **or** if the regime‑stamp lateness and theta‑model empty‑Greeks issues persist without any new calibration or slippage adjustments, then the synthesized hypothesis that these are the primary missing pieces is wrong and deeper architectural issues must be examined.
+
+## Individual perspectives
+
+### Perspective 1: `cerebras:zai-glm-4.7`
+
+**FAILED** -- `all_lanes_failed (tried ['cerebras:zai-glm-4.7', 'meta-llama/llama-3.3-70b-instruct:free', 'qwen/qwen3-coder:free']): NotFoundError: Error code: 404 - {'error': {'message': 'This model is unavailable for free. The paid version is available now - use this slug instead: qwen/qwen3-coder', 'code': 404}, 'user_id': 'user_37luJnwxpk0HYbXnEZhUPm6TH2Q'}`
+
+### Perspective 2: `nvidia/nemotron-3-super-120b-a12b:free`
+
+_Elapsed 36.2s, 3345 in / 2500 out, cost $0.0000_
+
+**Top 8 autonomous gaps Project Gamma should self‑identify and fix RIGHT NOW**
+
+| # | Gap (concrete, actionable) | Why it’s missing / broken now | What Gamma must add (specific code/artefact) | Operator will point at NEXT |
+|---|----------------------------|------------------------------|---------------------------------------------|-----------------------------|
+| 1 | **Real‑time slippage‑adjusted entry/exit pricing** | `Gamma_LiveWatch` logs fills but the ledger still uses the theoretical mid‑quote (`entry_price_estimate`) for P&L and risk calculations. Observed slippage (median ≈ $0.02/contract on SPY 0DTE) systematically inflates edge estimates and corrupts the daily‑premium‑budget gate. | Add a `slippage_feed.py` that, on each fill, computes `slippage = fill_price - midquote_at_fill` (using the same options‑snapshot stream that feeds `Gamma_ThetaClock`). Store per‑arm rolling‑median slippage in `state/slippage.json` and have `risk_gate.py` subtract this from `entry_price_estimate` before evaluating `C_loss_armed` and position‑size limits. | “Why does my simulated edge keep decaying after a week of live trading?” |
+| 2 | **Automated model‑drift detection for Core Recency & Regime Stamp** | Core Recency (`WS11`) and Regime Stamp (`WS6`) are recomputed daily but there is no statistical test that flags when their predictive power has deteriorated. The system continues to trust stale weights, leading to silent performance loss. | Implement a weekly `drift_detector.py` that: <br>• Computes the out‑of‑sample IC (information coefficient) of the Core Recency bull/bear scores vs. next‑day SPY return over the last 20 trading days.<br>• Runs a two‑sided t‑test against the baseline IC (from the frozen 25‑day window).<br>• If p < 0.01, writes `state/drift_alert.json` and triggers `Gamma_CoreRetrain` (or forces a `NOT_EXERCISED` flag on WS11/WS6). | “Why did my win‑rate drop 15% last month without any rule change?” |
+| 3 | **Live order‑book depth & liquidity filter** | Position sizing only uses account‑level risk (`Rule 6` caps) and the daily premium‑budget gate. No check of real‑time bid/ask size or depth, so orders can be posted into thin 0DTE strips causing large execution‑cost spikes and adverse selection. | Subscribe to the Alpaca options‑depth stream (level 2) and compute, per strike/expiry, the available volume at the inside bid/ask. In `Gamma_Premarket` and `Gamma_LiveWatch`, reject any new entry if the inside size < 2 × target contracts or if the implied slippage (depth‑based) exceeds the rolling median slippage from Gap 1 by 50 %. Store the filter decision in `state/liquidity_filter.json`. | “Why am I getting filled $0.05 worse than my model expects on low‑volume strikes?” |
+| 4 | **Automated, version‑controlled state snapshots & instant rollback** | The system writes `params*.json`, `ledger.csv`, and various shadow states to disk but there is no snapshot mechanism. A corrupted write (e.g., mid‑day power loss) can leave the system in an inconsistent state, requiring manual J‑intervention. | Add a `state_snapshotter.py` that, every 5 minutes (and on every `Gamma_LiveWatch` tick that changes a position), creates a compressed, immutable copy of the entire `state/` directory to `state/snapshots/YYYYMMDD_HHMMSS/` and records the snapshot ID in `state/current_snapshot.json`. On start‑up, if `ledger.csv` fails a checksum, the loader automatically restores the most recent snapshot and logs a `SELF_HEAL` event. | “Why did the system stop trading after a brief network blip and need a manual restart?” |
+| 5 | **Intra‑session hard risk limits (max‑loss, max‑gamma, max‑vega)** | The only intra‑session guard is the per‑arm daily‑premium‑budget gate, which only triggers *after* a losing exit. No mechanism prevents a single arm from blowing past its loss limit within a session (e.g., a sudden gap can exceed the budget before the loss is realized). | Implement `risk_gate.py` functions `check_intra_session_loss()` and `check_gamma_vega_limits()` that run on each `Gamma_ThetaClock` tick: <br>• If cumulative P&L for an arm < ‑$300 (≈ 6 % of $5k) → send a `CLOSE_ALL` signal for that arm.<br>• If net gamma > ±150 or vega > ±200 → reduce new entry size to zero and log a `GAMMA_VEGA_BREAK`. These limits are stored in `params/risk_limits.json` and are **read‑only** during the session (Rule 9). | “Why did I lose $800 on a single arm before the daily budget gate even fired?” |
+| 6 | **Walk‑forward validation & statistical‑significance gate for strategy candidates** | New candidates are promoted based on raw back‑test P&L (`OP‑11` gates) with no out‑of‑sample or over‑fit check. The system can therefore deploy a strategy that only works on the specific historical slice used for development. | Add a `candidate_validator.py` that, upon any new file in `strategy/candidates/`, runs a 5‑fold walk‑forward analysis (train on days [t‑60,t‑30], test on [t‑30,t]) and computes the out‑of‑sample Sharpe. Promotion to `strategy/active/` requires: <br>• Out‑of‑sample Sharpe > 0.5<br>• p‑value of the mean return < 0.05 (t‑test against zero). Failed candidates are moved to `strategy/rejected/` and a `CANDIDATE_REJECT` event is logged. | “Why does a newly‑armed strategy start losing money immediately after go‑live?” |
+| 7 | **Broker‑internal position reconciliation loop** | The ledger assumes the broker position matches the internal state; however, occasional missed fills, partial executions, or manual broker adjustments cause drift that is only caught at end‑of‑day (or not at all). | Implement `reconcile_positions.py` that runs every 1
+
+### Perspective 3: `nvidia/nemotron-3-ultra-550b-a55b:free`
+
+_Elapsed 80.2s, 3345 in / 2500 out, cost $0.0000_
+
+## Top 8 Concrete Gaps Gamma Should Self-Identify Right Now
+
+### 1. **INERT daily premium budget rule with 4× net PnL improvement blocked by unidentified 4th OP-11 gate**
+**Evidence:** `check_daily_premium_budget()` shows +$1,317 → +$5,161 (42-day backtest), turnover $141K → $87K, maxDD $4,908 → $2,544, PF 1.08 → 1.51. Rule sits INERT. Context says "3-of-4 OP-11 gates - needs J's call" but **nowhere documents what the 4th gate IS**.
+**Action:** Enumerate all 4 OP-11 gates in `heartbeat.md` or `params.json`. If gate 4 is "J manual approval," codify that as `op11_gate_4: "operator_ratification"` and auto-escalate when gates 1-3 pass. No more "needs J's call" ambiguity.
+
+### 2. **Alpaca options greeks endpoint returns `{}` 100% of the time — theta model unvalidated against broker truth**
+**Evidence:** Theta cockpit: "broker_snapshot=0, sqrt_time_decay_model_est=384, unavailable=0" across 29/29 real ENTER rows checked. The `sqrt_time_decay_model_est` has **zero ground-truth calibration** in production.
+**Action:** Build a nightly calibration job: at 16:15 ET, fetch OCC closing greeks for every strike traded that day, compute model error vs `sqrt_time_decay_model_est`, log MAE/RMSE per DTE bucket. Gate: if MAE > $0.02/contract for 3 consecutive sessions, kill theta-dependent exits and alert.
+
+### 3. **Regime stamp 18 minutes late (08:40 vs 08:22 SLA) — biases all downstream decisions**
+**Evidence:** WS6 shows `generated_at_et=2026-08-28T08:40:02` vs expected 08:22 window. `today-bias.json#regime_context` consumes this stamp. Every entry decision after 08:40 uses stale regime.
+**Action:** Hard SLA in `Gamma_RegimeStamp`: if `generated_at_et > 08:30`, write `regime_stamp.json#late=true` and set `today-bias.json#regime_context.stale=true`. Premarket logic must read `stale` flag and widen entry filters or skip.
+
+### 4. **Shadow systems (PROD-1, LossArmedBudgetShadow) running but no graduation pipeline**
+**Evidence:** Commits `95374cf1` (PROD-1 shadow), `51a4a15c` (LossArmedBudgetShadow) — both "shadow" but no `shadow_to_prod.py`, no graduation criteria, no auto-promotion after N clean sessions.
+**Action:** Define graduation: `shadow_graduation.json` per shadow arm with `{min_sessions: 20, max_daily_dd: 200, min_pf: 1.3, zero_rule9_violations}`. Cron at 17:00 ET evaluates; if passed, auto-PRs `params.json` with `arm_status: "LIVE"` and tags J for 5-min review. No manual "J's call" step.
+
+### 5. **39 auto-committed candidate changes (2 commits) with zero visible test evidence**
+**Evidence:** `3a841913` (18 changes), `fc7d1dc1` (21 changes) via `auto_commit_candidates.py` with "L242 prevention guard." No test run logs, no backtest deltas, no canary results attached to commits.
+**Action:** `auto_commit_candidates.py` must fail if `pytest backtest/tests/ -k "candidate"` doesn't pass. Attach `backtest_delta.json` (PnL, DD, PF vs prior candidate) as commit message footer. No commit without green test + delta artifact.
+
+### 6. **No forward-looking preview system — WS1 preview diff hardcoded to 2026-08-03, NOT_EXERCI
+
+### Perspective 4: `google/gemma-4-31b-it:free`
+
+**FAILED** -- `all_lanes_failed (tried ['google/gemma-4-31b-it:free', 'cerebras:gpt-oss-120b']): APIStatusError: Error code: 402 - {'message': 'Payment required to access this resource. Visit your billing tab.', 'type': 'payment_required_error', 'param': 'quota', 'code': 'payment_required'}`
+
+### Perspective 5: `qwen/qwen3-next-80b-a3b-instruct:free`
+
+**FAILED** -- `all_lanes_failed (tried ['qwen/qwen3-next-80b-a3b-instruct:free', 'cerebras:gpt-oss-120b']): APIStatusError: Error code: 402 - {'message': 'Payment required to access this resource. Visit your billing tab.', 'type': 'payment_required_error', 'param': 'quota', 'code': 'payment_required'}`

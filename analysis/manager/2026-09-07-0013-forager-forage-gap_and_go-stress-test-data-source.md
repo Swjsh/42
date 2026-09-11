@@ -1,0 +1,7 @@
+<!-- gamma_manager (FREE) | role=forager lane=google_aistudio::gemini-flash-lite-latest elapsed=1.185s | action=forage-gap_and_go-stress-test-data-source -->
+<!-- reason: Overseer next-actions item #1 is rank/score/critique work, but gap_and_go was already critiqued twice recently per the recent-action list (critique-gap_and_go-weakest-assumption-stress-test, critique-named-contender-gap_and_go-stage2). Need FRESH evidence to feed the next critique cycle. Foraging a concrete stress-test data source directly addresses the manager_flagged escalation [d73e7a5a069b874d] about gap_and_go lacking adversarial critique, and rotates role away from the critic-heavy recent history. Earnings calendar is stale-RED so single-name feeds are blocked anyway — keeping forage scope on free macro/SPY/ES feeds avoids that constraint. -->
+
+**Source Name:** CBOE SPX Options Historical Data (Daily/Intraday Volume & Put/Call Ratios)  
+**URL:** https://www.cboe.com/delayed_quotes/spx/historical-quote-data  
+**Exact Field/Endpoint:** `CBOE SPX Put/Call Ratio` / Historical CSV download via CBOE Market Statistics  
+**1-Line Justification:** Tests the gap_and_go assumption that opening momentum persists by checking if overnight/pre-market gaps are merely noise driven by extreme options hedging rather than genuine directional accumulation.

@@ -1,6 +1,6 @@
 # Go-Live Gate -- RED
 
-_generated 2026-09-03T03:49:47 ET by `setup/scripts/go_live_gate.py`. Reporting instrument only -- arms nothing. Live-money arming stays J's decision (OP-0 #1)._
+_generated 2026-09-03T14:43:34 ET by `setup/scripts/go_live_gate.py`. Reporting instrument only -- arms nothing. Live-money arming stays J's decision (OP-0 #1)._
 
 | Criterion | Verdict |
 |---|---|
@@ -14,19 +14,19 @@ _generated 2026-09-03T03:49:47 ET by `setup/scripts/go_live_gate.py`. Reporting 
 
 | Arm | n_days | as-traded CI_lo | ex-best-day CI_lo | cost-adj CI_lo | Verdict |
 |---|---|---|---|---|---|
-| safe-3 | 27 | 0.335 | 0.243 | 0.333 | FAIL |
-| safe-2 | 31 | 0.324 | 0.245 | 0.321 | FAIL |
-| risky-1 | 27 | 0.371 | 0.261 | 0.366 | FAIL |
-| bold-2 | 21 | 0.346 | 0.27 | 0.342 | FAIL |
+| safe-3 | 28 | 0.438 | 0.343 | 0.435 | FAIL |
+| safe-2 | 32 | 0.294 | 0.226 | 0.291 | FAIL |
+| risky-1 | 28 | 0.43 | 0.322 | 0.424 | FAIL |
+| bold-2 | 22 | 0.38 | 0.301 | 0.375 | FAIL |
 
 ## Reconciliation -- per arm
 
 | Arm | Window | Broker P&L | Ledger P&L | Est. fees | Diff (fee-adj) | Verdict |
 |---|---|---|---|---|---|---|
 | safe-3 | 2026-08-03..2026-09-02 | $638.63 | $650.00 | $11.88 | $0.51 | PASS |
-| safe-2 | 2026-08-03..2026-09-01 | $780.30 | $795.00 | $13.69 | $-1.01 | PASS |
-| risky-1 | 2026-08-03..2026-09-01 | $1,495.12 | $1,520.00 | $25.85 | $0.97 | PASS |
-| bold-2 | 2026-08-03..2026-09-01 | $609.02 | $624.00 | $15.50 | $0.52 | PASS |
+| safe-2 | 2026-08-03..2026-09-02 | $653.63 | $669.00 | $14.26 | $-1.11 | PASS |
+| risky-1 | 2026-08-03..2026-09-02 | $1,148.37 | $1,175.00 | $27.66 | $1.03 | PASS |
+| bold-2 | 2026-08-03..2026-09-02 | $593.15 | $609.00 | $16.41 | $0.56 | PASS |
 
 ## Operational guardrails
 
@@ -43,7 +43,7 @@ _generated 2026-09-03T03:49:47 ET by `setup/scripts/go_live_gate.py`. Reporting 
 
 _previews `prereg-criterion-4-coverage-read-2026-09-03.md`'s new rule against `rule-break-audit.json`. Real criterion-4 status above is computed unchanged from `rule-breaks.jsonl` mtime until the prereg's effective date._
 
-artifact_status=ok audited_range=['2026-06-21', '2026-09-02'] covers_window=True would_pass_under_prereg=True
+artifact_status=ok audited_range=['2026-06-21', '2026-09-02'] covers_window=False would_pass_under_prereg=False
 
 rules_checked: RULE_1_NAMED_SETUP, RULE_2_WAIT_FOR_TRIGGER, RULE_3_DEFINED_STOP, RULE_4_NO_ADDING, RULE_5_KILL_SWITCH, RULE_6_RISK_CAP
 
@@ -51,11 +51,11 @@ rules_NOT_checked: RULE_10_GAMMA_VETO, RULE_7_PDT, RULE_8_JOURNAL, RULE_9_NO_MID
 
 ## Prod-shadow
 
-**arm=safe-3 window=2026-09-01..2026-10-30 days_scored=1/20 current CI_lo=None status=INSUFFICIENT_DAYS**
+**arm=safe-3 window=2026-09-01..2026-10-30 days_scored=2/20 current CI_lo=0.0 status=INSUFFICIENT_DAYS**
 
-Extended clock (disclosure only, never the pass bar) through 2026-10-30: 1/40 days scored, as-traded CI_lo=None.
+Extended clock (disclosure only, never the pass bar) through 2026-10-30: 2/40 days scored, as-traded CI_lo=0.0.
 
-1/20 scored trading days for arm 'safe-3' in 2026-09-01..2026-10-30. Not yet scorable -- reported as INSUFFICIENT_DAYS, never PASS or FAIL, on a window that hasn't reached its own registered day-count bar.
+2/20 scored trading days for arm 'safe-3' in 2026-09-01..2026-10-30. Not yet scorable -- reported as INSUFFICIENT_DAYS, never PASS or FAIL, on a window that hasn't reached its own registered day-count bar.
 
 ## Frozen-config-window disclosure (since 2026-08-31)
 
@@ -63,21 +63,21 @@ _disclosure only -- pass criterion unchanged (criterion 1 stays full-history)_
 
 | Arm | n_days | as-traded CI_lo |
 |---|---|---|
-| safe-3 | 1 | None |
-| safe-2 | 2 | 0.0 |
-| risky-1 | 1 | None |
-| bold-2 | 2 | 0.0 |
+| safe-3 | 2 | 0.0 |
+| safe-2 | 3 | 0.0 |
+| risky-1 | 2 | 0.0 |
+| bold-2 | 3 | 0.0 |
 
 ## Effective evidence disclosure
 
 | Arm | Days on current config (>=09-01) | Days post-ladder (>=08-11) | Best-2-days share of gross winners |
 |---|---|---|---|
-| safe-3 | 1 | 10 | 0.405 |
-| safe-2 | 2 | 15 | 0.38 |
-| risky-1 | 1 | 10 | 0.463 |
-| bold-2 | 2 | 13 | 0.354 |
+| safe-3 | 2 | 11 | 0.342 |
+| safe-2 | 3 | 16 | 0.38 |
+| risky-1 | 2 | 11 | 0.43 |
+| bold-2 | 3 | 14 | 0.336 |
 
-Book rollup ex-best-day P(PF<=1) = 0.634
+Book rollup ex-best-day P(PF<=1) = 0.571
 
 ## Plan reachability disclosure
 
@@ -85,10 +85,10 @@ _zero-variance best case -- constant $/day over remaining trading days that woul
 
 | Arm | Config-freeze close (09-29) | Tight-ladder clock close (10-30) |
 |---|---|---|
-| safe-3 | $171.08/day | $67.43/day |
-| safe-2 | $193.35/day | $77.11/day |
-| risky-1 | $162.87/day | $66.79/day |
-| bold-2 | $152.24/day | $63.95/day |
+| safe-3 | $142.66/day | $60.67/day |
+| safe-2 | $223.7/day | $83.64/day |
+| risky-1 | $142.39/day | $58.08/day |
+| bold-2 | $146.58/day | $57.13/day |
 
 ## Trailing 20-trading-day view (DISCLOSURE ONLY -- not a bar)
 
@@ -96,10 +96,10 @@ _same three-view bootstrap as criterion 1 (as-traded / ex-best-day / cost-adjust
 
 | Arm | Window | n_days | as-traded CI_lo | ex-best-day CI_lo | cost-adj CI_lo | Verdict |
 |---|---|---|---|---|---|---|
-| safe-3 | 2026-07-15..2026-09-02 | 20/20 | 0.377 | 0.279 | 0.375 | FAIL |
-| safe-2 | 2026-08-04..2026-09-02 | 20/20 | 0.406 | 0.301 | 0.403 | FAIL |
-| risky-1 | 2026-07-15..2026-09-02 | 20/20 | 0.434 | 0.312 | 0.429 | FAIL |
-| bold-2 | 2026-07-02..2026-09-02 | 20/20 | 0.35 | 0.274 | 0.346 | FAIL |
+| safe-3 | 2026-07-17..2026-09-03 | 20/20 | 0.51 | 0.394 | 0.506 | FAIL |
+| safe-2 | 2026-08-05..2026-09-03 | 20/20 | 0.258 | 0.188 | 0.256 | FAIL |
+| risky-1 | 2026-07-17..2026-09-03 | 20/20 | 0.535 | 0.388 | 0.53 | FAIL |
+| bold-2 | 2026-07-17..2026-09-03 | 20/20 | 0.326 | 0.256 | 0.322 | FAIL |
 
 ## REGIME COVERAGE (disclosure only)
 
@@ -107,8 +107,8 @@ _never gates the overall verdict -- answers whether the evidence window has actu
 
 | Window | n_days | VIX daily-max min/max | days VIX>20 | SPY cum. return | worst day | days down >1% |
 |---|---|---|---|---|---|---|
-| lifetime | 6 | 14.82/16.8 | 0 | -0.097% | {'date': '2026-09-01', 'ret_pct': -0.8} | 0 |
-| frozen (since 2026-09-01) | 2 | 16.21/16.8 | 0 | -0.264% | {'date': '2026-09-01', 'ret_pct': -0.8} | 0 |
+| lifetime | 7 | 14.82/16.8 | 0 | 1.004% | {'date': '2026-09-01', 'ret_pct': -0.8} | 0 |
+| frozen (since 2026-09-01) | 3 | 15.1/16.8 | 0 | 0.835% | {'date': '2026-09-01', 'ret_pct': -0.8} | 0 |
 
 **calm-only window -- a GREEN here is untested in stress**
 

@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=8.695s | action=Open `analysis/recommendations/edgehunt- -->
+<!-- reason: Overseer action #4 is untouched and the gap_and_go scorecard is the named target; critic lane is the cheapest way to extract a decision-ready stress test without spawning compute. Last 3 outputs were all critic-flavored but on autopsy/sweep items -- this rotates the TARGET to a named candidate scorecard as instructed. -->
+
+I’m unable to access the file `analysis/recommendations/edgehunt-gap_and_go.json` in the current environment, so I cannot extract the edge claim, its assumptions, or the supporting line needed to craft the requested stress‑test memo. Without that information I cannot proceed with the analysis.

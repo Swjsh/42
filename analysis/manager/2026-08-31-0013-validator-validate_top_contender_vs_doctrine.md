@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=validator lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=9.149s | action=validate_top_contender_vs_doctrine -->
+<!-- reason: Contender sweep is 8835 rows and the rank file is the only authoritative gate to the J-edge floor; recent critic work has piled up but no validator has confirmed the top entry against doctrine thresholds. This is bounded, reads a real file, and produces a SHIP/REVOKE-grade signal that overrides further ideation. -->
+
+I’m unable to access the file `analysis/recommendations/contender-rank-2026-06-29.json` to extract the requested values. Without the file’s contents I cannot report the edge_capture, expectancy, walk‑forward efficiency, op16_reject status, qty_frontier presence, or provide a PASS/REJECT verdict. If you can provide the JSON excerpt or confirm the fields present, I’ll be able to give the exact verbatim quotes and verdict.

@@ -834,3 +834,210 @@ Artifacts: `analysis/recommendations/notflat-counterfactual-2026-09-10.json` (+ 
   winner-vs-loser split came back OPPOSITE to the orchestrator's hypothesis: the cap costs most
   when blocking during a winner, not when protecting one. W10/W11 still running. **9 of 13
   items closed. No trading-path edit has been made at any point this session; freeze intact.**
+
+
+---
+
+## W10 RESULT -- RefusedSetupLedger no-op: NOT PINNED, INSTRUMENTED + GUARDED (2026-09-10 23:29:05 Thursday EDT)
+
+**Root cause in one sentence: UNKNOWN with certainty -- but the fire's own evidence (exit=0
+in 8s, pid=13028, `automation/state/logs/run-cmd-hidden-2026-09-10.log` lines 7754/7767) rules
+out the reaper (8s is far under the 5-minute threshold) and rules out `__file__`/cwd anchoring
+(the script already anchors `REPO` to `Path(__file__).resolve().parents[2]`), leaving the
+mechanism genuinely unpinned because the one channel that would have shown it -- this task's
+stdout/stderr -- is silently discarded by `run_cmd_hidden.py` whenever the task action omits
+`--log` (it does; verified via `Get-ScheduledTask -TaskName Gamma_RefusedSetupLedger`). Per
+this goal's own instruction: NOT guess-fixed.**
+
+### What was verified, and how
+- **Launch chain** (`Get-ScheduledTask`): `wscript.exe //nologo run_exe_hidden.vbs
+  <system-pythonw> run_cmd_hidden.py --cwd "...42" -- <system-pythonw>
+  refused_setup_ledger.py --backfill 1 --fetch --score`. Principal `LogonType=Interactive,
+  UserId=jackw` -- same user as an interactive run, so a SYSTEM-context / different-profile
+  hypothesis is discarded.
+- **The exact failure, timestamped**: `run-cmd-hidden-2026-09-10.log` line 7754
+  `[14:20:01] launching: ... refused_setup_ledger.py --backfill 1 --fetch --score [pid=13028]`
+  paired (by PID tag, not line-adjacency -- L242 concurrency-misattribution guard) with line
+  7767 `[14:20:09]   exit=0  [pid=13028]`. Real, unambiguous: this specific child process ran
+  8 seconds and returned 0.
+- **Reaper hypothesis DISCARDED, confirmed not guessed** -- `Stop-StaleClaudeProcesses` kills
+  `python.exe` older than 5 minutes; 8s is two orders of magnitude under that.
+- **`__file__`-anchoring / cwd bug (C9) DISCARDED** -- `REPO = Path(__file__).resolve()
+  .parents[2]` is independent of cwd; the task's `WorkingDirectory` matches the repo root anyway.
+- **Static read of every early-return path**: 6 `except` clauses in the file, none bare, none
+  catching `SystemExit`/`BaseException`; every top-level import (`et_clock`, lazily-imported
+  `fleet_broker`) is `except Exception`-guarded and contains no `sys.exit`/`SystemExit`
+  anywhere (grepped). `build()` unconditionally `OUT_DIR.mkdir()`s and `write_text()`s at the
+  end of every call, for every target date, regardless of episode count. **Conclusion:**
+  nothing in the pre-fix code could legally produce exit=0-with-no-file under static reading --
+  that mismatch between "code says this can't happen" and "it happened" is exactly why this is
+  filed UNPINNED rather than guess-fixed.
+- **Hidden-pythonw / PYTHONPATH context: discriminated, not the mechanism** -- this task's
+  action carries `env_overrides=[]` (no PYTHONPATH), unlike sibling tasks firing in the same
+  log window (`right_tail_capture.py`, `trend_cache_producer.py --once`, both WITH a
+  PYTHONPATH override) which ran fine at the same second. This script needs no venv packages
+  (stdlib + its own `sys.path.insert` for `et_clock`), so the absence is expected, not a defect.
+- **Network/fetch-stall hypothesis: plausible, unconfirmed** -- an interactive re-run tonight
+  with identical flags took much longer (real network fetches); 8s is far too fast for
+  `--fetch`'s per-contract, per-credential (up to ~7 arms x 20s timeout each) retry loop to
+  complete normally, suggesting fast-fail network errors under this context rather than genuine
+  completion. This does not by itself explain the missing file (`fetch_bars` failures are
+  caught and the final write still happens unconditionally afterward) -- filed as a remaining
+  hypothesis, not a cause.
+- **Found in passing, a real independent defect**: when a task action omits `--log` (this one
+  does), `run_cmd_hidden.py` uses `subprocess.run(..., capture_output=True)` and only ever logs
+  `proc.returncode` -- the captured stdout/stderr (which would include any Python traceback) is
+  read into memory and discarded, never written anywhere. Even a crashing child would leave no
+  trace. Not fixed tonight (shared by ~18 other Gamma_* tasks -- bigger blast radius than this
+  item's single-file scope; flagged for its own pass).
+
+### What was shipped (freeze-safe -- `setup/scripts/refused_setup_ledger.py` is NOT in
+`FROZEN_TRADING_PATH`, verified against `setup/hooks/doctrine.py`)
+1. **`analysis/refusals/_run-log.jsonl`** -- an append-only breadcrumb independent of the
+   discarded stdout/stderr pipe. Every invocation writes a `"start"` event as the FIRST
+   executable statement in `main()` (argv, executable, cwd, resolved `__file__`), a `"built"`
+   event per target date (ticks_read, n_episodes, n_scored, `write_ok`, before/after file
+   sizes), a `"crash"` event with the full traceback if anything raises, and a `"done"` event
+   on clean completion.
+2. **`_build_and_verify()`**: wraps `build()`, checks the claimed output file actually exists
+   and is non-empty on disk, and raises `RuntimeError` (never silently returns) if not. `main()`
+   now wraps its body in try/except `BaseException` (not `Exception`, so a stray `SystemExit`
+   anywhere in the import graph is logged too) that logs the crash and RE-RAISES, so Task
+   Scheduler's `LastTaskResult` will finally reflect reality on any recurrence -- feeding
+   directly into the already-wired `self_check.check_run_cmd_hidden_masked_exit` guard, which
+   had nothing to catch here because this producer could never legally report anything but 0.
+3. **Verified live, freeze-safe, no scheduler fire used**: `python setup/scripts/
+   refused_setup_ledger.py --date 2026-09-10` run directly twice this session -- both exit 0,
+   `analysis/refusals/2026-09-10.json` present (22,675 bytes), `_run-log.jsonl` shows the
+   expected `start` -> `built(write_ok=true)` -> `done` sequence.
+
+### RED-proofed guard -- `backtest/tests/test_refused_ledger_silent_noop_guard_2026_09_10.py`
+Monkeypatches `build()` to return a fully-normal-looking `doc` WITHOUT touching disk --
+reproducing the exact 2026-09-10 14:20 shape -- and asserts `main()` refuses to report success.
+
+**RED (pre-fix snapshot, git `cb6d19a3`, swapped in and tested live this session):**
+    test_main_raises_when_build_writes_nothing_to_disk
+        with pytest.raises(BaseException):
+    >       rsl.main()
+    E       Failed: DID NOT RAISE <class 'BaseException'>
+    Captured stdout call:
+    [refusals] 2026-09-10: 37 episode(s) from 760 tick(s); 0 scored ...
+    [refusals] -> ...\2026-09-10.json
+    3 failed, 1 passed in 0.28s
+(the captured-stdout line is the smoking gun: the OLD code prints a success summary and
+returns 0 for a file that was never written -- the live incident, reproduced deterministically.)
+
+**GREEN (current file, restored after the RED run, re-verified after restore):**
+    test_build_and_verify_raises_when_output_missing PASSED
+    test_build_and_verify_passes_when_output_present PASSED
+    test_main_raises_when_build_writes_nothing_to_disk PASSED
+    test_main_does_not_raise_on_a_real_write PASSED
+    4 passed in 0.21s
+Full suite alongside the pre-existing `test_refused_ledger_creds_fallback_2026_09_01.py`:
+`9 passed in 0.35s`.
+
+### What tomorrow's 14:20 fire will now tell us
+- No `"start"` row in `_run-log.jsonl` after the fire -> the process never reached `main()` ->
+  cause is OUTSIDE this script (the wscript/vbs/pythonw launch chain) -- next move is to
+  instrument `run_cmd_hidden.py`'s launcher hop, not this file.
+- A `"start"` row with no matching `"built"`/`"crash"` row -> the process started then vanished
+  before finishing (an external kill, or a hang cut short some other way).
+- A `"crash"` row -> the actual traceback, for the first time ever, on disk.
+- A `"built"` row with `write_ok=false` -> `_build_and_verify` did its job; `main()` now raises
+  and `LastTaskResult` goes nonzero -- itself the fix even absent a root cause.
+- A normal `start` -> `built(write_ok=true)` -> `done` sequence -> the incident does not
+  reproduce; file it as a one-off until it recurs.
+
+**No trading-path file touched. No scheduled task fired to test. No commit made (per operating
+rules -- orchestrator's job).**
+
+## PROGRESS LOG
+
+- 2026-09-10 23:29:05 Thursday EDT -- W10 CLOSED (not pinned with certainty; instrumented + RED-proofed
+  guard shipped). `_run-log.jsonl` + `_build_and_verify()` + BaseException-catching `main()`
+  land in `setup/scripts/refused_setup_ledger.py` (confirmed NOT in FROZEN_TRADING_PATH). Guard
+  test proven RED against pre-fix snapshot (git cb6d19a3) and GREEN against the fix, both runs
+  quoted above. Reaper and cwd/__file__ hypotheses discarded on direct evidence; network-fetch-
+  stall and launcher-arg-transmission remain open, now instrumented so tomorrow's 14:20 fire
+  produces evidence either way.
+
+
+---
+
+## W11 RESULT -- TradeAutopsy 403: NOT entitlement, and nothing was lost (2026-09-10 23:33:44 Thursday EDT)
+
+**Root cause (one sentence):** transient OPRA options-bar indexing lag on the just-closed 0DTE
+contract in a short window right after the 16:00 ET close — **not** an entitlement problem and
+**not** a malformed request, proven by replaying the byte-identical request (same code, same
+creds) for every failing symbol/date pair and getting clean **200s with full 396-bar counts
+every time**.
+
+- All 6 live account keys authenticate and return data; only retired `safe-1` 401s, and
+  `_live_data_creds()` already skips it. **No key issue. No rotation involved.**
+- **Dates recoverable: ALL of them.** 08-28, 09-01, 09-02, 09-03, 09-08, 09-10 already have
+  fully-populated autopsy files with real replayed positions (11/3/12/16/2/4 rows). The
+  existing retry/backoff self-healed each day. **0 permanently unrecoverable dates.**
+- ✅ **This clears the caveat W7 and W8 were carrying: per-trade option-bar pricing is
+  trustworthy for every date in scope.** (W7's underpowered verdict stands on its own grounds —
+  cross-arm proxy dominance — not on missing bars.)
+
+**The actual defect was the monitoring, not the fetch.** `trade_autopsy.py` already degraded
+honestly (`pnl_status="unverified_no_bars"`, `net_pnl=None`) but deliberately `return 0`
+("notify-only"), and `scheduled_task_staleness.py` never checked *content* — so a
+timestamp-fresh, exit-0, data-blind run read GREEN everywhere, and `Gamma_TradeAutopsy` was not
+even in the freshness map. Added `check_trade_autopsy_data_quality()` (RED on
+`unverified_no_bars`), registered the task in `TASK_OUTPUT_MAP`, wired both into
+`post_output_freshness_status()` → STATUS.md Known-broken.
+**RED-proof: pre-fix `8 failed in 0.37s` → post-fix `8 passed in 0.23s`.** No regressions
+(94 passed across 3 existing staleness suites; `test_trade_autopsy.py` 40 passed).
+
+## W10 RESULT -- RefusedSetupLedger: honestly NOT pinned (2026-09-10 23:33:44 Thursday EDT)
+
+**The worker did the right thing and refused to guess.** Static reading shows no code path in
+`refused_setup_ledger.py` that can legally produce "exit 0, zero files written" — `build()`
+writes unconditionally at the end of every call.
+
+**Ruled out with evidence, not assumed:** the 5-min reaper (8s runtime — discarded),
+`__file__`/cwd anchoring (already correct — discarded), SYSTEM-context (runs as `jackw`,
+same as manual — discarded), PYTHONPATH/hidden-launch (absence expected, stdlib-only — not
+implicated). Left open: a network fetch-stall (plausible; 8s is too fast for the retry loop to
+complete normally) — but that alone does not explain the missing file.
+
+**The reason it could not be pinned is itself the finding → W14.** The one channel that would
+have explained it — the process's own stdout/stderr — **was silently discarded by
+`run_cmd_hidden.py`**, which only logs `proc.returncode` when the task action omits `--log`.
+
+**Shipped instead (freeze-safe):** an independent evidence channel `analysis/refusals/_run-log.jsonl`
+(start/built/crash/done events, bypassing the launcher's black hole); `_build_and_verify()`
+which checks the output file actually landed and raises `RuntimeError` rather than trusting
+`build()`'s return value; and `main()` now catches `BaseException`, logs the traceback and
+**re-raises**, so Task Scheduler's `LastTaskResult` goes nonzero on any recurrence and feeds
+the already-wired `self_check.check_run_cmd_hidden_masked_exit` guard.
+**RED-proof: pre-fix snapshot (`git cb6d19a3`) → `DID NOT RAISE` with captured stdout showing
+the false success print; post-fix → `4 passed`; full file `9 passed in 0.35s`.**
+
+---
+
+## ⛔ W14 OPENED -- the rig throws away 92 tasks' worth of evidence
+
+- [ ] W14 -- **`run_cmd_hidden.py` silently discards child stdout/stderr unless `--log` is
+      passed. Live registry: 195 Gamma tasks — 12 WITH `--log`, 92 via the launcher WITHOUT it,
+      91 not via the launcher. So 92 scheduled tasks have NO evidence channel at all.**
+      This is very likely the root enabler of the C7 "silent success is failure" class that
+      spans ~90 lessons — and tonight it is *demonstrated*: W10 could not root-cause the
+      RefusedSetupLedger no-op precisely because the evidence had been thrown away.
+      **Fix the launcher default, NOT the 92 registrations** (blast radius: one file vs 92
+      task re-registrations). Requirements: per-command default log; a retention cap (the log
+      dir is ALREADY 746 MB / 8,054 files); **FAIL OPEN** — this launcher starts the engine's
+      own tasks, so a logging bug must never prevent a command from running; unchanged exit-code
+      contract; no console windows; RED-proofed guard. `run_cmd_hidden.py` is NOT in
+      `FROZEN_TRADING_PATH` (verified) — freeze-safe.
+
+## PROGRESS LOG
+
+- 2026-09-10 23:33:44 Thursday EDT -- W10 CLOSED (honestly NOT pinned; 4 hypotheses ruled out with evidence;
+  independent evidence channel + fail-loud verification shipped, RED-proofed). W11 CLOSED
+  (403 was transient OPRA lag, NOT entitlement; ALL dates recovered, 0 permanently blind;
+  real defect was content-blind freshness monitoring, now RED-proofed; clears W7/W8's pricing
+  caveat). **All 13 original items closed.** W14 OPENED off W10's root finding: 92 of 195
+  scheduled tasks have no stdout/stderr evidence channel. Worker dispatched.

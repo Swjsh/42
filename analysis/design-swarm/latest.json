@@ -1,0 +1,295 @@
+{
+  "hypothesis": "Relax filter 5 (ribbon-must-be-bear) + filter 9 (breakdown) to take strong level-rejections; is it edge?",
+  "base_disable": [
+    5,
+    9
+  ],
+  "side": "P",
+  "n_designs": 5,
+  "rejected": [
+    "EXPECTANCY full @ prod stop: duplicate of an earlier design",
+    "MAX DRAWDOWN stop-sweep: duplicate of an earlier design"
+  ],
+  "results": [
+    {
+      "design": {
+        "name": "WR-only (the WRONG default that fooled us)",
+        "side": "P",
+        "disable_filters": [
+          5,
+          9
+        ],
+        "stop_sweep": [
+          -0.5
+        ],
+        "metric": "wr",
+        "split": "full",
+        "strata": null,
+        "enable_bullish": true,
+        "note": "why direction alone misleads"
+      },
+      "metric": "wr",
+      "rows": [
+        {
+          "stop": -0.5,
+          "n": 66,
+          "wr": 0.47,
+          "total": -861.0,
+          "exp": -13.1,
+          "avg_win": 199.1,
+          "avg_loss": -201.0,
+          "payoff": 0.99,
+          "max_dd": -3230.0
+        }
+      ]
+    },
+    {
+      "design": {
+        "name": "EXPECTANCY stop-sweep (tight stops = the asymmetry)",
+        "side": "P",
+        "disable_filters": [
+          5,
+          9
+        ],
+        "stop_sweep": [
+          -0.5,
+          -0.3,
+          -0.2,
+          -0.12
+        ],
+        "metric": "expectancy",
+        "split": "full",
+        "strata": null,
+        "enable_bullish": true,
+        "note": ""
+      },
+      "metric": "expectancy",
+      "rows": [
+        {
+          "stop": -0.5,
+          "n": 66,
+          "wr": 0.47,
+          "total": -861.0,
+          "exp": -13.1,
+          "avg_win": 199.1,
+          "avg_loss": -201.0,
+          "payoff": 0.99,
+          "max_dd": -3230.0
+        },
+        {
+          "stop": -0.3,
+          "n": 71,
+          "wr": 0.352,
+          "total": -663.0,
+          "exp": -9.3,
+          "avg_win": 221.4,
+          "avg_loss": -134.8,
+          "payoff": 1.64,
+          "max_dd": -1556.0
+        },
+        {
+          "stop": -0.2,
+          "n": 72,
+          "wr": 0.319,
+          "total": 473.0,
+          "exp": 6.6,
+          "avg_win": 223.7,
+          "avg_loss": -95.4,
+          "payoff": 2.35,
+          "max_dd": -1006.0
+        },
+        {
+          "stop": -0.12,
+          "n": 72,
+          "wr": 0.236,
+          "total": 71.0,
+          "exp": 1.0,
+          "avg_win": 206.1,
+          "avg_loss": -62.4,
+          "payoff": 3.3,
+          "max_dd": -624.0
+        }
+      ]
+    },
+    {
+      "design": {
+        "name": "PAYOFF ratio (avg win / avg loss) stop-sweep",
+        "side": "P",
+        "disable_filters": [
+          5,
+          9
+        ],
+        "stop_sweep": [
+          -0.5,
+          -0.3,
+          -0.2
+        ],
+        "metric": "payoff",
+        "split": "full",
+        "strata": null,
+        "enable_bullish": true,
+        "note": ""
+      },
+      "metric": "payoff",
+      "rows": [
+        {
+          "stop": -0.5,
+          "n": 66,
+          "wr": 0.47,
+          "total": -861.0,
+          "exp": -13.1,
+          "avg_win": 199.1,
+          "avg_loss": -201.0,
+          "payoff": 0.99,
+          "max_dd": -3230.0
+        },
+        {
+          "stop": -0.3,
+          "n": 71,
+          "wr": 0.352,
+          "total": -663.0,
+          "exp": -9.3,
+          "avg_win": 221.4,
+          "avg_loss": -134.8,
+          "payoff": 1.64,
+          "max_dd": -1556.0
+        },
+        {
+          "stop": -0.2,
+          "n": 72,
+          "wr": 0.319,
+          "total": 473.0,
+          "exp": 6.6,
+          "avg_win": 223.7,
+          "avg_loss": -95.4,
+          "payoff": 2.35,
+          "max_dd": -1006.0
+        }
+      ]
+    },
+    {
+      "design": {
+        "name": "OOS walk-forward @ best tight stops",
+        "side": "P",
+        "disable_filters": [
+          5,
+          9
+        ],
+        "stop_sweep": [
+          -0.2,
+          -0.15
+        ],
+        "metric": "expectancy",
+        "split": "oos",
+        "strata": null,
+        "enable_bullish": true,
+        "note": ""
+      },
+      "metric": "expectancy",
+      "rows": [
+        {
+          "stop": -0.2,
+          "train": {
+            "n": 45,
+            "wr": 0.311,
+            "total": 1235.0,
+            "exp": 27.4,
+            "avg_win": 228.5,
+            "avg_loss": -63.3,
+            "payoff": 3.61,
+            "max_dd": -916.0
+          },
+          "test": {
+            "n": 27,
+            "wr": 0.333,
+            "total": -762.0,
+            "exp": -28.2,
+            "avg_win": 216.4,
+            "avg_loss": -150.5,
+            "payoff": 1.44,
+            "max_dd": -1006.0
+          },
+          "oos_sign_stable": false
+        },
+        {
+          "stop": -0.15,
+          "train": {
+            "n": 45,
+            "wr": 0.267,
+            "total": 665.0,
+            "exp": 14.8,
+            "avg_win": 197.6,
+            "avg_loss": -51.7,
+            "payoff": 3.82,
+            "max_dd": -735.0
+          },
+          "test": {
+            "n": 27,
+            "wr": 0.259,
+            "total": -801.0,
+            "exp": -29.7,
+            "avg_win": 218.2,
+            "avg_loss": -116.4,
+            "payoff": 1.87,
+            "max_dd": -890.0
+          },
+          "oos_sign_stable": false
+        }
+      ]
+    },
+    {
+      "design": {
+        "name": "REGIME (VIX) stratified expectancy",
+        "side": "P",
+        "disable_filters": [
+          5,
+          9
+        ],
+        "stop_sweep": [
+          -0.2
+        ],
+        "metric": "expectancy",
+        "split": "full",
+        "strata": "vix",
+        "enable_bullish": true,
+        "note": ""
+      },
+      "metric": "expectancy",
+      "rows": [
+        {
+          "stop": -0.2,
+          "all": {
+            "n": 72,
+            "wr": 0.319,
+            "total": 473.0,
+            "exp": 6.6,
+            "avg_win": 223.7,
+            "avg_loss": -95.4,
+            "payoff": 2.35,
+            "max_dd": -1006.0
+          },
+          "vix_lt18": {
+            "n": 43,
+            "wr": 0.256,
+            "total": -361.0,
+            "exp": -8.4,
+            "avg_win": 160.3,
+            "avg_loss": -66.4,
+            "payoff": 2.42,
+            "max_dd": -788.0
+          },
+          "vix_ge18": {
+            "n": 29,
+            "wr": 0.414,
+            "total": 834.0,
+            "exp": 28.7,
+            "avg_win": 281.9,
+            "avg_loss": -149.9,
+            "payoff": 1.88,
+            "max_dd": -1269.0
+          }
+        }
+      ]
+    }
+  ]
+}

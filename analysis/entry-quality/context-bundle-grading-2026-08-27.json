@@ -1,0 +1,420 @@
+{
+  "n_core_engine_trades": 121,
+  "n_ctx_matched": 85,
+  "n_full_bundle": 75,
+  "n_days_total": 30,
+  "feature_availability": {
+    "score_margin_in_trade_direction": 85,
+    "ribbon_spread_cents": 85,
+    "htf_15m_agrees": 85,
+    "alignment_score_signed_to_trade": 75,
+    "htf_agree_count_in_direction": 75,
+    "gap_pct_signed_to_trade": 75,
+    "position_in_prior_range_aligned": 75,
+    "rvol_session_so_far": 75,
+    "n_levels_within_1pct": 75,
+    "dist_to_level_in_trade_direction": 67,
+    "minutes_to_next_event": 75,
+    "no_trade_window_active": 75
+  },
+  "results": [
+    {
+      "feature": "score_margin_in_trade_direction",
+      "n_avail": 85,
+      "median": 4,
+      "low": {
+        "n": 45,
+        "sum_pnl": -220.0,
+        "mean_pnl": -4.89,
+        "wr": 0.3111,
+        "pf": 0.924
+      },
+      "high": {
+        "n": 40,
+        "sum_pnl": 346.0,
+        "mean_pnl": 8.65,
+        "wr": 0.325,
+        "pf": 1.111
+      },
+      "boot": {
+        "observed_diff": 13.54,
+        "p_value": 0.8433,
+        "n_days": 26,
+        "n_boot_used": 3000,
+        "ci90": [
+          -86.28,
+          94.57
+        ]
+      },
+      "mechanism_note": "higher = engine's own bull/bear score more lopsided toward the traded side; plausible (it's literally part of tier scoring already)"
+    },
+    {
+      "feature": "ribbon_spread_cents",
+      "n_avail": 85,
+      "median": 69.34808037065068,
+      "low": {
+        "n": 43,
+        "sum_pnl": -1820.0,
+        "mean_pnl": -42.33,
+        "wr": 0.2326,
+        "pf": 0.521
+      },
+      "high": {
+        "n": 42,
+        "sum_pnl": 1946.0,
+        "mean_pnl": 46.33,
+        "wr": 0.4048,
+        "pf": 1.887
+      },
+      "boot": {
+        "observed_diff": 88.66,
+        "p_value": 0.0907,
+        "n_days": 26,
+        "n_boot_used": 3000,
+        "ci90": [
+          4.44,
+          158.63
+        ]
+      },
+      "mechanism_note": "ribbon width in cents = trend/coil strength; ambiguous a priori (wide could mean strong trend OR overextended)"
+    },
+    {
+      "feature": "htf_15m_agrees",
+      "n_avail": 85,
+      "median": 1.0,
+      "low": {
+        "n": 31,
+        "sum_pnl": -1489.0,
+        "mean_pnl": -48.03,
+        "wr": 0.129,
+        "pf": 0.333
+      },
+      "high": {
+        "n": 54,
+        "sum_pnl": 1615.0,
+        "mean_pnl": 29.91,
+        "wr": 0.4259,
+        "pf": 1.429
+      },
+      "boot": {
+        "observed_diff": 77.94,
+        "p_value": 0.1153,
+        "n_days": 26,
+        "n_boot_used": 3000,
+        "ci90": [
+          -3.01,
+          154.19
+        ]
+      },
+      "mechanism_note": "does the 15m higher-timeframe read match the trade direction; plausible confirmation signal"
+    },
+    {
+      "feature": "alignment_score_signed_to_trade",
+      "n_avail": 75,
+      "median": 1.0,
+      "low": {
+        "n": 47,
+        "sum_pnl": 99.0,
+        "mean_pnl": 2.11,
+        "wr": 0.2979,
+        "pf": 1.038
+      },
+      "high": {
+        "n": 28,
+        "sum_pnl": 773.0,
+        "mean_pnl": 27.61,
+        "wr": 0.4286,
+        "pf": 1.329
+      },
+      "boot": {
+        "observed_diff": 25.5,
+        "p_value": 0.7493,
+        "n_days": 23,
+        "n_boot_used": 3000,
+        "ci90": [
+          -117.04,
+          130.32
+        ]
+      },
+      "mechanism_note": "multi-timeframe (daily/hourly/15m) trend net-agreement with trade direction; plausible confirmation signal, but overlaps htf_agree_count_in_direction (same underlying data)"
+    },
+    {
+      "feature": "htf_agree_count_in_direction",
+      "n_avail": 75,
+      "median": 2.0,
+      "low": {
+        "n": 47,
+        "sum_pnl": 99.0,
+        "mean_pnl": 2.11,
+        "wr": 0.2979,
+        "pf": 1.038
+      },
+      "high": {
+        "n": 28,
+        "sum_pnl": 773.0,
+        "mean_pnl": 27.61,
+        "wr": 0.4286,
+        "pf": 1.329
+      },
+      "boot": {
+        "observed_diff": 25.5,
+        "p_value": 0.7507,
+        "n_days": 23,
+        "n_boot_used": 3000,
+        "ci90": [
+          -122.05,
+          127.17
+        ]
+      },
+      "mechanism_note": "count of {daily,hourly,m15} agreeing with trade direction (0-3); same family as alignment_score, largely redundant"
+    },
+    {
+      "feature": "gap_pct_signed_to_trade",
+      "n_avail": 75,
+      "median": 0.332,
+      "low": {
+        "n": 40,
+        "sum_pnl": -660.0,
+        "mean_pnl": -16.5,
+        "wr": 0.3,
+        "pf": 0.813
+      },
+      "high": {
+        "n": 35,
+        "sum_pnl": 1532.0,
+        "mean_pnl": 43.77,
+        "wr": 0.4,
+        "pf": 2.069
+      },
+      "boot": {
+        "observed_diff": 60.27,
+        "p_value": 0.2307,
+        "n_days": 23,
+        "n_boot_used": 3000,
+        "ci90": [
+          -19.14,
+          145.37
+        ]
+      },
+      "mechanism_note": "did today gap in the trade's favor at the open; plausible for continuation setups, this is a 0DTE scalp book though so open-gap relevance to a 13:00 ET entry is weak a priori"
+    },
+    {
+      "feature": "position_in_prior_range_aligned",
+      "n_avail": 75,
+      "median": 1.2548,
+      "low": {
+        "n": 38,
+        "sum_pnl": -2105.0,
+        "mean_pnl": -55.39,
+        "wr": 0.1579,
+        "pf": 0.407
+      },
+      "high": {
+        "n": 37,
+        "sum_pnl": 2977.0,
+        "mean_pnl": 80.46,
+        "wr": 0.5405,
+        "pf": 3.117
+      },
+      "boot": {
+        "observed_diff": 135.85,
+        "p_value": 0.008,
+        "n_days": 23,
+        "n_boot_used": 3000,
+        "ci90": [
+          54.71,
+          207.04
+        ]
+      },
+      "mechanism_note": "proximity to prior-day high (calls) / low (puts) at time of entry; plausible breakout-continuation signal"
+    },
+    {
+      "feature": "rvol_session_so_far",
+      "n_avail": 75,
+      "median": 0.937,
+      "low": {
+        "n": 38,
+        "sum_pnl": 1567.0,
+        "mean_pnl": 41.24,
+        "wr": 0.3947,
+        "pf": 1.902
+      },
+      "high": {
+        "n": 37,
+        "sum_pnl": -695.0,
+        "mean_pnl": -18.78,
+        "wr": 0.2973,
+        "pf": 0.784
+      },
+      "boot": {
+        "observed_diff": -60.02,
+        "p_value": 0.216,
+        "n_days": 23,
+        "n_boot_used": 3000,
+        "ci90": [
+          -162.16,
+          18.89
+        ]
+      },
+      "mechanism_note": "relative volume so far in session; plausible follow-through proxy, direction-agnostic"
+    },
+    {
+      "feature": "n_levels_within_1pct",
+      "n_avail": 75,
+      "median": 11.0,
+      "low": {
+        "n": 41,
+        "sum_pnl": 966.0,
+        "mean_pnl": 23.56,
+        "wr": 0.3415,
+        "pf": 1.334
+      },
+      "high": {
+        "n": 34,
+        "sum_pnl": -94.0,
+        "mean_pnl": -2.76,
+        "wr": 0.3529,
+        "pf": 0.955
+      },
+      "boot": {
+        "observed_diff": -26.33,
+        "p_value": 0.6387,
+        "n_days": 23,
+        "n_boot_used": 3000,
+        "ci90": [
+          -104.87,
+          63.61
+        ]
+      },
+      "mechanism_note": "count of nearby S/R levels; plausible CHOP proxy (more levels = more likely to get pinned/whipsawed) -- if real, expect NEGATIVE relationship with WR"
+    },
+    {
+      "feature": "dist_to_level_in_trade_direction",
+      "n_avail": 67,
+      "median": 0.34,
+      "low": {
+        "n": 35,
+        "sum_pnl": -26.0,
+        "mean_pnl": -0.74,
+        "wr": 0.3143,
+        "pf": 0.987
+      },
+      "high": {
+        "n": 32,
+        "sum_pnl": -1109.0,
+        "mean_pnl": -34.66,
+        "wr": 0.3125,
+        "pf": 0.583
+      },
+      "boot": {
+        "observed_diff": -33.91,
+        "p_value": 0.4267,
+        "n_days": 22,
+        "n_boot_used": 3000,
+        "ci90": [
+          -112.79,
+          36.69
+        ]
+      },
+      "mechanism_note": "distance to the level being broken/tested in the trade's direction; ambiguous a priori (close = right at the trigger level, could be good OR could mean immediate resistance)"
+    },
+    {
+      "feature": "minutes_to_next_event",
+      "n_avail": 75,
+      "median": 38925.0,
+      "low": {
+        "n": 38,
+        "sum_pnl": 693.0,
+        "mean_pnl": 18.24,
+        "wr": 0.3947,
+        "pf": 1.259
+      },
+      "high": {
+        "n": 37,
+        "sum_pnl": 179.0,
+        "mean_pnl": 4.84,
+        "wr": 0.2973,
+        "pf": 1.078
+      },
+      "boot": {
+        "observed_diff": -13.4,
+        "p_value": 0.868,
+        "n_days": 23,
+        "n_boot_used": 3000,
+        "ci90": [
+          -91.9,
+          87.09
+        ]
+      },
+      "mechanism_note": "time until next scheduled econ event; plausible only if trades cluster near high-severity releases, which 0DTE SPY discretionary/mechanical triggers mostly don't wait for"
+    }
+  ],
+  "bh_fdr_q010": {
+    "position_in_prior_range_aligned": {
+      "rank": 1,
+      "p_value": 0.008,
+      "bh_threshold": 0.0091,
+      "survives_fdr": true
+    },
+    "ribbon_spread_cents": {
+      "rank": 2,
+      "p_value": 0.0907,
+      "bh_threshold": 0.0182,
+      "survives_fdr": false
+    },
+    "htf_15m_agrees": {
+      "rank": 3,
+      "p_value": 0.1153,
+      "bh_threshold": 0.0273,
+      "survives_fdr": false
+    },
+    "rvol_session_so_far": {
+      "rank": 4,
+      "p_value": 0.216,
+      "bh_threshold": 0.0364,
+      "survives_fdr": false
+    },
+    "gap_pct_signed_to_trade": {
+      "rank": 5,
+      "p_value": 0.2307,
+      "bh_threshold": 0.0455,
+      "survives_fdr": false
+    },
+    "dist_to_level_in_trade_direction": {
+      "rank": 6,
+      "p_value": 0.4267,
+      "bh_threshold": 0.0545,
+      "survives_fdr": false
+    },
+    "n_levels_within_1pct": {
+      "rank": 7,
+      "p_value": 0.6387,
+      "bh_threshold": 0.0636,
+      "survives_fdr": false
+    },
+    "alignment_score_signed_to_trade": {
+      "rank": 8,
+      "p_value": 0.7493,
+      "bh_threshold": 0.0727,
+      "survives_fdr": false
+    },
+    "htf_agree_count_in_direction": {
+      "rank": 9,
+      "p_value": 0.7507,
+      "bh_threshold": 0.0818,
+      "survives_fdr": false
+    },
+    "score_margin_in_trade_direction": {
+      "rank": 10,
+      "p_value": 0.8433,
+      "bh_threshold": 0.0909,
+      "survives_fdr": false
+    },
+    "minutes_to_next_event": {
+      "rank": 11,
+      "p_value": 0.868,
+      "bh_threshold": 0.1,
+      "survives_fdr": false
+    }
+  }
+}

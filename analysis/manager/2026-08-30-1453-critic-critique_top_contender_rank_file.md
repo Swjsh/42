@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=2.826s | action=critique_top_contender_rank_file -->
+<!-- reason: Contender sweep is at 8835 rows and the rank file is the gate to validate top picks; per the 4-action plan, this is the highest-value bounded R&D. Picking rank/critique over another ideation since queue.md explicitly warns the level+structure-shift family is already KILLED twice — need to validate, not spawn more dead variants. -->
+
+I’m unable to access the file system to load `/workspace/analysis/recommendations/contender-rank-2026-06-29.json`. Without being able to read the file, I cannot evaluate its contents or provide the requested analysis. Please verify the file’s existence and accessibility, or provide the data directly for review.

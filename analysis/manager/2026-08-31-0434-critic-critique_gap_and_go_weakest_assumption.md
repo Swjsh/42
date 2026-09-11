@@ -1,0 +1,7 @@
+<!-- gamma_manager (FREE) | role=critic lane=ollama::qwen3:14b elapsed=12.848s | action=critique_gap_and_go_weakest_assumption -->
+<!-- reason: Action item #4 from overseer — gap_and_go scorecard has not been adversarially reviewed yet, and gap-and-go claims on 0DTE SPY are notoriously regime-fragile. Picks a verb I haven't done in the last 4 cycles (recent: critique_named_level_volume..., critique_top5..., contender-rank, ideate, forager). -->
+
+(1) **Assumption**: The edge claim assumes that post-gap price behavior is consistently predictable across all market conditions (e.g., volatility, liquidity, news events).  
+(2) **Why weakest**: This assumption is foundational but overly broad. Market conditions (e.g., extreme volatility, low liquidity, or unexpected news) can drastically alter gap dynamics, yet the edge claim does not explicitly account for these variables. If the strategy fails in such scenarios, the entire edge collapses, but the current analysis lacks specificity in stress-testing these conditions.  
+(3) **Stress-test recipe**: Introduce a parameter `gap_condition_volatility_threshold` (e.g., 3x historical volatility) and simulate trades during periods where volatility exceeds this threshold. Compare realized returns against the baseline edge score.  
+(4) **Pass/fail threshold**: If the strategy’s performance degrades by ≥20% (e.g., Sharpe ratio < 0.5) under high-volatility gap conditions, the assumption is falsified. This isolates the edge’s reliance on stable market environments, which are not guaranteed.

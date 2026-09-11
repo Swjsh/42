@@ -1,0 +1,5285 @@
+{
+  "schema_version": "eod-deep-v1",
+  "date": "2026-07-02",
+  "generated_at_et": "2026-07-02T14:30:19",
+  "rule_version_active": "v15.3",
+  "market_session_summary": {
+    "session_high": 747.13,
+    "session_low": 747.13,
+    "session_close": 747.13,
+    "vix_close": 16.13,
+    "vix_dir": "flat",
+    "regime_predicted": "low_vix_bull_drift_pre_fomc"
+  },
+  "account_equity_start": 932.0,
+  "account_equity_end": 603.0,
+  "day_pnl_dollars": -329.0,
+  "day_pnl_pct": -35.3,
+  "day_trade_count": 8,
+  "daily_loss_budget_used_pct": 0.0,
+  "trades": [
+    {
+      "id": "trade_csv_1",
+      "setup_name": "UNKNOWN",
+      "direction": "short",
+      "underlying": "SPY",
+      "expiry_date": "",
+      "strike": 746.0,
+      "option_type": "P",
+      "fills": [
+        {
+          "time_et": "09:30:37",
+          "side": "buy",
+          "qty": 3,
+          "price": 1.27,
+          "source": "engine_heartbeat",
+          "reason": "entry",
+          "order_id": null,
+          "slippage_cents": null
+        },
+        {
+          "time_et": "09:31:04",
+          "side": "sell",
+          "qty": 3,
+          "price": 1.05,
+          "source": "engine_heartbeat",
+          "reason": "tp1_or_runner",
+          "order_id": null,
+          "slippage_cents": null
+        }
+      ],
+      "entry_price": 1.27,
+      "avg_exit_price": 1.05,
+      "qty_entered": 3,
+      "qty_exited": 3,
+      "qty_outstanding": 0,
+      "pnl_dollars_realized": -66.0,
+      "pnl_dollars_unrealized": 0.0,
+      "pnl_pct_on_capital": -17.32,
+      "hold_minutes": 0,
+      "triggers_fired": [],
+      "setup_score": "?/?",
+      "doctrine_compliance_score": 80.0,
+      "rule_breaks": [],
+      "journaled_before_entry": true,
+      "engine_decisions": [],
+      "counterfactuals": [
+        {
+          "name": "perfect_hindsight",
+          "pnl_dollars": -66.0,
+          "method": "All 3 contracts sold at peak premium $1.05. Actual scale-outs: $1.05.",
+          "delta_vs_actual": -0.0
+        },
+        {
+          "name": "v14_doctrine",
+          "pnl_dollars": 329.2,
+          "method": "v14: TP1 2\u00d7 @ 1.65 (+30% fixed) + runner 1\u00d7 exit @ ~3.80 (ribbon flip ~12:00 ET, fixed-PL +10% floor 1.40 not breached)",
+          "delta_vs_actual": -395.2
+        },
+        {
+          "name": "stepped_pl",
+          "pnl_dollars": -66.0,
+          "method": "HWM $4.01 = +140% gain \u2192 stepped rung 100-150% = 10% trail \u2192 floor $3.61. v15 trailing 20% floor was $3.21. Stepped would have offered $0.40/contract MORE protection, but target $4.18 fired before any trail floor was breached on either mode. Identical outcome TODAY. Differentiation on chop/retrace days.",
+          "delta_vs_actual": 0.0
+        }
+      ]
+    },
+    {
+      "id": "trade_csv_2",
+      "setup_name": "UNKNOWN",
+      "direction": "long",
+      "underlying": "SPY",
+      "expiry_date": "",
+      "strike": 750.0,
+      "option_type": "C",
+      "fills": [
+        {
+          "time_et": "09:55:12",
+          "side": "buy",
+          "qty": 3,
+          "price": 1.63,
+          "source": "engine_heartbeat",
+          "reason": "entry",
+          "order_id": null,
+          "slippage_cents": null
+        },
+        {
+          "time_et": "09:57:04",
+          "side": "sell",
+          "qty": 3,
+          "price": 1.53,
+          "source": "engine_heartbeat",
+          "reason": "tp1_or_runner",
+          "order_id": null,
+          "slippage_cents": null
+        }
+      ],
+      "entry_price": 1.63,
+      "avg_exit_price": 1.53,
+      "qty_entered": 3,
+      "qty_exited": 3,
+      "qty_outstanding": 0,
+      "pnl_dollars_realized": -30.0,
+      "pnl_dollars_unrealized": 0.0,
+      "pnl_pct_on_capital": -6.13,
+      "hold_minutes": 0,
+      "triggers_fired": [],
+      "setup_score": "?/?",
+      "doctrine_compliance_score": 80.0,
+      "rule_breaks": [],
+      "journaled_before_entry": true,
+      "engine_decisions": [],
+      "counterfactuals": [
+        {
+          "name": "perfect_hindsight",
+          "pnl_dollars": -30.0,
+          "method": "All 3 contracts sold at peak premium $1.53. Actual scale-outs: $1.53.",
+          "delta_vs_actual": -0.0
+        },
+        {
+          "name": "v14_doctrine",
+          "pnl_dollars": 314.8,
+          "method": "v14: TP1 2\u00d7 @ 2.12 (+30% fixed) + runner 1\u00d7 exit @ ~3.80 (ribbon flip ~12:00 ET, fixed-PL +10% floor 1.79 not breached)",
+          "delta_vs_actual": -344.8
+        },
+        {
+          "name": "stepped_pl",
+          "pnl_dollars": -30.0,
+          "method": "HWM $4.01 = +140% gain \u2192 stepped rung 100-150% = 10% trail \u2192 floor $3.61. v15 trailing 20% floor was $3.21. Stepped would have offered $0.40/contract MORE protection, but target $4.18 fired before any trail floor was breached on either mode. Identical outcome TODAY. Differentiation on chop/retrace days.",
+          "delta_vs_actual": 0.0
+        }
+      ]
+    },
+    {
+      "id": "trade_csv_3",
+      "setup_name": "UNKNOWN",
+      "direction": "long",
+      "underlying": "SPY",
+      "expiry_date": "",
+      "strike": 750.0,
+      "option_type": "C",
+      "fills": [
+        {
+          "time_et": "09:57:15",
+          "side": "buy",
+          "qty": 3,
+          "price": 1.6567,
+          "source": "engine_heartbeat",
+          "reason": "entry",
+          "order_id": null,
+          "slippage_cents": null
+        },
+        {
+          "time_et": "10:11:04",
+          "side": "sell",
+          "qty": 3,
+          "price": 1.41,
+          "source": "engine_heartbeat",
+          "reason": "tp1_or_runner",
+          "order_id": null,
+          "slippage_cents": null
+        }
+      ],
+      "entry_price": 1.6567,
+      "avg_exit_price": 1.41,
+      "qty_entered": 3,
+      "qty_exited": 3,
+      "qty_outstanding": 0,
+      "pnl_dollars_realized": -74.0,
+      "pnl_dollars_unrealized": 0.0,
+      "pnl_pct_on_capital": -14.89,
+      "hold_minutes": 0,
+      "triggers_fired": [],
+      "setup_score": "?/?",
+      "doctrine_compliance_score": 80.0,
+      "rule_breaks": [],
+      "journaled_before_entry": true,
+      "engine_decisions": [],
+      "counterfactuals": [
+        {
+          "name": "perfect_hindsight",
+          "pnl_dollars": -74.01,
+          "method": "All 3 contracts sold at peak premium $1.41. Actual scale-outs: $1.41.",
+          "delta_vs_actual": 0.01
+        },
+        {
+          "name": "v14_doctrine",
+          "pnl_dollars": 313.73,
+          "method": "v14: TP1 2\u00d7 @ 2.15 (+30% fixed) + runner 1\u00d7 exit @ ~3.80 (ribbon flip ~12:00 ET, fixed-PL +10% floor 1.82 not breached)",
+          "delta_vs_actual": -387.73
+        },
+        {
+          "name": "stepped_pl",
+          "pnl_dollars": -74.0,
+          "method": "HWM $4.01 = +140% gain \u2192 stepped rung 100-150% = 10% trail \u2192 floor $3.61. v15 trailing 20% floor was $3.21. Stepped would have offered $0.40/contract MORE protection, but target $4.18 fired before any trail floor was breached on either mode. Identical outcome TODAY. Differentiation on chop/retrace days.",
+          "delta_vs_actual": 0.0
+        }
+      ]
+    },
+    {
+      "id": "trade_csv_4",
+      "setup_name": "UNKNOWN",
+      "direction": "long",
+      "underlying": "SPY",
+      "expiry_date": "",
+      "strike": 750.0,
+      "option_type": "C",
+      "fills": [
+        {
+          "time_et": "10:11:15",
+          "side": "buy",
+          "qty": 3,
+          "price": 1.49,
+          "source": "engine_heartbeat",
+          "reason": "entry",
+          "order_id": null,
+          "slippage_cents": null
+        },
+        {
+          "time_et": "10:21:04",
+          "side": "sell",
+          "qty": 3,
+          "price": 1.4,
+          "source": "engine_heartbeat",
+          "reason": "tp1_or_runner",
+          "order_id": null,
+          "slippage_cents": null
+        }
+      ],
+      "entry_price": 1.49,
+      "avg_exit_price": 1.4,
+      "qty_entered": 3,
+      "qty_exited": 3,
+      "qty_outstanding": 0,
+      "pnl_dollars_realized": -27.0,
+      "pnl_dollars_unrealized": 0.0,
+      "pnl_pct_on_capital": -6.04,
+      "hold_minutes": 0,
+      "triggers_fired": [],
+      "setup_score": "?/?",
+      "doctrine_compliance_score": 80.0,
+      "rule_breaks": [],
+      "journaled_before_entry": true,
+      "engine_decisions": [],
+      "counterfactuals": [
+        {
+          "name": "perfect_hindsight",
+          "pnl_dollars": -27.0,
+          "method": "All 3 contracts sold at peak premium $1.40. Actual scale-outs: $1.40.",
+          "delta_vs_actual": 0.0
+        },
+        {
+          "name": "v14_doctrine",
+          "pnl_dollars": 320.4,
+          "method": "v14: TP1 2\u00d7 @ 1.94 (+30% fixed) + runner 1\u00d7 exit @ ~3.80 (ribbon flip ~12:00 ET, fixed-PL +10% floor 1.64 not breached)",
+          "delta_vs_actual": -347.4
+        },
+        {
+          "name": "stepped_pl",
+          "pnl_dollars": -27.0,
+          "method": "HWM $4.01 = +140% gain \u2192 stepped rung 100-150% = 10% trail \u2192 floor $3.61. v15 trailing 20% floor was $3.21. Stepped would have offered $0.40/contract MORE protection, but target $4.18 fired before any trail floor was breached on either mode. Identical outcome TODAY. Differentiation on chop/retrace days.",
+          "delta_vs_actual": 0.0
+        }
+      ]
+    },
+    {
+      "id": "trade_csv_5",
+      "setup_name": "UNKNOWN",
+      "direction": "long",
+      "underlying": "SPY",
+      "expiry_date": "",
+      "strike": 751.0,
+      "option_type": "C",
+      "fills": [
+        {
+          "time_et": "10:21:12",
+          "side": "buy",
+          "qty": 3,
+          "price": 0.94,
+          "source": "engine_heartbeat",
+          "reason": "entry",
+          "order_id": null,
+          "slippage_cents": null
+        },
+        {
+          "time_et": "10:22:04",
+          "side": "sell",
+          "qty": 3,
+          "price": 0.87,
+          "source": "engine_heartbeat",
+          "reason": "tp1_or_runner",
+          "order_id": null,
+          "slippage_cents": null
+        }
+      ],
+      "entry_price": 0.94,
+      "avg_exit_price": 0.87,
+      "qty_entered": 3,
+      "qty_exited": 3,
+      "qty_outstanding": 0,
+      "pnl_dollars_realized": -21.0,
+      "pnl_dollars_unrealized": 0.0,
+      "pnl_pct_on_capital": -7.45,
+      "hold_minutes": 0,
+      "triggers_fired": [],
+      "setup_score": "?/?",
+      "doctrine_compliance_score": 80.0,
+      "rule_breaks": [],
+      "journaled_before_entry": true,
+      "engine_decisions": [],
+      "counterfactuals": [
+        {
+          "name": "perfect_hindsight",
+          "pnl_dollars": -21.0,
+          "method": "All 3 contracts sold at peak premium $0.87. Actual scale-outs: $0.87.",
+          "delta_vs_actual": -0.0
+        },
+        {
+          "name": "v14_doctrine",
+          "pnl_dollars": 342.4,
+          "method": "v14: TP1 2\u00d7 @ 1.22 (+30% fixed) + runner 1\u00d7 exit @ ~3.80 (ribbon flip ~12:00 ET, fixed-PL +10% floor 1.03 not breached)",
+          "delta_vs_actual": -363.4
+        },
+        {
+          "name": "stepped_pl",
+          "pnl_dollars": -21.0,
+          "method": "HWM $4.01 = +140% gain \u2192 stepped rung 100-150% = 10% trail \u2192 floor $3.61. v15 trailing 20% floor was $3.21. Stepped would have offered $0.40/contract MORE protection, but target $4.18 fired before any trail floor was breached on either mode. Identical outcome TODAY. Differentiation on chop/retrace days.",
+          "delta_vs_actual": 0.0
+        }
+      ]
+    },
+    {
+      "id": "trade_csv_6",
+      "setup_name": "UNKNOWN",
+      "direction": "long",
+      "underlying": "SPY",
+      "expiry_date": "",
+      "strike": 751.0,
+      "option_type": "C",
+      "fills": [
+        {
+          "time_et": "10:22:27",
+          "side": "buy",
+          "qty": 3,
+          "price": 0.84,
+          "source": "engine_heartbeat",
+          "reason": "entry",
+          "order_id": null,
+          "slippage_cents": null
+        },
+        {
+          "time_et": "10:25:04",
+          "side": "sell",
+          "qty": 3,
+          "price": 0.77,
+          "source": "engine_heartbeat",
+          "reason": "tp1_or_runner",
+          "order_id": null,
+          "slippage_cents": null
+        }
+      ],
+      "entry_price": 0.84,
+      "avg_exit_price": 0.77,
+      "qty_entered": 3,
+      "qty_exited": 3,
+      "qty_outstanding": 0,
+      "pnl_dollars_realized": -21.0,
+      "pnl_dollars_unrealized": 0.0,
+      "pnl_pct_on_capital": -8.33,
+      "hold_minutes": 0,
+      "triggers_fired": [],
+      "setup_score": "?/?",
+      "doctrine_compliance_score": 80.0,
+      "rule_breaks": [],
+      "journaled_before_entry": true,
+      "engine_decisions": [],
+      "counterfactuals": [
+        {
+          "name": "perfect_hindsight",
+          "pnl_dollars": -21.0,
+          "method": "All 3 contracts sold at peak premium $0.77. Actual scale-outs: $0.77.",
+          "delta_vs_actual": -0.0
+        },
+        {
+          "name": "v14_doctrine",
+          "pnl_dollars": 346.4,
+          "method": "v14: TP1 2\u00d7 @ 1.09 (+30% fixed) + runner 1\u00d7 exit @ ~3.80 (ribbon flip ~12:00 ET, fixed-PL +10% floor 0.92 not breached)",
+          "delta_vs_actual": -367.4
+        },
+        {
+          "name": "stepped_pl",
+          "pnl_dollars": -21.0,
+          "method": "HWM $4.01 = +140% gain \u2192 stepped rung 100-150% = 10% trail \u2192 floor $3.61. v15 trailing 20% floor was $3.21. Stepped would have offered $0.40/contract MORE protection, but target $4.18 fired before any trail floor was breached on either mode. Identical outcome TODAY. Differentiation on chop/retrace days.",
+          "delta_vs_actual": 0.0
+        }
+      ]
+    },
+    {
+      "id": "trade_csv_7",
+      "setup_name": "UNKNOWN",
+      "direction": "long",
+      "underlying": "SPY",
+      "expiry_date": "",
+      "strike": 751.0,
+      "option_type": "C",
+      "fills": [
+        {
+          "time_et": "10:25:15",
+          "side": "buy",
+          "qty": 3,
+          "price": 0.76,
+          "source": "engine_heartbeat",
+          "reason": "entry",
+          "order_id": null,
+          "slippage_cents": null
+        },
+        {
+          "time_et": "10:27:04",
+          "side": "sell",
+          "qty": 3,
+          "price": 0.69,
+          "source": "engine_heartbeat",
+          "reason": "tp1_or_runner",
+          "order_id": null,
+          "slippage_cents": null
+        }
+      ],
+      "entry_price": 0.76,
+      "avg_exit_price": 0.69,
+      "qty_entered": 3,
+      "qty_exited": 3,
+      "qty_outstanding": 0,
+      "pnl_dollars_realized": -21.0,
+      "pnl_dollars_unrealized": 0.0,
+      "pnl_pct_on_capital": -9.21,
+      "hold_minutes": 0,
+      "triggers_fired": [],
+      "setup_score": "?/?",
+      "doctrine_compliance_score": 80.0,
+      "rule_breaks": [],
+      "journaled_before_entry": true,
+      "engine_decisions": [],
+      "counterfactuals": [
+        {
+          "name": "perfect_hindsight",
+          "pnl_dollars": -21.0,
+          "method": "All 3 contracts sold at peak premium $0.69. Actual scale-outs: $0.69.",
+          "delta_vs_actual": 0.0
+        },
+        {
+          "name": "v14_doctrine",
+          "pnl_dollars": 349.6,
+          "method": "v14: TP1 2\u00d7 @ 0.99 (+30% fixed) + runner 1\u00d7 exit @ ~3.80 (ribbon flip ~12:00 ET, fixed-PL +10% floor 0.84 not breached)",
+          "delta_vs_actual": -370.6
+        },
+        {
+          "name": "stepped_pl",
+          "pnl_dollars": -21.0,
+          "method": "HWM $4.01 = +140% gain \u2192 stepped rung 100-150% = 10% trail \u2192 floor $3.61. v15 trailing 20% floor was $3.21. Stepped would have offered $0.40/contract MORE protection, but target $4.18 fired before any trail floor was breached on either mode. Identical outcome TODAY. Differentiation on chop/retrace days.",
+          "delta_vs_actual": 0.0
+        }
+      ]
+    },
+    {
+      "id": "trade_csv_8",
+      "setup_name": "UNKNOWN",
+      "direction": "short",
+      "underlying": "SPY",
+      "expiry_date": "",
+      "strike": 743.0,
+      "option_type": "P",
+      "fills": [
+        {
+          "time_et": "12:51:13",
+          "side": "buy",
+          "qty": 3,
+          "price": 1.36,
+          "source": "engine_heartbeat",
+          "reason": "entry",
+          "order_id": null,
+          "slippage_cents": null
+        },
+        {
+          "time_et": "14:29:04",
+          "side": "sell",
+          "qty": 3,
+          "price": 1.13,
+          "source": "engine_heartbeat",
+          "reason": "tp1_or_runner",
+          "order_id": null,
+          "slippage_cents": null
+        }
+      ],
+      "entry_price": 1.36,
+      "avg_exit_price": 1.13,
+      "qty_entered": 3,
+      "qty_exited": 3,
+      "qty_outstanding": 0,
+      "pnl_dollars_realized": -69.0,
+      "pnl_dollars_unrealized": 0.0,
+      "pnl_pct_on_capital": -16.91,
+      "hold_minutes": 0,
+      "triggers_fired": [],
+      "setup_score": "?/?",
+      "doctrine_compliance_score": 80.0,
+      "rule_breaks": [],
+      "journaled_before_entry": true,
+      "engine_decisions": [],
+      "counterfactuals": [
+        {
+          "name": "perfect_hindsight",
+          "pnl_dollars": -69.0,
+          "method": "All 3 contracts sold at peak premium $1.13. Actual scale-outs: $1.13.",
+          "delta_vs_actual": 0.0
+        },
+        {
+          "name": "v14_doctrine",
+          "pnl_dollars": 325.6,
+          "method": "v14: TP1 2\u00d7 @ 1.77 (+30% fixed) + runner 1\u00d7 exit @ ~3.80 (ribbon flip ~12:00 ET, fixed-PL +10% floor 1.50 not breached)",
+          "delta_vs_actual": -394.6
+        },
+        {
+          "name": "stepped_pl",
+          "pnl_dollars": -69.0,
+          "method": "HWM $4.01 = +140% gain \u2192 stepped rung 100-150% = 10% trail \u2192 floor $3.61. v15 trailing 20% floor was $3.21. Stepped would have offered $0.40/contract MORE protection, but target $4.18 fired before any trail floor was breached on either mode. Identical outcome TODAY. Differentiation on chop/retrace days.",
+          "delta_vs_actual": 0.0
+        }
+      ]
+    }
+  ],
+  "categories": {
+    "execution": {
+      "score": 95.0,
+      "evidence": {
+        "trade_count": 8,
+        "fill_count": 16,
+        "avg_slippage_cents": 0,
+        "phase": "1-shallow"
+      },
+      "narrative": "8 trades / 16 fills. Avg slippage 0.0c. Phase 1 SHALLOW \u2014 Phase 2 adds fill-timing-vs-trigger and partial-fill analysis.",
+      "actions": []
+    },
+    "detection": {
+      "score": 40.0,
+      "evidence": {
+        "phase": "3.0",
+        "verdict": "TOO_PASSIVE",
+        "engine_decisions": [
+          {
+            "time_et": "09:30:00",
+            "tick_or_fire_id": 28596,
+            "decision": "HOLD_IN_POSITION",
+            "reasoning": "engine in active position (directions=['short']); no new setup either",
+            "raw_state": {
+              "spy_close": 748.5599975585938,
+              "vix": 16.06999969482422,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 29.191195499436162,
+              "htf_15m_stack": "BULL",
+              "bear_score": 3,
+              "bull_score": 7,
+              "bear_blockers": [
+                1,
+                6,
+                7,
+                8,
+                9,
+                10
+              ],
+              "bull_blockers": [
+                1,
+                5,
+                6,
+                11
+              ],
+              "bear_triggers": [],
+              "bull_triggers": [
+                "level_reclaim"
+              ],
+              "rejection_level": null,
+              "reclaim_level": 747.4000244140625,
+              "in_position": true,
+              "active_directions": [
+                "short"
+              ],
+              "bar_min_from_open": 0
+            }
+          },
+          {
+            "time_et": "09:35:00",
+            "tick_or_fire_id": 28597,
+            "decision": "SKIP_RIBBON",
+            "reasoning": "filter 5 blocked: ribbon not stacked. bear_blockers=[5, 6, 7, 8, 9], bull_blockers=[5, 6]",
+            "raw_state": {
+              "spy_close": 748.780029296875,
+              "vix": 16.030000686645508,
+              "ribbon_stack": "MIXED",
+              "ribbon_spread_cents": 10.68119165695407,
+              "htf_15m_stack": "BULL",
+              "bear_score": 4,
+              "bull_score": 9,
+              "bear_blockers": [
+                5,
+                6,
+                7,
+                8,
+                9
+              ],
+              "bull_blockers": [
+                5,
+                6
+              ],
+              "bear_triggers": [
+                "level_rejection"
+              ],
+              "bull_triggers": [
+                "level_reclaim",
+                "confluence"
+              ],
+              "rejection_level": 749.0,
+              "reclaim_level": 748.0,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 5
+            }
+          },
+          {
+            "time_et": "09:40:00",
+            "tick_or_fire_id": 28598,
+            "decision": "SKIP_RIBBON_SPREAD",
+            "reasoning": "filter 6 blocked: ribbon spread <30c (chop)",
+            "raw_state": {
+              "spy_close": 749.7999877929688,
+              "vix": 15.93000030517578,
+              "ribbon_stack": "BULL",
+              "ribbon_spread_cents": 16.652387807266678,
+              "htf_15m_stack": "BULL",
+              "bear_score": 5,
+              "bull_score": 10,
+              "bear_blockers": [
+                5,
+                6,
+                8,
+                9
+              ],
+              "bull_blockers": [
+                6
+              ],
+              "bear_triggers": [
+                "level_rejection"
+              ],
+              "bull_triggers": [
+                "level_reclaim",
+                "ribbon_flip"
+              ],
+              "rejection_level": 750.0,
+              "reclaim_level": 749.0,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 10
+            }
+          },
+          {
+            "time_et": "09:45:00",
+            "tick_or_fire_id": 28599,
+            "decision": "SKIP_FILTER",
+            "reasoning": "blocked. bear_blockers=[5, 8, 9, 10], bull_blockers=[10], bear_score=5/10, bull_score=10/11",
+            "raw_state": {
+              "spy_close": 750.405029296875,
+              "vix": 15.850000381469728,
+              "ribbon_stack": "BULL",
+              "ribbon_spread_cents": 44.456890293884044,
+              "htf_15m_stack": "BULL",
+              "bear_score": 5,
+              "bull_score": 10,
+              "bear_blockers": [
+                5,
+                8,
+                9,
+                10
+              ],
+              "bull_blockers": [
+                10
+              ],
+              "bear_triggers": [],
+              "bull_triggers": [
+                "level_reclaim",
+                "ribbon_flip",
+                "confluence"
+              ],
+              "rejection_level": null,
+              "reclaim_level": 749.54,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 15
+            }
+          },
+          {
+            "time_et": "09:50:00",
+            "tick_or_fire_id": 28600,
+            "decision": "SKIP_FILTER",
+            "reasoning": "blocked. bear_blockers=[5, 8, 9], bull_blockers=[11], bear_score=6/10, bull_score=10/11",
+            "raw_state": {
+              "spy_close": 750.469970703125,
+              "vix": 15.880000114440918,
+              "ribbon_stack": "BULL",
+              "ribbon_spread_cents": 67.72001228372346,
+              "htf_15m_stack": "BULL",
+              "bear_score": 6,
+              "bull_score": 10,
+              "bear_blockers": [
+                5,
+                8,
+                9
+              ],
+              "bull_blockers": [
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection"
+              ],
+              "bull_triggers": [
+                "ribbon_flip"
+              ],
+              "rejection_level": 751.0,
+              "reclaim_level": null,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 20
+            }
+          },
+          {
+            "time_et": "09:55:00",
+            "tick_or_fire_id": 28601,
+            "decision": "HOLD_IN_POSITION",
+            "reasoning": "engine in active position (directions=['long']); no new setup either",
+            "raw_state": {
+              "spy_close": 750.760009765625,
+              "vix": 15.880000114440918,
+              "ribbon_stack": "BULL",
+              "ribbon_spread_cents": 89.41067436920775,
+              "htf_15m_stack": "BULL",
+              "bear_score": 5,
+              "bull_score": 9,
+              "bear_blockers": [
+                5,
+                8,
+                9,
+                10
+              ],
+              "bull_blockers": [
+                10,
+                11
+              ],
+              "bear_triggers": [],
+              "bull_triggers": [],
+              "rejection_level": null,
+              "reclaim_level": null,
+              "in_position": true,
+              "active_directions": [
+                "long"
+              ],
+              "bar_min_from_open": 25
+            }
+          },
+          {
+            "time_et": "10:00:00",
+            "tick_or_fire_id": 28602,
+            "decision": "HOLD_IN_POSITION",
+            "reasoning": "engine in active position (directions=['long']); no new setup either",
+            "raw_state": {
+              "spy_close": 750.7794799804688,
+              "vix": 15.850000381469728,
+              "ribbon_stack": "BULL",
+              "ribbon_spread_cents": 106.92114408151383,
+              "htf_15m_stack": "BULL",
+              "bear_score": 6,
+              "bull_score": 9,
+              "bear_blockers": [
+                5,
+                8,
+                9
+              ],
+              "bull_blockers": [
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 751.0,
+              "reclaim_level": null,
+              "in_position": true,
+              "active_directions": [
+                "long"
+              ],
+              "bar_min_from_open": 30
+            }
+          },
+          {
+            "time_et": "10:05:00",
+            "tick_or_fire_id": 28603,
+            "decision": "HOLD_IN_POSITION",
+            "reasoning": "engine in active position (directions=['long']); no new setup either",
+            "raw_state": {
+              "spy_close": 750.2449951171875,
+              "vix": 15.93000030517578,
+              "ribbon_stack": "BULL",
+              "ribbon_spread_cents": 115.24013285476258,
+              "htf_15m_stack": "BULL",
+              "bear_score": 6,
+              "bull_score": 8,
+              "bear_blockers": [
+                5,
+                8,
+                9
+              ],
+              "bull_blockers": [
+                7,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 751.0,
+              "reclaim_level": null,
+              "in_position": true,
+              "active_directions": [
+                "long"
+              ],
+              "bar_min_from_open": 35
+            }
+          },
+          {
+            "time_et": "10:10:00",
+            "tick_or_fire_id": 28604,
+            "decision": "HOLD_IN_POSITION",
+            "reasoning": "engine in active position (directions=['long']); no new setup either",
+            "raw_state": {
+              "spy_close": 750.9600219726562,
+              "vix": 15.829999923706056,
+              "ribbon_stack": "BULL",
+              "ribbon_spread_cents": 128.70388959670436,
+              "htf_15m_stack": "BULL",
+              "bear_score": 5,
+              "bull_score": 10,
+              "bear_blockers": [
+                5,
+                7,
+                8,
+                9
+              ],
+              "bull_blockers": [
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection"
+              ],
+              "bull_triggers": [
+                "level_reclaim"
+              ],
+              "rejection_level": 751.0,
+              "reclaim_level": 750.0,
+              "in_position": true,
+              "active_directions": [
+                "long"
+              ],
+              "bar_min_from_open": 40
+            }
+          },
+          {
+            "time_et": "10:15:00",
+            "tick_or_fire_id": 28605,
+            "decision": "HOLD_IN_POSITION",
+            "reasoning": "engine in active position (directions=['long']); no new setup either",
+            "raw_state": {
+              "spy_close": 750.6699829101562,
+              "vix": 15.869999885559082,
+              "ribbon_stack": "BULL",
+              "ribbon_spread_cents": 136.06317502901675,
+              "htf_15m_stack": "BULL",
+              "bear_score": 5,
+              "bull_score": 9,
+              "bear_blockers": [
+                5,
+                7,
+                8,
+                9
+              ],
+              "bull_blockers": [
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "sequence_rejection"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 751.0,
+              "reclaim_level": null,
+              "in_position": true,
+              "active_directions": [
+                "long"
+              ],
+              "bar_min_from_open": 45
+            }
+          },
+          {
+            "time_et": "10:20:00",
+            "tick_or_fire_id": 28606,
+            "decision": "HOLD_IN_POSITION",
+            "reasoning": "engine in active position (directions=['long']); no new setup either",
+            "raw_state": {
+              "spy_close": 749.6500244140625,
+              "vix": 15.9399995803833,
+              "ribbon_stack": "BULL",
+              "ribbon_spread_cents": 130.91255522006122,
+              "htf_15m_stack": "BULL",
+              "bear_score": 7,
+              "bull_score": 9,
+              "bear_blockers": [
+                5,
+                8
+              ],
+              "bull_blockers": [
+                7,
+                10
+              ],
+              "bear_triggers": [
+                "level_rejection"
+              ],
+              "bull_triggers": [
+                "level_reclaim",
+                "confluence"
+              ],
+              "rejection_level": 750.0,
+              "reclaim_level": 749.54,
+              "in_position": true,
+              "active_directions": [
+                "long"
+              ],
+              "bar_min_from_open": 50
+            }
+          },
+          {
+            "time_et": "10:25:00",
+            "tick_or_fire_id": 28607,
+            "decision": "HOLD_IN_POSITION",
+            "reasoning": "engine in active position (directions=['long', 'long']); no new setup either",
+            "raw_state": {
+              "spy_close": 747.9400024414062,
+              "vix": 16.200000762939453,
+              "ribbon_stack": "BULL",
+              "ribbon_spread_cents": 108.46539253532228,
+              "htf_15m_stack": "BULL",
+              "bear_score": 7,
+              "bull_score": 10,
+              "bear_blockers": [
+                5,
+                8
+              ],
+              "bull_blockers": [
+                10
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "confluence"
+              ],
+              "bull_triggers": [
+                "level_reclaim",
+                "confluence"
+              ],
+              "rejection_level": 749.54,
+              "reclaim_level": 747.75,
+              "in_position": true,
+              "active_directions": [
+                "long",
+                "long"
+              ],
+              "bar_min_from_open": 55
+            }
+          },
+          {
+            "time_et": "10:30:00",
+            "tick_or_fire_id": 28608,
+            "decision": "ENTER_BULL",
+            "reasoning": "bullish setup passed, score 11/11. triggers=['level_reclaim', 'confluence'], level=747.75",
+            "raw_state": {
+              "spy_close": 748.27001953125,
+              "vix": 16.149999618530273,
+              "ribbon_stack": "BULL",
+              "ribbon_spread_cents": 92.74536090935044,
+              "htf_15m_stack": "BULL",
+              "bear_score": 5,
+              "bull_score": 11,
+              "bear_blockers": [
+                5,
+                7,
+                8,
+                9
+              ],
+              "bull_blockers": [],
+              "bear_triggers": [
+                "level_rejection"
+              ],
+              "bull_triggers": [
+                "level_reclaim",
+                "confluence"
+              ],
+              "rejection_level": 749.0,
+              "reclaim_level": 747.75,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 60
+            }
+          },
+          {
+            "time_et": "10:35:00",
+            "tick_or_fire_id": 28609,
+            "decision": "SKIP_FILTER",
+            "reasoning": "blocked. bear_blockers=[5, 8, 9], bull_blockers=[10], bear_score=6/10, bull_score=10/11",
+            "raw_state": {
+              "spy_close": 748.4550170898438,
+              "vix": 16.149999618530273,
+              "ribbon_stack": "BULL",
+              "ribbon_spread_cents": 81.16796095230256,
+              "htf_15m_stack": "BULL",
+              "bear_score": 6,
+              "bull_score": 10,
+              "bear_blockers": [
+                5,
+                8,
+                9
+              ],
+              "bull_blockers": [
+                10
+              ],
+              "bear_triggers": [
+                "level_rejection"
+              ],
+              "bull_triggers": [
+                "level_reclaim",
+                "confluence"
+              ],
+              "rejection_level": 749.0,
+              "reclaim_level": 747.980975742202,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 65
+            }
+          },
+          {
+            "time_et": "10:40:00",
+            "tick_or_fire_id": 28610,
+            "decision": "SKIP_FILTER",
+            "reasoning": "blocked. bear_blockers=[5, 8], bull_blockers=[7, 10, 11], bear_score=7/10, bull_score=8/11",
+            "raw_state": {
+              "spy_close": 746.8800048828125,
+              "vix": 16.40999984741211,
+              "ribbon_stack": "BULL",
+              "ribbon_spread_cents": 55.104679802445844,
+              "htf_15m_stack": "BULL",
+              "bear_score": 7,
+              "bull_score": 8,
+              "bear_blockers": [
+                5,
+                8
+              ],
+              "bull_blockers": [
+                7,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "confluence"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 748.5083218092416,
+              "reclaim_level": null,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 70
+            }
+          },
+          {
+            "time_et": "10:45:00",
+            "tick_or_fire_id": 28611,
+            "decision": "SKIP_FILTER",
+            "reasoning": "blocked. bear_blockers=[5, 8, 9], bull_blockers=[7, 10, 11], bear_score=6/10, bull_score=8/11",
+            "raw_state": {
+              "spy_close": 747.27001953125,
+              "vix": 16.260000228881836,
+              "ribbon_stack": "BULL",
+              "ribbon_spread_cents": 37.3349906644421,
+              "htf_15m_stack": "BULL",
+              "bear_score": 6,
+              "bull_score": 8,
+              "bear_blockers": [
+                5,
+                8,
+                9
+              ],
+              "bull_blockers": [
+                7,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection"
+              ],
+              "bull_triggers": [
+                "level_reclaim"
+              ],
+              "rejection_level": 747.4000244140625,
+              "reclaim_level": 747.0,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 75
+            }
+          },
+          {
+            "time_et": "10:50:00",
+            "tick_or_fire_id": 28612,
+            "decision": "SKIP_RIBBON",
+            "reasoning": "filter 5 blocked: ribbon not stacked. bear_blockers=[5, 6, 8, 9], bull_blockers=[5, 6, 10, 11]",
+            "raw_state": {
+              "spy_close": 746.5,
+              "vix": 16.350000381469727,
+              "ribbon_stack": "MIXED",
+              "ribbon_spread_cents": 23.838553117570882,
+              "htf_15m_stack": "BULL",
+              "bear_score": 5,
+              "bull_score": 7,
+              "bear_blockers": [
+                5,
+                6,
+                8,
+                9
+              ],
+              "bull_blockers": [
+                5,
+                6,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection"
+              ],
+              "bull_triggers": [
+                "level_reclaim"
+              ],
+              "rejection_level": 747.4000244140625,
+              "reclaim_level": 746.1,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 80
+            }
+          },
+          {
+            "time_et": "10:55:00",
+            "tick_or_fire_id": 28613,
+            "decision": "SKIP_RIBBON",
+            "reasoning": "filter 5 blocked: ribbon not stacked. bear_blockers=[5, 6, 8, 9, 10], bull_blockers=[5, 6, 10, 11]",
+            "raw_state": {
+              "spy_close": 747.6599731445312,
+              "vix": 16.200000762939453,
+              "ribbon_stack": "MIXED",
+              "ribbon_spread_cents": 19.004861073221946,
+              "htf_15m_stack": "BULL",
+              "bear_score": 4,
+              "bull_score": 7,
+              "bear_blockers": [
+                5,
+                6,
+                8,
+                9,
+                10
+              ],
+              "bull_blockers": [
+                5,
+                6,
+                10,
+                11
+              ],
+              "bear_triggers": [],
+              "bull_triggers": [
+                "level_reclaim"
+              ],
+              "rejection_level": null,
+              "reclaim_level": 747.0,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 85
+            }
+          },
+          {
+            "time_et": "11:00:00",
+            "tick_or_fire_id": 28614,
+            "decision": "SKIP_RIBBON",
+            "reasoning": "filter 5 blocked: ribbon not stacked. bear_blockers=[5, 6, 8, 9], bull_blockers=[5, 6, 7, 10, 11]",
+            "raw_state": {
+              "spy_close": 746.0700073242188,
+              "vix": 16.329999923706055,
+              "ribbon_stack": "MIXED",
+              "ribbon_spread_cents": 20.273591308682626,
+              "htf_15m_stack": "BULL",
+              "bear_score": 5,
+              "bull_score": 6,
+              "bear_blockers": [
+                5,
+                6,
+                8,
+                9
+              ],
+              "bull_blockers": [
+                5,
+                6,
+                7,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "confluence"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 747.75,
+              "reclaim_level": null,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 90
+            }
+          },
+          {
+            "time_et": "11:05:00",
+            "tick_or_fire_id": 28615,
+            "decision": "SKIP_FILTER",
+            "reasoning": "blocked. bear_blockers=[8], bull_blockers=[5, 7, 10, 11], bear_score=8/10, bull_score=7/11",
+            "raw_state": {
+              "spy_close": 745.3624877929688,
+              "vix": 16.6299991607666,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 39.366594166165214,
+              "htf_15m_stack": "BULL",
+              "bear_score": 8,
+              "bull_score": 7,
+              "bear_blockers": [
+                8
+              ],
+              "bull_blockers": [
+                5,
+                7,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "ribbon_flip"
+              ],
+              "bull_triggers": [
+                "level_reclaim"
+              ],
+              "rejection_level": 746.25,
+              "reclaim_level": 745.0,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 95
+            }
+          },
+          {
+            "time_et": "11:10:00",
+            "tick_or_fire_id": 28616,
+            "decision": "SKIP_FILTER",
+            "reasoning": "blocked. bear_blockers=[8, 9], bull_blockers=[5, 10], bear_score=7/10, bull_score=9/11",
+            "raw_state": {
+              "spy_close": 746.0599975585938,
+              "vix": 16.469999313354492,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 52.71846639770956,
+              "htf_15m_stack": "BULL",
+              "bear_score": 7,
+              "bull_score": 9,
+              "bear_blockers": [
+                8,
+                9
+              ],
+              "bull_blockers": [
+                5,
+                10
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "ribbon_flip"
+              ],
+              "bull_triggers": [
+                "level_reclaim",
+                "confluence"
+              ],
+              "rejection_level": 746.25,
+              "reclaim_level": 745.6749877929688,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 100
+            }
+          },
+          {
+            "time_et": "11:15:00",
+            "tick_or_fire_id": 28617,
+            "decision": "SKIP_FILTER",
+            "reasoning": "blocked. bear_blockers=[8], bull_blockers=[5, 7, 10, 11], bear_score=9/10, bull_score=7/11",
+            "raw_state": {
+              "spy_close": 744.6300048828125,
+              "vix": 16.860000610351562,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 77.98017310831256,
+              "htf_15m_stack": "MIXED",
+              "bear_score": 9,
+              "bull_score": 7,
+              "bear_blockers": [
+                8
+              ],
+              "bull_blockers": [
+                5,
+                7,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "ribbon_flip"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 746.25,
+              "reclaim_level": null,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 105
+            }
+          },
+          {
+            "time_et": "11:20:00",
+            "tick_or_fire_id": 28618,
+            "decision": "SKIP_TRIGGERS",
+            "reasoning": "filter 10/11 blocked: insufficient triggers. bear_triggers=[], bull_triggers=['level_reclaim']",
+            "raw_state": {
+              "spy_close": 745.8800048828125,
+              "vix": 16.6200008392334,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 85.53947615837387,
+              "htf_15m_stack": "MIXED",
+              "bear_score": 7,
+              "bull_score": 8,
+              "bear_blockers": [
+                8,
+                9,
+                10
+              ],
+              "bull_blockers": [
+                5,
+                7,
+                11
+              ],
+              "bear_triggers": [],
+              "bull_triggers": [
+                "level_reclaim"
+              ],
+              "rejection_level": null,
+              "reclaim_level": 745.0,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 110
+            }
+          },
+          {
+            "time_et": "11:25:00",
+            "tick_or_fire_id": 28619,
+            "decision": "SKIP_FILTER",
+            "reasoning": "blocked. bear_blockers=[8], bull_blockers=[5, 10, 11], bear_score=9/10, bull_score=8/11",
+            "raw_state": {
+              "spy_close": 744.9099731445312,
+              "vix": 16.75,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 101.15392394784521,
+              "htf_15m_stack": "MIXED",
+              "bear_score": 9,
+              "bull_score": 8,
+              "bear_blockers": [
+                8
+              ],
+              "bull_blockers": [
+                5,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "confluence"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 745.75,
+              "reclaim_level": null,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 115
+            }
+          },
+          {
+            "time_et": "11:30:00",
+            "tick_or_fire_id": 28620,
+            "decision": "SKIP_FILTER",
+            "reasoning": "blocked. bear_blockers=[8, 9], bull_blockers=[5], bear_score=8/10, bull_score=10/11",
+            "raw_state": {
+              "spy_close": 746.0800170898438,
+              "vix": 16.540000915527344,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 101.46241555175948,
+              "htf_15m_stack": "MIXED",
+              "bear_score": 8,
+              "bull_score": 10,
+              "bear_blockers": [
+                8,
+                9
+              ],
+              "bull_blockers": [
+                5
+              ],
+              "bear_triggers": [
+                "level_rejection"
+              ],
+              "bull_triggers": [
+                "level_reclaim",
+                "confluence"
+              ],
+              "rejection_level": 746.25,
+              "reclaim_level": 745.4126476132325,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 120
+            }
+          },
+          {
+            "time_et": "11:35:00",
+            "tick_or_fire_id": 28621,
+            "decision": "SKIP_FILTER",
+            "reasoning": "blocked. bear_blockers=[7, 8, 9], bull_blockers=[5, 11], bear_score=7/10, bull_score=9/11",
+            "raw_state": {
+              "spy_close": 746.2349853515625,
+              "vix": 16.459999084472656,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 99.54311784091487,
+              "htf_15m_stack": "MIXED",
+              "bear_score": 7,
+              "bull_score": 9,
+              "bear_blockers": [
+                7,
+                8,
+                9
+              ],
+              "bull_blockers": [
+                5,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection"
+              ],
+              "bull_triggers": [
+                "level_reclaim"
+              ],
+              "rejection_level": 746.25,
+              "reclaim_level": 746.0,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 125
+            }
+          },
+          {
+            "time_et": "11:40:00",
+            "tick_or_fire_id": 28622,
+            "decision": "SKIP_FILTER",
+            "reasoning": "blocked. bear_blockers=[8, 9], bull_blockers=[5, 10, 11], bear_score=8/10, bull_score=8/11",
+            "raw_state": {
+              "spy_close": 745.2861938476562,
+              "vix": 16.59000015258789,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 107.06627257425225,
+              "htf_15m_stack": "MIXED",
+              "bear_score": 8,
+              "bull_score": 8,
+              "bear_blockers": [
+                8,
+                9
+              ],
+              "bull_blockers": [
+                5,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 746.25,
+              "reclaim_level": null,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 130
+            }
+          },
+          {
+            "time_et": "11:45:00",
+            "tick_or_fire_id": 28623,
+            "decision": "SKIP_FILTER",
+            "reasoning": "blocked. bear_blockers=[8, 9], bull_blockers=[5, 10, 11], bear_score=8/10, bull_score=8/11",
+            "raw_state": {
+              "spy_close": 744.8599853515625,
+              "vix": 16.709999084472656,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 116.9762633205437,
+              "htf_15m_stack": "MIXED",
+              "bear_score": 8,
+              "bull_score": 8,
+              "bear_blockers": [
+                8,
+                9
+              ],
+              "bull_blockers": [
+                5,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "confluence"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 745.6749877929688,
+              "reclaim_level": null,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 135
+            }
+          },
+          {
+            "time_et": "11:50:00",
+            "tick_or_fire_id": 28624,
+            "decision": "SKIP_TRIGGERS",
+            "reasoning": "filter 10/11 blocked: insufficient triggers. bear_triggers=[], bull_triggers=[]",
+            "raw_state": {
+              "spy_close": 744.614990234375,
+              "vix": 16.739999771118164,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 126.94170872571249,
+              "htf_15m_stack": "MIXED",
+              "bear_score": 7,
+              "bull_score": 8,
+              "bear_blockers": [
+                8,
+                9,
+                10
+              ],
+              "bull_blockers": [
+                5,
+                10,
+                11
+              ],
+              "bear_triggers": [],
+              "bull_triggers": [],
+              "rejection_level": null,
+              "reclaim_level": null,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 140
+            }
+          },
+          {
+            "time_et": "11:55:00",
+            "tick_or_fire_id": 28625,
+            "decision": "SKIP_TRIGGERS",
+            "reasoning": "filter 10/11 blocked: insufficient triggers. bear_triggers=[], bull_triggers=[]",
+            "raw_state": {
+              "spy_close": 744.64501953125,
+              "vix": 16.670000076293945,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 134.08826746549494,
+              "htf_15m_stack": "MIXED",
+              "bear_score": 6,
+              "bull_score": 8,
+              "bear_blockers": [
+                7,
+                8,
+                9,
+                10
+              ],
+              "bull_blockers": [
+                5,
+                10,
+                11
+              ],
+              "bear_triggers": [],
+              "bull_triggers": [],
+              "rejection_level": null,
+              "reclaim_level": null,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 145
+            }
+          },
+          {
+            "time_et": "12:00:00",
+            "tick_or_fire_id": 28626,
+            "decision": "SKIP_FILTER",
+            "reasoning": "blocked. bear_blockers=[7], bull_blockers=[5, 7, 10, 11], bear_score=8/10, bull_score=7/11",
+            "raw_state": {
+              "spy_close": 744.3200073242188,
+              "vix": 16.709999084472656,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 142.49845916897357,
+              "htf_15m_stack": "MIXED",
+              "bear_score": 8,
+              "bull_score": 7,
+              "bear_blockers": [
+                7
+              ],
+              "bull_blockers": [
+                5,
+                7,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "trendline_rejection"
+              ],
+              "bull_triggers": [
+                "level_reclaim"
+              ],
+              "rejection_level": null,
+              "reclaim_level": 744.0,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 150
+            }
+          },
+          {
+            "time_et": "12:05:00",
+            "tick_or_fire_id": 28627,
+            "decision": "SKIP_FILTER",
+            "reasoning": "blocked. bear_blockers=[8, 9], bull_blockers=[5, 7, 10, 11], bear_score=8/10, bull_score=7/11",
+            "raw_state": {
+              "spy_close": 743.906005859375,
+              "vix": 16.709999084472656,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 152.80657074039254,
+              "htf_15m_stack": "MIXED",
+              "bear_score": 8,
+              "bull_score": 7,
+              "bear_blockers": [
+                8,
+                9
+              ],
+              "bull_blockers": [
+                5,
+                7,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "trendline_rejection"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 744.0,
+              "reclaim_level": null,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 155
+            }
+          },
+          {
+            "time_et": "12:10:00",
+            "tick_or_fire_id": 28628,
+            "decision": "SKIP_TRIGGERS",
+            "reasoning": "filter 10/11 blocked: insufficient triggers. bear_triggers=[], bull_triggers=['level_reclaim']",
+            "raw_state": {
+              "spy_close": 744.5,
+              "vix": 16.559999465942383,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 154.32929619074685,
+              "htf_15m_stack": "MIXED",
+              "bear_score": 6,
+              "bull_score": 8,
+              "bear_blockers": [
+                7,
+                8,
+                9,
+                10
+              ],
+              "bull_blockers": [
+                5,
+                10,
+                11
+              ],
+              "bear_triggers": [],
+              "bull_triggers": [
+                "level_reclaim"
+              ],
+              "rejection_level": null,
+              "reclaim_level": 744.0,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 160
+            }
+          },
+          {
+            "time_et": "12:15:00",
+            "tick_or_fire_id": 28629,
+            "decision": "SKIP_FILTER",
+            "reasoning": "blocked. bear_blockers=[7, 8, 9], bull_blockers=[5, 7, 10, 11], bear_score=7/10, bull_score=7/11",
+            "raw_state": {
+              "spy_close": 744.0499877929688,
+              "vix": 16.530000686645508,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 159.27329825846073,
+              "htf_15m_stack": "MIXED",
+              "bear_score": 7,
+              "bull_score": 7,
+              "bear_blockers": [
+                7,
+                8,
+                9
+              ],
+              "bull_blockers": [
+                5,
+                7,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection"
+              ],
+              "bull_triggers": [
+                "level_reclaim"
+              ],
+              "rejection_level": 744.0,
+              "reclaim_level": 744.0,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 165
+            }
+          },
+          {
+            "time_et": "12:20:00",
+            "tick_or_fire_id": 28630,
+            "decision": "SKIP_FILTER",
+            "reasoning": "blocked. bear_blockers=[8], bull_blockers=[5, 7, 10, 11], bear_score=9/10, bull_score=7/11",
+            "raw_state": {
+              "spy_close": 743.4500122070312,
+              "vix": 16.709999084472656,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 168.53153889217083,
+              "htf_15m_stack": "MIXED",
+              "bear_score": 9,
+              "bull_score": 7,
+              "bear_blockers": [
+                8
+              ],
+              "bull_blockers": [
+                5,
+                7,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 744.0,
+              "reclaim_level": null,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 170
+            }
+          },
+          {
+            "time_et": "12:25:00",
+            "tick_or_fire_id": 28631,
+            "decision": "SKIP_FILTER",
+            "reasoning": "blocked. bear_blockers=[7, 8, 9], bull_blockers=[5, 10, 11], bear_score=7/10, bull_score=8/11",
+            "raw_state": {
+              "spy_close": 743.5399780273438,
+              "vix": 16.670000076293945,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 174.24256049515634,
+              "htf_15m_stack": "MIXED",
+              "bear_score": 7,
+              "bull_score": 8,
+              "bear_blockers": [
+                7,
+                8,
+                9
+              ],
+              "bull_blockers": [
+                5,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 744.0,
+              "reclaim_level": null,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 175
+            }
+          },
+          {
+            "time_et": "12:30:00",
+            "tick_or_fire_id": 28632,
+            "decision": "SKIP_FILTER",
+            "reasoning": "blocked. bear_blockers=[8], bull_blockers=[5, 7, 10, 11], bear_score=9/10, bull_score=7/11",
+            "raw_state": {
+              "spy_close": 742.8300170898438,
+              "vix": 16.719999313354492,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 185.1664271199411,
+              "htf_15m_stack": "MIXED",
+              "bear_score": 9,
+              "bull_score": 7,
+              "bear_blockers": [
+                8
+              ],
+              "bull_blockers": [
+                5,
+                7,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 743.0,
+              "reclaim_level": null,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 180
+            }
+          },
+          {
+            "time_et": "12:35:00",
+            "tick_or_fire_id": 28633,
+            "decision": "SKIP_FILTER",
+            "reasoning": "blocked. bear_blockers=[8], bull_blockers=[5, 7, 10], bear_score=9/10, bull_score=8/11",
+            "raw_state": {
+              "spy_close": 742.6699829101562,
+              "vix": 16.780000686645508,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 194.7008794897897,
+              "htf_15m_stack": "MIXED",
+              "bear_score": 9,
+              "bull_score": 8,
+              "bear_blockers": [
+                8
+              ],
+              "bull_blockers": [
+                5,
+                7,
+                10
+              ],
+              "bear_triggers": [
+                "level_rejection"
+              ],
+              "bull_triggers": [
+                "level_reclaim",
+                "confluence"
+              ],
+              "rejection_level": 743.0,
+              "reclaim_level": 742.375,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 185
+            }
+          },
+          {
+            "time_et": "12:40:00",
+            "tick_or_fire_id": 28634,
+            "decision": "SKIP_TRIGGERS",
+            "reasoning": "filter 10/11 blocked: insufficient triggers. bear_triggers=[], bull_triggers=['level_reclaim']",
+            "raw_state": {
+              "spy_close": 743.2449951171875,
+              "vix": 16.6299991607666,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 195.53694679214004,
+              "htf_15m_stack": "MIXED",
+              "bear_score": 6,
+              "bull_score": 9,
+              "bear_blockers": [
+                7,
+                8,
+                9,
+                10
+              ],
+              "bull_blockers": [
+                5,
+                11
+              ],
+              "bear_triggers": [],
+              "bull_triggers": [
+                "level_reclaim"
+              ],
+              "rejection_level": null,
+              "reclaim_level": 743.0,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 190
+            }
+          },
+          {
+            "time_et": "12:45:00",
+            "tick_or_fire_id": 28635,
+            "decision": "SKIP_FILTER",
+            "reasoning": "blocked. bear_blockers=[7, 8, 9], bull_blockers=[5, 10, 11], bear_score=7/10, bull_score=7/11",
+            "raw_state": {
+              "spy_close": 742.989990234375,
+              "vix": 16.670000076293945,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 197.68625925721608,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 7,
+              "bull_score": 7,
+              "bear_blockers": [
+                7,
+                8,
+                9
+              ],
+              "bull_blockers": [
+                5,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 743.0,
+              "reclaim_level": null,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 195
+            }
+          },
+          {
+            "time_et": "12:50:00",
+            "tick_or_fire_id": 28636,
+            "decision": "SKIP_FILTER",
+            "reasoning": "blocked. bear_blockers=[8], bull_blockers=[5, 10, 11], bear_score=9/10, bull_score=7/11",
+            "raw_state": {
+              "spy_close": 742.9000244140625,
+              "vix": 16.639999389648438,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 199.2186614955017,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 9,
+              "bull_score": 7,
+              "bear_blockers": [
+                8
+              ],
+              "bull_blockers": [
+                5,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 743.0,
+              "reclaim_level": null,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 200
+            }
+          },
+          {
+            "time_et": "12:55:00",
+            "tick_or_fire_id": 28637,
+            "decision": "HOLD_IN_POSITION",
+            "reasoning": "engine in active position (directions=['short']); no new setup either",
+            "raw_state": {
+              "spy_close": 742.1799926757812,
+              "vix": 16.799999237060547,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 206.66417517535365,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 9,
+              "bull_score": 7,
+              "bear_blockers": [
+                8
+              ],
+              "bull_blockers": [
+                5,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "confluence"
+              ],
+              "bull_triggers": [
+                "level_reclaim"
+              ],
+              "rejection_level": 742.375,
+              "reclaim_level": 742.0,
+              "in_position": true,
+              "active_directions": [
+                "short"
+              ],
+              "bar_min_from_open": 205
+            }
+          },
+          {
+            "time_et": "13:00:00",
+            "tick_or_fire_id": 28638,
+            "decision": "HOLD_IN_POSITION",
+            "reasoning": "engine in active position (directions=['short']); no new setup either",
+            "raw_state": {
+              "spy_close": 740.85498046875,
+              "vix": 17.0,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 225.10105340270457,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 9,
+              "bull_score": 7,
+              "bear_blockers": [
+                8
+              ],
+              "bull_blockers": [
+                5,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "trendline_rejection"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 741.0,
+              "reclaim_level": null,
+              "in_position": true,
+              "active_directions": [
+                "short"
+              ],
+              "bar_min_from_open": 210
+            }
+          },
+          {
+            "time_et": "13:05:00",
+            "tick_or_fire_id": 28639,
+            "decision": "HOLD_IN_POSITION",
+            "reasoning": "engine in active position (directions=['short']); no new setup either",
+            "raw_state": {
+              "spy_close": 741.52001953125,
+              "vix": 16.860000610351562,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 232.16041443639597,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 6,
+              "bull_score": 8,
+              "bear_blockers": [
+                7,
+                8,
+                9,
+                10
+              ],
+              "bull_blockers": [
+                5,
+                11
+              ],
+              "bear_triggers": [],
+              "bull_triggers": [
+                "level_reclaim"
+              ],
+              "rejection_level": null,
+              "reclaim_level": 741.0,
+              "in_position": true,
+              "active_directions": [
+                "short"
+              ],
+              "bar_min_from_open": 215
+            }
+          },
+          {
+            "time_et": "13:10:00",
+            "tick_or_fire_id": 28640,
+            "decision": "HOLD_IN_POSITION",
+            "reasoning": "engine in active position (directions=['short']); no new setup either",
+            "raw_state": {
+              "spy_close": 741.75,
+              "vix": 16.739999771118164,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 234.26387607489687,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 6,
+              "bull_score": 8,
+              "bear_blockers": [
+                7,
+                8,
+                9,
+                10
+              ],
+              "bull_blockers": [
+                5,
+                11
+              ],
+              "bear_triggers": [],
+              "bull_triggers": [],
+              "rejection_level": null,
+              "reclaim_level": null,
+              "in_position": true,
+              "active_directions": [
+                "short"
+              ],
+              "bar_min_from_open": 220
+            }
+          },
+          {
+            "time_et": "13:15:00",
+            "tick_or_fire_id": 28641,
+            "decision": "HOLD_IN_POSITION",
+            "reasoning": "engine in active position (directions=['short']); no new setup either",
+            "raw_state": {
+              "spy_close": 741.4600219726562,
+              "vix": 16.770000457763672,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 237.5862420387648,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 9,
+              "bull_score": 6,
+              "bear_blockers": [
+                8
+              ],
+              "bull_blockers": [
+                5,
+                7,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 742.0,
+              "reclaim_level": null,
+              "in_position": true,
+              "active_directions": [
+                "short"
+              ],
+              "bar_min_from_open": 225
+            }
+          },
+          {
+            "time_et": "13:20:00",
+            "tick_or_fire_id": 28642,
+            "decision": "HOLD_IN_POSITION",
+            "reasoning": "engine in active position (directions=['short']); no new setup either",
+            "raw_state": {
+              "spy_close": 741.3657836914062,
+              "vix": 16.799999237060547,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 239.89402251137335,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 8,
+              "bull_score": 6,
+              "bear_blockers": [
+                8,
+                10
+              ],
+              "bull_blockers": [
+                5,
+                7,
+                10,
+                11
+              ],
+              "bear_triggers": [],
+              "bull_triggers": [],
+              "rejection_level": null,
+              "reclaim_level": null,
+              "in_position": true,
+              "active_directions": [
+                "short"
+              ],
+              "bar_min_from_open": 230
+            }
+          },
+          {
+            "time_et": "13:25:00",
+            "tick_or_fire_id": 28643,
+            "decision": "HOLD_IN_POSITION",
+            "reasoning": "engine in active position (directions=['short']); no new setup either",
+            "raw_state": {
+              "spy_close": 741.530029296875,
+              "vix": 16.799999237060547,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 238.71660685280176,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 7,
+              "bull_score": 8,
+              "bear_blockers": [
+                8,
+                9,
+                10
+              ],
+              "bull_blockers": [
+                5,
+                11
+              ],
+              "bear_triggers": [],
+              "bull_triggers": [],
+              "rejection_level": null,
+              "reclaim_level": null,
+              "in_position": true,
+              "active_directions": [
+                "short"
+              ],
+              "bar_min_from_open": 235
+            }
+          },
+          {
+            "time_et": "13:30:00",
+            "tick_or_fire_id": 28644,
+            "decision": "HOLD_IN_POSITION",
+            "reasoning": "engine in active position (directions=['short']); no new setup either",
+            "raw_state": {
+              "spy_close": 741.4299926757812,
+              "vix": 16.780000686645508,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 237.37743409598124,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 8,
+              "bull_score": 7,
+              "bear_blockers": [
+                8,
+                9
+              ],
+              "bull_blockers": [
+                5,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 742.0,
+              "reclaim_level": null,
+              "in_position": true,
+              "active_directions": [
+                "short"
+              ],
+              "bar_min_from_open": 240
+            }
+          },
+          {
+            "time_et": "13:35:00",
+            "tick_or_fire_id": 28645,
+            "decision": "HOLD_IN_POSITION",
+            "reasoning": "engine in active position (directions=['short']); no new setup either",
+            "raw_state": {
+              "spy_close": 740.75,
+              "vix": 16.959999084472656,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 241.83099905112613,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 9,
+              "bull_score": 7,
+              "bear_blockers": [
+                8
+              ],
+              "bull_blockers": [
+                5,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "confluence"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 741.4654522692551,
+              "reclaim_level": null,
+              "in_position": true,
+              "active_directions": [
+                "short"
+              ],
+              "bar_min_from_open": 245
+            }
+          },
+          {
+            "time_et": "13:40:00",
+            "tick_or_fire_id": 28646,
+            "decision": "HOLD_IN_POSITION",
+            "reasoning": "engine in active position (directions=['short']); no new setup either",
+            "raw_state": {
+              "spy_close": 741.1199951171875,
+              "vix": 16.90999984741211,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 240.3069769202034,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 7,
+              "bull_score": 7,
+              "bear_blockers": [
+                8,
+                9,
+                10
+              ],
+              "bull_blockers": [
+                5,
+                10,
+                11
+              ],
+              "bear_triggers": [],
+              "bull_triggers": [
+                "level_reclaim"
+              ],
+              "rejection_level": null,
+              "reclaim_level": 741.0,
+              "in_position": true,
+              "active_directions": [
+                "short"
+              ],
+              "bar_min_from_open": 250
+            }
+          },
+          {
+            "time_et": "13:45:00",
+            "tick_or_fire_id": 28647,
+            "decision": "HOLD_IN_POSITION",
+            "reasoning": "engine in active position (directions=['short']); no new setup either",
+            "raw_state": {
+              "spy_close": 740.6400146484375,
+              "vix": 17.0,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 242.55054381776517,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 9,
+              "bull_score": 6,
+              "bear_blockers": [
+                8
+              ],
+              "bull_blockers": [
+                5,
+                7,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 741.0,
+              "reclaim_level": null,
+              "in_position": true,
+              "active_directions": [
+                "short"
+              ],
+              "bar_min_from_open": 255
+            }
+          },
+          {
+            "time_et": "13:50:00",
+            "tick_or_fire_id": 28648,
+            "decision": "HOLD_IN_POSITION",
+            "reasoning": "engine in active position (directions=['short']); no new setup either",
+            "raw_state": {
+              "spy_close": 740.9409790039062,
+              "vix": 16.959999084472656,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 239.9097552852254,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 8,
+              "bull_score": 6,
+              "bear_blockers": [
+                8,
+                9
+              ],
+              "bull_blockers": [
+                5,
+                7,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 741.0,
+              "reclaim_level": null,
+              "in_position": true,
+              "active_directions": [
+                "short"
+              ],
+              "bar_min_from_open": 260
+            }
+          },
+          {
+            "time_et": "13:55:00",
+            "tick_or_fire_id": 28649,
+            "decision": "HOLD_IN_POSITION",
+            "reasoning": "engine in active position (directions=['short']); no new setup either",
+            "raw_state": {
+              "spy_close": 740.239990234375,
+              "vix": 17.190000534057617,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 243.49266728701195,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 9,
+              "bull_score": 6,
+              "bear_blockers": [
+                8
+              ],
+              "bull_blockers": [
+                5,
+                7,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "confluence"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 741.0,
+              "reclaim_level": null,
+              "in_position": true,
+              "active_directions": [
+                "short"
+              ],
+              "bar_min_from_open": 265
+            }
+          },
+          {
+            "time_et": "14:00:00",
+            "tick_or_fire_id": 28650,
+            "decision": "HOLD_IN_POSITION",
+            "reasoning": "engine in active position (directions=['short']); no new setup either",
+            "raw_state": {
+              "spy_close": 740.9400024414062,
+              "vix": 17.06999969482422,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 237.87562100513924,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 7,
+              "bull_score": 7,
+              "bear_blockers": [
+                8,
+                9,
+                10
+              ],
+              "bull_blockers": [
+                5,
+                7,
+                11
+              ],
+              "bear_triggers": [],
+              "bull_triggers": [],
+              "rejection_level": null,
+              "reclaim_level": null,
+              "in_position": true,
+              "active_directions": [
+                "short"
+              ],
+              "bar_min_from_open": 270
+            }
+          },
+          {
+            "time_et": "14:05:00",
+            "tick_or_fire_id": 28651,
+            "decision": "HOLD_IN_POSITION",
+            "reasoning": "engine in active position (directions=['short']); no new setup either",
+            "raw_state": {
+              "spy_close": 742.4400024414062,
+              "vix": 16.84000015258789,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 216.56437233605175,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 6,
+              "bull_score": 9,
+              "bear_blockers": [
+                7,
+                8,
+                9,
+                10
+              ],
+              "bull_blockers": [
+                5
+              ],
+              "bear_triggers": [],
+              "bull_triggers": [
+                "level_reclaim",
+                "confluence"
+              ],
+              "rejection_level": null,
+              "reclaim_level": 741.2838208951471,
+              "in_position": true,
+              "active_directions": [
+                "short"
+              ],
+              "bar_min_from_open": 275
+            }
+          },
+          {
+            "time_et": "14:10:00",
+            "tick_or_fire_id": 28652,
+            "decision": "HOLD_IN_POSITION",
+            "reasoning": "engine in active position (directions=['short']); no new setup either",
+            "raw_state": {
+              "spy_close": 742.219970703125,
+              "vix": 16.850000381469727,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 200.02562660611147,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 8,
+              "bull_score": 7,
+              "bear_blockers": [
+                8,
+                9
+              ],
+              "bull_blockers": [
+                5,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "confluence"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 742.5105899880368,
+              "reclaim_level": null,
+              "in_position": true,
+              "active_directions": [
+                "short"
+              ],
+              "bar_min_from_open": 280
+            }
+          },
+          {
+            "time_et": "14:15:00",
+            "tick_or_fire_id": 28653,
+            "decision": "HOLD_IN_POSITION",
+            "reasoning": "engine in active position (directions=['short']); no new setup either",
+            "raw_state": {
+              "spy_close": 741.6900024414062,
+              "vix": 16.959999084472656,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 190.66968306954095,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 8,
+              "bull_score": 7,
+              "bear_blockers": [
+                8,
+                9
+              ],
+              "bull_blockers": [
+                5,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "confluence"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 742.375,
+              "reclaim_level": null,
+              "in_position": true,
+              "active_directions": [
+                "short"
+              ],
+              "bar_min_from_open": 285
+            }
+          },
+          {
+            "time_et": "14:20:00",
+            "tick_or_fire_id": 28654,
+            "decision": "HOLD_IN_POSITION",
+            "reasoning": "engine in active position (directions=['short']); no new setup either",
+            "raw_state": {
+              "spy_close": 742.155029296875,
+              "vix": 16.84000015258789,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 177.1206759628626,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 7,
+              "bull_score": 7,
+              "bear_blockers": [
+                8,
+                9,
+                10
+              ],
+              "bull_blockers": [
+                5,
+                10,
+                11
+              ],
+              "bear_triggers": [],
+              "bull_triggers": [
+                "level_reclaim"
+              ],
+              "rejection_level": null,
+              "reclaim_level": 742.0,
+              "in_position": true,
+              "active_directions": [
+                "short"
+              ],
+              "bar_min_from_open": 290
+            }
+          },
+          {
+            "time_et": "14:25:00",
+            "tick_or_fire_id": 28655,
+            "decision": "HOLD_IN_POSITION",
+            "reasoning": "engine in active position (directions=['short']); no new setup either",
+            "raw_state": {
+              "spy_close": 742.719970703125,
+              "vix": 16.739999771118164,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 159.1837771935161,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 7,
+              "bull_score": 7,
+              "bear_blockers": [
+                8,
+                9,
+                10
+              ],
+              "bull_blockers": [
+                5,
+                10,
+                11
+              ],
+              "bear_triggers": [],
+              "bull_triggers": [
+                "level_reclaim"
+              ],
+              "rejection_level": null,
+              "reclaim_level": 742.0,
+              "in_position": true,
+              "active_directions": [
+                "short"
+              ],
+              "bar_min_from_open": 295
+            }
+          },
+          {
+            "time_et": "14:30:00",
+            "tick_or_fire_id": 28656,
+            "decision": "SKIP_FILTER",
+            "reasoning": "blocked. bear_blockers=[8, 9], bull_blockers=[5, 11], bear_score=8/10, bull_score=8/11",
+            "raw_state": {
+              "spy_close": 742.9299926757812,
+              "vix": 16.6299991607666,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 141.36555587678004,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 8,
+              "bull_score": 8,
+              "bear_blockers": [
+                8,
+                9
+              ],
+              "bull_blockers": [
+                5,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 743.0,
+              "reclaim_level": null,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 300
+            }
+          },
+          {
+            "time_et": "14:35:00",
+            "tick_or_fire_id": 28657,
+            "decision": "SKIP_TRIGGERS",
+            "reasoning": "filter 10/11 blocked: insufficient triggers. bear_triggers=[], bull_triggers=['level_reclaim']",
+            "raw_state": {
+              "spy_close": 743.1599731445312,
+              "vix": 16.559999465942383,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 123.5451443208035,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 7,
+              "bull_score": 7,
+              "bear_blockers": [
+                8,
+                9,
+                10
+              ],
+              "bull_blockers": [
+                5,
+                10,
+                11
+              ],
+              "bear_triggers": [],
+              "bull_triggers": [
+                "level_reclaim"
+              ],
+              "rejection_level": null,
+              "reclaim_level": 743.0,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 305
+            }
+          },
+          {
+            "time_et": "14:40:00",
+            "tick_or_fire_id": 28658,
+            "decision": "SKIP_FILTER",
+            "reasoning": "blocked. bear_blockers=[8, 9], bull_blockers=[5, 10, 11], bear_score=8/10, bull_score=7/11",
+            "raw_state": {
+              "spy_close": 743.0399780273438,
+              "vix": 16.520000457763672,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 109.39802059698422,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 8,
+              "bull_score": 7,
+              "bear_blockers": [
+                8,
+                9
+              ],
+              "bull_blockers": [
+                5,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection"
+              ],
+              "bull_triggers": [
+                "level_reclaim"
+              ],
+              "rejection_level": 743.0,
+              "reclaim_level": 743.0,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 310
+            }
+          },
+          {
+            "time_et": "14:45:00",
+            "tick_or_fire_id": 28659,
+            "decision": "SKIP_RIBBON",
+            "reasoning": "filter 5 blocked: ribbon not stacked. bear_blockers=[5, 7, 8, 9, 10], bull_blockers=[5]",
+            "raw_state": {
+              "spy_close": 743.2374877929688,
+              "vix": 16.520000457763672,
+              "ribbon_stack": "MIXED",
+              "ribbon_spread_cents": 99.29375492116606,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 5,
+              "bull_score": 9,
+              "bear_blockers": [
+                5,
+                7,
+                8,
+                9,
+                10
+              ],
+              "bull_blockers": [
+                5
+              ],
+              "bear_triggers": [],
+              "bull_triggers": [
+                "level_reclaim",
+                "confluence"
+              ],
+              "rejection_level": null,
+              "reclaim_level": 742.5324922526044,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 315
+            }
+          },
+          {
+            "time_et": "14:50:00",
+            "tick_or_fire_id": 28660,
+            "decision": "SKIP_RIBBON",
+            "reasoning": "filter 5 blocked: ribbon not stacked. bear_blockers=[5, 7, 8], bull_blockers=[5, 7, 10, 11]",
+            "raw_state": {
+              "spy_close": 742.8599853515625,
+              "vix": 16.559999465942383,
+              "ribbon_stack": "MIXED",
+              "ribbon_spread_cents": 92.57909809047078,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 7,
+              "bull_score": 6,
+              "bear_blockers": [
+                5,
+                7,
+                8
+              ],
+              "bull_blockers": [
+                5,
+                7,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 743.0,
+              "reclaim_level": null,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 320
+            }
+          },
+          {
+            "time_et": "14:55:00",
+            "tick_or_fire_id": 28661,
+            "decision": "SKIP_RIBBON",
+            "reasoning": "filter 5 blocked: ribbon not stacked. bear_blockers=[5, 8, 9], bull_blockers=[5, 7, 10, 11]",
+            "raw_state": {
+              "spy_close": 742.989501953125,
+              "vix": 16.600000381469727,
+              "ribbon_stack": "MIXED",
+              "ribbon_spread_cents": 85.68716620424084,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 7,
+              "bull_score": 6,
+              "bear_blockers": [
+                5,
+                8,
+                9
+              ],
+              "bull_blockers": [
+                5,
+                7,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 743.0,
+              "reclaim_level": null,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 325
+            }
+          },
+          {
+            "time_et": "15:00:00",
+            "tick_or_fire_id": 28662,
+            "decision": "SKIP_RIBBON",
+            "reasoning": "filter 5 blocked: ribbon not stacked. bear_blockers=[5, 8], bull_blockers=[5, 7, 10, 11]",
+            "raw_state": {
+              "spy_close": 741.648193359375,
+              "vix": 16.809999465942383,
+              "ribbon_stack": "MIXED",
+              "ribbon_spread_cents": 86.67267085514823,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 8,
+              "bull_score": 6,
+              "bear_blockers": [
+                5,
+                8
+              ],
+              "bull_blockers": [
+                5,
+                7,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "confluence"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 742.5460903804664,
+              "reclaim_level": null,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 330
+            }
+          },
+          {
+            "time_et": "15:05:00",
+            "tick_or_fire_id": 28663,
+            "decision": "SKIP_FILTER",
+            "reasoning": "blocked. bear_blockers=[7, 8, 9], bull_blockers=[5, 7], bear_score=7/10, bull_score=8/11",
+            "raw_state": {
+              "spy_close": 741.8599853515625,
+              "vix": 16.799999237060547,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 86.2166243962065,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 7,
+              "bull_score": 8,
+              "bear_blockers": [
+                7,
+                8,
+                9
+              ],
+              "bull_blockers": [
+                5,
+                7
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "ribbon_flip",
+                "confluence"
+              ],
+              "bull_triggers": [
+                "level_reclaim",
+                "confluence"
+              ],
+              "rejection_level": 742.0,
+              "reclaim_level": 741.7545833009568,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 335
+            }
+          },
+          {
+            "time_et": "15:10:00",
+            "tick_or_fire_id": 28664,
+            "decision": "SKIP_FILTER",
+            "reasoning": "blocked. bear_blockers=[7, 8, 9], bull_blockers=[5], bear_score=7/10, bull_score=9/11",
+            "raw_state": {
+              "spy_close": 742.0399780273438,
+              "vix": 16.780000686645508,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 85.76811516949192,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 7,
+              "bull_score": 9,
+              "bear_blockers": [
+                7,
+                8,
+                9
+              ],
+              "bull_blockers": [
+                5
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "ribbon_flip",
+                "confluence"
+              ],
+              "bull_triggers": [
+                "level_reclaim",
+                "confluence"
+              ],
+              "rejection_level": 742.129687689734,
+              "reclaim_level": 741.7591835315368,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 340
+            }
+          },
+          {
+            "time_et": "15:15:00",
+            "tick_or_fire_id": 28665,
+            "decision": "SKIP_FILTER",
+            "reasoning": "blocked. bear_blockers=[8], bull_blockers=[5, 7, 10], bear_score=9/10, bull_score=7/11",
+            "raw_state": {
+              "spy_close": 741.7999877929688,
+              "vix": 16.780000686645508,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 87.34814428914888,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 9,
+              "bull_score": 7,
+              "bear_blockers": [
+                8
+              ],
+              "bull_blockers": [
+                5,
+                7,
+                10
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "ribbon_flip",
+                "confluence"
+              ],
+              "bull_triggers": [
+                "level_reclaim",
+                "confluence"
+              ],
+              "rejection_level": 742.114638041963,
+              "reclaim_level": 741.7608759995953,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 345
+            }
+          },
+          {
+            "time_et": "15:20:00",
+            "tick_or_fire_id": 28666,
+            "decision": "SKIP_FILTER",
+            "reasoning": "blocked. bear_blockers=[8], bull_blockers=[5, 7, 10, 11], bear_score=9/10, bull_score=6/11",
+            "raw_state": {
+              "spy_close": 741.5999755859375,
+              "vix": 16.850000381469727,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 90.17879923891314,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 9,
+              "bull_score": 6,
+              "bear_blockers": [
+                8
+              ],
+              "bull_blockers": [
+                5,
+                7,
+                10,
+                11
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "confluence"
+              ],
+              "bull_triggers": [],
+              "rejection_level": 741.7551762547097,
+              "reclaim_level": null,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 350
+            }
+          },
+          {
+            "time_et": "15:25:00",
+            "tick_or_fire_id": 28667,
+            "decision": "SKIP_FILTER",
+            "reasoning": "blocked. bear_blockers=[7, 8, 9], bull_blockers=[5], bear_score=7/10, bull_score=9/11",
+            "raw_state": {
+              "spy_close": 742.3099975585938,
+              "vix": 16.729999542236328,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 84.73509717787238,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 7,
+              "bull_score": 9,
+              "bear_blockers": [
+                7,
+                8,
+                9
+              ],
+              "bull_blockers": [
+                5
+              ],
+              "bear_triggers": [
+                "level_rejection",
+                "confluence"
+              ],
+              "bull_triggers": [
+                "level_reclaim",
+                "confluence"
+              ],
+              "rejection_level": 742.4591689664037,
+              "reclaim_level": 741.7747716021562,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 355
+            }
+          },
+          {
+            "time_et": "15:30:00",
+            "tick_or_fire_id": 28668,
+            "decision": "SKIP_FILTER",
+            "reasoning": "blocked. bear_blockers=[8, 9, 10], bull_blockers=[5], bear_score=7/10, bull_score=9/11",
+            "raw_state": {
+              "spy_close": 742.8400268554688,
+              "vix": 16.65999984741211,
+              "ribbon_stack": "BEAR",
+              "ribbon_spread_cents": 74.35697264542114,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 7,
+              "bull_score": 9,
+              "bear_blockers": [
+                8,
+                9,
+                10
+              ],
+              "bull_blockers": [
+                5
+              ],
+              "bear_triggers": [],
+              "bull_triggers": [
+                "level_reclaim",
+                "confluence"
+              ],
+              "rejection_level": null,
+              "reclaim_level": 742.1910562532602,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 360
+            }
+          },
+          {
+            "time_et": "15:35:00",
+            "tick_or_fire_id": 28669,
+            "decision": "SKIP_RIBBON",
+            "reasoning": "filter 5 blocked: ribbon not stacked. bear_blockers=[5, 8, 9, 10], bull_blockers=[5, 11]",
+            "raw_state": {
+              "spy_close": 743.1099853515625,
+              "vix": 16.59000015258789,
+              "ribbon_stack": "MIXED",
+              "ribbon_spread_cents": 65.51872949188464,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 6,
+              "bull_score": 8,
+              "bear_blockers": [
+                5,
+                8,
+                9,
+                10
+              ],
+              "bull_blockers": [
+                5,
+                11
+              ],
+              "bear_triggers": [],
+              "bull_triggers": [
+                "level_reclaim"
+              ],
+              "rejection_level": null,
+              "reclaim_level": 743.0,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 365
+            }
+          },
+          {
+            "time_et": "15:40:00",
+            "tick_or_fire_id": 28670,
+            "decision": "SKIP_RIBBON",
+            "reasoning": "filter 5 blocked: ribbon not stacked. bear_blockers=[5, 8, 9, 10], bull_blockers=[5, 11]",
+            "raw_state": {
+              "spy_close": 743.25,
+              "vix": 16.459999084472656,
+              "ribbon_stack": "MIXED",
+              "ribbon_spread_cents": 57.955027647608404,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 6,
+              "bull_score": 8,
+              "bear_blockers": [
+                5,
+                8,
+                9,
+                10
+              ],
+              "bull_blockers": [
+                5,
+                11
+              ],
+              "bear_triggers": [],
+              "bull_triggers": [
+                "level_reclaim"
+              ],
+              "rejection_level": null,
+              "reclaim_level": 743.0,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 370
+            }
+          },
+          {
+            "time_et": "15:45:00",
+            "tick_or_fire_id": 28671,
+            "decision": "SKIP_RIBBON",
+            "reasoning": "filter 5 blocked: ribbon not stacked. bear_blockers=[5, 8, 9, 10], bull_blockers=[5, 11]",
+            "raw_state": {
+              "spy_close": 743.27001953125,
+              "vix": 16.469999313354492,
+              "ribbon_stack": "MIXED",
+              "ribbon_spread_cents": 51.056762115513266,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 6,
+              "bull_score": 8,
+              "bear_blockers": [
+                5,
+                8,
+                9,
+                10
+              ],
+              "bull_blockers": [
+                5,
+                11
+              ],
+              "bear_triggers": [],
+              "bull_triggers": [],
+              "rejection_level": null,
+              "reclaim_level": null,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 375
+            }
+          },
+          {
+            "time_et": "15:50:00",
+            "tick_or_fire_id": 28672,
+            "decision": "SKIP_RIBBON",
+            "reasoning": "filter 5 blocked: ribbon not stacked. bear_blockers=[5, 8, 9, 10], bull_blockers=[5, 11]",
+            "raw_state": {
+              "spy_close": 744.5,
+              "vix": 16.469999313354492,
+              "ribbon_stack": "MIXED",
+              "ribbon_spread_cents": 38.17797805951386,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 6,
+              "bull_score": 8,
+              "bear_blockers": [
+                5,
+                8,
+                9,
+                10
+              ],
+              "bull_blockers": [
+                5,
+                11
+              ],
+              "bear_triggers": [],
+              "bull_triggers": [
+                "level_reclaim"
+              ],
+              "rejection_level": null,
+              "reclaim_level": 744.0,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 380
+            }
+          },
+          {
+            "time_et": "15:55:00",
+            "tick_or_fire_id": 28673,
+            "decision": "SKIP_RIBBON",
+            "reasoning": "filter 5 blocked: ribbon not stacked. bear_blockers=[5, 6, 8, 9, 10], bull_blockers=[5, 6, 11]",
+            "raw_state": {
+              "spy_close": 745.2977294921875,
+              "vix": 16.469999313354492,
+              "ribbon_stack": "MIXED",
+              "ribbon_spread_cents": 27.604736516764206,
+              "htf_15m_stack": "BEAR",
+              "bear_score": 5,
+              "bull_score": 7,
+              "bear_blockers": [
+                5,
+                6,
+                8,
+                9,
+                10
+              ],
+              "bull_blockers": [
+                5,
+                6,
+                11
+              ],
+              "bear_triggers": [],
+              "bull_triggers": [
+                "level_reclaim"
+              ],
+              "rejection_level": null,
+              "reclaim_level": 745.0,
+              "in_position": false,
+              "active_directions": [],
+              "bar_min_from_open": 385
+            }
+          }
+        ],
+        "summary": {
+          "total_bars": 78,
+          "n_enter_decisions": 1,
+          "n_skip_decisions": 50,
+          "n_hold_decisions": 27,
+          "n_in_position_decisions": 0,
+          "engine_entry_bars": [
+            60
+          ],
+          "actual_entry_bars": [
+            0,
+            25,
+            27,
+            41,
+            51,
+            52,
+            55,
+            201
+          ]
+        },
+        "trade_windows": [
+          {
+            "trade_id": "trade_csv_1",
+            "direction": "short",
+            "setup_name": "UNKNOWN",
+            "entry_min": 0,
+            "exit_min": 1
+          },
+          {
+            "trade_id": "trade_csv_2",
+            "direction": "long",
+            "setup_name": "UNKNOWN",
+            "entry_min": 25,
+            "exit_min": 27
+          },
+          {
+            "trade_id": "trade_csv_3",
+            "direction": "long",
+            "setup_name": "UNKNOWN",
+            "entry_min": 27,
+            "exit_min": 41
+          },
+          {
+            "trade_id": "trade_csv_4",
+            "direction": "long",
+            "setup_name": "UNKNOWN",
+            "entry_min": 41,
+            "exit_min": 51
+          },
+          {
+            "trade_id": "trade_csv_5",
+            "direction": "long",
+            "setup_name": "UNKNOWN",
+            "entry_min": 51,
+            "exit_min": 52
+          },
+          {
+            "trade_id": "trade_csv_6",
+            "direction": "long",
+            "setup_name": "UNKNOWN",
+            "entry_min": 52,
+            "exit_min": 55
+          },
+          {
+            "trade_id": "trade_csv_7",
+            "direction": "long",
+            "setup_name": "UNKNOWN",
+            "entry_min": 55,
+            "exit_min": 57
+          },
+          {
+            "trade_id": "trade_csv_8",
+            "direction": "short",
+            "setup_name": "UNKNOWN",
+            "entry_min": 201,
+            "exit_min": 299
+          }
+        ],
+        "method": "Replays lib.filters.evaluate_bearish_setup + evaluate_bullish_setup (same engine as live heartbeat) over today's RTH bars. Each bar produces one EngineDecision with full filter scores + blockers + triggers.",
+        "thresholds": {
+          "no_trade_before": "09:35:00",
+          "no_trade_after": "15:00:00",
+          "no_trade_window": null,
+          "min_triggers_bear": 1,
+          "min_triggers_bull": 2,
+          "f9_vol_mult": 0.7
+        }
+      },
+      "narrative": "Phase 3 orchestrator-replay: 78 bars evaluated. Engine ENTERs: 1 | Actual trades: 8 | SKIPs: 50 | HOLDs: 27 | Verdict: TOO_PASSIVE. engine missed 7/8 actual entry(s); no spurious ENTERs. Engine never identified the setup at the right bar.. Score 40/100.",
+      "actions": [
+        {
+          "type": "queue_for_grinder",
+          "priority": "HIGH",
+          "details": {
+            "setup_name": "DETECTION_PHASE3_TOO_PASSIVE",
+            "rationale": "Engine replay missed 8 actual entry(s). Setups: ['UNKNOWN', 'UNKNOWN', 'UNKNOWN', 'UNKNOWN', 'UNKNOWN', 'UNKNOWN', 'UNKNOWN', 'UNKNOWN']. Filter combo prevented engine from identifying the trigger bar that actually fired the trade.",
+            "actual_entries": [
+              0,
+              25,
+              27,
+              41,
+              51,
+              52,
+              55,
+              201
+            ],
+            "engine_entries": [
+              60
+            ]
+          }
+        }
+      ]
+    },
+    "edge": {
+      "score": 0.0,
+      "evidence": {
+        "edge_capture_pct": 0.0,
+        "total_actual_pnl": -329.0,
+        "total_perfect_hindsight_pnl": -329.01,
+        "total_v14_counterfactual_pnl": 2642.13,
+        "total_stepped_pl_pnl": -329.0,
+        "counterfactuals_by_trade": [
+          {
+            "trade_id": "trade_csv_1",
+            "perfect_hindsight": -66.0,
+            "v14_doctrine": 329.2,
+            "stepped_pl": -66.0,
+            "actual": -66.0
+          },
+          {
+            "trade_id": "trade_csv_2",
+            "perfect_hindsight": -30.0,
+            "v14_doctrine": 314.8,
+            "stepped_pl": -30.0,
+            "actual": -30.0
+          },
+          {
+            "trade_id": "trade_csv_3",
+            "perfect_hindsight": -74.01,
+            "v14_doctrine": 313.73,
+            "stepped_pl": -74.0,
+            "actual": -74.0
+          },
+          {
+            "trade_id": "trade_csv_4",
+            "perfect_hindsight": -27.0,
+            "v14_doctrine": 320.4,
+            "stepped_pl": -27.0,
+            "actual": -27.0
+          },
+          {
+            "trade_id": "trade_csv_5",
+            "perfect_hindsight": -21.0,
+            "v14_doctrine": 342.4,
+            "stepped_pl": -21.0,
+            "actual": -21.0
+          },
+          {
+            "trade_id": "trade_csv_6",
+            "perfect_hindsight": -21.0,
+            "v14_doctrine": 346.4,
+            "stepped_pl": -21.0,
+            "actual": -21.0
+          },
+          {
+            "trade_id": "trade_csv_7",
+            "perfect_hindsight": -21.0,
+            "v14_doctrine": 349.6,
+            "stepped_pl": -21.0,
+            "actual": -21.0
+          },
+          {
+            "trade_id": "trade_csv_8",
+            "perfect_hindsight": -69.0,
+            "v14_doctrine": 325.6,
+            "stepped_pl": -69.0,
+            "actual": -69.0
+          }
+        ]
+      },
+      "narrative": "Captured $-329 of $-329 perfect-hindsight = 0.0% edge capture.  v14 doctrine would have delivered $2,642 \u2014 v14 would have won by $2,971.  T75 stepped-PL gives identical outcome on TODAY (+$0 delta) \u2014 differentiation visible on chop/retrace days.",
+      "actions": []
+    },
+    "doctrine": {
+      "score": 100.0,
+      "evidence": {
+        "rule_breaks_count": 0,
+        "trade_count": 8
+      },
+      "narrative": "100% doctrine compliance. 8 trades, 0 rule breaks logged.",
+      "actions": []
+    },
+    "risk": {
+      "score": 85.0,
+      "evidence": {
+        "phase": "2.4",
+        "max_size_pct_of_equity": 0,
+        "day_pnl_pct": -10.79,
+        "largest_loss_pct": -17.32,
+        "largest_loss_dollars": -66.0,
+        "qty_max": 3,
+        "v15_hard_gate_pct": 20.0,
+        "weights": {
+          "size": 30,
+          "budget": 10,
+          "loss": 25,
+          "qty": 20
+        }
+      },
+      "narrative": "Max position 0.00% of equity (v15 gate: 20%). Day P&L -10.8% / max-trade-loss -17.3% / max-qty 3. Score: 85/100 (size=30/30, budget=10/25, loss=25/25, qty=20/20).",
+      "actions": []
+    },
+    "process": {
+      "score": 35.0,
+      "evidence": {
+        "phase": "2.7",
+        "section_count": 2,
+        "trades_csv_rows": 8,
+        "trades_actual": 8,
+        "decisions_count": 0,
+        "decisions_per_trade": 0.0,
+        "grades_count": 0,
+        "premarket_predictions": 3,
+        "grade_coverage_pct": 0.0,
+        "weights": {
+          "journal": 10,
+          "trades_csv": 25,
+          "decisions": 0,
+          "grades": 0
+        },
+        "gaps": [
+          "journal sections 2/6",
+          "decisions/trade 0.0 (target \u22658)",
+          "hypothesis grade coverage 0% (0/3 predictions)"
+        ]
+      },
+      "narrative": "Process score 35/100. Journal: 2/6 sections, 10443B. Trades.csv: 8 rows for 8 trades. Decisions: 0 (0.0/trade, target \u22658). Hypothesis coverage: 0/3 predictions (0%). Gaps: journal sections 2/6 / decisions/trade 0.0 (target \u22658) / hypothesis grade coverage 0% (0/3 predictions)",
+      "actions": []
+    },
+    "macro": {
+      "score": 30.0,
+      "evidence": {
+        "phase": "2.4",
+        "predicted_regime": "low_vix_bull_drift_pre_fomc",
+        "primary_catalyst_type": "macro_calendar",
+        "realized_regime": "tight_chop",
+        "session_high": 747.13,
+        "session_low": 747.13,
+        "session_close": 747.13,
+        "news_freshness": "stale_one_day_or_more",
+        "news_as_of": "2026-06-15T23:00:00-04:00"
+      },
+      "narrative": "Predicted regime: low_vix_bull_drift_pre_fomc (catalyst: macro_calendar). Realized: tight_chop. News freshness: stale_one_day_or_more. Score 30/100.",
+      "actions": [
+        {
+          "type": "alert_stale_news",
+          "priority": "MED",
+          "details": {
+            "as_of": "2026-06-15T23:00:00-04:00",
+            "today": "2026-07-02",
+            "note": "Premarket should re-fetch news.json on next fire."
+          }
+        }
+      ]
+    },
+    "technical": {
+      "score": 57.0,
+      "evidence": {
+        "phase": "2.4",
+        "hypothesis_grades": {
+          "pass": 0,
+          "fail": 0,
+          "total": 0
+        },
+        "levels_held": [
+          {
+            "price": 749.54,
+            "kind": "resistance"
+          },
+          {
+            "price": 750.0,
+            "kind": "resistance"
+          },
+          {
+            "price": 751.23,
+            "kind": "resistance"
+          },
+          {
+            "price": 752.09,
+            "kind": "resistance"
+          },
+          {
+            "price": 746.89,
+            "kind": "support"
+          },
+          {
+            "price": 741.61,
+            "kind": "support"
+          },
+          {
+            "price": 741.47,
+            "kind": "support"
+          },
+          {
+            "price": 740.04,
+            "kind": "support"
+          },
+          {
+            "price": 734.52,
+            "kind": "support"
+          }
+        ],
+        "levels_broken": [
+          {
+            "price": 743.46,
+            "kind": "resistance"
+          }
+        ],
+        "ribbon_close_stack": null,
+        "bias_direction_predicted": "no-trade",
+        "weights": {
+          "grades": 15,
+          "levels": 27,
+          "ribbon": 15
+        }
+      },
+      "narrative": "Hypothesis grades: 0/0 PASS. Key levels: 9 held / 1 broken. Ribbon close: None (bias was: no-trade). Score 57/100 (grades=15/40, levels=27/30, ribbon=15/30).",
+      "actions": []
+    },
+    "engine_health": {
+      "score": 75.0,
+      "evidence": {
+        "phase": "2.4",
+        "rule_version_active": "v15.3",
+        "heartbeat_tick_count": 0,
+        "expected_heartbeat_ticks": 127,
+        "watcher_diag_fires": 153,
+        "expected_watcher_fires": 76,
+        "incidents": [],
+        "weights": {
+          "pin": 30,
+          "heartbeat": 0,
+          "diag": 25,
+          "silent_failure": 20
+        }
+      },
+      "narrative": "Pin chain: v15.3. Heartbeat ticks: 0/127 (0%). Watcher diag fires: 153/76 (201%). No silent-failure incidents detected.",
+      "actions": []
+    },
+    "watcher_fleet": {
+      "score": 72.0,
+      "evidence": {
+        "phase": "2.4",
+        "diag_fires_total": 153,
+        "expected_diag_fires": 76,
+        "fires_with_signals": 57,
+        "observations_by_watcher": {
+          "named_level_second_test_watcher": 23,
+          "erl_irl_watcher": 7,
+          "vwap_continuation_watcher": 7,
+          "vwap_trend_pullback": 2,
+          "named_level_wick_bounce_watcher": 1,
+          "bullish_watcher": 1,
+          "market_structure": 8,
+          "rsi_divergence_watcher": 5,
+          "shotgun_scalper_watcher": 25,
+          "tbr_high_vol_watcher": 3
+        },
+        "unique_watchers_firing_today": 10,
+        "expected_watchers": [
+          "orb_watcher",
+          "bullish_watcher",
+          "v14_enhanced_watcher",
+          "opening_drive_fade_watcher",
+          "vwap_watcher",
+          "premarket_fail_fade_watcher"
+        ],
+        "silent_watchers_today": [
+          "orb_watcher",
+          "v14_enhanced_watcher",
+          "opening_drive_fade_watcher",
+          "vwap_watcher",
+          "premarket_fail_fade_watcher"
+        ],
+        "weights": {
+          "diag": 30,
+          "signal": 22,
+          "unique": 20,
+          "silent": 0
+        }
+      },
+      "narrative": "Diag fires: 153/76 (201% of expected). Fires with signals: 57 (37%). Watchers active: 10/6. Silent watchers: ['orb_watcher', 'v14_enhanced_watcher', 'opening_drive_fade_watcher', 'vwap_watcher', 'premarket_fail_fade_watcher']. Score 72/100.",
+      "actions": [
+        {
+          "type": "alert_silent_watchers",
+          "priority": "HIGH",
+          "details": {
+            "silent_watchers": [
+              "orb_watcher",
+              "v14_enhanced_watcher",
+              "opening_drive_fade_watcher",
+              "vwap_watcher",
+              "premarket_fail_fade_watcher"
+            ],
+            "expected": [
+              "orb_watcher",
+              "bullish_watcher",
+              "v14_enhanced_watcher",
+              "opening_drive_fade_watcher",
+              "vwap_watcher",
+              "premarket_fail_fade_watcher"
+            ],
+            "by_watcher_today": {
+              "named_level_second_test_watcher": 23,
+              "erl_irl_watcher": 7,
+              "vwap_continuation_watcher": 7,
+              "vwap_trend_pullback": 2,
+              "named_level_wick_bounce_watcher": 1,
+              "bullish_watcher": 1,
+              "market_structure": 8,
+              "rsi_divergence_watcher": 5,
+              "shotgun_scalper_watcher": 25,
+              "tbr_high_vol_watcher": 3
+            },
+            "note": "Run setup/scripts/audit-silent-watcher-days.ps1 for cross-day pattern"
+          }
+        }
+      ]
+    },
+    "lessons": {
+      "score": 100.0,
+      "evidence": {
+        "phase": "2.4",
+        "candidate_count": 0,
+        "lesson_candidates": [],
+        "next_l_number": 53,
+        "existing_lesson_count": 51
+      },
+      "narrative": "Lesson candidates detected: 0 (rule_breaks=0, ingest_warnings=0, journal_markers=0). All candidates queued \u2014 NEVER auto-written to LESSONS-LEARNED.md. Score 100/100.",
+      "actions": []
+    },
+    "forensics": {
+      "score": 50.0,
+      "evidence": {
+        "phase": "2.3",
+        "winners_count": 0,
+        "forensics_per_trade": [],
+        "tolerances": {
+          "time_of_day_min": 15,
+          "vol_mult_rel": 0.3,
+          "ribbon_spread_rel": 0.4
+        },
+        "knobs_used": {
+          "qty": 10,
+          "premium_stop_pct_bear": -0.2,
+          "strike_offset_bear": -2,
+          "v15_profit_lock_mode": "fixed",
+          "v15_profit_lock_threshold": 0.05,
+          "v15_profit_lock_offset": 0.1,
+          "v15_profit_lock_trail_pct": 0.125
+        }
+      },
+      "narrative": "Winners analyzed: 0, losers: 8\n\n[Phase 2.3 disclosures]:",
+      "actions": []
+    },
+    "tomorrow": {
+      "score": 65.0,
+      "evidence": {
+        "phase": "2.4",
+        "next_trading_day": "2026-07-03",
+        "carry_levels": {
+          "today_session_high": 747.13,
+          "today_session_low": 747.13,
+          "today_session_close": 747.13,
+          "csv_computed": {
+            "today_rth_high": 751.31,
+            "today_rth_low": 740.03,
+            "today_rth_close": 745.3,
+            "today_rth_open": 747.4,
+            "today_session_range": 11.28,
+            "today_volume_total": 42061314
+          },
+          "key_levels_from_today_bias": {
+            "resistance": [
+              743.46,
+              749.54,
+              750.0,
+              751.23,
+              752.09
+            ],
+            "support": [
+              746.89,
+              741.61,
+              741.47,
+              740.04,
+              734.52
+            ],
+            "ema_fast": 743.33,
+            "ema_pivot": 743.05,
+            "ema_slow": 743.21,
+            "sma_50": null,
+            "ema_read_failed": false,
+            "ribbon_source": "refresh_levels_intraday_16:28ET"
+          },
+          "5d_high": 751.31,
+          "5d_low": 726.86,
+          "5d_dates": [
+            "2026-06-26",
+            "2026-06-29",
+            "2026-06-30",
+            "2026-07-01",
+            "2026-07-02"
+          ]
+        },
+        "scheduled_events_tomorrow": [],
+        "developing_setup_at_close": null
+      },
+      "narrative": "Next trading day: 2026-07-03. Session H/L/C: 747.13 / 747.13 / 747.13. Macro events tomorrow: 0.",
+      "actions": []
+    }
+  },
+  "process_score": 61.8,
+  "edge_capture_pct": 0.0,
+  "research_handoffs": {
+    "fixes_shipped_today": [],
+    "doctrine_candidates_for_grinder": [
+      {
+        "category": "detection",
+        "type": "queue_for_grinder",
+        "priority": "HIGH",
+        "details": {
+          "setup_name": "DETECTION_PHASE3_TOO_PASSIVE",
+          "rationale": "Engine replay missed 8 actual entry(s). Setups: ['UNKNOWN', 'UNKNOWN', 'UNKNOWN', 'UNKNOWN', 'UNKNOWN', 'UNKNOWN', 'UNKNOWN', 'UNKNOWN']. Filter combo prevented engine from identifying the trigger bar that actually fired the trade.",
+          "actual_entries": [
+            0,
+            25,
+            27,
+            41,
+            51,
+            52,
+            55,
+            201
+          ],
+          "engine_entries": [
+            60
+          ]
+        }
+      }
+    ],
+    "ingest_warnings": [],
+    "drift_check": {
+      "actual_pnl": -329.0,
+      "verdict": "DRIFT_HIGH_LEFT",
+      "narrative": "Today's $-329 is BELOW P10 of recent distribution \u2014 significant negative outlier. Distribution: n=30, P10/P25/P50/P75/P90 = $1057.64/1163.24/1755.01/2196.74/2926.78. Today percentile estimate: P1.",
+      "n_days_in_distribution": 30,
+      "percentiles": {
+        "p10": 1057.64,
+        "p25": 1163.24,
+        "p50": 1755.01,
+        "p75": 2196.74,
+        "p90": 2926.78
+      },
+      "today_percentile_estimate": 1,
+      "cache_age_days": null
+    },
+    "heartbeat_tick_audit": {
+      "headline": "0 of 0 live-trading ticks (0%) were MISALIGNED-CRITICAL on 2026-07-02",
+      "counts": {
+        "ALIGNED": 0,
+        "MISALIGNED-BENIGN": 0,
+        "MISALIGNED-CRITICAL": 0,
+        "STALE_PAUSED": 0,
+        "NO_DATA": 0,
+        "NO_BAR": 0
+      },
+      "live_trading_ticks": 0,
+      "misaligned_critical_count": 0,
+      "misaligned_critical_pct_of_live": 0.0,
+      "audit_files": {
+        "per_tick_csv": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\heartbeat-tick-audit-2026-07-02.csv",
+        "summary_json": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\heartbeat-tick-audit-2026-07-02.json",
+        "human_md": "C:\\Users\\jackw\\Desktop\\42\\markdown\\audits\\HEARTBEAT-TICK-AUDIT-2026-07-02.md"
+      },
+      "first_3_critical_ticks": []
+    },
+    "knob_round_trip_per_trade": [],
+    "self_heal_skills": {
+      "pin_chain_verify": {
+        "verdict": "YELLOW",
+        "reason": "aggressive-variant-intentionally-divergent-1-warning(s)",
+        "canonical": "v15.3",
+        "mismatches": 1
+      },
+      "chart_data_verify": {
+        "verdict": "YELLOW",
+        "reason": "close-bar-only-divergence-$0.4577-EOD-source-difference",
+        "bars_checked": 0,
+        "max_divergence": null
+      },
+      "watcher_state_inspector": {
+        "verdict": "YELLOW",
+        "reason": "odf_state empty (may be correct if no drive-then-fade pattern)",
+        "orb_phase": null,
+        "obs_today": 82
+      },
+      "heartbeat_mcp_self_test_error": "JSONDecodeError: Unexpected UTF-8 BOM (decode using utf-8-sig): line 1 column 1 (char 0)"
+    },
+    "vision_observer_grader": {
+      "verdict": "NO_DATA",
+      "total_paired_ticks": 0,
+      "aligned": 0,
+      "diverged": 0,
+      "vision_only": 0,
+      "heartbeat_only": 0,
+      "vision_accuracy_pct": null,
+      "heartbeat_accuracy_pct": null,
+      "diverged_vision_accuracy_pct": null,
+      "diverged_heartbeat_accuracy_pct": null,
+      "vision_minus_heartbeat_diverged_pp": null,
+      "ingest_warnings": []
+    },
+    "pattern_backtest": {
+      "bars_count": 156,
+      "total_hits": 18,
+      "detectors_run": [
+        "double_bottom",
+        "double_top",
+        "failed_breakdown_wick",
+        "rejection_at_level_bearish",
+        "momentum_acceleration",
+        "inside_bar_consolidation",
+        "head_and_shoulders_top",
+        "double_bottom_contra",
+        "double_top_contra",
+        "failed_breakdown_wick_contra",
+        "rejection_at_level_bearish_contra",
+        "momentum_acceleration_contra",
+        "head_and_shoulders_top_contra",
+        "fbw_at_RefS_731.22",
+        "fbw_at_ActS_734.52",
+        "fbw_at_ActS_740.04",
+        "fbw_at_ActS_741.47",
+        "fbw_at_ActS_741.61",
+        "ral_at_ActR_743.46",
+        "fbw_at_ActS_746.89",
+        "ral_at_ActR_749.54",
+        "ral_at_RefR_750.00",
+        "ral_at_ActR_751.23",
+        "ral_at_RefR_752.09"
+      ],
+      "summary_by_detector": {
+        "double_bottom": {
+          "hits": 1,
+          "wins": 0,
+          "losses": 1,
+          "neutral": 0,
+          "aligned": 0,
+          "diverged": 0,
+          "heartbeat_miss": 0,
+          "pattern_only": 1,
+          "win_rate_pct": 0.0
+        },
+        "double_top": {
+          "hits": 0,
+          "wins": 0,
+          "losses": 0,
+          "neutral": 0,
+          "aligned": 0,
+          "diverged": 0,
+          "heartbeat_miss": 0,
+          "pattern_only": 0,
+          "win_rate_pct": null
+        },
+        "failed_breakdown_wick": {
+          "hits": 2,
+          "wins": 1,
+          "losses": 1,
+          "neutral": 0,
+          "aligned": 0,
+          "diverged": 0,
+          "heartbeat_miss": 0,
+          "pattern_only": 2,
+          "win_rate_pct": 50.0
+        },
+        "rejection_at_level_bearish": {
+          "hits": 1,
+          "wins": 0,
+          "losses": 1,
+          "neutral": 0,
+          "aligned": 0,
+          "diverged": 0,
+          "heartbeat_miss": 0,
+          "pattern_only": 1,
+          "win_rate_pct": 0.0
+        },
+        "momentum_acceleration": {
+          "hits": 1,
+          "wins": 1,
+          "losses": 0,
+          "neutral": 0,
+          "aligned": 0,
+          "diverged": 0,
+          "heartbeat_miss": 0,
+          "pattern_only": 1,
+          "win_rate_pct": 100.0
+        },
+        "inside_bar_consolidation": {
+          "hits": 2,
+          "wins": 0,
+          "losses": 0,
+          "neutral": 2,
+          "aligned": 0,
+          "diverged": 0,
+          "heartbeat_miss": 0,
+          "pattern_only": 2,
+          "win_rate_pct": null
+        },
+        "head_and_shoulders_top": {
+          "hits": 0,
+          "wins": 0,
+          "losses": 0,
+          "neutral": 0,
+          "aligned": 0,
+          "diverged": 0,
+          "heartbeat_miss": 0,
+          "pattern_only": 0,
+          "win_rate_pct": null
+        },
+        "double_bottom_contra": {
+          "hits": 1,
+          "wins": 0,
+          "losses": 1,
+          "neutral": 0,
+          "aligned": 0,
+          "diverged": 0,
+          "heartbeat_miss": 0,
+          "pattern_only": 1,
+          "win_rate_pct": 0.0
+        },
+        "double_top_contra": {
+          "hits": 0,
+          "wins": 0,
+          "losses": 0,
+          "neutral": 0,
+          "aligned": 0,
+          "diverged": 0,
+          "heartbeat_miss": 0,
+          "pattern_only": 0,
+          "win_rate_pct": null
+        },
+        "failed_breakdown_wick_contra": {
+          "hits": 2,
+          "wins": 1,
+          "losses": 1,
+          "neutral": 0,
+          "aligned": 0,
+          "diverged": 0,
+          "heartbeat_miss": 0,
+          "pattern_only": 2,
+          "win_rate_pct": 50.0
+        },
+        "rejection_at_level_bearish_contra": {
+          "hits": 1,
+          "wins": 0,
+          "losses": 1,
+          "neutral": 0,
+          "aligned": 0,
+          "diverged": 0,
+          "heartbeat_miss": 0,
+          "pattern_only": 1,
+          "win_rate_pct": 0.0
+        },
+        "momentum_acceleration_contra": {
+          "hits": 0,
+          "wins": 0,
+          "losses": 0,
+          "neutral": 0,
+          "aligned": 0,
+          "diverged": 0,
+          "heartbeat_miss": 0,
+          "pattern_only": 0,
+          "win_rate_pct": null
+        },
+        "head_and_shoulders_top_contra": {
+          "hits": 0,
+          "wins": 0,
+          "losses": 0,
+          "neutral": 0,
+          "aligned": 0,
+          "diverged": 0,
+          "heartbeat_miss": 0,
+          "pattern_only": 0,
+          "win_rate_pct": null
+        },
+        "fbw_at_RefS_731.22": {
+          "hits": 0,
+          "wins": 0,
+          "losses": 0,
+          "neutral": 0,
+          "aligned": 0,
+          "diverged": 0,
+          "heartbeat_miss": 0,
+          "pattern_only": 0,
+          "win_rate_pct": null
+        },
+        "fbw_at_ActS_734.52": {
+          "hits": 0,
+          "wins": 0,
+          "losses": 0,
+          "neutral": 0,
+          "aligned": 0,
+          "diverged": 0,
+          "heartbeat_miss": 0,
+          "pattern_only": 0,
+          "win_rate_pct": null
+        },
+        "fbw_at_ActS_740.04": {
+          "hits": 0,
+          "wins": 0,
+          "losses": 0,
+          "neutral": 0,
+          "aligned": 0,
+          "diverged": 0,
+          "heartbeat_miss": 0,
+          "pattern_only": 0,
+          "win_rate_pct": null
+        },
+        "fbw_at_ActS_741.47": {
+          "hits": 2,
+          "wins": 1,
+          "losses": 1,
+          "neutral": 0,
+          "aligned": 0,
+          "diverged": 0,
+          "heartbeat_miss": 0,
+          "pattern_only": 2,
+          "win_rate_pct": 50.0
+        },
+        "fbw_at_ActS_741.61": {
+          "hits": 1,
+          "wins": 0,
+          "losses": 1,
+          "neutral": 0,
+          "aligned": 0,
+          "diverged": 0,
+          "heartbeat_miss": 0,
+          "pattern_only": 1,
+          "win_rate_pct": 0.0
+        },
+        "ral_at_ActR_743.46": {
+          "hits": 0,
+          "wins": 0,
+          "losses": 0,
+          "neutral": 0,
+          "aligned": 0,
+          "diverged": 0,
+          "heartbeat_miss": 0,
+          "pattern_only": 0,
+          "win_rate_pct": null
+        },
+        "fbw_at_ActS_746.89": {
+          "hits": 1,
+          "wins": 0,
+          "losses": 1,
+          "neutral": 0,
+          "aligned": 0,
+          "diverged": 0,
+          "heartbeat_miss": 0,
+          "pattern_only": 1,
+          "win_rate_pct": 0.0
+        },
+        "ral_at_ActR_749.54": {
+          "hits": 1,
+          "wins": 0,
+          "losses": 1,
+          "neutral": 0,
+          "aligned": 0,
+          "diverged": 0,
+          "heartbeat_miss": 0,
+          "pattern_only": 1,
+          "win_rate_pct": 0.0
+        },
+        "ral_at_RefR_750.00": {
+          "hits": 0,
+          "wins": 0,
+          "losses": 0,
+          "neutral": 0,
+          "aligned": 0,
+          "diverged": 0,
+          "heartbeat_miss": 0,
+          "pattern_only": 0,
+          "win_rate_pct": null
+        },
+        "ral_at_ActR_751.23": {
+          "hits": 2,
+          "wins": 0,
+          "losses": 2,
+          "neutral": 0,
+          "aligned": 0,
+          "diverged": 0,
+          "heartbeat_miss": 0,
+          "pattern_only": 2,
+          "win_rate_pct": 0.0
+        },
+        "ral_at_RefR_752.09": {
+          "hits": 0,
+          "wins": 0,
+          "losses": 0,
+          "neutral": 0,
+          "aligned": 0,
+          "diverged": 0,
+          "heartbeat_miss": 0,
+          "pattern_only": 0,
+          "win_rate_pct": null
+        }
+      }
+    },
+    "missed_setups_scan": {
+      "date": "2026-07-02",
+      "level_interactions": [
+        {
+          "bar_time": "09:40 ET",
+          "bar_idx": 2,
+          "level": 750.0,
+          "level_label": "round_number_near_price",
+          "level_stars": 2,
+          "interaction_type": "rejection",
+          "interaction_distance": 0.25,
+          "qualifying_setups": [
+            {
+              "setup": "SHOTGUN_SCALPER_TIER_2",
+              "direction": "PUT",
+              "strike": 749,
+              "strike_class": "OTM-1",
+              "qty": 3,
+              "would_be_entry_premium": 0.756,
+              "would_be_exit_premium": 0.605,
+              "would_be_pnl_dollars": -45.36,
+              "would_be_hold_minutes": 5,
+              "exit_reason": "premium_stop",
+              "pricing_source": "bs_estimate",
+              "confidence": "medium",
+              "level_price": 750.0,
+              "level_label": "round_number_near_price",
+              "why_missed": "SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY)"
+            },
+            {
+              "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+              "direction": "PUT",
+              "strike": 750,
+              "strike_class": "ATM",
+              "qty": 3,
+              "would_be_entry_premium": 1.7,
+              "would_be_exit_premium": 1.564,
+              "would_be_pnl_dollars": -40.8,
+              "would_be_hold_minutes": 5,
+              "exit_reason": "premium_stop",
+              "pricing_source": "bs_estimate",
+              "confidence": "medium",
+              "level_price": 750.0,
+              "level_label": "round_number_near_price",
+              "why_missed": "Heartbeat closed-bar gate or ribbon/VIX filter blocked entry"
+            }
+          ]
+        },
+        {
+          "bar_time": "09:50 ET",
+          "bar_idx": 4,
+          "level": 751.23,
+          "level_label": "intraday_rth_high",
+          "level_stars": 2,
+          "interaction_type": "rejection",
+          "interaction_distance": 0.015,
+          "qualifying_setups": [
+            {
+              "setup": "SHOTGUN_SCALPER_TIER_2",
+              "direction": "PUT",
+              "strike": 749,
+              "strike_class": "OTM-1",
+              "qty": 3,
+              "would_be_entry_premium": 0.635,
+              "would_be_exit_premium": 0.635,
+              "would_be_pnl_dollars": 0.0,
+              "would_be_hold_minutes": 5,
+              "exit_reason": "premium_stop",
+              "pricing_source": "bs_estimate",
+              "confidence": "medium",
+              "level_price": 751.23,
+              "level_label": "intraday_rth_high",
+              "why_missed": "SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY)"
+            },
+            {
+              "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+              "direction": "PUT",
+              "strike": 750,
+              "strike_class": "ATM",
+              "qty": 3,
+              "would_be_entry_premium": 1.359,
+              "would_be_exit_premium": 1.25,
+              "would_be_pnl_dollars": -32.62,
+              "would_be_hold_minutes": 5,
+              "exit_reason": "premium_stop",
+              "pricing_source": "bs_estimate",
+              "confidence": "medium",
+              "level_price": 751.23,
+              "level_label": "intraday_rth_high",
+              "why_missed": "Heartbeat closed-bar gate or ribbon/VIX filter blocked entry"
+            }
+          ]
+        },
+        {
+          "bar_time": "10:05 ET",
+          "bar_idx": 7,
+          "level": 751.23,
+          "level_label": "intraday_rth_high",
+          "level_stars": 2,
+          "interaction_type": "rejection",
+          "interaction_distance": 0.08,
+          "qualifying_setups": [
+            {
+              "setup": "SHOTGUN_SCALPER_TIER_2",
+              "direction": "PUT",
+              "strike": 749,
+              "strike_class": "OTM-1",
+              "qty": 3,
+              "would_be_entry_premium": 0.676,
+              "would_be_exit_premium": 0.676,
+              "would_be_pnl_dollars": 0.0,
+              "would_be_hold_minutes": 5,
+              "exit_reason": "premium_stop",
+              "pricing_source": "bs_estimate",
+              "confidence": "medium",
+              "level_price": 751.23,
+              "level_label": "intraday_rth_high",
+              "why_missed": "SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY)"
+            },
+            {
+              "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+              "direction": "PUT",
+              "strike": 750,
+              "strike_class": "ATM",
+              "qty": 3,
+              "would_be_entry_premium": 1.427,
+              "would_be_exit_premium": 1.313,
+              "would_be_pnl_dollars": -34.25,
+              "would_be_hold_minutes": 5,
+              "exit_reason": "premium_stop",
+              "pricing_source": "bs_estimate",
+              "confidence": "medium",
+              "level_price": 751.23,
+              "level_label": "intraday_rth_high",
+              "why_missed": "Heartbeat closed-bar gate or ribbon/VIX filter blocked entry"
+            }
+          ]
+        },
+        {
+          "bar_time": "10:10 ET",
+          "bar_idx": 8,
+          "level": 751.23,
+          "level_label": "intraday_rth_high",
+          "level_stars": 2,
+          "interaction_type": "rejection",
+          "interaction_distance": 0.01,
+          "qualifying_setups": [
+            {
+              "setup": "SHOTGUN_SCALPER_TIER_2",
+              "direction": "PUT",
+              "strike": 750,
+              "strike_class": "OTM-1",
+              "qty": 3,
+              "would_be_entry_premium": 0.727,
+              "would_be_exit_premium": 1.091,
+              "would_be_pnl_dollars": 109.05,
+              "would_be_hold_minutes": 5,
+              "exit_reason": "primary_target",
+              "pricing_source": "bs_estimate",
+              "confidence": "high",
+              "level_price": 751.23,
+              "level_label": "intraday_rth_high",
+              "why_missed": "SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY)"
+            },
+            {
+              "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+              "direction": "PUT",
+              "strike": 751,
+              "strike_class": "ATM",
+              "qty": 3,
+              "would_be_entry_premium": 1.54,
+              "would_be_exit_premium": 1.417,
+              "would_be_pnl_dollars": -36.96,
+              "would_be_hold_minutes": 5,
+              "exit_reason": "premium_stop",
+              "pricing_source": "bs_estimate",
+              "confidence": "medium",
+              "level_price": 751.23,
+              "level_label": "intraday_rth_high",
+              "why_missed": "Heartbeat closed-bar gate or ribbon/VIX filter blocked entry"
+            }
+          ]
+        },
+        {
+          "bar_time": "10:15 ET",
+          "bar_idx": 9,
+          "level": 751.23,
+          "level_label": "intraday_rth_high",
+          "level_stars": 2,
+          "interaction_type": "rejection",
+          "interaction_distance": -0.01,
+          "qualifying_setups": [
+            {
+              "setup": "SHOTGUN_SCALPER_TIER_2",
+              "direction": "PUT",
+              "strike": 750,
+              "strike_class": "OTM-1",
+              "qty": 3,
+              "would_be_entry_premium": 0.779,
+              "would_be_exit_premium": 1.169,
+              "would_be_pnl_dollars": 116.85,
+              "would_be_hold_minutes": 5,
+              "exit_reason": "primary_target",
+              "pricing_source": "bs_estimate",
+              "confidence": "high",
+              "level_price": 751.23,
+              "level_label": "intraday_rth_high",
+              "why_missed": "SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY)"
+            },
+            {
+              "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+              "direction": "PUT",
+              "strike": 751,
+              "strike_class": "ATM",
+              "qty": 3,
+              "would_be_entry_premium": 1.83,
+              "would_be_exit_premium": 3.477,
+              "would_be_pnl_dollars": 494.1,
+              "would_be_hold_minutes": 50,
+              "exit_reason": "runner_target",
+              "pricing_source": "bs_estimate",
+              "confidence": "high",
+              "level_price": 751.23,
+              "level_label": "intraday_rth_high",
+              "why_missed": "Heartbeat closed-bar gate or ribbon/VIX filter blocked entry"
+            }
+          ]
+        },
+        {
+          "bar_time": "10:45 ET",
+          "bar_idx": 15,
+          "level": 746.89,
+          "level_label": "premarket_low",
+          "level_stars": 2,
+          "interaction_type": "rejection",
+          "interaction_distance": 0.57,
+          "qualifying_setups": [
+            {
+              "setup": "SHOTGUN_SCALPER_TIER_2",
+              "direction": "CALL",
+              "strike": 748,
+              "strike_class": "OTM-1",
+              "qty": 3,
+              "would_be_entry_premium": 0.769,
+              "would_be_exit_premium": 0.769,
+              "would_be_pnl_dollars": 0.0,
+              "would_be_hold_minutes": 5,
+              "exit_reason": "premium_stop",
+              "pricing_source": "bs_estimate",
+              "confidence": "medium",
+              "level_price": 746.89,
+              "level_label": "premarket_low",
+              "why_missed": "SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY)"
+            },
+            {
+              "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+              "direction": "CALL",
+              "strike": 747,
+              "strike_class": "ATM",
+              "qty": 3,
+              "would_be_entry_premium": 1.77,
+              "would_be_exit_premium": 1.628,
+              "would_be_pnl_dollars": -42.48,
+              "would_be_hold_minutes": 5,
+              "exit_reason": "premium_stop",
+              "pricing_source": "bs_estimate",
+              "confidence": "medium",
+              "level_price": 746.89,
+              "level_label": "premarket_low",
+              "why_missed": "Heartbeat closed-bar gate or ribbon/VIX filter blocked entry"
+            }
+          ]
+        },
+        {
+          "bar_time": "10:55 ET",
+          "bar_idx": 17,
+          "level": 746.89,
+          "level_label": "premarket_low",
+          "level_stars": 2,
+          "interaction_type": "reclaim",
+          "interaction_distance": 0.77,
+          "qualifying_setups": [
+            {
+              "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+              "direction": "CALL",
+              "strike": 748,
+              "strike_class": "ATM",
+              "qty": 3,
+              "would_be_entry_premium": 1.398,
+              "would_be_exit_premium": 1.286,
+              "would_be_pnl_dollars": -33.55,
+              "would_be_hold_minutes": 5,
+              "exit_reason": "premium_stop",
+              "pricing_source": "bs_estimate",
+              "confidence": "medium",
+              "level_price": 746.89,
+              "level_label": "premarket_low",
+              "why_missed": "Heartbeat closed-bar gate or ribbon/VIX filter blocked entry"
+            }
+          ]
+        },
+        {
+          "bar_time": "12:20 ET",
+          "bar_idx": 34,
+          "level": 743.46,
+          "level_label": "intraday_swing_high",
+          "level_stars": 2,
+          "interaction_type": "rejection",
+          "interaction_distance": 0.615,
+          "qualifying_setups": [
+            {
+              "setup": "SHOTGUN_SCALPER_TIER_2",
+              "direction": "PUT",
+              "strike": 742,
+              "strike_class": "OTM-1",
+              "qty": 3,
+              "would_be_entry_premium": 0.639,
+              "would_be_exit_premium": 0.511,
+              "would_be_pnl_dollars": -38.34,
+              "would_be_hold_minutes": 5,
+              "exit_reason": "premium_stop",
+              "pricing_source": "bs_estimate",
+              "confidence": "medium",
+              "level_price": 743.46,
+              "level_label": "intraday_swing_high",
+              "why_missed": "SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY)"
+            },
+            {
+              "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+              "direction": "PUT",
+              "strike": 743,
+              "strike_class": "ATM",
+              "qty": 3,
+              "would_be_entry_premium": 1.365,
+              "would_be_exit_premium": 1.256,
+              "would_be_pnl_dollars": -32.76,
+              "would_be_hold_minutes": 5,
+              "exit_reason": "premium_stop",
+              "pricing_source": "bs_estimate",
+              "confidence": "medium",
+              "level_price": 743.46,
+              "level_label": "intraday_swing_high",
+              "why_missed": "Heartbeat closed-bar gate or ribbon/VIX filter blocked entry"
+            }
+          ]
+        },
+        {
+          "bar_time": "12:30 ET",
+          "bar_idx": 36,
+          "level": 743.46,
+          "level_label": "intraday_swing_high",
+          "level_stars": 2,
+          "interaction_type": "rejection",
+          "interaction_distance": 0.11,
+          "qualifying_setups": [
+            {
+              "setup": "SHOTGUN_SCALPER_TIER_2",
+              "direction": "PUT",
+              "strike": 742,
+              "strike_class": "OTM-1",
+              "qty": 3,
+              "would_be_entry_premium": 0.751,
+              "would_be_exit_premium": 0.751,
+              "would_be_pnl_dollars": 0.0,
+              "would_be_hold_minutes": 5,
+              "exit_reason": "premium_stop",
+              "pricing_source": "bs_estimate",
+              "confidence": "medium",
+              "level_price": 743.46,
+              "level_label": "intraday_swing_high",
+              "why_missed": "SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY)"
+            },
+            {
+              "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+              "direction": "PUT",
+              "strike": 743,
+              "strike_class": "ATM",
+              "qty": 3,
+              "would_be_entry_premium": 1.67,
+              "would_be_exit_premium": 1.536,
+              "would_be_pnl_dollars": -40.08,
+              "would_be_hold_minutes": 5,
+              "exit_reason": "premium_stop",
+              "pricing_source": "bs_estimate",
+              "confidence": "medium",
+              "level_price": 743.46,
+              "level_label": "intraday_swing_high",
+              "why_missed": "Heartbeat closed-bar gate or ribbon/VIX filter blocked entry"
+            }
+          ]
+        },
+        {
+          "bar_time": "13:05 ET",
+          "bar_idx": 43,
+          "level": 741.47,
+          "level_label": "intraday_swing_low",
+          "level_stars": 2,
+          "interaction_type": "rejection",
+          "interaction_distance": 1.1,
+          "qualifying_setups": [
+            {
+              "setup": "SHOTGUN_SCALPER_TIER_2",
+              "direction": "CALL",
+              "strike": 743,
+              "strike_class": "OTM-1",
+              "qty": 3,
+              "would_be_entry_premium": 0.634,
+              "would_be_exit_premium": 0.634,
+              "would_be_pnl_dollars": 0.0,
+              "would_be_hold_minutes": 5,
+              "exit_reason": "premium_stop",
+              "pricing_source": "bs_estimate",
+              "confidence": "medium",
+              "level_price": 741.47,
+              "level_label": "intraday_swing_low",
+              "why_missed": "SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY)"
+            },
+            {
+              "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+              "direction": "CALL",
+              "strike": 742,
+              "strike_class": "ATM",
+              "qty": 3,
+              "would_be_entry_premium": 1.356,
+              "would_be_exit_premium": 1.248,
+              "would_be_pnl_dollars": -32.54,
+              "would_be_hold_minutes": 5,
+              "exit_reason": "premium_stop",
+              "pricing_source": "bs_estimate",
+              "confidence": "medium",
+              "level_price": 741.47,
+              "level_label": "intraday_swing_low",
+              "why_missed": "Heartbeat closed-bar gate or ribbon/VIX filter blocked entry"
+            }
+          ]
+        },
+        {
+          "bar_time": "13:10 ET",
+          "bar_idx": 44,
+          "level": 741.47,
+          "level_label": "intraday_swing_low",
+          "level_stars": 2,
+          "interaction_type": "reclaim",
+          "interaction_distance": 0.28,
+          "qualifying_setups": [
+            {
+              "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+              "direction": "CALL",
+              "strike": 742,
+              "strike_class": "ATM",
+              "qty": 3,
+              "would_be_entry_premium": 1.425,
+              "would_be_exit_premium": 1.311,
+              "would_be_pnl_dollars": -34.2,
+              "would_be_hold_minutes": 5,
+              "exit_reason": "premium_stop",
+              "pricing_source": "bs_estimate",
+              "confidence": "medium",
+              "level_price": 741.47,
+              "level_label": "intraday_swing_low",
+              "why_missed": "Heartbeat closed-bar gate or ribbon/VIX filter blocked entry"
+            }
+          ]
+        },
+        {
+          "bar_time": "13:10 ET",
+          "bar_idx": 44,
+          "level": 741.61,
+          "level_label": "premarket_low",
+          "level_stars": 2,
+          "interaction_type": "reclaim",
+          "interaction_distance": 0.14,
+          "qualifying_setups": [
+            {
+              "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+              "direction": "CALL",
+              "strike": 742,
+              "strike_class": "ATM",
+              "qty": 3,
+              "would_be_entry_premium": 1.425,
+              "would_be_exit_premium": 1.311,
+              "would_be_pnl_dollars": -34.2,
+              "would_be_hold_minutes": 5,
+              "exit_reason": "premium_stop",
+              "pricing_source": "bs_estimate",
+              "confidence": "medium",
+              "level_price": 741.61,
+              "level_label": "premarket_low",
+              "why_missed": "Heartbeat closed-bar gate or ribbon/VIX filter blocked entry"
+            }
+          ]
+        },
+        {
+          "bar_time": "13:15 ET",
+          "bar_idx": 45,
+          "level": 741.61,
+          "level_label": "premarket_low",
+          "level_stars": 2,
+          "interaction_type": "break",
+          "interaction_distance": 0.15,
+          "qualifying_setups": [
+            {
+              "setup": "SNIPER_LEVEL_BREAK",
+              "direction": "PUT",
+              "strike": 741,
+              "strike_class": "ATM",
+              "qty": 3,
+              "would_be_entry_premium": 1.362,
+              "would_be_exit_premium": 1.09,
+              "would_be_pnl_dollars": -81.72,
+              "would_be_hold_minutes": 15,
+              "exit_reason": "premium_stop",
+              "pricing_source": "bs_estimate",
+              "confidence": "medium",
+              "level_price": 741.61,
+              "level_label": "premarket_low",
+              "why_missed": "SNIPER DRAFT WATCH-ONLY; not in heartbeat live triggers"
+            }
+          ]
+        },
+        {
+          "bar_time": "13:20 ET",
+          "bar_idx": 46,
+          "level": 741.47,
+          "level_label": "intraday_swing_low",
+          "level_stars": 2,
+          "interaction_type": "break",
+          "interaction_distance": 0.1042,
+          "qualifying_setups": [
+            {
+              "setup": "SHOTGUN_SCALPER_TIER_3",
+              "direction": "PUT",
+              "strike": 740,
+              "strike_class": "OTM-1",
+              "qty": 3,
+              "would_be_entry_premium": 0.654,
+              "would_be_exit_premium": 0.523,
+              "would_be_pnl_dollars": -39.24,
+              "would_be_hold_minutes": 10,
+              "exit_reason": "premium_stop",
+              "pricing_source": "bs_estimate",
+              "confidence": "medium",
+              "level_price": 741.47,
+              "level_label": "intraday_swing_low",
+              "why_missed": "SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY)"
+            },
+            {
+              "setup": "SNIPER_LEVEL_BREAK",
+              "direction": "PUT",
+              "strike": 741,
+              "strike_class": "ATM",
+              "qty": 3,
+              "would_be_entry_premium": 1.39,
+              "would_be_exit_premium": 1.112,
+              "would_be_pnl_dollars": -83.4,
+              "would_be_hold_minutes": 10,
+              "exit_reason": "premium_stop",
+              "pricing_source": "bs_estimate",
+              "confidence": "medium",
+              "level_price": 741.47,
+              "level_label": "intraday_swing_low",
+              "why_missed": "SNIPER DRAFT WATCH-ONLY; not in heartbeat live triggers"
+            }
+          ]
+        },
+        {
+          "bar_time": "13:25 ET",
+          "bar_idx": 47,
+          "level": 741.47,
+          "level_label": "intraday_swing_low",
+          "level_stars": 2,
+          "interaction_type": "rejection",
+          "interaction_distance": 0.33,
+          "qualifying_setups": [
+            {
+              "setup": "SHOTGUN_SCALPER_TIER_2",
+              "direction": "CALL",
+              "strike": 743,
+              "strike_class": "OTM-1",
+              "qty": 3,
+              "would_be_entry_premium": 0.635,
+              "would_be_exit_premium": 0.635,
+              "would_be_pnl_dollars": 0.0,
+              "would_be_hold_minutes": 5,
+              "exit_reason": "premium_stop",
+              "pricing_source": "bs_estimate",
+              "confidence": "medium",
+              "level_price": 741.47,
+              "level_label": "intraday_swing_low",
+              "why_missed": "SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY)"
+            },
+            {
+              "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+              "direction": "CALL",
+              "strike": 742,
+              "strike_class": "ATM",
+              "qty": 3,
+              "would_be_entry_premium": 1.359,
+              "would_be_exit_premium": 1.25,
+              "would_be_pnl_dollars": -32.62,
+              "would_be_hold_minutes": 10,
+              "exit_reason": "premium_stop",
+              "pricing_source": "bs_estimate",
+              "confidence": "medium",
+              "level_price": 741.47,
+              "level_label": "intraday_swing_low",
+              "why_missed": "Heartbeat closed-bar gate or ribbon/VIX filter blocked entry"
+            }
+          ]
+        },
+        {
+          "bar_time": "13:30 ET",
+          "bar_idx": 48,
+          "level": 741.61,
+          "level_label": "premarket_low",
+          "level_stars": 2,
+          "interaction_type": "break",
+          "interaction_distance": 0.18,
+          "qualifying_setups": [
+            {
+              "setup": "SHOTGUN_SCALPER_TIER_3",
+              "direction": "PUT",
+              "strike": 740,
+              "strike_class": "OTM-1",
+              "qty": 3,
+              "would_be_entry_premium": 0.643,
+              "would_be_exit_premium": 0.965,
+              "would_be_pnl_dollars": 96.45,
+              "would_be_hold_minutes": 5,
+              "exit_reason": "primary_target",
+              "pricing_source": "bs_estimate",
+              "confidence": "high",
+              "level_price": 741.61,
+              "level_label": "premarket_low",
+              "why_missed": "SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY)"
+            }
+          ]
+        },
+        {
+          "bar_time": "13:35 ET",
+          "bar_idx": 49,
+          "level": 741.47,
+          "level_label": "intraday_swing_low",
+          "level_stars": 2,
+          "interaction_type": "break",
+          "interaction_distance": 0.72,
+          "qualifying_setups": [
+            {
+              "setup": "SHOTGUN_SCALPER_TIER_3",
+              "direction": "PUT",
+              "strike": 740,
+              "strike_class": "OTM-1",
+              "qty": 3,
+              "would_be_entry_premium": 0.765,
+              "would_be_exit_premium": 0.612,
+              "would_be_pnl_dollars": -45.9,
+              "would_be_hold_minutes": 5,
+              "exit_reason": "premium_stop",
+              "pricing_source": "bs_estimate",
+              "confidence": "medium",
+              "level_price": 741.47,
+              "level_label": "intraday_swing_low",
+              "why_missed": "SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY)"
+            }
+          ]
+        },
+        {
+          "bar_time": "13:55 ET",
+          "bar_idx": 53,
+          "level": 740.04,
+          "level_label": "intraday_rth_low",
+          "level_stars": 2,
+          "interaction_type": "rejection",
+          "interaction_distance": 0.01,
+          "qualifying_setups": [
+            {
+              "setup": "SHOTGUN_SCALPER_TIER_2",
+              "direction": "CALL",
+              "strike": 741,
+              "strike_class": "OTM-1",
+              "qty": 3,
+              "would_be_entry_premium": 0.763,
+              "would_be_exit_premium": 0.763,
+              "would_be_pnl_dollars": 0.0,
+              "would_be_hold_minutes": 5,
+              "exit_reason": "premium_stop",
+              "pricing_source": "bs_estimate",
+              "confidence": "medium",
+              "level_price": 740.04,
+              "level_label": "intraday_rth_low",
+              "why_missed": "SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY)"
+            },
+            {
+              "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+              "direction": "CALL",
+              "strike": 740,
+              "strike_class": "ATM",
+              "qty": 3,
+              "would_be_entry_premium": 1.74,
+              "would_be_exit_premium": 3.306,
+              "would_be_pnl_dollars": 469.8,
+              "would_be_hold_minutes": 120,
+              "exit_reason": "runner_target",
+              "pricing_source": "bs_estimate",
+              "confidence": "high",
+              "level_price": 740.04,
+              "level_label": "intraday_rth_low",
+              "why_missed": "Heartbeat closed-bar gate or ribbon/VIX filter blocked entry"
+            }
+          ]
+        },
+        {
+          "bar_time": "14:00 ET",
+          "bar_idx": 54,
+          "level": 740.04,
+          "level_label": "intraday_rth_low",
+          "level_stars": 2,
+          "interaction_type": "rejection",
+          "interaction_distance": -0.01,
+          "qualifying_setups": [
+            {
+              "setup": "SHOTGUN_SCALPER_TIER_2",
+              "direction": "CALL",
+              "strike": 742,
+              "strike_class": "OTM-1",
+              "qty": 3,
+              "would_be_entry_premium": 0.709,
+              "would_be_exit_premium": 1.063,
+              "would_be_pnl_dollars": 106.35,
+              "would_be_hold_minutes": 5,
+              "exit_reason": "primary_target",
+              "pricing_source": "bs_estimate",
+              "confidence": "high",
+              "level_price": 740.04,
+              "level_label": "intraday_rth_low",
+              "why_missed": "SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY)"
+            },
+            {
+              "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+              "direction": "CALL",
+              "strike": 741,
+              "strike_class": "ATM",
+              "qty": 3,
+              "would_be_entry_premium": 1.482,
+              "would_be_exit_premium": 2.816,
+              "would_be_pnl_dollars": 400.14,
+              "would_be_hold_minutes": 115,
+              "exit_reason": "runner_target",
+              "pricing_source": "bs_estimate",
+              "confidence": "high",
+              "level_price": 740.04,
+              "level_label": "intraday_rth_low",
+              "why_missed": "Heartbeat closed-bar gate or ribbon/VIX filter blocked entry"
+            }
+          ]
+        },
+        {
+          "bar_time": "14:05 ET",
+          "bar_idx": 55,
+          "level": 741.47,
+          "level_label": "intraday_swing_low",
+          "level_stars": 2,
+          "interaction_type": "reclaim",
+          "interaction_distance": 0.97,
+          "qualifying_setups": [
+            {
+              "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+              "direction": "CALL",
+              "strike": 742,
+              "strike_class": "ATM",
+              "qty": 3,
+              "would_be_entry_premium": 1.94,
+              "would_be_exit_premium": 1.785,
+              "would_be_pnl_dollars": -46.56,
+              "would_be_hold_minutes": 5,
+              "exit_reason": "premium_stop",
+              "pricing_source": "bs_estimate",
+              "confidence": "medium",
+              "level_price": 741.47,
+              "level_label": "intraday_swing_low",
+              "why_missed": "Heartbeat closed-bar gate or ribbon/VIX filter blocked entry"
+            }
+          ]
+        },
+        {
+          "bar_time": "14:05 ET",
+          "bar_idx": 55,
+          "level": 741.61,
+          "level_label": "premarket_low",
+          "level_stars": 2,
+          "interaction_type": "reclaim",
+          "interaction_distance": 0.83,
+          "qualifying_setups": [
+            {
+              "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+              "direction": "CALL",
+              "strike": 742,
+              "strike_class": "ATM",
+              "qty": 3,
+              "would_be_entry_premium": 1.94,
+              "would_be_exit_premium": 1.785,
+              "would_be_pnl_dollars": -46.56,
+              "would_be_hold_minutes": 5,
+              "exit_reason": "premium_stop",
+              "pricing_source": "bs_estimate",
+              "confidence": "medium",
+              "level_price": 741.61,
+              "level_label": "premarket_low",
+              "why_missed": "Heartbeat closed-bar gate or ribbon/VIX filter blocked entry"
+            }
+          ]
+        },
+        {
+          "bar_time": "14:15 ET",
+          "bar_idx": 57,
+          "level": 741.47,
+          "level_label": "intraday_swing_low",
+          "level_stars": 2,
+          "interaction_type": "rejection",
+          "interaction_distance": 0.07,
+          "qualifying_setups": [
+            {
+              "setup": "SHOTGUN_SCALPER_TIER_2",
+              "direction": "CALL",
+              "strike": 743,
+              "strike_class": "OTM-1",
+              "qty": 3,
+              "would_be_entry_premium": 0.664,
+              "would_be_exit_premium": 0.664,
+              "would_be_pnl_dollars": 0.0,
+              "would_be_hold_minutes": 5,
+              "exit_reason": "premium_stop",
+              "pricing_source": "bs_estimate",
+              "confidence": "medium",
+              "level_price": 741.47,
+              "level_label": "intraday_swing_low",
+              "why_missed": "SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY)"
+            },
+            {
+              "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+              "direction": "CALL",
+              "strike": 742,
+              "strike_class": "ATM",
+              "qty": 3,
+              "would_be_entry_premium": 1.407,
+              "would_be_exit_premium": 1.618,
+              "would_be_pnl_dollars": 63.32,
+              "would_be_hold_minutes": 50,
+              "exit_reason": "stop_after_tp1",
+              "pricing_source": "bs_estimate",
+              "confidence": "medium",
+              "level_price": 741.47,
+              "level_label": "intraday_swing_low",
+              "why_missed": "Heartbeat closed-bar gate or ribbon/VIX filter blocked entry"
+            }
+          ]
+        },
+        {
+          "bar_time": "14:15 ET",
+          "bar_idx": 57,
+          "level": 741.61,
+          "level_label": "premarket_low",
+          "level_stars": 2,
+          "interaction_type": "rejection",
+          "interaction_distance": 0.21,
+          "qualifying_setups": [
+            {
+              "setup": "SHOTGUN_SCALPER_TIER_2",
+              "direction": "CALL",
+              "strike": 743,
+              "strike_class": "OTM-1",
+              "qty": 3,
+              "would_be_entry_premium": 0.664,
+              "would_be_exit_premium": 0.664,
+              "would_be_pnl_dollars": 0.0,
+              "would_be_hold_minutes": 5,
+              "exit_reason": "premium_stop",
+              "pricing_source": "bs_estimate",
+              "confidence": "medium",
+              "level_price": 741.61,
+              "level_label": "premarket_low",
+              "why_missed": "SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY)"
+            },
+            {
+              "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+              "direction": "CALL",
+              "strike": 742,
+              "strike_class": "ATM",
+              "qty": 3,
+              "would_be_entry_premium": 1.407,
+              "would_be_exit_premium": 1.618,
+              "would_be_pnl_dollars": 63.32,
+              "would_be_hold_minutes": 50,
+              "exit_reason": "stop_after_tp1",
+              "pricing_source": "bs_estimate",
+              "confidence": "medium",
+              "level_price": 741.61,
+              "level_label": "premarket_low",
+              "why_missed": "Heartbeat closed-bar gate or ribbon/VIX filter blocked entry"
+            }
+          ]
+        },
+        {
+          "bar_time": "14:20 ET",
+          "bar_idx": 58,
+          "level": 741.61,
+          "level_label": "premarket_low",
+          "level_stars": 2,
+          "interaction_type": "rejection",
+          "interaction_distance": -0.055,
+          "qualifying_setups": [
+            {
+              "setup": "SHOTGUN_SCALPER_TIER_2",
+              "direction": "CALL",
+              "strike": 743,
+              "strike_class": "OTM-1",
+              "qty": 3,
+              "would_be_entry_premium": 0.748,
+              "would_be_exit_premium": 0.748,
+              "would_be_pnl_dollars": 0.0,
+              "would_be_hold_minutes": 5,
+              "exit_reason": "premium_stop",
+              "pricing_source": "bs_estimate",
+              "confidence": "medium",
+              "level_price": 741.61,
+              "level_label": "premarket_low",
+              "why_missed": "SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY)"
+            },
+            {
+              "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+              "direction": "CALL",
+              "strike": 742,
+              "strike_class": "ATM",
+              "qty": 3,
+              "would_be_entry_premium": 1.655,
+              "would_be_exit_premium": 1.903,
+              "would_be_pnl_dollars": 74.47,
+              "would_be_hold_minutes": 40,
+              "exit_reason": "stop_after_tp1",
+              "pricing_source": "bs_estimate",
+              "confidence": "medium",
+              "level_price": 741.61,
+              "level_label": "premarket_low",
+              "why_missed": "Heartbeat closed-bar gate or ribbon/VIX filter blocked entry"
+            }
+          ]
+        },
+        {
+          "bar_time": "14:50 ET",
+          "bar_idx": 64,
+          "level": 743.46,
+          "level_label": "intraday_swing_high",
+          "level_stars": 2,
+          "interaction_type": "rejection",
+          "interaction_distance": 0.05,
+          "qualifying_setups": [
+            {
+              "setup": "SHOTGUN_SCALPER_TIER_2",
+              "direction": "PUT",
+              "strike": 742,
+              "strike_class": "OTM-1",
+              "qty": 3,
+              "would_be_entry_premium": 0.745,
+              "would_be_exit_premium": 1.117,
+              "would_be_pnl_dollars": 111.75,
+              "would_be_hold_minutes": 10,
+              "exit_reason": "primary_target",
+              "pricing_source": "bs_estimate",
+              "confidence": "high",
+              "level_price": 743.46,
+              "level_label": "intraday_swing_high",
+              "why_missed": "SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY)"
+            },
+            {
+              "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+              "direction": "PUT",
+              "strike": 743,
+              "strike_class": "ATM",
+              "qty": 3,
+              "would_be_entry_premium": 1.64,
+              "would_be_exit_premium": 1.509,
+              "would_be_pnl_dollars": -39.36,
+              "would_be_hold_minutes": 5,
+              "exit_reason": "premium_stop",
+              "pricing_source": "bs_estimate",
+              "confidence": "medium",
+              "level_price": 743.46,
+              "level_label": "intraday_swing_high",
+              "why_missed": "Heartbeat closed-bar gate or ribbon/VIX filter blocked entry"
+            }
+          ]
+        }
+      ],
+      "missed_setup_count": 42,
+      "missed_setup_total_pnl_dollars": 1212.1,
+      "engine_trades_today": 8,
+      "engine_pnl_today": -329.0,
+      "edge_capture_pct": 0.0,
+      "scan_warnings": [],
+      "opra_available": true
+    },
+    "missed_setups_markdown": "### Engine Misses Today\n\n**Total opportunities on the chart: 42 missed setups, +$1,212 paper P&L left on the table.**\n**Engine captured: 0% of available edge (engine took 8 trade(s), $-329.00).**\n\n| Time | Level | Type | Setup | Dir | Strike | Would-be P&L | Hold | Why missed |\n|---|---|---|---|---|---|---|---|---|\n| 10:15 ET | 751.23 | Rejection | BEAR_REJECT_RIBBON | PUT | 751 | +$494 | 50m | Heartbeat closed-bar gate or ribbon/VIX filter blocked entry |\n| 13:55 ET | 740.04 | Rejection | BULL_RECLAIM_RIBBON | CALL | 740 | +$470 | 120m | Heartbeat closed-bar gate or ribbon/VIX filter blocked entry |\n| 14:00 ET | 740.04 | Rejection | BULL_RECLAIM_RIBBON | CALL | 741 | +$400 | 115m | Heartbeat closed-bar gate or ribbon/VIX filter blocked entry |\n| 10:15 ET | 751.23 | Rejection | SHOTGUN_T2 | PUT | 750 | +$117 | 5m | SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) |\n| 14:50 ET | 743.46 | Rejection | SHOTGUN_T2 | PUT | 742 | +$112 | 10m | SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) |\n| 10:10 ET | 751.23 | Rejection | SHOTGUN_T2 | PUT | 750 | +$109 | 5m | SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) |\n| 14:00 ET | 740.04 | Rejection | SHOTGUN_T2 | CALL | 742 | +$106 | 5m | SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) |\n| 13:30 ET | 741.61 | Break | SHOTGUN_T3 | PUT | 740 | +$96 | 5m | SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) |\n| 14:20 ET | 741.61 | Rejection | BULL_RECLAIM_RIBBON | CALL | 742 | +$74 | 40m | Heartbeat closed-bar gate or ribbon/VIX filter blocked entry |\n| 14:15 ET | 741.47 | Rejection | BULL_RECLAIM_RIBBON | CALL | 742 | +$63 | 50m | Heartbeat closed-bar gate or ribbon/VIX filter blocked entry |\n| 14:15 ET | 741.61 | Rejection | BULL_RECLAIM_RIBBON | CALL | 742 | +$63 | 50m | Heartbeat closed-bar gate or ribbon/VIX filter blocked entry |\n| 09:50 ET | 751.23 | Rejection | SHOTGUN_T2 | PUT | 749 | +$0 | 5m | SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) |\n| 10:05 ET | 751.23 | Rejection | SHOTGUN_T2 | PUT | 749 | +$0 | 5m | SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) |\n| 10:45 ET | 746.89 | Rejection | SHOTGUN_T2 | CALL | 748 | +$0 | 5m | SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) |\n| 12:30 ET | 743.46 | Rejection | SHOTGUN_T2 | PUT | 742 | +$0 | 5m | SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) |\n| 13:05 ET | 741.47 | Rejection | SHOTGUN_T2 | CALL | 743 | +$0 | 5m | SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) |\n| 13:25 ET | 741.47 | Rejection | SHOTGUN_T2 | CALL | 743 | +$0 | 5m | SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) |\n| 13:55 ET | 740.04 | Rejection | SHOTGUN_T2 | CALL | 741 | +$0 | 5m | SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) |\n| 14:15 ET | 741.47 | Rejection | SHOTGUN_T2 | CALL | 743 | +$0 | 5m | SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) |\n| 14:15 ET | 741.61 | Rejection | SHOTGUN_T2 | CALL | 743 | +$0 | 5m | SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) |\n| 14:20 ET | 741.61 | Rejection | SHOTGUN_T2 | CALL | 743 | +$0 | 5m | SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) |\n| 13:05 ET | 741.47 | Rejection | BULL_RECLAIM_RIBBON | CALL | 742 | -$33 | 5m | Heartbeat closed-bar gate or ribbon/VIX filter blocked entry |\n| 09:50 ET | 751.23 | Rejection | BEAR_REJECT_RIBBON | PUT | 750 | -$33 | 5m | Heartbeat closed-bar gate or ribbon/VIX filter blocked entry |\n| 13:25 ET | 741.47 | Rejection | BULL_RECLAIM_RIBBON | CALL | 742 | -$33 | 10m | Heartbeat closed-bar gate or ribbon/VIX filter blocked entry |\n| 12:20 ET | 743.46 | Rejection | BEAR_REJECT_RIBBON | PUT | 743 | -$33 | 5m | Heartbeat closed-bar gate or ribbon/VIX filter blocked entry |\n| 10:55 ET | 746.89 | Reclaim | BULL_RECLAIM_RIBBON | CALL | 748 | -$34 | 5m | Heartbeat closed-bar gate or ribbon/VIX filter blocked entry |\n| 13:10 ET | 741.47 | Reclaim | BULL_RECLAIM_RIBBON | CALL | 742 | -$34 | 5m | Heartbeat closed-bar gate or ribbon/VIX filter blocked entry |\n| 13:10 ET | 741.61 | Reclaim | BULL_RECLAIM_RIBBON | CALL | 742 | -$34 | 5m | Heartbeat closed-bar gate or ribbon/VIX filter blocked entry |\n| 10:05 ET | 751.23 | Rejection | BEAR_REJECT_RIBBON | PUT | 750 | -$34 | 5m | Heartbeat closed-bar gate or ribbon/VIX filter blocked entry |\n| 10:10 ET | 751.23 | Rejection | BEAR_REJECT_RIBBON | PUT | 751 | -$37 | 5m | Heartbeat closed-bar gate or ribbon/VIX filter blocked entry |\n| 12:20 ET | 743.46 | Rejection | SHOTGUN_T2 | PUT | 742 | -$38 | 5m | SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) |\n| 13:20 ET | 741.47 | Break | SHOTGUN_T3 | PUT | 740 | -$39 | 10m | SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) |\n| 14:50 ET | 743.46 | Rejection | BEAR_REJECT_RIBBON | PUT | 743 | -$39 | 5m | Heartbeat closed-bar gate or ribbon/VIX filter blocked entry |\n| 12:30 ET | 743.46 | Rejection | BEAR_REJECT_RIBBON | PUT | 743 | -$40 | 5m | Heartbeat closed-bar gate or ribbon/VIX filter blocked entry |\n| 09:40 ET | 750.00 | Rejection | BEAR_REJECT_RIBBON | PUT | 750 | -$41 | 5m | Heartbeat closed-bar gate or ribbon/VIX filter blocked entry |\n| 10:45 ET | 746.89 | Rejection | BULL_RECLAIM_RIBBON | CALL | 747 | -$42 | 5m | Heartbeat closed-bar gate or ribbon/VIX filter blocked entry |\n| 09:40 ET | 750.00 | Rejection | SHOTGUN_T2 | PUT | 749 | -$45 | 5m | SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) |\n| 13:35 ET | 741.47 | Break | SHOTGUN_T3 | PUT | 740 | -$46 | 5m | SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) |\n| 14:05 ET | 741.47 | Reclaim | BULL_RECLAIM_RIBBON | CALL | 742 | -$47 | 5m | Heartbeat closed-bar gate or ribbon/VIX filter blocked entry |\n| 14:05 ET | 741.61 | Reclaim | BULL_RECLAIM_RIBBON | CALL | 742 | -$47 | 5m | Heartbeat closed-bar gate or ribbon/VIX filter blocked entry |\n| 13:15 ET | 741.61 | Break | SNIPER_BREAK | PUT | 741 | -$82 | 15m | SNIPER DRAFT WATCH-ONLY; not in heartbeat live triggers |\n| 13:20 ET | 741.47 | Break | SNIPER_BREAK | PUT | 741 | -$83 | 10m | SNIPER DRAFT WATCH-ONLY; not in heartbeat live triggers |\n\n**Root causes (deduplicated):**\n- Heartbeat closed-bar gate or ribbon/VIX filter blocked entry (21 of 42)\n- SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) (19 of 42)\n- SNIPER DRAFT WATCH-ONLY; not in heartbeat live triggers (2 of 42)",
+    "missed_setups_appended_to_journal": true,
+    "feedback_dispatch_counts": {
+      "grinder_queue": 0,
+      "lessons": 0,
+      "future_improvements": 0,
+      "duplicates_skipped": 1,
+      "unhandled": 0,
+      "alerts": 0
+    }
+  },
+  "tomorrow_setup": {
+    "phase": "2.4",
+    "next_trading_day": "2026-07-03",
+    "carry_levels": {
+      "today_session_high": 747.13,
+      "today_session_low": 747.13,
+      "today_session_close": 747.13,
+      "csv_computed": {
+        "today_rth_high": 751.31,
+        "today_rth_low": 740.03,
+        "today_rth_close": 745.3,
+        "today_rth_open": 747.4,
+        "today_session_range": 11.28,
+        "today_volume_total": 42061314
+      },
+      "key_levels_from_today_bias": {
+        "resistance": [
+          743.46,
+          749.54,
+          750.0,
+          751.23,
+          752.09
+        ],
+        "support": [
+          746.89,
+          741.61,
+          741.47,
+          740.04,
+          734.52
+        ],
+        "ema_fast": 743.33,
+        "ema_pivot": 743.05,
+        "ema_slow": 743.21,
+        "sma_50": null,
+        "ema_read_failed": false,
+        "ribbon_source": "refresh_levels_intraday_16:28ET"
+      },
+      "5d_high": 751.31,
+      "5d_low": 726.86,
+      "5d_dates": [
+        "2026-06-26",
+        "2026-06-29",
+        "2026-06-30",
+        "2026-07-01",
+        "2026-07-02"
+      ]
+    },
+    "scheduled_events_tomorrow": [],
+    "developing_setup_at_close": null
+  }
+}

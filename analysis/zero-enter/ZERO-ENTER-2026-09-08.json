@@ -1,0 +1,716 @@
+{
+  "_doc": "zero_enter_autopsy.py output -- per-bar counterfactual table + day summary. Read-only autopsy, never a gate change. Schema matches analysis/zero-enter/ZERO-ENTER-2026-09-02.json (Z2, hand-validated).",
+  "schema_version": 1,
+  "bars": [
+    {
+      "ts_et": "2026-09-04T15:55:00-04:00",
+      "bar_close": 770.18,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T09:30:00-04:00",
+      "bar_close": 768.825,
+      "dominant_blocker": 1,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 5,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T09:35:00-04:00",
+      "bar_close": 768.16,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T09:40:00-04:00",
+      "bar_close": 767.26,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T09:45:00-04:00",
+      "bar_close": 767.72,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T09:50:00-04:00",
+      "bar_close": 767.26,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T09:55:00-04:00",
+      "bar_close": 767.44,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T10:00:00-04:00",
+      "bar_close": 766.96,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T10:05:00-04:00",
+      "bar_close": 766.42,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T10:10:00-04:00",
+      "bar_close": 766.46,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T10:15:00-04:00",
+      "bar_close": 766.58,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T10:20:00-04:00",
+      "bar_close": 767.05,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T10:25:00-04:00",
+      "bar_close": 766.71,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T10:30:00-04:00",
+      "bar_close": 767.005,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T10:35:00-04:00",
+      "bar_close": 766.9,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T10:40:00-04:00",
+      "bar_close": 767.115,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T10:45:00-04:00",
+      "bar_close": 767.26,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T10:50:00-04:00",
+      "bar_close": 767.63,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T10:55:00-04:00",
+      "bar_close": 767.65,
+      "dominant_blocker": null,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T11:00:00-04:00",
+      "bar_close": 767.695,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T11:05:00-04:00",
+      "bar_close": 767.68,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T11:10:00-04:00",
+      "bar_close": 768.04,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T11:15:00-04:00",
+      "bar_close": 768.02,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T11:20:00-04:00",
+      "bar_close": 768.0,
+      "dominant_blocker": null,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T11:25:00-04:00",
+      "bar_close": 767.83,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T11:30:00-04:00",
+      "bar_close": 767.785,
+      "dominant_blocker": null,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T11:35:00-04:00",
+      "bar_close": 767.51,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T11:40:00-04:00",
+      "bar_close": 767.96,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T11:45:00-04:00",
+      "bar_close": 767.565,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T11:50:00-04:00",
+      "bar_close": 767.545,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T11:55:00-04:00",
+      "bar_close": 767.395,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T12:00:00-04:00",
+      "bar_close": 767.655,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T12:05:00-04:00",
+      "bar_close": 767.37,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T12:10:00-04:00",
+      "bar_close": 767.245,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T12:15:00-04:00",
+      "bar_close": 766.925,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T12:20:00-04:00",
+      "bar_close": 767.4,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T12:25:00-04:00",
+      "bar_close": 767.08,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T12:30:00-04:00",
+      "bar_close": 767.2,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T12:35:00-04:00",
+      "bar_close": 766.97,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T12:40:00-04:00",
+      "bar_close": 767.005,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T12:45:00-04:00",
+      "bar_close": 767.245,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T12:50:00-04:00",
+      "bar_close": 767.24,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T12:55:00-04:00",
+      "bar_close": 766.95,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T13:00:00-04:00",
+      "bar_close": 767.87,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T13:05:00-04:00",
+      "bar_close": 767.58,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T13:10:00-04:00",
+      "bar_close": 767.635,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T13:15:00-04:00",
+      "bar_close": 767.63,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T13:20:00-04:00",
+      "bar_close": 767.68,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T13:25:00-04:00",
+      "bar_close": 767.475,
+      "dominant_blocker": null,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T13:30:00-04:00",
+      "bar_close": 767.72,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T13:35:00-04:00",
+      "bar_close": 767.695,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "bear_score": 5,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T13:40:00-04:00",
+      "bar_close": 767.315,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 5,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T13:45:00-04:00",
+      "bar_close": 767.59,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "bear_score": 5,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T13:50:00-04:00",
+      "bar_close": 767.76,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "bear_score": 4,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T13:55:00-04:00",
+      "bar_close": 767.56,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 5,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T14:00:00-04:00",
+      "bar_close": 767.59,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "bear_score": 4,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T14:05:00-04:00",
+      "bar_close": 767.77,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "bear_score": 4,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T14:10:00-04:00",
+      "bar_close": 767.76,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T14:15:00-04:00",
+      "bar_close": 767.81,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "bear_score": 4,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T14:20:00-04:00",
+      "bar_close": 767.61,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 5,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T14:25:00-04:00",
+      "bar_close": 767.765,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "bear_score": 5,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T14:30:00-04:00",
+      "bar_close": 767.525,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T14:35:00-04:00",
+      "bar_close": 767.17,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 5,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T14:40:00-04:00",
+      "bar_close": 767.52,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "bear_score": 4,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T14:45:00-04:00",
+      "bar_close": 766.26,
+      "dominant_blocker": 6,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 5,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T14:50:00-04:00",
+      "bar_close": 766.98,
+      "dominant_blocker": 6,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T14:55:00-04:00",
+      "bar_close": 766.79,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T15:00:00-04:00",
+      "bar_close": 766.63,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T15:05:00-04:00",
+      "bar_close": 766.825,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T15:10:00-04:00",
+      "bar_close": 766.91,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T15:15:00-04:00",
+      "bar_close": 766.715,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T15:20:00-04:00",
+      "bar_close": 766.58,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T15:25:00-04:00",
+      "bar_close": 766.97,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T15:30:00-04:00",
+      "bar_close": 767.09,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T15:35:00-04:00",
+      "bar_close": 766.99,
+      "dominant_blocker": null,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 6,
+      "would_have_entered": true
+    },
+    {
+      "ts_et": "2026-09-08T15:40:00-04:00",
+      "bar_close": 766.82,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-08T15:45:00-04:00",
+      "bar_close": 766.54,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 8,
+      "would_have_entered": false
+    }
+  ],
+  "day_summary": {
+    "trading_day": "2026-09-08",
+    "account": "safe",
+    "thesis_verbatim": null,
+    "thesis_direction": "BEAR",
+    "thesis_payoff_if_taken_net_of_costs": {
+      "computed": false,
+      "reason": "no OPRA option cache for SPY260908P00767000 -- cannot price this day's counterfactual (fail-open null, not a fabricated number)",
+      "payoff_usd": null,
+      "symbol": "SPY260908P00767000"
+    },
+    "dominant_blocker_day": 8,
+    "blocker_fire_count": 72,
+    "n_bars": 77,
+    "grade": "regressing",
+    "grade_reason": "10 of 229 ticks scored >= 9 with NO gate blocker recorded (0 enters, 772 RTH ticks) -- possible funnel miss"
+  }
+}

@@ -1,4 +1,4 @@
-# Futures trade autopsy -- 2026-09-03T03:43:53
+# Futures trade autopsy -- 2026-09-10T16:52:02
 
 > Descriptive only (per winner_autopsy.py's own small-n discipline). No hypothesis queued, nothing else appended. SIMULATED and BROKER are never aggregated together.
 

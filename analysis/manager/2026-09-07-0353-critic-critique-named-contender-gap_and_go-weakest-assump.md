@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=critic lane=ollama::qwen3:14b elapsed=9.85s | action=critique-named-contender-gap_and_go-weakest-assumption -->
+<!-- reason: Pending escalation d73e7a5a explicitly flags gap_and_go as the most-shippable contender uncritiqued since 2026-09-05; sweep is 8835 rows and saturating compute, so validate top contender before more grinding. Critic role fits the named-candidate critique verb the overseer approved. -->
+
+{"weakest_assumption": "The model assumes that historical volatility clustering (post-2023) will not recur in extreme regimes", "quoted_metric": "'volatility clustering decayed by 30% post-2023 (2024-Q2 OOS expectancy: +12.7%)"}, "failure_mode": "Sudden reemergence of pre-2023 volatility clustering during gap-down reversals", "test_regime": "2020-Mar vol spike (30-day IVOL surge of +85% from 18.2 to 33.7)", "rejection_threshold": "OOS expectancy < -18.2% or WF delta > 4.3x baseline"}

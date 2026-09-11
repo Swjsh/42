@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=coder lane=openrouter::cohere/north-mini-code:free elapsed=8.594s | action=Investigate and resolve the PowerShell s -->
+<!-- reason: Critical script failures are causing repeated errors and blocking task execution; resolving this is essential for system stability and progress on pending R&D items -->
+
+I’m ready to investigate the script failures. Could you please share the content of the two PowerShell scripts (`run-autoapply.ps1` and `run-discord-responder.ps1`)? Also, if there are any relevant log files or error messages (especially the stderr output that produced exit code 3221225781), please paste them here. Once I have the script code and error details, I can pinpoint the issue and adjust the `Invoke-Claude` budget/timeout settings accordingly.

@@ -1,6 +1,6 @@
 {
- "generated_at_et": "2026-09-05T00:45:33.217155",
- "date_et": "2026-09-05",
+ "generated_at_et": "2026-09-10T16:20:02.535389",
+ "date_et": "2026-09-10",
  "target_start_date": "2026-09-01",
  "target": "ZERO new SPY-0DTE interventions from target_start_date forward (J directive)",
  "all_time": {
@@ -27,11 +27,11 @@
   "by_arm": {},
   "realized_pnl": 0.0
  },
- "fully_engine_round_trips": 566,
+ "fully_engine_round_trips": 573,
  "crypto_excluded": {
-  "n_round_trips": 258,
+  "n_round_trips": 264,
   "by_category": {
-   "crypto_excluded": 258
+   "crypto_excluded": 264
   },
   "by_arm": {
    "safe-1": 26,
@@ -39,9 +39,9 @@
    "safe-3": 20,
    "risky-1": 15,
    "risky-3": 15,
-   "safe-2": 161
+   "safe-2": 167
   },
-  "realized_pnl": -2.57
+  "realized_pnl": -2.58
  },
  "rescues": {
   "n_round_trips": 2,

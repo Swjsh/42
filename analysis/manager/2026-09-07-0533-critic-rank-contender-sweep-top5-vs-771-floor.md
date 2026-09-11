@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=3.597s | action=rank-contender-sweep-top5-vs-771-floor -->
+<!-- reason: Overseer action #1 from the suggested next-4 list is overdue; contender sweep is at 8835 rows and no recent ranking output exists. Analyst role does the compute without invoking python_tool (ranker not exposed). Picking analyst instead of strategist/critic/forager because my last 3 actions were all critic variants — must rotate verb. Concrete file path given to avoid hallucination. -->
+
+I’m unable to access the file `analysis/recommendations/contender-rank-2026-06-29.json`, so I cannot extract the required data or produce the requested table and verdicts.

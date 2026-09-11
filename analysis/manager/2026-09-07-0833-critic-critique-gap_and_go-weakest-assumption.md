@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=14.777s | action=critique-gap_and_go-weakest-assumption -->
+<!-- reason: Overseer explicitly listed gap_and_go critique as a priority and the latest ESCL [d73e7a5a] flags it as never adversarially critiqued since the sweep grew to 8835 rows. Different verb (critique vs prior rank/score/ideate/cook/forage) and different named target vs prior critiques on liquidity_sweep and vol_compression_expansion_bos. -->
+
+I attempted to open **analysis/recommendations/edgehunt-gap_and_go.json** but the file could not be located in the current environment. Without access to its contents I cannot extract the assumptions, scorecard metrics, or formulate the requested table and concrete next step. Please verify the file path or provide the file contents directly.

@@ -1,6 +1,6 @@
 {
  "_meta": {
-  "generated_at_et": "2026-08-24T16:30:24",
+  "generated_at_et": "2026-09-10T16:35:42",
   "builder": "setup/scripts/conviction_shadow_report.py",
   "armed": false,
   "shadow_only": "[DISARMED] MEASUREMENT ONLY -- no SKIP_LOW_CONVICTION branch exists; no row here refused an entry.",
@@ -14,77 +14,89 @@
    "automation/state/fleet/safe-1/decisions.jsonl",
    "automation/state/fleet/safe-3/decisions.jsonl"
   ],
-  "status": "268 post-fix row(s) across 5 session(s). Block rate 98.1%."
+  "status": "724 post-fix row(s) across 16 session(s). Block rate 94.2%."
  },
  "post_fix": {
-  "n": 268,
-  "n_scored": 268,
+  "n": 724,
+  "n_scored": 724,
   "n_errored": 0,
-  "would_block": 263,
-  "would_allow": 5,
-  "block_rate_pct": 98.1,
+  "would_block": 682,
+  "would_allow": 42,
+  "block_rate_pct": 94.2,
   "dates": [
    "2026-08-17",
    "2026-08-18",
    "2026-08-19",
    "2026-08-20",
-   "2026-08-21"
+   "2026-08-21",
+   "2026-08-25",
+   "2026-08-26",
+   "2026-08-27",
+   "2026-08-28",
+   "2026-09-01",
+   "2026-09-02",
+   "2026-09-03",
+   "2026-09-04",
+   "2026-09-08",
+   "2026-09-09",
+   "2026-09-10"
   ],
   "arms": [
    "core"
   ],
   "score_histogram": {
-   "0": 164,
-   "1": 30,
-   "3": 4,
-   "4": 24,
-   "5": 36,
-   "6": 10
+   "0": 266,
+   "1": 60,
+   "2": 12,
+   "3": 60,
+   "4": 150,
+   "5": 146,
+   "6": 30
   },
   "floor_effective_histogram": {
-   "5": 23,
-   "6": 145,
-   "7": 51,
-   "8": 25,
-   "9": 5,
+   "5": 124,
+   "6": 316,
+   "7": 148,
+   "8": 57,
+   "9": 60,
    "10": 19
   },
   "component_hit_rate_pct": {
-   "named_level": 27.6,
-   "multi_day_memory": 16.4,
-   "fresh_test": 12.7,
-   "range_extreme": 0.0,
-   "structure_agreement": 29.1,
-   "elite_trigger": 27.6,
-   "zone_stack": 0.0
+   "named_level": 53.6,
+   "multi_day_memory": 27.9,
+   "fresh_test": 30.7,
+   "range_extreme": 1.4,
+   "structure_agreement": 20.2,
+   "elite_trigger": 52.2,
+   "zone_stack": 5.5
   },
   "degraded_components": {
-   "structure": 169
+   "structure": 461
   },
   "by_k": {
    "0": {
-    "n": 23,
-    "blocked": 23,
-    "block_rate_pct": 100.0
+    "n": 124,
+    "blocked": 96,
+    "block_rate_pct": 77.4
    },
    "1": {
-    "n": 145,
-    "blocked": 140,
-    "block_rate_pct": 96.6
+    "n": 316,
+    "blocked": 302,
+    "block_rate_pct": 95.6
    },
    "2": {
-    "n": 51,
-    "blocked": 51,
+    "n": 148,
+    "blocked": 148,
     "block_rate_pct": 100.0
    },
    "3": {
-    "n": 25,
-    "blocked": 25,
+    "n": 57,
+    "blocked": 57,
     "block_rate_pct": 100.0
    },
    "4": {
-    "n": 5,
-    "blocked": 5,
+    "n": 60,
+    "blocked": 60,
     "block_rate_pct": 100.0
    },
    "5": {
@@ -118,40 +130,116 @@
     "n": 60,
     "blocked": 55,
     "block_rate_pct": 91.7
+   },
+   "2026-08-25": {
+    "n": 10,
+    "blocked": 10,
+    "block_rate_pct": 100.0
+   },
+   "2026-08-26": {
+    "n": 40,
+    "blocked": 17,
+    "block_rate_pct": 42.5
+   },
+   "2026-08-27": {
+    "n": 50,
+    "blocked": 48,
+    "block_rate_pct": 96.0
+   },
+   "2026-08-28": {
+    "n": 56,
+    "blocked": 56,
+    "block_rate_pct": 100.0
+   },
+   "2026-09-01": {
+    "n": 18,
+    "blocked": 18,
+    "block_rate_pct": 100.0
+   },
+   "2026-09-02": {
+    "n": 40,
+    "blocked": 31,
+    "block_rate_pct": 77.5
+   },
+   "2026-09-03": {
+    "n": 134,
+    "blocked": 131,
+    "block_rate_pct": 97.8
+   },
+   "2026-09-04": {
+    "n": 24,
+    "blocked": 24,
+    "block_rate_pct": 100.0
+   },
+   "2026-09-08": {
+    "n": 50,
+    "blocked": 50,
+    "block_rate_pct": 100.0
+   },
+   "2026-09-09": {
+    "n": 10,
+    "blocked": 10,
+    "block_rate_pct": 100.0
+   },
+   "2026-09-10": {
+    "n": 24,
+    "blocked": 24,
+    "block_rate_pct": 100.0
    }
   }
  },
  "post_fix_outcomes": {
-  "n_joined": 18,
-  "n_unjoined": 250,
+  "n_joined": 47,
+  "n_unjoined": 677,
   "WOULD_BLOCK": {
-   "n": 18,
-   "total_pnl": 675.0,
-   "mean_pnl": 37.5,
-   "win_rate_pct": 50.0
+   "n": 42,
+   "total_pnl": 1216.0,
+   "mean_pnl": 28.95,
+   "win_rate_pct": 40.5
   },
   "WOULD_ALLOW": {
-   "n": 0
+   "n": 5,
+   "total_pnl": -66.0,
+   "mean_pnl": -13.2,
+   "win_rate_pct": 40.0
   },
-  "delta_if_armed_usd": -675.0,
+  "delta_if_armed_usd": -1216.0,
   "by_score": {
    "0": {
-    "n": 10,
-    "total_pnl": 671.0,
-    "mean_pnl": 67.1,
-    "win_rate_pct": 70.0
+    "n": 15,
+    "total_pnl": 633.0,
+    "mean_pnl": 42.2,
+    "win_rate_pct": 53.3
    },
-   "4": {
-    "n": 5,
-    "total_pnl": -227.0,
-    "mean_pnl": -45.4,
+   "1": {
+    "n": 2,
+    "total_pnl": -485.0,
+    "mean_pnl": -242.5,
     "win_rate_pct": 0.0
    },
+   "2": {
+    "n": 1,
+    "total_pnl": -30.0,
+    "mean_pnl": -30.0,
+    "win_rate_pct": 0.0
+   },
+   "3": {
+    "n": 5,
+    "total_pnl": 1116.0,
+    "mean_pnl": 223.2,
+    "win_rate_pct": 80.0
+   },
+   "4": {
+    "n": 13,
+    "total_pnl": -336.0,
+    "mean_pnl": -25.85,
+    "win_rate_pct": 15.4
+   },
    "5": {
-    "n": 2,
-    "total_pnl": 72.0,
-    "mean_pnl": 36.0,
-    "win_rate_pct": 50.0
+    "n": 10,
+    "total_pnl": 93.0,
+    "mean_pnl": 9.3,
+    "win_rate_pct": 40.0
    },
    "6": {
     "n": 1,
@@ -163,107 +251,100 @@
   "_reading": "delta_if_armed_usd is what the book would have gained (+) or given up (-) had conviction been ARMED over this population -- descriptive, and NOT a scorecard: it carries no OOS split, no permutation null, and no matched suppress-k-at-random control."
  },
  "weekly_last_5_sessions": {
-  "n": 268,
-  "n_scored": 268,
+  "n": 242,
+  "n_scored": 242,
   "n_errored": 0,
-  "would_block": 263,
-  "would_allow": 5,
-  "block_rate_pct": 98.1,
+  "would_block": 239,
+  "would_allow": 3,
+  "block_rate_pct": 98.8,
   "dates": [
-   "2026-08-17",
-   "2026-08-18",
-   "2026-08-19",
-   "2026-08-20",
-   "2026-08-21"
+   "2026-09-03",
+   "2026-09-04",
+   "2026-09-08",
+   "2026-09-09",
+   "2026-09-10"
   ],
   "arms": [
    "core"
   ],
   "score_histogram": {
-   "0": 164,
-   "1": 30,
-   "3": 4,
-   "4": 24,
-   "5": 36,
-   "6": 10
+   "0": 84,
+   "2": 12,
+   "3": 44,
+   "4": 42,
+   "5": 60
   },
   "floor_effective_histogram": {
-   "5": 23,
-   "6": 145,
-   "7": 51,
-   "8": 25,
-   "9": 5,
-   "10": 19
+   "5": 48,
+   "6": 79,
+   "7": 40,
+   "8": 20,
+   "9": 55
   },
   "component_hit_rate_pct": {
-   "named_level": 27.6,
-   "multi_day_memory": 16.4,
-   "fresh_test": 12.7,
-   "range_extreme": 0.0,
-   "structure_agreement": 29.1,
-   "elite_trigger": 27.6,
+   "named_level": 61.2,
+   "multi_day_memory": 24.8,
+   "fresh_test": 38.0,
+   "range_extreme": 4.1,
+   "structure_agreement": 11.6,
+   "elite_trigger": 57.0,
    "zone_stack": 0.0
   },
   "degraded_components": {
-   "structure": 169
+   "structure": 118
   },
   "by_k": {
    "0": {
-    "n": 23,
-    "blocked": 23,
-    "block_rate_pct": 100.0
+    "n": 48,
+    "blocked": 45,
+    "block_rate_pct": 93.8
    },
    "1": {
-    "n": 145,
-    "blocked": 140,
-    "block_rate_pct": 96.6
+    "n": 79,
+    "blocked": 79,
+    "block_rate_pct": 100.0
    },
    "2": {
-    "n": 51,
-    "blocked": 51,
+    "n": 40,
+    "blocked": 40,
     "block_rate_pct": 100.0
    },
    "3": {
-    "n": 25,
-    "blocked": 25,
+    "n": 20,
+    "blocked": 20,
     "block_rate_pct": 100.0
    },
    "4": {
-    "n": 5,
-    "blocked": 5,
-    "block_rate_pct": 100.0
-   },
-   "5": {
-    "n": 19,
-    "blocked": 19,
+    "n": 55,
+    "blocked": 55,
     "block_rate_pct": 100.0
    }
   },
   "by_date": {
-   "2026-08-17": {
-    "n": 58,
-    "blocked": 58,
-    "block_rate_pct": 100.0
+   "2026-09-03": {
+    "n": 134,
+    "blocked": 131,
+    "block_rate_pct": 97.8
    },
-   "2026-08-18": {
-    "n": 46,
-    "blocked": 46,
-    "block_rate_pct": 100.0
-   },
-   "2026-08-19": {
+   "2026-09-04": {
     "n": 24,
     "blocked": 24,
     "block_rate_pct": 100.0
    },
-   "2026-08-20": {
-    "n": 80,
-    "blocked": 80,
+   "2026-09-08": {
+    "n": 50,
+    "blocked": 50,
     "block_rate_pct": 100.0
    },
-   "2026-08-21": {
-    "n": 60,
-    "blocked": 55,
-    "block_rate_pct": 91.7
+   "2026-09-09": {
+    "n": 10,
+    "blocked": 10,
+    "block_rate_pct": 100.0
+   },
+   "2026-09-10": {
+    "n": 24,
+    "blocked": 24,
+    "block_rate_pct": 100.0
    }
   }
  },

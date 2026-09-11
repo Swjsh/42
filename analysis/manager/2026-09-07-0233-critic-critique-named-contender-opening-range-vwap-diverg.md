@@ -1,0 +1,8 @@
+<!-- gamma_manager (FREE) | role=critic lane=ollama::qwen3:14b elapsed=14.17s | action=critique-named-contender-opening-range-vwap-divergence-meanrev-fresh-batch -->
+<!-- reason: Recent actions skew heavily toward critic on nlwb-pullback and gap_and_go; the 2026-09-07 chef-nemo-opening-range-vwap-divergence-meanrev candidate is the freshest uncritiqued entry in the new-candidates tail and warrants the same adversarial pass before it accumulates age in the queue. -->
+
+**Weakest Assumption and Stress-Test for 'opening-range-vwap-divergence-meanrev'**  
+- **Targeted Claim**: *"Price deviations from VWAP during the opening range will revert to the mean within 15 minutes of the session's start (parameter: `mean_reversion_window=15m`)."*  
+- **Weakest Assumption**: The strategy assumes **uniform mean reversion dynamics** during the opening range, ignoring structural shifts in liquidity or order flow patterns (e.g., E-mini futures during pre-market volatility).  
+- **Stress-Test**: Apply the strategy to **E-mini S&P 500 data from 2020-03-02 to 2020-03-06** (the "March 2020 crash"). During this period, liquidity dried up, and price gaps persisted for hours due to algorithmic selling and halts, **invalidating the 15-minute mean reversion window**. A backtest on this slice would show **negative Sharpe ratios** and **systematic losses** as the strategy fails to capture reversion, exposing the flaw in the edge claim.  
+- **Why This Works**: The 2020 crash represents a **structural regime shift** (liquidity collapse, non-reverting gaps) that directly contradicts the strategy’s reliance on short-term mean reversion. No generic volatility argument is needed—the specific date range and mechanism (liquidity-driven dislocation) falsify the claim in one run.

@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=8.099s | action=adversarial_review_ribbon_expansion_breakout_short -->
+<!-- reason: Freshest chef output (2026-09-02 ribbon-expansion-breakout-short) is uncritiqued; sweep shows massive op16_reject failure mode on shorts so a focused adversarial pass on a short-side variant is highest-leverage use of critic lane. Avoids repeating the vwap_ribbon_pullback_long review just done. -->
+
+I’m unable to review the file `2026-09-02-chef-nemo-ribbon-expansion-breakout-short.md` because its contents haven’t been provided in this conversation. Please share the text of the candidate file so I can perform the adversarial review and give you the requested SINGLE WEAKEST ASSUMPTION, STRESS‑TEST PROTOCOL, and SHIP/HOLD/REVOKE decision.

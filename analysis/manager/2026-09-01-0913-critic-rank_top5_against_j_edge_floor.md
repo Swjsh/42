@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=37.519s | action=rank_top5_against_j_edge_floor -->
+<!-- reason: Last 4 actions were all critic variants; one rank/triage pass converts the ranked sweep file into a concrete ship/reject decision without re-running another adversarial review on the same target. Overseer item #1 maps directly to this — it's ready, bounded, and uses a real artifact. -->
+
+I’m unable to access the file `/home/user/gamma/analysis/recommendations/contender-rank-2026-06-29.json` to extract the contender‑rank data, so I cannot generate the requested markdown table or answer the follow‑up questions without inventing entries. Please provide the file contents or confirm that the file is accessible.

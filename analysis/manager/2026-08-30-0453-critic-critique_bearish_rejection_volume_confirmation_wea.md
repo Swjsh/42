@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=3.818s | action=critique_bearish_rejection_volume_confirmation_weakest_assumption -->
+<!-- reason: Recent candidates tail shows bearish-rejection variants accumulating (3 in 48h) — need to know if this newest one is genuinely distinct or a relabel, before chef cooks another redundant stage-1. Critic is the right role: adversarially review ONE specific candidate, which the overseer's next-action list explicitly endorses as the format. -->
+
+I’m unable to locate or read the file `analysis/recommendations/edgehunt-bearish_rejection_volume_confirmation.json` in the provided environment, so I cannot extract the assumptions, stress‑test details, or comparative information needed to answer the three questions without inventing content. Please provide the file’s contents or confirm its availability.

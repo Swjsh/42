@@ -1,0 +1,7 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=23.618s | action=critique_gap_and_go_weakest_assumption -->
+<!-- reason: Overseer listed this exact critique as action #4; it has not been run yet and addresses a specific named candidate rather than repeating my last 8 critic turns (vwap/vix/rvol/top5/contender-sweep variants). Picked critic because the last action was also critic and the queue specifically prescribes this prompt verbatim — rotating TARGET not ROLE. -->
+
+**Critique**
+- Weakest assumption: The assumption that intraday realized volatility stays below the 15 % threshold used to define the “low‑volatility” regime for the Gap‑and‑Go entry.  
+- Stress test: Slice the historical dataset to only those trading days where the 5‑minute realized volatility (measured from the open to the first 30 minutes) exceeds 15 % and run the original Gap‑and‑Go parameters unchanged.  
+- Outcome: If the strategy’s net excess return (or Sharpe) becomes non‑positive in this high‑volatility slice, the assumption is falsified and the edge claim should be **REVOKE**; if returns remain positive but show a significant degradation (e.g., Sharpe drops >30 % while staying >0), then only a **parameter tweak** (e.g., raising the volatility threshold or tightening the gap‑size filter) is warranted.

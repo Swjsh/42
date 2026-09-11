@@ -1,0 +1,6744 @@
+{
+  "generated_at_utc": "2026-07-08T23:49:10.633662+00:00",
+  "n_positions": 79,
+  "summary": {
+    "actual_ribbon_ride": {
+      "n_positions": 79,
+      "n_valid": 79,
+      "n_no_data": 0,
+      "total_pnl": -757.1,
+      "win_rate": 0.025,
+      "n_stopped_out": 77,
+      "n_stopped_then_thesis_paid": 62
+    },
+    "v15_3_safe_ratified": {
+      "n_positions": 79,
+      "n_valid": 79,
+      "n_no_data": 0,
+      "total_pnl": -120.2,
+      "win_rate": 0.443,
+      "n_stopped_out": 44,
+      "n_stopped_then_thesis_paid": 29
+    },
+    "j_style_scalp": {
+      "n_positions": 79,
+      "n_valid": 79,
+      "n_no_data": 0,
+      "total_pnl": 151.54,
+      "win_rate": 0.316,
+      "n_stopped_out": 54,
+      "n_stopped_then_thesis_paid": 34
+    },
+    "no_trail_hold_to_time_stop": {
+      "n_positions": 79,
+      "n_valid": 79,
+      "n_no_data": 0,
+      "total_pnl": -2674.5,
+      "win_rate": 0.051,
+      "n_stopped_out": 73,
+      "n_stopped_then_thesis_paid": 45
+    }
+  },
+  "results": {
+    "actual_ribbon_ride": [
+      {
+        "pnl": -22.4,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 8,
+            "fill_price": 0.112,
+            "ts_utc": "2026-06-29T18:50:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "safe-1",
+        "symbol": "SPY260629C00743000",
+        "date_et": "2026-06-29",
+        "entry_price": 0.14,
+        "qty": 8.0,
+        "actual_exit_pnl": -32.0
+      },
+      {
+        "pnl": -36.6,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.488,
+            "ts_utc": "2026-06-30T14:01:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-1",
+        "symbol": "SPY260630C00746000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.61,
+        "qty": 3.0,
+        "actual_exit_pnl": -36.0
+      },
+      {
+        "pnl": -7.2,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.096,
+            "ts_utc": "2026-06-30T16:58:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-1",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.12,
+        "qty": 3.0,
+        "actual_exit_pnl": -9.0
+      },
+      {
+        "pnl": -4.8,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.064,
+            "ts_utc": "2026-06-30T17:15:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-1",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.08,
+        "qty": 3.0,
+        "actual_exit_pnl": -18.0
+      },
+      {
+        "pnl": -15.6,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.208,
+            "ts_utc": "2026-07-01T15:34:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-1",
+        "symbol": "SPY260701C00751000",
+        "date_et": "2026-07-01",
+        "entry_price": 0.26,
+        "qty": 3.0,
+        "actual_exit_pnl": -12.0
+      },
+      {
+        "pnl": -28.8,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.384,
+            "ts_utc": "2026-07-02T13:32:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-1",
+        "symbol": "SPY260702P00743000",
+        "date_et": "2026-07-02",
+        "entry_price": 0.48,
+        "qty": 3.0,
+        "actual_exit_pnl": -45.0
+      },
+      {
+        "pnl": -11.4,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.152,
+            "ts_utc": "2026-07-02T14:21:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "safe-1",
+        "symbol": "SPY260702C00754000",
+        "date_et": "2026-07-02",
+        "entry_price": 0.19,
+        "qty": 3.0,
+        "actual_exit_pnl": -15.0
+      },
+      {
+        "pnl": 275.0,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 2,
+            "fill_price": 1.25,
+            "ts_utc": "2026-07-02T16:37:00Z"
+          },
+          {
+            "stage": "runner_target",
+            "qty": 1,
+            "fill_price": 1.75,
+            "ts_utc": "2026-07-02T17:03:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "safe-1",
+        "symbol": "SPY260702P00742000",
+        "date_et": "2026-07-02",
+        "entry_price": 0.5,
+        "qty": 3.0,
+        "actual_exit_pnl": 306.0
+      },
+      {
+        "pnl": -45.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.36,
+            "ts_utc": "2026-07-02T18:05:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "safe-1",
+        "symbol": "SPY260702P00739000",
+        "date_et": "2026-07-02",
+        "entry_price": 0.45,
+        "qty": 5.0,
+        "actual_exit_pnl": -95.0
+      },
+      {
+        "pnl": -12.8,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 8,
+            "fill_price": 0.064,
+            "ts_utc": "2026-07-06T15:35:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-1",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.08,
+        "qty": 8.0,
+        "actual_exit_pnl": -16.0
+      },
+      {
+        "pnl": -9.6,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 8,
+            "fill_price": 0.048,
+            "ts_utc": "2026-07-06T16:59:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-1",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.06,
+        "qty": 8.0,
+        "actual_exit_pnl": -8.0
+      },
+      {
+        "pnl": -16.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 8,
+            "fill_price": 0.08,
+            "ts_utc": "2026-07-06T17:18:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-1",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.1,
+        "qty": 8.0,
+        "actual_exit_pnl": 8.0
+      },
+      {
+        "pnl": -17.6,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 8,
+            "fill_price": 0.088,
+            "ts_utc": "2026-07-06T18:28:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-1",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.11,
+        "qty": 8.0,
+        "actual_exit_pnl": -8.0
+      },
+      {
+        "pnl": -8.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 8,
+            "fill_price": 0.04,
+            "ts_utc": "2026-07-06T18:59:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-1",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.05,
+        "qty": 8.0,
+        "actual_exit_pnl": -16.0
+      },
+      {
+        "pnl": -26.4,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.352,
+            "ts_utc": "2026-07-07T14:52:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-1",
+        "symbol": "SPY260707P00743000",
+        "date_et": "2026-07-07",
+        "entry_price": 0.44,
+        "qty": 3.0,
+        "actual_exit_pnl": -39.0
+      },
+      {
+        "pnl": -14.4,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.192,
+            "ts_utc": "2026-07-07T16:38:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-1",
+        "symbol": "SPY260707P00746000",
+        "date_et": "2026-07-07",
+        "entry_price": 0.24,
+        "qty": 3.0,
+        "actual_exit_pnl": -15.0
+      },
+      {
+        "pnl": -6.6,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.088,
+            "ts_utc": "2026-07-07T18:35:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-1",
+        "symbol": "SPY260707P00746000",
+        "date_et": "2026-07-07",
+        "entry_price": 0.11,
+        "qty": 3.0,
+        "actual_exit_pnl": -9.0
+      },
+      {
+        "pnl": -57.6,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.768,
+            "ts_utc": "2026-07-08T13:58:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-1",
+        "symbol": "SPY260708P00741000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.96,
+        "qty": 3.0,
+        "actual_exit_pnl": -54.0
+      },
+      {
+        "pnl": -15.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.2,
+            "ts_utc": "2026-07-08T17:19:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-1",
+        "symbol": "SPY260708P00741000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.25,
+        "qty": 3.0,
+        "actual_exit_pnl": 0.0
+      },
+      {
+        "pnl": -7.8,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.104,
+            "ts_utc": "2026-07-08T17:35:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "safe-1",
+        "symbol": "SPY260708C00749000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.13,
+        "qty": 3.0,
+        "actual_exit_pnl": -12.0
+      },
+      {
+        "pnl": -6.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.08,
+            "ts_utc": "2026-07-08T18:53:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-1",
+        "symbol": "SPY260708C00748000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.1,
+        "qty": 3.0,
+        "actual_exit_pnl": -12.0
+      },
+      {
+        "pnl": -17.6,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 8,
+            "fill_price": 0.088,
+            "ts_utc": "2026-06-29T18:57:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "safe-3",
+        "symbol": "SPY260629C00743000",
+        "date_et": "2026-06-29",
+        "entry_price": 0.11,
+        "qty": 8.0,
+        "actual_exit_pnl": -8.0
+      },
+      {
+        "pnl": -36.6,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.488,
+            "ts_utc": "2026-06-30T14:01:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-3",
+        "symbol": "SPY260630C00746000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.61,
+        "qty": 3.0,
+        "actual_exit_pnl": -33.0
+      },
+      {
+        "pnl": -6.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.08,
+            "ts_utc": "2026-06-30T16:58:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.1,
+        "qty": 3.0,
+        "actual_exit_pnl": -3.0
+      },
+      {
+        "pnl": -4.2,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.056,
+            "ts_utc": "2026-06-30T18:25:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.07,
+        "qty": 3.0,
+        "actual_exit_pnl": -6.0
+      },
+      {
+        "pnl": -4.2,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.056,
+            "ts_utc": "2026-06-30T18:55:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.07,
+        "qty": 3.0,
+        "actual_exit_pnl": -6.0
+      },
+      {
+        "pnl": -4.8,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.064,
+            "ts_utc": "2026-06-30T19:22:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.08,
+        "qty": 3.0,
+        "actual_exit_pnl": -18.0
+      },
+      {
+        "pnl": -1.8,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.024,
+            "ts_utc": "2026-06-30T19:23:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-3",
+        "symbol": "SPY260630C00751000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.03,
+        "qty": 3.0,
+        "actual_exit_pnl": -6.0
+      },
+      {
+        "pnl": -15.6,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.208,
+            "ts_utc": "2026-07-01T15:34:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-3",
+        "symbol": "SPY260701C00751000",
+        "date_et": "2026-07-01",
+        "entry_price": 0.26,
+        "qty": 3.0,
+        "actual_exit_pnl": -12.0
+      },
+      {
+        "pnl": -11.4,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.152,
+            "ts_utc": "2026-07-02T14:21:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "safe-3",
+        "symbol": "SPY260702C00754000",
+        "date_et": "2026-07-02",
+        "entry_price": 0.19,
+        "qty": 3.0,
+        "actual_exit_pnl": -15.0
+      },
+      {
+        "pnl": -2.4,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.032,
+            "ts_utc": "2026-07-06T15:35:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-3",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.04,
+        "qty": 3.0,
+        "actual_exit_pnl": -6.0
+      },
+      {
+        "pnl": -1.8,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.024,
+            "ts_utc": "2026-07-06T16:41:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-3",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.03,
+        "qty": 3.0,
+        "actual_exit_pnl": -3.0
+      },
+      {
+        "pnl": -3.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.04,
+            "ts_utc": "2026-07-06T17:14:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-3",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.05,
+        "qty": 3.0,
+        "actual_exit_pnl": -3.0
+      },
+      {
+        "pnl": -2.4,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.032,
+            "ts_utc": "2026-07-06T18:28:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-3",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.04,
+        "qty": 3.0,
+        "actual_exit_pnl": 0.0
+      },
+      {
+        "pnl": -1.2,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.016,
+            "ts_utc": "2026-07-06T18:59:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-3",
+        "symbol": "SPY260706C00755000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.02,
+        "qty": 3.0,
+        "actual_exit_pnl": -3.0
+      },
+      {
+        "pnl": -60.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.8,
+            "ts_utc": "2026-07-08T13:57:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-3",
+        "symbol": "SPY260708P00741000",
+        "date_et": "2026-07-08",
+        "entry_price": 1.0,
+        "qty": 3.0,
+        "actual_exit_pnl": -69.0
+      },
+      {
+        "pnl": -7.8,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.104,
+            "ts_utc": "2026-07-08T17:35:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "safe-3",
+        "symbol": "SPY260708C00749000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.13,
+        "qty": 3.0,
+        "actual_exit_pnl": -6.0
+      },
+      {
+        "pnl": -5.4,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.072,
+            "ts_utc": "2026-07-08T18:53:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-3",
+        "symbol": "SPY260708C00748000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.09,
+        "qty": 3.0,
+        "actual_exit_pnl": -9.0
+      },
+      {
+        "pnl": -33.6,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 12,
+            "fill_price": 0.112,
+            "ts_utc": "2026-06-29T18:50:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "risky-1",
+        "symbol": "SPY260629C00743000",
+        "date_et": "2026-06-29",
+        "entry_price": 0.14,
+        "qty": 12.0,
+        "actual_exit_pnl": -48.0
+      },
+      {
+        "pnl": -58.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.464,
+            "ts_utc": "2026-06-30T14:01:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-1",
+        "symbol": "SPY260630C00746000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.58,
+        "qty": 5.0,
+        "actual_exit_pnl": -80.0
+      },
+      {
+        "pnl": -10.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.08,
+            "ts_utc": "2026-06-30T16:58:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-1",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.1,
+        "qty": 5.0,
+        "actual_exit_pnl": 0.0
+      },
+      {
+        "pnl": -7.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.056,
+            "ts_utc": "2026-06-30T18:25:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-1",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.07,
+        "qty": 5.0,
+        "actual_exit_pnl": -10.0
+      },
+      {
+        "pnl": -9.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.072,
+            "ts_utc": "2026-06-30T18:54:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-1",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.09,
+        "qty": 5.0,
+        "actual_exit_pnl": -18.0
+      },
+      {
+        "pnl": -8.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.064,
+            "ts_utc": "2026-06-30T19:22:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-1",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.08,
+        "qty": 5.0,
+        "actual_exit_pnl": -30.0
+      },
+      {
+        "pnl": -3.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.024,
+            "ts_utc": "2026-06-30T19:23:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-1",
+        "symbol": "SPY260630C00751000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.03,
+        "qty": 5.0,
+        "actual_exit_pnl": -10.0
+      },
+      {
+        "pnl": -26.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.208,
+            "ts_utc": "2026-07-01T15:34:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-1",
+        "symbol": "SPY260701C00751000",
+        "date_et": "2026-07-01",
+        "entry_price": 0.26,
+        "qty": 5.0,
+        "actual_exit_pnl": -20.0
+      },
+      {
+        "pnl": -19.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.152,
+            "ts_utc": "2026-07-02T14:21:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "risky-1",
+        "symbol": "SPY260702C00754000",
+        "date_et": "2026-07-02",
+        "entry_price": 0.19,
+        "qty": 5.0,
+        "actual_exit_pnl": -25.0
+      },
+      {
+        "pnl": -4.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.032,
+            "ts_utc": "2026-07-06T15:35:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-1",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.04,
+        "qty": 5.0,
+        "actual_exit_pnl": -10.0
+      },
+      {
+        "pnl": -3.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.024,
+            "ts_utc": "2026-07-06T16:41:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-1",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.03,
+        "qty": 5.0,
+        "actual_exit_pnl": -5.0
+      },
+      {
+        "pnl": -5.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.04,
+            "ts_utc": "2026-07-06T17:14:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-1",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.05,
+        "qty": 5.0,
+        "actual_exit_pnl": -5.0
+      },
+      {
+        "pnl": -4.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.032,
+            "ts_utc": "2026-07-06T18:28:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-1",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.04,
+        "qty": 5.0,
+        "actual_exit_pnl": 0.0
+      },
+      {
+        "pnl": -2.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.016,
+            "ts_utc": "2026-07-06T18:59:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-1",
+        "symbol": "SPY260706C00755000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.02,
+        "qty": 5.0,
+        "actual_exit_pnl": -5.0
+      },
+      {
+        "pnl": -94.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.752,
+            "ts_utc": "2026-07-08T13:58:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-1",
+        "symbol": "SPY260708P00741000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.94,
+        "qty": 5.0,
+        "actual_exit_pnl": -80.0
+      },
+      {
+        "pnl": -13.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.104,
+            "ts_utc": "2026-07-08T17:35:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "risky-1",
+        "symbol": "SPY260708C00749000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.13,
+        "qty": 5.0,
+        "actual_exit_pnl": -10.0
+      },
+      {
+        "pnl": -10.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.08,
+            "ts_utc": "2026-07-08T18:53:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-1",
+        "symbol": "SPY260708C00748000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.1,
+        "qty": 5.0,
+        "actual_exit_pnl": -20.0
+      },
+      {
+        "pnl": -33.6,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 12,
+            "fill_price": 0.112,
+            "ts_utc": "2026-06-29T18:50:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "risky-3",
+        "symbol": "SPY260629C00743000",
+        "date_et": "2026-06-29",
+        "entry_price": 0.14,
+        "qty": 12.0,
+        "actual_exit_pnl": -48.0
+      },
+      {
+        "pnl": -60.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.48,
+            "ts_utc": "2026-06-30T14:01:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260630C00746000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.6,
+        "qty": 5.0,
+        "actual_exit_pnl": -60.0
+      },
+      {
+        "pnl": -10.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.08,
+            "ts_utc": "2026-06-30T16:58:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.1,
+        "qty": 5.0,
+        "actual_exit_pnl": -5.0
+      },
+      {
+        "pnl": -7.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.056,
+            "ts_utc": "2026-06-30T18:25:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.07,
+        "qty": 5.0,
+        "actual_exit_pnl": -10.0
+      },
+      {
+        "pnl": -8.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.064,
+            "ts_utc": "2026-06-30T18:55:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.08,
+        "qty": 5.0,
+        "actual_exit_pnl": -10.0
+      },
+      {
+        "pnl": -9.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.072,
+            "ts_utc": "2026-06-30T19:19:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.09,
+        "qty": 5.0,
+        "actual_exit_pnl": -5.0
+      },
+      {
+        "pnl": -5.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.04,
+            "ts_utc": "2026-06-30T19:20:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260630C00751000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.05,
+        "qty": 5.0,
+        "actual_exit_pnl": -15.0
+      },
+      {
+        "pnl": -26.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.208,
+            "ts_utc": "2026-07-01T15:34:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260701C00751000",
+        "date_et": "2026-07-01",
+        "entry_price": 0.26,
+        "qty": 5.0,
+        "actual_exit_pnl": -20.0
+      },
+      {
+        "pnl": -50.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.4,
+            "ts_utc": "2026-07-02T13:32:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260702P00743000",
+        "date_et": "2026-07-02",
+        "entry_price": 0.5,
+        "qty": 5.0,
+        "actual_exit_pnl": -80.0
+      },
+      {
+        "pnl": -19.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.152,
+            "ts_utc": "2026-07-02T14:21:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "risky-3",
+        "symbol": "SPY260702C00754000",
+        "date_et": "2026-07-02",
+        "entry_price": 0.19,
+        "qty": 5.0,
+        "actual_exit_pnl": -25.0
+      },
+      {
+        "pnl": 416.5,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 4,
+            "fill_price": 1.225,
+            "ts_utc": "2026-07-02T16:37:00Z"
+          },
+          {
+            "stage": "runner_target",
+            "qty": 1,
+            "fill_price": 1.715,
+            "ts_utc": "2026-07-02T17:03:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "risky-3",
+        "symbol": "SPY260702P00742000",
+        "date_et": "2026-07-02",
+        "entry_price": 0.49,
+        "qty": 5.0,
+        "actual_exit_pnl": 491.0
+      },
+      {
+        "pnl": -72.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 8,
+            "fill_price": 0.36,
+            "ts_utc": "2026-07-02T18:05:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "risky-3",
+        "symbol": "SPY260702P00739000",
+        "date_et": "2026-07-02",
+        "entry_price": 0.45,
+        "qty": 8.0,
+        "actual_exit_pnl": -152.0
+      },
+      {
+        "pnl": -19.2,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 12,
+            "fill_price": 0.064,
+            "ts_utc": "2026-07-06T15:35:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.08,
+        "qty": 12.0,
+        "actual_exit_pnl": -24.0
+      },
+      {
+        "pnl": -14.4,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 12,
+            "fill_price": 0.048,
+            "ts_utc": "2026-07-06T16:59:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.06,
+        "qty": 12.0,
+        "actual_exit_pnl": -12.0
+      },
+      {
+        "pnl": -24.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 12,
+            "fill_price": 0.08,
+            "ts_utc": "2026-07-06T17:18:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.1,
+        "qty": 12.0,
+        "actual_exit_pnl": -24.0
+      },
+      {
+        "pnl": -4.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.032,
+            "ts_utc": "2026-07-06T18:28:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.04,
+        "qty": 5.0,
+        "actual_exit_pnl": 0.0
+      },
+      {
+        "pnl": -2.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.016,
+            "ts_utc": "2026-07-06T18:59:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260706C00755000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.02,
+        "qty": 5.0,
+        "actual_exit_pnl": -5.0
+      },
+      {
+        "pnl": -45.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.36,
+            "ts_utc": "2026-07-07T14:52:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "risky-3",
+        "symbol": "SPY260707P00743000",
+        "date_et": "2026-07-07",
+        "entry_price": 0.45,
+        "qty": 5.0,
+        "actual_exit_pnl": -25.0
+      },
+      {
+        "pnl": -24.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.192,
+            "ts_utc": "2026-07-07T16:38:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260707P00746000",
+        "date_et": "2026-07-07",
+        "entry_price": 0.24,
+        "qty": 5.0,
+        "actual_exit_pnl": -25.0
+      },
+      {
+        "pnl": -10.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.08,
+            "ts_utc": "2026-07-07T18:35:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260707P00746000",
+        "date_et": "2026-07-07",
+        "entry_price": 0.1,
+        "qty": 5.0,
+        "actual_exit_pnl": -10.0
+      },
+      {
+        "pnl": -94.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.752,
+            "ts_utc": "2026-07-08T13:58:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260708P00741000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.94,
+        "qty": 5.0,
+        "actual_exit_pnl": -80.0
+      },
+      {
+        "pnl": -25.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.2,
+            "ts_utc": "2026-07-08T17:19:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260708P00741000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.25,
+        "qty": 5.0,
+        "actual_exit_pnl": 0.0
+      },
+      {
+        "pnl": -13.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.104,
+            "ts_utc": "2026-07-08T17:35:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "risky-3",
+        "symbol": "SPY260708C00749000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.13,
+        "qty": 5.0,
+        "actual_exit_pnl": -10.0
+      },
+      {
+        "pnl": -10.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.08,
+            "ts_utc": "2026-07-08T18:53:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260708C00748000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.1,
+        "qty": 5.0,
+        "actual_exit_pnl": -20.0
+      }
+    ],
+    "v15_3_safe_ratified": [
+      {
+        "pnl": -56.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 8,
+            "fill_price": 0.07,
+            "ts_utc": "2026-06-29T18:58:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "safe-1",
+        "symbol": "SPY260629C00743000",
+        "date_et": "2026-06-29",
+        "entry_price": 0.14,
+        "qty": 8.0,
+        "actual_exit_pnl": -32.0
+      },
+      {
+        "pnl": 36.6,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 2,
+            "fill_price": 0.793,
+            "ts_utc": "2026-06-30T14:03:00Z"
+          },
+          {
+            "stage": "be_stop",
+            "qty": 1,
+            "fill_price": 0.61,
+            "ts_utc": "2026-06-30T14:07:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "safe-1",
+        "symbol": "SPY260630C00746000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.61,
+        "qty": 3.0,
+        "actual_exit_pnl": -36.0
+      },
+      {
+        "pnl": -18.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.06,
+            "ts_utc": "2026-06-30T17:15:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-1",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.12,
+        "qty": 3.0,
+        "actual_exit_pnl": -9.0
+      },
+      {
+        "pnl": -12.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.04,
+            "ts_utc": "2026-06-30T17:33:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-1",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.08,
+        "qty": 3.0,
+        "actual_exit_pnl": -18.0
+      },
+      {
+        "pnl": 15.6,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 2,
+            "fill_price": 0.338,
+            "ts_utc": "2026-07-01T15:28:00Z"
+          },
+          {
+            "stage": "be_stop",
+            "qty": 1,
+            "fill_price": 0.26,
+            "ts_utc": "2026-07-01T15:31:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "safe-1",
+        "symbol": "SPY260701C00751000",
+        "date_et": "2026-07-01",
+        "entry_price": 0.26,
+        "qty": 3.0,
+        "actual_exit_pnl": -12.0
+      },
+      {
+        "pnl": -72.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.24,
+            "ts_utc": "2026-07-02T13:43:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-1",
+        "symbol": "SPY260702P00743000",
+        "date_et": "2026-07-02",
+        "entry_price": 0.48,
+        "qty": 3.0,
+        "actual_exit_pnl": -45.0
+      },
+      {
+        "pnl": -28.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.095,
+            "ts_utc": "2026-07-02T14:27:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "safe-1",
+        "symbol": "SPY260702C00754000",
+        "date_et": "2026-07-02",
+        "entry_price": 0.19,
+        "qty": 3.0,
+        "actual_exit_pnl": -15.0
+      },
+      {
+        "pnl": 155.0,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 2,
+            "fill_price": 0.65,
+            "ts_utc": "2026-07-02T15:50:00Z"
+          },
+          {
+            "stage": "runner_target",
+            "qty": 1,
+            "fill_price": 1.75,
+            "ts_utc": "2026-07-02T17:03:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "safe-1",
+        "symbol": "SPY260702P00742000",
+        "date_et": "2026-07-02",
+        "entry_price": 0.5,
+        "qty": 3.0,
+        "actual_exit_pnl": 306.0
+      },
+      {
+        "pnl": 54.0,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 4,
+            "fill_price": 0.585,
+            "ts_utc": "2026-07-02T17:56:00Z"
+          },
+          {
+            "stage": "be_stop",
+            "qty": 1,
+            "fill_price": 0.45,
+            "ts_utc": "2026-07-02T18:04:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "safe-1",
+        "symbol": "SPY260702P00739000",
+        "date_et": "2026-07-02",
+        "entry_price": 0.45,
+        "qty": 5.0,
+        "actual_exit_pnl": -95.0
+      },
+      {
+        "pnl": -32.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 8,
+            "fill_price": 0.04,
+            "ts_utc": "2026-07-06T16:59:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-1",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.08,
+        "qty": 8.0,
+        "actual_exit_pnl": -16.0
+      },
+      {
+        "pnl": 10.8,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 6,
+            "fill_price": 0.078,
+            "ts_utc": "2026-07-06T16:47:00Z"
+          },
+          {
+            "stage": "be_stop",
+            "qty": 2,
+            "fill_price": 0.06,
+            "ts_utc": "2026-07-06T16:48:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "safe-1",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.06,
+        "qty": 8.0,
+        "actual_exit_pnl": -8.0
+      },
+      {
+        "pnl": -40.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 8,
+            "fill_price": 0.05,
+            "ts_utc": "2026-07-06T17:29:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-1",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.1,
+        "qty": 8.0,
+        "actual_exit_pnl": 8.0
+      },
+      {
+        "pnl": -44.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 8,
+            "fill_price": 0.055,
+            "ts_utc": "2026-07-06T18:39:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-1",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.11,
+        "qty": 8.0,
+        "actual_exit_pnl": -8.0
+      },
+      {
+        "pnl": 9.0,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 6,
+            "fill_price": 0.065,
+            "ts_utc": "2026-07-06T19:21:00Z"
+          },
+          {
+            "stage": "be_stop",
+            "qty": 2,
+            "fill_price": 0.05,
+            "ts_utc": "2026-07-06T19:22:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "safe-1",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.05,
+        "qty": 8.0,
+        "actual_exit_pnl": -16.0
+      },
+      {
+        "pnl": -66.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.22,
+            "ts_utc": "2026-07-07T15:44:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "safe-1",
+        "symbol": "SPY260707P00743000",
+        "date_et": "2026-07-07",
+        "entry_price": 0.44,
+        "qty": 3.0,
+        "actual_exit_pnl": -39.0
+      },
+      {
+        "pnl": -36.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.12,
+            "ts_utc": "2026-07-07T17:02:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-1",
+        "symbol": "SPY260707P00746000",
+        "date_et": "2026-07-07",
+        "entry_price": 0.24,
+        "qty": 3.0,
+        "actual_exit_pnl": -15.0
+      },
+      {
+        "pnl": 6.6,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 2,
+            "fill_price": 0.143,
+            "ts_utc": "2026-07-07T18:49:00Z"
+          },
+          {
+            "stage": "be_stop",
+            "qty": 1,
+            "fill_price": 0.11,
+            "ts_utc": "2026-07-07T18:50:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "safe-1",
+        "symbol": "SPY260707P00746000",
+        "date_et": "2026-07-07",
+        "entry_price": 0.11,
+        "qty": 3.0,
+        "actual_exit_pnl": -9.0
+      },
+      {
+        "pnl": 57.6,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 2,
+            "fill_price": 1.248,
+            "ts_utc": "2026-07-08T14:37:00Z"
+          },
+          {
+            "stage": "be_stop",
+            "qty": 1,
+            "fill_price": 0.96,
+            "ts_utc": "2026-07-08T14:53:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "safe-1",
+        "symbol": "SPY260708P00741000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.96,
+        "qty": 3.0,
+        "actual_exit_pnl": -54.0
+      },
+      {
+        "pnl": 15.0,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 2,
+            "fill_price": 0.325,
+            "ts_utc": "2026-07-08T17:11:00Z"
+          },
+          {
+            "stage": "be_stop",
+            "qty": 1,
+            "fill_price": 0.25,
+            "ts_utc": "2026-07-08T17:13:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "safe-1",
+        "symbol": "SPY260708P00741000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.25,
+        "qty": 3.0,
+        "actual_exit_pnl": 0.0
+      },
+      {
+        "pnl": -19.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.065,
+            "ts_utc": "2026-07-08T17:48:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "safe-1",
+        "symbol": "SPY260708C00749000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.13,
+        "qty": 3.0,
+        "actual_exit_pnl": -12.0
+      },
+      {
+        "pnl": -15.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.05,
+            "ts_utc": "2026-07-08T18:55:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-1",
+        "symbol": "SPY260708C00748000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.1,
+        "qty": 3.0,
+        "actual_exit_pnl": -12.0
+      },
+      {
+        "pnl": -44.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 8,
+            "fill_price": 0.055,
+            "ts_utc": "2026-06-29T19:16:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "safe-3",
+        "symbol": "SPY260629C00743000",
+        "date_et": "2026-06-29",
+        "entry_price": 0.11,
+        "qty": 8.0,
+        "actual_exit_pnl": -8.0
+      },
+      {
+        "pnl": 36.6,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 2,
+            "fill_price": 0.793,
+            "ts_utc": "2026-06-30T14:03:00Z"
+          },
+          {
+            "stage": "be_stop",
+            "qty": 1,
+            "fill_price": 0.61,
+            "ts_utc": "2026-06-30T14:07:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "safe-3",
+        "symbol": "SPY260630C00746000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.61,
+        "qty": 3.0,
+        "actual_exit_pnl": -33.0
+      },
+      {
+        "pnl": 6.0,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 2,
+            "fill_price": 0.13,
+            "ts_utc": "2026-06-30T16:54:00Z"
+          },
+          {
+            "stage": "be_stop",
+            "qty": 1,
+            "fill_price": 0.1,
+            "ts_utc": "2026-06-30T16:55:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "safe-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.1,
+        "qty": 3.0,
+        "actual_exit_pnl": -3.0
+      },
+      {
+        "pnl": 4.2,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 2,
+            "fill_price": 0.091,
+            "ts_utc": "2026-06-30T18:50:00Z"
+          },
+          {
+            "stage": "be_stop",
+            "qty": 1,
+            "fill_price": 0.07,
+            "ts_utc": "2026-06-30T18:54:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "safe-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.07,
+        "qty": 3.0,
+        "actual_exit_pnl": -6.0
+      },
+      {
+        "pnl": 4.2,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 2,
+            "fill_price": 0.091,
+            "ts_utc": "2026-06-30T19:13:00Z"
+          },
+          {
+            "stage": "be_stop",
+            "qty": 1,
+            "fill_price": 0.07,
+            "ts_utc": "2026-06-30T19:19:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "safe-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.07,
+        "qty": 3.0,
+        "actual_exit_pnl": -6.0
+      },
+      {
+        "pnl": -12.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.04,
+            "ts_utc": "2026-06-30T19:29:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.08,
+        "qty": 3.0,
+        "actual_exit_pnl": -18.0
+      },
+      {
+        "pnl": -4.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.015,
+            "ts_utc": "2026-06-30T19:29:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-3",
+        "symbol": "SPY260630C00751000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.03,
+        "qty": 3.0,
+        "actual_exit_pnl": -6.0
+      },
+      {
+        "pnl": 15.6,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 2,
+            "fill_price": 0.338,
+            "ts_utc": "2026-07-01T15:28:00Z"
+          },
+          {
+            "stage": "be_stop",
+            "qty": 1,
+            "fill_price": 0.26,
+            "ts_utc": "2026-07-01T15:31:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "safe-3",
+        "symbol": "SPY260701C00751000",
+        "date_et": "2026-07-01",
+        "entry_price": 0.26,
+        "qty": 3.0,
+        "actual_exit_pnl": -12.0
+      },
+      {
+        "pnl": -28.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.095,
+            "ts_utc": "2026-07-02T14:27:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "safe-3",
+        "symbol": "SPY260702C00754000",
+        "date_et": "2026-07-02",
+        "entry_price": 0.19,
+        "qty": 3.0,
+        "actual_exit_pnl": -15.0
+      },
+      {
+        "pnl": -6.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.02,
+            "ts_utc": "2026-07-06T15:35:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-3",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.04,
+        "qty": 3.0,
+        "actual_exit_pnl": -6.0
+      },
+      {
+        "pnl": 1.8,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 2,
+            "fill_price": 0.039,
+            "ts_utc": "2026-07-06T17:06:00Z"
+          },
+          {
+            "stage": "be_stop",
+            "qty": 1,
+            "fill_price": 0.03,
+            "ts_utc": "2026-07-06T17:18:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "safe-3",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.03,
+        "qty": 3.0,
+        "actual_exit_pnl": -3.0
+      },
+      {
+        "pnl": -7.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.025,
+            "ts_utc": "2026-07-06T17:34:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-3",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.05,
+        "qty": 3.0,
+        "actual_exit_pnl": -3.0
+      },
+      {
+        "pnl": -6.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.02,
+            "ts_utc": "2026-07-06T18:35:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-3",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.04,
+        "qty": 3.0,
+        "actual_exit_pnl": 0.0
+      },
+      {
+        "pnl": -3.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.01,
+            "ts_utc": "2026-07-06T18:59:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-3",
+        "symbol": "SPY260706C00755000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.02,
+        "qty": 3.0,
+        "actual_exit_pnl": -3.0
+      },
+      {
+        "pnl": 60.0,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 2,
+            "fill_price": 1.3,
+            "ts_utc": "2026-07-08T14:43:00Z"
+          },
+          {
+            "stage": "be_stop",
+            "qty": 1,
+            "fill_price": 1.0,
+            "ts_utc": "2026-07-08T14:53:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "safe-3",
+        "symbol": "SPY260708P00741000",
+        "date_et": "2026-07-08",
+        "entry_price": 1.0,
+        "qty": 3.0,
+        "actual_exit_pnl": -69.0
+      },
+      {
+        "pnl": -19.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.065,
+            "ts_utc": "2026-07-08T17:48:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "safe-3",
+        "symbol": "SPY260708C00749000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.13,
+        "qty": 3.0,
+        "actual_exit_pnl": -6.0
+      },
+      {
+        "pnl": -13.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.045,
+            "ts_utc": "2026-07-08T19:03:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "safe-3",
+        "symbol": "SPY260708C00748000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.09,
+        "qty": 3.0,
+        "actual_exit_pnl": -9.0
+      },
+      {
+        "pnl": -84.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 12,
+            "fill_price": 0.07,
+            "ts_utc": "2026-06-29T18:58:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "risky-1",
+        "symbol": "SPY260629C00743000",
+        "date_et": "2026-06-29",
+        "entry_price": 0.14,
+        "qty": 12.0,
+        "actual_exit_pnl": -48.0
+      },
+      {
+        "pnl": 69.6,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 4,
+            "fill_price": 0.754,
+            "ts_utc": "2026-06-30T14:03:00Z"
+          },
+          {
+            "stage": "be_stop",
+            "qty": 1,
+            "fill_price": 0.58,
+            "ts_utc": "2026-06-30T14:09:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "risky-1",
+        "symbol": "SPY260630C00746000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.58,
+        "qty": 5.0,
+        "actual_exit_pnl": -80.0
+      },
+      {
+        "pnl": 12.0,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 4,
+            "fill_price": 0.13,
+            "ts_utc": "2026-06-30T16:54:00Z"
+          },
+          {
+            "stage": "be_stop",
+            "qty": 1,
+            "fill_price": 0.1,
+            "ts_utc": "2026-06-30T16:55:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "risky-1",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.1,
+        "qty": 5.0,
+        "actual_exit_pnl": 0.0
+      },
+      {
+        "pnl": 8.4,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 4,
+            "fill_price": 0.091,
+            "ts_utc": "2026-06-30T18:50:00Z"
+          },
+          {
+            "stage": "be_stop",
+            "qty": 1,
+            "fill_price": 0.07,
+            "ts_utc": "2026-06-30T18:54:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "risky-1",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.07,
+        "qty": 5.0,
+        "actual_exit_pnl": -10.0
+      },
+      {
+        "pnl": 10.8,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 4,
+            "fill_price": 0.117,
+            "ts_utc": "2026-06-30T19:17:00Z"
+          },
+          {
+            "stage": "be_stop",
+            "qty": 1,
+            "fill_price": 0.09,
+            "ts_utc": "2026-06-30T19:19:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "risky-1",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.09,
+        "qty": 5.0,
+        "actual_exit_pnl": -18.0
+      },
+      {
+        "pnl": -20.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.04,
+            "ts_utc": "2026-06-30T19:29:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-1",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.08,
+        "qty": 5.0,
+        "actual_exit_pnl": -30.0
+      },
+      {
+        "pnl": -7.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.015,
+            "ts_utc": "2026-06-30T19:29:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-1",
+        "symbol": "SPY260630C00751000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.03,
+        "qty": 5.0,
+        "actual_exit_pnl": -10.0
+      },
+      {
+        "pnl": 31.2,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 4,
+            "fill_price": 0.338,
+            "ts_utc": "2026-07-01T15:28:00Z"
+          },
+          {
+            "stage": "be_stop",
+            "qty": 1,
+            "fill_price": 0.26,
+            "ts_utc": "2026-07-01T15:31:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "risky-1",
+        "symbol": "SPY260701C00751000",
+        "date_et": "2026-07-01",
+        "entry_price": 0.26,
+        "qty": 5.0,
+        "actual_exit_pnl": -20.0
+      },
+      {
+        "pnl": -47.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.095,
+            "ts_utc": "2026-07-02T14:27:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "risky-1",
+        "symbol": "SPY260702C00754000",
+        "date_et": "2026-07-02",
+        "entry_price": 0.19,
+        "qty": 5.0,
+        "actual_exit_pnl": -25.0
+      },
+      {
+        "pnl": -10.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.02,
+            "ts_utc": "2026-07-06T15:35:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-1",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.04,
+        "qty": 5.0,
+        "actual_exit_pnl": -10.0
+      },
+      {
+        "pnl": 3.6,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 4,
+            "fill_price": 0.039,
+            "ts_utc": "2026-07-06T17:06:00Z"
+          },
+          {
+            "stage": "be_stop",
+            "qty": 1,
+            "fill_price": 0.03,
+            "ts_utc": "2026-07-06T17:18:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "risky-1",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.03,
+        "qty": 5.0,
+        "actual_exit_pnl": -5.0
+      },
+      {
+        "pnl": -12.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.025,
+            "ts_utc": "2026-07-06T17:34:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-1",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.05,
+        "qty": 5.0,
+        "actual_exit_pnl": -5.0
+      },
+      {
+        "pnl": -10.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.02,
+            "ts_utc": "2026-07-06T18:35:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-1",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.04,
+        "qty": 5.0,
+        "actual_exit_pnl": 0.0
+      },
+      {
+        "pnl": -5.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.01,
+            "ts_utc": "2026-07-06T18:59:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-1",
+        "symbol": "SPY260706C00755000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.02,
+        "qty": 5.0,
+        "actual_exit_pnl": -5.0
+      },
+      {
+        "pnl": 112.8,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 4,
+            "fill_price": 1.222,
+            "ts_utc": "2026-07-08T14:37:00Z"
+          },
+          {
+            "stage": "be_stop",
+            "qty": 1,
+            "fill_price": 0.94,
+            "ts_utc": "2026-07-08T16:12:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "risky-1",
+        "symbol": "SPY260708P00741000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.94,
+        "qty": 5.0,
+        "actual_exit_pnl": -80.0
+      },
+      {
+        "pnl": -32.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.065,
+            "ts_utc": "2026-07-08T17:48:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "risky-1",
+        "symbol": "SPY260708C00749000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.13,
+        "qty": 5.0,
+        "actual_exit_pnl": -10.0
+      },
+      {
+        "pnl": -25.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.05,
+            "ts_utc": "2026-07-08T18:55:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-1",
+        "symbol": "SPY260708C00748000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.1,
+        "qty": 5.0,
+        "actual_exit_pnl": -20.0
+      },
+      {
+        "pnl": -84.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 12,
+            "fill_price": 0.07,
+            "ts_utc": "2026-06-29T18:58:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "risky-3",
+        "symbol": "SPY260629C00743000",
+        "date_et": "2026-06-29",
+        "entry_price": 0.14,
+        "qty": 12.0,
+        "actual_exit_pnl": -48.0
+      },
+      {
+        "pnl": 72.0,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 4,
+            "fill_price": 0.78,
+            "ts_utc": "2026-06-30T14:03:00Z"
+          },
+          {
+            "stage": "be_stop",
+            "qty": 1,
+            "fill_price": 0.6,
+            "ts_utc": "2026-06-30T14:07:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "risky-3",
+        "symbol": "SPY260630C00746000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.6,
+        "qty": 5.0,
+        "actual_exit_pnl": -60.0
+      },
+      {
+        "pnl": 12.0,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 4,
+            "fill_price": 0.13,
+            "ts_utc": "2026-06-30T16:54:00Z"
+          },
+          {
+            "stage": "be_stop",
+            "qty": 1,
+            "fill_price": 0.1,
+            "ts_utc": "2026-06-30T16:55:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "risky-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.1,
+        "qty": 5.0,
+        "actual_exit_pnl": -5.0
+      },
+      {
+        "pnl": 8.4,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 4,
+            "fill_price": 0.091,
+            "ts_utc": "2026-06-30T18:50:00Z"
+          },
+          {
+            "stage": "be_stop",
+            "qty": 1,
+            "fill_price": 0.07,
+            "ts_utc": "2026-06-30T18:54:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "risky-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.07,
+        "qty": 5.0,
+        "actual_exit_pnl": -10.0
+      },
+      {
+        "pnl": 9.6,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 4,
+            "fill_price": 0.104,
+            "ts_utc": "2026-06-30T19:17:00Z"
+          },
+          {
+            "stage": "be_stop",
+            "qty": 1,
+            "fill_price": 0.08,
+            "ts_utc": "2026-06-30T19:19:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "risky-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.08,
+        "qty": 5.0,
+        "actual_exit_pnl": -10.0
+      },
+      {
+        "pnl": 10.8,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 4,
+            "fill_price": 0.117,
+            "ts_utc": "2026-06-30T19:17:00Z"
+          },
+          {
+            "stage": "be_stop",
+            "qty": 1,
+            "fill_price": 0.09,
+            "ts_utc": "2026-06-30T19:19:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "risky-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.09,
+        "qty": 5.0,
+        "actual_exit_pnl": -5.0
+      },
+      {
+        "pnl": -12.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.025,
+            "ts_utc": "2026-06-30T19:22:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260630C00751000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.05,
+        "qty": 5.0,
+        "actual_exit_pnl": -15.0
+      },
+      {
+        "pnl": 31.2,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 4,
+            "fill_price": 0.338,
+            "ts_utc": "2026-07-01T15:28:00Z"
+          },
+          {
+            "stage": "be_stop",
+            "qty": 1,
+            "fill_price": 0.26,
+            "ts_utc": "2026-07-01T15:31:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "risky-3",
+        "symbol": "SPY260701C00751000",
+        "date_et": "2026-07-01",
+        "entry_price": 0.26,
+        "qty": 5.0,
+        "actual_exit_pnl": -20.0
+      },
+      {
+        "pnl": -125.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.25,
+            "ts_utc": "2026-07-02T13:43:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260702P00743000",
+        "date_et": "2026-07-02",
+        "entry_price": 0.5,
+        "qty": 5.0,
+        "actual_exit_pnl": -80.0
+      },
+      {
+        "pnl": -47.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.095,
+            "ts_utc": "2026-07-02T14:27:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "risky-3",
+        "symbol": "SPY260702C00754000",
+        "date_et": "2026-07-02",
+        "entry_price": 0.19,
+        "qty": 5.0,
+        "actual_exit_pnl": -25.0
+      },
+      {
+        "pnl": 181.3,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 4,
+            "fill_price": 0.637,
+            "ts_utc": "2026-07-02T15:50:00Z"
+          },
+          {
+            "stage": "runner_target",
+            "qty": 1,
+            "fill_price": 1.715,
+            "ts_utc": "2026-07-02T17:03:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "risky-3",
+        "symbol": "SPY260702P00742000",
+        "date_et": "2026-07-02",
+        "entry_price": 0.49,
+        "qty": 5.0,
+        "actual_exit_pnl": 491.0
+      },
+      {
+        "pnl": 81.0,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 6,
+            "fill_price": 0.585,
+            "ts_utc": "2026-07-02T17:56:00Z"
+          },
+          {
+            "stage": "be_stop",
+            "qty": 2,
+            "fill_price": 0.45,
+            "ts_utc": "2026-07-02T18:04:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "risky-3",
+        "symbol": "SPY260702P00739000",
+        "date_et": "2026-07-02",
+        "entry_price": 0.45,
+        "qty": 8.0,
+        "actual_exit_pnl": -152.0
+      },
+      {
+        "pnl": -48.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 12,
+            "fill_price": 0.04,
+            "ts_utc": "2026-07-06T16:59:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.08,
+        "qty": 12.0,
+        "actual_exit_pnl": -24.0
+      },
+      {
+        "pnl": 16.2,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 9,
+            "fill_price": 0.078,
+            "ts_utc": "2026-07-06T16:47:00Z"
+          },
+          {
+            "stage": "be_stop",
+            "qty": 3,
+            "fill_price": 0.06,
+            "ts_utc": "2026-07-06T16:48:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "risky-3",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.06,
+        "qty": 12.0,
+        "actual_exit_pnl": -12.0
+      },
+      {
+        "pnl": -60.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 12,
+            "fill_price": 0.05,
+            "ts_utc": "2026-07-06T17:29:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.1,
+        "qty": 12.0,
+        "actual_exit_pnl": -24.0
+      },
+      {
+        "pnl": -10.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.02,
+            "ts_utc": "2026-07-06T18:35:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.04,
+        "qty": 5.0,
+        "actual_exit_pnl": 0.0
+      },
+      {
+        "pnl": -5.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.01,
+            "ts_utc": "2026-07-06T18:59:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260706C00755000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.02,
+        "qty": 5.0,
+        "actual_exit_pnl": -5.0
+      },
+      {
+        "pnl": -112.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.225,
+            "ts_utc": "2026-07-07T15:44:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "risky-3",
+        "symbol": "SPY260707P00743000",
+        "date_et": "2026-07-07",
+        "entry_price": 0.45,
+        "qty": 5.0,
+        "actual_exit_pnl": -25.0
+      },
+      {
+        "pnl": -60.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.12,
+            "ts_utc": "2026-07-07T17:02:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260707P00746000",
+        "date_et": "2026-07-07",
+        "entry_price": 0.24,
+        "qty": 5.0,
+        "actual_exit_pnl": -25.0
+      },
+      {
+        "pnl": 37.0,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 4,
+            "fill_price": 0.13,
+            "ts_utc": "2026-07-07T18:49:00Z"
+          },
+          {
+            "stage": "runner_target",
+            "qty": 1,
+            "fill_price": 0.35,
+            "ts_utc": "2026-07-07T19:01:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "risky-3",
+        "symbol": "SPY260707P00746000",
+        "date_et": "2026-07-07",
+        "entry_price": 0.1,
+        "qty": 5.0,
+        "actual_exit_pnl": -10.0
+      },
+      {
+        "pnl": 112.8,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 4,
+            "fill_price": 1.222,
+            "ts_utc": "2026-07-08T14:37:00Z"
+          },
+          {
+            "stage": "be_stop",
+            "qty": 1,
+            "fill_price": 0.94,
+            "ts_utc": "2026-07-08T16:12:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "risky-3",
+        "symbol": "SPY260708P00741000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.94,
+        "qty": 5.0,
+        "actual_exit_pnl": -80.0
+      },
+      {
+        "pnl": 30.0,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 4,
+            "fill_price": 0.325,
+            "ts_utc": "2026-07-08T17:11:00Z"
+          },
+          {
+            "stage": "be_stop",
+            "qty": 1,
+            "fill_price": 0.25,
+            "ts_utc": "2026-07-08T17:13:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "risky-3",
+        "symbol": "SPY260708P00741000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.25,
+        "qty": 5.0,
+        "actual_exit_pnl": 0.0
+      },
+      {
+        "pnl": -32.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.065,
+            "ts_utc": "2026-07-08T17:48:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "risky-3",
+        "symbol": "SPY260708C00749000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.13,
+        "qty": 5.0,
+        "actual_exit_pnl": -10.0
+      },
+      {
+        "pnl": -25.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.05,
+            "ts_utc": "2026-07-08T18:55:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260708C00748000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.1,
+        "qty": 5.0,
+        "actual_exit_pnl": -20.0
+      }
+    ],
+    "j_style_scalp": [
+      {
+        "pnl": -56.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 8,
+            "fill_price": 0.07,
+            "ts_utc": "2026-06-29T18:58:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "safe-1",
+        "symbol": "SPY260629C00743000",
+        "date_et": "2026-06-29",
+        "entry_price": 0.14,
+        "qty": 8.0,
+        "actual_exit_pnl": -32.0
+      },
+      {
+        "pnl": 84.0,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 2,
+            "fill_price": 0.915,
+            "ts_utc": "2026-06-30T14:31:00Z"
+          },
+          {
+            "stage": "trail",
+            "qty": 1,
+            "fill_price": 0.84,
+            "ts_utc": "2026-06-30T14:33:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "safe-1",
+        "symbol": "SPY260630C00746000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.61,
+        "qty": 3.0,
+        "actual_exit_pnl": -36.0
+      },
+      {
+        "pnl": -18.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.06,
+            "ts_utc": "2026-06-30T17:15:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-1",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.12,
+        "qty": 3.0,
+        "actual_exit_pnl": -9.0
+      },
+      {
+        "pnl": -12.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.04,
+            "ts_utc": "2026-06-30T17:33:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-1",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.08,
+        "qty": 3.0,
+        "actual_exit_pnl": -18.0
+      },
+      {
+        "pnl": -39.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.13,
+            "ts_utc": "2026-07-01T16:39:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "safe-1",
+        "symbol": "SPY260701C00751000",
+        "date_et": "2026-07-01",
+        "entry_price": 0.26,
+        "qty": 3.0,
+        "actual_exit_pnl": -12.0
+      },
+      {
+        "pnl": -72.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.24,
+            "ts_utc": "2026-07-02T13:43:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-1",
+        "symbol": "SPY260702P00743000",
+        "date_et": "2026-07-02",
+        "entry_price": 0.48,
+        "qty": 3.0,
+        "actual_exit_pnl": -45.0
+      },
+      {
+        "pnl": -28.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.095,
+            "ts_utc": "2026-07-02T14:27:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "safe-1",
+        "symbol": "SPY260702C00754000",
+        "date_et": "2026-07-02",
+        "entry_price": 0.19,
+        "qty": 3.0,
+        "actual_exit_pnl": -15.0
+      },
+      {
+        "pnl": 70.87,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 2,
+            "fill_price": 0.75,
+            "ts_utc": "2026-07-02T15:53:00Z"
+          },
+          {
+            "stage": "trail",
+            "qty": 1,
+            "fill_price": 0.7087,
+            "ts_utc": "2026-07-02T15:54:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "safe-1",
+        "symbol": "SPY260702P00742000",
+        "date_et": "2026-07-02",
+        "entry_price": 0.5,
+        "qty": 3.0,
+        "actual_exit_pnl": 306.0
+      },
+      {
+        "pnl": 108.0,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 4,
+            "fill_price": 0.675,
+            "ts_utc": "2026-07-02T17:58:00Z"
+          },
+          {
+            "stage": "trail",
+            "qty": 1,
+            "fill_price": 0.63,
+            "ts_utc": "2026-07-02T17:59:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "safe-1",
+        "symbol": "SPY260702P00739000",
+        "date_et": "2026-07-02",
+        "entry_price": 0.45,
+        "qty": 5.0,
+        "actual_exit_pnl": -95.0
+      },
+      {
+        "pnl": -32.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 8,
+            "fill_price": 0.04,
+            "ts_utc": "2026-07-06T16:59:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-1",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.08,
+        "qty": 8.0,
+        "actual_exit_pnl": -16.0
+      },
+      {
+        "pnl": 32.26,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 6,
+            "fill_price": 0.09,
+            "ts_utc": "2026-07-06T17:05:00Z"
+          },
+          {
+            "stage": "trail",
+            "qty": 2,
+            "fill_price": 0.1313,
+            "ts_utc": "2026-07-06T17:06:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "safe-1",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.06,
+        "qty": 8.0,
+        "actual_exit_pnl": -8.0
+      },
+      {
+        "pnl": -40.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 8,
+            "fill_price": 0.05,
+            "ts_utc": "2026-07-06T17:29:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-1",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.1,
+        "qty": 8.0,
+        "actual_exit_pnl": 8.0
+      },
+      {
+        "pnl": -44.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 8,
+            "fill_price": 0.055,
+            "ts_utc": "2026-07-06T18:39:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-1",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.11,
+        "qty": 8.0,
+        "actual_exit_pnl": -8.0
+      },
+      {
+        "pnl": -20.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 8,
+            "fill_price": 0.025,
+            "ts_utc": "2026-07-06T19:34:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "safe-1",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.05,
+        "qty": 8.0,
+        "actual_exit_pnl": -16.0
+      },
+      {
+        "pnl": -66.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.22,
+            "ts_utc": "2026-07-07T15:44:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "safe-1",
+        "symbol": "SPY260707P00743000",
+        "date_et": "2026-07-07",
+        "entry_price": 0.44,
+        "qty": 3.0,
+        "actual_exit_pnl": -39.0
+      },
+      {
+        "pnl": -36.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.12,
+            "ts_utc": "2026-07-07T17:02:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-1",
+        "symbol": "SPY260707P00746000",
+        "date_et": "2026-07-07",
+        "entry_price": 0.24,
+        "qty": 3.0,
+        "actual_exit_pnl": -15.0
+      },
+      {
+        "pnl": 27.12,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 2,
+            "fill_price": 0.165,
+            "ts_utc": "2026-07-07T18:49:00Z"
+          },
+          {
+            "stage": "trail",
+            "qty": 1,
+            "fill_price": 0.2712,
+            "ts_utc": "2026-07-07T18:50:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "safe-1",
+        "symbol": "SPY260707P00746000",
+        "date_et": "2026-07-07",
+        "entry_price": 0.11,
+        "qty": 3.0,
+        "actual_exit_pnl": -9.0
+      },
+      {
+        "pnl": 152.25,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 2,
+            "fill_price": 1.44,
+            "ts_utc": "2026-07-08T14:49:00Z"
+          },
+          {
+            "stage": "trail",
+            "qty": 1,
+            "fill_price": 1.5225,
+            "ts_utc": "2026-07-08T14:50:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "safe-1",
+        "symbol": "SPY260708P00741000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.96,
+        "qty": 3.0,
+        "actual_exit_pnl": -54.0
+      },
+      {
+        "pnl": -37.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.125,
+            "ts_utc": "2026-07-08T17:29:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-1",
+        "symbol": "SPY260708P00741000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.25,
+        "qty": 3.0,
+        "actual_exit_pnl": 0.0
+      },
+      {
+        "pnl": -19.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.065,
+            "ts_utc": "2026-07-08T17:48:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "safe-1",
+        "symbol": "SPY260708C00749000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.13,
+        "qty": 3.0,
+        "actual_exit_pnl": -12.0
+      },
+      {
+        "pnl": -15.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.05,
+            "ts_utc": "2026-07-08T18:55:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-1",
+        "symbol": "SPY260708C00748000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.1,
+        "qty": 3.0,
+        "actual_exit_pnl": -12.0
+      },
+      {
+        "pnl": -44.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 8,
+            "fill_price": 0.055,
+            "ts_utc": "2026-06-29T19:16:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "safe-3",
+        "symbol": "SPY260629C00743000",
+        "date_et": "2026-06-29",
+        "entry_price": 0.11,
+        "qty": 8.0,
+        "actual_exit_pnl": -8.0
+      },
+      {
+        "pnl": 84.0,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 2,
+            "fill_price": 0.915,
+            "ts_utc": "2026-06-30T14:31:00Z"
+          },
+          {
+            "stage": "trail",
+            "qty": 1,
+            "fill_price": 0.84,
+            "ts_utc": "2026-06-30T14:33:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "safe-3",
+        "symbol": "SPY260630C00746000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.61,
+        "qty": 3.0,
+        "actual_exit_pnl": -33.0
+      },
+      {
+        "pnl": -15.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.05,
+            "ts_utc": "2026-06-30T17:28:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.1,
+        "qty": 3.0,
+        "actual_exit_pnl": -3.0
+      },
+      {
+        "pnl": 13.13,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 2,
+            "fill_price": 0.105,
+            "ts_utc": "2026-06-30T19:17:00Z"
+          },
+          {
+            "stage": "trail",
+            "qty": 1,
+            "fill_price": 0.1313,
+            "ts_utc": "2026-06-30T19:18:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "safe-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.07,
+        "qty": 3.0,
+        "actual_exit_pnl": -6.0
+      },
+      {
+        "pnl": 13.13,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 2,
+            "fill_price": 0.105,
+            "ts_utc": "2026-06-30T19:17:00Z"
+          },
+          {
+            "stage": "trail",
+            "qty": 1,
+            "fill_price": 0.1313,
+            "ts_utc": "2026-06-30T19:18:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "safe-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.07,
+        "qty": 3.0,
+        "actual_exit_pnl": -6.0
+      },
+      {
+        "pnl": -12.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.04,
+            "ts_utc": "2026-06-30T19:29:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.08,
+        "qty": 3.0,
+        "actual_exit_pnl": -18.0
+      },
+      {
+        "pnl": -4.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.015,
+            "ts_utc": "2026-06-30T19:29:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-3",
+        "symbol": "SPY260630C00751000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.03,
+        "qty": 3.0,
+        "actual_exit_pnl": -6.0
+      },
+      {
+        "pnl": -39.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.13,
+            "ts_utc": "2026-07-01T16:39:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "safe-3",
+        "symbol": "SPY260701C00751000",
+        "date_et": "2026-07-01",
+        "entry_price": 0.26,
+        "qty": 3.0,
+        "actual_exit_pnl": -12.0
+      },
+      {
+        "pnl": -28.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.095,
+            "ts_utc": "2026-07-02T14:27:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "safe-3",
+        "symbol": "SPY260702C00754000",
+        "date_et": "2026-07-02",
+        "entry_price": 0.19,
+        "qty": 3.0,
+        "actual_exit_pnl": -15.0
+      },
+      {
+        "pnl": -6.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.02,
+            "ts_utc": "2026-07-06T15:35:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-3",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.04,
+        "qty": 3.0,
+        "actual_exit_pnl": -6.0
+      },
+      {
+        "pnl": 5.25,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 2,
+            "fill_price": 0.045,
+            "ts_utc": "2026-07-06T17:06:00Z"
+          },
+          {
+            "stage": "trail",
+            "qty": 1,
+            "fill_price": 0.0525,
+            "ts_utc": "2026-07-06T17:07:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "safe-3",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.03,
+        "qty": 3.0,
+        "actual_exit_pnl": -3.0
+      },
+      {
+        "pnl": -7.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.025,
+            "ts_utc": "2026-07-06T17:34:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-3",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.05,
+        "qty": 3.0,
+        "actual_exit_pnl": -3.0
+      },
+      {
+        "pnl": -6.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.02,
+            "ts_utc": "2026-07-06T18:35:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-3",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.04,
+        "qty": 3.0,
+        "actual_exit_pnl": 0.0
+      },
+      {
+        "pnl": -3.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.01,
+            "ts_utc": "2026-07-06T18:59:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-3",
+        "symbol": "SPY260706C00755000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.02,
+        "qty": 3.0,
+        "actual_exit_pnl": -3.0
+      },
+      {
+        "pnl": 152.25,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 2,
+            "fill_price": 1.5,
+            "ts_utc": "2026-07-08T14:49:00Z"
+          },
+          {
+            "stage": "trail",
+            "qty": 1,
+            "fill_price": 1.5225,
+            "ts_utc": "2026-07-08T14:50:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "safe-3",
+        "symbol": "SPY260708P00741000",
+        "date_et": "2026-07-08",
+        "entry_price": 1.0,
+        "qty": 3.0,
+        "actual_exit_pnl": -69.0
+      },
+      {
+        "pnl": -19.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.065,
+            "ts_utc": "2026-07-08T17:48:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "safe-3",
+        "symbol": "SPY260708C00749000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.13,
+        "qty": 3.0,
+        "actual_exit_pnl": -6.0
+      },
+      {
+        "pnl": -13.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.045,
+            "ts_utc": "2026-07-08T19:03:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "safe-3",
+        "symbol": "SPY260708C00748000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.09,
+        "qty": 3.0,
+        "actual_exit_pnl": -9.0
+      },
+      {
+        "pnl": -84.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 12,
+            "fill_price": 0.07,
+            "ts_utc": "2026-06-29T18:58:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "risky-1",
+        "symbol": "SPY260629C00743000",
+        "date_et": "2026-06-29",
+        "entry_price": 0.14,
+        "qty": 12.0,
+        "actual_exit_pnl": -48.0
+      },
+      {
+        "pnl": 135.0,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 4,
+            "fill_price": 0.87,
+            "ts_utc": "2026-06-30T14:04:00Z"
+          },
+          {
+            "stage": "trail",
+            "qty": 1,
+            "fill_price": 0.77,
+            "ts_utc": "2026-06-30T14:05:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "risky-1",
+        "symbol": "SPY260630C00746000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.58,
+        "qty": 5.0,
+        "actual_exit_pnl": -80.0
+      },
+      {
+        "pnl": -25.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.05,
+            "ts_utc": "2026-06-30T17:28:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-1",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.1,
+        "qty": 5.0,
+        "actual_exit_pnl": 0.0
+      },
+      {
+        "pnl": 20.13,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 4,
+            "fill_price": 0.105,
+            "ts_utc": "2026-06-30T19:17:00Z"
+          },
+          {
+            "stage": "trail",
+            "qty": 1,
+            "fill_price": 0.1313,
+            "ts_utc": "2026-06-30T19:18:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "risky-1",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.07,
+        "qty": 5.0,
+        "actual_exit_pnl": -10.0
+      },
+      {
+        "pnl": 22.13,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 4,
+            "fill_price": 0.135,
+            "ts_utc": "2026-06-30T19:18:00Z"
+          },
+          {
+            "stage": "trail",
+            "qty": 1,
+            "fill_price": 0.1313,
+            "ts_utc": "2026-06-30T19:19:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "risky-1",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.09,
+        "qty": 5.0,
+        "actual_exit_pnl": -18.0
+      },
+      {
+        "pnl": -20.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.04,
+            "ts_utc": "2026-06-30T19:29:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-1",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.08,
+        "qty": 5.0,
+        "actual_exit_pnl": -30.0
+      },
+      {
+        "pnl": -7.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.015,
+            "ts_utc": "2026-06-30T19:29:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-1",
+        "symbol": "SPY260630C00751000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.03,
+        "qty": 5.0,
+        "actual_exit_pnl": -10.0
+      },
+      {
+        "pnl": -65.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.13,
+            "ts_utc": "2026-07-01T16:39:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "risky-1",
+        "symbol": "SPY260701C00751000",
+        "date_et": "2026-07-01",
+        "entry_price": 0.26,
+        "qty": 5.0,
+        "actual_exit_pnl": -20.0
+      },
+      {
+        "pnl": -47.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.095,
+            "ts_utc": "2026-07-02T14:27:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "risky-1",
+        "symbol": "SPY260702C00754000",
+        "date_et": "2026-07-02",
+        "entry_price": 0.19,
+        "qty": 5.0,
+        "actual_exit_pnl": -25.0
+      },
+      {
+        "pnl": -10.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.02,
+            "ts_utc": "2026-07-06T15:35:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-1",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.04,
+        "qty": 5.0,
+        "actual_exit_pnl": -10.0
+      },
+      {
+        "pnl": 8.25,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 4,
+            "fill_price": 0.045,
+            "ts_utc": "2026-07-06T17:06:00Z"
+          },
+          {
+            "stage": "trail",
+            "qty": 1,
+            "fill_price": 0.0525,
+            "ts_utc": "2026-07-06T17:07:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "risky-1",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.03,
+        "qty": 5.0,
+        "actual_exit_pnl": -5.0
+      },
+      {
+        "pnl": -12.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.025,
+            "ts_utc": "2026-07-06T17:34:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-1",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.05,
+        "qty": 5.0,
+        "actual_exit_pnl": -5.0
+      },
+      {
+        "pnl": -10.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.02,
+            "ts_utc": "2026-07-06T18:35:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-1",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.04,
+        "qty": 5.0,
+        "actual_exit_pnl": 0.0
+      },
+      {
+        "pnl": -5.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.01,
+            "ts_utc": "2026-07-06T18:59:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-1",
+        "symbol": "SPY260706C00755000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.02,
+        "qty": 5.0,
+        "actual_exit_pnl": -5.0
+      },
+      {
+        "pnl": 246.25,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 4,
+            "fill_price": 1.41,
+            "ts_utc": "2026-07-08T14:47:00Z"
+          },
+          {
+            "stage": "trail",
+            "qty": 1,
+            "fill_price": 1.5225,
+            "ts_utc": "2026-07-08T14:50:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "risky-1",
+        "symbol": "SPY260708P00741000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.94,
+        "qty": 5.0,
+        "actual_exit_pnl": -80.0
+      },
+      {
+        "pnl": -32.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.065,
+            "ts_utc": "2026-07-08T17:48:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "risky-1",
+        "symbol": "SPY260708C00749000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.13,
+        "qty": 5.0,
+        "actual_exit_pnl": -10.0
+      },
+      {
+        "pnl": -25.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.05,
+            "ts_utc": "2026-07-08T18:55:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-1",
+        "symbol": "SPY260708C00748000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.1,
+        "qty": 5.0,
+        "actual_exit_pnl": -20.0
+      },
+      {
+        "pnl": -84.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 12,
+            "fill_price": 0.07,
+            "ts_utc": "2026-06-29T18:58:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "risky-3",
+        "symbol": "SPY260629C00743000",
+        "date_et": "2026-06-29",
+        "entry_price": 0.14,
+        "qty": 12.0,
+        "actual_exit_pnl": -48.0
+      },
+      {
+        "pnl": 144.0,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 4,
+            "fill_price": 0.9,
+            "ts_utc": "2026-06-30T14:31:00Z"
+          },
+          {
+            "stage": "trail",
+            "qty": 1,
+            "fill_price": 0.84,
+            "ts_utc": "2026-06-30T14:33:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "risky-3",
+        "symbol": "SPY260630C00746000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.6,
+        "qty": 5.0,
+        "actual_exit_pnl": -60.0
+      },
+      {
+        "pnl": -25.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.05,
+            "ts_utc": "2026-06-30T17:28:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.1,
+        "qty": 5.0,
+        "actual_exit_pnl": -5.0
+      },
+      {
+        "pnl": 20.13,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 4,
+            "fill_price": 0.105,
+            "ts_utc": "2026-06-30T19:17:00Z"
+          },
+          {
+            "stage": "trail",
+            "qty": 1,
+            "fill_price": 0.1313,
+            "ts_utc": "2026-06-30T19:18:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "risky-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.07,
+        "qty": 5.0,
+        "actual_exit_pnl": -10.0
+      },
+      {
+        "pnl": 21.13,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 4,
+            "fill_price": 0.12,
+            "ts_utc": "2026-06-30T19:17:00Z"
+          },
+          {
+            "stage": "trail",
+            "qty": 1,
+            "fill_price": 0.1313,
+            "ts_utc": "2026-06-30T19:18:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "risky-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.08,
+        "qty": 5.0,
+        "actual_exit_pnl": -10.0
+      },
+      {
+        "pnl": 22.13,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 4,
+            "fill_price": 0.135,
+            "ts_utc": "2026-06-30T19:18:00Z"
+          },
+          {
+            "stage": "trail",
+            "qty": 1,
+            "fill_price": 0.1313,
+            "ts_utc": "2026-06-30T19:19:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "risky-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.09,
+        "qty": 5.0,
+        "actual_exit_pnl": -5.0
+      },
+      {
+        "pnl": -12.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.025,
+            "ts_utc": "2026-06-30T19:22:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260630C00751000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.05,
+        "qty": 5.0,
+        "actual_exit_pnl": -15.0
+      },
+      {
+        "pnl": -65.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.13,
+            "ts_utc": "2026-07-01T16:39:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "risky-3",
+        "symbol": "SPY260701C00751000",
+        "date_et": "2026-07-01",
+        "entry_price": 0.26,
+        "qty": 5.0,
+        "actual_exit_pnl": -20.0
+      },
+      {
+        "pnl": -125.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.25,
+            "ts_utc": "2026-07-02T13:43:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260702P00743000",
+        "date_et": "2026-07-02",
+        "entry_price": 0.5,
+        "qty": 5.0,
+        "actual_exit_pnl": -80.0
+      },
+      {
+        "pnl": -47.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.095,
+            "ts_utc": "2026-07-02T14:27:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "risky-3",
+        "symbol": "SPY260702C00754000",
+        "date_et": "2026-07-02",
+        "entry_price": 0.19,
+        "qty": 5.0,
+        "actual_exit_pnl": -25.0
+      },
+      {
+        "pnl": 119.87,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 4,
+            "fill_price": 0.735,
+            "ts_utc": "2026-07-02T15:52:00Z"
+          },
+          {
+            "stage": "trail",
+            "qty": 1,
+            "fill_price": 0.7087,
+            "ts_utc": "2026-07-02T15:54:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "risky-3",
+        "symbol": "SPY260702P00742000",
+        "date_et": "2026-07-02",
+        "entry_price": 0.49,
+        "qty": 5.0,
+        "actual_exit_pnl": 491.0
+      },
+      {
+        "pnl": 171.0,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 6,
+            "fill_price": 0.675,
+            "ts_utc": "2026-07-02T17:58:00Z"
+          },
+          {
+            "stage": "trail",
+            "qty": 2,
+            "fill_price": 0.63,
+            "ts_utc": "2026-07-02T17:59:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "risky-3",
+        "symbol": "SPY260702P00739000",
+        "date_et": "2026-07-02",
+        "entry_price": 0.45,
+        "qty": 8.0,
+        "actual_exit_pnl": -152.0
+      },
+      {
+        "pnl": -48.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 12,
+            "fill_price": 0.04,
+            "ts_utc": "2026-07-06T16:59:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.08,
+        "qty": 12.0,
+        "actual_exit_pnl": -24.0
+      },
+      {
+        "pnl": 48.39,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 9,
+            "fill_price": 0.09,
+            "ts_utc": "2026-07-06T17:05:00Z"
+          },
+          {
+            "stage": "trail",
+            "qty": 3,
+            "fill_price": 0.1313,
+            "ts_utc": "2026-07-06T17:06:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "risky-3",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.06,
+        "qty": 12.0,
+        "actual_exit_pnl": -12.0
+      },
+      {
+        "pnl": -60.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 12,
+            "fill_price": 0.05,
+            "ts_utc": "2026-07-06T17:29:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.1,
+        "qty": 12.0,
+        "actual_exit_pnl": -24.0
+      },
+      {
+        "pnl": -10.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.02,
+            "ts_utc": "2026-07-06T18:35:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.04,
+        "qty": 5.0,
+        "actual_exit_pnl": 0.0
+      },
+      {
+        "pnl": -5.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.01,
+            "ts_utc": "2026-07-06T18:59:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260706C00755000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.02,
+        "qty": 5.0,
+        "actual_exit_pnl": -5.0
+      },
+      {
+        "pnl": -112.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.225,
+            "ts_utc": "2026-07-07T15:44:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "risky-3",
+        "symbol": "SPY260707P00743000",
+        "date_et": "2026-07-07",
+        "entry_price": 0.45,
+        "qty": 5.0,
+        "actual_exit_pnl": -25.0
+      },
+      {
+        "pnl": -60.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.12,
+            "ts_utc": "2026-07-07T17:02:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260707P00746000",
+        "date_et": "2026-07-07",
+        "entry_price": 0.24,
+        "qty": 5.0,
+        "actual_exit_pnl": -25.0
+      },
+      {
+        "pnl": 37.12,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 4,
+            "fill_price": 0.15,
+            "ts_utc": "2026-07-07T18:49:00Z"
+          },
+          {
+            "stage": "trail",
+            "qty": 1,
+            "fill_price": 0.2712,
+            "ts_utc": "2026-07-07T18:50:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "risky-3",
+        "symbol": "SPY260707P00746000",
+        "date_et": "2026-07-07",
+        "entry_price": 0.1,
+        "qty": 5.0,
+        "actual_exit_pnl": -10.0
+      },
+      {
+        "pnl": 246.25,
+        "exits": [
+          {
+            "stage": "tp1",
+            "qty": 4,
+            "fill_price": 1.41,
+            "ts_utc": "2026-07-08T14:47:00Z"
+          },
+          {
+            "stage": "trail",
+            "qty": 1,
+            "fill_price": 1.5225,
+            "ts_utc": "2026-07-08T14:50:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "risky-3",
+        "symbol": "SPY260708P00741000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.94,
+        "qty": 5.0,
+        "actual_exit_pnl": -80.0
+      },
+      {
+        "pnl": -62.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.125,
+            "ts_utc": "2026-07-08T17:29:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260708P00741000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.25,
+        "qty": 5.0,
+        "actual_exit_pnl": 0.0
+      },
+      {
+        "pnl": -32.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.065,
+            "ts_utc": "2026-07-08T17:48:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "risky-3",
+        "symbol": "SPY260708C00749000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.13,
+        "qty": 5.0,
+        "actual_exit_pnl": -10.0
+      },
+      {
+        "pnl": -25.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.05,
+            "ts_utc": "2026-07-08T18:55:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260708C00748000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.1,
+        "qty": 5.0,
+        "actual_exit_pnl": -20.0
+      }
+    ],
+    "no_trail_hold_to_time_stop": [
+      {
+        "pnl": -56.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 8,
+            "fill_price": 0.07,
+            "ts_utc": "2026-06-29T18:58:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "safe-1",
+        "symbol": "SPY260629C00743000",
+        "date_et": "2026-06-29",
+        "entry_price": 0.14,
+        "qty": 8.0,
+        "actual_exit_pnl": -32.0
+      },
+      {
+        "pnl": 117.0,
+        "exits": [
+          {
+            "stage": "time_stop",
+            "qty": 3,
+            "fill_price": 1,
+            "ts_utc": "2026-06-30T19:50:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "safe-1",
+        "symbol": "SPY260630C00746000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.61,
+        "qty": 3.0,
+        "actual_exit_pnl": -36.0
+      },
+      {
+        "pnl": -18.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.06,
+            "ts_utc": "2026-06-30T17:15:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-1",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.12,
+        "qty": 3.0,
+        "actual_exit_pnl": -9.0
+      },
+      {
+        "pnl": -12.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.04,
+            "ts_utc": "2026-06-30T17:33:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-1",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.08,
+        "qty": 3.0,
+        "actual_exit_pnl": -18.0
+      },
+      {
+        "pnl": -39.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.13,
+            "ts_utc": "2026-07-01T16:39:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "safe-1",
+        "symbol": "SPY260701C00751000",
+        "date_et": "2026-07-01",
+        "entry_price": 0.26,
+        "qty": 3.0,
+        "actual_exit_pnl": -12.0
+      },
+      {
+        "pnl": -72.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.24,
+            "ts_utc": "2026-07-02T13:43:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-1",
+        "symbol": "SPY260702P00743000",
+        "date_et": "2026-07-02",
+        "entry_price": 0.48,
+        "qty": 3.0,
+        "actual_exit_pnl": -45.0
+      },
+      {
+        "pnl": -28.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.095,
+            "ts_utc": "2026-07-02T14:27:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "safe-1",
+        "symbol": "SPY260702C00754000",
+        "date_et": "2026-07-02",
+        "entry_price": 0.19,
+        "qty": 3.0,
+        "actual_exit_pnl": -15.0
+      },
+      {
+        "pnl": -75.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.25,
+            "ts_utc": "2026-07-02T19:35:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "safe-1",
+        "symbol": "SPY260702P00742000",
+        "date_et": "2026-07-02",
+        "entry_price": 0.5,
+        "qty": 3.0,
+        "actual_exit_pnl": 306.0
+      },
+      {
+        "pnl": -112.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.225,
+            "ts_utc": "2026-07-02T18:06:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "safe-1",
+        "symbol": "SPY260702P00739000",
+        "date_et": "2026-07-02",
+        "entry_price": 0.45,
+        "qty": 5.0,
+        "actual_exit_pnl": -95.0
+      },
+      {
+        "pnl": -32.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 8,
+            "fill_price": 0.04,
+            "ts_utc": "2026-07-06T16:59:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-1",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.08,
+        "qty": 8.0,
+        "actual_exit_pnl": -16.0
+      },
+      {
+        "pnl": -24.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 8,
+            "fill_price": 0.03,
+            "ts_utc": "2026-07-06T17:40:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-1",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.06,
+        "qty": 8.0,
+        "actual_exit_pnl": -8.0
+      },
+      {
+        "pnl": -40.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 8,
+            "fill_price": 0.05,
+            "ts_utc": "2026-07-06T17:29:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-1",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.1,
+        "qty": 8.0,
+        "actual_exit_pnl": 8.0
+      },
+      {
+        "pnl": -44.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 8,
+            "fill_price": 0.055,
+            "ts_utc": "2026-07-06T18:39:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-1",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.11,
+        "qty": 8.0,
+        "actual_exit_pnl": -8.0
+      },
+      {
+        "pnl": -20.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 8,
+            "fill_price": 0.025,
+            "ts_utc": "2026-07-06T19:34:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "safe-1",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.05,
+        "qty": 8.0,
+        "actual_exit_pnl": -16.0
+      },
+      {
+        "pnl": -66.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.22,
+            "ts_utc": "2026-07-07T15:44:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "safe-1",
+        "symbol": "SPY260707P00743000",
+        "date_et": "2026-07-07",
+        "entry_price": 0.44,
+        "qty": 3.0,
+        "actual_exit_pnl": -39.0
+      },
+      {
+        "pnl": -36.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.12,
+            "ts_utc": "2026-07-07T17:02:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-1",
+        "symbol": "SPY260707P00746000",
+        "date_et": "2026-07-07",
+        "entry_price": 0.24,
+        "qty": 3.0,
+        "actual_exit_pnl": -15.0
+      },
+      {
+        "pnl": -9.0,
+        "exits": [
+          {
+            "stage": "time_stop",
+            "qty": 3,
+            "fill_price": 0.08,
+            "ts_utc": "2026-07-07T19:50:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "safe-1",
+        "symbol": "SPY260707P00746000",
+        "date_et": "2026-07-07",
+        "entry_price": 0.11,
+        "qty": 3.0,
+        "actual_exit_pnl": -9.0
+      },
+      {
+        "pnl": -144.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.48,
+            "ts_utc": "2026-07-08T16:31:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "safe-1",
+        "symbol": "SPY260708P00741000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.96,
+        "qty": 3.0,
+        "actual_exit_pnl": -54.0
+      },
+      {
+        "pnl": -37.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.125,
+            "ts_utc": "2026-07-08T17:29:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-1",
+        "symbol": "SPY260708P00741000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.25,
+        "qty": 3.0,
+        "actual_exit_pnl": 0.0
+      },
+      {
+        "pnl": -19.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.065,
+            "ts_utc": "2026-07-08T17:48:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "safe-1",
+        "symbol": "SPY260708C00749000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.13,
+        "qty": 3.0,
+        "actual_exit_pnl": -12.0
+      },
+      {
+        "pnl": -15.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.05,
+            "ts_utc": "2026-07-08T18:55:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-1",
+        "symbol": "SPY260708C00748000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.1,
+        "qty": 3.0,
+        "actual_exit_pnl": -12.0
+      },
+      {
+        "pnl": -44.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 8,
+            "fill_price": 0.055,
+            "ts_utc": "2026-06-29T19:16:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "safe-3",
+        "symbol": "SPY260629C00743000",
+        "date_et": "2026-06-29",
+        "entry_price": 0.11,
+        "qty": 8.0,
+        "actual_exit_pnl": -8.0
+      },
+      {
+        "pnl": 117.0,
+        "exits": [
+          {
+            "stage": "time_stop",
+            "qty": 3,
+            "fill_price": 1,
+            "ts_utc": "2026-06-30T19:50:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "safe-3",
+        "symbol": "SPY260630C00746000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.61,
+        "qty": 3.0,
+        "actual_exit_pnl": -33.0
+      },
+      {
+        "pnl": -15.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.05,
+            "ts_utc": "2026-06-30T17:28:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.1,
+        "qty": 3.0,
+        "actual_exit_pnl": -3.0
+      },
+      {
+        "pnl": -10.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.035,
+            "ts_utc": "2026-06-30T19:34:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.07,
+        "qty": 3.0,
+        "actual_exit_pnl": -6.0
+      },
+      {
+        "pnl": -10.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.035,
+            "ts_utc": "2026-06-30T19:34:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.07,
+        "qty": 3.0,
+        "actual_exit_pnl": -6.0
+      },
+      {
+        "pnl": -12.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.04,
+            "ts_utc": "2026-06-30T19:29:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.08,
+        "qty": 3.0,
+        "actual_exit_pnl": -18.0
+      },
+      {
+        "pnl": -4.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.015,
+            "ts_utc": "2026-06-30T19:29:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-3",
+        "symbol": "SPY260630C00751000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.03,
+        "qty": 3.0,
+        "actual_exit_pnl": -6.0
+      },
+      {
+        "pnl": -39.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.13,
+            "ts_utc": "2026-07-01T16:39:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "safe-3",
+        "symbol": "SPY260701C00751000",
+        "date_et": "2026-07-01",
+        "entry_price": 0.26,
+        "qty": 3.0,
+        "actual_exit_pnl": -12.0
+      },
+      {
+        "pnl": -28.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.095,
+            "ts_utc": "2026-07-02T14:27:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "safe-3",
+        "symbol": "SPY260702C00754000",
+        "date_et": "2026-07-02",
+        "entry_price": 0.19,
+        "qty": 3.0,
+        "actual_exit_pnl": -15.0
+      },
+      {
+        "pnl": -6.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.02,
+            "ts_utc": "2026-07-06T15:35:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-3",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.04,
+        "qty": 3.0,
+        "actual_exit_pnl": -6.0
+      },
+      {
+        "pnl": -4.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.015,
+            "ts_utc": "2026-07-06T17:42:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-3",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.03,
+        "qty": 3.0,
+        "actual_exit_pnl": -3.0
+      },
+      {
+        "pnl": -7.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.025,
+            "ts_utc": "2026-07-06T17:34:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-3",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.05,
+        "qty": 3.0,
+        "actual_exit_pnl": -3.0
+      },
+      {
+        "pnl": -6.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.02,
+            "ts_utc": "2026-07-06T18:35:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-3",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.04,
+        "qty": 3.0,
+        "actual_exit_pnl": 0.0
+      },
+      {
+        "pnl": -3.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.01,
+            "ts_utc": "2026-07-06T18:59:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "safe-3",
+        "symbol": "SPY260706C00755000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.02,
+        "qty": 3.0,
+        "actual_exit_pnl": -3.0
+      },
+      {
+        "pnl": -150.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.5,
+            "ts_utc": "2026-07-08T16:31:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "safe-3",
+        "symbol": "SPY260708P00741000",
+        "date_et": "2026-07-08",
+        "entry_price": 1.0,
+        "qty": 3.0,
+        "actual_exit_pnl": -69.0
+      },
+      {
+        "pnl": -19.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.065,
+            "ts_utc": "2026-07-08T17:48:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "safe-3",
+        "symbol": "SPY260708C00749000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.13,
+        "qty": 3.0,
+        "actual_exit_pnl": -6.0
+      },
+      {
+        "pnl": -13.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 3,
+            "fill_price": 0.045,
+            "ts_utc": "2026-07-08T19:03:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "safe-3",
+        "symbol": "SPY260708C00748000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.09,
+        "qty": 3.0,
+        "actual_exit_pnl": -9.0
+      },
+      {
+        "pnl": -84.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 12,
+            "fill_price": 0.07,
+            "ts_utc": "2026-06-29T18:58:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "risky-1",
+        "symbol": "SPY260629C00743000",
+        "date_et": "2026-06-29",
+        "entry_price": 0.14,
+        "qty": 12.0,
+        "actual_exit_pnl": -48.0
+      },
+      {
+        "pnl": 210.0,
+        "exits": [
+          {
+            "stage": "time_stop",
+            "qty": 5,
+            "fill_price": 1,
+            "ts_utc": "2026-06-30T19:50:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "risky-1",
+        "symbol": "SPY260630C00746000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.58,
+        "qty": 5.0,
+        "actual_exit_pnl": -80.0
+      },
+      {
+        "pnl": -25.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.05,
+            "ts_utc": "2026-06-30T17:28:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-1",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.1,
+        "qty": 5.0,
+        "actual_exit_pnl": 0.0
+      },
+      {
+        "pnl": -17.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.035,
+            "ts_utc": "2026-06-30T19:34:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-1",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.07,
+        "qty": 5.0,
+        "actual_exit_pnl": -10.0
+      },
+      {
+        "pnl": -22.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.045,
+            "ts_utc": "2026-06-30T19:29:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-1",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.09,
+        "qty": 5.0,
+        "actual_exit_pnl": -18.0
+      },
+      {
+        "pnl": -20.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.04,
+            "ts_utc": "2026-06-30T19:29:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-1",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.08,
+        "qty": 5.0,
+        "actual_exit_pnl": -30.0
+      },
+      {
+        "pnl": -7.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.015,
+            "ts_utc": "2026-06-30T19:29:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-1",
+        "symbol": "SPY260630C00751000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.03,
+        "qty": 5.0,
+        "actual_exit_pnl": -10.0
+      },
+      {
+        "pnl": -65.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.13,
+            "ts_utc": "2026-07-01T16:39:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "risky-1",
+        "symbol": "SPY260701C00751000",
+        "date_et": "2026-07-01",
+        "entry_price": 0.26,
+        "qty": 5.0,
+        "actual_exit_pnl": -20.0
+      },
+      {
+        "pnl": -47.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.095,
+            "ts_utc": "2026-07-02T14:27:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "risky-1",
+        "symbol": "SPY260702C00754000",
+        "date_et": "2026-07-02",
+        "entry_price": 0.19,
+        "qty": 5.0,
+        "actual_exit_pnl": -25.0
+      },
+      {
+        "pnl": -10.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.02,
+            "ts_utc": "2026-07-06T15:35:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-1",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.04,
+        "qty": 5.0,
+        "actual_exit_pnl": -10.0
+      },
+      {
+        "pnl": -7.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.015,
+            "ts_utc": "2026-07-06T17:42:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-1",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.03,
+        "qty": 5.0,
+        "actual_exit_pnl": -5.0
+      },
+      {
+        "pnl": -12.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.025,
+            "ts_utc": "2026-07-06T17:34:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-1",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.05,
+        "qty": 5.0,
+        "actual_exit_pnl": -5.0
+      },
+      {
+        "pnl": -10.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.02,
+            "ts_utc": "2026-07-06T18:35:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-1",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.04,
+        "qty": 5.0,
+        "actual_exit_pnl": 0.0
+      },
+      {
+        "pnl": -5.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.01,
+            "ts_utc": "2026-07-06T18:59:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-1",
+        "symbol": "SPY260706C00755000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.02,
+        "qty": 5.0,
+        "actual_exit_pnl": -5.0
+      },
+      {
+        "pnl": -235.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.47,
+            "ts_utc": "2026-07-08T16:40:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "risky-1",
+        "symbol": "SPY260708P00741000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.94,
+        "qty": 5.0,
+        "actual_exit_pnl": -80.0
+      },
+      {
+        "pnl": -32.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.065,
+            "ts_utc": "2026-07-08T17:48:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "risky-1",
+        "symbol": "SPY260708C00749000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.13,
+        "qty": 5.0,
+        "actual_exit_pnl": -10.0
+      },
+      {
+        "pnl": -25.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.05,
+            "ts_utc": "2026-07-08T18:55:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-1",
+        "symbol": "SPY260708C00748000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.1,
+        "qty": 5.0,
+        "actual_exit_pnl": -20.0
+      },
+      {
+        "pnl": -84.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 12,
+            "fill_price": 0.07,
+            "ts_utc": "2026-06-29T18:58:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "risky-3",
+        "symbol": "SPY260629C00743000",
+        "date_et": "2026-06-29",
+        "entry_price": 0.14,
+        "qty": 12.0,
+        "actual_exit_pnl": -48.0
+      },
+      {
+        "pnl": 200.0,
+        "exits": [
+          {
+            "stage": "time_stop",
+            "qty": 5,
+            "fill_price": 1,
+            "ts_utc": "2026-06-30T19:50:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "risky-3",
+        "symbol": "SPY260630C00746000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.6,
+        "qty": 5.0,
+        "actual_exit_pnl": -60.0
+      },
+      {
+        "pnl": -25.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.05,
+            "ts_utc": "2026-06-30T17:28:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.1,
+        "qty": 5.0,
+        "actual_exit_pnl": -5.0
+      },
+      {
+        "pnl": -17.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.035,
+            "ts_utc": "2026-06-30T19:34:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.07,
+        "qty": 5.0,
+        "actual_exit_pnl": -10.0
+      },
+      {
+        "pnl": -20.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.04,
+            "ts_utc": "2026-06-30T19:29:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.08,
+        "qty": 5.0,
+        "actual_exit_pnl": -10.0
+      },
+      {
+        "pnl": -22.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.045,
+            "ts_utc": "2026-06-30T19:29:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260630C00750000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.09,
+        "qty": 5.0,
+        "actual_exit_pnl": -5.0
+      },
+      {
+        "pnl": -12.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.025,
+            "ts_utc": "2026-06-30T19:22:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260630C00751000",
+        "date_et": "2026-06-30",
+        "entry_price": 0.05,
+        "qty": 5.0,
+        "actual_exit_pnl": -15.0
+      },
+      {
+        "pnl": -65.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.13,
+            "ts_utc": "2026-07-01T16:39:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "risky-3",
+        "symbol": "SPY260701C00751000",
+        "date_et": "2026-07-01",
+        "entry_price": 0.26,
+        "qty": 5.0,
+        "actual_exit_pnl": -20.0
+      },
+      {
+        "pnl": -125.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.25,
+            "ts_utc": "2026-07-02T13:43:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260702P00743000",
+        "date_et": "2026-07-02",
+        "entry_price": 0.5,
+        "qty": 5.0,
+        "actual_exit_pnl": -80.0
+      },
+      {
+        "pnl": -47.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.095,
+            "ts_utc": "2026-07-02T14:27:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "risky-3",
+        "symbol": "SPY260702C00754000",
+        "date_et": "2026-07-02",
+        "entry_price": 0.19,
+        "qty": 5.0,
+        "actual_exit_pnl": -25.0
+      },
+      {
+        "pnl": -122.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.245,
+            "ts_utc": "2026-07-02T19:35:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "risky-3",
+        "symbol": "SPY260702P00742000",
+        "date_et": "2026-07-02",
+        "entry_price": 0.49,
+        "qty": 5.0,
+        "actual_exit_pnl": 491.0
+      },
+      {
+        "pnl": -180.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 8,
+            "fill_price": 0.225,
+            "ts_utc": "2026-07-02T18:06:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "risky-3",
+        "symbol": "SPY260702P00739000",
+        "date_et": "2026-07-02",
+        "entry_price": 0.45,
+        "qty": 8.0,
+        "actual_exit_pnl": -152.0
+      },
+      {
+        "pnl": -48.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 12,
+            "fill_price": 0.04,
+            "ts_utc": "2026-07-06T16:59:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.08,
+        "qty": 12.0,
+        "actual_exit_pnl": -24.0
+      },
+      {
+        "pnl": -36.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 12,
+            "fill_price": 0.03,
+            "ts_utc": "2026-07-06T17:40:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.06,
+        "qty": 12.0,
+        "actual_exit_pnl": -12.0
+      },
+      {
+        "pnl": -60.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 12,
+            "fill_price": 0.05,
+            "ts_utc": "2026-07-06T17:29:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260706C00753000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.1,
+        "qty": 12.0,
+        "actual_exit_pnl": -24.0
+      },
+      {
+        "pnl": -10.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.02,
+            "ts_utc": "2026-07-06T18:35:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260706C00754000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.04,
+        "qty": 5.0,
+        "actual_exit_pnl": 0.0
+      },
+      {
+        "pnl": -5.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.01,
+            "ts_utc": "2026-07-06T18:59:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260706C00755000",
+        "date_et": "2026-07-06",
+        "entry_price": 0.02,
+        "qty": 5.0,
+        "actual_exit_pnl": -5.0
+      },
+      {
+        "pnl": -112.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.225,
+            "ts_utc": "2026-07-07T15:44:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "risky-3",
+        "symbol": "SPY260707P00743000",
+        "date_et": "2026-07-07",
+        "entry_price": 0.45,
+        "qty": 5.0,
+        "actual_exit_pnl": -25.0
+      },
+      {
+        "pnl": -60.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.12,
+            "ts_utc": "2026-07-07T17:02:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260707P00746000",
+        "date_et": "2026-07-07",
+        "entry_price": 0.24,
+        "qty": 5.0,
+        "actual_exit_pnl": -25.0
+      },
+      {
+        "pnl": -10.0,
+        "exits": [
+          {
+            "stage": "time_stop",
+            "qty": 5,
+            "fill_price": 0.08,
+            "ts_utc": "2026-07-07T19:50:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": false,
+        "thesis_paid_after_stop": null,
+        "arm": "risky-3",
+        "symbol": "SPY260707P00746000",
+        "date_et": "2026-07-07",
+        "entry_price": 0.1,
+        "qty": 5.0,
+        "actual_exit_pnl": -10.0
+      },
+      {
+        "pnl": -235.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.47,
+            "ts_utc": "2026-07-08T16:40:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "risky-3",
+        "symbol": "SPY260708P00741000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.94,
+        "qty": 5.0,
+        "actual_exit_pnl": -80.0
+      },
+      {
+        "pnl": -62.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.125,
+            "ts_utc": "2026-07-08T17:29:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260708P00741000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.25,
+        "qty": 5.0,
+        "actual_exit_pnl": 0.0
+      },
+      {
+        "pnl": -32.5,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.065,
+            "ts_utc": "2026-07-08T17:48:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": false,
+        "arm": "risky-3",
+        "symbol": "SPY260708C00749000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.13,
+        "qty": 5.0,
+        "actual_exit_pnl": -10.0
+      },
+      {
+        "pnl": -25.0,
+        "exits": [
+          {
+            "stage": "premium_stop",
+            "qty": 5,
+            "fill_price": 0.05,
+            "ts_utc": "2026-07-08T18:55:00Z"
+          }
+        ],
+        "final_open_qty": 0,
+        "stopped_out": true,
+        "thesis_paid_after_stop": true,
+        "arm": "risky-3",
+        "symbol": "SPY260708C00748000",
+        "date_et": "2026-07-08",
+        "entry_price": 0.1,
+        "qty": 5.0,
+        "actual_exit_pnl": -20.0
+      }
+    ]
+  }
+}

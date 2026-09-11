@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=1.39s | action=adversarial_review_gap_fade_vwap_retest_rsi_divergence_v2 -->
+<!-- reason: Recent critic actions reviewed older candidates (gap_fade_vwap_retest_rsi_divergence was reviewed 2 cycles ago per the rotation log; this one is the same variant from a different chef cook today). Chef output is fresh, uncritiqued, and the gap-fade family is sensitive to VWAP-retest timing — exactly the kind of edge that needs adversarial pressure before it eats queue space. -->
+
+{"verdict":"SKIP","reason":"file unreadable"}

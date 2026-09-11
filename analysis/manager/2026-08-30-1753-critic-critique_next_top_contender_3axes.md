@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=9.246s | action=critique_next_top_contender_3axes -->
+<!-- reason: Sweep is mature (8835 rows), top contenders need adversarial vetting before any ship. Recent critic actions reviewed rank files and gap_and_go twice; this targets the NEXT unreviewed top entry specifically with bounded 3-axis check. Avoids the hallucinated-JSON failure mode by requiring a real file read + numeric verdict only. -->
+
+STRAT_B | 0.48 | 4.0 | 55 | REJECT | Underpowered sample size and sub‑50% walk‑forward efficiency

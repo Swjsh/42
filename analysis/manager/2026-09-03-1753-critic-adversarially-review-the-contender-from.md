@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=1.258s | action=Adversarially review the contender from -->
+<!-- reason: Per overseer: critic lane is the right move and varied from recent ITM-2 reviews. Sweep is at 8835 rows and the last grinder row had edge_capture -717.6 (well below floor) -- the top of the sweep is the highest-value unknown; critiquing it gates any ship decision. Not repeating 'critique_ITM-2-stop-40-tp150-trailing' or the two prior generic critic prompts. -->
+
+The rank file `analysis/recommendations/contender-rank-2026-06-29.json` is missing.

@@ -1,0 +1,290 @@
+{
+  "A_baseline_draw_target": {
+    "MES": {
+      "n": 196,
+      "win_rate": 30.1,
+      "exp_R": 0.031,
+      "pf": 1.04,
+      "net": -1625.47,
+      "oos_exp_R": -0.026,
+      "long_exp_R": 0.052,
+      "short_exp_R": -0.003
+    },
+    "MNQ": {
+      "n": 205,
+      "win_rate": 25.9,
+      "exp_R": -0.11,
+      "pf": 0.85,
+      "net": -3579.74,
+      "oos_exp_R": -0.128,
+      "long_exp_R": 0.009,
+      "short_exp_R": -0.237
+    },
+    "passes_bar": false,
+    "passes_direction_check": false
+  },
+  "B_fixed_1R": {
+    "MES": {
+      "n": 199,
+      "win_rate": 52.3,
+      "exp_R": 0.052,
+      "pf": 1.11,
+      "net": -1399.15,
+      "oos_exp_R": 0.034,
+      "long_exp_R": 0.006,
+      "short_exp_R": 0.125
+    },
+    "MNQ": {
+      "n": 209,
+      "win_rate": 43.5,
+      "exp_R": -0.125,
+      "pf": 0.78,
+      "net": -3673.64,
+      "oos_exp_R": -0.01,
+      "long_exp_R": -0.158,
+      "short_exp_R": -0.089
+    },
+    "passes_bar": false,
+    "passes_direction_check": false
+  },
+  "C_fixed_1.5R": {
+    "MES": {
+      "n": 199,
+      "win_rate": 38.7,
+      "exp_R": -0.03,
+      "pf": 0.95,
+      "net": -2882.86,
+      "oos_exp_R": -0.111,
+      "long_exp_R": 0.003,
+      "short_exp_R": -0.083
+    },
+    "MNQ": {
+      "n": 209,
+      "win_rate": 40.2,
+      "exp_R": 0.005,
+      "pf": 1.01,
+      "net": -1444.14,
+      "oos_exp_R": 0.159,
+      "long_exp_R": -0.05,
+      "short_exp_R": 0.064
+    },
+    "passes_bar": false,
+    "passes_direction_check": false
+  },
+  "D_fixed_2R": {
+    "MES": {
+      "n": 198,
+      "win_rate": 33.8,
+      "exp_R": -0.001,
+      "pf": 1.0,
+      "net": -2234.18,
+      "oos_exp_R": -0.067,
+      "long_exp_R": 0.01,
+      "short_exp_R": -0.018
+    },
+    "MNQ": {
+      "n": 207,
+      "win_rate": 32.9,
+      "exp_R": -0.018,
+      "pf": 0.97,
+      "net": -2175.46,
+      "oos_exp_R": -0.007,
+      "long_exp_R": 0.006,
+      "short_exp_R": -0.045
+    },
+    "passes_bar": false,
+    "passes_direction_check": false
+  },
+  "E_be_at_1R": {
+    "MES": {
+      "n": 197,
+      "win_rate": 20.8,
+      "exp_R": 0.019,
+      "pf": 1.04,
+      "net": -1775.45,
+      "oos_exp_R": -0.045,
+      "long_exp_R": 0.046,
+      "short_exp_R": -0.024
+    },
+    "MNQ": {
+      "n": 207,
+      "win_rate": 18.4,
+      "exp_R": -0.1,
+      "pf": 0.82,
+      "net": -3144.42,
+      "oos_exp_R": -0.044,
+      "long_exp_R": -0.077,
+      "short_exp_R": -0.125
+    },
+    "passes_bar": false,
+    "passes_direction_check": false
+  },
+  "F_partial_1R_then_draw": {
+    "MES": {
+      "n": 198,
+      "win_rate": 52.5,
+      "exp_R": 0.046,
+      "pf": 1.1,
+      "net": -1470.43,
+      "oos_exp_R": 0.021,
+      "long_exp_R": 0.027,
+      "short_exp_R": 0.076
+    },
+    "MNQ": {
+      "n": 209,
+      "win_rate": 43.5,
+      "exp_R": -0.116,
+      "pf": 0.79,
+      "net": -3531.64,
+      "oos_exp_R": -0.025,
+      "long_exp_R": -0.156,
+      "short_exp_R": -0.073
+    },
+    "passes_bar": false,
+    "passes_direction_check": false
+  },
+  "G_partial_1R_then_2R": {
+    "MES": {
+      "n": 198,
+      "win_rate": 52.5,
+      "exp_R": 0.049,
+      "pf": 1.1,
+      "net": -1491.68,
+      "oos_exp_R": 0.042,
+      "long_exp_R": 0.029,
+      "short_exp_R": 0.079
+    },
+    "MNQ": {
+      "n": 209,
+      "win_rate": 43.5,
+      "exp_R": -0.108,
+      "pf": 0.81,
+      "net": -3402.64,
+      "oos_exp_R": 0.01,
+      "long_exp_R": -0.143,
+      "short_exp_R": -0.07
+    },
+    "passes_bar": false,
+    "passes_direction_check": false
+  },
+  "H_trail_after_1R": {
+    "MES": {
+      "n": 199,
+      "win_rate": 50.8,
+      "exp_R": 0.008,
+      "pf": 1.02,
+      "net": -2180.4,
+      "oos_exp_R": -0.033,
+      "long_exp_R": -0.02,
+      "short_exp_R": 0.054
+    },
+    "MNQ": {
+      "n": 209,
+      "win_rate": 43.5,
+      "exp_R": -0.06,
+      "pf": 0.89,
+      "net": -2514.64,
+      "oos_exp_R": 0.053,
+      "long_exp_R": -0.096,
+      "short_exp_R": -0.022
+    },
+    "passes_bar": false,
+    "passes_direction_check": false
+  },
+  "I_timestop_30bars": {
+    "MES": {
+      "n": 200,
+      "win_rate": 39.0,
+      "exp_R": -0.064,
+      "pf": 0.89,
+      "net": -3371.61,
+      "oos_exp_R": -0.09,
+      "long_exp_R": -0.082,
+      "short_exp_R": -0.034
+    },
+    "MNQ": {
+      "n": 209,
+      "win_rate": 34.0,
+      "exp_R": -0.142,
+      "pf": 0.77,
+      "net": -3702.64,
+      "oos_exp_R": -0.055,
+      "long_exp_R": -0.132,
+      "short_exp_R": -0.152
+    },
+    "passes_bar": false,
+    "passes_direction_check": false
+  },
+  "J_timestop_60_be_1R": {
+    "MES": {
+      "n": 199,
+      "win_rate": 24.1,
+      "exp_R": -0.063,
+      "pf": 0.87,
+      "net": -3326.65,
+      "oos_exp_R": -0.107,
+      "long_exp_R": -0.062,
+      "short_exp_R": -0.066
+    },
+    "MNQ": {
+      "n": 209,
+      "win_rate": 22.5,
+      "exp_R": -0.1,
+      "pf": 0.82,
+      "net": -3195.14,
+      "oos_exp_R": -0.053,
+      "long_exp_R": -0.113,
+      "short_exp_R": -0.087
+    },
+    "passes_bar": false,
+    "passes_direction_check": false
+  },
+  "K_1R_sweepstop": {
+    "MES": {
+      "n": 190,
+      "win_rate": 50.0,
+      "exp_R": -0.031,
+      "pf": 0.93,
+      "net": -683.68,
+      "oos_exp_R": 0.018,
+      "long_exp_R": -0.018,
+      "short_exp_R": -0.052
+    },
+    "MNQ": {
+      "n": 198,
+      "win_rate": 55.6,
+      "exp_R": 0.101,
+      "pf": 1.27,
+      "net": 3392.88,
+      "oos_exp_R": 0.228,
+      "long_exp_R": 0.193,
+      "short_exp_R": -0.001
+    },
+    "passes_bar": false,
+    "passes_direction_check": false
+  },
+  "L_partial_1R_sweepstop": {
+    "MES": {
+      "n": 190,
+      "win_rate": 50.0,
+      "exp_R": -0.034,
+      "pf": 0.93,
+      "net": -767.43,
+      "oos_exp_R": 0.013,
+      "long_exp_R": -0.026,
+      "short_exp_R": -0.046
+    },
+    "MNQ": {
+      "n": 198,
+      "win_rate": 55.6,
+      "exp_R": 0.105,
+      "pf": 1.28,
+      "net": 3462.88,
+      "oos_exp_R": 0.228,
+      "long_exp_R": 0.198,
+      "short_exp_R": 0.003
+    },
+    "passes_bar": false,
+    "passes_direction_check": false
+  }
+}

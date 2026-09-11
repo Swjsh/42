@@ -1,0 +1,9 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=12.325s | action=Critique the most recent contender from -->
+<!-- reason: Sweep is at 8835 rows and flagged COMPLETE; per overseer 'if this sweep looks COMPLETE, PRIORITIZE validating/critiquing its top contenders'. The last 3 actions were all critic (weakest-assumption with stress-test variants x3); need to vary TARGET. Picking a freshly-flagged op16-rejected combo from the tail (not gap_and_go which has been critiqued twice) gives a fresh target while staying in critic lane. Negative edge_capture + terrible wf makes this a useful reject-case study before we waste kitchen cycles cooking siblings. -->
+
+The negative edge_capture coupled with a wf of –0.829 does not automatically disqualify a strategy when the contest rewards extreme right‑tail outcomes; a few outsized winners can overturn a poor average if the payoff distribution is sufficiently skewed. However, the observed max drawdown of roughly $33 per trade on 0DTE SPY approaches the typical intraday swing of the underlying, leaving little margin for adverse fills or gap events before the account would breach risk limits. The “ITM‑2” debit structure (2‑point ITM long call) is not referenced in edge‑master‑doctrine.md, which favors ATM or slightly OTM debit spreads for defined‑risk, high‑frequency scalping; thus this variant lacks doctrinal backing and may rely on unstated assumptions about fill quality and volatility skew.
+
+**Weakest‑assumption:** IV_regime_stability – the strategy assumes implied volatility will remain within a narrow band that preserves the 2‑point ITM debit’s edge.
+
+**Stress‑test command:**  
+`stress_test.py --combo ITM-2:LR0:mt2:stop-40:tp+150%:sell100%:trailing --iv-shock +50 --gap-risk 1.0 --slippage 0.05`

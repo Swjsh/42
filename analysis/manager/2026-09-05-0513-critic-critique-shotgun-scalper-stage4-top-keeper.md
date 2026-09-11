@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=2.026s | action=critique-shotgun-scalper-stage4-top-keeper -->
+<!-- reason: Recent candidates list includes `shotgun-scalper-stage4-top-keeper` which has not yet been critiqued and is the most likely keeper per its label; rotation requires a critic action on a NEW target after seven consecutive critic runs on overlapping files. Sweep is at 8835 rows and the overseer wants validation/critique prioritized over new drafts — this is the single highest-value bounded critique available right now. -->
+
+SKIP: analysis/recommendations/2026-09-05-chef-nemo-shotgun-scalper-stage4-top-keeper.md

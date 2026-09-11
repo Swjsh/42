@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=forager lane=google_aistudio::gemini-flash-lite-latest elapsed=1.041s | action=Harvest the Trendline-J Drawn-Lines Ledg -->
+<!-- reason: Ledger was just SHIPPED 19:00 ET 09-03 with 23 lines but 0 forward lines today by construction -- we need to know if overnight runs produced any forward evidence, which is the prereg gate before registering the installer. Forage is the right verb: it's a harvest of existing data, not a new computation. -->
+
+I cannot complete this request because the requested file (`analysis/recommendations/j-drawn-lines-ledger.jsonl`) and the Trendline-J Drawn-Lines Ledger data from the specified session are not present in my current environment or context. Therefore, I cannot inspect the 23 captured trend lines, verify their timestamps, or evaluate their forward/backward touch and break characteristics without fabricating data.

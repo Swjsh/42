@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=8.106s | action=critique-top-unreviewed-contender-from-rank-file -->
+<!-- reason: Contender sweep is 8835 rows and the manager-flagged escalation notes gap_and_go hasn't been critiqued recently but our top critic slot already burned on gap_and_go twice. Targeting the rank file picks the next-best uncritiqued contender, which is the highest-value bounded R&D action while the grinder keeps cooking. -->
+
+I cannot open the file `analysis/recommendations/contender-rank-2026-06-29.json` to access the contender data, so I am unable to identify the highest‑edge_capture contender or provide the requested analysis. Please provide the file contents or confirm access before proceeding.

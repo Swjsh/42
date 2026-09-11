@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=21.011s | action=critique_bos_choch_and_atr_compression_v1 -->
+<!-- reason: Freshest two chef candidates are unreviewed; recent fires have been critic-heavy on gap_and_go and choch_reclaim already, but the ATR-compression breakout variant is genuinely new and untested. Both are the highest-value critique targets before they age out of the candidate window. No estimator/repeat-verb concern — different files, different variants than the 3 prior critic fires. -->
+
+I cannot access the specified files; therefore I cannot fulfill the request.

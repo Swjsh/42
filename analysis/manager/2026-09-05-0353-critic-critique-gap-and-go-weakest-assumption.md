@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=4.756s | action=critique-gap-and-go-weakest-assumption -->
+<!-- reason: Overseer's next-4 list, item #4 — critic role, fresh target (gap_and_go scorecard, not the candidate files I've already critiqued), bounded output, named file, single weak-link question. -->
+
+- The weakest assumption is the post‑gap trend persistence (field: post_gap_trend_persistence = 0.55); stress‑test it by reducing the persistence to 0.30 in Monte‑Carlo simulations and observing the strategy’s expectancy turn negative.

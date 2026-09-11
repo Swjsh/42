@@ -1,0 +1,4 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=1.06s | action=critique_top1_contender_rank_2026-06-29 -->
+<!-- reason: Sweep is 8835 rows deep; per overseer rotation rule I must not repeat any 'critic' verb from the last 3 cycles. My prior critic actions were: critique_top_contender, critique_gap_and_go, critique_bearish_rejection. None of those critiqued the actual TOP-1 from the 06-29 rank file — this is the next concrete target and directly addresses the 'contender sweep looks COMPLETE → validate/critique top contenders' instruction. -->
+
+SKIP: file not readable

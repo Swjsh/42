@@ -1,0 +1,167 @@
+{
+  "surveyed_utc": "2026-09-03T19:00:18Z",
+  "atm_band": [
+    0.2,
+    0.8
+  ],
+  "five_cent_gate": 5.0,
+  "note": "Snapshot. Weekend/off-hours books are thinner than RTH -- re-run during the target session before drawing any conclusion about a series.",
+  "reports": [
+    {
+      "series": "KXINXU",
+      "label": "S&P 500 hourly range",
+      "thesis": "reuse-spy-signal",
+      "open_markets": 120,
+      "atm_markets": 2,
+      "median_spread_cents": 3.0,
+      "tightest_spread_cents": 3.0,
+      "median_depth_contracts": null,
+      "verdict": "MARGINAL",
+      "note": "depth unavailable (orderbook may need auth)"
+    },
+    {
+      "series": "KXINX",
+      "label": "S&P 500 daily range",
+      "thesis": "reuse-spy-signal",
+      "open_markets": 60,
+      "atm_markets": 4,
+      "median_spread_cents": 4.0,
+      "tightest_spread_cents": 4.0,
+      "median_depth_contracts": null,
+      "verdict": "MARGINAL",
+      "note": "depth unavailable (orderbook may need auth)"
+    },
+    {
+      "series": "KXNASDAQ100U",
+      "label": "Nasdaq-100 hourly range",
+      "thesis": "reuse-spy-signal",
+      "open_markets": 800,
+      "atm_markets": 13,
+      "median_spread_cents": 5.0,
+      "tightest_spread_cents": 5.0,
+      "median_depth_contracts": null,
+      "verdict": "MARGINAL",
+      "note": "depth unavailable (orderbook may need auth)"
+    },
+    {
+      "series": "KXBTCD",
+      "label": "BTC daily range",
+      "thesis": "24-7",
+      "open_markets": 318,
+      "atm_markets": 10,
+      "median_spread_cents": 2.0,
+      "tightest_spread_cents": 1.0,
+      "median_depth_contracts": null,
+      "verdict": "TRADEABLE",
+      "note": "depth unavailable (orderbook may need auth)"
+    },
+    {
+      "series": "KXETHD",
+      "label": "ETH daily range",
+      "thesis": "24-7",
+      "open_markets": 390,
+      "atm_markets": 4,
+      "median_spread_cents": 2.0,
+      "tightest_spread_cents": 1.0,
+      "median_depth_contracts": null,
+      "verdict": "TRADEABLE",
+      "note": "depth unavailable (orderbook may need auth)"
+    },
+    {
+      "series": "KXHIGHNY",
+      "label": "NYC daily high temp",
+      "thesis": "weather",
+      "open_markets": 12,
+      "atm_markets": 4,
+      "median_spread_cents": 1.5,
+      "tightest_spread_cents": 1.0,
+      "median_depth_contracts": null,
+      "verdict": "TRADEABLE",
+      "note": "depth unavailable (orderbook may need auth)"
+    },
+    {
+      "series": "KXHIGHCHI",
+      "label": "Chicago daily high",
+      "thesis": "weather",
+      "open_markets": 12,
+      "atm_markets": 2,
+      "median_spread_cents": 1.5,
+      "tightest_spread_cents": 1.0,
+      "median_depth_contracts": null,
+      "verdict": "TRADEABLE",
+      "note": "depth unavailable (orderbook may need auth)"
+    },
+    {
+      "series": "KXHIGHMIA",
+      "label": "Miami daily high",
+      "thesis": "weather",
+      "open_markets": 12,
+      "atm_markets": 2,
+      "median_spread_cents": 1.0,
+      "tightest_spread_cents": 1.0,
+      "median_depth_contracts": null,
+      "verdict": "TRADEABLE",
+      "note": "depth unavailable (orderbook may need auth)"
+    },
+    {
+      "series": "KXHIGHAUS",
+      "label": "Austin daily high",
+      "thesis": "weather",
+      "open_markets": 12,
+      "atm_markets": 5,
+      "median_spread_cents": 2.0,
+      "tightest_spread_cents": 1.0,
+      "median_depth_contracts": null,
+      "verdict": "TRADEABLE",
+      "note": "depth unavailable (orderbook may need auth)"
+    },
+    {
+      "series": "KXCPIYOY",
+      "label": "CPI year-over-year",
+      "thesis": "macro",
+      "open_markets": 68,
+      "atm_markets": 21,
+      "median_spread_cents": 46.0,
+      "tightest_spread_cents": 1.0,
+      "median_depth_contracts": null,
+      "verdict": "BLEED",
+      "note": "depth unavailable (orderbook may need auth)"
+    },
+    {
+      "series": "KXFED",
+      "label": "Fed decision",
+      "thesis": "macro",
+      "open_markets": 87,
+      "atm_markets": 17,
+      "median_spread_cents": 19.0,
+      "tightest_spread_cents": 1.0,
+      "median_depth_contracts": null,
+      "verdict": "BLEED",
+      "note": "depth unavailable (orderbook may need auth)"
+    },
+    {
+      "series": "KXMLBGAME",
+      "label": "MLB moneyline",
+      "thesis": "sports",
+      "open_markets": 100,
+      "atm_markets": 96,
+      "median_spread_cents": 2.0,
+      "tightest_spread_cents": 1.0,
+      "median_depth_contracts": null,
+      "verdict": "TRADEABLE",
+      "note": "depth unavailable (orderbook may need auth)"
+    },
+    {
+      "series": "KXNFLGAME",
+      "label": "NFL moneyline",
+      "thesis": "sports",
+      "open_markets": 64,
+      "atm_markets": 58,
+      "median_spread_cents": 1.0,
+      "tightest_spread_cents": 1.0,
+      "median_depth_contracts": null,
+      "verdict": "TRADEABLE",
+      "note": "depth unavailable (orderbook may need auth)"
+    }
+  ]
+}

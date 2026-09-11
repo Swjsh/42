@@ -1,0 +1,8 @@
+<!-- gamma_manager (FREE) | role=forager lane=google_aistudio::gemini-flash-lite-latest elapsed=3.719s | action=forage_catalyst_data_source -->
+<!-- reason: Sweep is at 8835 rows, last 6 of my own actions were critic/validator/strategist/forager-critique mix but no fresh free-data pull; catalyst-direction is the freshest frozen hypothesis (frozen before its own result) and the result already shipped — only thing left is feeding it a new catalyst column to harden the next stage, which is exactly the forager lane. Picking forager over another critic pass prevents repeating the 'critique a named candidate' verb that has dominated the last 6 turns. -->
+
+(a) **FRED Release Calendar API** (`https://fred.stlouisfed.org/releases/calendar`) to harvest official macroeconomic release datetimes (CPI, FOMC, NFP, Retail Sales) and merge them as a binary `macro_catalyst_window` column.
+
+(b) **URL + Field**: `https://api.stlouisfed.org/fred/releases/dates?release_id={id}&api_key={KEY}&file_type=json` — ingest the `release_date` and `time` fields, aligning them to 1-minute OHLCV timestamp indexes to flag windows where scheduled Tier-1 macro prints occur.
+
+(c) **Pass Criterion Modification**: Require the +30-minute headline return to exceed the non-catalyst baseline *only* outside of scheduled FRED release windows, thereby killing the hypothesis if the current $+30\text{min}$ effect is entirely driven by macroeconomic calendar announcements rather than endogenous asset-specific catalysts.

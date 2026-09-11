@@ -1,0 +1,7 @@
+<!-- gamma_manager (FREE) | role=critic lane=openrouter::nvidia/nemotron-3-super-120b-a12b:free elapsed=15.298s | action=Read /home/user/Gamma/analysis/recommend -->
+<!-- reason: Overseer explicitly authorized critiquing gap_and_go scorecard as action #4. Contestant sweep has 8835 rows with last entry showing op16_reject=true and negative edge_capture (-717.6), so mass-grind ideation is exhausted and critique of a specific named candidate is the highest-value bounded R&D. Avoiding the retired validator/coder actions and the ideation verb (just ran NLWB v3 strategist 4 fires ago). -->
+
+The JSON’s weakest link is the assumption that **price gaps are reliably filled within the same trading session** – captured in the field `"assumptions":[{"id":"A1","statement":"Price gaps are fully filled within the same trading session"}]`.  
+
+**Stress‑test to falsify it:**  
+Run the gap‑and‑go logic on the interval **2022‑03‑01 through 2022‑03‑31**, a period marked by multiple Federal Reserve policy announcements that produced sizable overnight gaps in equity indices (e.g., S&P 500 futures) that frequently remained unfilled for the entire session. Measure the hit‑rate of gap‑fill within the session; if the fill‑rate falls below the strategy’s assumed threshold (e.g., < 50 %), the core assumption is invalidated and the edge claim collapses. No new variants or parameter tweaks are proposed – only this specific date‑window test targets the identified assumption.
