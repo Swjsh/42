@@ -1,0 +1,48 @@
+{
+  "_doc": "STAGED proposal -- NOT applied. A reviewer wires this at STOP-B; this file never touches params.json / fleet_executor.py.",
+  "generated_at": "2026-07-09T16:00:54.979572",
+  "mechanism": {
+    "new_params_key": "recency_sizing_policy",
+    "shape": {
+      "enabled": false,
+      "strategy": "ribbon_ride",
+      "lookback_trading_days": 25,
+      "confirm_n_floor": 10,
+      "full_oos_start": "2026-01-01",
+      "red_qty": 3,
+      "yellow_multiplier": 0.5,
+      "yellow_floor_qty": 3
+    },
+    "wiring_point": "automation/state/fleet/fleet_executor.py: _qty_for(tiers, equity, elite) is called at 3 sites (plan_entry ~L237, _plan_from_strategies ~L322, plan_all ~L376), each as `qty = _qty_for(params.get('position_sizing_tiers'), float(equity), elite)`. Proposed: wrap the RESULT with a new `_apply_recency_policy(qty, strategy_name, params, day_verdict)` that, when params['recency_sizing_policy']['enabled'] is true and strategy_name matches, rescales qty per sizing_tier(day_verdict) using this module's policy_qty() logic (RED -> floor 3, YELLOW -> 0.5x floor 3, GREEN -> unchanged). day_verdict itself needs a live daily-verdict producer (this module's compute_verdict, run once per session against the growing real-fills ledger) -- NOT built here (out of ANALYSIS ONLY scope); this proposal covers the SIZING mechanism only.",
+    "min_contracts_consistency": "RED_QTY=3 already equals params.min_contracts (the existing Rule-6 floor) -- RED does not go below what risk_gate already enforces as a minimum, it just stops any elite/tier upsize above it."
+  },
+  "evidence": {
+    "n_positions": 89,
+    "n_trading_days": 8,
+    "date_span": "2026-06-29..2026-07-09",
+    "baseline_total": -1274.0,
+    "policy_total": -793.2,
+    "baseline_max_drawdown": -1274.0,
+    "policy_max_drawdown": -793.2,
+    "baseline_worst_day": -388.0,
+    "policy_worst_day": -297.0,
+    "policy_dominates": true,
+    "policy_near_ties_with_lower_tail_risk": false
+  },
+  "disclosures": [
+    "Evidence base is SMALL BY CONSTRUCTION: 8 real trading days (2026-06-29..2026-07-09), not the ~25 sessions the task named as an approximate target -- fleet_rest real fills only go back to 2026-06-29. Directional evidence, not a standing ratification bar (same small-n honesty convention as recency_check.py's own DISCLOSURE.small_n).",
+    "qty->pnl scaling is LINEAR (pnl_per_contract * policy_qty) -- ignores any slippage/liquidity delta from trading fewer/more contracts (same simplifying assumption t4_exit_matrix.py / structure_stop_study.py already make at fixed qty).",
+    "enabled:false by design -- this is a STAGED shape, not a live flip. Ships for REVOKE per OP-0/OP-11 only after this JSON is reviewed at STOP-B.",
+    "CAVEAT: every trading day in the evaluation window verdicts RED (see distinct_verdicts_seen in recency-sizing-ab.json) -- this evidence base validates the RED->floor(3) mechanism only; the YELLOW->0.5x and GREEN->unchanged branches are UNTESTED by real data (no YELLOW/GREEN day occurred in the sample). Recommend the reviewer re-run this A/B once the real-fills window includes a verdict flip before treating this as validated across all three tiers."
+  ],
+  "build_stats": {
+    "n_backtest_proxy_burned": 90,
+    "n_backtest_proxy_fresh_seed": 10,
+    "n_fresh_signals_dropped_as_real_fills_take_over": 8,
+    "fresh_seed_span": "2026-06-22..2026-06-26",
+    "n_real_positions": 89,
+    "real_fills_span": "2026-06-29..2026-07-09",
+    "real_fills_n_trading_days": 8,
+    "partition_verified_no_overlap": true
+  }
+}

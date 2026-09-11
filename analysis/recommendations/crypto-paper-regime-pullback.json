@@ -1,0 +1,84 @@
+{
+  "generated_at_et": "2026-07-16T03:31:37.616650+00:00",
+  "watcher_name": "crypto_paper_regime_pullback",
+  "instrument": "BTC/USD spot \u2014 backtest only, no live orders placed (Phase 1 scope)",
+  "gates": {
+    "wf_ratio_normalization": "per-quarter, chronological split (train/test quarter counts vary by setup \u2014 see best.walk_forward)",
+    "wf_passed": false,
+    "wf_ratio": 999.0,
+    "wf_ratio_gate": 0.7,
+    "sub_window_stable": false,
+    "test_positive_quarters": 1,
+    "anchor_no_regression": true,
+    "anchor_method": "most-recent-quarter-with-trades P&L vs worst-prior-quarter P&L (no SPY-style anchor trades exist for crypto yet \u2014 this backtest is the first)",
+    "concentration_ok": false,
+    "top5_pct": null,
+    "all_gates_passed": false
+  },
+  "best": {
+    "setup": "REGIME_PULLBACK",
+    "n_trades": 28,
+    "win_rate": 0.179,
+    "expectancy_dollars": -0.16,
+    "avg_win_dollars": 70.81,
+    "avg_loss_dollars": -15.59,
+    "total_pnl_dollars": -4.44,
+    "walk_forward": {
+      "train_pnl": -9.55,
+      "test_pnl": 5.11,
+      "train_quarters": [
+        "2024-Q3",
+        "2024-Q4",
+        "2025-Q1",
+        "2025-Q2",
+        "2025-Q4"
+      ],
+      "test_quarters": [
+        "2026-Q1",
+        "2026-Q2",
+        "2026-Q3"
+      ],
+      "test_positive_quarters": 1,
+      "wf_ratio": 999.0,
+      "passed": false,
+      "reason": "FAIL: test_pnl=5.11, wf_ratio=999.000 (gate 0.7)"
+    },
+    "concentration": {
+      "top5_pct": null,
+      "wide_pnl": -4.44,
+      "n_trades": 28,
+      "passed": false,
+      "reason": "no positive total P&L to concentrate"
+    },
+    "anchor_no_regression": {
+      "passed": true,
+      "last_quarter": "2026-Q3",
+      "last_quarter_pnl": 30.67,
+      "worst_prior_quarter_pnl": -95.12,
+      "method": "most-recent-quarter-with-trades P&L vs worst-prior-quarter P&L (no SPY-style anchor trades exist for crypto yet \u2014 this backtest is the first)"
+    },
+    "sub_window_stability": {
+      "passed": false,
+      "positive_quarters": 3,
+      "total_quarters": 8,
+      "quarter_pnl": {
+        "2024-Q3": -95.12,
+        "2024-Q4": 163.84,
+        "2025-Q1": -64.55,
+        "2025-Q2": -38.63,
+        "2025-Q4": 24.9,
+        "2026-Q1": -17.53,
+        "2026-Q2": -8.03,
+        "2026-Q3": 30.67
+      }
+    }
+  },
+  "op20_disclosures": [
+    "1. FIRST PASS: this is the first-ever crypto_paper backtest for REGIME_PULLBACK \u2014 n=28 trades, small-sample. Treat with proportional skepticism (OP-33 / fable-too-good).",
+    "2. SIZING: fixed notional per trade (risk_pct_per_trade of a nominal $2,000 starting equity, NON-compounding across trades) so quarter-over-quarter $ P&L stays directly comparable \u2014 NOT a live/compounding equity curve.",
+    "3. NO LOOK-AHEAD (C6): signals computed from bars[0:i+1] only; entries fill at the NEXT bar's open (never the signal bar's own close/high/low).",
+    "4. INTRABAR ORDERING: a single OHLC bar cannot disambiguate which of (stop, target) printed first intrabar \u2014 structure/catastrophe stops are checked BEFORE profit targets every bar (conservative assumption, may understate best-case P&L).",
+    "5. ANCHOR-NO-REGRESSION REDEFINED: no SPY-style hand-labeled J-called crypto trades exist yet (this backtest IS the first pass) \u2014 the gate instead compares the most recent quarter's P&L against the worst prior quarter's.",
+    "6. BACKTEST ONLY: no order was placed, no broker was called, no account was touched. This package cannot place live orders as built (Phase 1 scope; live engine is Phase 3, gated on this ratification bar clearing AND a J-provisioned account)."
+  ]
+}

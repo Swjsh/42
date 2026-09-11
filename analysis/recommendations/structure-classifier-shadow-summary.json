@@ -1,25 +1,25 @@
 {
  "prereg": "analysis/recommendations/prereg-structure-classifier-swap-2026-09-03.md",
- "generated_at_et": "2026-09-03T15:40:58.001444",
+ "generated_at_et": "2026-09-10T17:55:02.655319",
  "account_scope": "safe",
  "veto_first_fire_et": "2026-07-06T13:11:27",
- "n_ticks": 843,
- "n_skip_structure_veto": 237,
+ "n_ticks": 882,
+ "n_skip_structure_veto": 259,
  "n_enter_bull": 279,
- "n_enter_bear": 327,
- "agreement_rate_overall": 0.6109,
+ "n_enter_bear": 344,
+ "agreement_rate_overall": 0.5952,
  "agreement_rate_by_action": {
   "SKIP_STRUCTURE_VETO": {
-   "n": 237,
-   "agreement_rate": 0.6456
+   "n": 259,
+   "agreement_rate": 0.61
   },
   "ENTER_BULL": {
    "n": 279,
    "agreement_rate": 0.6165
   },
   "ENTER_BEAR": {
-   "n": 327,
-   "agreement_rate": 0.581
+   "n": 344,
+   "agreement_rate": 0.5669
   }
  },
  "reconstruction_fidelity_by_bar_source": {
@@ -33,112 +33,112 @@
    "comparable_match_rate": 0.8288
   },
   "reconstructed_approx_from_core_decisions": {
-   "n_with_a_logged_value_to_check": 57,
-   "n_exact_byte_match": 25,
-   "exact_match_rate": 0.4386,
-   "n_excluded_error_or_unknown_variant": 15,
-   "n_comparable": 42,
-   "n_comparable_match": 25,
-   "comparable_match_rate": 0.5952
+   "n_with_a_logged_value_to_check": 96,
+   "n_exact_byte_match": 40,
+   "exact_match_rate": 0.4167,
+   "n_excluded_error_or_unknown_variant": 20,
+   "n_comparable": 76,
+   "n_comparable_match": 40,
+   "comparable_match_rate": 0.5263
   }
  },
  "live_veto_episodes": {
-  "n": 237,
+  "n": 259,
   "favorable_rate_30m": {
-   "n": 132,
-   "rate": 0.5833,
+   "n": 154,
+   "rate": 0.5779,
    "ci_lower_2.5": 0.5,
-   "ci_upper_97.5": 0.6591
+   "ci_upper_97.5": 0.6558
   },
   "favorable_rate_60m": {
-   "n": 127,
-   "rate": 0.5197,
-   "ci_lower_2.5": 0.4331,
-   "ci_upper_97.5": 0.6063
+   "n": 149,
+   "rate": 0.5436,
+   "ci_lower_2.5": 0.4631,
+   "ci_upper_97.5": 0.6242
   },
   "veto_correct_rate_30m": {
-   "n": 132,
-   "rate": 0.4167,
-   "ci_lower_2.5": 0.3409,
+   "n": 154,
+   "rate": 0.4221,
+   "ci_lower_2.5": 0.3442,
    "ci_upper_97.5": 0.5
   },
   "veto_correct_rate_60m": {
-   "n": 127,
-   "rate": 0.4803,
-   "ci_lower_2.5": 0.3937,
-   "ci_upper_97.5": 0.5669
+   "n": 149,
+   "rate": 0.4564,
+   "ci_lower_2.5": 0.3758,
+   "ci_upper_97.5": 0.5369
   },
   "split_by_walk_agreement": {
    "walk_also_would_veto_favorable_rate_30m": {
-    "n": 72,
-    "rate": 0.5556,
-    "ci_lower_2.5": 0.4444,
-    "ci_upper_97.5": 0.6667
+    "n": 77,
+    "rate": 0.5195,
+    "ci_lower_2.5": 0.4156,
+    "ci_upper_97.5": 0.6364
    },
    "walk_disagreed_favorable_rate_30m": {
-    "n": 60,
-    "rate": 0.6167,
-    "ci_lower_2.5": 0.5,
-    "ci_upper_97.5": 0.7333
+    "n": 77,
+    "rate": 0.6364,
+    "ci_lower_2.5": 0.5325,
+    "ci_upper_97.5": 0.7403
    },
    "favorable_rate_diff_ci_30m_agree_minus_disagree": {
-    "n_a": 72,
-    "n_b": 60,
-    "rate_a": 0.5556,
-    "rate_b": 0.6167,
-    "diff": -0.0611,
-    "ci_lower_2.5": -0.2278,
-    "ci_upper_97.5": 0.1083
+    "n_a": 77,
+    "n_b": 77,
+    "rate_a": 0.5195,
+    "rate_b": 0.6364,
+    "diff": -0.1169,
+    "ci_lower_2.5": -0.2727,
+    "ci_upper_97.5": 0.039
    },
    "walk_also_would_veto_favorable_rate_60m": {
-    "n": 72,
-    "rate": 0.3889,
-    "ci_lower_2.5": 0.2778,
-    "ci_upper_97.5": 0.5
+    "n": 77,
+    "rate": 0.4286,
+    "ci_lower_2.5": 0.3247,
+    "ci_upper_97.5": 0.5325
    },
    "walk_disagreed_favorable_rate_60m": {
-    "n": 55,
-    "rate": 0.6909,
-    "ci_lower_2.5": 0.5636,
-    "ci_upper_97.5": 0.8
+    "n": 72,
+    "rate": 0.6667,
+    "ci_lower_2.5": 0.5556,
+    "ci_upper_97.5": 0.7778
    },
    "favorable_rate_diff_ci_60m_agree_minus_disagree": {
-    "n_a": 72,
-    "n_b": 55,
-    "rate_a": 0.3889,
-    "rate_b": 0.6909,
-    "diff": -0.302,
-    "ci_lower_2.5": -0.4581,
-    "ci_upper_97.5": -0.1374
+    "n_a": 77,
+    "n_b": 72,
+    "rate_a": 0.4286,
+    "rate_b": 0.6667,
+    "diff": -0.2381,
+    "ci_lower_2.5": -0.3891,
+    "ci_upper_97.5": -0.0844
    }
   }
  },
  "walk_only_veto_episodes": {
-  "n": 137,
+  "n": 147,
   "note": "ENTER_* ticks the LIVE classifier did NOT block but walk_structure's label on the identical bars would have -- the trade was actually taken; favorable_rate here = rate the taken trade would have WON (i.e. a walk_structure veto at that tick would have been WRONG to fire).",
   "favorable_rate_30m": {
-   "n": 125,
-   "rate": 0.52,
-   "ci_lower_2.5": 0.432,
-   "ci_upper_97.5": 0.608
+   "n": 130,
+   "rate": 0.5,
+   "ci_lower_2.5": 0.4154,
+   "ci_upper_97.5": 0.5846
   },
   "favorable_rate_60m": {
-   "n": 111,
-   "rate": 0.6667,
-   "ci_lower_2.5": 0.5766,
-   "ci_upper_97.5": 0.7477
+   "n": 116,
+   "rate": 0.6379,
+   "ci_lower_2.5": 0.5517,
+   "ci_upper_97.5": 0.7241
   },
   "veto_correct_rate_30m": {
-   "n": 125,
-   "rate": 0.48,
-   "ci_lower_2.5": 0.392,
-   "ci_upper_97.5": 0.568
+   "n": 130,
+   "rate": 0.5,
+   "ci_lower_2.5": 0.4154,
+   "ci_upper_97.5": 0.5846
   },
   "veto_correct_rate_60m": {
-   "n": 111,
-   "rate": 0.3333,
-   "ci_lower_2.5": 0.2523,
-   "ci_upper_97.5": 0.4234
+   "n": 116,
+   "rate": 0.3621,
+   "ci_lower_2.5": 0.2759,
+   "ci_upper_97.5": 0.4483
   }
  },
  "today_quoted_rows": [
@@ -255,19 +255,19 @@
  "any_winner_day_entry_would_be_vetoed_by_walk": true,
  "forward_decision_clock": {
   "freeze_date": "2026-09-03",
-  "forward_sessions_accrued": 1,
-  "forward_sessions_to_bar": 19,
-  "forward_disagreement_ticks": 26,
-  "forward_disagreement_ticks_to_bar": 4,
+  "forward_sessions_accrued": 5,
+  "forward_sessions_to_bar": 15,
+  "forward_disagreement_ticks": 55,
+  "forward_disagreement_ticks_to_bar": 0,
   "bar_met": false,
   "live_veto_correct_rate_30m": {
-   "n": 23,
-   "rate": 0.1304,
-   "ci_lower_2.5": 0.0,
-   "ci_upper_97.5": 0.2609
+   "n": 45,
+   "rate": 0.2889,
+   "ci_lower_2.5": 0.1556,
+   "ci_upper_97.5": 0.4222
   },
   "walk_veto_correct_rate_30m": {
-   "n": 3,
+   "n": 8,
    "rate": 1.0,
    "ci_lower_2.5": 1.0,
    "ci_upper_97.5": 1.0

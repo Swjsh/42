@@ -1,0 +1,4860 @@
+{
+ "generated_at": "2026-08-01T10:56:37.640214",
+ "prereg": "analysis/recommendations/shelf-hold-reclaim-prereg-2026-08-01.md @ 96a85efc",
+ "frame": "et-v2 (lib/et_frame.py) -- see module docstring FRAME DISCLOSURE",
+ "smoke": true,
+ "population": {
+  "n_days": 4,
+  "start": "2026-07-28",
+  "end": "2026-07-31",
+  "held_out_cutoff": "2026-03-11",
+  "recent_25_start": "2026-06-26",
+  "n_days_with_anchors": 4,
+  "mean_anchors_per_day": 11.25
+ },
+ "conventions": {
+  "qty": 3,
+  "premium_floor": 0.3,
+  "time_stop_et": "15:40",
+  "entry": "trigger-bar close instant -> first OPRA bar open (entry+1 walk)",
+  "strike": "ATM = round(trigger close)",
+  "occupancy": "CONTROL exit time, paired lanes",
+  "structure_stop": "zone floor (band_low)",
+  "exclusions_consume_occupancy": false
+ },
+ "control_shape": {
+  "premium_stop_pct": -0.2,
+  "tp1_premium_pct": 1.0,
+  "tp1_qty_fraction": 0.667,
+  "profit_lock_mode": "trailing",
+  "runner_target_pct": 99.0,
+  "trail_pct": 0.15,
+  "profit_lock_arm_pct": 0.05,
+  "stop_mode": "structure",
+  "catastrophe_stop_pct": -0.5,
+  "profit_lock_arm_scope": "post_tp1"
+ },
+ "zone_ride_shape": {
+  "premium_stop_pct": -0.2,
+  "tp1_premium_pct": 1.0,
+  "tp1_qty_fraction": 0.667,
+  "profit_lock_mode": "trailing",
+  "runner_target_pct": 99.0,
+  "trail_pct": 0.2,
+  "profit_lock_arm_pct": 0.05,
+  "stop_mode": "structure",
+  "catastrophe_stop_pct": -0.5,
+  "profit_lock_arm_scope": "post_tp1"
+ },
+ "anchors": [
+  {
+   "tag": "e1",
+   "geometry": "A_wick",
+   "day": "2026-07-31",
+   "entry_tick_lo": "10:20",
+   "entry_tick_hi": "10:45",
+   "level": 737.68,
+   "tol": 0.8,
+   "hit": true,
+   "matches": [
+    {
+     "entry_tick": "2026-07-31T10:20:00",
+     "anchor_mid": 737.86
+    }
+   ],
+   "nearest_miss": null,
+   "n_day_signals_this_geometry": 18
+  },
+  {
+   "tag": "e2",
+   "geometry": "B_hold",
+   "day": "2026-07-31",
+   "entry_tick_lo": "11:40",
+   "entry_tick_hi": "12:05",
+   "level": 739.73,
+   "tol": 0.8,
+   "hit": true,
+   "matches": [
+    {
+     "entry_tick": "2026-07-31T11:40:00",
+     "anchor_mid": 739.65
+    }
+   ],
+   "nearest_miss": null,
+   "n_day_signals_this_geometry": 26
+  },
+  {
+   "tag": "e3",
+   "geometry": "C_cross",
+   "day": "2026-07-31",
+   "entry_tick_lo": "12:15",
+   "entry_tick_hi": "12:40",
+   "level": 743.25,
+   "tol": 0.8,
+   "hit": true,
+   "matches": [
+    {
+     "entry_tick": "2026-07-31T12:15:00",
+     "anchor_mid": 743.18
+    },
+    {
+     "entry_tick": "2026-07-31T12:20:00",
+     "anchor_mid": 743.18
+    }
+   ],
+   "nearest_miss": null,
+   "n_day_signals_this_geometry": 17
+  }
+ ],
+ "raw_fire_counts": {
+  "A_wick": 64,
+  "B_hold": 73,
+  "C_cross": 69,
+  "UNION": 113
+ },
+ "dose_response": {
+  "expectancy_by_geometry": {
+   "A_wick": 314.5,
+   "B_hold": 328.38,
+   "C_cross": 314.5,
+   "UNION": 325.88
+  },
+  "A_gt_C": false,
+  "B_gt_C": true,
+  "ordering": [
+   "B_hold",
+   "A_wick",
+   "C_cross"
+  ]
+ },
+ "verdicts": {
+  "A_wick": {
+   "verdict": "UNDERPOWERED",
+   "n": 3
+  },
+  "B_hold": {
+   "verdict": "UNDERPOWERED",
+   "n": 4
+  },
+  "C_cross": {
+   "verdict": "UNDERPOWERED",
+   "n": 3
+  },
+  "UNION": {
+   "verdict": "UNDERPOWERED",
+   "n": 4
+  }
+ },
+ "cells": [
+  {
+   "cell_id": "A_wick|f5=require|f8=on|f10=on|CONTROL",
+   "geometry": "A_wick",
+   "f5": "require",
+   "f8": true,
+   "f10": true,
+   "lane": "CONTROL",
+   "n_admitted": 12,
+   "n_occupied_skips": 3,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 7,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 2,
+    "total_pnl": -11.6,
+    "win_rate": 0.5,
+    "expectancy": -5.8,
+    "p_value_raw": 0.98624,
+    "day_majority": {
+     "win_days": 1,
+     "days": 2,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 330.4,
+     "total_minus_best": -342.0,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 2,
+     "total_pnl": -11.6
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 2,
+     "total_pnl": -11.6,
+     "win_rate": 0.5,
+     "expectancy": -5.8
+    },
+    "concentration_top_day_share": null,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "A_wick|f5=require|f8=on|f10=on|ZONE_RIDE",
+   "geometry": "A_wick",
+   "f5": "require",
+   "f8": true,
+   "f10": true,
+   "lane": "ZONE_RIDE",
+   "n_admitted": 12,
+   "n_occupied_skips": 3,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 7,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 2,
+    "total_pnl": -24.8,
+    "win_rate": 0.5,
+    "expectancy": -12.4,
+    "p_value_raw": 0.96999,
+    "day_majority": {
+     "win_days": 1,
+     "days": 2,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 317.2,
+     "total_minus_best": -342.0,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 2,
+     "total_pnl": -24.8
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 2,
+     "total_pnl": -24.8,
+     "win_rate": 0.5,
+     "expectancy": -12.4
+    },
+    "concentration_top_day_share": null,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "A_wick|f5=require|f8=on|f10=off|CONTROL",
+   "geometry": "A_wick",
+   "f5": "require",
+   "f8": true,
+   "f10": false,
+   "lane": "CONTROL",
+   "n_admitted": 19,
+   "n_occupied_skips": 4,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 12,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 3,
+    "total_pnl": -163.1,
+    "win_rate": 0.3333,
+    "expectancy": -54.37,
+    "p_value_raw": 0.78584,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 330.4,
+     "total_minus_best": -493.5,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 3,
+     "total_pnl": -163.1
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 3,
+     "total_pnl": -163.1,
+     "win_rate": 0.3333,
+     "expectancy": -54.37
+    },
+    "concentration_top_day_share": null,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "A_wick|f5=require|f8=on|f10=off|ZONE_RIDE",
+   "geometry": "A_wick",
+   "f5": "require",
+   "f8": true,
+   "f10": false,
+   "lane": "ZONE_RIDE",
+   "n_admitted": 19,
+   "n_occupied_skips": 4,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 12,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 3,
+    "total_pnl": -176.3,
+    "win_rate": 0.3333,
+    "expectancy": -58.77,
+    "p_value_raw": 0.76415,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 317.2,
+     "total_minus_best": -493.5,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 3,
+     "total_pnl": -176.3
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 3,
+     "total_pnl": -176.3,
+     "win_rate": 0.3333,
+     "expectancy": -58.77
+    },
+    "concentration_top_day_share": null,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "A_wick|f5=require|f8=off|f10=on|CONTROL",
+   "geometry": "A_wick",
+   "f5": "require",
+   "f8": false,
+   "f10": true,
+   "lane": "CONTROL",
+   "n_admitted": 14,
+   "n_occupied_skips": 3,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 8,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 3,
+    "total_pnl": -92.6,
+    "win_rate": 0.3333,
+    "expectancy": -30.87,
+    "p_value_raw": 0.87468,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 330.4,
+     "total_minus_best": -423.0,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 3,
+     "total_pnl": -92.6
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 3,
+     "total_pnl": -92.6,
+     "win_rate": 0.3333,
+     "expectancy": -30.87
+    },
+    "concentration_top_day_share": null,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "A_wick|f5=require|f8=off|f10=on|ZONE_RIDE",
+   "geometry": "A_wick",
+   "f5": "require",
+   "f8": false,
+   "f10": true,
+   "lane": "ZONE_RIDE",
+   "n_admitted": 14,
+   "n_occupied_skips": 3,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 8,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 3,
+    "total_pnl": -105.8,
+    "win_rate": 0.3333,
+    "expectancy": -35.27,
+    "p_value_raw": 0.85401,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 317.2,
+     "total_minus_best": -423.0,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 3,
+     "total_pnl": -105.8
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 3,
+     "total_pnl": -105.8,
+     "win_rate": 0.3333,
+     "expectancy": -35.27
+    },
+    "concentration_top_day_share": null,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "A_wick|f5=require|f8=off|f10=off|CONTROL",
+   "geometry": "A_wick",
+   "f5": "require",
+   "f8": false,
+   "f10": false,
+   "lane": "CONTROL",
+   "n_admitted": 28,
+   "n_occupied_skips": 9,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 16,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 3,
+    "total_pnl": -163.1,
+    "win_rate": 0.3333,
+    "expectancy": -54.37,
+    "p_value_raw": 0.78584,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 330.4,
+     "total_minus_best": -493.5,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 3,
+     "total_pnl": -163.1
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 3,
+     "total_pnl": -163.1,
+     "win_rate": 0.3333,
+     "expectancy": -54.37
+    },
+    "concentration_top_day_share": null,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "A_wick|f5=require|f8=off|f10=off|ZONE_RIDE",
+   "geometry": "A_wick",
+   "f5": "require",
+   "f8": false,
+   "f10": false,
+   "lane": "ZONE_RIDE",
+   "n_admitted": 28,
+   "n_occupied_skips": 9,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 16,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 3,
+    "total_pnl": -176.3,
+    "win_rate": 0.3333,
+    "expectancy": -58.77,
+    "p_value_raw": 0.76415,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 317.2,
+     "total_minus_best": -493.5,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 3,
+     "total_pnl": -176.3
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 3,
+     "total_pnl": -176.3,
+     "win_rate": 0.3333,
+     "expectancy": -58.77
+    },
+    "concentration_top_day_share": null,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "A_wick|f5=drop|f8=on|f10=on|CONTROL",
+   "geometry": "A_wick",
+   "f5": "drop",
+   "f8": true,
+   "f10": true,
+   "lane": "CONTROL",
+   "n_admitted": 18,
+   "n_occupied_skips": 7,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 9,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 2,
+    "total_pnl": 1095.0,
+    "win_rate": 1.0,
+    "expectancy": 547.5,
+    "p_value_raw": 0.01167,
+    "day_majority": {
+     "win_days": 2,
+     "days": 2,
+     "is_majority": true
+    },
+    "drop_best": {
+     "best": 764.6,
+     "total_minus_best": 330.4,
+     "still_positive": true
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 2,
+     "total_pnl": 1095.0
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 2,
+     "total_pnl": 1095.0,
+     "win_rate": 1.0,
+     "expectancy": 547.5
+    },
+    "concentration_top_day_share": 0.698,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "A_wick|f5=drop|f8=on|f10=on|ZONE_RIDE",
+   "geometry": "A_wick",
+   "f5": "drop",
+   "f8": true,
+   "f10": true,
+   "lane": "ZONE_RIDE",
+   "n_admitted": 18,
+   "n_occupied_skips": 7,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 9,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 2,
+    "total_pnl": 1053.0,
+    "win_rate": 1.0,
+    "expectancy": 526.5,
+    "p_value_raw": 0.01189,
+    "day_majority": {
+     "win_days": 2,
+     "days": 2,
+     "is_majority": true
+    },
+    "drop_best": {
+     "best": 735.8,
+     "total_minus_best": 317.2,
+     "still_positive": true
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 2,
+     "total_pnl": 1053.0
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 2,
+     "total_pnl": 1053.0,
+     "win_rate": 1.0,
+     "expectancy": 526.5
+    },
+    "concentration_top_day_share": 0.699,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "A_wick|f5=drop|f8=on|f10=off|CONTROL",
+   "geometry": "A_wick",
+   "f5": "drop",
+   "f8": true,
+   "f10": false,
+   "lane": "CONTROL",
+   "n_admitted": 31,
+   "n_occupied_skips": 8,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 20,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 3,
+    "total_pnl": 943.5,
+    "win_rate": 0.6667,
+    "expectancy": 314.5,
+    "p_value_raw": 0.23456,
+    "day_majority": {
+     "win_days": 2,
+     "days": 3,
+     "is_majority": true
+    },
+    "drop_best": {
+     "best": 764.6,
+     "total_minus_best": 178.9,
+     "still_positive": true
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 3,
+     "total_pnl": 943.5
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 3,
+     "total_pnl": 943.5,
+     "win_rate": 0.6667,
+     "expectancy": 314.5
+    },
+    "concentration_top_day_share": 0.81,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "A_wick|f5=drop|f8=on|f10=off|ZONE_RIDE",
+   "geometry": "A_wick",
+   "f5": "drop",
+   "f8": true,
+   "f10": false,
+   "lane": "ZONE_RIDE",
+   "n_admitted": 31,
+   "n_occupied_skips": 8,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 20,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 3,
+    "total_pnl": 901.5,
+    "win_rate": 0.6667,
+    "expectancy": 300.5,
+    "p_value_raw": 0.24097,
+    "day_majority": {
+     "win_days": 2,
+     "days": 3,
+     "is_majority": true
+    },
+    "drop_best": {
+     "best": 735.8,
+     "total_minus_best": 165.7,
+     "still_positive": true
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 3,
+     "total_pnl": 901.5
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 3,
+     "total_pnl": 901.5,
+     "win_rate": 0.6667,
+     "expectancy": 300.5
+    },
+    "concentration_top_day_share": 0.816,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "A_wick|f5=drop|f8=off|f10=on|CONTROL",
+   "geometry": "A_wick",
+   "f5": "drop",
+   "f8": false,
+   "f10": true,
+   "lane": "CONTROL",
+   "n_admitted": 21,
+   "n_occupied_skips": 8,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 10,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 3,
+    "total_pnl": 1014.0,
+    "win_rate": 0.6667,
+    "expectancy": 338.0,
+    "p_value_raw": 0.16621,
+    "day_majority": {
+     "win_days": 2,
+     "days": 3,
+     "is_majority": true
+    },
+    "drop_best": {
+     "best": 764.6,
+     "total_minus_best": 249.4,
+     "still_positive": true
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 3,
+     "total_pnl": 1014.0
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 3,
+     "total_pnl": 1014.0,
+     "win_rate": 0.6667,
+     "expectancy": 338.0
+    },
+    "concentration_top_day_share": 0.754,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "A_wick|f5=drop|f8=off|f10=on|ZONE_RIDE",
+   "geometry": "A_wick",
+   "f5": "drop",
+   "f8": false,
+   "f10": true,
+   "lane": "ZONE_RIDE",
+   "n_admitted": 21,
+   "n_occupied_skips": 8,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 10,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 3,
+    "total_pnl": 972.0,
+    "win_rate": 0.6667,
+    "expectancy": 324.0,
+    "p_value_raw": 0.16945,
+    "day_majority": {
+     "win_days": 2,
+     "days": 3,
+     "is_majority": true
+    },
+    "drop_best": {
+     "best": 735.8,
+     "total_minus_best": 236.2,
+     "still_positive": true
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 3,
+     "total_pnl": 972.0
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 3,
+     "total_pnl": 972.0,
+     "win_rate": 0.6667,
+     "expectancy": 324.0
+    },
+    "concentration_top_day_share": 0.757,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "A_wick|f5=drop|f8=off|f10=off|CONTROL",
+   "geometry": "A_wick",
+   "f5": "drop",
+   "f8": false,
+   "f10": false,
+   "lane": "CONTROL",
+   "n_admitted": 44,
+   "n_occupied_skips": 16,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 25,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 3,
+    "total_pnl": 943.5,
+    "win_rate": 0.6667,
+    "expectancy": 314.5,
+    "p_value_raw": 0.23456,
+    "day_majority": {
+     "win_days": 2,
+     "days": 3,
+     "is_majority": true
+    },
+    "drop_best": {
+     "best": 764.6,
+     "total_minus_best": 178.9,
+     "still_positive": true
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 3,
+     "total_pnl": 943.5
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 3,
+     "total_pnl": 943.5,
+     "win_rate": 0.6667,
+     "expectancy": 314.5
+    },
+    "concentration_top_day_share": 0.81,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": true
+  },
+  {
+   "cell_id": "A_wick|f5=drop|f8=off|f10=off|ZONE_RIDE",
+   "geometry": "A_wick",
+   "f5": "drop",
+   "f8": false,
+   "f10": false,
+   "lane": "ZONE_RIDE",
+   "n_admitted": 44,
+   "n_occupied_skips": 16,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 25,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 3,
+    "total_pnl": 901.5,
+    "win_rate": 0.6667,
+    "expectancy": 300.5,
+    "p_value_raw": 0.24097,
+    "day_majority": {
+     "win_days": 2,
+     "days": 3,
+     "is_majority": true
+    },
+    "drop_best": {
+     "best": 735.8,
+     "total_minus_best": 165.7,
+     "still_positive": true
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 3,
+     "total_pnl": 901.5
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 3,
+     "total_pnl": 901.5,
+     "win_rate": 0.6667,
+     "expectancy": 300.5
+    },
+    "concentration_top_day_share": 0.816,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "A_wick|f5=htf|f8=on|f10=on|CONTROL",
+   "geometry": "A_wick",
+   "f5": "htf",
+   "f8": true,
+   "f10": true,
+   "lane": "CONTROL",
+   "n_admitted": 12,
+   "n_occupied_skips": 3,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 7,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 2,
+    "total_pnl": -11.6,
+    "win_rate": 0.5,
+    "expectancy": -5.8,
+    "p_value_raw": 0.98624,
+    "day_majority": {
+     "win_days": 1,
+     "days": 2,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 330.4,
+     "total_minus_best": -342.0,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 2,
+     "total_pnl": -11.6
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 2,
+     "total_pnl": -11.6,
+     "win_rate": 0.5,
+     "expectancy": -5.8
+    },
+    "concentration_top_day_share": null,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "A_wick|f5=htf|f8=on|f10=on|ZONE_RIDE",
+   "geometry": "A_wick",
+   "f5": "htf",
+   "f8": true,
+   "f10": true,
+   "lane": "ZONE_RIDE",
+   "n_admitted": 12,
+   "n_occupied_skips": 3,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 7,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 2,
+    "total_pnl": -24.8,
+    "win_rate": 0.5,
+    "expectancy": -12.4,
+    "p_value_raw": 0.96999,
+    "day_majority": {
+     "win_days": 1,
+     "days": 2,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 317.2,
+     "total_minus_best": -342.0,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 2,
+     "total_pnl": -24.8
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 2,
+     "total_pnl": -24.8,
+     "win_rate": 0.5,
+     "expectancy": -12.4
+    },
+    "concentration_top_day_share": null,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "A_wick|f5=htf|f8=on|f10=off|CONTROL",
+   "geometry": "A_wick",
+   "f5": "htf",
+   "f8": true,
+   "f10": false,
+   "lane": "CONTROL",
+   "n_admitted": 20,
+   "n_occupied_skips": 4,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 13,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 3,
+    "total_pnl": -163.1,
+    "win_rate": 0.3333,
+    "expectancy": -54.37,
+    "p_value_raw": 0.78584,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 330.4,
+     "total_minus_best": -493.5,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 3,
+     "total_pnl": -163.1
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 3,
+     "total_pnl": -163.1,
+     "win_rate": 0.3333,
+     "expectancy": -54.37
+    },
+    "concentration_top_day_share": null,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "A_wick|f5=htf|f8=on|f10=off|ZONE_RIDE",
+   "geometry": "A_wick",
+   "f5": "htf",
+   "f8": true,
+   "f10": false,
+   "lane": "ZONE_RIDE",
+   "n_admitted": 20,
+   "n_occupied_skips": 4,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 13,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 3,
+    "total_pnl": -176.3,
+    "win_rate": 0.3333,
+    "expectancy": -58.77,
+    "p_value_raw": 0.76415,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 317.2,
+     "total_minus_best": -493.5,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 3,
+     "total_pnl": -176.3
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 3,
+     "total_pnl": -176.3,
+     "win_rate": 0.3333,
+     "expectancy": -58.77
+    },
+    "concentration_top_day_share": null,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "A_wick|f5=htf|f8=off|f10=on|CONTROL",
+   "geometry": "A_wick",
+   "f5": "htf",
+   "f8": false,
+   "f10": true,
+   "lane": "CONTROL",
+   "n_admitted": 14,
+   "n_occupied_skips": 3,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 8,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 3,
+    "total_pnl": -92.6,
+    "win_rate": 0.3333,
+    "expectancy": -30.87,
+    "p_value_raw": 0.87468,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 330.4,
+     "total_minus_best": -423.0,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 3,
+     "total_pnl": -92.6
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 3,
+     "total_pnl": -92.6,
+     "win_rate": 0.3333,
+     "expectancy": -30.87
+    },
+    "concentration_top_day_share": null,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "A_wick|f5=htf|f8=off|f10=on|ZONE_RIDE",
+   "geometry": "A_wick",
+   "f5": "htf",
+   "f8": false,
+   "f10": true,
+   "lane": "ZONE_RIDE",
+   "n_admitted": 14,
+   "n_occupied_skips": 3,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 8,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 3,
+    "total_pnl": -105.8,
+    "win_rate": 0.3333,
+    "expectancy": -35.27,
+    "p_value_raw": 0.85401,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 317.2,
+     "total_minus_best": -423.0,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 3,
+     "total_pnl": -105.8
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 3,
+     "total_pnl": -105.8,
+     "win_rate": 0.3333,
+     "expectancy": -35.27
+    },
+    "concentration_top_day_share": null,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "A_wick|f5=htf|f8=off|f10=off|CONTROL",
+   "geometry": "A_wick",
+   "f5": "htf",
+   "f8": false,
+   "f10": false,
+   "lane": "CONTROL",
+   "n_admitted": 29,
+   "n_occupied_skips": 9,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 17,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 3,
+    "total_pnl": -163.1,
+    "win_rate": 0.3333,
+    "expectancy": -54.37,
+    "p_value_raw": 0.78584,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 330.4,
+     "total_minus_best": -493.5,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 3,
+     "total_pnl": -163.1
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 3,
+     "total_pnl": -163.1,
+     "win_rate": 0.3333,
+     "expectancy": -54.37
+    },
+    "concentration_top_day_share": null,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "A_wick|f5=htf|f8=off|f10=off|ZONE_RIDE",
+   "geometry": "A_wick",
+   "f5": "htf",
+   "f8": false,
+   "f10": false,
+   "lane": "ZONE_RIDE",
+   "n_admitted": 29,
+   "n_occupied_skips": 9,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 17,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 3,
+    "total_pnl": -176.3,
+    "win_rate": 0.3333,
+    "expectancy": -58.77,
+    "p_value_raw": 0.76415,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 317.2,
+     "total_minus_best": -493.5,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 3,
+     "total_pnl": -176.3
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 3,
+     "total_pnl": -176.3,
+     "win_rate": 0.3333,
+     "expectancy": -58.77
+    },
+    "concentration_top_day_share": null,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "B_hold|f5=require|f8=on|f10=on|CONTROL",
+   "geometry": "B_hold",
+   "f5": "require",
+   "f8": true,
+   "f10": true,
+   "lane": "CONTROL",
+   "n_admitted": 24,
+   "n_occupied_skips": 10,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 10,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 4,
+    "total_pnl": 319.9,
+    "win_rate": 0.5,
+    "expectancy": 79.97,
+    "p_value_raw": 0.6041,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 360.0,
+     "total_minus_best": -40.1,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 4,
+     "total_pnl": 319.9
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 4,
+     "total_pnl": 319.9,
+     "win_rate": 0.5,
+     "expectancy": 79.97
+    },
+    "concentration_top_day_share": 2.158,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "B_hold|f5=require|f8=on|f10=on|ZONE_RIDE",
+   "geometry": "B_hold",
+   "f5": "require",
+   "f8": true,
+   "f10": true,
+   "lane": "ZONE_RIDE",
+   "n_admitted": 24,
+   "n_occupied_skips": 10,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 10,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 4,
+    "total_pnl": 306.7,
+    "win_rate": 0.5,
+    "expectancy": 76.67,
+    "p_value_raw": 0.61506,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 360.0,
+     "total_minus_best": -53.3,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 4,
+     "total_pnl": 306.7
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 4,
+     "total_pnl": 306.7,
+     "win_rate": 0.5,
+     "expectancy": 76.67
+    },
+    "concentration_top_day_share": 2.208,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "B_hold|f5=require|f8=on|f10=off|CONTROL",
+   "geometry": "B_hold",
+   "f5": "require",
+   "f8": true,
+   "f10": false,
+   "lane": "CONTROL",
+   "n_admitted": 33,
+   "n_occupied_skips": 14,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 15,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 4,
+    "total_pnl": 310.9,
+    "win_rate": 0.5,
+    "expectancy": 77.72,
+    "p_value_raw": 0.61681,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 360.0,
+     "total_minus_best": -49.1,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 4,
+     "total_pnl": 310.9
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 4,
+     "total_pnl": 310.9,
+     "win_rate": 0.5,
+     "expectancy": 77.72
+    },
+    "concentration_top_day_share": 2.221,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "B_hold|f5=require|f8=on|f10=off|ZONE_RIDE",
+   "geometry": "B_hold",
+   "f5": "require",
+   "f8": true,
+   "f10": false,
+   "lane": "ZONE_RIDE",
+   "n_admitted": 33,
+   "n_occupied_skips": 14,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 15,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 4,
+    "total_pnl": 297.7,
+    "win_rate": 0.5,
+    "expectancy": 74.42,
+    "p_value_raw": 0.62793,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 360.0,
+     "total_minus_best": -62.3,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 4,
+     "total_pnl": 297.7
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 4,
+     "total_pnl": 297.7,
+     "win_rate": 0.5,
+     "expectancy": 74.42
+    },
+    "concentration_top_day_share": 2.275,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "B_hold|f5=require|f8=off|f10=on|CONTROL",
+   "geometry": "B_hold",
+   "f5": "require",
+   "f8": false,
+   "f10": true,
+   "lane": "CONTROL",
+   "n_admitted": 28,
+   "n_occupied_skips": 10,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 14,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 4,
+    "total_pnl": 319.9,
+    "win_rate": 0.5,
+    "expectancy": 79.97,
+    "p_value_raw": 0.6041,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 360.0,
+     "total_minus_best": -40.1,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 4,
+     "total_pnl": 319.9
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 4,
+     "total_pnl": 319.9,
+     "win_rate": 0.5,
+     "expectancy": 79.97
+    },
+    "concentration_top_day_share": 2.158,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "B_hold|f5=require|f8=off|f10=on|ZONE_RIDE",
+   "geometry": "B_hold",
+   "f5": "require",
+   "f8": false,
+   "f10": true,
+   "lane": "ZONE_RIDE",
+   "n_admitted": 28,
+   "n_occupied_skips": 10,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 14,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 4,
+    "total_pnl": 306.7,
+    "win_rate": 0.5,
+    "expectancy": 76.67,
+    "p_value_raw": 0.61506,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 360.0,
+     "total_minus_best": -53.3,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 4,
+     "total_pnl": 306.7
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 4,
+     "total_pnl": 306.7,
+     "win_rate": 0.5,
+     "expectancy": 76.67
+    },
+    "concentration_top_day_share": 2.208,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "B_hold|f5=require|f8=off|f10=off|CONTROL",
+   "geometry": "B_hold",
+   "f5": "require",
+   "f8": false,
+   "f10": false,
+   "lane": "CONTROL",
+   "n_admitted": 44,
+   "n_occupied_skips": 15,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 25,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 4,
+    "total_pnl": 310.9,
+    "win_rate": 0.5,
+    "expectancy": 77.72,
+    "p_value_raw": 0.61681,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 360.0,
+     "total_minus_best": -49.1,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 4,
+     "total_pnl": 310.9
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 4,
+     "total_pnl": 310.9,
+     "win_rate": 0.5,
+     "expectancy": 77.72
+    },
+    "concentration_top_day_share": 2.221,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "B_hold|f5=require|f8=off|f10=off|ZONE_RIDE",
+   "geometry": "B_hold",
+   "f5": "require",
+   "f8": false,
+   "f10": false,
+   "lane": "ZONE_RIDE",
+   "n_admitted": 44,
+   "n_occupied_skips": 15,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 25,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 4,
+    "total_pnl": 297.7,
+    "win_rate": 0.5,
+    "expectancy": 74.42,
+    "p_value_raw": 0.62793,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 360.0,
+     "total_minus_best": -62.3,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 4,
+     "total_pnl": 297.7
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 4,
+     "total_pnl": 297.7,
+     "win_rate": 0.5,
+     "expectancy": 74.42
+    },
+    "concentration_top_day_share": 2.275,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "B_hold|f5=drop|f8=on|f10=on|CONTROL",
+   "geometry": "B_hold",
+   "f5": "drop",
+   "f8": true,
+   "f10": true,
+   "lane": "CONTROL",
+   "n_admitted": 30,
+   "n_occupied_skips": 15,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 11,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 4,
+    "total_pnl": 1322.5,
+    "win_rate": 0.75,
+    "expectancy": 330.62,
+    "p_value_raw": 0.07783,
+    "day_majority": {
+     "win_days": 2,
+     "days": 3,
+     "is_majority": true
+    },
+    "drop_best": {
+     "best": 774.6,
+     "total_minus_best": 547.9,
+     "still_positive": true
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 4,
+     "total_pnl": 1322.5
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 4,
+     "total_pnl": 1322.5,
+     "win_rate": 0.75,
+     "expectancy": 330.62
+    },
+    "concentration_top_day_share": 0.586,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "B_hold|f5=drop|f8=on|f10=on|ZONE_RIDE",
+   "geometry": "B_hold",
+   "f5": "drop",
+   "f8": true,
+   "f10": true,
+   "lane": "ZONE_RIDE",
+   "n_admitted": 30,
+   "n_occupied_skips": 15,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 11,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 4,
+    "total_pnl": 1280.5,
+    "win_rate": 0.75,
+    "expectancy": 320.12,
+    "p_value_raw": 0.07834,
+    "day_majority": {
+     "win_days": 2,
+     "days": 3,
+     "is_majority": true
+    },
+    "drop_best": {
+     "best": 745.8,
+     "total_minus_best": 534.7,
+     "still_positive": true
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 4,
+     "total_pnl": 1280.5
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 4,
+     "total_pnl": 1280.5,
+     "win_rate": 0.75,
+     "expectancy": 320.12
+    },
+    "concentration_top_day_share": 0.582,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "B_hold|f5=drop|f8=on|f10=off|CONTROL",
+   "geometry": "B_hold",
+   "f5": "drop",
+   "f8": true,
+   "f10": false,
+   "lane": "CONTROL",
+   "n_admitted": 43,
+   "n_occupied_skips": 19,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 20,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 4,
+    "total_pnl": 1313.5,
+    "win_rate": 0.75,
+    "expectancy": 328.38,
+    "p_value_raw": 0.08294,
+    "day_majority": {
+     "win_days": 2,
+     "days": 3,
+     "is_majority": true
+    },
+    "drop_best": {
+     "best": 774.6,
+     "total_minus_best": 538.9,
+     "still_positive": true
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 4,
+     "total_pnl": 1313.5
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 4,
+     "total_pnl": 1313.5,
+     "win_rate": 0.75,
+     "expectancy": 328.38
+    },
+    "concentration_top_day_share": 0.59,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "B_hold|f5=drop|f8=on|f10=off|ZONE_RIDE",
+   "geometry": "B_hold",
+   "f5": "drop",
+   "f8": true,
+   "f10": false,
+   "lane": "ZONE_RIDE",
+   "n_admitted": 43,
+   "n_occupied_skips": 19,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 20,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 4,
+    "total_pnl": 1271.5,
+    "win_rate": 0.75,
+    "expectancy": 317.88,
+    "p_value_raw": 0.08366,
+    "day_majority": {
+     "win_days": 2,
+     "days": 3,
+     "is_majority": true
+    },
+    "drop_best": {
+     "best": 745.8,
+     "total_minus_best": 525.7,
+     "still_positive": true
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 4,
+     "total_pnl": 1271.5
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 4,
+     "total_pnl": 1271.5,
+     "win_rate": 0.75,
+     "expectancy": 317.88
+    },
+    "concentration_top_day_share": 0.587,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "B_hold|f5=drop|f8=off|f10=on|CONTROL",
+   "geometry": "B_hold",
+   "f5": "drop",
+   "f8": false,
+   "f10": true,
+   "lane": "CONTROL",
+   "n_admitted": 35,
+   "n_occupied_skips": 15,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 16,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 4,
+    "total_pnl": 1322.5,
+    "win_rate": 0.75,
+    "expectancy": 330.62,
+    "p_value_raw": 0.07783,
+    "day_majority": {
+     "win_days": 2,
+     "days": 3,
+     "is_majority": true
+    },
+    "drop_best": {
+     "best": 774.6,
+     "total_minus_best": 547.9,
+     "still_positive": true
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 4,
+     "total_pnl": 1322.5
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 4,
+     "total_pnl": 1322.5,
+     "win_rate": 0.75,
+     "expectancy": 330.62
+    },
+    "concentration_top_day_share": 0.586,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "B_hold|f5=drop|f8=off|f10=on|ZONE_RIDE",
+   "geometry": "B_hold",
+   "f5": "drop",
+   "f8": false,
+   "f10": true,
+   "lane": "ZONE_RIDE",
+   "n_admitted": 35,
+   "n_occupied_skips": 15,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 16,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 4,
+    "total_pnl": 1280.5,
+    "win_rate": 0.75,
+    "expectancy": 320.12,
+    "p_value_raw": 0.07834,
+    "day_majority": {
+     "win_days": 2,
+     "days": 3,
+     "is_majority": true
+    },
+    "drop_best": {
+     "best": 745.8,
+     "total_minus_best": 534.7,
+     "still_positive": true
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 4,
+     "total_pnl": 1280.5
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 4,
+     "total_pnl": 1280.5,
+     "win_rate": 0.75,
+     "expectancy": 320.12
+    },
+    "concentration_top_day_share": 0.582,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "B_hold|f5=drop|f8=off|f10=off|CONTROL",
+   "geometry": "B_hold",
+   "f5": "drop",
+   "f8": false,
+   "f10": false,
+   "lane": "CONTROL",
+   "n_admitted": 57,
+   "n_occupied_skips": 21,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 32,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 4,
+    "total_pnl": 1313.5,
+    "win_rate": 0.75,
+    "expectancy": 328.38,
+    "p_value_raw": 0.08294,
+    "day_majority": {
+     "win_days": 2,
+     "days": 3,
+     "is_majority": true
+    },
+    "drop_best": {
+     "best": 774.6,
+     "total_minus_best": 538.9,
+     "still_positive": true
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 4,
+     "total_pnl": 1313.5
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 4,
+     "total_pnl": 1313.5,
+     "win_rate": 0.75,
+     "expectancy": 328.38
+    },
+    "concentration_top_day_share": 0.59,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": true
+  },
+  {
+   "cell_id": "B_hold|f5=drop|f8=off|f10=off|ZONE_RIDE",
+   "geometry": "B_hold",
+   "f5": "drop",
+   "f8": false,
+   "f10": false,
+   "lane": "ZONE_RIDE",
+   "n_admitted": 57,
+   "n_occupied_skips": 21,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 32,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 4,
+    "total_pnl": 1271.5,
+    "win_rate": 0.75,
+    "expectancy": 317.88,
+    "p_value_raw": 0.08366,
+    "day_majority": {
+     "win_days": 2,
+     "days": 3,
+     "is_majority": true
+    },
+    "drop_best": {
+     "best": 745.8,
+     "total_minus_best": 525.7,
+     "still_positive": true
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 4,
+     "total_pnl": 1271.5
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 4,
+     "total_pnl": 1271.5,
+     "win_rate": 0.75,
+     "expectancy": 317.88
+    },
+    "concentration_top_day_share": 0.587,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "B_hold|f5=htf|f8=on|f10=on|CONTROL",
+   "geometry": "B_hold",
+   "f5": "htf",
+   "f8": true,
+   "f10": true,
+   "lane": "CONTROL",
+   "n_admitted": 24,
+   "n_occupied_skips": 10,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 10,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 4,
+    "total_pnl": 319.9,
+    "win_rate": 0.5,
+    "expectancy": 79.97,
+    "p_value_raw": 0.6041,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 360.0,
+     "total_minus_best": -40.1,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 4,
+     "total_pnl": 319.9
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 4,
+     "total_pnl": 319.9,
+     "win_rate": 0.5,
+     "expectancy": 79.97
+    },
+    "concentration_top_day_share": 2.158,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "B_hold|f5=htf|f8=on|f10=on|ZONE_RIDE",
+   "geometry": "B_hold",
+   "f5": "htf",
+   "f8": true,
+   "f10": true,
+   "lane": "ZONE_RIDE",
+   "n_admitted": 24,
+   "n_occupied_skips": 10,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 10,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 4,
+    "total_pnl": 306.7,
+    "win_rate": 0.5,
+    "expectancy": 76.67,
+    "p_value_raw": 0.61506,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 360.0,
+     "total_minus_best": -53.3,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 4,
+     "total_pnl": 306.7
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 4,
+     "total_pnl": 306.7,
+     "win_rate": 0.5,
+     "expectancy": 76.67
+    },
+    "concentration_top_day_share": 2.208,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "B_hold|f5=htf|f8=on|f10=off|CONTROL",
+   "geometry": "B_hold",
+   "f5": "htf",
+   "f8": true,
+   "f10": false,
+   "lane": "CONTROL",
+   "n_admitted": 36,
+   "n_occupied_skips": 14,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 18,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 4,
+    "total_pnl": 310.9,
+    "win_rate": 0.5,
+    "expectancy": 77.72,
+    "p_value_raw": 0.61681,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 360.0,
+     "total_minus_best": -49.1,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 4,
+     "total_pnl": 310.9
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 4,
+     "total_pnl": 310.9,
+     "win_rate": 0.5,
+     "expectancy": 77.72
+    },
+    "concentration_top_day_share": 2.221,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "B_hold|f5=htf|f8=on|f10=off|ZONE_RIDE",
+   "geometry": "B_hold",
+   "f5": "htf",
+   "f8": true,
+   "f10": false,
+   "lane": "ZONE_RIDE",
+   "n_admitted": 36,
+   "n_occupied_skips": 14,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 18,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 4,
+    "total_pnl": 297.7,
+    "win_rate": 0.5,
+    "expectancy": 74.42,
+    "p_value_raw": 0.62793,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 360.0,
+     "total_minus_best": -62.3,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 4,
+     "total_pnl": 297.7
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 4,
+     "total_pnl": 297.7,
+     "win_rate": 0.5,
+     "expectancy": 74.42
+    },
+    "concentration_top_day_share": 2.275,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "B_hold|f5=htf|f8=off|f10=on|CONTROL",
+   "geometry": "B_hold",
+   "f5": "htf",
+   "f8": false,
+   "f10": true,
+   "lane": "CONTROL",
+   "n_admitted": 29,
+   "n_occupied_skips": 10,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 15,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 4,
+    "total_pnl": 319.9,
+    "win_rate": 0.5,
+    "expectancy": 79.97,
+    "p_value_raw": 0.6041,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 360.0,
+     "total_minus_best": -40.1,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 4,
+     "total_pnl": 319.9
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 4,
+     "total_pnl": 319.9,
+     "win_rate": 0.5,
+     "expectancy": 79.97
+    },
+    "concentration_top_day_share": 2.158,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "B_hold|f5=htf|f8=off|f10=on|ZONE_RIDE",
+   "geometry": "B_hold",
+   "f5": "htf",
+   "f8": false,
+   "f10": true,
+   "lane": "ZONE_RIDE",
+   "n_admitted": 29,
+   "n_occupied_skips": 10,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 15,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 4,
+    "total_pnl": 306.7,
+    "win_rate": 0.5,
+    "expectancy": 76.67,
+    "p_value_raw": 0.61506,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 360.0,
+     "total_minus_best": -53.3,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 4,
+     "total_pnl": 306.7
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 4,
+     "total_pnl": 306.7,
+     "win_rate": 0.5,
+     "expectancy": 76.67
+    },
+    "concentration_top_day_share": 2.208,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "B_hold|f5=htf|f8=off|f10=off|CONTROL",
+   "geometry": "B_hold",
+   "f5": "htf",
+   "f8": false,
+   "f10": false,
+   "lane": "CONTROL",
+   "n_admitted": 48,
+   "n_occupied_skips": 15,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 29,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 4,
+    "total_pnl": 310.9,
+    "win_rate": 0.5,
+    "expectancy": 77.72,
+    "p_value_raw": 0.61681,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 360.0,
+     "total_minus_best": -49.1,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 4,
+     "total_pnl": 310.9
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 4,
+     "total_pnl": 310.9,
+     "win_rate": 0.5,
+     "expectancy": 77.72
+    },
+    "concentration_top_day_share": 2.221,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "B_hold|f5=htf|f8=off|f10=off|ZONE_RIDE",
+   "geometry": "B_hold",
+   "f5": "htf",
+   "f8": false,
+   "f10": false,
+   "lane": "ZONE_RIDE",
+   "n_admitted": 48,
+   "n_occupied_skips": 15,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 29,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 4,
+    "total_pnl": 297.7,
+    "win_rate": 0.5,
+    "expectancy": 74.42,
+    "p_value_raw": 0.62793,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 360.0,
+     "total_minus_best": -62.3,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 4,
+     "total_pnl": 297.7
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 4,
+     "total_pnl": 297.7,
+     "win_rate": 0.5,
+     "expectancy": 74.42
+    },
+    "concentration_top_day_share": 2.275,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "C_cross|f5=require|f8=on|f10=on|CONTROL",
+   "geometry": "C_cross",
+   "f5": "require",
+   "f8": true,
+   "f10": true,
+   "lane": "CONTROL",
+   "n_admitted": 12,
+   "n_occupied_skips": 3,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 7,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 2,
+    "total_pnl": -11.6,
+    "win_rate": 0.5,
+    "expectancy": -5.8,
+    "p_value_raw": 0.98624,
+    "day_majority": {
+     "win_days": 1,
+     "days": 2,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 330.4,
+     "total_minus_best": -342.0,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 2,
+     "total_pnl": -11.6
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 2,
+     "total_pnl": -11.6,
+     "win_rate": 0.5,
+     "expectancy": -5.8
+    },
+    "concentration_top_day_share": null,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "C_cross|f5=require|f8=on|f10=on|ZONE_RIDE",
+   "geometry": "C_cross",
+   "f5": "require",
+   "f8": true,
+   "f10": true,
+   "lane": "ZONE_RIDE",
+   "n_admitted": 12,
+   "n_occupied_skips": 3,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 7,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 2,
+    "total_pnl": -24.8,
+    "win_rate": 0.5,
+    "expectancy": -12.4,
+    "p_value_raw": 0.96999,
+    "day_majority": {
+     "win_days": 1,
+     "days": 2,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 317.2,
+     "total_minus_best": -342.0,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 2,
+     "total_pnl": -24.8
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 2,
+     "total_pnl": -24.8,
+     "win_rate": 0.5,
+     "expectancy": -12.4
+    },
+    "concentration_top_day_share": null,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "C_cross|f5=require|f8=on|f10=off|CONTROL",
+   "geometry": "C_cross",
+   "f5": "require",
+   "f8": true,
+   "f10": false,
+   "lane": "CONTROL",
+   "n_admitted": 19,
+   "n_occupied_skips": 4,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 12,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 3,
+    "total_pnl": -163.1,
+    "win_rate": 0.3333,
+    "expectancy": -54.37,
+    "p_value_raw": 0.78584,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 330.4,
+     "total_minus_best": -493.5,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 3,
+     "total_pnl": -163.1
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 3,
+     "total_pnl": -163.1,
+     "win_rate": 0.3333,
+     "expectancy": -54.37
+    },
+    "concentration_top_day_share": null,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "C_cross|f5=require|f8=on|f10=off|ZONE_RIDE",
+   "geometry": "C_cross",
+   "f5": "require",
+   "f8": true,
+   "f10": false,
+   "lane": "ZONE_RIDE",
+   "n_admitted": 19,
+   "n_occupied_skips": 4,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 12,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 3,
+    "total_pnl": -176.3,
+    "win_rate": 0.3333,
+    "expectancy": -58.77,
+    "p_value_raw": 0.76415,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 317.2,
+     "total_minus_best": -493.5,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 3,
+     "total_pnl": -176.3
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 3,
+     "total_pnl": -176.3,
+     "win_rate": 0.3333,
+     "expectancy": -58.77
+    },
+    "concentration_top_day_share": null,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "C_cross|f5=require|f8=off|f10=on|CONTROL",
+   "geometry": "C_cross",
+   "f5": "require",
+   "f8": false,
+   "f10": true,
+   "lane": "CONTROL",
+   "n_admitted": 13,
+   "n_occupied_skips": 3,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 7,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 3,
+    "total_pnl": -92.6,
+    "win_rate": 0.3333,
+    "expectancy": -30.87,
+    "p_value_raw": 0.87468,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 330.4,
+     "total_minus_best": -423.0,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 3,
+     "total_pnl": -92.6
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 3,
+     "total_pnl": -92.6,
+     "win_rate": 0.3333,
+     "expectancy": -30.87
+    },
+    "concentration_top_day_share": null,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "C_cross|f5=require|f8=off|f10=on|ZONE_RIDE",
+   "geometry": "C_cross",
+   "f5": "require",
+   "f8": false,
+   "f10": true,
+   "lane": "ZONE_RIDE",
+   "n_admitted": 13,
+   "n_occupied_skips": 3,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 7,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 3,
+    "total_pnl": -105.8,
+    "win_rate": 0.3333,
+    "expectancy": -35.27,
+    "p_value_raw": 0.85401,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 317.2,
+     "total_minus_best": -423.0,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 3,
+     "total_pnl": -105.8
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 3,
+     "total_pnl": -105.8,
+     "win_rate": 0.3333,
+     "expectancy": -35.27
+    },
+    "concentration_top_day_share": null,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "C_cross|f5=require|f8=off|f10=off|CONTROL",
+   "geometry": "C_cross",
+   "f5": "require",
+   "f8": false,
+   "f10": false,
+   "lane": "CONTROL",
+   "n_admitted": 33,
+   "n_occupied_skips": 10,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 20,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 3,
+    "total_pnl": -163.1,
+    "win_rate": 0.3333,
+    "expectancy": -54.37,
+    "p_value_raw": 0.78584,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 330.4,
+     "total_minus_best": -493.5,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 3,
+     "total_pnl": -163.1
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 3,
+     "total_pnl": -163.1,
+     "win_rate": 0.3333,
+     "expectancy": -54.37
+    },
+    "concentration_top_day_share": null,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "C_cross|f5=require|f8=off|f10=off|ZONE_RIDE",
+   "geometry": "C_cross",
+   "f5": "require",
+   "f8": false,
+   "f10": false,
+   "lane": "ZONE_RIDE",
+   "n_admitted": 33,
+   "n_occupied_skips": 10,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 20,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 3,
+    "total_pnl": -176.3,
+    "win_rate": 0.3333,
+    "expectancy": -58.77,
+    "p_value_raw": 0.76415,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 317.2,
+     "total_minus_best": -493.5,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 3,
+     "total_pnl": -176.3
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 3,
+     "total_pnl": -176.3,
+     "win_rate": 0.3333,
+     "expectancy": -58.77
+    },
+    "concentration_top_day_share": null,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "C_cross|f5=drop|f8=on|f10=on|CONTROL",
+   "geometry": "C_cross",
+   "f5": "drop",
+   "f8": true,
+   "f10": true,
+   "lane": "CONTROL",
+   "n_admitted": 17,
+   "n_occupied_skips": 7,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 8,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 2,
+    "total_pnl": 1095.0,
+    "win_rate": 1.0,
+    "expectancy": 547.5,
+    "p_value_raw": 0.01167,
+    "day_majority": {
+     "win_days": 2,
+     "days": 2,
+     "is_majority": true
+    },
+    "drop_best": {
+     "best": 764.6,
+     "total_minus_best": 330.4,
+     "still_positive": true
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 2,
+     "total_pnl": 1095.0
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 2,
+     "total_pnl": 1095.0,
+     "win_rate": 1.0,
+     "expectancy": 547.5
+    },
+    "concentration_top_day_share": 0.698,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "C_cross|f5=drop|f8=on|f10=on|ZONE_RIDE",
+   "geometry": "C_cross",
+   "f5": "drop",
+   "f8": true,
+   "f10": true,
+   "lane": "ZONE_RIDE",
+   "n_admitted": 17,
+   "n_occupied_skips": 7,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 8,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 2,
+    "total_pnl": 1053.0,
+    "win_rate": 1.0,
+    "expectancy": 526.5,
+    "p_value_raw": 0.01189,
+    "day_majority": {
+     "win_days": 2,
+     "days": 2,
+     "is_majority": true
+    },
+    "drop_best": {
+     "best": 735.8,
+     "total_minus_best": 317.2,
+     "still_positive": true
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 2,
+     "total_pnl": 1053.0
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 2,
+     "total_pnl": 1053.0,
+     "win_rate": 1.0,
+     "expectancy": 526.5
+    },
+    "concentration_top_day_share": 0.699,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "C_cross|f5=drop|f8=on|f10=off|CONTROL",
+   "geometry": "C_cross",
+   "f5": "drop",
+   "f8": true,
+   "f10": false,
+   "lane": "CONTROL",
+   "n_admitted": 29,
+   "n_occupied_skips": 8,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 18,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 3,
+    "total_pnl": 943.5,
+    "win_rate": 0.6667,
+    "expectancy": 314.5,
+    "p_value_raw": 0.23456,
+    "day_majority": {
+     "win_days": 2,
+     "days": 3,
+     "is_majority": true
+    },
+    "drop_best": {
+     "best": 764.6,
+     "total_minus_best": 178.9,
+     "still_positive": true
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 3,
+     "total_pnl": 943.5
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 3,
+     "total_pnl": 943.5,
+     "win_rate": 0.6667,
+     "expectancy": 314.5
+    },
+    "concentration_top_day_share": 0.81,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "C_cross|f5=drop|f8=on|f10=off|ZONE_RIDE",
+   "geometry": "C_cross",
+   "f5": "drop",
+   "f8": true,
+   "f10": false,
+   "lane": "ZONE_RIDE",
+   "n_admitted": 29,
+   "n_occupied_skips": 8,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 18,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 3,
+    "total_pnl": 901.5,
+    "win_rate": 0.6667,
+    "expectancy": 300.5,
+    "p_value_raw": 0.24097,
+    "day_majority": {
+     "win_days": 2,
+     "days": 3,
+     "is_majority": true
+    },
+    "drop_best": {
+     "best": 735.8,
+     "total_minus_best": 165.7,
+     "still_positive": true
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 3,
+     "total_pnl": 901.5
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 3,
+     "total_pnl": 901.5,
+     "win_rate": 0.6667,
+     "expectancy": 300.5
+    },
+    "concentration_top_day_share": 0.816,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "C_cross|f5=drop|f8=off|f10=on|CONTROL",
+   "geometry": "C_cross",
+   "f5": "drop",
+   "f8": false,
+   "f10": true,
+   "lane": "CONTROL",
+   "n_admitted": 19,
+   "n_occupied_skips": 8,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 8,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 3,
+    "total_pnl": 1014.0,
+    "win_rate": 0.6667,
+    "expectancy": 338.0,
+    "p_value_raw": 0.16621,
+    "day_majority": {
+     "win_days": 2,
+     "days": 3,
+     "is_majority": true
+    },
+    "drop_best": {
+     "best": 764.6,
+     "total_minus_best": 249.4,
+     "still_positive": true
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 3,
+     "total_pnl": 1014.0
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 3,
+     "total_pnl": 1014.0,
+     "win_rate": 0.6667,
+     "expectancy": 338.0
+    },
+    "concentration_top_day_share": 0.754,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "C_cross|f5=drop|f8=off|f10=on|ZONE_RIDE",
+   "geometry": "C_cross",
+   "f5": "drop",
+   "f8": false,
+   "f10": true,
+   "lane": "ZONE_RIDE",
+   "n_admitted": 19,
+   "n_occupied_skips": 8,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 8,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 3,
+    "total_pnl": 972.0,
+    "win_rate": 0.6667,
+    "expectancy": 324.0,
+    "p_value_raw": 0.16945,
+    "day_majority": {
+     "win_days": 2,
+     "days": 3,
+     "is_majority": true
+    },
+    "drop_best": {
+     "best": 735.8,
+     "total_minus_best": 236.2,
+     "still_positive": true
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 3,
+     "total_pnl": 972.0
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 3,
+     "total_pnl": 972.0,
+     "win_rate": 0.6667,
+     "expectancy": 324.0
+    },
+    "concentration_top_day_share": 0.757,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "C_cross|f5=drop|f8=off|f10=off|CONTROL",
+   "geometry": "C_cross",
+   "f5": "drop",
+   "f8": false,
+   "f10": false,
+   "lane": "CONTROL",
+   "n_admitted": 48,
+   "n_occupied_skips": 17,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 28,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 3,
+    "total_pnl": 943.5,
+    "win_rate": 0.6667,
+    "expectancy": 314.5,
+    "p_value_raw": 0.23456,
+    "day_majority": {
+     "win_days": 2,
+     "days": 3,
+     "is_majority": true
+    },
+    "drop_best": {
+     "best": 764.6,
+     "total_minus_best": 178.9,
+     "still_positive": true
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 3,
+     "total_pnl": 943.5
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 3,
+     "total_pnl": 943.5,
+     "win_rate": 0.6667,
+     "expectancy": 314.5
+    },
+    "concentration_top_day_share": 0.81,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": true
+  },
+  {
+   "cell_id": "C_cross|f5=drop|f8=off|f10=off|ZONE_RIDE",
+   "geometry": "C_cross",
+   "f5": "drop",
+   "f8": false,
+   "f10": false,
+   "lane": "ZONE_RIDE",
+   "n_admitted": 48,
+   "n_occupied_skips": 17,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 28,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 3,
+    "total_pnl": 901.5,
+    "win_rate": 0.6667,
+    "expectancy": 300.5,
+    "p_value_raw": 0.24097,
+    "day_majority": {
+     "win_days": 2,
+     "days": 3,
+     "is_majority": true
+    },
+    "drop_best": {
+     "best": 735.8,
+     "total_minus_best": 165.7,
+     "still_positive": true
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 3,
+     "total_pnl": 901.5
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 3,
+     "total_pnl": 901.5,
+     "win_rate": 0.6667,
+     "expectancy": 300.5
+    },
+    "concentration_top_day_share": 0.816,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "C_cross|f5=htf|f8=on|f10=on|CONTROL",
+   "geometry": "C_cross",
+   "f5": "htf",
+   "f8": true,
+   "f10": true,
+   "lane": "CONTROL",
+   "n_admitted": 11,
+   "n_occupied_skips": 3,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 6,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 2,
+    "total_pnl": -11.6,
+    "win_rate": 0.5,
+    "expectancy": -5.8,
+    "p_value_raw": 0.98624,
+    "day_majority": {
+     "win_days": 1,
+     "days": 2,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 330.4,
+     "total_minus_best": -342.0,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 2,
+     "total_pnl": -11.6
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 2,
+     "total_pnl": -11.6,
+     "win_rate": 0.5,
+     "expectancy": -5.8
+    },
+    "concentration_top_day_share": null,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "C_cross|f5=htf|f8=on|f10=on|ZONE_RIDE",
+   "geometry": "C_cross",
+   "f5": "htf",
+   "f8": true,
+   "f10": true,
+   "lane": "ZONE_RIDE",
+   "n_admitted": 11,
+   "n_occupied_skips": 3,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 6,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 2,
+    "total_pnl": -24.8,
+    "win_rate": 0.5,
+    "expectancy": -12.4,
+    "p_value_raw": 0.96999,
+    "day_majority": {
+     "win_days": 1,
+     "days": 2,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 317.2,
+     "total_minus_best": -342.0,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 2,
+     "total_pnl": -24.8
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 2,
+     "total_pnl": -24.8,
+     "win_rate": 0.5,
+     "expectancy": -12.4
+    },
+    "concentration_top_day_share": null,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "C_cross|f5=htf|f8=on|f10=off|CONTROL",
+   "geometry": "C_cross",
+   "f5": "htf",
+   "f8": true,
+   "f10": false,
+   "lane": "CONTROL",
+   "n_admitted": 18,
+   "n_occupied_skips": 4,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 11,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 3,
+    "total_pnl": -163.1,
+    "win_rate": 0.3333,
+    "expectancy": -54.37,
+    "p_value_raw": 0.78584,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 330.4,
+     "total_minus_best": -493.5,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 3,
+     "total_pnl": -163.1
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 3,
+     "total_pnl": -163.1,
+     "win_rate": 0.3333,
+     "expectancy": -54.37
+    },
+    "concentration_top_day_share": null,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "C_cross|f5=htf|f8=on|f10=off|ZONE_RIDE",
+   "geometry": "C_cross",
+   "f5": "htf",
+   "f8": true,
+   "f10": false,
+   "lane": "ZONE_RIDE",
+   "n_admitted": 18,
+   "n_occupied_skips": 4,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 11,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 3,
+    "total_pnl": -176.3,
+    "win_rate": 0.3333,
+    "expectancy": -58.77,
+    "p_value_raw": 0.76415,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 317.2,
+     "total_minus_best": -493.5,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 3,
+     "total_pnl": -176.3
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 3,
+     "total_pnl": -176.3,
+     "win_rate": 0.3333,
+     "expectancy": -58.77
+    },
+    "concentration_top_day_share": null,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "C_cross|f5=htf|f8=off|f10=on|CONTROL",
+   "geometry": "C_cross",
+   "f5": "htf",
+   "f8": false,
+   "f10": true,
+   "lane": "CONTROL",
+   "n_admitted": 12,
+   "n_occupied_skips": 3,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 6,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 3,
+    "total_pnl": -92.6,
+    "win_rate": 0.3333,
+    "expectancy": -30.87,
+    "p_value_raw": 0.87468,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 330.4,
+     "total_minus_best": -423.0,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 3,
+     "total_pnl": -92.6
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 3,
+     "total_pnl": -92.6,
+     "win_rate": 0.3333,
+     "expectancy": -30.87
+    },
+    "concentration_top_day_share": null,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "C_cross|f5=htf|f8=off|f10=on|ZONE_RIDE",
+   "geometry": "C_cross",
+   "f5": "htf",
+   "f8": false,
+   "f10": true,
+   "lane": "ZONE_RIDE",
+   "n_admitted": 12,
+   "n_occupied_skips": 3,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 6,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 3,
+    "total_pnl": -105.8,
+    "win_rate": 0.3333,
+    "expectancy": -35.27,
+    "p_value_raw": 0.85401,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 317.2,
+     "total_minus_best": -423.0,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 3,
+     "total_pnl": -105.8
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 3,
+     "total_pnl": -105.8,
+     "win_rate": 0.3333,
+     "expectancy": -35.27
+    },
+    "concentration_top_day_share": null,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "C_cross|f5=htf|f8=off|f10=off|CONTROL",
+   "geometry": "C_cross",
+   "f5": "htf",
+   "f8": false,
+   "f10": false,
+   "lane": "CONTROL",
+   "n_admitted": 32,
+   "n_occupied_skips": 10,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 19,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 3,
+    "total_pnl": -163.1,
+    "win_rate": 0.3333,
+    "expectancy": -54.37,
+    "p_value_raw": 0.78584,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 330.4,
+     "total_minus_best": -493.5,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 3,
+     "total_pnl": -163.1
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 3,
+     "total_pnl": -163.1,
+     "win_rate": 0.3333,
+     "expectancy": -54.37
+    },
+    "concentration_top_day_share": null,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "C_cross|f5=htf|f8=off|f10=off|ZONE_RIDE",
+   "geometry": "C_cross",
+   "f5": "htf",
+   "f8": false,
+   "f10": false,
+   "lane": "ZONE_RIDE",
+   "n_admitted": 32,
+   "n_occupied_skips": 10,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 19,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 3,
+    "total_pnl": -176.3,
+    "win_rate": 0.3333,
+    "expectancy": -58.77,
+    "p_value_raw": 0.76415,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 317.2,
+     "total_minus_best": -493.5,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 3,
+     "total_pnl": -176.3
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 3,
+     "total_pnl": -176.3,
+     "win_rate": 0.3333,
+     "expectancy": -58.77
+    },
+    "concentration_top_day_share": null,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "UNION|f5=require|f8=on|f10=on|CONTROL",
+   "geometry": "UNION",
+   "f5": "require",
+   "f8": true,
+   "f10": true,
+   "lane": "CONTROL",
+   "n_admitted": 25,
+   "n_occupied_skips": 10,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 11,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 4,
+    "total_pnl": 205.9,
+    "win_rate": 0.5,
+    "expectancy": 51.48,
+    "p_value_raw": 0.76801,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 360.0,
+     "total_minus_best": -154.1,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 4,
+     "total_pnl": 205.9
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 4,
+     "total_pnl": 205.9,
+     "win_rate": 0.5,
+     "expectancy": 51.47
+    },
+    "concentration_top_day_share": 3.353,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "UNION|f5=require|f8=on|f10=on|ZONE_RIDE",
+   "geometry": "UNION",
+   "f5": "require",
+   "f8": true,
+   "f10": true,
+   "lane": "ZONE_RIDE",
+   "n_admitted": 25,
+   "n_occupied_skips": 10,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 11,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 4,
+    "total_pnl": 192.7,
+    "win_rate": 0.5,
+    "expectancy": 48.17,
+    "p_value_raw": 0.78037,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 360.0,
+     "total_minus_best": -167.3,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 4,
+     "total_pnl": 192.7
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 4,
+     "total_pnl": 192.7,
+     "win_rate": 0.5,
+     "expectancy": 48.17
+    },
+    "concentration_top_day_share": 3.514,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "UNION|f5=require|f8=on|f10=off|CONTROL",
+   "geometry": "UNION",
+   "f5": "require",
+   "f8": true,
+   "f10": false,
+   "lane": "CONTROL",
+   "n_admitted": 36,
+   "n_occupied_skips": 14,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 18,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 4,
+    "total_pnl": 196.9,
+    "win_rate": 0.5,
+    "expectancy": 49.23,
+    "p_value_raw": 0.77893,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 360.0,
+     "total_minus_best": -163.1,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 4,
+     "total_pnl": 196.9
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 4,
+     "total_pnl": 196.9,
+     "win_rate": 0.5,
+     "expectancy": 49.22
+    },
+    "concentration_top_day_share": 3.506,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "UNION|f5=require|f8=on|f10=off|ZONE_RIDE",
+   "geometry": "UNION",
+   "f5": "require",
+   "f8": true,
+   "f10": false,
+   "lane": "ZONE_RIDE",
+   "n_admitted": 36,
+   "n_occupied_skips": 14,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 18,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 4,
+    "total_pnl": 183.7,
+    "win_rate": 0.5,
+    "expectancy": 45.92,
+    "p_value_raw": 0.79137,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 360.0,
+     "total_minus_best": -176.3,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 4,
+     "total_pnl": 183.7
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 4,
+     "total_pnl": 183.7,
+     "win_rate": 0.5,
+     "expectancy": 45.92
+    },
+    "concentration_top_day_share": 3.686,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "UNION|f5=require|f8=off|f10=on|CONTROL",
+   "geometry": "UNION",
+   "f5": "require",
+   "f8": false,
+   "f10": true,
+   "lane": "CONTROL",
+   "n_admitted": 30,
+   "n_occupied_skips": 11,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 15,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 4,
+    "total_pnl": 205.9,
+    "win_rate": 0.5,
+    "expectancy": 51.48,
+    "p_value_raw": 0.76801,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 360.0,
+     "total_minus_best": -154.1,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 4,
+     "total_pnl": 205.9
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 4,
+     "total_pnl": 205.9,
+     "win_rate": 0.5,
+     "expectancy": 51.47
+    },
+    "concentration_top_day_share": 3.353,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "UNION|f5=require|f8=off|f10=on|ZONE_RIDE",
+   "geometry": "UNION",
+   "f5": "require",
+   "f8": false,
+   "f10": true,
+   "lane": "ZONE_RIDE",
+   "n_admitted": 30,
+   "n_occupied_skips": 11,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 15,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 4,
+    "total_pnl": 192.7,
+    "win_rate": 0.5,
+    "expectancy": 48.17,
+    "p_value_raw": 0.78037,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 360.0,
+     "total_minus_best": -167.3,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 4,
+     "total_pnl": 192.7
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 4,
+     "total_pnl": 192.7,
+     "win_rate": 0.5,
+     "expectancy": 48.17
+    },
+    "concentration_top_day_share": 3.514,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "UNION|f5=require|f8=off|f10=off|CONTROL",
+   "geometry": "UNION",
+   "f5": "require",
+   "f8": false,
+   "f10": false,
+   "lane": "CONTROL",
+   "n_admitted": 59,
+   "n_occupied_skips": 20,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 35,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 4,
+    "total_pnl": 196.9,
+    "win_rate": 0.5,
+    "expectancy": 49.23,
+    "p_value_raw": 0.77893,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 360.0,
+     "total_minus_best": -163.1,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 4,
+     "total_pnl": 196.9
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 4,
+     "total_pnl": 196.9,
+     "win_rate": 0.5,
+     "expectancy": 49.22
+    },
+    "concentration_top_day_share": 3.506,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "UNION|f5=require|f8=off|f10=off|ZONE_RIDE",
+   "geometry": "UNION",
+   "f5": "require",
+   "f8": false,
+   "f10": false,
+   "lane": "ZONE_RIDE",
+   "n_admitted": 59,
+   "n_occupied_skips": 20,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 35,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 4,
+    "total_pnl": 183.7,
+    "win_rate": 0.5,
+    "expectancy": 45.92,
+    "p_value_raw": 0.79137,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 360.0,
+     "total_minus_best": -176.3,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 4,
+     "total_pnl": 183.7
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 4,
+     "total_pnl": 183.7,
+     "win_rate": 0.5,
+     "expectancy": 45.92
+    },
+    "concentration_top_day_share": 3.686,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "UNION|f5=drop|f8=on|f10=on|CONTROL",
+   "geometry": "UNION",
+   "f5": "drop",
+   "f8": true,
+   "f10": true,
+   "lane": "CONTROL",
+   "n_admitted": 35,
+   "n_occupied_skips": 16,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 15,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 4,
+    "total_pnl": 1312.5,
+    "win_rate": 0.75,
+    "expectancy": 328.12,
+    "p_value_raw": 0.07695,
+    "day_majority": {
+     "win_days": 2,
+     "days": 3,
+     "is_majority": true
+    },
+    "drop_best": {
+     "best": 764.6,
+     "total_minus_best": 547.9,
+     "still_positive": true
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 4,
+     "total_pnl": 1312.5
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 4,
+     "total_pnl": 1312.5,
+     "win_rate": 0.75,
+     "expectancy": 328.12
+    },
+    "concentration_top_day_share": 0.583,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "UNION|f5=drop|f8=on|f10=on|ZONE_RIDE",
+   "geometry": "UNION",
+   "f5": "drop",
+   "f8": true,
+   "f10": true,
+   "lane": "ZONE_RIDE",
+   "n_admitted": 35,
+   "n_occupied_skips": 16,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 15,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 4,
+    "total_pnl": 1270.5,
+    "win_rate": 0.75,
+    "expectancy": 317.62,
+    "p_value_raw": 0.07747,
+    "day_majority": {
+     "win_days": 2,
+     "days": 3,
+     "is_majority": true
+    },
+    "drop_best": {
+     "best": 735.8,
+     "total_minus_best": 534.7,
+     "still_positive": true
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 4,
+     "total_pnl": 1270.5
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 4,
+     "total_pnl": 1270.5,
+     "win_rate": 0.75,
+     "expectancy": 317.62
+    },
+    "concentration_top_day_share": 0.579,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "UNION|f5=drop|f8=on|f10=off|CONTROL",
+   "geometry": "UNION",
+   "f5": "drop",
+   "f8": true,
+   "f10": false,
+   "lane": "CONTROL",
+   "n_admitted": 54,
+   "n_occupied_skips": 20,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 30,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 4,
+    "total_pnl": 1303.5,
+    "win_rate": 0.75,
+    "expectancy": 325.88,
+    "p_value_raw": 0.08209,
+    "day_majority": {
+     "win_days": 2,
+     "days": 3,
+     "is_majority": true
+    },
+    "drop_best": {
+     "best": 764.6,
+     "total_minus_best": 538.9,
+     "still_positive": true
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 4,
+     "total_pnl": 1303.5
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 4,
+     "total_pnl": 1303.5,
+     "win_rate": 0.75,
+     "expectancy": 325.88
+    },
+    "concentration_top_day_share": 0.587,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "UNION|f5=drop|f8=on|f10=off|ZONE_RIDE",
+   "geometry": "UNION",
+   "f5": "drop",
+   "f8": true,
+   "f10": false,
+   "lane": "ZONE_RIDE",
+   "n_admitted": 54,
+   "n_occupied_skips": 20,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 30,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 4,
+    "total_pnl": 1261.5,
+    "win_rate": 0.75,
+    "expectancy": 315.38,
+    "p_value_raw": 0.08283,
+    "day_majority": {
+     "win_days": 2,
+     "days": 3,
+     "is_majority": true
+    },
+    "drop_best": {
+     "best": 735.8,
+     "total_minus_best": 525.7,
+     "still_positive": true
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 4,
+     "total_pnl": 1261.5
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 4,
+     "total_pnl": 1261.5,
+     "win_rate": 0.75,
+     "expectancy": 315.38
+    },
+    "concentration_top_day_share": 0.583,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "UNION|f5=drop|f8=off|f10=on|CONTROL",
+   "geometry": "UNION",
+   "f5": "drop",
+   "f8": false,
+   "f10": true,
+   "lane": "CONTROL",
+   "n_admitted": 42,
+   "n_occupied_skips": 18,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 20,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 4,
+    "total_pnl": 1312.5,
+    "win_rate": 0.75,
+    "expectancy": 328.12,
+    "p_value_raw": 0.07695,
+    "day_majority": {
+     "win_days": 2,
+     "days": 3,
+     "is_majority": true
+    },
+    "drop_best": {
+     "best": 764.6,
+     "total_minus_best": 547.9,
+     "still_positive": true
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 4,
+     "total_pnl": 1312.5
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 4,
+     "total_pnl": 1312.5,
+     "win_rate": 0.75,
+     "expectancy": 328.12
+    },
+    "concentration_top_day_share": 0.583,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "UNION|f5=drop|f8=off|f10=on|ZONE_RIDE",
+   "geometry": "UNION",
+   "f5": "drop",
+   "f8": false,
+   "f10": true,
+   "lane": "ZONE_RIDE",
+   "n_admitted": 42,
+   "n_occupied_skips": 18,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 20,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 4,
+    "total_pnl": 1270.5,
+    "win_rate": 0.75,
+    "expectancy": 317.62,
+    "p_value_raw": 0.07747,
+    "day_majority": {
+     "win_days": 2,
+     "days": 3,
+     "is_majority": true
+    },
+    "drop_best": {
+     "best": 735.8,
+     "total_minus_best": 534.7,
+     "still_positive": true
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 4,
+     "total_pnl": 1270.5
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 4,
+     "total_pnl": 1270.5,
+     "win_rate": 0.75,
+     "expectancy": 317.62
+    },
+    "concentration_top_day_share": 0.579,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "UNION|f5=drop|f8=off|f10=off|CONTROL",
+   "geometry": "UNION",
+   "f5": "drop",
+   "f8": false,
+   "f10": false,
+   "lane": "CONTROL",
+   "n_admitted": 84,
+   "n_occupied_skips": 30,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 50,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 4,
+    "total_pnl": 1303.5,
+    "win_rate": 0.75,
+    "expectancy": 325.88,
+    "p_value_raw": 0.08209,
+    "day_majority": {
+     "win_days": 2,
+     "days": 3,
+     "is_majority": true
+    },
+    "drop_best": {
+     "best": 764.6,
+     "total_minus_best": 538.9,
+     "still_positive": true
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 4,
+     "total_pnl": 1303.5
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 4,
+     "total_pnl": 1303.5,
+     "win_rate": 0.75,
+     "expectancy": 325.88
+    },
+    "concentration_top_day_share": 0.587,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": true
+  },
+  {
+   "cell_id": "UNION|f5=drop|f8=off|f10=off|ZONE_RIDE",
+   "geometry": "UNION",
+   "f5": "drop",
+   "f8": false,
+   "f10": false,
+   "lane": "ZONE_RIDE",
+   "n_admitted": 84,
+   "n_occupied_skips": 30,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 50,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 4,
+    "total_pnl": 1261.5,
+    "win_rate": 0.75,
+    "expectancy": 315.38,
+    "p_value_raw": 0.08283,
+    "day_majority": {
+     "win_days": 2,
+     "days": 3,
+     "is_majority": true
+    },
+    "drop_best": {
+     "best": 735.8,
+     "total_minus_best": 525.7,
+     "still_positive": true
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 4,
+     "total_pnl": 1261.5
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 4,
+     "total_pnl": 1261.5,
+     "win_rate": 0.75,
+     "expectancy": 315.38
+    },
+    "concentration_top_day_share": 0.583,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "UNION|f5=htf|f8=on|f10=on|CONTROL",
+   "geometry": "UNION",
+   "f5": "htf",
+   "f8": true,
+   "f10": true,
+   "lane": "CONTROL",
+   "n_admitted": 27,
+   "n_occupied_skips": 10,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 13,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 4,
+    "total_pnl": 205.9,
+    "win_rate": 0.5,
+    "expectancy": 51.48,
+    "p_value_raw": 0.76801,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 360.0,
+     "total_minus_best": -154.1,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 4,
+     "total_pnl": 205.9
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 4,
+     "total_pnl": 205.9,
+     "win_rate": 0.5,
+     "expectancy": 51.47
+    },
+    "concentration_top_day_share": 3.353,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "UNION|f5=htf|f8=on|f10=on|ZONE_RIDE",
+   "geometry": "UNION",
+   "f5": "htf",
+   "f8": true,
+   "f10": true,
+   "lane": "ZONE_RIDE",
+   "n_admitted": 27,
+   "n_occupied_skips": 10,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 13,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 4,
+    "total_pnl": 192.7,
+    "win_rate": 0.5,
+    "expectancy": 48.17,
+    "p_value_raw": 0.78037,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 360.0,
+     "total_minus_best": -167.3,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 4,
+     "total_pnl": 192.7
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 4,
+     "total_pnl": 192.7,
+     "win_rate": 0.5,
+     "expectancy": 48.17
+    },
+    "concentration_top_day_share": 3.514,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "UNION|f5=htf|f8=on|f10=off|CONTROL",
+   "geometry": "UNION",
+   "f5": "htf",
+   "f8": true,
+   "f10": false,
+   "lane": "CONTROL",
+   "n_admitted": 40,
+   "n_occupied_skips": 14,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 22,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 4,
+    "total_pnl": 196.9,
+    "win_rate": 0.5,
+    "expectancy": 49.23,
+    "p_value_raw": 0.77893,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 360.0,
+     "total_minus_best": -163.1,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 4,
+     "total_pnl": 196.9
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 4,
+     "total_pnl": 196.9,
+     "win_rate": 0.5,
+     "expectancy": 49.22
+    },
+    "concentration_top_day_share": 3.506,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "UNION|f5=htf|f8=on|f10=off|ZONE_RIDE",
+   "geometry": "UNION",
+   "f5": "htf",
+   "f8": true,
+   "f10": false,
+   "lane": "ZONE_RIDE",
+   "n_admitted": 40,
+   "n_occupied_skips": 14,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 22,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 4,
+    "total_pnl": 183.7,
+    "win_rate": 0.5,
+    "expectancy": 45.92,
+    "p_value_raw": 0.79137,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 360.0,
+     "total_minus_best": -176.3,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 4,
+     "total_pnl": 183.7
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 4,
+     "total_pnl": 183.7,
+     "win_rate": 0.5,
+     "expectancy": 45.92
+    },
+    "concentration_top_day_share": 3.686,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "UNION|f5=htf|f8=off|f10=on|CONTROL",
+   "geometry": "UNION",
+   "f5": "htf",
+   "f8": false,
+   "f10": true,
+   "lane": "CONTROL",
+   "n_admitted": 33,
+   "n_occupied_skips": 11,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 18,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 4,
+    "total_pnl": 205.9,
+    "win_rate": 0.5,
+    "expectancy": 51.48,
+    "p_value_raw": 0.76801,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 360.0,
+     "total_minus_best": -154.1,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 4,
+     "total_pnl": 205.9
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 4,
+     "total_pnl": 205.9,
+     "win_rate": 0.5,
+     "expectancy": 51.47
+    },
+    "concentration_top_day_share": 3.353,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "UNION|f5=htf|f8=off|f10=on|ZONE_RIDE",
+   "geometry": "UNION",
+   "f5": "htf",
+   "f8": false,
+   "f10": true,
+   "lane": "ZONE_RIDE",
+   "n_admitted": 33,
+   "n_occupied_skips": 11,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 18,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 4,
+    "total_pnl": 192.7,
+    "win_rate": 0.5,
+    "expectancy": 48.17,
+    "p_value_raw": 0.78037,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 360.0,
+     "total_minus_best": -167.3,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 4,
+     "total_pnl": 192.7
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 4,
+     "total_pnl": 192.7,
+     "win_rate": 0.5,
+     "expectancy": 48.17
+    },
+    "concentration_top_day_share": 3.514,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "UNION|f5=htf|f8=off|f10=off|CONTROL",
+   "geometry": "UNION",
+   "f5": "htf",
+   "f8": false,
+   "f10": false,
+   "lane": "CONTROL",
+   "n_admitted": 64,
+   "n_occupied_skips": 20,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 40,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 4,
+    "total_pnl": 196.9,
+    "win_rate": 0.5,
+    "expectancy": 49.23,
+    "p_value_raw": 0.77893,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 360.0,
+     "total_minus_best": -163.1,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 4,
+     "total_pnl": 196.9
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 4,
+     "total_pnl": 196.9,
+     "win_rate": 0.5,
+     "expectancy": 49.22
+    },
+    "concentration_top_day_share": 3.506,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  },
+  {
+   "cell_id": "UNION|f5=htf|f8=off|f10=off|ZONE_RIDE",
+   "geometry": "UNION",
+   "f5": "htf",
+   "f8": false,
+   "f10": false,
+   "lane": "ZONE_RIDE",
+   "n_admitted": 64,
+   "n_occupied_skips": 20,
+   "exclusions": {
+    "EXCLUDED_NO_OPRA": 40,
+    "EXCLUDED_NO_PRINT": 0,
+    "EXCLUDED_ZERO_PRINT": 0,
+    "EXCLUDED_FLOOR": 0,
+    "EXCLUDED_NO_WALK": 0
+   },
+   "stats": {
+    "n": 4,
+    "total_pnl": 183.7,
+    "win_rate": 0.5,
+    "expectancy": 45.92,
+    "p_value_raw": 0.79137,
+    "day_majority": {
+     "win_days": 1,
+     "days": 3,
+     "is_majority": false
+    },
+    "drop_best": {
+     "best": 360.0,
+     "total_minus_best": -176.3,
+     "still_positive": false
+    },
+    "held_out": {
+     "cutoff": "2026-03-11",
+     "n": 4,
+     "total_pnl": 183.7
+    },
+    "recent_25": {
+     "start": "2026-06-26",
+     "n": 4,
+     "total_pnl": 183.7,
+     "win_rate": 0.5,
+     "expectancy": 45.92
+    },
+    "concentration_top_day_share": 3.686,
+    "bh_fdr_significant_q10": false
+   },
+   "is_primary": false
+  }
+ ],
+ "deviations": [
+  "frame: et-v2 opt-in (prereg cited ladder loader for file lineage; wall-v1 would inject winter VIX look-ahead (C6) + clip the last true hour on 129 EST days; decided before first run)",
+  "exclusions do not consume occupancy (unmeasurable != untradeable; disclosed)",
+  "F7 volume-divergence not applied (prereg section 5)"
+ ],
+ "runtime_seconds": 1.8
+}

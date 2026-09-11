@@ -180,7 +180,7 @@ Jul 20.5%, Aug 44.7%, Sep 31.2%), so the 33.7% aggregate is a blend -- but the c
 is not an outlier against it. **The base rate has not decayed; this week does not need a
 mechanism to explain it.**
 
-### The REAL finding -- participation, not win rate
+### ~~The REAL finding -- participation, not win rate~~ **STRUCK BY W9 (see below)**
 The engine's edge is a right tail. A right tail needs at-bats. **At-bats are down a third:**
 
 | window | waves/day | days |
@@ -508,16 +508,23 @@ the selection question W6 named and walked away from. These are genuinely multi-
       by (a) whether the arm's open position was itself a winner and (b) day archetype.
       A NET-EARNING result kills the participation thesis outright -- that is a real outcome.
       Shadow/measurement only; concurrency is a risk EXPANSION so nothing ships before 10-30.
-- [ ] W8 -- **ANSWER the safe-2 solo-selection question** W6 named and deferred. safe-2 takes
-      70 solo waves, safe-3 42; on the 25 SHARED waves they are near-identical, so the entire
-      -$675 vs +$953 gap lives in solo selection. What does safe-2 take that safe-3 declines,
-      is that population systematically worse, and WHICH gate/threshold admits it? Name the
-      discriminator in one sentence with the $ attached.
-- [ ] W9 -- **Put a real error bar on the participation claim.** "-34%, Aug 4.30 -> frozen
-      2.83 waves/day" rests on n=6 frozen-window days and is currently PROVISIONAL. Compute
-      waves/day across the full engine era with a proper interval; test whether the decline is
-      distinguishable from noise. If it is NOT, say so and strike the claim -- it is currently
-      load-bearing for W5 RANK 1 and must not stay unfalsified.
+- [x] W8 -- **ANSWERED, see W8 RESULT below.** Discriminator: safe-2's solo deficit is NOT
+      spread across its whole solo population -- it is 96% concentrated (-$836 of -$867, 28 of
+      58 waves) in 4 SAFE-only secondary setups (vwap_continuation/vwap_reclaim_failed_break/
+      vix_regime_dayside/bollinger_squeeze) that are architecturally absent from safe-3's
+      build_shared_signal.py path. safe-2's solo RIDE_THE_RIBBON trades (30 waves, the setup
+      both arms share) net -$31 -- breakeven, same shape as safe-3. Measurement only, no
+      package shipped. File: analysis/recommendations/W8-safe2-solo-selection-2026-09-10.md
+- [x] W9 -- **CLOSED: NOT DISTINGUISHABLE FROM NOISE. Claim struck.** Full detail:
+      [`W9-PARTICIPATION-CLAIM-NOISE-TEST-2026-09-10.md`](../../../analysis/recommendations/W9-PARTICIPATION-CLAIM-NOISE-TEST-2026-09-10.md).
+      Wave-deduped (10-min bucket), engine-attributed (`trades-enriched.jsonl`), full NYSE
+      calendar denominator (not fills-only -- that was a real but non-decisive artifact,
+      see file). Aug 3.952 waves/day (n=21) vs frozen-window 2.286 (n=7); **95% bootstrap CI
+      on the difference = [-0.190, +3.476] -- includes zero.** Base-rate check: 11 of 48
+      historical rolling 6-day windows (22.9%) are this quiet or quieter; July's whole-month
+      rate (2.682) was nearly as low with nothing broken. **-34%/4.30-vs-2.83 is struck as an
+      established number.** W5 RANK 1 / W7 must cite the corrected framing (UNCONFIRMED,
+      ordinary-variance-range) rather than the original provisional claim; does not reopen W4.
 - [ ] W10 -- **Pin the RefusedSetupLedger no-op mechanism.** W1 fixed the symptom by running
       the script directly but explicitly did NOT root-cause the 8-second exit-0-writing-nothing
       fire. Instrument it so tomorrow's 14:20 fire produces evidence either way, then write the
@@ -624,3 +631,149 @@ should produce **~5-7 more days > +$500**. If the coming month produces **zero o
   is 2 market events replicated across 4-7 arms. Verdict: UNDERSAMPLED -- the gate's RED is
   correct, tuning cannot fix it, only n can. Falsifiable 10-30 test pre-registered.
   W7/W8/W9/W10/W11 workers still running.
+- 2026-09-10 23:23:47 Thursday EDT -- W9 CLOSED (worker). Adversarial noise test on the
+  participation-decline claim. Wave-deduped, engine-attributed, full-NYSE-calendar
+  denominator: Aug 3.952 waves/day (n=21) vs frozen 2.286 (n=7); 95% bootstrap CI on the
+  difference = [-0.190, +3.476] -- includes zero. 11/48 (22.9%) historical rolling 6-day
+  windows are this quiet or quieter; July's monthly rate (2.682) was nearly as low with
+  nothing broken. **VERDICT: NOT DISTINGUISHABLE FROM NOISE -- claim struck.** Checked for
+  the zero-fill-day denominator artifact specifically: it is real (inconsistent day-count
+  rules between the two windows in the original claim) but cuts the wrong way to explain the
+  decline away -- correcting it makes frozen's rate lower, not higher. Full writeup:
+  `analysis/recommendations/W9-PARTICIPATION-CLAIM-NOISE-TEST-2026-09-10.md`. W5 RANK 1 / W7
+  must re-justify without this number; W4 unaffected. Measurement only, no trading-path edit,
+  freeze intact.
+
+
+---
+
+## W8 RESULT -- safe-2 solo-selection discriminator (worker, 2026-09-10 23:22:39 Thursday EDT)
+
+Full writeup: [`analysis/recommendations/W8-safe2-solo-selection-2026-09-10.md`](../../../analysis/recommendations/W8-safe2-solo-selection-2026-09-10.md).
+
+**Recomputed on the engine-attributed basis** (`trades-enriched.jsonl` @ `attribution==engine`,
+10-min wave dedupe): safe-2 solo = **58 waves / −$867** (not the raw-ledger 70), safe-3 solo =
+**42 waves / +$681**. Reconciles exactly to the gate totals: shared(+192)+solo(−867)=−675;
+shared(+272)+solo(+681)=+953.
+
+**Why safe-3 didn't take them** (matched each safe-2-solo wave's entry time against safe-3's own
+`automation/state/fleet/safe-3/decisions.jsonl`, ±5min): 51/58 waves — safe-3's own detector
+never fired the setup at all ("no qualifying setup"); 6/58 — safe-3 saw it but its
+`require_confluence_or_sequence` gate structurally refused it; 1/58 — premium floor. **NOT_FLAT
+does not appear in this list at all** (that's W7's separate mechanism, on safe-3's own generated
+ENTER verdicts, correctly not conflated here).
+
+**THE DISCRIMINATOR (one sentence, $ attached):** safe-2's −$675 vs safe-3's +$953 gap is not a
+gate/threshold difference on a shared setup — it is that safe-2 alone runs 4 SAFE-only secondary
+setups (`vwap_continuation`, `vwap_reclaim_failed_break`, `vix_regime_dayside`,
+`bollinger_squeeze` — architecturally armed only on safe-2's core lane per
+`params.json:extra_setup_exec_armed`, confirmed absent/gated in
+`automation/state/fleet/build_shared_signal.py`), and those 4 setups account for **−$836 across
+28 waves — 96% of the entire −$867 solo deficit** — while safe-2's solo trades of the ONE setup
+both arms actually share (RIDE_THE_RIBBON) net **−$31 across 30 waves, statistically breakeven**,
+matching safe-3's own shape.
+
+**Payoff answer:** systematically worse, but only in the secondary-setup slice — not spread
+evenly across the whole solo population. Ribbon-primary solo trades are exonerated.
+
+**Freeze-test:** passes. Two of the four secondary setups (`bollinger_squeeze`,
+`vwap_reclaim_failed_break`) were already independently disarmed 2026-08-24 on their own EOD
+review ("n=26/−$1,055... never been net positive" — quoted from `params.json`'s own doc), *before*
+this losing week — this finding extends, not reacts to, a pre-dated conclusion.
+
+**No package shipped.** `vix_regime_dayside` (n=2, −$153) and `vwap_continuation` (n=7, −$355)
+remain armed and are flagged as thin-n candidates for a future 09-29 kill-type reduction
+prereg — NOT proposed tonight (n too small to prereg per the goal's own standard).
+
+## PROGRESS LOG
+
+- 2026-09-10 23:22:39 Thursday EDT -- W8 CLOSED (worker). Discriminator named with $: 4 SAFE-only
+  secondary setups drive 96% of safe-2's solo deficit (−$836/28 waves); safe-2's solo
+  RIDE_THE_RIBBON trades are breakeven like safe-3's. Measurement only; no trading-path edit;
+  freeze intact.
+
+
+---
+
+## W8 + W9 RESULTS -- one real lever found, one of my own claims killed (2026-09-10 23:27:31 Thursday EDT)
+
+### ✅ W8 -- the safe-2 discriminator, found and priced
+**safe-2's −$675 vs safe-3's +$953 is NOT a gate/threshold difference on a shared setup.**
+safe-2 alone runs **4 SAFE-only secondary setups** (`vwap_continuation`,
+`vwap_reclaim_failed_break`, `vix_regime_dayside`, `bollinger_squeeze` — scoped to safe-2's
+core lane via `params.json:extra_setup_exec_armed`, confirmed absent/gated in
+`fleet/build_shared_signal.py`). Those four account for **−$836 across 28 waves = 96% of the
+entire −$867 solo deficit.**
+
+- safe-2 solo: **58 waves, −$867** (corrects the earlier 70-wave/+$985 figure, which came from
+  the raw CSV and included pre-engine legs — the same trap W6 caught)
+- safe-3 solo: 42 waves, +$681 · reconciles exactly to W6's gate totals
+- Of safe-2's 58 solo waves: **51** are setups safe-3's detector never fired at all, 6 are
+  safe-3's `require_confluence_or_sequence` gate refusing, 1 a premium-floor refusal.
+  **`NOT_FLAT` never appears** — that is W7's separate question.
+- **Regrouped by setup family: safe-2's solo RIDE_THE_RIBBON trades net −$31 over 30 waves —
+  statistically breakeven, same shape as safe-3.** The core shared strategy is exonerated on
+  safe-2; all of the badness is in the secondary slice.
+
+**Freeze-test passes:** two of the four culprits (`bollinger_squeeze`,
+`vwap_reclaim_failed_break`) were **already independently disarmed on 2026-08-24** off their
+own EOD review — predating this losing week. So this extends a pre-dated conclusion rather
+than chasing a drawdown. `vix_regime_dayside` (n=2) and `vwap_continuation` (n=7) remain armed
+and are **thin-n candidates for a future 09-29 prereg — not proposed tonight.**
+Full writeup: `analysis/recommendations/W8-safe2-solo-selection-2026-09-10.md`.
+
+### ❌ W9 -- my participation claim is DEAD. Struck.
+W9 was tasked adversarially with killing it, and it did.
+
+> **VERDICT: NOT DISTINGUISHABLE FROM NOISE.**
+
+- Corrected on a real NYSE trading-day denominator (not days-with-fills): **August 3.952
+  waves/day (n=21) vs frozen window 2.286 (n=7)** — my "4.30 vs 2.83 over n=6" used an
+  inconsistent, non-reproducible day-count rule. That is a genuine methodology flaw in my work.
+- **95% bootstrap CI on the difference (20k resamples): [−0.190, +3.476] — includes zero.**
+- **11 of 48 historical rolling 6-day windows (22.9%) are this quiet or quieter.** July's whole
+  month (2.682 waves/day) was nearly as low with nothing broken and no narrative ever raised.
+- Honest note from W9: correcting the denominator made the frozen rate *lower*, not higher — so
+  the artifact does not explain the claim away, it just means my original number was not built
+  on a stated, consistent rule. The claim dies on the interval, not on the artifact.
+
+**Consequence:** W5 RANK 1 and W7 (the NOT_FLAT counterfactual) **must re-justify their premise
+without treating the participation decline as established.** They can still stand on their own
+procedural merits — "does the concurrency cap cost money?" is a fair question regardless — but
+the motivating story is gone. W7 is still running and will answer on its own evidence.
+Full writeup: `analysis/recommendations/W9-PARTICIPATION-CLAIM-NOISE-TEST-2026-09-10.md`.
+
+---
+
+## W13 -- the 10-30 falsification test is now an INSTRUMENT, not a paragraph
+
+W12 pre-registered "the next ~30 sessions should produce 5-7 days > +$500, or the
+regime-cluster hypothesis wins." **Left as prose, nobody would have scored it on 10-30.** Wired:
+
+- **`analysis/preregs/prereg-tail-frequency-2026-09-10.json`** — frozen decision rule,
+  `status: armed_paper_collecting_evidence`, window **2026-09-11 → 2026-10-30** (starts the day
+  AFTER freezing, so no observed data informed the threshold), explicit no-peeking clause.
+- **`setup/scripts/tail_frequency_tracker.py`** — deterministic, $0, no LLM/network. Scores
+  H1_SUPPORTED (>=4 tail days) / AMBIGUOUS (2-3) / H0_SUPPORTED (<=1) / UNDERPOWERED (<10 days
+  with fills). **Fails loud**: raises on missing/unparseable/no-engine-rows input rather than
+  emitting a zero — because a silent zero here reads as evidence for H0, i.e. a data outage
+  would argue for killing a working strategy.
+- **Sanity-checked against known windows** (quoted): August -> `H1_SUPPORTED: 7 tail day(s)
+  over 20`; June -> `UNDERPOWERED: 0 tail day(s) over 3 day(s)` (correctly refuses a verdict on
+  thin data instead of calling H0). Current real window -> `UNDERPOWERED: 0 over 0`, correct —
+  it starts tomorrow.
+- **`backtest/tests/test_tail_frequency_tracker_2026_09_10.py` — 19 passed**, and
+  **RED-PROOFED against 4 forbidden variants**, each confirmed to go red: silent-zero loader,
+  dropped underpowered guard, threshold drift (H1 bar moved 4->2 after the fact), and a dropped
+  attribution filter letting a manual +$9,999 row create a phantom tail day.
+
+Freeze-safe: measurement only, no trading-path file touched.
+
+## PROGRESS LOG
+
+- 2026-09-10 23:27:31 Thursday EDT -- W8 CLOSED (real lever found: 4 SAFE-only secondary setups = −$836/28
+  waves = 96% of safe-2's solo deficit; core ribbon strategy exonerated at −$31/30 waves;
+  2 of 4 culprits already disarmed 08-24 so the finding is not drawdown-chasing).
+  W9 CLOSED and it **KILLED my own participation claim** -- struck from W4 RESULT; W5 RANK 1
+  and W7 must re-justify without it. W13 shipped: the 10-30 falsification test is now a
+  guarded, RED-proofed instrument instead of a paragraph. W7/W10/W11 still running.

@@ -1,0 +1,46 @@
+{
+  "_doc": "Day-level bootstrap of Profit Factor for August 2026 (2026-08-01..2026-08-27, 5 active arms, 19 trading days), at increasing cost realism: as-traded (paper) -> +regulatory fees only -> +2c/contract exit slippage -> +5c/contract exit slippage. 20000 resamples with replacement over trading DAYS (not trades) to respect within-day trade correlation. Methodology: percentile bootstrap, gains/losses summed at the day level.",
+  "generated_et": "2026-08-28",
+  "window": [
+    "2026-08-01",
+    "2026-08-27"
+  ],
+  "results": {
+    "as_traded": {
+      "n_boot_valid": 19999,
+      "pf_point": 1.1944475415319433,
+      "ci_2.5": 0.293,
+      "ci_97.5": 4.955,
+      "P(PF<=1.0)": 0.398,
+      "n_days": 19,
+      "total_pnl": 1744.0
+    },
+    "fees_only_0c_slip": {
+      "n_boot_valid": 19999,
+      "pf_point": 1.1820942081038657,
+      "ci_2.5": 0.289,
+      "ci_97.5": 4.885,
+      "P(PF<=1.0)": 0.404,
+      "n_days": 19,
+      "total_pnl": 1642.65
+    },
+    "fees_plus_2c_slip": {
+      "n_boot_valid": 19999,
+      "pf_point": 1.1793693426390097,
+      "ci_2.5": 0.289,
+      "ci_97.5": 4.867,
+      "P(PF<=1.0)": 0.405,
+      "n_days": 19,
+      "total_pnl": 1620.15
+    },
+    "fees_plus_5c_slip": {
+      "n_boot_valid": 19999,
+      "pf_point": 1.1752951420350324,
+      "ci_2.5": 0.287,
+      "ci_97.5": 4.844,
+      "P(PF<=1.0)": 0.407,
+      "n_days": 19,
+      "total_pnl": 1586.4
+    }
+  }
+}

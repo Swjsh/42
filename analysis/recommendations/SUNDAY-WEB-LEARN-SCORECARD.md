@@ -224,3 +224,99 @@ Contrasts: morning − midday = **+0.0587 %ret/t (+$18.2/t) in-sample** · morni
 3. **C3 / L58.** A SPY realized-variance regularity (lunch lull) ≠ a per-CONTRACT 0DTE option expectancy edge once theta+delta+stop-misfire are paid; morning's bigger realized move is offset by a bigger adverse-excursion stop-out tail. Net per-trade $ edge does not generalize OOS.
 
 **Net:** no SHIP, no live edit. The continuous live `entry_window` is already correct (the edge is structurally a morning edge); tightening to 09:35–11:00 would drop the OOS-strongest midday sliver for zero baseline lift. Re-confirms C3/L58 + the once-per-day detector-shape caveat — no new lesson required.
+
+
+---
+
+## tp1-partial-50pct-vs-30pct — vwap_continuation (#1) — 2026-08-12
+
+**Claim:** Raising TP1 partial-out +30%->+50% (runner/trail/stop/qty held) improves vwap_continuation expectancy without tripping the L175 risk-adjusted gate.
+
+**Kind:** EXIT/MANAGEMENT change on the LIVE edge #1 -> bar = expectancy lift AND L175 risk-adjusted gate (Sharpe/Sortino/maxDD not worse).
+
+- Window loaded: 2025-01-02..2026-05-15 | HARD OPRA cap: 2026-05-29 (asserted) | OOS: IS=2025 / OOS=2026
+- Fills: real OPRA via lib.simulator_real.simulate_trade_real (C1); HARD-window asserted <=2026-05-29
+- Detector: BYTE-FOR-BYTE _edgehunt_vwap_continuation.detect_signals (= live vwap_continuation_watcher port)
+- Held constant (live config): tp1_qty=0.5, runner=2.5x, trail=0.15 (mode trailing, arm 0.05), stop=-0.08, qty=3. **Only tp1_premium_pct swept.**
+- Signals: 158 ({'C': 86, 'P': 72})
+
+### VERDICT: **L175_TRAP_REJECT**
+
+#### Safe-2_ATM (strike_offset=0)
+
+| tp1 | n | exp $ | OOS exp $ | WR% | posQ | top5%day | sharpe/tr | book Sharpe | book Sortino | maxDD $ |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 0.30 (baseline) | 150 | 49.18 | 60.67 | 55.3 | 6/6 | 22.4 | 0.5335 | 8.469 | 31.327 | -205.86 |
+| 0.40 | 150 | 49.33 | 60.67 | 55.3 | 6/6 | 22.4 | 0.5335 | 8.469 | 31.421 | -205.86 |
+| 0.50 | 150 | 49.47 | 60.67 | 55.3 | 6/6 | 22.3 | 0.5333 | 8.466 | 31.515 | -205.86 |
+
+- **L175 tp1_40_vs_30**: PASS_RISK_ADJUSTED — exp Δ=+0.15, OOS exp Δ=+0.0, WR Δ=+0.0pp; higher_mean=True, per-trade Sharpe holds=True, book Sharpe holds=True, Sortino holds=True, maxDD worsen=+0.0% (material=False).
+- **L175 tp1_50_vs_30**: L175_TRAP_REJECT — exp Δ=+0.29, OOS exp Δ=+0.0, WR Δ=+0.0pp; higher_mean=True, per-trade Sharpe holds=False, book Sharpe holds=False, Sortino holds=True, maxDD worsen=+0.0% (material=False).
+
+#### Bold_ITM2 (strike_offset=-2)
+
+| tp1 | n | exp $ | OOS exp $ | WR% | posQ | top5%day | sharpe/tr | book Sharpe | book Sortino | maxDD $ |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 0.30 (baseline) | 151 | 56.28 | 69.07 | 54.3 | 6/6 | 22.5 | 0.4743 | 7.529 | 22.886 | -441.96 |
+| 0.40 | 151 | 56.05 | 69.31 | 54.3 | 6/6 | 22.6 | 0.4707 | 7.472 | 22.793 | -441.96 |
+| 0.50 | 151 | 55.1 | 67.75 | 54.3 | 6/6 | 23.0 | 0.4686 | 7.438 | 22.405 | -441.96 |
+
+- **L175 tp1_40_vs_30**: L175_TRAP_REJECT — exp Δ=-0.23, OOS exp Δ=+0.24, WR Δ=+0.0pp; higher_mean=False, per-trade Sharpe holds=False, book Sharpe holds=False, Sortino holds=False, maxDD worsen=+0.0% (material=False).
+- **L175 tp1_50_vs_30**: L175_TRAP_REJECT — exp Δ=-1.18, OOS exp Δ=-1.32, WR Δ=+0.0pp; higher_mean=False, per-trade Sharpe holds=False, book Sharpe holds=False, Sortino holds=False, maxDD worsen=+0.0% (material=False).
+
+**How to read:** a higher TP1 partial mechanically LOWERS WR (first half banks less often) — expected, hence the gate is risk-adjusted not WR-based (OP-14). PASS requires dollar-expectancy to rise AND every risk metric (per-trade Sharpe, book Sharpe, book Sortino, maxDD) to hold; a dollar-exp rise with a Sharpe drop or maxDD blowout is the L175 TRAP and is REJECTED.
+
+- _real_fills_: real OPRA fills, the only 0DTE WR authority (C1); SPY-dir != option edge (C3/L58).
+- _wr_caveat_: a higher TP1 partial mechanically LOWERS WR -- the first half banks less often -- so WR delta will be negative; that is EXPECTED and is why the gate is risk-adjusted (Sharpe/Sortino), not WR-based (OP-14).
+- _relative_comparison_: Sharpe/Sortino are RELATIVE (tp1 vs tp1 on the SAME trade set / SAME bull-flattered tape) so the bull bias cancels; the ABSOLUTE Sharpe is not a forward forecast.
+- _tier_honesty_: C29 -- exit knobs do not transfer across strike tiers; ATM (Safe-2) and ITM-2 (Bold) reported independently; the live edge ships dual-account.
+- _hard_window_: OPRA real-fill cache ends ~2026-05-29; every filled trade asserted <= that date so no blind-spot leakage inflates OOS.
+
+
+
+---
+
+## tp1-partial-50pct-vs-30pct — vwap_continuation (#1) — 2026-08-12
+
+**Claim:** Raising TP1 partial-out +30%->+50% (runner/trail/stop/qty held) improves vwap_continuation expectancy without tripping the L175 risk-adjusted gate.
+
+**Kind:** EXIT/MANAGEMENT change on the LIVE edge #1 -> bar = expectancy lift AND L175 risk-adjusted gate (Sharpe/Sortino/maxDD not worse).
+
+- Window loaded: 2025-01-02..2026-05-15 | HARD OPRA cap: 2026-05-29 (asserted) | OOS: IS=2025 / OOS=2026
+- Fills: real OPRA via lib.simulator_real.simulate_trade_real (C1); HARD-window asserted <=2026-05-29
+- Detector: BYTE-FOR-BYTE _edgehunt_vwap_continuation.detect_signals (= live vwap_continuation_watcher port)
+- Held constant (live config): tp1_qty=0.5, runner=2.5x, trail=0.15 (mode trailing, arm 0.05), stop=-0.08, qty=3. **Only tp1_premium_pct swept.**
+- Signals: 158 ({'C': 86, 'P': 72})
+
+### VERDICT: **L175_TRAP_REJECT**
+
+#### Safe-2_ATM (strike_offset=0)
+
+| tp1 | n | exp $ | OOS exp $ | WR% | posQ | top5%day | sharpe/tr | book Sharpe | book Sortino | maxDD $ |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 0.30 (baseline) | 150 | 51.46 | 62.66 | 56.0 | 6/6 | 21.6 | 0.5546 | 8.804 | 33.378 | -168.12 |
+| 0.40 | 150 | 51.6 | 62.66 | 56.0 | 6/6 | 21.6 | 0.5545 | 8.803 | 33.473 | -168.12 |
+| 0.50 | 150 | 51.75 | 62.66 | 56.0 | 6/6 | 21.5 | 0.5543 | 8.799 | 33.569 | -168.12 |
+
+- **L175 tp1_40_vs_30**: L175_TRAP_REJECT — exp Δ=+0.14, OOS exp Δ=+0.0, WR Δ=+0.0pp; higher_mean=True, per-trade Sharpe holds=False, book Sharpe holds=False, Sortino holds=True, maxDD worsen=+0.0% (material=False).
+- **L175 tp1_50_vs_30**: L175_TRAP_REJECT — exp Δ=+0.29, OOS exp Δ=+0.0, WR Δ=+0.0pp; higher_mean=True, per-trade Sharpe holds=False, book Sharpe holds=False, Sortino holds=True, maxDD worsen=+0.0% (material=False).
+
+#### Bold_ITM2 (strike_offset=-2)
+
+| tp1 | n | exp $ | OOS exp $ | WR% | posQ | top5%day | sharpe/tr | book Sharpe | book Sortino | maxDD $ |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 0.30 (baseline) | 151 | 59.15 | 70.92 | 55.0 | 6/6 | 21.6 | 0.4971 | 7.891 | 24.53 | -366.0 |
+| 0.40 | 151 | 58.95 | 71.19 | 55.0 | 6/6 | 21.6 | 0.4936 | 7.836 | 24.445 | -366.0 |
+| 0.50 | 151 | 58.36 | 69.67 | 55.0 | 6/6 | 21.9 | 0.4928 | 7.823 | 24.199 | -366.0 |
+
+- **L175 tp1_40_vs_30**: L175_TRAP_REJECT — exp Δ=-0.2, OOS exp Δ=+0.27, WR Δ=+0.0pp; higher_mean=False, per-trade Sharpe holds=False, book Sharpe holds=False, Sortino holds=False, maxDD worsen=+0.0% (material=False).
+- **L175 tp1_50_vs_30**: L175_TRAP_REJECT — exp Δ=-0.79, OOS exp Δ=-1.25, WR Δ=+0.0pp; higher_mean=False, per-trade Sharpe holds=False, book Sharpe holds=False, Sortino holds=False, maxDD worsen=+0.0% (material=False).
+
+**How to read:** a higher TP1 partial mechanically LOWERS WR (first half banks less often) — expected, hence the gate is risk-adjusted not WR-based (OP-14). PASS requires dollar-expectancy to rise AND every risk metric (per-trade Sharpe, book Sharpe, book Sortino, maxDD) to hold; a dollar-exp rise with a Sharpe drop or maxDD blowout is the L175 TRAP and is REJECTED.
+
+- _real_fills_: real OPRA fills, the only 0DTE WR authority (C1); SPY-dir != option edge (C3/L58).
+- _wr_caveat_: a higher TP1 partial mechanically LOWERS WR -- the first half banks less often -- so WR delta will be negative; that is EXPECTED and is why the gate is risk-adjusted (Sharpe/Sortino), not WR-based (OP-14).
+- _relative_comparison_: Sharpe/Sortino are RELATIVE (tp1 vs tp1 on the SAME trade set / SAME bull-flattered tape) so the bull bias cancels; the ABSOLUTE Sharpe is not a forward forecast.
+- _tier_honesty_: C29 -- exit knobs do not transfer across strike tiers; ATM (Safe-2) and ITM-2 (Bold) reported independently; the live edge ships dual-account.
+- _hard_window_: OPRA real-fill cache ends ~2026-05-29; every filled trade asserted <= that date so no blind-spot leakage inflates OOS.
+

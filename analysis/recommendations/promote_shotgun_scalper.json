@@ -1,5 +1,5 @@
 {
-  "promoted_at_et": "2026-07-14T13:01:29.848609",
+  "promoted_at_et": "2026-09-10T13:12:09.938736",
   "watcher_name": "shotgun_scalper",
   "gates": {
     "wf_ratio_normalization": "per-quarter (train=4Q test=2Q)",

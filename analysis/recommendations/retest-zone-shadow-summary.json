@@ -1,6 +1,6 @@
 {
  "prereg": "analysis/recommendations/prereg-retest-zone-grid-2026-09-03.md",
- "generated_at_et": "2026-09-03T18:04:50.972951",
+ "generated_at_et": "2026-09-10T17:35:01.668013",
  "n_scored": 216,
  "days_scored": 27,
  "date_span": "2026-07-13..2026-09-03",
@@ -835,13 +835,30 @@
  "by_forward_only": {},
  "status": "ACCRUING",
  "decision_rule": "Read ONCE, on FORWARD (in_sample=False) data only, at >=20 forward sessions AND >=40 forward signals: ship-candidate only if by_forward_only.in_force.safe2_trusted.session_clustered_ci.ci_lower_2.5 > 0 AND no by_all_time.in_force.big_winner_days entry has sign_flip=true. The grid columns (0.20/0.30/0.40/0.50/0.75) are disclosure-only -- no width may be picked after reading them. Full rule: analysis/recommendations/prereg-retest-zone-grid-2026-09-03.md",
- "new_this_run": 16,
- "skipped_this_run": [],
+ "new_this_run": 0,
+ "skipped_this_run": [
+  {
+   "activity_id": "20260910121104207::ba4e21c7-6b84-4898-b023-2991150934e2",
+   "reason": "skip_no_option_bars"
+  },
+  {
+   "activity_id": "20260910121206215::b6178c33-09f0-4bb7-9e63-27a8cece282b",
+   "reason": "skip_no_option_bars"
+  },
+  {
+   "activity_id": "20260910121208370::40f791ec-ddd1-4d73-9580-468902cec00f",
+   "reason": "skip_no_option_bars"
+  },
+  {
+   "activity_id": "20260910143304094::e8f1ffd6-7535-41af-b895-6593267581a1",
+   "reason": "skip_no_option_bars"
+  }
+ ],
  "population": {
-  "n_ribbon_events_total": 364,
-  "n_closed": 364,
-  "n_no_trigger_level_excluded": 148,
-  "n_scoreable": 216,
+  "n_ribbon_events_total": 372,
+  "n_closed": 372,
+  "n_no_trigger_level_excluded": 152,
+  "n_scoreable": 220,
   "n_scored_cumulative": 216
  },
  "archive_health": {
@@ -851,8 +868,8 @@
   "n_snapshots_with_any_zone_width": 0,
   "note": "Gamma_ArchiveKeyLevels is not a registered scheduled task; Gamma_DailyReview is registered but State=Disabled (both confirmed this build) -- the archive is not currently advancing."
  },
- "input_ledger_newest_ribbon_date": "2026-09-03",
- "input_expected_through": "2026-09-02",
+ "input_ledger_newest_ribbon_date": "2026-09-10",
+ "input_expected_through": "2026-09-09",
  "input_stale": false,
  "input_note": "fed"
 }

@@ -1,0 +1,201 @@
+{
+  "artifact": "W7 NOT_FLAT counterfactual costing",
+  "generated_at_et": "2026-09-10T23:26:14",
+  "goal": "GOAL-WHY-THIS-WEEK-2026-09-10 W7 (W5 RANK 1 executed)",
+  "methodology": {
+    "source_files": [
+      "automation/state/core-decisions.jsonl (safe-2 as account=safe, bold-2 as account=bold)",
+      "automation/state/fleet/safe-1/decisions.jsonl",
+      "automation/state/fleet/safe-3/decisions.jsonl",
+      "automation/state/fleet/risky-1/decisions.jsonl",
+      "automation/state/fleet/risky-3/decisions.jsonl"
+    ],
+    "refusal_definition": "core: verdict startswith ENTER and exec.status==NOT_FLAT. fleet: risk_code==NOT_FLAT. Reproduces the census cited in the goal exactly (43/81 on 09-03, 29/40 on 08-27, 8/13 09-01, 13/25 09-02, 4/10 08-25, 11/23 09-08 -- all matched to the digit).",
+    "raw_refusal_ticks": 1449,
+    "step1_per_arm_episode_collapse": "consecutive refusal ticks for the same arm+side+setup with gap<=6min collapsed into one episode. A tick fires every ~2min while a block persists -- these are not independent opportunities.",
+    "n_episodes_per_arm": 357,
+    "step2_cross_arm_wave_dedupe": "episodes further clustered into WAVES by (date, floor(start_ts to 10min), side). Multiple arms refused within the same 10-min bucket on the same side count as ONE market event, per the task's own dedupe rule.",
+    "n_waves": 147,
+    "counterfactual_pricing": "No bar-level reconstruction was attempted. W1 this session found Gamma_TradeAutopsy's option-bar fetch 403-blind back to 09-02 -- synthesizing entries/exits off unreliable historical option bars would itself be the artifact this task warns against. Instead, for each blocked episode this searched analysis/trades-enriched.jsonl (attribution==engine, the gate's own P&L truth source per this task's hard constraint) for the nearest REAL engine trade (any arm) entered within [-5min,+15min] of the refusal, same option right (P/C), preferring the same setup name. That trade's REALIZED pnl_dollars is the counterfactual outcome -- a real fill, never a synthesized one.",
+    "sizing_scale": "counterfactual pnl scaled by (refused arm's own qty [fleet arms log the would-be qty, strike, and premium directly on the refusal row before the risk_gate blocks it -- core arms lack that, so this uses that arm's own median engine qty as a proxy]) divided by (sibling's actual qty). Disclosed, not hidden -- this is the least certain step and the artifact hunt below quantifies its effect.",
+    "cost_model": "go_live_gate.py's own A1 model: OCC+ORF+TAF+SEC fees (fee_ex_cat) + 1 CAT-share/arm-day + 2c/contract exit slippage (COST_MODEL_EXIT_SLIPPAGE_CENTS), applied to the scaled qty and the sibling's own exit_px_avg.",
+    "capital_constraint_NOT_modeled": "Disclosed upper-bound: this counterfactual assumes the blocked wave could have used its own full sizing even though the arm's capital was tied up in the already-open position. No buying-power/margin constraint was modeled. Every dollar figure below is an UPPER BOUND on what loosening the cap could have earned, never a promise.",
+    "no_lookahead": "The refusal event itself is a genuine historical ENTER verdict computed by the live engine at that tick using only that ticks own data (it already passed the entry gate before hitting the NOT_FLAT risk check) -- not hindsight-selected. The counterfactual OUTCOME uses a real future fills realized pnl, which is inherently retrospective (this is a backward-looking measurement study, not a live signal) -- disclosed, not a live-path look-ahead violation.",
+    "n_priced_via_sibling": 292,
+    "n_uncosted_no_sibling_in_window": 65
+  },
+  "artifact_hunt_fable_too_good": {
+    "concentration_check": "top-5 plus bottom-5 episodes by absolute pnl = 33% of the net total -- moderate concentration, not a single-outlier artifact.",
+    "same_arm_vs_cross_arm_split": {
+      "same_arm_sibling_stronger_proxy": {
+        "n": 109,
+        "raw_pnl": 565.0,
+        "cost_adj_pnl": 499.14
+      },
+      "cross_arm_sibling_weaker_proxy": {
+        "n": 183,
+        "raw_pnl": 3992.26,
+        "cost_adj_pnl": 3903.72
+      },
+      "finding": "87 percent of the raw net (3,992 of 4,557 dollars) comes from CROSS-ARM sibling matches, where a DIFFERENT arm fill stands in for the blocked arms own counterfactual, with size-scale factors as high as 3.3x. The SAME-ARM-ONLY subset (the arm's own later or earlier fill on a near-identical signal -- the strongest available proxy) nets only plus 565 dollars over n=109, about 5 dollars per episode -- statistically indistinguishable from zero given per-trade variance of hundreds of dollars. This is the artifact this hunt found: the headline total is carried by the weaker cross-arm assumption, not the defensible same-arm one."
+    },
+    "bootstrap_95ci_all_matched": {
+      "lo95": -1925.76,
+      "hi95": 11551.46,
+      "point": 4557.26
+    },
+    "bootstrap_95ci_same_arm_only": {
+      "lo95": -3265.0,
+      "hi95": 4595.0,
+      "point": 565.0
+    },
+    "bootstrap_95ci_wave_level": {
+      "lo95": -5601.94,
+      "hi95": 16227.23,
+      "point": 4557.26
+    },
+    "verdict_of_hunt": "Every 95 percent CI (all-matched, same-arm-only, wave-level) straddles zero and includes substantial negative values. The point estimate leans positive (COSTING direction) but is NOT statistically distinguishable from noise at this n. This mirrors W3s own UNDERPOWERED finding on the structure-veto question earlier this session -- a second independent measurement landing on the same real-signal-not-enough-power shape is the expected result, not a red flag."
+  },
+  "totals": {
+    "all_matched_incl_cross_arm": {
+      "n": 292,
+      "raw_pnl": 4557.26,
+      "cost_adj_pnl": 4402.86
+    },
+    "same_arm_only": {
+      "n": 109,
+      "raw_pnl": 565.0,
+      "cost_adj_pnl": 499.14
+    }
+  },
+  "split_by_blocking_position_outcome": {
+    "all_matched": {
+      "winner": {
+        "n": 106,
+        "raw_pnl": 18741.86,
+        "cost_adj_pnl": 18686.19
+      },
+      "loser": {
+        "n": 178,
+        "raw_pnl": -13903.6,
+        "cost_adj_pnl": -13998.48
+      },
+      "unknown": {
+        "n": 8,
+        "raw_pnl": -281.0,
+        "cost_adj_pnl": -284.85
+      }
+    },
+    "same_arm_only": {
+      "winner": {
+        "n": 33,
+        "raw_pnl": 7681.0,
+        "cost_adj_pnl": 7661.83
+      },
+      "loser": {
+        "n": 73,
+        "raw_pnl": -7053.0,
+        "cost_adj_pnl": -7098.22
+      },
+      "unknown": {
+        "n": 3,
+        "raw_pnl": -63.0,
+        "cost_adj_pnl": -64.47
+      }
+    },
+    "note": "this is the crux split the goal named: when the arm blocking position was itself a WINNER, the blocked alternative entries net POSITIVE (a correlated-regime effect -- a window good enough to be holding a winner is also good for a fresh entry). When the open position was a LOSER, blocked entries net NEGATIVE. This is the OPPOSITE of protecting the runner -- the cap mostly costs money exactly while it is protecting a winner, and mostly saves money while it is also sitting in a loser. Directionally this argues the cap is doing participation throttling correlated with regime, not risk reduction."
+  },
+  "split_by_day_type": {
+    "paying": {
+      "n": 154,
+      "raw_pnl": 15172.26,
+      "cost_adj_pnl": 15092.93
+    },
+    "tax": {
+      "n": 48,
+      "raw_pnl": -4190.0,
+      "cost_adj_pnl": -4217.48
+    },
+    "mixed": {
+      "n": 72,
+      "raw_pnl": -5320.2,
+      "cost_adj_pnl": -5359.18
+    },
+    "in_progress": {
+      "n": 4,
+      "raw_pnl": -980.0,
+      "cost_adj_pnl": -982.24
+    },
+    "UNLABELED": {
+      "n": 14,
+      "raw_pnl": -124.8,
+      "cost_adj_pnl": -131.17
+    }
+  },
+  "split_by_day_type_note": "day-type-labels.json fresh as of today (2026-09-10 17:20 ET). paying days alone account for plus 15,172 raw of the plus 4,557 total net -- the caps cost is concentrated almost entirely on PAYING days and is more than offset by losses on mixed plus tax days (minus 9,510 combined). This is the clearest structural evidence for the goals starving-the-right-tail hypothesis, even though the aggregate CI does not clear zero.",
+  "split_by_time_of_day": {
+    "1200_1400": {
+      "n": 88,
+      "raw_pnl": 892.94,
+      "cost_adj_pnl": 849.2
+    },
+    "1400_1540": {
+      "n": 45,
+      "raw_pnl": 1173.8,
+      "cost_adj_pnl": 1153.09
+    },
+    "1030_1200": {
+      "n": 71,
+      "raw_pnl": -123.05,
+      "cost_adj_pnl": -160.48
+    },
+    "0935_1030": {
+      "n": 88,
+      "raw_pnl": 2613.57,
+      "cost_adj_pnl": 2561.05
+    }
+  },
+  "split_by_time_of_day_note": "no blocked waves before 09:35 (consistent with the entry gate) or after 15:40 (consistent with the time-stop) -- the caps addressable window is bounded exactly where the goal said it would be.",
+  "by_arm": {
+    "bold-2": {
+      "n": 48,
+      "raw_pnl": 1623.0,
+      "cost_adj_pnl": 1595.94
+    },
+    "risky-1": {
+      "n": 69,
+      "raw_pnl": 38.59,
+      "cost_adj_pnl": -1.0
+    },
+    "risky-3": {
+      "n": 57,
+      "raw_pnl": 1553.67,
+      "cost_adj_pnl": 1510.12
+    },
+    "safe-1": {
+      "n": 11,
+      "raw_pnl": 382.8,
+      "cost_adj_pnl": 378.95
+    },
+    "safe-2": {
+      "n": 56,
+      "raw_pnl": 1203.8,
+      "cost_adj_pnl": 1184.12
+    },
+    "safe-3": {
+      "n": 51,
+      "raw_pnl": -244.6,
+      "cost_adj_pnl": -265.27
+    }
+  },
+  "verdict": {
+    "call": "UNDERPOWERED, leaning COSTING",
+    "text": "The point estimate says the one-position-at-a-time cap cost the book about plus 4,557 raw / plus 4,403 cost-adjusted dollars over 122 deduped waves (357 per-arm blocked opportunities, 292 priced) since 2026-06-25. That number is COSTING-direction (loosening the cap would, on this measurement, have made money) and structurally concentrated on PAYING days exactly as the participation hypothesis predicted. BUT every bootstrap 95 percent CI (all-matched, same-arm-only proxy, wave-level) straddles zero, and the more defensible same-arm-only subset (the arms own later/earlier real fill, not a different arms fill scaled up) shrinks the net to plus 565 dollars over n=109 -- noise. The measurement does NOT clear the bar for a pre-registered concurrency-expansion package, and could not ship one before 10-30 regardless, per the freeze. Recorded as a logged null with a real, structurally consistent lean, not a green light.",
+    "what_would_raise_power": [
+      "Fix Gamma_TradeAutopsy's 403-blind option-bar fetch (W1 defect number 2) so a genuine bar-level reconstruction becomes possible instead of same-arm/cross-arm proxy matching.",
+      "Let the frozen window accumulate more same-arm sibling matches (n=109 same-arm today; participation itself is down about 34 percent, so this grows slowly -- see W9).",
+      "A pre-registered concurrency A/B in shadow mode (paper-parallel, not live) would directly measure this instead of proxying it -- itself a 10-30-or-later EXPANSION candidate, not something to build off tonights freeze."
+    ],
+    "does_NOT_ship": "No trading-path change. Concurrency is a risk EXPANSION under the 08-31 to 10-30 freeze regardless of this result. This is a measurement artifact filed to analysis/recommendations/, not a package."
+  }
+}

@@ -1,0 +1,6482 @@
+{
+  "generated_at_et": "2026-07-16T03:38:37.347413+00:00",
+  "watcher_name": "crypto_paper_pass2_regime_pullback",
+  "instrument": "BTC/USD spot \u2014 backtest only, no live orders placed (Pass 2 scope)",
+  "pass": 2,
+  "job1_daily_history": {
+    "exit_shape": "Pass 1 UNCHANGED fixed shape (catastrophe -20%, TP1 +15%/50%, chandelier arm+8%/trail15%)",
+    "setup_params_daily": {
+      "ema_length": 20,
+      "pullback_tolerance_pct": 2.0
+    },
+    "n_raw_signals": 961,
+    "n_trades": 100,
+    "win_rate": 0.4,
+    "expectancy_dollars": 17.44,
+    "total_pnl_dollars": 1743.83,
+    "walk_forward": {
+      "train_pnl": 1608.36,
+      "test_pnl": 135.47,
+      "train_n": 71,
+      "test_n": 29,
+      "train_span_years": 7.69,
+      "test_span_years": 4.14,
+      "wf_ratio": 0.156,
+      "passed": false
+    },
+    "sub_window_stability_yearly": {
+      "passed": true,
+      "positive_years": 7,
+      "total_years": 13,
+      "year_pnl": {
+        "2014": -118.24,
+        "2015": 294.24,
+        "2016": 127.63,
+        "2017": 714.7,
+        "2018": -29.23,
+        "2019": 271.4,
+        "2020": 321.23,
+        "2021": 115.05,
+        "2022": -225.98,
+        "2023": -12.83,
+        "2024": 390.34,
+        "2025": -58.49,
+        "2026": -45.99
+      }
+    },
+    "concentration_oos": {
+      "top5_pct": 4.202,
+      "wide_pnl": 135.47,
+      "n_trades": 29,
+      "passed": false,
+      "reason": "top-5 trades = 420.2% of 135.47 P&L (FAIL: cap 50%)"
+    }
+  },
+  "job2_exit_sweep": {
+    "grid": {
+      "n_combos": 108,
+      "catastrophe_stop_pct_grid": [
+        -0.15,
+        -0.2,
+        -0.25
+      ],
+      "tp1_target_pct_grid": [
+        0.1,
+        0.15,
+        0.2,
+        null
+      ],
+      "chandelier_arm_pct_grid": [
+        0.05,
+        0.08,
+        0.12
+      ],
+      "chandelier_trail_pct_grid": [
+        0.1,
+        0.15,
+        0.2
+      ]
+    },
+    "split": {
+      "train_frac": 0.65,
+      "cutoff_date": "2022-05-26",
+      "train_span_years": 7.69,
+      "test_span_years": 4.14
+    },
+    "null": {
+      "pool_size": 250,
+      "bootstrap_B": 2000,
+      "min_oos_n": 5
+    },
+    "fdr_alpha": 0.05,
+    "n_cells_tested": 108,
+    "n_bh_fdr_eligible": 108,
+    "n_bh_fdr_survivors": 0,
+    "n_clearing_cells": 0,
+    "verdict": "KILL",
+    "kill_reason": "0/108 BH-FDR-eligible combos beat their own random-entry null at alpha=0.05 (family-wise corrected).",
+    "best_survivor": null,
+    "cells": [
+      {
+        "combo_id": "cat-15%_tp1+10%_arm+5%_trail10%",
+        "combo": {
+          "catastrophe_stop_pct": -0.15,
+          "tp1_target_pct": 0.1,
+          "chandelier_arm_pct": 0.05,
+          "chandelier_trail_pct": 0.1
+        },
+        "is": {
+          "n": 104,
+          "sum": 696.16,
+          "mean": 6.69
+        },
+        "oos": {
+          "n": 58,
+          "sum": -273.27,
+          "mean": -4.71
+        },
+        "walk_forward": {
+          "train_pnl": 696.16,
+          "test_pnl": -273.27,
+          "train_n": 104,
+          "test_n": 58,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": -0.729,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": false,
+          "positive_years": 4,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -123.61,
+            "2015": 187.01,
+            "2016": -75.96,
+            "2017": 458.39,
+            "2018": -65.49,
+            "2019": 195.57,
+            "2020": 296.08,
+            "2021": -127.79,
+            "2022": -117.46,
+            "2023": -48.04,
+            "2024": -40.09,
+            "2025": -66.85,
+            "2026": -48.86
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 0.48,
+          "p_value": 0.9295
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-15%_tp1+10%_arm+5%_trail15%",
+        "combo": {
+          "catastrophe_stop_pct": -0.15,
+          "tp1_target_pct": 0.1,
+          "chandelier_arm_pct": 0.05,
+          "chandelier_trail_pct": 0.15
+        },
+        "is": {
+          "n": 85,
+          "sum": 1290.15,
+          "mean": 15.18
+        },
+        "oos": {
+          "n": 47,
+          "sum": -180.36,
+          "mean": -3.84
+        },
+        "walk_forward": {
+          "train_pnl": 1290.15,
+          "test_pnl": -180.36,
+          "train_n": 85,
+          "test_n": 47,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": -0.26,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 7,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -123.61,
+            "2015": 237.8,
+            "2016": 130.2,
+            "2017": 605.48,
+            "2018": -62.99,
+            "2019": 176.69,
+            "2020": 237.89,
+            "2021": 137.12,
+            "2022": -119.14,
+            "2023": -163.11,
+            "2024": 189.76,
+            "2025": -80.31,
+            "2026": -55.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 0.71,
+          "p_value": 0.8321
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-15%_tp1+10%_arm+5%_trail20%",
+        "combo": {
+          "catastrophe_stop_pct": -0.15,
+          "tp1_target_pct": 0.1,
+          "chandelier_arm_pct": 0.05,
+          "chandelier_trail_pct": 0.2
+        },
+        "is": {
+          "n": 74,
+          "sum": 1511.36,
+          "mean": 20.42
+        },
+        "oos": {
+          "n": 39,
+          "sum": -102.01,
+          "mean": -2.62
+        },
+        "walk_forward": {
+          "train_pnl": 1511.36,
+          "test_pnl": -102.01,
+          "train_n": 74,
+          "test_n": 39,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": -0.125,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 8,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -123.61,
+            "2015": 159.37,
+            "2016": 98.57,
+            "2017": 585.87,
+            "2018": -75.76,
+            "2019": 375.75,
+            "2020": 62.83,
+            "2021": 476.79,
+            "2022": -119.14,
+            "2023": -167.12,
+            "2024": 157.87,
+            "2025": 33.94,
+            "2026": -55.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 2.61,
+          "p_value": 0.8561
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-15%_tp1+10%_arm+8%_trail10%",
+        "combo": {
+          "catastrophe_stop_pct": -0.15,
+          "tp1_target_pct": 0.1,
+          "chandelier_arm_pct": 0.08,
+          "chandelier_trail_pct": 0.1
+        },
+        "is": {
+          "n": 84,
+          "sum": 1109.02,
+          "mean": 13.2
+        },
+        "oos": {
+          "n": 42,
+          "sum": -11.7,
+          "mean": -0.28
+        },
+        "walk_forward": {
+          "train_pnl": 1109.02,
+          "test_pnl": -11.7,
+          "train_n": 84,
+          "test_n": 42,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": -0.02,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 8,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -151.12,
+            "2015": 217.64,
+            "2016": -85.67,
+            "2017": 576.63,
+            "2018": 0.84,
+            "2019": 195.57,
+            "2020": 399.05,
+            "2021": 4.12,
+            "2022": -164.3,
+            "2023": 41.84,
+            "2024": 183.58,
+            "2025": -91.99,
+            "2026": -28.86
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 2.78,
+          "p_value": 0.7231
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-15%_tp1+10%_arm+8%_trail15%",
+        "combo": {
+          "catastrophe_stop_pct": -0.15,
+          "tp1_target_pct": 0.1,
+          "chandelier_arm_pct": 0.08,
+          "chandelier_trail_pct": 0.15
+        },
+        "is": {
+          "n": 68,
+          "sum": 1519.66,
+          "mean": 22.35
+        },
+        "oos": {
+          "n": 30,
+          "sum": 123.65,
+          "mean": 4.12
+        },
+        "walk_forward": {
+          "train_pnl": 1519.66,
+          "test_pnl": 123.65,
+          "train_n": 68,
+          "test_n": 30,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.151,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 7,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -151.12,
+            "2015": 257.7,
+            "2016": 107.63,
+            "2017": 654.7,
+            "2018": -8.49,
+            "2019": 176.69,
+            "2020": 341.23,
+            "2021": 189.74,
+            "2022": -165.98,
+            "2023": -12.83,
+            "2024": 370.34,
+            "2025": -80.31,
+            "2026": -35.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 1.82,
+          "p_value": 0.3668
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-15%_tp1+10%_arm+8%_trail20%",
+        "combo": {
+          "catastrophe_stop_pct": -0.15,
+          "tp1_target_pct": 0.1,
+          "chandelier_arm_pct": 0.08,
+          "chandelier_trail_pct": 0.2
+        },
+        "is": {
+          "n": 53,
+          "sum": 1934.34,
+          "mean": 36.5
+        },
+        "oos": {
+          "n": 26,
+          "sum": 138.86,
+          "mean": 5.34
+        },
+        "walk_forward": {
+          "train_pnl": 1934.34,
+          "test_pnl": 138.86,
+          "train_n": 53,
+          "test_n": 26,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.133,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 8,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -151.12,
+            "2015": 176.45,
+            "2016": 75.96,
+            "2017": 677.94,
+            "2018": -22.3,
+            "2019": 375.75,
+            "2020": 62.83,
+            "2021": 787.25,
+            "2022": -165.98,
+            "2023": -31.48,
+            "2024": 258.84,
+            "2025": 65.05,
+            "2026": -35.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 0.16,
+          "p_value": 0.2064
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-15%_tp1+10%_arm+12%_trail10%",
+        "combo": {
+          "catastrophe_stop_pct": -0.15,
+          "tp1_target_pct": 0.1,
+          "chandelier_arm_pct": 0.12,
+          "chandelier_trail_pct": 0.1
+        },
+        "is": {
+          "n": 79,
+          "sum": 1110.3,
+          "mean": 14.05
+        },
+        "oos": {
+          "n": 40,
+          "sum": -8.67,
+          "mean": -0.22
+        },
+        "walk_forward": {
+          "train_pnl": 1110.3,
+          "test_pnl": -8.67,
+          "train_n": 79,
+          "test_n": 40,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": -0.015,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 7,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -172.88,
+            "2015": 282.03,
+            "2016": -85.67,
+            "2017": 564.69,
+            "2018": -28.57,
+            "2019": 195.57,
+            "2020": 399.05,
+            "2021": 4.12,
+            "2022": -210.94,
+            "2023": 67.76,
+            "2024": 207.32,
+            "2025": -91.99,
+            "2026": -28.86
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 2.07,
+          "p_value": 0.6752
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-15%_tp1+10%_arm+12%_trail15%",
+        "combo": {
+          "catastrophe_stop_pct": -0.15,
+          "tp1_target_pct": 0.1,
+          "chandelier_arm_pct": 0.12,
+          "chandelier_trail_pct": 0.15
+        },
+        "is": {
+          "n": 65,
+          "sum": 1490.42,
+          "mean": 22.93
+        },
+        "oos": {
+          "n": 28,
+          "sum": 128.47,
+          "mean": 4.59
+        },
+        "walk_forward": {
+          "train_pnl": 1490.42,
+          "test_pnl": 128.47,
+          "train_n": 65,
+          "test_n": 28,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.16,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 8,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -172.88,
+            "2015": 296.22,
+            "2016": 119.93,
+            "2017": 625.81,
+            "2018": -37.9,
+            "2019": 176.69,
+            "2020": 341.23,
+            "2021": 189.74,
+            "2022": -212.62,
+            "2023": 38.62,
+            "2024": 370.34,
+            "2025": -80.31,
+            "2026": -35.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 1.87,
+          "p_value": 0.3573
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-15%_tp1+10%_arm+12%_trail20%",
+        "combo": {
+          "catastrophe_stop_pct": -0.15,
+          "tp1_target_pct": 0.1,
+          "chandelier_arm_pct": 0.12,
+          "chandelier_trail_pct": 0.2
+        },
+        "is": {
+          "n": 50,
+          "sum": 1891.52,
+          "mean": 37.83
+        },
+        "oos": {
+          "n": 22,
+          "sum": 194.86,
+          "mean": 8.86
+        },
+        "walk_forward": {
+          "train_pnl": 1891.52,
+          "test_pnl": 194.86,
+          "train_n": 50,
+          "test_n": 22,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.191,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 9,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -172.88,
+            "2015": 202.11,
+            "2016": 87.53,
+            "2017": 649.04,
+            "2018": -51.7,
+            "2019": 375.75,
+            "2020": 62.83,
+            "2021": 787.25,
+            "2022": -212.62,
+            "2023": 71.15,
+            "2024": 258.84,
+            "2025": 65.05,
+            "2026": -35.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 6.99,
+          "p_value": 0.4043
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-15%_tp1+15%_arm+5%_trail10%",
+        "combo": {
+          "catastrophe_stop_pct": -0.15,
+          "tp1_target_pct": 0.15,
+          "chandelier_arm_pct": 0.05,
+          "chandelier_trail_pct": 0.1
+        },
+        "is": {
+          "n": 104,
+          "sum": 927.58,
+          "mean": 8.92
+        },
+        "oos": {
+          "n": 58,
+          "sum": -270.75,
+          "mean": -4.67
+        },
+        "walk_forward": {
+          "train_pnl": 927.58,
+          "test_pnl": -270.75,
+          "train_n": 104,
+          "test_n": 58,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": -0.542,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": false,
+          "positive_years": 4,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -123.61,
+            "2015": 187.13,
+            "2016": -0.65,
+            "2017": 545.21,
+            "2018": -77.76,
+            "2019": 270.15,
+            "2020": 280.56,
+            "2021": -65.8,
+            "2022": -175.78,
+            "2023": -33.36,
+            "2024": -23.55,
+            "2025": -86.85,
+            "2026": -38.86
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": -2.54,
+          "p_value": 0.7101
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-15%_tp1+15%_arm+5%_trail15%",
+        "combo": {
+          "catastrophe_stop_pct": -0.15,
+          "tp1_target_pct": 0.15,
+          "chandelier_arm_pct": 0.05,
+          "chandelier_trail_pct": 0.15
+        },
+        "is": {
+          "n": 86,
+          "sum": 1406.1,
+          "mean": 16.35
+        },
+        "oos": {
+          "n": 48,
+          "sum": -223.24,
+          "mean": -4.65
+        },
+        "walk_forward": {
+          "train_pnl": 1406.1,
+          "test_pnl": -223.24,
+          "train_n": 86,
+          "test_n": 48,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": -0.295,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 7,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -123.61,
+            "2015": 230.91,
+            "2016": 150.2,
+            "2017": 665.48,
+            "2018": -93.73,
+            "2019": 271.4,
+            "2020": 247.89,
+            "2021": 145.98,
+            "2022": -179.14,
+            "2023": -173.11,
+            "2024": 176.88,
+            "2025": -90.31,
+            "2026": -45.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": -0.31,
+          "p_value": 0.7716
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-15%_tp1+15%_arm+5%_trail20%",
+        "combo": {
+          "catastrophe_stop_pct": -0.15,
+          "tp1_target_pct": 0.15,
+          "chandelier_arm_pct": 0.05,
+          "chandelier_trail_pct": 0.2
+        },
+        "is": {
+          "n": 76,
+          "sum": 1486.56,
+          "mean": 19.56
+        },
+        "oos": {
+          "n": 40,
+          "sum": -123.71,
+          "mean": -3.09
+        },
+        "walk_forward": {
+          "train_pnl": 1486.56,
+          "test_pnl": -123.71,
+          "train_n": 76,
+          "test_n": 40,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": -0.155,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 8,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -123.61,
+            "2015": 152.48,
+            "2016": 118.57,
+            "2017": 645.87,
+            "2018": -106.5,
+            "2019": 353.02,
+            "2020": 52.83,
+            "2021": 482.33,
+            "2022": -179.14,
+            "2023": -177.12,
+            "2024": 157.87,
+            "2025": 32.24,
+            "2026": -45.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": -1.81,
+          "p_value": 0.5707
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-15%_tp1+15%_arm+8%_trail10%",
+        "combo": {
+          "catastrophe_stop_pct": -0.15,
+          "tp1_target_pct": 0.15,
+          "chandelier_arm_pct": 0.08,
+          "chandelier_trail_pct": 0.1
+        },
+        "is": {
+          "n": 87,
+          "sum": 1409.62,
+          "mean": 16.2
+        },
+        "oos": {
+          "n": 42,
+          "sum": -63.03,
+          "mean": -1.5
+        },
+        "walk_forward": {
+          "train_pnl": 1409.62,
+          "test_pnl": -63.03,
+          "train_n": 87,
+          "test_n": 42,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": -0.083,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 7,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -151.12,
+            "2015": 273.73,
+            "2016": -10.74,
+            "2017": 676.63,
+            "2018": -1.44,
+            "2019": 270.15,
+            "2020": 356.03,
+            "2021": 84.02,
+            "2022": -222.62,
+            "2023": 66.52,
+            "2024": 156.27,
+            "2025": -111.99,
+            "2026": -38.86
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 5.87,
+          "p_value": 0.8786
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-15%_tp1+15%_arm+8%_trail15%",
+        "combo": {
+          "catastrophe_stop_pct": -0.15,
+          "tp1_target_pct": 0.15,
+          "chandelier_arm_pct": 0.08,
+          "chandelier_trail_pct": 0.15
+        },
+        "is": {
+          "n": 72,
+          "sum": 1634.8,
+          "mean": 22.71
+        },
+        "oos": {
+          "n": 30,
+          "sum": 103.65,
+          "mean": 3.46
+        },
+        "walk_forward": {
+          "train_pnl": 1634.8,
+          "test_pnl": 103.65,
+          "train_n": 72,
+          "test_n": 30,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.118,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 7,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -151.12,
+            "2015": 294.24,
+            "2016": 127.63,
+            "2017": 734.7,
+            "2018": -29.23,
+            "2019": 271.4,
+            "2020": 321.23,
+            "2021": 154.36,
+            "2022": -225.98,
+            "2023": -12.83,
+            "2024": 390.34,
+            "2025": -90.31,
+            "2026": -45.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": -2.51,
+          "p_value": 0.1714
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-15%_tp1+15%_arm+8%_trail20%",
+        "combo": {
+          "catastrophe_stop_pct": -0.15,
+          "tp1_target_pct": 0.15,
+          "chandelier_arm_pct": 0.08,
+          "chandelier_trail_pct": 0.2
+        },
+        "is": {
+          "n": 59,
+          "sum": 1898.87,
+          "mean": 32.18
+        },
+        "oos": {
+          "n": 26,
+          "sum": 138.86,
+          "mean": 5.34
+        },
+        "walk_forward": {
+          "train_pnl": 1898.87,
+          "test_pnl": 138.86,
+          "train_n": 59,
+          "test_n": 26,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.136,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 8,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -151.12,
+            "2015": 200.43,
+            "2016": 95.96,
+            "2017": 747.94,
+            "2018": -43.04,
+            "2019": 353.02,
+            "2020": 52.83,
+            "2021": 731.26,
+            "2022": -225.98,
+            "2023": -31.48,
+            "2024": 268.84,
+            "2025": 85.05,
+            "2026": -45.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": -1.16,
+          "p_value": 0.1754
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-15%_tp1+15%_arm+12%_trail10%",
+        "combo": {
+          "catastrophe_stop_pct": -0.15,
+          "tp1_target_pct": 0.15,
+          "chandelier_arm_pct": 0.12,
+          "chandelier_trail_pct": 0.1
+        },
+        "is": {
+          "n": 74,
+          "sum": 1328.12,
+          "mean": 17.95
+        },
+        "oos": {
+          "n": 35,
+          "sum": 85.33,
+          "mean": 2.44
+        },
+        "walk_forward": {
+          "train_pnl": 1328.12,
+          "test_pnl": 85.33,
+          "train_n": 74,
+          "test_n": 35,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.119,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 7,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -172.88,
+            "2015": 297.53,
+            "2016": -10.74,
+            "2017": 664.69,
+            "2018": -23.09,
+            "2019": 277.66,
+            "2020": 349.02,
+            "2021": 122.92,
+            "2022": -275.44,
+            "2023": 79.86,
+            "2024": 206.31,
+            "2025": -98.85,
+            "2026": -3.53
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": -0.62,
+          "p_value": 0.3243
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-15%_tp1+15%_arm+12%_trail15%",
+        "combo": {
+          "catastrophe_stop_pct": -0.15,
+          "tp1_target_pct": 0.15,
+          "chandelier_arm_pct": 0.12,
+          "chandelier_trail_pct": 0.15
+        },
+        "is": {
+          "n": 59,
+          "sum": 1621.63,
+          "mean": 27.49
+        },
+        "oos": {
+          "n": 25,
+          "sum": 245.52,
+          "mean": 9.82
+        },
+        "walk_forward": {
+          "train_pnl": 1621.63,
+          "test_pnl": 245.52,
+          "train_n": 59,
+          "test_n": 25,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.281,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 8,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -172.88,
+            "2015": 298.56,
+            "2016": 139.93,
+            "2017": 705.81,
+            "2018": -37.9,
+            "2019": 277.72,
+            "2020": 342.99,
+            "2021": 244.38,
+            "2022": -284.54,
+            "2023": 68.62,
+            "2024": 390.34,
+            "2025": -90.31,
+            "2026": -15.57
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 4.5,
+          "p_value": 0.2724
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-15%_tp1+15%_arm+12%_trail20%",
+        "combo": {
+          "catastrophe_stop_pct": -0.15,
+          "tp1_target_pct": 0.15,
+          "chandelier_arm_pct": 0.12,
+          "chandelier_trail_pct": 0.2
+        },
+        "is": {
+          "n": 46,
+          "sum": 1961.85,
+          "mean": 42.65
+        },
+        "oos": {
+          "n": 19,
+          "sum": 327.29,
+          "mean": 17.23
+        },
+        "walk_forward": {
+          "train_pnl": 1961.85,
+          "test_pnl": 327.29,
+          "train_n": 46,
+          "test_n": 19,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.31,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 9,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -172.88,
+            "2015": 204.49,
+            "2016": 107.53,
+            "2017": 719.04,
+            "2018": -51.7,
+            "2019": 405.75,
+            "2020": 52.83,
+            "2021": 873.76,
+            "2022": -284.54,
+            "2023": 101.15,
+            "2024": 268.84,
+            "2025": 85.05,
+            "2026": -20.19
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 0.35,
+          "p_value": 0.05
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-15%_tp1+20%_arm+5%_trail10%",
+        "combo": {
+          "catastrophe_stop_pct": -0.15,
+          "tp1_target_pct": 0.2,
+          "chandelier_arm_pct": 0.05,
+          "chandelier_trail_pct": 0.1
+        },
+        "is": {
+          "n": 106,
+          "sum": 889.52,
+          "mean": 8.39
+        },
+        "oos": {
+          "n": 58,
+          "sum": -304.51,
+          "mean": -5.25
+        },
+        "walk_forward": {
+          "train_pnl": 889.52,
+          "test_pnl": -304.51,
+          "train_n": 106,
+          "test_n": 58,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": -0.636,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 7,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -123.61,
+            "2015": 227.13,
+            "2016": 9.35,
+            "2017": 485.46,
+            "2018": -67.76,
+            "2019": 249.23,
+            "2020": 177.74,
+            "2021": 19.65,
+            "2022": -175.78,
+            "2023": 5.06,
+            "2024": -64.95,
+            "2025": -94.75,
+            "2026": -61.74
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": -0.94,
+          "p_value": 0.8521
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-15%_tp1+20%_arm+5%_trail15%",
+        "combo": {
+          "catastrophe_stop_pct": -0.15,
+          "tp1_target_pct": 0.2,
+          "chandelier_arm_pct": 0.05,
+          "chandelier_trail_pct": 0.15
+        },
+        "is": {
+          "n": 86,
+          "sum": 1583.04,
+          "mean": 18.41
+        },
+        "oos": {
+          "n": 48,
+          "sum": -203.24,
+          "mean": -4.23
+        },
+        "walk_forward": {
+          "train_pnl": 1583.04,
+          "test_pnl": -203.24,
+          "train_n": 86,
+          "test_n": 48,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": -0.238,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 7,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -123.61,
+            "2015": 260.91,
+            "2016": 170.2,
+            "2017": 725.48,
+            "2018": -83.73,
+            "2019": 218.19,
+            "2020": 277.89,
+            "2021": 226.14,
+            "2022": -179.14,
+            "2023": -163.11,
+            "2024": 206.88,
+            "2025": -80.31,
+            "2026": -75.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": -0.76,
+          "p_value": 0.7266
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-15%_tp1+20%_arm+5%_trail20%",
+        "combo": {
+          "catastrophe_stop_pct": -0.15,
+          "tp1_target_pct": 0.2,
+          "chandelier_arm_pct": 0.05,
+          "chandelier_trail_pct": 0.2
+        },
+        "is": {
+          "n": 77,
+          "sum": 1603.35,
+          "mean": 20.82
+        },
+        "oos": {
+          "n": 40,
+          "sum": -103.71,
+          "mean": -2.59
+        },
+        "walk_forward": {
+          "train_pnl": 1603.35,
+          "test_pnl": -103.71,
+          "train_n": 77,
+          "test_n": 40,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": -0.12,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 8,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -123.61,
+            "2015": 182.48,
+            "2016": 138.57,
+            "2017": 705.87,
+            "2018": -96.5,
+            "2019": 289.81,
+            "2020": 62.83,
+            "2021": 532.33,
+            "2022": -179.14,
+            "2023": -167.12,
+            "2024": 177.87,
+            "2025": 52.24,
+            "2026": -75.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 0.83,
+          "p_value": 0.7041
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-15%_tp1+20%_arm+8%_trail10%",
+        "combo": {
+          "catastrophe_stop_pct": -0.15,
+          "tp1_target_pct": 0.2,
+          "chandelier_arm_pct": 0.08,
+          "chandelier_trail_pct": 0.1
+        },
+        "is": {
+          "n": 88,
+          "sum": 1316.8,
+          "mean": 14.96
+        },
+        "oos": {
+          "n": 41,
+          "sum": -48.24,
+          "mean": -1.18
+        },
+        "walk_forward": {
+          "train_pnl": 1316.8,
+          "test_pnl": -48.24,
+          "train_n": 88,
+          "test_n": 41,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": -0.068,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 7,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -151.12,
+            "2015": 323.73,
+            "2016": -0.74,
+            "2017": 646.89,
+            "2018": -68.75,
+            "2019": 249.23,
+            "2020": 281.7,
+            "2021": 123.52,
+            "2022": -222.62,
+            "2023": 114.93,
+            "2024": 153.42,
+            "2025": -119.88,
+            "2026": -61.74
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 5.88,
+          "p_value": 0.8366
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-15%_tp1+20%_arm+8%_trail15%",
+        "combo": {
+          "catastrophe_stop_pct": -0.15,
+          "tp1_target_pct": 0.2,
+          "chandelier_arm_pct": 0.08,
+          "chandelier_trail_pct": 0.15
+        },
+        "is": {
+          "n": 72,
+          "sum": 1779.38,
+          "mean": 24.71
+        },
+        "oos": {
+          "n": 30,
+          "sum": 103.65,
+          "mean": 3.46
+        },
+        "walk_forward": {
+          "train_pnl": 1779.38,
+          "test_pnl": 103.65,
+          "train_n": 72,
+          "test_n": 30,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.108,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 8,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -151.12,
+            "2015": 334.24,
+            "2016": 147.63,
+            "2017": 814.7,
+            "2018": -48.2,
+            "2019": 218.19,
+            "2020": 361.23,
+            "2021": 191.13,
+            "2022": -225.98,
+            "2023": 7.17,
+            "2024": 390.34,
+            "2025": -80.31,
+            "2026": -75.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 6.04,
+          "p_value": 0.5882
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-15%_tp1+20%_arm+8%_trail20%",
+        "combo": {
+          "catastrophe_stop_pct": -0.15,
+          "tp1_target_pct": 0.2,
+          "chandelier_arm_pct": 0.08,
+          "chandelier_trail_pct": 0.2
+        },
+        "is": {
+          "n": 60,
+          "sum": 2005.65,
+          "mean": 33.43
+        },
+        "oos": {
+          "n": 26,
+          "sum": 138.86,
+          "mean": 5.34
+        },
+        "walk_forward": {
+          "train_pnl": 2005.65,
+          "test_pnl": 138.86,
+          "train_n": 60,
+          "test_n": 26,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.129,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 8,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -151.12,
+            "2015": 240.43,
+            "2016": 115.96,
+            "2017": 817.94,
+            "2018": -63.04,
+            "2019": 289.81,
+            "2020": 62.83,
+            "2021": 781.26,
+            "2022": -225.98,
+            "2023": -11.48,
+            "2024": 258.84,
+            "2025": 105.05,
+            "2026": -75.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 5.64,
+          "p_value": 0.5167
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-15%_tp1+20%_arm+12%_trail10%",
+        "combo": {
+          "catastrophe_stop_pct": -0.15,
+          "tp1_target_pct": 0.2,
+          "chandelier_arm_pct": 0.12,
+          "chandelier_trail_pct": 0.1
+        },
+        "is": {
+          "n": 74,
+          "sum": 1369.5,
+          "mean": 18.51
+        },
+        "oos": {
+          "n": 34,
+          "sum": 94.67,
+          "mean": 2.78
+        },
+        "walk_forward": {
+          "train_pnl": 1369.5,
+          "test_pnl": 94.67,
+          "train_n": 74,
+          "test_n": 34,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.128,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 8,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -172.88,
+            "2015": 347.53,
+            "2016": -0.74,
+            "2017": 634.94,
+            "2018": -90.41,
+            "2019": 285.78,
+            "2020": 397.82,
+            "2021": 144.44,
+            "2022": -296.33,
+            "2023": 128.28,
+            "2024": 186.02,
+            "2025": -106.74,
+            "2026": 6.47
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 8.63,
+          "p_value": 0.7666
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-15%_tp1+20%_arm+12%_trail15%",
+        "combo": {
+          "catastrophe_stop_pct": -0.15,
+          "tp1_target_pct": 0.2,
+          "chandelier_arm_pct": 0.12,
+          "chandelier_trail_pct": 0.15
+        },
+        "is": {
+          "n": 59,
+          "sum": 1776.46,
+          "mean": 30.11
+        },
+        "oos": {
+          "n": 25,
+          "sum": 265.52,
+          "mean": 10.62
+        },
+        "walk_forward": {
+          "train_pnl": 1776.46,
+          "test_pnl": 265.52,
+          "train_n": 59,
+          "test_n": 25,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.278,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 8,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -172.88,
+            "2015": 338.56,
+            "2016": 159.93,
+            "2017": 785.81,
+            "2018": -56.86,
+            "2019": 264.51,
+            "2020": 382.99,
+            "2021": 251.39,
+            "2022": -314.54,
+            "2023": 98.62,
+            "2024": 390.34,
+            "2025": -80.31,
+            "2026": -5.57
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 1.09,
+          "p_value": 0.1779
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-15%_tp1+20%_arm+12%_trail20%",
+        "combo": {
+          "catastrophe_stop_pct": -0.15,
+          "tp1_target_pct": 0.2,
+          "chandelier_arm_pct": 0.12,
+          "chandelier_trail_pct": 0.2
+        },
+        "is": {
+          "n": 47,
+          "sum": 2078.64,
+          "mean": 44.23
+        },
+        "oos": {
+          "n": 19,
+          "sum": 347.29,
+          "mean": 18.28
+        },
+        "walk_forward": {
+          "train_pnl": 2078.64,
+          "test_pnl": 347.29,
+          "train_n": 47,
+          "test_n": 19,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.31,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 9,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -172.88,
+            "2015": 244.49,
+            "2016": 127.53,
+            "2017": 789.04,
+            "2018": -71.7,
+            "2019": 382.54,
+            "2020": 62.83,
+            "2021": 893.76,
+            "2022": -314.54,
+            "2023": 131.15,
+            "2024": 258.84,
+            "2025": 105.05,
+            "2026": -10.19
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 7.35,
+          "p_value": 0.1799
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-15%_tp1off_arm+5%_trail10%",
+        "combo": {
+          "catastrophe_stop_pct": -0.15,
+          "tp1_target_pct": null,
+          "chandelier_arm_pct": 0.05,
+          "chandelier_trail_pct": 0.1
+        },
+        "is": {
+          "n": 108,
+          "sum": 1037.94,
+          "mean": 9.61
+        },
+        "oos": {
+          "n": 59,
+          "sum": -323.78,
+          "mean": -5.49
+        },
+        "walk_forward": {
+          "train_pnl": 1037.94,
+          "test_pnl": -323.78,
+          "train_n": 108,
+          "test_n": 59,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": -0.579,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": false,
+          "positive_years": 4,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -123.61,
+            "2015": 234.63,
+            "2016": -65.81,
+            "2017": 698.19,
+            "2018": -77.9,
+            "2019": 292.75,
+            "2020": 210.26,
+            "2021": -42.92,
+            "2022": -175.78,
+            "2023": -48.96,
+            "2024": -31.86,
+            "2025": -93.1,
+            "2026": -61.74
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": -1.75,
+          "p_value": 0.7921
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-15%_tp1off_arm+5%_trail15%",
+        "combo": {
+          "catastrophe_stop_pct": -0.15,
+          "tp1_target_pct": null,
+          "chandelier_arm_pct": 0.05,
+          "chandelier_trail_pct": 0.15
+        },
+        "is": {
+          "n": 88,
+          "sum": 2161.97,
+          "mean": 24.57
+        },
+        "oos": {
+          "n": 48,
+          "sum": -84.5,
+          "mean": -1.76
+        },
+        "walk_forward": {
+          "train_pnl": 2161.97,
+          "test_pnl": -84.5,
+          "train_n": 88,
+          "test_n": 48,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": -0.073,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 7,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -123.61,
+            "2015": 326.1,
+            "2016": 227.93,
+            "2017": 1155.83,
+            "2018": -106.63,
+            "2019": 230.93,
+            "2020": 315.78,
+            "2021": 224.08,
+            "2022": -179.14,
+            "2023": -199.09,
+            "2024": 344.38,
+            "2025": -63.09,
+            "2026": -75.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 7.3,
+          "p_value": 0.8706
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-15%_tp1off_arm+5%_trail20%",
+        "combo": {
+          "catastrophe_stop_pct": -0.15,
+          "tp1_target_pct": null,
+          "chandelier_arm_pct": 0.05,
+          "chandelier_trail_pct": 0.2
+        },
+        "is": {
+          "n": 77,
+          "sum": 2654.84,
+          "mean": 34.48
+        },
+        "oos": {
+          "n": 40,
+          "sum": -52.77,
+          "mean": -1.32
+        },
+        "walk_forward": {
+          "train_pnl": 2654.84,
+          "test_pnl": -52.77,
+          "train_n": 77,
+          "test_n": 40,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": -0.037,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 8,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -123.61,
+            "2015": 169.24,
+            "2016": 164.67,
+            "2017": 1053.83,
+            "2018": -132.18,
+            "2019": 616.25,
+            "2020": 45.66,
+            "2021": 949.4,
+            "2022": -179.14,
+            "2023": -207.12,
+            "2024": 276.71,
+            "2025": 44.34,
+            "2026": -75.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": -0.07,
+          "p_value": 0.5767
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-15%_tp1off_arm+8%_trail10%",
+        "combo": {
+          "catastrophe_stop_pct": -0.15,
+          "tp1_target_pct": null,
+          "chandelier_arm_pct": 0.08,
+          "chandelier_trail_pct": 0.1
+        },
+        "is": {
+          "n": 90,
+          "sum": 1498.07,
+          "mean": 16.65
+        },
+        "oos": {
+          "n": 42,
+          "sum": -32.84,
+          "mean": -0.78
+        },
+        "walk_forward": {
+          "train_pnl": 1498.07,
+          "test_pnl": -32.84,
+          "train_n": 90,
+          "test_n": 42,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": -0.041,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 7,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -151.12,
+            "2015": 334.14,
+            "2016": -76.84,
+            "2017": 866.01,
+            "2018": -78.88,
+            "2019": 292.75,
+            "2020": 270.15,
+            "2021": 129.5,
+            "2022": -222.62,
+            "2023": 74.3,
+            "2024": 207.8,
+            "2025": -118.23,
+            "2026": -61.74
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 3.23,
+          "p_value": 0.7051
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-15%_tp1off_arm+8%_trail15%",
+        "combo": {
+          "catastrophe_stop_pct": -0.15,
+          "tp1_target_pct": null,
+          "chandelier_arm_pct": 0.08,
+          "chandelier_trail_pct": 0.15
+        },
+        "is": {
+          "n": 74,
+          "sum": 2351.86,
+          "mean": 31.78
+        },
+        "oos": {
+          "n": 30,
+          "sum": 286.96,
+          "mean": 9.57
+        },
+        "walk_forward": {
+          "train_pnl": 2351.86,
+          "test_pnl": 286.96,
+          "train_n": 74,
+          "test_n": 30,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.227,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 7,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -151.12,
+            "2015": 386.29,
+            "2016": 206.11,
+            "2017": 1225.6,
+            "2018": -71.1,
+            "2019": 230.93,
+            "2020": 402.46,
+            "2021": 211.12,
+            "2022": -225.98,
+            "2023": -19.93,
+            "2024": 583.53,
+            "2025": -63.09,
+            "2026": -75.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 7.05,
+          "p_value": 0.3638
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-15%_tp1off_arm+8%_trail20%",
+        "combo": {
+          "catastrophe_stop_pct": -0.15,
+          "tp1_target_pct": null,
+          "chandelier_arm_pct": 0.08,
+          "chandelier_trail_pct": 0.2
+        },
+        "is": {
+          "n": 60,
+          "sum": 3279.34,
+          "mean": 54.66
+        },
+        "oos": {
+          "n": 26,
+          "sum": 236.86,
+          "mean": 9.11
+        },
+        "walk_forward": {
+          "train_pnl": 3279.34,
+          "test_pnl": 236.86,
+          "train_n": 60,
+          "test_n": 26,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.134,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 8,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -151.12,
+            "2015": 198.67,
+            "2016": 142.76,
+            "2017": 1166.98,
+            "2018": -98.71,
+            "2019": 616.25,
+            "2020": 45.66,
+            "2021": 1447.27,
+            "2022": -225.98,
+            "2023": -57.24,
+            "2024": 357.68,
+            "2025": 149.97,
+            "2026": -75.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 1.98,
+          "p_value": 0.2159
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-15%_tp1off_arm+12%_trail10%",
+        "combo": {
+          "catastrophe_stop_pct": -0.15,
+          "tp1_target_pct": null,
+          "chandelier_arm_pct": 0.12,
+          "chandelier_trail_pct": 0.1
+        },
+        "is": {
+          "n": 77,
+          "sum": 1488.99,
+          "mean": 19.34
+        },
+        "oos": {
+          "n": 35,
+          "sum": 86.72,
+          "mean": 2.48
+        },
+        "walk_forward": {
+          "train_pnl": 1488.99,
+          "test_pnl": 86.72,
+          "train_n": 77,
+          "test_n": 35,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.108,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 7,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -172.88,
+            "2015": 375.75,
+            "2016": -76.84,
+            "2017": 871.02,
+            "2018": -100.54,
+            "2019": 307.77,
+            "2020": 311.52,
+            "2021": 150.18,
+            "2022": -296.33,
+            "2023": 87.64,
+            "2024": 240.4,
+            "2025": -105.09,
+            "2026": -16.88
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": -0.34,
+          "p_value": 0.3308
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-15%_tp1off_arm+12%_trail15%",
+        "combo": {
+          "catastrophe_stop_pct": -0.15,
+          "tp1_target_pct": null,
+          "chandelier_arm_pct": 0.12,
+          "chandelier_trail_pct": 0.15
+        },
+        "is": {
+          "n": 61,
+          "sum": 2353.41,
+          "mean": 38.58
+        },
+        "oos": {
+          "n": 25,
+          "sum": 391.24,
+          "mean": 15.65
+        },
+        "walk_forward": {
+          "train_pnl": 2353.41,
+          "test_pnl": 391.24,
+          "train_n": 61,
+          "test_n": 25,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.309,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 8,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -172.88,
+            "2015": 394.93,
+            "2016": 230.7,
+            "2017": 1196.7,
+            "2018": -79.76,
+            "2019": 243.57,
+            "2020": 445.98,
+            "2021": 271.15,
+            "2022": -314.54,
+            "2023": 49.3,
+            "2024": 583.53,
+            "2025": -63.09,
+            "2026": -40.95
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": -2.7,
+          "p_value": 0.06
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-15%_tp1off_arm+12%_trail20%",
+        "combo": {
+          "catastrophe_stop_pct": -0.15,
+          "tp1_target_pct": null,
+          "chandelier_arm_pct": 0.12,
+          "chandelier_trail_pct": 0.2
+        },
+        "is": {
+          "n": 47,
+          "sum": 3380.46,
+          "mean": 71.92
+        },
+        "oos": {
+          "n": 19,
+          "sum": 370.27,
+          "mean": 19.49
+        },
+        "walk_forward": {
+          "train_pnl": 3380.46,
+          "test_pnl": 370.27,
+          "train_n": 47,
+          "test_n": 19,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.203,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 9,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -172.88,
+            "2015": 206.8,
+            "2016": 165.91,
+            "2017": 1138.08,
+            "2018": -107.37,
+            "2019": 668.97,
+            "2020": 45.66,
+            "2021": 1612.27,
+            "2022": -314.54,
+            "2023": 50.37,
+            "2024": 357.68,
+            "2025": 149.97,
+            "2026": -50.19
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": -0.36,
+          "p_value": 0.0715
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-20%_tp1+10%_arm+5%_trail10%",
+        "combo": {
+          "catastrophe_stop_pct": -0.2,
+          "tp1_target_pct": 0.1,
+          "chandelier_arm_pct": 0.05,
+          "chandelier_trail_pct": 0.1
+        },
+        "is": {
+          "n": 104,
+          "sum": 612.29,
+          "mean": 5.89
+        },
+        "oos": {
+          "n": 57,
+          "sum": -241.45,
+          "mean": -4.24
+        },
+        "walk_forward": {
+          "train_pnl": 612.29,
+          "test_pnl": -241.45,
+          "train_n": 104,
+          "test_n": 57,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": -0.732,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": false,
+          "positive_years": 4,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -123.61,
+            "2015": 187.01,
+            "2016": -75.96,
+            "2017": 438.39,
+            "2018": -85.49,
+            "2019": 195.57,
+            "2020": 296.08,
+            "2021": -171.67,
+            "2022": -117.46,
+            "2023": -48.04,
+            "2024": -40.09,
+            "2025": -35.04,
+            "2026": -48.86
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 2.7,
+          "p_value": 0.9685
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-20%_tp1+10%_arm+5%_trail15%",
+        "combo": {
+          "catastrophe_stop_pct": -0.2,
+          "tp1_target_pct": 0.1,
+          "chandelier_arm_pct": 0.05,
+          "chandelier_trail_pct": 0.15
+        },
+        "is": {
+          "n": 85,
+          "sum": 1209.66,
+          "mean": 14.23
+        },
+        "oos": {
+          "n": 46,
+          "sum": -148.55,
+          "mean": -3.23
+        },
+        "walk_forward": {
+          "train_pnl": 1209.66,
+          "test_pnl": -148.55,
+          "train_n": 85,
+          "test_n": 46,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": -0.228,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 7,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -123.61,
+            "2015": 237.8,
+            "2016": 130.2,
+            "2017": 585.48,
+            "2018": -82.99,
+            "2019": 176.69,
+            "2020": 237.89,
+            "2021": 96.64,
+            "2022": -119.14,
+            "2023": -163.11,
+            "2024": 189.76,
+            "2025": -48.49,
+            "2026": -55.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 0.92,
+          "p_value": 0.8091
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-20%_tp1+10%_arm+5%_trail20%",
+        "combo": {
+          "catastrophe_stop_pct": -0.2,
+          "tp1_target_pct": 0.1,
+          "chandelier_arm_pct": 0.05,
+          "chandelier_trail_pct": 0.2
+        },
+        "is": {
+          "n": 74,
+          "sum": 1430.88,
+          "mean": 19.34
+        },
+        "oos": {
+          "n": 38,
+          "sum": -70.19,
+          "mean": -1.85
+        },
+        "walk_forward": {
+          "train_pnl": 1430.88,
+          "test_pnl": -70.19,
+          "train_n": 74,
+          "test_n": 38,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": -0.091,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 8,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -123.61,
+            "2015": 159.37,
+            "2016": 98.57,
+            "2017": 565.87,
+            "2018": -95.76,
+            "2019": 375.75,
+            "2020": 62.83,
+            "2021": 436.3,
+            "2022": -119.14,
+            "2023": -167.12,
+            "2024": 157.87,
+            "2025": 65.76,
+            "2026": -55.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 1.01,
+          "p_value": 0.7161
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-20%_tp1+10%_arm+8%_trail10%",
+        "combo": {
+          "catastrophe_stop_pct": -0.2,
+          "tp1_target_pct": 0.1,
+          "chandelier_arm_pct": 0.08,
+          "chandelier_trail_pct": 0.1
+        },
+        "is": {
+          "n": 83,
+          "sum": 1082.59,
+          "mean": 13.04
+        },
+        "oos": {
+          "n": 41,
+          "sum": 20.12,
+          "mean": 0.49
+        },
+        "walk_forward": {
+          "train_pnl": 1082.59,
+          "test_pnl": 20.12,
+          "train_n": 83,
+          "test_n": 41,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.035,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 7,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -118.24,
+            "2015": 217.64,
+            "2016": -85.67,
+            "2017": 556.63,
+            "2018": 0.84,
+            "2019": 195.57,
+            "2020": 399.05,
+            "2021": -35.2,
+            "2022": -164.3,
+            "2023": 41.84,
+            "2024": 183.58,
+            "2025": -60.17,
+            "2026": -28.86
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": -1.76,
+          "p_value": 0.3068
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-20%_tp1+10%_arm+8%_trail15%",
+        "combo": {
+          "catastrophe_stop_pct": -0.2,
+          "tp1_target_pct": 0.1,
+          "chandelier_arm_pct": 0.08,
+          "chandelier_trail_pct": 0.15
+        },
+        "is": {
+          "n": 67,
+          "sum": 1496.62,
+          "mean": 22.34
+        },
+        "oos": {
+          "n": 29,
+          "sum": 155.47,
+          "mean": 5.36
+        },
+        "walk_forward": {
+          "train_pnl": 1496.62,
+          "test_pnl": 155.47,
+          "train_n": 67,
+          "test_n": 29,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.193,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 7,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -118.24,
+            "2015": 257.7,
+            "2016": 107.63,
+            "2017": 634.7,
+            "2018": -8.49,
+            "2019": 176.69,
+            "2020": 341.23,
+            "2021": 153.82,
+            "2022": -165.98,
+            "2023": -12.83,
+            "2024": 370.34,
+            "2025": -48.49,
+            "2026": -35.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 4.26,
+          "p_value": 0.4198
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-20%_tp1+10%_arm+8%_trail20%",
+        "combo": {
+          "catastrophe_stop_pct": -0.2,
+          "tp1_target_pct": 0.1,
+          "chandelier_arm_pct": 0.08,
+          "chandelier_trail_pct": 0.2
+        },
+        "is": {
+          "n": 52,
+          "sum": 1911.3,
+          "mean": 36.76
+        },
+        "oos": {
+          "n": 25,
+          "sum": 170.68,
+          "mean": 6.83
+        },
+        "walk_forward": {
+          "train_pnl": 1911.3,
+          "test_pnl": 170.68,
+          "train_n": 52,
+          "test_n": 25,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.166,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 8,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -118.24,
+            "2015": 176.45,
+            "2016": 75.96,
+            "2017": 657.94,
+            "2018": -22.3,
+            "2019": 375.75,
+            "2020": 62.83,
+            "2021": 751.33,
+            "2022": -165.98,
+            "2023": -31.48,
+            "2024": 258.84,
+            "2025": 96.87,
+            "2026": -35.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": -0.92,
+          "p_value": 0.1409
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-20%_tp1+10%_arm+12%_trail10%",
+        "combo": {
+          "catastrophe_stop_pct": -0.2,
+          "tp1_target_pct": 0.1,
+          "chandelier_arm_pct": 0.12,
+          "chandelier_trail_pct": 0.1
+        },
+        "is": {
+          "n": 79,
+          "sum": 1138.38,
+          "mean": 14.41
+        },
+        "oos": {
+          "n": 39,
+          "sum": 23.15,
+          "mean": 0.59
+        },
+        "walk_forward": {
+          "train_pnl": 1138.38,
+          "test_pnl": 23.15,
+          "train_n": 79,
+          "test_n": 39,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.038,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": false,
+          "positive_years": 6,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -46.6,
+            "2015": 282.03,
+            "2016": -85.67,
+            "2017": 505.8,
+            "2018": -28.57,
+            "2019": 195.57,
+            "2020": 399.05,
+            "2021": -35.2,
+            "2022": -210.94,
+            "2023": 67.76,
+            "2024": 207.32,
+            "2025": -60.17,
+            "2026": -28.86
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 0.86,
+          "p_value": 0.5177
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-20%_tp1+10%_arm+12%_trail15%",
+        "combo": {
+          "catastrophe_stop_pct": -0.2,
+          "tp1_target_pct": 0.1,
+          "chandelier_arm_pct": 0.12,
+          "chandelier_trail_pct": 0.15
+        },
+        "is": {
+          "n": 65,
+          "sum": 1509.8,
+          "mean": 23.23
+        },
+        "oos": {
+          "n": 27,
+          "sum": 160.28,
+          "mean": 5.94
+        },
+        "walk_forward": {
+          "train_pnl": 1509.8,
+          "test_pnl": 160.28,
+          "train_n": 65,
+          "test_n": 27,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.197,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 8,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -58.69,
+            "2015": 296.22,
+            "2016": 119.93,
+            "2017": 566.92,
+            "2018": -37.9,
+            "2019": 176.69,
+            "2020": 341.23,
+            "2021": 153.82,
+            "2022": -212.62,
+            "2023": 38.62,
+            "2024": 370.34,
+            "2025": -48.49,
+            "2026": -35.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 6.7,
+          "p_value": 0.5217
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-20%_tp1+10%_arm+12%_trail20%",
+        "combo": {
+          "catastrophe_stop_pct": -0.2,
+          "tp1_target_pct": 0.1,
+          "chandelier_arm_pct": 0.12,
+          "chandelier_trail_pct": 0.2
+        },
+        "is": {
+          "n": 50,
+          "sum": 1905.28,
+          "mean": 38.11
+        },
+        "oos": {
+          "n": 21,
+          "sum": 226.67,
+          "mean": 10.79
+        },
+        "walk_forward": {
+          "train_pnl": 1905.28,
+          "test_pnl": 226.67,
+          "train_n": 50,
+          "test_n": 21,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.221,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 9,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -64.3,
+            "2015": 202.11,
+            "2016": 87.53,
+            "2017": 590.15,
+            "2018": -51.7,
+            "2019": 375.75,
+            "2020": 62.83,
+            "2021": 751.33,
+            "2022": -212.62,
+            "2023": 71.15,
+            "2024": 258.84,
+            "2025": 96.87,
+            "2026": -35.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 2.36,
+          "p_value": 0.1704
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-20%_tp1+15%_arm+5%_trail10%",
+        "combo": {
+          "catastrophe_stop_pct": -0.2,
+          "tp1_target_pct": 0.15,
+          "chandelier_arm_pct": 0.05,
+          "chandelier_trail_pct": 0.1
+        },
+        "is": {
+          "n": 104,
+          "sum": 843.7,
+          "mean": 8.11
+        },
+        "oos": {
+          "n": 57,
+          "sum": -238.93,
+          "mean": -4.19
+        },
+        "walk_forward": {
+          "train_pnl": 843.7,
+          "test_pnl": -238.93,
+          "train_n": 104,
+          "test_n": 57,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": -0.526,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": false,
+          "positive_years": 4,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -123.61,
+            "2015": 187.13,
+            "2016": -0.65,
+            "2017": 525.21,
+            "2018": -97.76,
+            "2019": 270.15,
+            "2020": 280.56,
+            "2021": -109.67,
+            "2022": -175.78,
+            "2023": -33.36,
+            "2024": -23.55,
+            "2025": -55.04,
+            "2026": -38.86
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 1.06,
+          "p_value": 0.8651
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-20%_tp1+15%_arm+5%_trail15%",
+        "combo": {
+          "catastrophe_stop_pct": -0.2,
+          "tp1_target_pct": 0.15,
+          "chandelier_arm_pct": 0.05,
+          "chandelier_trail_pct": 0.15
+        },
+        "is": {
+          "n": 86,
+          "sum": 1322.22,
+          "mean": 15.37
+        },
+        "oos": {
+          "n": 47,
+          "sum": -191.43,
+          "mean": -4.07
+        },
+        "walk_forward": {
+          "train_pnl": 1322.22,
+          "test_pnl": -191.43,
+          "train_n": 86,
+          "test_n": 47,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": -0.269,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 7,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -123.61,
+            "2015": 230.91,
+            "2016": 150.2,
+            "2017": 645.48,
+            "2018": -113.73,
+            "2019": 271.4,
+            "2020": 247.89,
+            "2021": 102.11,
+            "2022": -179.14,
+            "2023": -173.11,
+            "2024": 176.88,
+            "2025": -58.49,
+            "2026": -45.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": -1.86,
+          "p_value": 0.6577
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-20%_tp1+15%_arm+5%_trail20%",
+        "combo": {
+          "catastrophe_stop_pct": -0.2,
+          "tp1_target_pct": 0.15,
+          "chandelier_arm_pct": 0.05,
+          "chandelier_trail_pct": 0.2
+        },
+        "is": {
+          "n": 76,
+          "sum": 1402.68,
+          "mean": 18.46
+        },
+        "oos": {
+          "n": 39,
+          "sum": -91.9,
+          "mean": -2.36
+        },
+        "walk_forward": {
+          "train_pnl": 1402.68,
+          "test_pnl": -91.9,
+          "train_n": 76,
+          "test_n": 39,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": -0.122,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 8,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -123.61,
+            "2015": 152.48,
+            "2016": 118.57,
+            "2017": 625.87,
+            "2018": -126.5,
+            "2019": 353.02,
+            "2020": 52.83,
+            "2021": 438.45,
+            "2022": -179.14,
+            "2023": -177.12,
+            "2024": 157.87,
+            "2025": 64.05,
+            "2026": -45.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 0.88,
+          "p_value": 0.7026
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-20%_tp1+15%_arm+8%_trail10%",
+        "combo": {
+          "catastrophe_stop_pct": -0.2,
+          "tp1_target_pct": 0.15,
+          "chandelier_arm_pct": 0.08,
+          "chandelier_trail_pct": 0.1
+        },
+        "is": {
+          "n": 86,
+          "sum": 1383.19,
+          "mean": 16.08
+        },
+        "oos": {
+          "n": 41,
+          "sum": -31.22,
+          "mean": -0.76
+        },
+        "walk_forward": {
+          "train_pnl": 1383.19,
+          "test_pnl": -31.22,
+          "train_n": 86,
+          "test_n": 41,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": -0.042,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 7,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -118.24,
+            "2015": 273.73,
+            "2016": -10.74,
+            "2017": 656.63,
+            "2018": -1.44,
+            "2019": 270.15,
+            "2020": 356.03,
+            "2021": 44.7,
+            "2022": -222.62,
+            "2023": 66.52,
+            "2024": 156.27,
+            "2025": -80.17,
+            "2026": -38.86
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": -2.45,
+          "p_value": 0.3573
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-20%_tp1+15%_arm+8%_trail15%",
+        "combo": {
+          "catastrophe_stop_pct": -0.2,
+          "tp1_target_pct": 0.15,
+          "chandelier_arm_pct": 0.08,
+          "chandelier_trail_pct": 0.15
+        },
+        "is": {
+          "n": 71,
+          "sum": 1608.36,
+          "mean": 22.65
+        },
+        "oos": {
+          "n": 29,
+          "sum": 135.47,
+          "mean": 4.67
+        },
+        "walk_forward": {
+          "train_pnl": 1608.36,
+          "test_pnl": 135.47,
+          "train_n": 71,
+          "test_n": 29,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.156,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 7,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -118.24,
+            "2015": 294.24,
+            "2016": 127.63,
+            "2017": 714.7,
+            "2018": -29.23,
+            "2019": 271.4,
+            "2020": 321.23,
+            "2021": 115.05,
+            "2022": -225.98,
+            "2023": -12.83,
+            "2024": 390.34,
+            "2025": -58.49,
+            "2026": -45.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 7.55,
+          "p_value": 0.6167
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-20%_tp1+15%_arm+8%_trail20%",
+        "combo": {
+          "catastrophe_stop_pct": -0.2,
+          "tp1_target_pct": 0.15,
+          "chandelier_arm_pct": 0.08,
+          "chandelier_trail_pct": 0.2
+        },
+        "is": {
+          "n": 58,
+          "sum": 1872.43,
+          "mean": 32.28
+        },
+        "oos": {
+          "n": 25,
+          "sum": 170.68,
+          "mean": 6.83
+        },
+        "walk_forward": {
+          "train_pnl": 1872.43,
+          "test_pnl": 170.68,
+          "train_n": 58,
+          "test_n": 25,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.169,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 8,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -118.24,
+            "2015": 200.43,
+            "2016": 95.96,
+            "2017": 727.94,
+            "2018": -43.04,
+            "2019": 353.02,
+            "2020": 52.83,
+            "2021": 691.95,
+            "2022": -225.98,
+            "2023": -31.48,
+            "2024": 268.84,
+            "2025": 116.87,
+            "2026": -45.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 0.93,
+          "p_value": 0.2269
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-20%_tp1+15%_arm+12%_trail10%",
+        "combo": {
+          "catastrophe_stop_pct": -0.2,
+          "tp1_target_pct": 0.15,
+          "chandelier_arm_pct": 0.12,
+          "chandelier_trail_pct": 0.1
+        },
+        "is": {
+          "n": 73,
+          "sum": 1451.92,
+          "mean": 19.89
+        },
+        "oos": {
+          "n": 34,
+          "sum": 117.15,
+          "mean": 3.45
+        },
+        "walk_forward": {
+          "train_pnl": 1451.92,
+          "test_pnl": 117.15,
+          "train_n": 73,
+          "test_n": 34,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.15,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 7,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -77.99,
+            "2015": 297.53,
+            "2016": -10.74,
+            "2017": 605.8,
+            "2018": -23.09,
+            "2019": 277.66,
+            "2020": 349.02,
+            "2021": 83.6,
+            "2022": -148.32,
+            "2023": 79.86,
+            "2024": 206.31,
+            "2025": -67.03,
+            "2026": -3.53
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 3.9,
+          "p_value": 0.4993
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-20%_tp1+15%_arm+12%_trail15%",
+        "combo": {
+          "catastrophe_stop_pct": -0.2,
+          "tp1_target_pct": 0.15,
+          "chandelier_arm_pct": 0.12,
+          "chandelier_trail_pct": 0.15
+        },
+        "is": {
+          "n": 58,
+          "sum": 1730.92,
+          "mean": 29.84
+        },
+        "oos": {
+          "n": 24,
+          "sum": 277.34,
+          "mean": 11.56
+        },
+        "walk_forward": {
+          "train_pnl": 1730.92,
+          "test_pnl": 277.34,
+          "train_n": 58,
+          "test_n": 24,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.298,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 8,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -87.33,
+            "2015": 298.56,
+            "2016": 139.93,
+            "2017": 646.92,
+            "2018": -37.9,
+            "2019": 277.72,
+            "2020": 342.99,
+            "2021": 208.46,
+            "2022": -165.98,
+            "2023": 68.62,
+            "2024": 390.34,
+            "2025": -58.49,
+            "2026": -15.57
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 4.79,
+          "p_value": 0.2669
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-20%_tp1+15%_arm+12%_trail20%",
+        "combo": {
+          "catastrophe_stop_pct": -0.2,
+          "tp1_target_pct": 0.15,
+          "chandelier_arm_pct": 0.12,
+          "chandelier_trail_pct": 0.2
+        },
+        "is": {
+          "n": 45,
+          "sum": 2071.14,
+          "mean": 46.03
+        },
+        "oos": {
+          "n": 18,
+          "sum": 359.11,
+          "mean": 19.95
+        },
+        "walk_forward": {
+          "train_pnl": 2071.14,
+          "test_pnl": 359.11,
+          "train_n": 45,
+          "test_n": 18,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.322,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 9,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -87.33,
+            "2015": 204.49,
+            "2016": 107.53,
+            "2017": 660.15,
+            "2018": -51.7,
+            "2019": 405.75,
+            "2020": 52.83,
+            "2021": 837.84,
+            "2022": -165.98,
+            "2023": 101.15,
+            "2024": 268.84,
+            "2025": 116.87,
+            "2026": -20.19
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 3.29,
+          "p_value": 0.0585
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-20%_tp1+20%_arm+5%_trail10%",
+        "combo": {
+          "catastrophe_stop_pct": -0.2,
+          "tp1_target_pct": 0.2,
+          "chandelier_arm_pct": 0.05,
+          "chandelier_trail_pct": 0.1
+        },
+        "is": {
+          "n": 106,
+          "sum": 805.65,
+          "mean": 7.6
+        },
+        "oos": {
+          "n": 57,
+          "sum": -272.69,
+          "mean": -4.78
+        },
+        "walk_forward": {
+          "train_pnl": 805.65,
+          "test_pnl": -272.69,
+          "train_n": 106,
+          "test_n": 57,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": -0.629,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": false,
+          "positive_years": 6,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -123.61,
+            "2015": 227.13,
+            "2016": 9.35,
+            "2017": 465.46,
+            "2018": -87.76,
+            "2019": 249.23,
+            "2020": 177.74,
+            "2021": -24.23,
+            "2022": -175.78,
+            "2023": 5.06,
+            "2024": -64.95,
+            "2025": -62.93,
+            "2026": -61.74
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 0.92,
+          "p_value": 0.8836
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-20%_tp1+20%_arm+5%_trail15%",
+        "combo": {
+          "catastrophe_stop_pct": -0.2,
+          "tp1_target_pct": 0.2,
+          "chandelier_arm_pct": 0.05,
+          "chandelier_trail_pct": 0.15
+        },
+        "is": {
+          "n": 86,
+          "sum": 1499.16,
+          "mean": 17.43
+        },
+        "oos": {
+          "n": 47,
+          "sum": -171.43,
+          "mean": -3.65
+        },
+        "walk_forward": {
+          "train_pnl": 1499.16,
+          "test_pnl": -171.43,
+          "train_n": 86,
+          "test_n": 47,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": -0.212,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 7,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -123.61,
+            "2015": 260.91,
+            "2016": 170.2,
+            "2017": 705.48,
+            "2018": -103.73,
+            "2019": 218.19,
+            "2020": 277.89,
+            "2021": 182.26,
+            "2022": -179.14,
+            "2023": -163.11,
+            "2024": 206.88,
+            "2025": -48.49,
+            "2026": -75.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 3.69,
+          "p_value": 0.9025
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-20%_tp1+20%_arm+5%_trail20%",
+        "combo": {
+          "catastrophe_stop_pct": -0.2,
+          "tp1_target_pct": 0.2,
+          "chandelier_arm_pct": 0.05,
+          "chandelier_trail_pct": 0.2
+        },
+        "is": {
+          "n": 77,
+          "sum": 1519.47,
+          "mean": 19.73
+        },
+        "oos": {
+          "n": 39,
+          "sum": -71.9,
+          "mean": -1.84
+        },
+        "walk_forward": {
+          "train_pnl": 1519.47,
+          "test_pnl": -71.9,
+          "train_n": 77,
+          "test_n": 39,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": -0.088,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 8,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -123.61,
+            "2015": 182.48,
+            "2016": 138.57,
+            "2017": 685.87,
+            "2018": -116.5,
+            "2019": 289.81,
+            "2020": 62.83,
+            "2021": 488.45,
+            "2022": -179.14,
+            "2023": -167.12,
+            "2024": 177.87,
+            "2025": 84.05,
+            "2026": -75.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": -1.98,
+          "p_value": 0.4708
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-20%_tp1+20%_arm+8%_trail10%",
+        "combo": {
+          "catastrophe_stop_pct": -0.2,
+          "tp1_target_pct": 0.2,
+          "chandelier_arm_pct": 0.08,
+          "chandelier_trail_pct": 0.1
+        },
+        "is": {
+          "n": 87,
+          "sum": 1270.37,
+          "mean": 14.6
+        },
+        "oos": {
+          "n": 40,
+          "sum": -16.42,
+          "mean": -0.41
+        },
+        "walk_forward": {
+          "train_pnl": 1270.37,
+          "test_pnl": -16.42,
+          "train_n": 87,
+          "test_n": 40,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": -0.024,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 7,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -118.24,
+            "2015": 323.73,
+            "2016": -0.74,
+            "2017": 626.89,
+            "2018": -88.75,
+            "2019": 249.23,
+            "2020": 281.7,
+            "2021": 84.2,
+            "2022": -222.62,
+            "2023": 114.93,
+            "2024": 153.42,
+            "2025": -88.06,
+            "2026": -61.74
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 4.21,
+          "p_value": 0.7356
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-20%_tp1+20%_arm+8%_trail15%",
+        "combo": {
+          "catastrophe_stop_pct": -0.2,
+          "tp1_target_pct": 0.2,
+          "chandelier_arm_pct": 0.08,
+          "chandelier_trail_pct": 0.15
+        },
+        "is": {
+          "n": 71,
+          "sum": 1752.95,
+          "mean": 24.69
+        },
+        "oos": {
+          "n": 29,
+          "sum": 135.47,
+          "mean": 4.67
+        },
+        "walk_forward": {
+          "train_pnl": 1752.95,
+          "test_pnl": 135.47,
+          "train_n": 71,
+          "test_n": 29,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.144,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 8,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -118.24,
+            "2015": 334.24,
+            "2016": 147.63,
+            "2017": 794.7,
+            "2018": -48.2,
+            "2019": 218.19,
+            "2020": 361.23,
+            "2021": 151.82,
+            "2022": -225.98,
+            "2023": 7.17,
+            "2024": 390.34,
+            "2025": -48.49,
+            "2026": -75.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 7.72,
+          "p_value": 0.5952
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-20%_tp1+20%_arm+8%_trail20%",
+        "combo": {
+          "catastrophe_stop_pct": -0.2,
+          "tp1_target_pct": 0.2,
+          "chandelier_arm_pct": 0.08,
+          "chandelier_trail_pct": 0.2
+        },
+        "is": {
+          "n": 59,
+          "sum": 1979.22,
+          "mean": 33.55
+        },
+        "oos": {
+          "n": 25,
+          "sum": 170.68,
+          "mean": 6.83
+        },
+        "walk_forward": {
+          "train_pnl": 1979.22,
+          "test_pnl": 170.68,
+          "train_n": 59,
+          "test_n": 25,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.16,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 8,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -118.24,
+            "2015": 240.43,
+            "2016": 115.96,
+            "2017": 797.94,
+            "2018": -63.04,
+            "2019": 289.81,
+            "2020": 62.83,
+            "2021": 741.95,
+            "2022": -225.98,
+            "2023": -11.48,
+            "2024": 258.84,
+            "2025": 136.87,
+            "2026": -75.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 4.75,
+          "p_value": 0.3808
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-20%_tp1+20%_arm+12%_trail10%",
+        "combo": {
+          "catastrophe_stop_pct": -0.2,
+          "tp1_target_pct": 0.2,
+          "chandelier_arm_pct": 0.12,
+          "chandelier_trail_pct": 0.1
+        },
+        "is": {
+          "n": 73,
+          "sum": 1451.86,
+          "mean": 19.89
+        },
+        "oos": {
+          "n": 33,
+          "sum": 126.49,
+          "mean": 3.83
+        },
+        "walk_forward": {
+          "train_pnl": 1451.86,
+          "test_pnl": 126.49,
+          "train_n": 73,
+          "test_n": 33,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.162,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 8,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -77.99,
+            "2015": 347.53,
+            "2016": -0.74,
+            "2017": 576.05,
+            "2018": -110.41,
+            "2019": 285.78,
+            "2020": 397.82,
+            "2021": 105.13,
+            "2022": -190.65,
+            "2023": 128.28,
+            "2024": 186.02,
+            "2025": -74.92,
+            "2026": 6.47
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 1.32,
+          "p_value": 0.3583
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-20%_tp1+20%_arm+12%_trail15%",
+        "combo": {
+          "catastrophe_stop_pct": -0.2,
+          "tp1_target_pct": 0.2,
+          "chandelier_arm_pct": 0.12,
+          "chandelier_trail_pct": 0.15
+        },
+        "is": {
+          "n": 58,
+          "sum": 1855.75,
+          "mean": 32.0
+        },
+        "oos": {
+          "n": 24,
+          "sum": 297.34,
+          "mean": 12.39
+        },
+        "walk_forward": {
+          "train_pnl": 1855.75,
+          "test_pnl": 297.34,
+          "train_n": 58,
+          "test_n": 24,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.298,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 8,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -87.33,
+            "2015": 338.56,
+            "2016": 159.93,
+            "2017": 726.92,
+            "2018": -56.86,
+            "2019": 264.51,
+            "2020": 382.99,
+            "2021": 215.47,
+            "2022": -225.98,
+            "2023": 98.62,
+            "2024": 390.34,
+            "2025": -48.49,
+            "2026": -5.57
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 3.39,
+          "p_value": 0.1954
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-20%_tp1+20%_arm+12%_trail20%",
+        "combo": {
+          "catastrophe_stop_pct": -0.2,
+          "tp1_target_pct": 0.2,
+          "chandelier_arm_pct": 0.12,
+          "chandelier_trail_pct": 0.2
+        },
+        "is": {
+          "n": 46,
+          "sum": 2157.93,
+          "mean": 46.91
+        },
+        "oos": {
+          "n": 18,
+          "sum": 379.11,
+          "mean": 21.06
+        },
+        "walk_forward": {
+          "train_pnl": 2157.93,
+          "test_pnl": 379.11,
+          "train_n": 46,
+          "test_n": 18,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.326,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 9,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -87.33,
+            "2015": 244.49,
+            "2016": 127.53,
+            "2017": 730.15,
+            "2018": -71.7,
+            "2019": 382.54,
+            "2020": 62.83,
+            "2021": 857.84,
+            "2022": -225.98,
+            "2023": 131.15,
+            "2024": 258.84,
+            "2025": 136.87,
+            "2026": -10.19
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 2.04,
+          "p_value": 0.043
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-20%_tp1off_arm+5%_trail10%",
+        "combo": {
+          "catastrophe_stop_pct": -0.2,
+          "tp1_target_pct": null,
+          "chandelier_arm_pct": 0.05,
+          "chandelier_trail_pct": 0.1
+        },
+        "is": {
+          "n": 108,
+          "sum": 954.06,
+          "mean": 8.83
+        },
+        "oos": {
+          "n": 58,
+          "sum": -291.97,
+          "mean": -5.03
+        },
+        "walk_forward": {
+          "train_pnl": 954.06,
+          "test_pnl": -291.97,
+          "train_n": 108,
+          "test_n": 58,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": -0.568,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": false,
+          "positive_years": 4,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -123.61,
+            "2015": 234.63,
+            "2016": -65.81,
+            "2017": 678.19,
+            "2018": -97.9,
+            "2019": 292.75,
+            "2020": 210.26,
+            "2021": -86.8,
+            "2022": -175.78,
+            "2023": -48.96,
+            "2024": -31.86,
+            "2025": -61.28,
+            "2026": -61.74
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": -1.16,
+          "p_value": 0.8326
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-20%_tp1off_arm+5%_trail15%",
+        "combo": {
+          "catastrophe_stop_pct": -0.2,
+          "tp1_target_pct": null,
+          "chandelier_arm_pct": 0.05,
+          "chandelier_trail_pct": 0.15
+        },
+        "is": {
+          "n": 88,
+          "sum": 2078.09,
+          "mean": 23.61
+        },
+        "oos": {
+          "n": 47,
+          "sum": -52.68,
+          "mean": -1.12
+        },
+        "walk_forward": {
+          "train_pnl": 2078.09,
+          "test_pnl": -52.68,
+          "train_n": 88,
+          "test_n": 47,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": -0.047,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 7,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -123.61,
+            "2015": 326.1,
+            "2016": 227.93,
+            "2017": 1135.83,
+            "2018": -126.63,
+            "2019": 230.93,
+            "2020": 315.78,
+            "2021": 180.2,
+            "2022": -179.14,
+            "2023": -199.09,
+            "2024": 344.38,
+            "2025": -31.27,
+            "2026": -75.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 0.74,
+          "p_value": 0.5842
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-20%_tp1off_arm+5%_trail20%",
+        "combo": {
+          "catastrophe_stop_pct": -0.2,
+          "tp1_target_pct": null,
+          "chandelier_arm_pct": 0.05,
+          "chandelier_trail_pct": 0.2
+        },
+        "is": {
+          "n": 77,
+          "sum": 2570.96,
+          "mean": 33.39
+        },
+        "oos": {
+          "n": 39,
+          "sum": -20.95,
+          "mean": -0.54
+        },
+        "walk_forward": {
+          "train_pnl": 2570.96,
+          "test_pnl": -20.95,
+          "train_n": 77,
+          "test_n": 39,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": -0.015,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 8,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -123.61,
+            "2015": 169.24,
+            "2016": 164.67,
+            "2017": 1033.83,
+            "2018": -152.18,
+            "2019": 616.25,
+            "2020": 45.66,
+            "2021": 905.53,
+            "2022": -179.14,
+            "2023": -207.12,
+            "2024": 276.71,
+            "2025": 76.16,
+            "2026": -75.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": -1.28,
+          "p_value": 0.4138
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-20%_tp1off_arm+8%_trail10%",
+        "combo": {
+          "catastrophe_stop_pct": -0.2,
+          "tp1_target_pct": null,
+          "chandelier_arm_pct": 0.08,
+          "chandelier_trail_pct": 0.1
+        },
+        "is": {
+          "n": 89,
+          "sum": 1451.63,
+          "mean": 16.31
+        },
+        "oos": {
+          "n": 41,
+          "sum": -1.02,
+          "mean": -0.02
+        },
+        "walk_forward": {
+          "train_pnl": 1451.63,
+          "test_pnl": -1.02,
+          "train_n": 89,
+          "test_n": 41,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": -0.001,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 7,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -118.24,
+            "2015": 334.14,
+            "2016": -76.84,
+            "2017": 846.01,
+            "2018": -98.88,
+            "2019": 292.75,
+            "2020": 270.15,
+            "2021": 90.19,
+            "2022": -222.62,
+            "2023": 74.3,
+            "2024": 207.8,
+            "2025": -86.41,
+            "2026": -61.74
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 3.77,
+          "p_value": 0.7031
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-20%_tp1off_arm+8%_trail15%",
+        "combo": {
+          "catastrophe_stop_pct": -0.2,
+          "tp1_target_pct": null,
+          "chandelier_arm_pct": 0.08,
+          "chandelier_trail_pct": 0.15
+        },
+        "is": {
+          "n": 73,
+          "sum": 2325.43,
+          "mean": 31.86
+        },
+        "oos": {
+          "n": 29,
+          "sum": 318.78,
+          "mean": 10.99
+        },
+        "walk_forward": {
+          "train_pnl": 2325.43,
+          "test_pnl": 318.78,
+          "train_n": 73,
+          "test_n": 29,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.255,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 7,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -118.24,
+            "2015": 386.29,
+            "2016": 206.11,
+            "2017": 1205.6,
+            "2018": -71.1,
+            "2019": 230.93,
+            "2020": 402.46,
+            "2021": 171.81,
+            "2022": -225.98,
+            "2023": -19.93,
+            "2024": 583.53,
+            "2025": -31.27,
+            "2026": -75.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 10.37,
+          "p_value": 0.4318
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-20%_tp1off_arm+8%_trail20%",
+        "combo": {
+          "catastrophe_stop_pct": -0.2,
+          "tp1_target_pct": null,
+          "chandelier_arm_pct": 0.08,
+          "chandelier_trail_pct": 0.2
+        },
+        "is": {
+          "n": 59,
+          "sum": 3252.9,
+          "mean": 55.13
+        },
+        "oos": {
+          "n": 25,
+          "sum": 268.68,
+          "mean": 10.75
+        },
+        "walk_forward": {
+          "train_pnl": 3252.9,
+          "test_pnl": 268.68,
+          "train_n": 59,
+          "test_n": 25,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.153,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 8,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -118.24,
+            "2015": 198.67,
+            "2016": 142.76,
+            "2017": 1146.98,
+            "2018": -98.71,
+            "2019": 616.25,
+            "2020": 45.66,
+            "2021": 1407.96,
+            "2022": -225.98,
+            "2023": -57.24,
+            "2024": 357.68,
+            "2025": 181.79,
+            "2026": -75.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 4.44,
+          "p_value": 0.2664
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-20%_tp1off_arm+12%_trail10%",
+        "combo": {
+          "catastrophe_stop_pct": -0.2,
+          "tp1_target_pct": null,
+          "chandelier_arm_pct": 0.12,
+          "chandelier_trail_pct": 0.1
+        },
+        "is": {
+          "n": 76,
+          "sum": 1571.35,
+          "mean": 20.68
+        },
+        "oos": {
+          "n": 34,
+          "sum": 118.54,
+          "mean": 3.49
+        },
+        "walk_forward": {
+          "train_pnl": 1571.35,
+          "test_pnl": 118.54,
+          "train_n": 76,
+          "test_n": 34,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.14,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 7,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -77.99,
+            "2015": 375.75,
+            "2016": -76.84,
+            "2017": 812.13,
+            "2018": -120.54,
+            "2019": 307.77,
+            "2020": 311.52,
+            "2021": 110.86,
+            "2022": -190.65,
+            "2023": 87.64,
+            "2024": 240.4,
+            "2025": -73.27,
+            "2026": -16.88
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 1.55,
+          "p_value": 0.3943
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-20%_tp1off_arm+12%_trail15%",
+        "combo": {
+          "catastrophe_stop_pct": -0.2,
+          "tp1_target_pct": null,
+          "chandelier_arm_pct": 0.12,
+          "chandelier_trail_pct": 0.15
+        },
+        "is": {
+          "n": 60,
+          "sum": 2432.7,
+          "mean": 40.54
+        },
+        "oos": {
+          "n": 24,
+          "sum": 423.05,
+          "mean": 17.63
+        },
+        "walk_forward": {
+          "train_pnl": 2432.7,
+          "test_pnl": 423.05,
+          "train_n": 60,
+          "test_n": 24,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.323,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 8,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -87.33,
+            "2015": 394.93,
+            "2016": 230.7,
+            "2017": 1137.81,
+            "2018": -79.76,
+            "2019": 243.57,
+            "2020": 445.98,
+            "2021": 235.23,
+            "2022": -225.98,
+            "2023": 49.3,
+            "2024": 583.53,
+            "2025": -31.27,
+            "2026": -40.95
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 5.27,
+          "p_value": 0.1679
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-20%_tp1off_arm+12%_trail20%",
+        "combo": {
+          "catastrophe_stop_pct": -0.2,
+          "tp1_target_pct": null,
+          "chandelier_arm_pct": 0.12,
+          "chandelier_trail_pct": 0.2
+        },
+        "is": {
+          "n": 46,
+          "sum": 3459.75,
+          "mean": 75.21
+        },
+        "oos": {
+          "n": 18,
+          "sum": 402.09,
+          "mean": 22.34
+        },
+        "walk_forward": {
+          "train_pnl": 3459.75,
+          "test_pnl": 402.09,
+          "train_n": 46,
+          "test_n": 18,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.216,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 9,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -87.33,
+            "2015": 206.8,
+            "2016": 165.91,
+            "2017": 1079.19,
+            "2018": -107.37,
+            "2019": 668.97,
+            "2020": 45.66,
+            "2021": 1576.35,
+            "2022": -225.98,
+            "2023": 50.37,
+            "2024": 357.68,
+            "2025": 181.79,
+            "2026": -50.19
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": -3.32,
+          "p_value": 0.021
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-25%_tp1+10%_arm+5%_trail10%",
+        "combo": {
+          "catastrophe_stop_pct": -0.25,
+          "tp1_target_pct": 0.1,
+          "chandelier_arm_pct": 0.05,
+          "chandelier_trail_pct": 0.1
+        },
+        "is": {
+          "n": 103,
+          "sum": 672.29,
+          "mean": 6.53
+        },
+        "oos": {
+          "n": 57,
+          "sum": -241.45,
+          "mean": -4.24
+        },
+        "walk_forward": {
+          "train_pnl": 672.29,
+          "test_pnl": -241.45,
+          "train_n": 103,
+          "test_n": 57,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": -0.667,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": false,
+          "positive_years": 4,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -123.61,
+            "2015": 187.01,
+            "2016": -75.96,
+            "2017": 518.39,
+            "2018": -105.49,
+            "2019": 195.57,
+            "2020": 296.08,
+            "2021": -171.67,
+            "2022": -117.46,
+            "2023": -48.04,
+            "2024": -40.09,
+            "2025": -35.04,
+            "2026": -48.86
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": -2.11,
+          "p_value": 0.7146
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-25%_tp1+10%_arm+5%_trail15%",
+        "combo": {
+          "catastrophe_stop_pct": -0.25,
+          "tp1_target_pct": 0.1,
+          "chandelier_arm_pct": 0.05,
+          "chandelier_trail_pct": 0.15
+        },
+        "is": {
+          "n": 84,
+          "sum": 1269.66,
+          "mean": 15.12
+        },
+        "oos": {
+          "n": 46,
+          "sum": -148.55,
+          "mean": -3.23
+        },
+        "walk_forward": {
+          "train_pnl": 1269.66,
+          "test_pnl": -148.55,
+          "train_n": 84,
+          "test_n": 46,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": -0.217,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 7,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -123.61,
+            "2015": 237.8,
+            "2016": 130.2,
+            "2017": 665.48,
+            "2018": -102.99,
+            "2019": 176.69,
+            "2020": 237.89,
+            "2021": 96.64,
+            "2022": -119.14,
+            "2023": -163.11,
+            "2024": 189.76,
+            "2025": -48.49,
+            "2026": -55.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 0.41,
+          "p_value": 0.7691
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-25%_tp1+10%_arm+5%_trail20%",
+        "combo": {
+          "catastrophe_stop_pct": -0.25,
+          "tp1_target_pct": 0.1,
+          "chandelier_arm_pct": 0.05,
+          "chandelier_trail_pct": 0.2
+        },
+        "is": {
+          "n": 73,
+          "sum": 1490.88,
+          "mean": 20.42
+        },
+        "oos": {
+          "n": 38,
+          "sum": -70.19,
+          "mean": -1.85
+        },
+        "walk_forward": {
+          "train_pnl": 1490.88,
+          "test_pnl": -70.19,
+          "train_n": 73,
+          "test_n": 38,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": -0.087,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 8,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -123.61,
+            "2015": 159.37,
+            "2016": 98.57,
+            "2017": 645.87,
+            "2018": -115.76,
+            "2019": 375.75,
+            "2020": 62.83,
+            "2021": 436.3,
+            "2022": -119.14,
+            "2023": -167.12,
+            "2024": 157.87,
+            "2025": 65.76,
+            "2026": -55.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 1.88,
+          "p_value": 0.7541
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-25%_tp1+10%_arm+8%_trail10%",
+        "combo": {
+          "catastrophe_stop_pct": -0.25,
+          "tp1_target_pct": 0.1,
+          "chandelier_arm_pct": 0.08,
+          "chandelier_trail_pct": 0.1
+        },
+        "is": {
+          "n": 83,
+          "sum": 995.91,
+          "mean": 12.0
+        },
+        "oos": {
+          "n": 41,
+          "sum": 20.12,
+          "mean": 0.49
+        },
+        "walk_forward": {
+          "train_pnl": 995.91,
+          "test_pnl": 20.12,
+          "train_n": 83,
+          "test_n": 41,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.038,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": false,
+          "positive_years": 6,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -132.05,
+            "2015": 217.64,
+            "2016": -85.67,
+            "2017": 636.63,
+            "2018": -132.02,
+            "2019": 195.57,
+            "2020": 399.05,
+            "2021": -55.2,
+            "2022": -164.3,
+            "2023": 41.84,
+            "2024": 183.58,
+            "2025": -60.17,
+            "2026": -28.86
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": -0.2,
+          "p_value": 0.4623
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-25%_tp1+10%_arm+8%_trail15%",
+        "combo": {
+          "catastrophe_stop_pct": -0.25,
+          "tp1_target_pct": 0.1,
+          "chandelier_arm_pct": 0.08,
+          "chandelier_trail_pct": 0.15
+        },
+        "is": {
+          "n": 67,
+          "sum": 1421.77,
+          "mean": 21.22
+        },
+        "oos": {
+          "n": 29,
+          "sum": 155.47,
+          "mean": 5.36
+        },
+        "walk_forward": {
+          "train_pnl": 1421.77,
+          "test_pnl": 155.47,
+          "train_n": 67,
+          "test_n": 29,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.203,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 7,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -132.05,
+            "2015": 257.7,
+            "2016": 107.63,
+            "2017": 714.7,
+            "2018": -129.53,
+            "2019": 176.69,
+            "2020": 341.23,
+            "2021": 133.82,
+            "2022": -165.98,
+            "2023": -12.83,
+            "2024": 370.34,
+            "2025": -48.49,
+            "2026": -35.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": -1.92,
+          "p_value": 0.1424
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-25%_tp1+10%_arm+8%_trail20%",
+        "combo": {
+          "catastrophe_stop_pct": -0.25,
+          "tp1_target_pct": 0.1,
+          "chandelier_arm_pct": 0.08,
+          "chandelier_trail_pct": 0.2
+        },
+        "is": {
+          "n": 52,
+          "sum": 1837.48,
+          "mean": 35.34
+        },
+        "oos": {
+          "n": 25,
+          "sum": 170.68,
+          "mean": 6.83
+        },
+        "walk_forward": {
+          "train_pnl": 1837.48,
+          "test_pnl": 170.68,
+          "train_n": 52,
+          "test_n": 25,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.173,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 8,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -132.05,
+            "2015": 176.45,
+            "2016": 75.96,
+            "2017": 737.94,
+            "2018": -142.3,
+            "2019": 375.75,
+            "2020": 62.83,
+            "2021": 731.33,
+            "2022": -165.98,
+            "2023": -31.48,
+            "2024": 258.84,
+            "2025": 96.87,
+            "2026": -35.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 3.57,
+          "p_value": 0.2989
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-25%_tp1+10%_arm+12%_trail10%",
+        "combo": {
+          "catastrophe_stop_pct": -0.25,
+          "tp1_target_pct": 0.1,
+          "chandelier_arm_pct": 0.12,
+          "chandelier_trail_pct": 0.1
+        },
+        "is": {
+          "n": 78,
+          "sum": 1049.88,
+          "mean": 13.46
+        },
+        "oos": {
+          "n": 39,
+          "sum": 23.15,
+          "mean": 0.59
+        },
+        "walk_forward": {
+          "train_pnl": 1049.88,
+          "test_pnl": 23.15,
+          "train_n": 78,
+          "test_n": 39,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.041,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": false,
+          "positive_years": 6,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -46.6,
+            "2015": 282.03,
+            "2016": -85.67,
+            "2017": 585.8,
+            "2018": -177.07,
+            "2019": 195.57,
+            "2020": 399.05,
+            "2021": -55.2,
+            "2022": -210.94,
+            "2023": 67.76,
+            "2024": 207.32,
+            "2025": -60.17,
+            "2026": -28.86
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 4.69,
+          "p_value": 0.7436
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-25%_tp1+10%_arm+12%_trail15%",
+        "combo": {
+          "catastrophe_stop_pct": -0.25,
+          "tp1_target_pct": 0.1,
+          "chandelier_arm_pct": 0.12,
+          "chandelier_trail_pct": 0.15
+        },
+        "is": {
+          "n": 64,
+          "sum": 1433.12,
+          "mean": 22.39
+        },
+        "oos": {
+          "n": 27,
+          "sum": 160.28,
+          "mean": 5.94
+        },
+        "walk_forward": {
+          "train_pnl": 1433.12,
+          "test_pnl": 160.28,
+          "train_n": 64,
+          "test_n": 27,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.208,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 8,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -58.69,
+            "2015": 296.22,
+            "2016": 119.93,
+            "2017": 646.92,
+            "2018": -174.57,
+            "2019": 176.69,
+            "2020": 341.23,
+            "2021": 133.82,
+            "2022": -212.62,
+            "2023": 38.62,
+            "2024": 370.34,
+            "2025": -48.49,
+            "2026": -35.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 4.27,
+          "p_value": 0.3978
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-25%_tp1+10%_arm+12%_trail20%",
+        "combo": {
+          "catastrophe_stop_pct": -0.25,
+          "tp1_target_pct": 0.1,
+          "chandelier_arm_pct": 0.12,
+          "chandelier_trail_pct": 0.2
+        },
+        "is": {
+          "n": 49,
+          "sum": 1829.64,
+          "mean": 37.34
+        },
+        "oos": {
+          "n": 21,
+          "sum": 226.67,
+          "mean": 10.79
+        },
+        "walk_forward": {
+          "train_pnl": 1829.64,
+          "test_pnl": 226.67,
+          "train_n": 49,
+          "test_n": 21,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.23,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 9,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -64.3,
+            "2015": 202.11,
+            "2016": 87.53,
+            "2017": 670.15,
+            "2018": -187.34,
+            "2019": 375.75,
+            "2020": 62.83,
+            "2021": 731.33,
+            "2022": -212.62,
+            "2023": 71.15,
+            "2024": 258.84,
+            "2025": 96.87,
+            "2026": -35.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": -0.79,
+          "p_value": 0.0865
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-25%_tp1+15%_arm+5%_trail10%",
+        "combo": {
+          "catastrophe_stop_pct": -0.25,
+          "tp1_target_pct": 0.15,
+          "chandelier_arm_pct": 0.05,
+          "chandelier_trail_pct": 0.1
+        },
+        "is": {
+          "n": 103,
+          "sum": 903.7,
+          "mean": 8.77
+        },
+        "oos": {
+          "n": 57,
+          "sum": -238.93,
+          "mean": -4.19
+        },
+        "walk_forward": {
+          "train_pnl": 903.7,
+          "test_pnl": -238.93,
+          "train_n": 103,
+          "test_n": 57,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": -0.491,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": false,
+          "positive_years": 4,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -123.61,
+            "2015": 187.13,
+            "2016": -0.65,
+            "2017": 605.21,
+            "2018": -117.76,
+            "2019": 270.15,
+            "2020": 280.56,
+            "2021": -109.67,
+            "2022": -175.78,
+            "2023": -33.36,
+            "2024": -23.55,
+            "2025": -55.04,
+            "2026": -38.86
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 2.59,
+          "p_value": 0.934
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-25%_tp1+15%_arm+5%_trail15%",
+        "combo": {
+          "catastrophe_stop_pct": -0.25,
+          "tp1_target_pct": 0.15,
+          "chandelier_arm_pct": 0.05,
+          "chandelier_trail_pct": 0.15
+        },
+        "is": {
+          "n": 85,
+          "sum": 1382.22,
+          "mean": 16.26
+        },
+        "oos": {
+          "n": 47,
+          "sum": -191.43,
+          "mean": -4.07
+        },
+        "walk_forward": {
+          "train_pnl": 1382.22,
+          "test_pnl": -191.43,
+          "train_n": 85,
+          "test_n": 47,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": -0.257,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 7,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -123.61,
+            "2015": 230.91,
+            "2016": 150.2,
+            "2017": 725.48,
+            "2018": -133.73,
+            "2019": 271.4,
+            "2020": 247.89,
+            "2021": 102.11,
+            "2022": -179.14,
+            "2023": -173.11,
+            "2024": 176.88,
+            "2025": -58.49,
+            "2026": -45.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 0.23,
+          "p_value": 0.7986
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-25%_tp1+15%_arm+5%_trail20%",
+        "combo": {
+          "catastrophe_stop_pct": -0.25,
+          "tp1_target_pct": 0.15,
+          "chandelier_arm_pct": 0.05,
+          "chandelier_trail_pct": 0.2
+        },
+        "is": {
+          "n": 75,
+          "sum": 1462.68,
+          "mean": 19.5
+        },
+        "oos": {
+          "n": 39,
+          "sum": -91.9,
+          "mean": -2.36
+        },
+        "walk_forward": {
+          "train_pnl": 1462.68,
+          "test_pnl": -91.9,
+          "train_n": 75,
+          "test_n": 39,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": -0.117,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 8,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -123.61,
+            "2015": 152.48,
+            "2016": 118.57,
+            "2017": 705.87,
+            "2018": -146.5,
+            "2019": 353.02,
+            "2020": 52.83,
+            "2021": 438.45,
+            "2022": -179.14,
+            "2023": -177.12,
+            "2024": 157.87,
+            "2025": 64.05,
+            "2026": -45.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": -1.69,
+          "p_value": 0.5367
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-25%_tp1+15%_arm+8%_trail10%",
+        "combo": {
+          "catastrophe_stop_pct": -0.25,
+          "tp1_target_pct": 0.15,
+          "chandelier_arm_pct": 0.08,
+          "chandelier_trail_pct": 0.1
+        },
+        "is": {
+          "n": 86,
+          "sum": 1286.51,
+          "mean": 14.96
+        },
+        "oos": {
+          "n": 41,
+          "sum": -31.22,
+          "mean": -0.76
+        },
+        "walk_forward": {
+          "train_pnl": 1286.51,
+          "test_pnl": -31.22,
+          "train_n": 86,
+          "test_n": 41,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": -0.045,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 7,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -132.05,
+            "2015": 273.73,
+            "2016": -10.74,
+            "2017": 736.63,
+            "2018": -144.3,
+            "2019": 270.15,
+            "2020": 356.03,
+            "2021": 24.7,
+            "2022": -222.62,
+            "2023": 66.52,
+            "2024": 156.27,
+            "2025": -80.17,
+            "2026": -38.86
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": -0.16,
+          "p_value": 0.5182
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-25%_tp1+15%_arm+8%_trail15%",
+        "combo": {
+          "catastrophe_stop_pct": -0.25,
+          "tp1_target_pct": 0.15,
+          "chandelier_arm_pct": 0.08,
+          "chandelier_trail_pct": 0.15
+        },
+        "is": {
+          "n": 71,
+          "sum": 1523.52,
+          "mean": 21.46
+        },
+        "oos": {
+          "n": 29,
+          "sum": 135.47,
+          "mean": 4.67
+        },
+        "walk_forward": {
+          "train_pnl": 1523.52,
+          "test_pnl": 135.47,
+          "train_n": 71,
+          "test_n": 29,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.165,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 7,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -132.05,
+            "2015": 294.24,
+            "2016": 127.63,
+            "2017": 794.7,
+            "2018": -160.26,
+            "2019": 271.4,
+            "2020": 321.23,
+            "2021": 95.05,
+            "2022": -225.98,
+            "2023": -12.83,
+            "2024": 390.34,
+            "2025": -58.49,
+            "2026": -45.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 5.69,
+          "p_value": 0.5207
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-25%_tp1+15%_arm+8%_trail20%",
+        "combo": {
+          "catastrophe_stop_pct": -0.25,
+          "tp1_target_pct": 0.15,
+          "chandelier_arm_pct": 0.08,
+          "chandelier_trail_pct": 0.2
+        },
+        "is": {
+          "n": 58,
+          "sum": 1788.62,
+          "mean": 30.84
+        },
+        "oos": {
+          "n": 25,
+          "sum": 170.68,
+          "mean": 6.83
+        },
+        "walk_forward": {
+          "train_pnl": 1788.62,
+          "test_pnl": 170.68,
+          "train_n": 58,
+          "test_n": 25,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.177,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 8,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -132.05,
+            "2015": 200.43,
+            "2016": 95.96,
+            "2017": 807.94,
+            "2018": -173.04,
+            "2019": 353.02,
+            "2020": 52.83,
+            "2021": 671.95,
+            "2022": -225.98,
+            "2023": -31.48,
+            "2024": 268.84,
+            "2025": 116.87,
+            "2026": -45.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 3.85,
+          "p_value": 0.3128
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-25%_tp1+15%_arm+12%_trail10%",
+        "combo": {
+          "catastrophe_stop_pct": -0.25,
+          "tp1_target_pct": 0.15,
+          "chandelier_arm_pct": 0.12,
+          "chandelier_trail_pct": 0.1
+        },
+        "is": {
+          "n": 72,
+          "sum": 1353.42,
+          "mean": 18.8
+        },
+        "oos": {
+          "n": 34,
+          "sum": 117.15,
+          "mean": 3.45
+        },
+        "walk_forward": {
+          "train_pnl": 1353.42,
+          "test_pnl": 117.15,
+          "train_n": 72,
+          "test_n": 34,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.161,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 7,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -77.99,
+            "2015": 297.53,
+            "2016": -10.74,
+            "2017": 685.8,
+            "2018": -181.59,
+            "2019": 277.66,
+            "2020": 349.02,
+            "2021": 63.6,
+            "2022": -148.32,
+            "2023": 79.86,
+            "2024": 206.31,
+            "2025": -67.03,
+            "2026": -3.53
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 0.49,
+          "p_value": 0.3208
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-25%_tp1+15%_arm+12%_trail15%",
+        "combo": {
+          "catastrophe_stop_pct": -0.25,
+          "tp1_target_pct": 0.15,
+          "chandelier_arm_pct": 0.12,
+          "chandelier_trail_pct": 0.15
+        },
+        "is": {
+          "n": 57,
+          "sum": 1644.24,
+          "mean": 28.85
+        },
+        "oos": {
+          "n": 24,
+          "sum": 277.34,
+          "mean": 11.56
+        },
+        "walk_forward": {
+          "train_pnl": 1644.24,
+          "test_pnl": 277.34,
+          "train_n": 57,
+          "test_n": 24,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.313,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 8,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -87.33,
+            "2015": 298.56,
+            "2016": 139.93,
+            "2017": 726.92,
+            "2018": -184.57,
+            "2019": 277.72,
+            "2020": 342.99,
+            "2021": 188.46,
+            "2022": -165.98,
+            "2023": 68.62,
+            "2024": 390.34,
+            "2025": -58.49,
+            "2026": -15.57
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 5.01,
+          "p_value": 0.2379
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-25%_tp1+15%_arm+12%_trail20%",
+        "combo": {
+          "catastrophe_stop_pct": -0.25,
+          "tp1_target_pct": 0.15,
+          "chandelier_arm_pct": 0.12,
+          "chandelier_trail_pct": 0.2
+        },
+        "is": {
+          "n": 44,
+          "sum": 1985.49,
+          "mean": 45.12
+        },
+        "oos": {
+          "n": 18,
+          "sum": 359.11,
+          "mean": 19.95
+        },
+        "walk_forward": {
+          "train_pnl": 1985.49,
+          "test_pnl": 359.11,
+          "train_n": 44,
+          "test_n": 18,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.336,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 9,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -87.33,
+            "2015": 204.49,
+            "2016": 107.53,
+            "2017": 740.15,
+            "2018": -197.34,
+            "2019": 405.75,
+            "2020": 52.83,
+            "2021": 817.84,
+            "2022": -165.98,
+            "2023": 101.15,
+            "2024": 268.84,
+            "2025": 116.87,
+            "2026": -20.19
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 3.21,
+          "p_value": 0.067
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-25%_tp1+20%_arm+5%_trail10%",
+        "combo": {
+          "catastrophe_stop_pct": -0.25,
+          "tp1_target_pct": 0.2,
+          "chandelier_arm_pct": 0.05,
+          "chandelier_trail_pct": 0.1
+        },
+        "is": {
+          "n": 105,
+          "sum": 865.65,
+          "mean": 8.24
+        },
+        "oos": {
+          "n": 57,
+          "sum": -272.69,
+          "mean": -4.78
+        },
+        "walk_forward": {
+          "train_pnl": 865.65,
+          "test_pnl": -272.69,
+          "train_n": 105,
+          "test_n": 57,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": -0.585,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": false,
+          "positive_years": 6,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -123.61,
+            "2015": 227.13,
+            "2016": 9.35,
+            "2017": 545.46,
+            "2018": -107.76,
+            "2019": 249.23,
+            "2020": 177.74,
+            "2021": -24.23,
+            "2022": -175.78,
+            "2023": 5.06,
+            "2024": -64.95,
+            "2025": -62.93,
+            "2026": -61.74
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 0.45,
+          "p_value": 0.8526
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-25%_tp1+20%_arm+5%_trail15%",
+        "combo": {
+          "catastrophe_stop_pct": -0.25,
+          "tp1_target_pct": 0.2,
+          "chandelier_arm_pct": 0.05,
+          "chandelier_trail_pct": 0.15
+        },
+        "is": {
+          "n": 85,
+          "sum": 1559.16,
+          "mean": 18.34
+        },
+        "oos": {
+          "n": 47,
+          "sum": -171.43,
+          "mean": -3.65
+        },
+        "walk_forward": {
+          "train_pnl": 1559.16,
+          "test_pnl": -171.43,
+          "train_n": 85,
+          "test_n": 47,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": -0.204,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 7,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -123.61,
+            "2015": 260.91,
+            "2016": 170.2,
+            "2017": 785.48,
+            "2018": -123.73,
+            "2019": 218.19,
+            "2020": 277.89,
+            "2021": 182.26,
+            "2022": -179.14,
+            "2023": -163.11,
+            "2024": 206.88,
+            "2025": -48.49,
+            "2026": -75.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 3.55,
+          "p_value": 0.8946
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-25%_tp1+20%_arm+5%_trail20%",
+        "combo": {
+          "catastrophe_stop_pct": -0.25,
+          "tp1_target_pct": 0.2,
+          "chandelier_arm_pct": 0.05,
+          "chandelier_trail_pct": 0.2
+        },
+        "is": {
+          "n": 76,
+          "sum": 1579.47,
+          "mean": 20.78
+        },
+        "oos": {
+          "n": 39,
+          "sum": -71.9,
+          "mean": -1.84
+        },
+        "walk_forward": {
+          "train_pnl": 1579.47,
+          "test_pnl": -71.9,
+          "train_n": 76,
+          "test_n": 39,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": -0.085,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 8,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -123.61,
+            "2015": 182.48,
+            "2016": 138.57,
+            "2017": 765.87,
+            "2018": -136.5,
+            "2019": 289.81,
+            "2020": 62.83,
+            "2021": 488.45,
+            "2022": -179.14,
+            "2023": -167.12,
+            "2024": 177.87,
+            "2025": 84.05,
+            "2026": -75.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": -1.63,
+          "p_value": 0.5107
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-25%_tp1+20%_arm+8%_trail10%",
+        "combo": {
+          "catastrophe_stop_pct": -0.25,
+          "tp1_target_pct": 0.2,
+          "chandelier_arm_pct": 0.08,
+          "chandelier_trail_pct": 0.1
+        },
+        "is": {
+          "n": 86,
+          "sum": 1271.01,
+          "mean": 14.78
+        },
+        "oos": {
+          "n": 40,
+          "sum": -16.42,
+          "mean": -0.41
+        },
+        "walk_forward": {
+          "train_pnl": 1271.01,
+          "test_pnl": -16.42,
+          "train_n": 86,
+          "test_n": 40,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": -0.024,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 7,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -132.05,
+            "2015": 323.73,
+            "2016": -0.74,
+            "2017": 706.89,
+            "2018": -134.3,
+            "2019": 249.23,
+            "2020": 281.7,
+            "2021": 64.2,
+            "2022": -222.62,
+            "2023": 114.93,
+            "2024": 153.42,
+            "2025": -88.06,
+            "2026": -61.74
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": -0.25,
+          "p_value": 0.5002
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-25%_tp1+20%_arm+8%_trail15%",
+        "combo": {
+          "catastrophe_stop_pct": -0.25,
+          "tp1_target_pct": 0.2,
+          "chandelier_arm_pct": 0.08,
+          "chandelier_trail_pct": 0.15
+        },
+        "is": {
+          "n": 71,
+          "sum": 1697.07,
+          "mean": 23.9
+        },
+        "oos": {
+          "n": 29,
+          "sum": 135.47,
+          "mean": 4.67
+        },
+        "walk_forward": {
+          "train_pnl": 1697.07,
+          "test_pnl": 135.47,
+          "train_n": 71,
+          "test_n": 29,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.148,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 8,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -132.05,
+            "2015": 334.24,
+            "2016": 147.63,
+            "2017": 874.7,
+            "2018": -150.26,
+            "2019": 218.19,
+            "2020": 361.23,
+            "2021": 131.82,
+            "2022": -225.98,
+            "2023": 7.17,
+            "2024": 390.34,
+            "2025": -48.49,
+            "2026": -75.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 1.87,
+          "p_value": 0.3213
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-25%_tp1+20%_arm+8%_trail20%",
+        "combo": {
+          "catastrophe_stop_pct": -0.25,
+          "tp1_target_pct": 0.2,
+          "chandelier_arm_pct": 0.08,
+          "chandelier_trail_pct": 0.2
+        },
+        "is": {
+          "n": 59,
+          "sum": 1925.41,
+          "mean": 32.63
+        },
+        "oos": {
+          "n": 25,
+          "sum": 170.68,
+          "mean": 6.83
+        },
+        "walk_forward": {
+          "train_pnl": 1925.41,
+          "test_pnl": 170.68,
+          "train_n": 59,
+          "test_n": 25,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.165,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 8,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -132.05,
+            "2015": 240.43,
+            "2016": 115.96,
+            "2017": 877.94,
+            "2018": -163.04,
+            "2019": 289.81,
+            "2020": 62.83,
+            "2021": 721.95,
+            "2022": -225.98,
+            "2023": -11.48,
+            "2024": 258.84,
+            "2025": 136.87,
+            "2026": -75.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 3.81,
+          "p_value": 0.3428
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-25%_tp1+20%_arm+12%_trail10%",
+        "combo": {
+          "catastrophe_stop_pct": -0.25,
+          "tp1_target_pct": 0.2,
+          "chandelier_arm_pct": 0.12,
+          "chandelier_trail_pct": 0.1
+        },
+        "is": {
+          "n": 71,
+          "sum": 1450.68,
+          "mean": 20.43
+        },
+        "oos": {
+          "n": 33,
+          "sum": 126.49,
+          "mean": 3.83
+        },
+        "walk_forward": {
+          "train_pnl": 1450.68,
+          "test_pnl": 126.49,
+          "train_n": 71,
+          "test_n": 33,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.162,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 8,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -77.99,
+            "2015": 347.53,
+            "2016": -0.74,
+            "2017": 656.05,
+            "2018": -171.59,
+            "2019": 285.78,
+            "2020": 397.82,
+            "2021": 85.13,
+            "2022": -190.65,
+            "2023": 128.28,
+            "2024": 186.02,
+            "2025": -74.92,
+            "2026": 6.47
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": -0.35,
+          "p_value": 0.2794
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-25%_tp1+20%_arm+12%_trail15%",
+        "combo": {
+          "catastrophe_stop_pct": -0.25,
+          "tp1_target_pct": 0.2,
+          "chandelier_arm_pct": 0.12,
+          "chandelier_trail_pct": 0.15
+        },
+        "is": {
+          "n": 57,
+          "sum": 1798.04,
+          "mean": 31.54
+        },
+        "oos": {
+          "n": 24,
+          "sum": 297.34,
+          "mean": 12.39
+        },
+        "walk_forward": {
+          "train_pnl": 1798.04,
+          "test_pnl": 297.34,
+          "train_n": 57,
+          "test_n": 24,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.307,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 8,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -87.33,
+            "2015": 338.56,
+            "2016": 159.93,
+            "2017": 806.92,
+            "2018": -174.57,
+            "2019": 264.51,
+            "2020": 382.99,
+            "2021": 195.47,
+            "2022": -225.98,
+            "2023": 98.62,
+            "2024": 390.34,
+            "2025": -48.49,
+            "2026": -5.57
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 4.54,
+          "p_value": 0.2454
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-25%_tp1+20%_arm+12%_trail20%",
+        "combo": {
+          "catastrophe_stop_pct": -0.25,
+          "tp1_target_pct": 0.2,
+          "chandelier_arm_pct": 0.12,
+          "chandelier_trail_pct": 0.2
+        },
+        "is": {
+          "n": 45,
+          "sum": 2102.28,
+          "mean": 46.72
+        },
+        "oos": {
+          "n": 18,
+          "sum": 379.11,
+          "mean": 21.06
+        },
+        "walk_forward": {
+          "train_pnl": 2102.28,
+          "test_pnl": 379.11,
+          "train_n": 45,
+          "test_n": 18,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.335,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 9,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -87.33,
+            "2015": 244.49,
+            "2016": 127.53,
+            "2017": 810.15,
+            "2018": -187.34,
+            "2019": 382.54,
+            "2020": 62.83,
+            "2021": 837.84,
+            "2022": -225.98,
+            "2023": 131.15,
+            "2024": 258.84,
+            "2025": 136.87,
+            "2026": -10.19
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": -1.32,
+          "p_value": 0.0155
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-25%_tp1off_arm+5%_trail10%",
+        "combo": {
+          "catastrophe_stop_pct": -0.25,
+          "tp1_target_pct": null,
+          "chandelier_arm_pct": 0.05,
+          "chandelier_trail_pct": 0.1
+        },
+        "is": {
+          "n": 107,
+          "sum": 1014.06,
+          "mean": 9.48
+        },
+        "oos": {
+          "n": 58,
+          "sum": -291.97,
+          "mean": -5.03
+        },
+        "walk_forward": {
+          "train_pnl": 1014.06,
+          "test_pnl": -291.97,
+          "train_n": 107,
+          "test_n": 58,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": -0.535,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": false,
+          "positive_years": 4,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -123.61,
+            "2015": 234.63,
+            "2016": -65.81,
+            "2017": 758.19,
+            "2018": -117.9,
+            "2019": 292.75,
+            "2020": 210.26,
+            "2021": -86.8,
+            "2022": -175.78,
+            "2023": -48.96,
+            "2024": -31.86,
+            "2025": -61.28,
+            "2026": -61.74
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": -0.97,
+          "p_value": 0.8446
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-25%_tp1off_arm+5%_trail15%",
+        "combo": {
+          "catastrophe_stop_pct": -0.25,
+          "tp1_target_pct": null,
+          "chandelier_arm_pct": 0.05,
+          "chandelier_trail_pct": 0.15
+        },
+        "is": {
+          "n": 87,
+          "sum": 2138.09,
+          "mean": 24.58
+        },
+        "oos": {
+          "n": 47,
+          "sum": -52.68,
+          "mean": -1.12
+        },
+        "walk_forward": {
+          "train_pnl": 2138.09,
+          "test_pnl": -52.68,
+          "train_n": 87,
+          "test_n": 47,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": -0.046,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 7,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -123.61,
+            "2015": 326.1,
+            "2016": 227.93,
+            "2017": 1215.83,
+            "2018": -146.63,
+            "2019": 230.93,
+            "2020": 315.78,
+            "2021": 180.2,
+            "2022": -179.14,
+            "2023": -199.09,
+            "2024": 344.38,
+            "2025": -31.27,
+            "2026": -75.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 2.69,
+          "p_value": 0.6872
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-25%_tp1off_arm+5%_trail20%",
+        "combo": {
+          "catastrophe_stop_pct": -0.25,
+          "tp1_target_pct": null,
+          "chandelier_arm_pct": 0.05,
+          "chandelier_trail_pct": 0.2
+        },
+        "is": {
+          "n": 76,
+          "sum": 2630.96,
+          "mean": 34.62
+        },
+        "oos": {
+          "n": 39,
+          "sum": -20.95,
+          "mean": -0.54
+        },
+        "walk_forward": {
+          "train_pnl": 2630.96,
+          "test_pnl": -20.95,
+          "train_n": 76,
+          "test_n": 39,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": -0.015,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 8,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -123.61,
+            "2015": 169.24,
+            "2016": 164.67,
+            "2017": 1113.83,
+            "2018": -172.18,
+            "2019": 616.25,
+            "2020": 45.66,
+            "2021": 905.53,
+            "2022": -179.14,
+            "2023": -207.12,
+            "2024": 276.71,
+            "2025": 76.16,
+            "2026": -75.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": -0.07,
+          "p_value": 0.5072
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-25%_tp1off_arm+8%_trail10%",
+        "combo": {
+          "catastrophe_stop_pct": -0.25,
+          "tp1_target_pct": null,
+          "chandelier_arm_pct": 0.08,
+          "chandelier_trail_pct": 0.1
+        },
+        "is": {
+          "n": 88,
+          "sum": 1452.28,
+          "mean": 16.5
+        },
+        "oos": {
+          "n": 41,
+          "sum": -1.02,
+          "mean": -0.02
+        },
+        "walk_forward": {
+          "train_pnl": 1452.28,
+          "test_pnl": -1.02,
+          "train_n": 88,
+          "test_n": 41,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": -0.001,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 7,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -132.05,
+            "2015": 334.14,
+            "2016": -76.84,
+            "2017": 926.01,
+            "2018": -144.43,
+            "2019": 292.75,
+            "2020": 270.15,
+            "2021": 70.19,
+            "2022": -222.62,
+            "2023": 74.3,
+            "2024": 207.8,
+            "2025": -86.41,
+            "2026": -61.74
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 1.81,
+          "p_value": 0.6087
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-25%_tp1off_arm+8%_trail15%",
+        "combo": {
+          "catastrophe_stop_pct": -0.25,
+          "tp1_target_pct": null,
+          "chandelier_arm_pct": 0.08,
+          "chandelier_trail_pct": 0.15
+        },
+        "is": {
+          "n": 73,
+          "sum": 2269.55,
+          "mean": 31.09
+        },
+        "oos": {
+          "n": 29,
+          "sum": 318.78,
+          "mean": 10.99
+        },
+        "walk_forward": {
+          "train_pnl": 2269.55,
+          "test_pnl": 318.78,
+          "train_n": 73,
+          "test_n": 29,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.261,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 7,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -132.05,
+            "2015": 386.29,
+            "2016": 206.11,
+            "2017": 1285.6,
+            "2018": -173.17,
+            "2019": 230.93,
+            "2020": 402.46,
+            "2021": 151.81,
+            "2022": -225.98,
+            "2023": -19.93,
+            "2024": 583.53,
+            "2025": -31.27,
+            "2026": -75.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 8.48,
+          "p_value": 0.3883
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-25%_tp1off_arm+8%_trail20%",
+        "combo": {
+          "catastrophe_stop_pct": -0.25,
+          "tp1_target_pct": null,
+          "chandelier_arm_pct": 0.08,
+          "chandelier_trail_pct": 0.2
+        },
+        "is": {
+          "n": 59,
+          "sum": 3199.09,
+          "mean": 54.22
+        },
+        "oos": {
+          "n": 25,
+          "sum": 268.68,
+          "mean": 10.75
+        },
+        "walk_forward": {
+          "train_pnl": 3199.09,
+          "test_pnl": 268.68,
+          "train_n": 59,
+          "test_n": 25,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.156,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 8,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -132.05,
+            "2015": 198.67,
+            "2016": 142.76,
+            "2017": 1226.98,
+            "2018": -198.71,
+            "2019": 616.25,
+            "2020": 45.66,
+            "2021": 1387.96,
+            "2022": -225.98,
+            "2023": -57.24,
+            "2024": 357.68,
+            "2025": 181.79,
+            "2026": -75.99
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": -0.31,
+          "p_value": 0.1404
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-25%_tp1off_arm+12%_trail10%",
+        "combo": {
+          "catastrophe_stop_pct": -0.25,
+          "tp1_target_pct": null,
+          "chandelier_arm_pct": 0.12,
+          "chandelier_trail_pct": 0.1
+        },
+        "is": {
+          "n": 74,
+          "sum": 1570.17,
+          "mean": 21.22
+        },
+        "oos": {
+          "n": 34,
+          "sum": 118.54,
+          "mean": 3.49
+        },
+        "walk_forward": {
+          "train_pnl": 1570.17,
+          "test_pnl": 118.54,
+          "train_n": 74,
+          "test_n": 34,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.14,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 7,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -77.99,
+            "2015": 375.75,
+            "2016": -76.84,
+            "2017": 892.13,
+            "2018": -181.72,
+            "2019": 307.77,
+            "2020": 311.52,
+            "2021": 90.86,
+            "2022": -190.65,
+            "2023": 87.64,
+            "2024": 240.4,
+            "2025": -73.27,
+            "2026": -16.88
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 3.71,
+          "p_value": 0.5042
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-25%_tp1off_arm+12%_trail15%",
+        "combo": {
+          "catastrophe_stop_pct": -0.25,
+          "tp1_target_pct": null,
+          "chandelier_arm_pct": 0.12,
+          "chandelier_trail_pct": 0.15
+        },
+        "is": {
+          "n": 59,
+          "sum": 2374.99,
+          "mean": 40.25
+        },
+        "oos": {
+          "n": 24,
+          "sum": 423.05,
+          "mean": 17.63
+        },
+        "walk_forward": {
+          "train_pnl": 2374.99,
+          "test_pnl": 423.05,
+          "train_n": 59,
+          "test_n": 24,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.331,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 8,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -87.33,
+            "2015": 394.93,
+            "2016": 230.7,
+            "2017": 1217.81,
+            "2018": -197.47,
+            "2019": 243.57,
+            "2020": 445.98,
+            "2021": 215.23,
+            "2022": -225.98,
+            "2023": 49.3,
+            "2024": 583.53,
+            "2025": -31.27,
+            "2026": -40.95
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": 2.14,
+          "p_value": 0.095
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      },
+      {
+        "combo_id": "cat-25%_tp1off_arm+12%_trail20%",
+        "combo": {
+          "catastrophe_stop_pct": -0.25,
+          "tp1_target_pct": null,
+          "chandelier_arm_pct": 0.12,
+          "chandelier_trail_pct": 0.2
+        },
+        "is": {
+          "n": 45,
+          "sum": 3404.11,
+          "mean": 75.65
+        },
+        "oos": {
+          "n": 18,
+          "sum": 402.09,
+          "mean": 22.34
+        },
+        "walk_forward": {
+          "train_pnl": 3404.11,
+          "test_pnl": 402.09,
+          "train_n": 45,
+          "test_n": 18,
+          "train_span_years": 7.69,
+          "test_span_years": 4.14,
+          "wf_ratio": 0.219,
+          "passed": false
+        },
+        "sub_window_stability_yearly": {
+          "passed": true,
+          "positive_years": 9,
+          "total_years": 13,
+          "year_pnl": {
+            "2014": -87.33,
+            "2015": 206.8,
+            "2016": 165.91,
+            "2017": 1159.19,
+            "2018": -223.01,
+            "2019": 668.97,
+            "2020": 45.66,
+            "2021": 1556.35,
+            "2022": -225.98,
+            "2023": 50.37,
+            "2024": 357.68,
+            "2025": 181.79,
+            "2026": -50.19
+          }
+        },
+        "null": {
+          "n_pool": 250,
+          "null_mean": -1.47,
+          "p_value": 0.038
+        },
+        "oos_n_sufficient": true,
+        "bh_fdr_survivor": false,
+        "clears_pre_crosscheck": false,
+        "clears": false,
+        "cross_check_4h_2y": null
+      }
+    ]
+  },
+  "op20_disclosures": [
+    "1. DAILY HISTORY: yfinance period='max' returned 4,320 daily bars, 2014-09-17 .. 2026-07-16 (~11.85 years) \u2014 spans the 2017 bull, 2018 bear, 2020 COVID crash, 2021 bull, 2022 bear, and 2024-26 regimes, vs Pass 1's 730-bar/2-year window.",
+    "2. PARAMS CHANGED FOR DAILY GRANULARITY: see job1_daily_history.setup_params_daily and run_pass2.py's DAILY_SETUP_PARAMS docstring for the reasoning behind each adjustment (not a mechanical bar-count conversion).",
+    "3. SWEEP DISCIPLINE: per-combo chronological IS/OOS split (train=first 65% of the date range), Benjamini-Hochberg FDR correction ACROSS the full 108-combo grid (family-wise, not per-combo alpha), random-entry null (>=200 independent single-trade draws, same exit shape, entries restricted to the OOS window), yearly sub-window stability (majority of years-with-trades net positive), and \u2014 only for combos that already clear all of the above \u2014 a cross-check against Pass 1's original, untouched 4h/2-year window.",
+    "4. NO LOOK-AHEAD (C6): signals computed from bars[0:i+1] only; entries fill at the NEXT bar's open. Null-trade entries are real historical bars drawn from the OOS window only (never before the IS/OOS cutoff).",
+    "5. SIZING: fixed notional per trade (risk_pct_per_trade of a nominal $2,000, non-compounding) \u2014 same convention as Pass 1, not a live equity curve.",
+    "6. BACKTEST ONLY: no order was placed, no broker was called, no account was touched."
+  ]
+}

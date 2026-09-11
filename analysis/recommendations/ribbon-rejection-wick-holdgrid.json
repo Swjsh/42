@@ -1,0 +1,474 @@
+{
+ "rule_id": "ribbon-rejection-wick-holdgrid",
+ "generated_at": "2026-07-07T15:32:52",
+ "premise": "J buy-and-hold thesis; tight stop + let the dump run (uncapped, hold to EOD)",
+ "fixed_entry": {
+  "wick": 0.35,
+  "lookback": 12,
+  "vol": 1.5,
+  "stack": "not_flipped"
+ },
+ "verdict": "FAIL",
+ "note": "CONVEX_POSITIVE = aggregate+OOS+beats-random positive but fails drop-top3/halves (expected for a convex lotto profile); needs J judgment on whether concentration is acceptable.",
+ "results": [
+  {
+   "exit_id": "H_tight20_half",
+   "exit": {
+    "tp_premium_pct": 0.5,
+    "stop_premium_pct": -0.2,
+    "chandelier_arm_pct": 99.0,
+    "tp1_qty_fraction": 0.5,
+    "time_stop_min": 390
+   },
+   "full": {
+    "n": 177,
+    "pnl": -2368.2,
+    "wr": 0.282,
+    "expectancy": -13.38
+   },
+   "short": {
+    "n": 104,
+    "pnl": -836.1,
+    "wr": 0.308,
+    "expectancy": -8.04
+   },
+   "long": {
+    "n": 73,
+    "pnl": -1532.1,
+    "wr": 0.247,
+    "expectancy": -20.99
+   },
+   "is": {
+    "n": 110,
+    "pnl": -1115.1,
+    "wr": 0.291,
+    "expectancy": -10.14
+   },
+   "oos": {
+    "n": 67,
+    "pnl": -1253.1,
+    "wr": 0.269,
+    "expectancy": -18.7
+   },
+   "drop_top3_pnl": -3191.7,
+   "half1": {
+    "n": 87,
+    "pnl": -1002.6,
+    "wr": 0.287,
+    "expectancy": -11.52
+   },
+   "half2": {
+    "n": 90,
+    "pnl": -1365.6,
+    "wr": 0.278,
+    "expectancy": -15.17
+   },
+   "slippage_breakeven_cents_per_side": -2.23,
+   "p_null": 0.2025,
+   "exit_reasons": {
+    "STOP": 127,
+    "TP_PREMIUM": 50
+   },
+   "null_expectancy": {
+    "short": -19.69,
+    "long": -21.51
+   },
+   "bh_fdr_survivor": false,
+   "bh_rank": 5,
+   "clears": false,
+   "fails": [
+    "exp -13.38<=0",
+    "oos_exp -18.7<=0",
+    "drop3 -3191.7<=0",
+    "halves not both>0",
+    "p_null 0.2025>0.05",
+    "BH-FDR non-survivor",
+    "slip -2.23c<2c",
+    "bear exp -8.04<=0"
+   ]
+  },
+  {
+   "exit_id": "H_tight25_hold",
+   "exit": {
+    "tp_premium_pct": 5.0,
+    "stop_premium_pct": -0.25,
+    "chandelier_arm_pct": 99.0,
+    "tp1_qty_fraction": 1.0,
+    "time_stop_min": 390
+   },
+   "full": {
+    "n": 163,
+    "pnl": -2551.5,
+    "wr": 0.135,
+    "expectancy": -15.65
+   },
+   "short": {
+    "n": 97,
+    "pnl": -2298.0,
+    "wr": 0.124,
+    "expectancy": -23.69
+   },
+   "long": {
+    "n": 66,
+    "pnl": -253.5,
+    "wr": 0.152,
+    "expectancy": -3.84
+   },
+   "is": {
+    "n": 101,
+    "pnl": -2402.25,
+    "wr": 0.129,
+    "expectancy": -23.78
+   },
+   "oos": {
+    "n": 62,
+    "pnl": -149.25,
+    "wr": 0.145,
+    "expectancy": -2.41
+   },
+   "drop_top3_pnl": -6349.5,
+   "half1": {
+    "n": 81,
+    "pnl": -3317.25,
+    "wr": 0.111,
+    "expectancy": -40.95
+   },
+   "half2": {
+    "n": 82,
+    "pnl": 765.75,
+    "wr": 0.159,
+    "expectancy": 9.34
+   },
+   "slippage_breakeven_cents_per_side": -2.61,
+   "p_null": 0.1205,
+   "exit_reasons": {
+    "STOP": 140,
+    "EOD_FLAT": 19,
+    "TP_PREMIUM": 4
+   },
+   "null_expectancy": {
+    "short": -37.04,
+    "long": -38.72
+   },
+   "bh_fdr_survivor": false,
+   "bh_rank": 4,
+   "clears": false,
+   "fails": [
+    "exp -15.65<=0",
+    "oos_exp -2.41<=0",
+    "drop3 -6349.5<=0",
+    "halves not both>0",
+    "p_null 0.1205>0.05",
+    "BH-FDR non-survivor",
+    "slip -2.61c<2c",
+    "bear exp -23.69<=0"
+   ]
+  },
+  {
+   "exit_id": "H_tight20_hold",
+   "exit": {
+    "tp_premium_pct": 5.0,
+    "stop_premium_pct": -0.2,
+    "chandelier_arm_pct": 99.0,
+    "tp1_qty_fraction": 1.0,
+    "time_stop_min": 390
+   },
+   "full": {
+    "n": 173,
+    "pnl": -2727.6,
+    "wr": 0.104,
+    "expectancy": -15.77
+   },
+   "short": {
+    "n": 102,
+    "pnl": -1984.2,
+    "wr": 0.098,
+    "expectancy": -19.45
+   },
+   "long": {
+    "n": 71,
+    "pnl": -743.4,
+    "wr": 0.113,
+    "expectancy": -10.47
+   },
+   "is": {
+    "n": 108,
+    "pnl": -3018.6,
+    "wr": 0.093,
+    "expectancy": -27.95
+   },
+   "oos": {
+    "n": 65,
+    "pnl": 291.0,
+    "wr": 0.123,
+    "expectancy": 4.48
+   },
+   "drop_top3_pnl": -6525.6,
+   "half1": {
+    "n": 86,
+    "pnl": -4091.4,
+    "wr": 0.07,
+    "expectancy": -47.57
+   },
+   "half2": {
+    "n": 87,
+    "pnl": 1363.8,
+    "wr": 0.138,
+    "expectancy": 15.68
+   },
+   "slippage_breakeven_cents_per_side": -2.63,
+   "p_null": 0.085,
+   "exit_reasons": {
+    "STOP": 154,
+    "EOD_FLAT": 16,
+    "TP_PREMIUM": 3
+   },
+   "null_expectancy": {
+    "short": -40.48,
+    "long": -33.4
+   },
+   "bh_fdr_survivor": false,
+   "bh_rank": 2,
+   "clears": false,
+   "fails": [
+    "exp -15.77<=0",
+    "drop3 -6525.6<=0",
+    "halves not both>0",
+    "p_null 0.085>0.05",
+    "BH-FDR non-survivor",
+    "slip -2.63c<2c",
+    "bear exp -19.45<=0"
+   ]
+  },
+  {
+   "exit_id": "H_tight20_cap3x",
+   "exit": {
+    "tp_premium_pct": 3.0,
+    "stop_premium_pct": -0.2,
+    "chandelier_arm_pct": 99.0,
+    "tp1_qty_fraction": 1.0,
+    "time_stop_min": 390
+   },
+   "full": {
+    "n": 174,
+    "pnl": -2750.4,
+    "wr": 0.109,
+    "expectancy": -15.81
+   },
+   "short": {
+    "n": 102,
+    "pnl": -2041.8,
+    "wr": 0.108,
+    "expectancy": -20.02
+   },
+   "long": {
+    "n": 72,
+    "pnl": -708.6,
+    "wr": 0.111,
+    "expectancy": -9.84
+   },
+   "is": {
+    "n": 108,
+    "pnl": -2859.6,
+    "wr": 0.093,
+    "expectancy": -26.48
+   },
+   "oos": {
+    "n": 66,
+    "pnl": 109.2,
+    "wr": 0.136,
+    "expectancy": 1.65
+   },
+   "drop_top3_pnl": -5990.4,
+   "half1": {
+    "n": 86,
+    "pnl": -4019.4,
+    "wr": 0.07,
+    "expectancy": -46.74
+   },
+   "half2": {
+    "n": 88,
+    "pnl": 1269.0,
+    "wr": 0.148,
+    "expectancy": 14.42
+   },
+   "slippage_breakeven_cents_per_side": -2.64,
+   "p_null": 0.0895,
+   "exit_reasons": {
+    "STOP": 154,
+    "EOD_FLAT": 9,
+    "TP_PREMIUM": 11
+   },
+   "null_expectancy": {
+    "short": -37.07,
+    "long": -33.94
+   },
+   "bh_fdr_survivor": false,
+   "bh_rank": 3,
+   "clears": false,
+   "fails": [
+    "exp -15.81<=0",
+    "drop3 -5990.4<=0",
+    "halves not both>0",
+    "p_null 0.0895>0.05",
+    "BH-FDR non-survivor",
+    "slip -2.64c<2c",
+    "bear exp -20.02<=0"
+   ]
+  },
+  {
+   "exit_id": "H_tight15_hold",
+   "exit": {
+    "tp_premium_pct": 5.0,
+    "stop_premium_pct": -0.15,
+    "chandelier_arm_pct": 99.0,
+    "tp1_qty_fraction": 1.0,
+    "time_stop_min": 390
+   },
+   "full": {
+    "n": 181,
+    "pnl": -3437.1,
+    "wr": 0.05,
+    "expectancy": -18.99
+   },
+   "short": {
+    "n": 105,
+    "pnl": -2406.0,
+    "wr": 0.048,
+    "expectancy": -22.91
+   },
+   "long": {
+    "n": 76,
+    "pnl": -1031.1,
+    "wr": 0.053,
+    "expectancy": -13.57
+   },
+   "is": {
+    "n": 112,
+    "pnl": -2997.0,
+    "wr": 0.045,
+    "expectancy": -26.76
+   },
+   "oos": {
+    "n": 69,
+    "pnl": -440.1,
+    "wr": 0.058,
+    "expectancy": -6.38
+   },
+   "drop_top3_pnl": -7235.1,
+   "half1": {
+    "n": 90,
+    "pnl": -3507.75,
+    "wr": 0.033,
+    "expectancy": -38.98
+   },
+   "half2": {
+    "n": 91,
+    "pnl": 70.65,
+    "wr": 0.066,
+    "expectancy": 0.78
+   },
+   "slippage_breakeven_cents_per_side": -3.16,
+   "p_null": 0.0515,
+   "exit_reasons": {
+    "STOP": 172,
+    "EOD_FLAT": 7,
+    "TP_PREMIUM": 2
+   },
+   "null_expectancy": {
+    "short": -37.89,
+    "long": -34.16
+   },
+   "bh_fdr_survivor": false,
+   "bh_rank": 1,
+   "clears": false,
+   "fails": [
+    "exp -18.99<=0",
+    "oos_exp -6.38<=0",
+    "drop3 -7235.1<=0",
+    "halves not both>0",
+    "p_null 0.0515>0.05",
+    "BH-FDR non-survivor",
+    "slip -3.16c<2c",
+    "bear exp -22.91<=0"
+   ]
+  },
+  {
+   "exit_id": "H_tight20_hold2h",
+   "exit": {
+    "tp_premium_pct": 5.0,
+    "stop_premium_pct": -0.2,
+    "chandelier_arm_pct": 99.0,
+    "tp1_qty_fraction": 1.0,
+    "time_stop_min": 120
+   },
+   "full": {
+    "n": 174,
+    "pnl": -3410.4,
+    "wr": 0.121,
+    "expectancy": -19.6
+   },
+   "short": {
+    "n": 103,
+    "pnl": -1602.0,
+    "wr": 0.117,
+    "expectancy": -15.55
+   },
+   "long": {
+    "n": 71,
+    "pnl": -1808.4,
+    "wr": 0.127,
+    "expectancy": -25.47
+   },
+   "is": {
+    "n": 109,
+    "pnl": -3847.8,
+    "wr": 0.101,
+    "expectancy": -35.3
+   },
+   "oos": {
+    "n": 65,
+    "pnl": 437.4,
+    "wr": 0.154,
+    "expectancy": 6.73
+   },
+   "drop_top3_pnl": -6923.4,
+   "half1": {
+    "n": 87,
+    "pnl": -4546.8,
+    "wr": 0.069,
+    "expectancy": -52.26
+   },
+   "half2": {
+    "n": 87,
+    "pnl": 1136.4,
+    "wr": 0.172,
+    "expectancy": 13.06
+   },
+   "slippage_breakeven_cents_per_side": -3.27,
+   "p_null": 0.227,
+   "exit_reasons": {
+    "STOP": 148,
+    "EOD_FLAT": 9,
+    "TIME_STOP": 14,
+    "TP_PREMIUM": 3
+   },
+   "null_expectancy": {
+    "short": -30.59,
+    "long": -28.72
+   },
+   "bh_fdr_survivor": false,
+   "bh_rank": 6,
+   "clears": false,
+   "fails": [
+    "exp -19.6<=0",
+    "drop3 -6923.4<=0",
+    "halves not both>0",
+    "p_null 0.227>0.05",
+    "BH-FDR non-survivor",
+    "slip -3.27c<2c",
+    "bear exp -15.55<=0"
+   ]
+  }
+ ]
+}

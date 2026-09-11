@@ -1,6 +1,6 @@
 {
  "_meta": {
-  "generated_at_et": "2026-08-18T01:24:54.248502",
+  "generated_at_et": "2026-09-10T16:35:01.264253",
   "builder": "setup/scripts/day_throttle_shadow.py",
   "prereg": "analysis/recommendations/day-throttle-forward-prereg-2026-08-18.json",
   "prereg_status": "FROZEN_PREREG_FORWARD",
@@ -12,72 +12,88 @@
   "forward_window": {
    "first_date": "2026-08-18",
    "sessions_required": 15,
-   "sessions_elapsed": 0,
-   "dates": [],
-   "verdict_ready": false
+   "sessions_elapsed": 15,
+   "dates": [
+    "2026-08-18",
+    "2026-08-19",
+    "2026-08-20",
+    "2026-08-21",
+    "2026-08-24",
+    "2026-08-25",
+    "2026-08-26",
+    "2026-08-27",
+    "2026-08-28",
+    "2026-09-01",
+    "2026-09-02",
+    "2026-09-03",
+    "2026-09-04",
+    "2026-09-08",
+    "2026-09-10"
+   ],
+   "verdict_ready": true
   }
  },
  "forward": {
   "T-2": {
-   "n_kept": 0,
-   "n_blocked": 0,
-   "n_abstain": 0,
-   "delta_usd": 0,
-   "blocked_winner_usd": 0,
-   "blocked_loser_usd": 0,
-   "blocked_wr_pct": null,
-   "delta_ex_best_session_usd": 0.0,
-   "sessions_touched": 0,
+   "n_kept": 111,
+   "n_blocked": 31,
+   "n_abstain": 1,
+   "delta_usd": -452.0,
+   "blocked_winner_usd": 1638.0,
+   "blocked_loser_usd": -1186.0,
+   "blocked_wr_pct": 35.5,
+   "delta_ex_best_session_usd": -727.0,
+   "sessions_touched": 6,
    "f_gates": {
     "F1_direction_positive": false,
     "F2_not_a_winner_killer": false,
-    "F3_frequency_n_blocked_ge_10": false,
+    "F3_frequency_n_blocked_ge_10": true,
     "F4_survives_dropping_best_session": false,
     "_note": "F5 (regime split) is adjudicated by a session reading the window, not computed nightly -- it needs the range classification for each session in the window."
    }
   },
   "T-6": {
-   "n_kept": 0,
-   "n_blocked": 0,
-   "n_abstain": 0,
-   "delta_usd": 0,
+   "n_kept": 140,
+   "n_blocked": 2,
+   "n_abstain": 1,
+   "delta_usd": 100.0,
    "blocked_winner_usd": 0,
-   "blocked_loser_usd": 0,
-   "blocked_wr_pct": null,
+   "blocked_loser_usd": -100.0,
+   "blocked_wr_pct": 0.0,
    "delta_ex_best_session_usd": 0.0,
-   "sessions_touched": 0,
+   "sessions_touched": 1,
    "f_gates": {
-    "F1_direction_positive": false,
-    "F2_not_a_winner_killer": false,
+    "F1_direction_positive": true,
+    "F2_not_a_winner_killer": true,
     "F3_frequency_n_blocked_ge_10": false,
     "F4_survives_dropping_best_session": false,
     "_note": "F5 (regime split) is adjudicated by a session reading the window, not computed nightly -- it needs the range classification for each session in the window."
    }
   },
   "H-FIRSTWAVE": {
-   "n_judgeable": 0,
+   "n_judgeable": 87,
    "after_red_first_wave": {
-    "n": 0,
-    "usd": 0
+    "n": 68,
+    "usd": 2306.0
    },
    "after_green_first_wave": {
-    "n": 0,
-    "usd": 0
+    "n": 19,
+    "usd": 296.0
    },
    "_observation_only": "No rule is proposed from this. It is logged so the window can measure whether the in-sample split survives."
   }
  },
  "in_sample_reference": {
   "T-2": {
-   "n_kept": 278,
-   "n_blocked": 139,
-   "n_abstain": 7,
-   "delta_usd": 2679.0,
-   "blocked_winner_usd": 2893.0,
-   "blocked_loser_usd": -5572.0,
-   "blocked_wr_pct": 22.3,
-   "delta_ex_best_session_usd": 925.0,
-   "sessions_touched": 20,
+   "n_kept": 395,
+   "n_blocked": 171,
+   "n_abstain": 25,
+   "delta_usd": 2241.0,
+   "blocked_winner_usd": 4531.0,
+   "blocked_loser_usd": -6772.0,
+   "blocked_wr_pct": 24.6,
+   "delta_ex_best_session_usd": 487.0,
+   "sessions_touched": 27,
    "f_gates": {
     "F1_direction_positive": true,
     "F2_not_a_winner_killer": true,
@@ -87,15 +103,15 @@
    }
   },
   "T-6": {
-   "n_kept": 390,
-   "n_blocked": 27,
-   "n_abstain": 7,
-   "delta_usd": 1920.0,
+   "n_kept": 537,
+   "n_blocked": 29,
+   "n_abstain": 25,
+   "delta_usd": 2020.0,
    "blocked_winner_usd": 472.0,
-   "blocked_loser_usd": -2392.0,
-   "blocked_wr_pct": 18.5,
-   "delta_ex_best_session_usd": 1092.0,
-   "sessions_touched": 7,
+   "blocked_loser_usd": -2492.0,
+   "blocked_wr_pct": 17.2,
+   "delta_ex_best_session_usd": 1192.0,
+   "sessions_touched": 8,
    "f_gates": {
     "F1_direction_positive": true,
     "F2_not_a_winner_killer": true,
@@ -105,14 +121,14 @@
    }
   },
   "H-FIRSTWAVE": {
-   "n_judgeable": 240,
+   "n_judgeable": 342,
    "after_red_first_wave": {
-    "n": 175,
-    "usd": -3545.0
+    "n": 258,
+    "usd": -1574.0
    },
    "after_green_first_wave": {
-    "n": 65,
-    "usd": 2519.0
+    "n": 84,
+    "usd": 2815.0
    },
    "_observation_only": "No rule is proposed from this. It is logged so the window can measure whether the in-sample split survives."
   }

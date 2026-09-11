@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "generated_at_et": "2026-08-28T17:43:52.821669",
+    "generated_at_et": "2026-09-10T17:10:01.820195",
     "builder": "setup/scripts/loss_armed_budget_shadow.py",
     "prereg": "analysis/recommendations/loss-armed-budget-forward-prereg-2026-08-28.json",
     "prereg_status": "FROZEN_PREREG_FORWARD",
@@ -15,59 +15,66 @@
     "forward_window": {
       "first_date": "2026-08-29",
       "sessions_required": 15,
-      "sessions_elapsed": 0,
-      "dates": [],
+      "sessions_elapsed": 6,
+      "dates": [
+        "2026-09-01",
+        "2026-09-02",
+        "2026-09-03",
+        "2026-09-04",
+        "2026-09-08",
+        "2026-09-10"
+      ],
       "verdict_ready": false
     }
   },
   "forward": {
     "P-08": {
-      "n_kept": 0,
-      "n_blocked": 0,
-      "n_abstain": 0,
-      "delta_usd": 0,
-      "premium_not_deployed_usd": 0,
-      "blocked_winner_usd": 0,
-      "blocked_loser_usd": 0,
-      "blocked_wr_pct": null,
-      "delta_ex_best_session_usd": 0.0,
-      "sessions_touched": 0,
+      "n_kept": 22,
+      "n_blocked": 15,
+      "n_abstain": 1,
+      "delta_usd": -718.0,
+      "premium_not_deployed_usd": 5981.0,
+      "blocked_winner_usd": 1363.0,
+      "blocked_loser_usd": -645.0,
+      "blocked_wr_pct": 26.7,
+      "delta_ex_best_session_usd": -1065.0,
+      "sessions_touched": 2,
       "f_gates": {
         "F1_direction_positive": false,
         "F2_not_a_winner_killer": false,
-        "F3_frequency_n_blocked_ge_10": false,
+        "F3_frequency_n_blocked_ge_10": true,
         "F4_survives_dropping_best_session": false
       }
     },
     "P-12": {
-      "n_kept": 0,
-      "n_blocked": 0,
-      "n_abstain": 0,
-      "delta_usd": 0,
-      "premium_not_deployed_usd": 0,
-      "blocked_winner_usd": 0,
-      "blocked_loser_usd": 0,
-      "blocked_wr_pct": null,
-      "delta_ex_best_session_usd": 0.0,
-      "sessions_touched": 0,
+      "n_kept": 26,
+      "n_blocked": 11,
+      "n_abstain": 1,
+      "delta_usd": -678.0,
+      "premium_not_deployed_usd": 4973.0,
+      "blocked_winner_usd": 1164.0,
+      "blocked_loser_usd": -486.0,
+      "blocked_wr_pct": 27.3,
+      "delta_ex_best_session_usd": -938.0,
+      "sessions_touched": 2,
       "f_gates": {
         "F1_direction_positive": false,
         "F2_not_a_winner_killer": false,
-        "F3_frequency_n_blocked_ge_10": false,
+        "F3_frequency_n_blocked_ge_10": true,
         "F4_survives_dropping_best_session": false
       }
     },
     "P-16": {
-      "n_kept": 0,
-      "n_blocked": 0,
-      "n_abstain": 0,
-      "delta_usd": 0,
-      "premium_not_deployed_usd": 0,
-      "blocked_winner_usd": 0,
-      "blocked_loser_usd": 0,
-      "blocked_wr_pct": null,
-      "delta_ex_best_session_usd": 0.0,
-      "sessions_touched": 0,
+      "n_kept": 28,
+      "n_blocked": 9,
+      "n_abstain": 1,
+      "delta_usd": -457.0,
+      "premium_not_deployed_usd": 3974.0,
+      "blocked_winner_usd": 850.0,
+      "blocked_loser_usd": -393.0,
+      "blocked_wr_pct": 22.2,
+      "delta_ex_best_session_usd": -618.0,
+      "sessions_touched": 2,
       "f_gates": {
         "F1_direction_positive": false,
         "F2_not_a_winner_killer": false,
@@ -78,28 +85,48 @@
     "F5_band_coherence": {
       "all_three_caps_F1_positive": false,
       "per_cap_delta_usd": {
-        "P-08": 0,
-        "P-12": 0,
-        "P-16": 0
+        "P-08": -718.0,
+        "P-12": -678.0,
+        "P-16": -457.0
       },
       "_meaning": "If only the in-sample argmax (B-700) is positive, the finding is a curve-fit and the study is REFUTED regardless of B-700's own number."
     },
     "H-TIER": {
+      "ELITE": {
+        "n": 28,
+        "usd": -539.0,
+        "wr_pct": 25.0
+      },
+      "LEVEL": {
+        "n": 1,
+        "usd": -60.0,
+        "wr_pct": 0.0
+      },
+      "SUPER": {
+        "n": 2,
+        "usd": -126.0,
+        "wr_pct": 0.0
+      },
+      "TRENDLINE": {
+        "n": 6,
+        "usd": -68.0,
+        "wr_pct": 16.7
+      },
       "_observation_only": "In-sample the conviction label did NOT rank outcomes (ELITE 23.2% WR vs BASE 28.6%; entry score vs return r=+0.052). Logged to see whether that holds forward. No rule is proposed from this."
     }
   },
   "in_sample_NOT_EVIDENCE": {
     "P-08": {
-      "n_kept": 213,
-      "n_blocked": 156,
-      "n_abstain": 7,
-      "delta_usd": 3158.0,
-      "premium_not_deployed_usd": 59241.0,
-      "blocked_winner_usd": 5677.0,
-      "blocked_loser_usd": -8835.0,
-      "blocked_wr_pct": 23.1,
-      "delta_ex_best_session_usd": 1099.0,
-      "sessions_touched": 27,
+      "n_kept": 237,
+      "n_blocked": 172,
+      "n_abstain": 28,
+      "delta_usd": 2454.0,
+      "premium_not_deployed_usd": 65593.0,
+      "blocked_winner_usd": 7040.0,
+      "blocked_loser_usd": -9494.0,
+      "blocked_wr_pct": 23.3,
+      "delta_ex_best_session_usd": 395.0,
+      "sessions_touched": 30,
       "f_gates": {
         "F1_direction_positive": true,
         "F2_not_a_winner_killer": true,
@@ -108,16 +135,16 @@
       }
     },
     "P-12": {
-      "n_kept": 227,
-      "n_blocked": 142,
-      "n_abstain": 7,
-      "delta_usd": 3119.0,
-      "premium_not_deployed_usd": 57541.0,
-      "blocked_winner_usd": 5479.0,
-      "blocked_loser_usd": -8598.0,
-      "blocked_wr_pct": 23.9,
-      "delta_ex_best_session_usd": 1060.0,
-      "sessions_touched": 25,
+      "n_kept": 255,
+      "n_blocked": 154,
+      "n_abstain": 28,
+      "delta_usd": 2455.0,
+      "premium_not_deployed_usd": 62885.0,
+      "blocked_winner_usd": 6643.0,
+      "blocked_loser_usd": -9098.0,
+      "blocked_wr_pct": 24.0,
+      "delta_ex_best_session_usd": 396.0,
+      "sessions_touched": 28,
       "f_gates": {
         "F1_direction_positive": true,
         "F2_not_a_winner_killer": true,
@@ -126,16 +153,16 @@
       }
     },
     "P-16": {
-      "n_kept": 247,
-      "n_blocked": 122,
-      "n_abstain": 7,
-      "delta_usd": 2947.0,
-      "premium_not_deployed_usd": 52869.0,
-      "blocked_winner_usd": 4726.0,
-      "blocked_loser_usd": -7673.0,
-      "blocked_wr_pct": 24.6,
-      "delta_ex_best_session_usd": 1119.0,
-      "sessions_touched": 25,
+      "n_kept": 277,
+      "n_blocked": 132,
+      "n_abstain": 28,
+      "delta_usd": 2504.0,
+      "premium_not_deployed_usd": 57214.0,
+      "blocked_winner_usd": 5576.0,
+      "blocked_loser_usd": -8080.0,
+      "blocked_wr_pct": 24.2,
+      "delta_ex_best_session_usd": 676.0,
+      "sessions_touched": 28,
       "f_gates": {
         "F1_direction_positive": true,
         "F2_not_a_winner_killer": true,
@@ -146,42 +173,52 @@
     "F5_band_coherence": {
       "all_three_caps_F1_positive": true,
       "per_cap_delta_usd": {
-        "P-08": 3158.0,
-        "P-12": 3119.0,
-        "P-16": 2947.0
+        "P-08": 2454.0,
+        "P-12": 2455.0,
+        "P-16": 2504.0
       },
       "_meaning": "If only the in-sample argmax (B-700) is positive, the finding is a curve-fit and the study is REFUTED regardless of B-700's own number."
     },
     "H-TIER": {
       "BASE": {
-        "n": 78,
-        "usd": -349.0,
-        "wr_pct": 28.2
+        "n": 80,
+        "usd": -417.0,
+        "wr_pct": 27.5
       },
       "CORRECT": {
-        "n": 5,
-        "usd": 2272.0,
-        "wr_pct": 80.0
+        "n": 7,
+        "usd": 2942.0,
+        "wr_pct": 71.4
       },
       "ELITE": {
-        "n": 220,
-        "usd": 3534.0,
+        "n": 247,
+        "usd": 3055.0,
         "wr_pct": 25.9
       },
       "LEVEL": {
-        "n": 1,
-        "usd": -305.0,
+        "n": 2,
+        "usd": -365.0,
         "wr_pct": 0.0
       },
       "SUPER": {
-        "n": 7,
-        "usd": -730.0,
+        "n": 9,
+        "usd": -856.0,
         "wr_pct": 0.0
       },
       "TRENDLINE": {
-        "n": 35,
-        "usd": 122.0,
-        "wr_pct": 40.0
+        "n": 41,
+        "usd": 54.0,
+        "wr_pct": 36.6
+      },
+      "TRIGGER_ONLY": {
+        "n": 1,
+        "usd": -18.0,
+        "wr_pct": 0.0
+      },
+      "UNKNOWN": {
+        "n": 2,
+        "usd": 10.0,
+        "wr_pct": 50.0
       },
       "WRONG": {
         "n": 4,

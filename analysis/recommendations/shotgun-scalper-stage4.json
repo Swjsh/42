@@ -1,0 +1,57 @@
+{
+  "strategy": "SHOTGUN_SCALPER",
+  "stage": 1,
+  "generated_at": "2026-09-09T16:46:45",
+  "run_identity": {
+    "run_id": "2026-09-09_c5ab2a49_0d3b98_ccb97a",
+    "data_hash": "0d3b984a703498e4",
+    "code_hash": "c5ab2a4914193248",
+    "params_hash": "ccb97a00e2cc32b4",
+    "code_source": "git",
+    "computed_at": "2026-09-09T10:36:41"
+  },
+  "grid_size": 2160,
+  "gates": {
+    "min_sharpe": 0.8,
+    "min_expectancy_per_trade": 0.01,
+    "min_n_trades": 30,
+    "max_drawdown_dollars": 1500.0,
+    "min_edge_capture_pct": 0.0,
+    "min_positive_quarters": 4,
+    "max_top5_pct": 0.5
+  },
+  "anchor_days": {
+    "winners": [],
+    "losers": [
+      {
+        "date": "2026-05-05",
+        "j_pnl": -260,
+        "side": "P",
+        "strike": 722,
+        "note": "chop-trap manual entry, no real setup"
+      },
+      {
+        "date": "2026-05-06",
+        "j_pnl": -300,
+        "side": "P",
+        "strike": 730,
+        "note": "held to zero, no stop"
+      },
+      {
+        "date": "2026-05-07",
+        "j_pnl": -120,
+        "side": "C",
+        "strike": 737,
+        "note": "engine BULL into pre-FOMC bear sequence + manual bullish anticipation"
+      }
+    ],
+    "max_edge_possible": 0
+  },
+  "disclosures": {
+    "account_size_assumption": "qty=3 baseline (~$1K paper). Headline P&L scales linearly with qty.",
+    "sample_bias": "Top-10 selected from 2160-combo grid \u2014 overfit risk. Stage 2-5 required before live.",
+    "validation_status": "STAGE 1 ONLY. Walk-forward + real-fills + Monday-Ready pending.",
+    "wr_caveat": "WR is awareness-only per OP 14. Sharpe + expectancy + max-DD + edge_capture drive selection."
+  },
+  "top10": []
+}

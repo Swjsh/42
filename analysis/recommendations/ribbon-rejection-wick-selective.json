@@ -1,0 +1,288 @@
+{
+ "rule_id": "ribbon-rejection-wick-selective",
+ "generated_at": "2026-07-07T15:26:35",
+ "smoke": false,
+ "premise": "selective-entry rescue of the wick setup: add 15m-confirm + 5m-engulf to the J-anchor entry, hold E8_j_scalp exit fixed",
+ "fixed_entry": {
+  "wick": 0.35,
+  "lookback": 12,
+  "vol": 1.5,
+  "stack": "not_flipped"
+ },
+ "fixed_exit": {
+  "id": "E8_j_scalp",
+  "tp_premium_pct": 0.4,
+  "stop_premium_pct": -0.18,
+  "chandelier_arm_pct": 0.12,
+  "tp1_qty_fraction": 0.667,
+  "time_stop_min": 40
+ },
+ "feature_defs": {
+  "has_15m_confirm": "last fully-closed 15m bar (resample 15min/left/closed-left, >=50-bar warmup) rejected the 15m ribbon on the event side (short: high>=band_low AND close<fast_ema; long: low<=band_high AND close>fast_ema). No look-ahead: covering in-progress bar excluded.",
+  "has_engulf": "5m directional engulfing at the entry bar (short: red body, close<prior_open AND open>=prior_close; long: mirror)."
+ },
+ "window": {
+  "start": "2025-01-02",
+  "end": "2026-07-01",
+  "oos_cut": "2026-01-01"
+ },
+ "pnl_authority": "OPRA real fills via shotgun_scalper_grinder._simulate_trade_real",
+ "parity_gate": {
+  "status": "PASS",
+  "n": 195,
+  "expectancy": -8.6,
+  "target_expectancy": -8.6,
+  "tol": 1.5,
+  "n_band": [
+   150,
+   240
+  ]
+ },
+ "multiplicity_note": "4-subset TARGETED confirmation test (not a blind grid); no BH-FDR. Small-N positive subsets are likely overfitting \u2014 n<30 => underpowered/no-conclusion.",
+ "null_expectancy": {
+  "short": -17.45,
+  "long": -23.16
+ },
+ "verdict": "FAIL",
+ "results": [
+  {
+   "subset": "PARITY_unfiltered_Janchor_E8",
+   "full": {
+    "n": 195,
+    "pnl": -1676.28,
+    "wr": 0.441,
+    "expectancy": -8.6
+   },
+   "short": {
+    "n": 115,
+    "pnl": -13.14,
+    "wr": 0.504,
+    "expectancy": -0.11
+   },
+   "long": {
+    "n": 80,
+    "pnl": -1663.14,
+    "wr": 0.35,
+    "expectancy": -20.79
+   },
+   "is": {
+    "n": 118,
+    "pnl": -1300.44,
+    "wr": 0.407,
+    "expectancy": -11.02
+   },
+   "oos": {
+    "n": 77,
+    "pnl": -375.84,
+    "wr": 0.494,
+    "expectancy": -4.88
+   },
+   "drop_top3_pnl": -2217.48,
+   "half1": {
+    "n": 96,
+    "pnl": -1011.78,
+    "wr": 0.417,
+    "expectancy": -10.54
+   },
+   "half2": {
+    "n": 99,
+    "pnl": -664.5,
+    "wr": 0.465,
+    "expectancy": -6.71
+   },
+   "slippage_breakeven_cents_per_side": -1.43,
+   "p_null": 0.0035,
+   "exit_reasons": {
+    "STOP": 49,
+    "CHANDELIER": 142,
+    "TIME_STOP": 3,
+    "TP_PREMIUM": 1
+   },
+   "underpowered": false
+  },
+  {
+   "subset": "confirm15m_only",
+   "full": {
+    "n": 74,
+    "pnl": -626.88,
+    "wr": 0.419,
+    "expectancy": -8.47
+   },
+   "short": {
+    "n": 47,
+    "pnl": 301.5,
+    "wr": 0.489,
+    "expectancy": 6.41
+   },
+   "long": {
+    "n": 27,
+    "pnl": -928.38,
+    "wr": 0.296,
+    "expectancy": -34.38
+   },
+   "is": {
+    "n": 43,
+    "pnl": -812.64,
+    "wr": 0.326,
+    "expectancy": -18.9
+   },
+   "oos": {
+    "n": 31,
+    "pnl": 185.76,
+    "wr": 0.548,
+    "expectancy": 5.99
+   },
+   "drop_top3_pnl": -1168.08,
+   "half1": {
+    "n": 36,
+    "pnl": -760.5,
+    "wr": 0.333,
+    "expectancy": -21.12
+   },
+   "half2": {
+    "n": 38,
+    "pnl": 133.62,
+    "wr": 0.5,
+    "expectancy": 3.52
+   },
+   "slippage_breakeven_cents_per_side": -1.41,
+   "p_null": 0.068,
+   "exit_reasons": {
+    "CHANDELIER": 55,
+    "STOP": 19
+   },
+   "underpowered": false,
+   "clears": false,
+   "fails": [
+    "exp -8.47<=0",
+    "drop3 -1168.08<=0",
+    "halves not both>0",
+    "p_null 0.068>0.05",
+    "slip -1.41c<2c"
+   ]
+  },
+  {
+   "subset": "engulf_only",
+   "full": {
+    "n": 81,
+    "pnl": -701.34,
+    "wr": 0.432,
+    "expectancy": -8.66
+   },
+   "short": {
+    "n": 47,
+    "pnl": 118.08,
+    "wr": 0.553,
+    "expectancy": 2.51
+   },
+   "long": {
+    "n": 34,
+    "pnl": -819.42,
+    "wr": 0.265,
+    "expectancy": -24.1
+   },
+   "is": {
+    "n": 49,
+    "pnl": -586.14,
+    "wr": 0.388,
+    "expectancy": -11.96
+   },
+   "oos": {
+    "n": 32,
+    "pnl": -115.2,
+    "wr": 0.5,
+    "expectancy": -3.6
+   },
+   "drop_top3_pnl": -1258.14,
+   "half1": {
+    "n": 39,
+    "pnl": -110.4,
+    "wr": 0.487,
+    "expectancy": -2.83
+   },
+   "half2": {
+    "n": 42,
+    "pnl": -590.94,
+    "wr": 0.381,
+    "expectancy": -14.07
+   },
+   "slippage_breakeven_cents_per_side": -1.44,
+   "p_null": 0.0495,
+   "exit_reasons": {
+    "CHANDELIER": 55,
+    "STOP": 23,
+    "TIME_STOP": 2,
+    "TP_PREMIUM": 1
+   },
+   "underpowered": false,
+   "clears": false,
+   "fails": [
+    "exp -8.66<=0",
+    "oos_exp -3.6<=0",
+    "drop3 -1258.14<=0",
+    "halves not both>0",
+    "slip -1.44c<2c"
+   ]
+  },
+  {
+   "subset": "confirm15m_AND_engulf",
+   "full": {
+    "n": 29,
+    "pnl": 58.86,
+    "wr": 0.448,
+    "expectancy": 2.03
+   },
+   "short": {
+    "n": 18,
+    "pnl": 375.6,
+    "wr": 0.611,
+    "expectancy": 20.87
+   },
+   "long": {
+    "n": 11,
+    "pnl": -316.74,
+    "wr": 0.182,
+    "expectancy": -28.79
+   },
+   "is": {
+    "n": 16,
+    "pnl": -7.98,
+    "wr": 0.438,
+    "expectancy": -0.5
+   },
+   "oos": {
+    "n": 13,
+    "pnl": 66.84,
+    "wr": 0.462,
+    "expectancy": 5.14
+   },
+   "drop_top3_pnl": -408.54,
+   "half1": {
+    "n": 14,
+    "pnl": 14.4,
+    "wr": 0.429,
+    "expectancy": 1.03
+   },
+   "half2": {
+    "n": 15,
+    "pnl": 44.46,
+    "wr": 0.467,
+    "expectancy": 2.96
+   },
+   "slippage_breakeven_cents_per_side": 0.34,
+   "p_null": 0.0265,
+   "exit_reasons": {
+    "CHANDELIER": 23,
+    "STOP": 6
+   },
+   "underpowered": true,
+   "clears": false,
+   "fails": [
+    "UNDERPOWERED n<30 \u2014 no conclusion",
+    "n 29<30",
+    "drop3 -408.54<=0",
+    "slip 0.34c<2c"
+   ]
+  }
+ ]
+}

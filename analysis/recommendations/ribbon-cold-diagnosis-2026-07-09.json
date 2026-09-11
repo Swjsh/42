@@ -1,0 +1,1042 @@
+{
+  "_doc": "JOB 1 -- exploratory stratification: why has ribbon_ride gone cold on the fresh window? ANALYSIS ONLY, no trading-path file touched.",
+  "generated_at": "2026-07-09T15:56:26.453613",
+  "control_shape": {
+    "label": "stop-20/tp+150/sell80/fixed/tgt2.5x/t15:40",
+    "premium_stop_pct": -0.2,
+    "tp1_premium_pct": 1.5,
+    "tp1_qty_fraction": 0.8,
+    "profit_lock_mode": "fixed",
+    "trail_pct": 0.0,
+    "runner_target_pct": 2.5
+  },
+  "parity_checks": {
+    "fresh_vs_entry_exit_matrix_2026_07_09": {
+      "expected": {
+        "n": 18,
+        "expectancy": -100.67,
+        "wr": 0.056
+      },
+      "got": {
+        "n": 18,
+        "total": -1812.0,
+        "expectancy": -100.67,
+        "wr": 0.056,
+        "insufficient_n": false
+      },
+      "pass": true
+    },
+    "burned_vs_entry_exit_matrix_t4_exits": {
+      "expected": {
+        "n": 250,
+        "expectancy": 22.91,
+        "wr": 0.148
+      },
+      "got": {
+        "n": 250,
+        "total": 5728.0,
+        "expectancy": 22.91,
+        "wr": 0.148,
+        "insufficient_n": false
+      },
+      "pass": true
+    }
+  },
+  "n_missing_bars": {
+    "burned": 0,
+    "fresh": 0
+  },
+  "vix_data_span": "2024-11-15..2026-07-09",
+  "spy_data_span": "2024-11-15..2026-07-09",
+  "overall": {
+    "combined": {
+      "n": 268,
+      "total": 3916.0,
+      "expectancy": 14.61,
+      "wr": 0.142,
+      "insufficient_n": false
+    },
+    "burned": {
+      "n": 250,
+      "total": 5728.0,
+      "expectancy": 22.91,
+      "wr": 0.148,
+      "insufficient_n": false
+    },
+    "fresh": {
+      "n": 18,
+      "total": -1812.0,
+      "expectancy": -100.67,
+      "wr": 0.056,
+      "insufficient_n": false
+    }
+  },
+  "stratification": {
+    "vix_bucket": {
+      "combined": {
+        "15-17.5": {
+          "n": 154,
+          "total": -446.0,
+          "expectancy": -2.9,
+          "wr": 0.136,
+          "insufficient_n": false
+        },
+        "17.5-20": {
+          "n": 72,
+          "total": 3900.0,
+          "expectancy": 54.17,
+          "wr": 0.181,
+          "insufficient_n": false
+        },
+        "<15": {
+          "n": 23,
+          "total": -672.0,
+          "expectancy": -29.22,
+          "wr": 0.043,
+          "insufficient_n": false
+        },
+        ">20": {
+          "n": 19,
+          "total": 1134.0,
+          "expectancy": 59.68,
+          "wr": 0.158,
+          "insufficient_n": false
+        }
+      },
+      "burned": {
+        "15-17.5": {
+          "n": 143,
+          "total": 252.0,
+          "expectancy": 1.76,
+          "wr": 0.14,
+          "insufficient_n": false
+        },
+        "17.5-20": {
+          "n": 65,
+          "total": 5014.0,
+          "expectancy": 77.14,
+          "wr": 0.2,
+          "insufficient_n": false
+        },
+        "<15": {
+          "n": 23,
+          "total": -672.0,
+          "expectancy": -29.22,
+          "wr": 0.043,
+          "insufficient_n": false
+        },
+        ">20": {
+          "n": 19,
+          "total": 1134.0,
+          "expectancy": 59.68,
+          "wr": 0.158,
+          "insufficient_n": false
+        }
+      },
+      "fresh": {
+        "15-17.5": {
+          "n": 11,
+          "total": -698.0,
+          "expectancy": -63.45,
+          "wr": 0.091,
+          "insufficient_n": false
+        },
+        "17.5-20": {
+          "n": 7,
+          "total": -1114.0,
+          "expectancy": -159.14,
+          "wr": 0.0,
+          "insufficient_n": true
+        }
+      }
+    },
+    "vix_5d_direction": {
+      "combined": {
+        "falling": {
+          "n": 134,
+          "total": -3766.0,
+          "expectancy": -28.1,
+          "wr": 0.104,
+          "insufficient_n": false
+        },
+        "flat": {
+          "n": 34,
+          "total": 2493.0,
+          "expectancy": 73.32,
+          "wr": 0.176,
+          "insufficient_n": false
+        },
+        "rising": {
+          "n": 100,
+          "total": 5189.0,
+          "expectancy": 51.89,
+          "wr": 0.18,
+          "insufficient_n": false
+        }
+      },
+      "burned": {
+        "falling": {
+          "n": 123,
+          "total": -3068.0,
+          "expectancy": -24.94,
+          "wr": 0.106,
+          "insufficient_n": false
+        },
+        "flat": {
+          "n": 34,
+          "total": 2493.0,
+          "expectancy": 73.32,
+          "wr": 0.176,
+          "insufficient_n": false
+        },
+        "rising": {
+          "n": 93,
+          "total": 6303.0,
+          "expectancy": 67.77,
+          "wr": 0.194,
+          "insufficient_n": false
+        }
+      },
+      "fresh": {
+        "falling": {
+          "n": 11,
+          "total": -698.0,
+          "expectancy": -63.45,
+          "wr": 0.091,
+          "insufficient_n": false
+        },
+        "rising": {
+          "n": 7,
+          "total": -1114.0,
+          "expectancy": -159.14,
+          "wr": 0.0,
+          "insufficient_n": true
+        }
+      }
+    },
+    "time_of_day": {
+      "combined": {
+        "09:35-10:30": {
+          "n": 35,
+          "total": 2564.0,
+          "expectancy": 73.26,
+          "wr": 0.171,
+          "insufficient_n": false
+        },
+        "10:30-12:00": {
+          "n": 59,
+          "total": 243.0,
+          "expectancy": 4.12,
+          "wr": 0.153,
+          "insufficient_n": false
+        },
+        "12:00-14:00": {
+          "n": 99,
+          "total": 1368.0,
+          "expectancy": 13.82,
+          "wr": 0.131,
+          "insufficient_n": false
+        },
+        "14:00-15:50": {
+          "n": 75,
+          "total": -259.0,
+          "expectancy": -3.45,
+          "wr": 0.133,
+          "insufficient_n": false
+        }
+      },
+      "burned": {
+        "09:35-10:30": {
+          "n": 32,
+          "total": 3190.0,
+          "expectancy": 99.69,
+          "wr": 0.188,
+          "insufficient_n": false
+        },
+        "10:30-12:00": {
+          "n": 55,
+          "total": 995.0,
+          "expectancy": 18.09,
+          "wr": 0.164,
+          "insufficient_n": false
+        },
+        "12:00-14:00": {
+          "n": 95,
+          "total": 1788.0,
+          "expectancy": 18.82,
+          "wr": 0.137,
+          "insufficient_n": false
+        },
+        "14:00-15:50": {
+          "n": 68,
+          "total": -245.0,
+          "expectancy": -3.6,
+          "wr": 0.132,
+          "insufficient_n": false
+        }
+      },
+      "fresh": {
+        "09:35-10:30": {
+          "n": 3,
+          "total": -626.0,
+          "expectancy": -208.67,
+          "wr": 0.0,
+          "insufficient_n": true
+        },
+        "10:30-12:00": {
+          "n": 4,
+          "total": -752.0,
+          "expectancy": -188.0,
+          "wr": 0.0,
+          "insufficient_n": true
+        },
+        "12:00-14:00": {
+          "n": 4,
+          "total": -420.0,
+          "expectancy": -105.0,
+          "wr": 0.0,
+          "insufficient_n": true
+        },
+        "14:00-15:50": {
+          "n": 7,
+          "total": -14.0,
+          "expectancy": -2.0,
+          "wr": 0.143,
+          "insufficient_n": true
+        }
+      }
+    },
+    "signal_direction": {
+      "combined": {
+        "bear": {
+          "n": 205,
+          "total": -1288.0,
+          "expectancy": -6.28,
+          "wr": 0.117,
+          "insufficient_n": false
+        },
+        "bull": {
+          "n": 63,
+          "total": 5204.0,
+          "expectancy": 82.6,
+          "wr": 0.222,
+          "insufficient_n": false
+        }
+      },
+      "burned": {
+        "bear": {
+          "n": 191,
+          "total": 204.0,
+          "expectancy": 1.07,
+          "wr": 0.12,
+          "insufficient_n": false
+        },
+        "bull": {
+          "n": 59,
+          "total": 5524.0,
+          "expectancy": 93.63,
+          "wr": 0.237,
+          "insufficient_n": false
+        }
+      },
+      "fresh": {
+        "bear": {
+          "n": 14,
+          "total": -1492.0,
+          "expectancy": -106.57,
+          "wr": 0.071,
+          "insufficient_n": false
+        },
+        "bull": {
+          "n": 4,
+          "total": -320.0,
+          "expectancy": -80.0,
+          "wr": 0.0,
+          "insufficient_n": true
+        }
+      }
+    },
+    "premium_band": {
+      "combined": {
+        "0.20-0.50": {
+          "n": 91,
+          "total": 2014.0,
+          "expectancy": 22.13,
+          "wr": 0.154,
+          "insufficient_n": false
+        },
+        "0.50-1.00": {
+          "n": 79,
+          "total": 2390.0,
+          "expectancy": 30.25,
+          "wr": 0.139,
+          "insufficient_n": false
+        },
+        "<0.20": {
+          "n": 66,
+          "total": 127.0,
+          "expectancy": 1.92,
+          "wr": 0.136,
+          "insufficient_n": false
+        },
+        ">1.00": {
+          "n": 32,
+          "total": -615.0,
+          "expectancy": -19.22,
+          "wr": 0.125,
+          "insufficient_n": false
+        }
+      },
+      "burned": {
+        "0.20-0.50": {
+          "n": 86,
+          "total": 1942.0,
+          "expectancy": 22.58,
+          "wr": 0.151,
+          "insufficient_n": false
+        },
+        "0.50-1.00": {
+          "n": 72,
+          "total": 3552.0,
+          "expectancy": 49.33,
+          "wr": 0.153,
+          "insufficient_n": false
+        },
+        "<0.20": {
+          "n": 62,
+          "total": 249.0,
+          "expectancy": 4.02,
+          "wr": 0.145,
+          "insufficient_n": false
+        },
+        ">1.00": {
+          "n": 30,
+          "total": -15.0,
+          "expectancy": -0.5,
+          "wr": 0.133,
+          "insufficient_n": false
+        }
+      },
+      "fresh": {
+        "0.20-0.50": {
+          "n": 5,
+          "total": 72.0,
+          "expectancy": 14.4,
+          "wr": 0.2,
+          "insufficient_n": true
+        },
+        "0.50-1.00": {
+          "n": 7,
+          "total": -1162.0,
+          "expectancy": -166.0,
+          "wr": 0.0,
+          "insufficient_n": true
+        },
+        "<0.20": {
+          "n": 4,
+          "total": -122.0,
+          "expectancy": -30.5,
+          "wr": 0.0,
+          "insufficient_n": true
+        },
+        ">1.00": {
+          "n": 2,
+          "total": -600.0,
+          "expectancy": -300.0,
+          "wr": 0.0,
+          "insufficient_n": true
+        }
+      }
+    },
+    "atr14_quartile": {
+      "combined": {
+        "Q1_calm(0-25pct)": {
+          "n": 76,
+          "total": 2444.0,
+          "expectancy": 32.16,
+          "wr": 0.158,
+          "insufficient_n": false
+        },
+        "Q2(25-50pct)": {
+          "n": 84,
+          "total": 1967.0,
+          "expectancy": 23.42,
+          "wr": 0.143,
+          "insufficient_n": false
+        },
+        "Q3(50-75pct)": {
+          "n": 74,
+          "total": -803.0,
+          "expectancy": -10.85,
+          "wr": 0.135,
+          "insufficient_n": false
+        },
+        "Q4_turbulent(75-100pct)": {
+          "n": 34,
+          "total": 308.0,
+          "expectancy": 9.06,
+          "wr": 0.118,
+          "insufficient_n": false
+        }
+      },
+      "burned": {
+        "Q1_calm(0-25pct)": {
+          "n": 76,
+          "total": 2444.0,
+          "expectancy": 32.16,
+          "wr": 0.158,
+          "insufficient_n": false
+        },
+        "Q2(25-50pct)": {
+          "n": 84,
+          "total": 1967.0,
+          "expectancy": 23.42,
+          "wr": 0.143,
+          "insufficient_n": false
+        },
+        "Q3(50-75pct)": {
+          "n": 68,
+          "total": -267.0,
+          "expectancy": -3.93,
+          "wr": 0.147,
+          "insufficient_n": false
+        },
+        "Q4_turbulent(75-100pct)": {
+          "n": 22,
+          "total": 1584.0,
+          "expectancy": 72.0,
+          "wr": 0.136,
+          "insufficient_n": false
+        }
+      },
+      "fresh": {
+        "Q3(50-75pct)": {
+          "n": 6,
+          "total": -536.0,
+          "expectancy": -89.33,
+          "wr": 0.0,
+          "insufficient_n": true
+        },
+        "Q4_turbulent(75-100pct)": {
+          "n": 12,
+          "total": -1276.0,
+          "expectancy": -106.33,
+          "wr": 0.083,
+          "insufficient_n": false
+        }
+      }
+    },
+    "month": {
+      "combined": {
+        "2025-01": {
+          "n": 11,
+          "total": 2495.0,
+          "expectancy": 226.82,
+          "wr": 0.364,
+          "insufficient_n": false
+        },
+        "2025-02": {
+          "n": 16,
+          "total": -1100.0,
+          "expectancy": -68.75,
+          "wr": 0.062,
+          "insufficient_n": false
+        },
+        "2025-03": {
+          "n": 4,
+          "total": -484.0,
+          "expectancy": -121.0,
+          "wr": 0.0,
+          "insufficient_n": true
+        },
+        "2025-04": {
+          "n": 1,
+          "total": -242.0,
+          "expectancy": -242.0,
+          "wr": 0.0,
+          "insufficient_n": true
+        },
+        "2025-05": {
+          "n": 6,
+          "total": -664.0,
+          "expectancy": -110.67,
+          "wr": 0.0,
+          "insufficient_n": true
+        },
+        "2025-06": {
+          "n": 18,
+          "total": -661.0,
+          "expectancy": -36.72,
+          "wr": 0.111,
+          "insufficient_n": false
+        },
+        "2025-07": {
+          "n": 18,
+          "total": 1381.0,
+          "expectancy": 76.72,
+          "wr": 0.222,
+          "insufficient_n": false
+        },
+        "2025-08": {
+          "n": 24,
+          "total": 1583.0,
+          "expectancy": 65.96,
+          "wr": 0.125,
+          "insufficient_n": false
+        },
+        "2025-09": {
+          "n": 16,
+          "total": 202.0,
+          "expectancy": 12.62,
+          "wr": 0.188,
+          "insufficient_n": false
+        },
+        "2025-10": {
+          "n": 17,
+          "total": 100.0,
+          "expectancy": 5.88,
+          "wr": 0.059,
+          "insufficient_n": false
+        },
+        "2025-11": {
+          "n": 9,
+          "total": -1308.0,
+          "expectancy": -145.33,
+          "wr": 0.0,
+          "insufficient_n": false
+        },
+        "2025-12": {
+          "n": 20,
+          "total": -1500.0,
+          "expectancy": -75.0,
+          "wr": 0.0,
+          "insufficient_n": false
+        },
+        "2026-01": {
+          "n": 16,
+          "total": 1298.0,
+          "expectancy": 81.12,
+          "wr": 0.25,
+          "insufficient_n": false
+        },
+        "2026-02": {
+          "n": 17,
+          "total": 2049.0,
+          "expectancy": 120.53,
+          "wr": 0.235,
+          "insufficient_n": false
+        },
+        "2026-03": {
+          "n": 4,
+          "total": -766.0,
+          "expectancy": -191.5,
+          "wr": 0.0,
+          "insufficient_n": true
+        },
+        "2026-04": {
+          "n": 17,
+          "total": 3047.0,
+          "expectancy": 179.24,
+          "wr": 0.294,
+          "insufficient_n": false
+        },
+        "2026-05": {
+          "n": 22,
+          "total": 2712.0,
+          "expectancy": 123.27,
+          "wr": 0.227,
+          "insufficient_n": false
+        },
+        "2026-06": {
+          "n": 25,
+          "total": -3660.0,
+          "expectancy": -146.4,
+          "wr": 0.08,
+          "insufficient_n": false
+        },
+        "2026-07": {
+          "n": 7,
+          "total": -566.0,
+          "expectancy": -80.86,
+          "wr": 0.0,
+          "insufficient_n": true
+        }
+      },
+      "burned": {
+        "2025-01": {
+          "n": 11,
+          "total": 2495.0,
+          "expectancy": 226.82,
+          "wr": 0.364,
+          "insufficient_n": false
+        },
+        "2025-02": {
+          "n": 16,
+          "total": -1100.0,
+          "expectancy": -68.75,
+          "wr": 0.062,
+          "insufficient_n": false
+        },
+        "2025-03": {
+          "n": 4,
+          "total": -484.0,
+          "expectancy": -121.0,
+          "wr": 0.0,
+          "insufficient_n": true
+        },
+        "2025-04": {
+          "n": 1,
+          "total": -242.0,
+          "expectancy": -242.0,
+          "wr": 0.0,
+          "insufficient_n": true
+        },
+        "2025-05": {
+          "n": 6,
+          "total": -664.0,
+          "expectancy": -110.67,
+          "wr": 0.0,
+          "insufficient_n": true
+        },
+        "2025-06": {
+          "n": 18,
+          "total": -661.0,
+          "expectancy": -36.72,
+          "wr": 0.111,
+          "insufficient_n": false
+        },
+        "2025-07": {
+          "n": 18,
+          "total": 1381.0,
+          "expectancy": 76.72,
+          "wr": 0.222,
+          "insufficient_n": false
+        },
+        "2025-08": {
+          "n": 24,
+          "total": 1583.0,
+          "expectancy": 65.96,
+          "wr": 0.125,
+          "insufficient_n": false
+        },
+        "2025-09": {
+          "n": 16,
+          "total": 202.0,
+          "expectancy": 12.62,
+          "wr": 0.188,
+          "insufficient_n": false
+        },
+        "2025-10": {
+          "n": 17,
+          "total": 100.0,
+          "expectancy": 5.88,
+          "wr": 0.059,
+          "insufficient_n": false
+        },
+        "2025-11": {
+          "n": 9,
+          "total": -1308.0,
+          "expectancy": -145.33,
+          "wr": 0.0,
+          "insufficient_n": false
+        },
+        "2025-12": {
+          "n": 20,
+          "total": -1500.0,
+          "expectancy": -75.0,
+          "wr": 0.0,
+          "insufficient_n": false
+        },
+        "2026-01": {
+          "n": 16,
+          "total": 1298.0,
+          "expectancy": 81.12,
+          "wr": 0.25,
+          "insufficient_n": false
+        },
+        "2026-02": {
+          "n": 17,
+          "total": 2049.0,
+          "expectancy": 120.53,
+          "wr": 0.235,
+          "insufficient_n": false
+        },
+        "2026-03": {
+          "n": 4,
+          "total": -766.0,
+          "expectancy": -191.5,
+          "wr": 0.0,
+          "insufficient_n": true
+        },
+        "2026-04": {
+          "n": 17,
+          "total": 3047.0,
+          "expectancy": 179.24,
+          "wr": 0.294,
+          "insufficient_n": false
+        },
+        "2026-05": {
+          "n": 22,
+          "total": 2712.0,
+          "expectancy": 123.27,
+          "wr": 0.227,
+          "insufficient_n": false
+        },
+        "2026-06": {
+          "n": 14,
+          "total": -2414.0,
+          "expectancy": -172.43,
+          "wr": 0.071,
+          "insufficient_n": false
+        }
+      },
+      "fresh": {
+        "2026-06": {
+          "n": 11,
+          "total": -1246.0,
+          "expectancy": -113.27,
+          "wr": 0.091,
+          "insufficient_n": false
+        },
+        "2026-07": {
+          "n": 7,
+          "total": -566.0,
+          "expectancy": -80.86,
+          "wr": 0.0,
+          "insufficient_n": true
+        }
+      }
+    }
+  },
+  "movers_ranked_most_deteriorated_first": [
+    {
+      "dimension": "time_of_day",
+      "bucket": "09:35-10:30",
+      "fresh_n": 3,
+      "fresh_expectancy": -208.67,
+      "fresh_share_of_18": 0.167,
+      "burned_n": 32,
+      "burned_expectancy": 99.69,
+      "delta_fresh_minus_burned": -308.36
+    },
+    {
+      "dimension": "premium_band",
+      "bucket": ">1.00",
+      "fresh_n": 2,
+      "fresh_expectancy": -300.0,
+      "fresh_share_of_18": 0.111,
+      "burned_n": 30,
+      "burned_expectancy": -0.5,
+      "delta_fresh_minus_burned": -299.5
+    },
+    {
+      "dimension": "vix_bucket",
+      "bucket": "17.5-20",
+      "fresh_n": 7,
+      "fresh_expectancy": -159.14,
+      "fresh_share_of_18": 0.389,
+      "burned_n": 65,
+      "burned_expectancy": 77.14,
+      "delta_fresh_minus_burned": -236.28
+    },
+    {
+      "dimension": "vix_5d_direction",
+      "bucket": "rising",
+      "fresh_n": 7,
+      "fresh_expectancy": -159.14,
+      "fresh_share_of_18": 0.389,
+      "burned_n": 93,
+      "burned_expectancy": 67.77,
+      "delta_fresh_minus_burned": -226.91
+    },
+    {
+      "dimension": "premium_band",
+      "bucket": "0.50-1.00",
+      "fresh_n": 7,
+      "fresh_expectancy": -166.0,
+      "fresh_share_of_18": 0.389,
+      "burned_n": 72,
+      "burned_expectancy": 49.33,
+      "delta_fresh_minus_burned": -215.33
+    },
+    {
+      "dimension": "time_of_day",
+      "bucket": "10:30-12:00",
+      "fresh_n": 4,
+      "fresh_expectancy": -188.0,
+      "fresh_share_of_18": 0.222,
+      "burned_n": 55,
+      "burned_expectancy": 18.09,
+      "delta_fresh_minus_burned": -206.09
+    },
+    {
+      "dimension": "atr14_quartile",
+      "bucket": "Q4_turbulent(75-100pct)",
+      "fresh_n": 12,
+      "fresh_expectancy": -106.33,
+      "fresh_share_of_18": 0.667,
+      "burned_n": 22,
+      "burned_expectancy": 72.0,
+      "delta_fresh_minus_burned": -178.33
+    },
+    {
+      "dimension": "signal_direction",
+      "bucket": "bull",
+      "fresh_n": 4,
+      "fresh_expectancy": -80.0,
+      "fresh_share_of_18": 0.222,
+      "burned_n": 59,
+      "burned_expectancy": 93.63,
+      "delta_fresh_minus_burned": -173.63
+    },
+    {
+      "dimension": "time_of_day",
+      "bucket": "12:00-14:00",
+      "fresh_n": 4,
+      "fresh_expectancy": -105.0,
+      "fresh_share_of_18": 0.222,
+      "burned_n": 95,
+      "burned_expectancy": 18.82,
+      "delta_fresh_minus_burned": -123.82
+    },
+    {
+      "dimension": "signal_direction",
+      "bucket": "bear",
+      "fresh_n": 14,
+      "fresh_expectancy": -106.57,
+      "fresh_share_of_18": 0.778,
+      "burned_n": 191,
+      "burned_expectancy": 1.07,
+      "delta_fresh_minus_burned": -107.64
+    },
+    {
+      "dimension": "atr14_quartile",
+      "bucket": "Q3(50-75pct)",
+      "fresh_n": 6,
+      "fresh_expectancy": -89.33,
+      "fresh_share_of_18": 0.333,
+      "burned_n": 68,
+      "burned_expectancy": -3.93,
+      "delta_fresh_minus_burned": -85.4
+    },
+    {
+      "dimension": "vix_bucket",
+      "bucket": "15-17.5",
+      "fresh_n": 11,
+      "fresh_expectancy": -63.45,
+      "fresh_share_of_18": 0.611,
+      "burned_n": 143,
+      "burned_expectancy": 1.76,
+      "delta_fresh_minus_burned": -65.21
+    },
+    {
+      "dimension": "vix_5d_direction",
+      "bucket": "falling",
+      "fresh_n": 11,
+      "fresh_expectancy": -63.45,
+      "fresh_share_of_18": 0.611,
+      "burned_n": 123,
+      "burned_expectancy": -24.94,
+      "delta_fresh_minus_burned": -38.51
+    },
+    {
+      "dimension": "premium_band",
+      "bucket": "<0.20",
+      "fresh_n": 4,
+      "fresh_expectancy": -30.5,
+      "fresh_share_of_18": 0.222,
+      "burned_n": 62,
+      "burned_expectancy": 4.02,
+      "delta_fresh_minus_burned": -34.52
+    },
+    {
+      "dimension": "premium_band",
+      "bucket": "0.20-0.50",
+      "fresh_n": 5,
+      "fresh_expectancy": 14.4,
+      "fresh_share_of_18": 0.278,
+      "burned_n": 86,
+      "burned_expectancy": 22.58,
+      "delta_fresh_minus_burned": -8.18
+    },
+    {
+      "dimension": "time_of_day",
+      "bucket": "14:00-15:50",
+      "fresh_n": 7,
+      "fresh_expectancy": -2.0,
+      "fresh_share_of_18": 0.389,
+      "burned_n": 68,
+      "burned_expectancy": -3.6,
+      "delta_fresh_minus_burned": 1.6
+    },
+    {
+      "dimension": "month",
+      "bucket": "2026-06",
+      "fresh_n": 11,
+      "fresh_expectancy": -113.27,
+      "fresh_share_of_18": 0.611,
+      "burned_n": 14,
+      "burned_expectancy": -172.43,
+      "delta_fresh_minus_burned": 59.16
+    }
+  ],
+  "top_hypotheses": [
+    {
+      "hypothesis": "H: ribbon_ride signals in vix_bucket='17.5-20' underperform their own historical (burned-window) baseline by $236.28/tr in the fresh window (fresh exp $-159.14/tr, n=7 [39% of the 18] vs burned exp $77.14/tr, n=65).",
+      "effect_size_delta_per_trade": -236.28,
+      "fresh_n": 7,
+      "burned_n": 65,
+      "STATUS": "EXPLORATORY -- pre-registerable for a later confirmatory pass on NEW (never-seen) signals; NOT validated; small fresh-n by construction."
+    },
+    {
+      "hypothesis": "H: ribbon_ride signals in vix_5d_direction='rising' underperform their own historical (burned-window) baseline by $226.91/tr in the fresh window (fresh exp $-159.14/tr, n=7 [39% of the 18] vs burned exp $67.77/tr, n=93).",
+      "effect_size_delta_per_trade": -226.91,
+      "fresh_n": 7,
+      "burned_n": 93,
+      "STATUS": "EXPLORATORY -- pre-registerable for a later confirmatory pass on NEW (never-seen) signals; NOT validated; small fresh-n by construction."
+    },
+    {
+      "hypothesis": "H: ribbon_ride signals in premium_band='0.50-1.00' underperform their own historical (burned-window) baseline by $215.33/tr in the fresh window (fresh exp $-166.0/tr, n=7 [39% of the 18] vs burned exp $49.33/tr, n=72).",
+      "effect_size_delta_per_trade": -215.33,
+      "fresh_n": 7,
+      "burned_n": 72,
+      "STATUS": "EXPLORATORY -- pre-registerable for a later confirmatory pass on NEW (never-seen) signals; NOT validated; small fresh-n by construction."
+    }
+  ],
+  "regime_vs_decay": {
+    "per_dimension": {
+      "vix_bucket": {
+        "dominant_fresh_bucket": "15-17.5",
+        "dominant_bucket_fresh_n": 11,
+        "dominant_bucket_share_of_fresh": 0.611,
+        "dominant_bucket_fresh_expectancy": -63.45,
+        "dominant_bucket_burned_n": 143,
+        "dominant_bucket_burned_expectancy": 1.76,
+        "burned_baseline_sufficient_n": true,
+        "regime_consistent": false
+      },
+      "atr14_quartile": {
+        "dominant_fresh_bucket": "Q4_turbulent(75-100pct)",
+        "dominant_bucket_fresh_n": 12,
+        "dominant_bucket_share_of_fresh": 0.667,
+        "dominant_bucket_fresh_expectancy": -106.33,
+        "dominant_bucket_burned_n": 22,
+        "dominant_bucket_burned_expectancy": 72.0,
+        "burned_baseline_sufficient_n": true,
+        "regime_consistent": false
+      }
+    },
+    "verdict": "NOT CLEANLY REGIME-EXPLAINED by VIX bucket or ATR14 quartile alone: the fresh window's dominant bucket(s) in these two dimensions were POSITIVE or insufficient-n historically, so the coldness is not fully accounted for by 'this regime was always bad' -- see movers[] for the strongest per-dimension deltas; treat as closer to broad-based deterioration until a confirmatory pass says otherwise."
+  },
+  "disclosures": [
+    "EXPLORATORY / HYPOTHESIS-GENERATING (multiplicity honesty): every table is a one-way post-hoc cut; NOTHING here is a validated filter; ratifying any of these needs its own pre-registered confirmatory pass on new signals (OP-16/OP-32).",
+    "Minimum-n floor = 8: cells below this are reported with insufficient_n=true, not hidden -- read their expectancy as directional only.",
+    "CONTROL exit only (stop-20/tp+150/sell80/fixed/tgt2.5x/t15:40, the shipped ribbon_ride shape) -- this is a WHY-COLD diagnosis, not an exit-shape study (that is SS-B, run separately tonight); qty is whatever t4_exit_matrix.QTY=10 fixed, frictionless fills, 5-min OPRA (touch stops) -- absolute $ optimistic, RELATIVE comparisons (fresh vs burned, bucket vs bucket) are the trustworthy signal, matching every prior T4/T5 study.",
+    "DST_FRAME_NOTE: lib/et_frame.py (cited in project memory as the DST-safe join convention) does NOT exist on the current main branch -- verified via git log/branch --contains; it lives only on an unmerged worktree branch (claude/affectionate-lamarr-ba5293, commit 205bb4a). This module sidesteps the hazard by joining DAILY VIX/SPY (fresh yfinance fetch) to signals by DATE ONLY (date-only joins are DST-safe by construction -- an hour-of-day label bug cannot cross a midnight boundary for RTH bars). time_of_day buckets inherit each signal's pre-existing entry_ts label AS-IS (T4/T5/structure_stop_study's own convention) -- on winter (EST) dates in the burned window this label may run ~1h ahead of true ET wall-clock; NOT re-derived here (Stage-3 orchestrator work, separately flagged, out of this task's scope).",
+    "VIX/day-range context is POINT-IN-TIME by VALUE (uses only closes strictly before the signal's date -- C6) but the ATR14 QUARTILE LABEL ranks that value against the FULL-PERIOD empirical distribution -- a retrospective grouping transform for this report only, NOT walk-forward/live-safe, and not used to gate any trade.",
+    "VIX 5-day-direction threshold: |change| <= 0.25 points -> 'flat' (a disclosed, not-tuned choice).",
+    "Two parity checks (fresh n=18 and burned n=250 CONTROL replay) reproduce already-published numbers bit-for-bit before any stratification is trusted (OP-33) -- see parity_checks in this file's own output.",
+    "n_missing_bars: burned=0/250, fresh=0/18 (excluded from all tables, not imputed).",
+    "ribbon_ride only (both directions), matching ground rule 11 carried from T3/T4/T5/SS; vwap_continuation is out of scope."
+  ]
+}

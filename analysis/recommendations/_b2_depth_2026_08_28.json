@@ -1,0 +1,384 @@
+{
+ "_doc": "B2 live depth measurement 2026-08-28, feed=indicative (OPRA 403: agreement not signed)",
+ "observations": [
+  {
+   "sample": "S1_calls_1302",
+   "strike": 764,
+   "bid": 4.9,
+   "bid_sz": 25,
+   "ask": 4.99,
+   "ask_sz": 40,
+   "spread": 0.09
+  },
+  {
+   "sample": "S1_calls_1302",
+   "strike": 765,
+   "bid": 4.059,
+   "bid_sz": 36,
+   "ask": 4.12,
+   "ask_sz": 83,
+   "spread": 0.061
+  },
+  {
+   "sample": "S1_calls_1302",
+   "strike": 766,
+   "bid": 3.14,
+   "bid_sz": 36,
+   "ask": 3.21,
+   "ask_sz": 126,
+   "spread": 0.07
+  },
+  {
+   "sample": "S1_calls_1302",
+   "strike": 767,
+   "bid": 2.4,
+   "bid_sz": 43,
+   "ask": 2.42,
+   "ask_sz": 91,
+   "spread": 0.02
+  },
+  {
+   "sample": "S1_calls_1302",
+   "strike": 768,
+   "bid": 1.68,
+   "bid_sz": 42,
+   "ask": 1.69,
+   "ask_sz": 146,
+   "spread": 0.01
+  },
+  {
+   "sample": "S1_calls_1302",
+   "strike": 769,
+   "bid": 1.09,
+   "bid_sz": 77,
+   "ask": 1.1,
+   "ask_sz": 246,
+   "spread": 0.01
+  },
+  {
+   "sample": "S1_calls_1302",
+   "strike": 770,
+   "bid": 0.64,
+   "bid_sz": 211,
+   "ask": 0.65,
+   "ask_sz": 394,
+   "spread": 0.01
+  },
+  {
+   "sample": "S1_calls_1302",
+   "strike": 771,
+   "bid": 0.3,
+   "bid_sz": 410,
+   "ask": 0.35,
+   "ask_sz": 757,
+   "spread": 0.05
+  },
+  {
+   "sample": "S1_calls_1302",
+   "strike": 772,
+   "bid": 0.13,
+   "bid_sz": 585,
+   "ask": 0.18,
+   "ask_sz": 1306,
+   "spread": 0.05
+  },
+  {
+   "sample": "S1_calls_1302",
+   "strike": 773,
+   "bid": 0.06,
+   "bid_sz": 169,
+   "ask": 0.07,
+   "ask_sz": 2969,
+   "spread": 0.01
+  },
+  {
+   "sample": "S1_calls_1302",
+   "strike": 774,
+   "bid": 0.02,
+   "bid_sz": 691,
+   "ask": 0.03,
+   "ask_sz": 3007,
+   "spread": 0.01
+  },
+  {
+   "sample": "S1_calls_1302",
+   "strike": 775,
+   "bid": 0.01,
+   "bid_sz": 185,
+   "ask": 0.02,
+   "ask_sz": 4007,
+   "spread": 0.01
+  },
+  {
+   "sample": "S2_puts_1302",
+   "strike": 764,
+   "bid": 0.14,
+   "bid_sz": 1064,
+   "ask": 0.19,
+   "ask_sz": 517,
+   "spread": 0.05
+  },
+  {
+   "sample": "S2_puts_1302",
+   "strike": 765,
+   "bid": 0.22,
+   "bid_sz": 800,
+   "ask": 0.23,
+   "ask_sz": 476,
+   "spread": 0.01
+  },
+  {
+   "sample": "S2_puts_1302",
+   "strike": 766,
+   "bid": 0.39,
+   "bid_sz": 390,
+   "ask": 0.4,
+   "ask_sz": 614,
+   "spread": 0.01
+  },
+  {
+   "sample": "S2_puts_1302",
+   "strike": 767,
+   "bid": 0.58,
+   "bid_sz": 155,
+   "ask": 0.59,
+   "ask_sz": 293,
+   "spread": 0.01
+  },
+  {
+   "sample": "S2_puts_1302",
+   "strike": 768,
+   "bid": 0.81,
+   "bid_sz": 265,
+   "ask": 0.86,
+   "ask_sz": 6,
+   "spread": 0.05
+  },
+  {
+   "sample": "S2_puts_1302",
+   "strike": 769,
+   "bid": 1.2,
+   "bid_sz": 181,
+   "ask": 1.21,
+   "ask_sz": 212,
+   "spread": 0.01
+  },
+  {
+   "sample": "S2_puts_1302",
+   "strike": 770,
+   "bid": 1.77,
+   "bid_sz": 57,
+   "ask": 1.8,
+   "ask_sz": 99,
+   "spread": 0.03
+  },
+  {
+   "sample": "S2_puts_1302",
+   "strike": 771,
+   "bid": 2.49,
+   "bid_sz": 34,
+   "ask": 2.5,
+   "ask_sz": 50,
+   "spread": 0.01
+  },
+  {
+   "sample": "S2_puts_1302",
+   "strike": 772,
+   "bid": 3.18,
+   "bid_sz": 26,
+   "ask": 3.25,
+   "ask_sz": 32,
+   "spread": 0.07
+  },
+  {
+   "sample": "S2_puts_1302",
+   "strike": 773,
+   "bid": 4.11,
+   "bid_sz": 61,
+   "ask": 4.23,
+   "ask_sz": 8,
+   "spread": 0.12
+  },
+  {
+   "sample": "S2_puts_1302",
+   "strike": 774,
+   "bid": 5.07,
+   "bid_sz": 116,
+   "ask": 5.22,
+   "ask_sz": 48,
+   "spread": 0.15
+  },
+  {
+   "sample": "S3_calls_1306",
+   "strike": 763,
+   "bid": 5.94,
+   "bid_sz": 28,
+   "ask": 6.05,
+   "ask_sz": 15,
+   "spread": 0.11
+  },
+  {
+   "sample": "S3_calls_1306",
+   "strike": 764,
+   "bid": 5.02,
+   "bid_sz": 29,
+   "ask": 5.1,
+   "ask_sz": 15,
+   "spread": 0.08
+  },
+  {
+   "sample": "S3_calls_1306",
+   "strike": 765,
+   "bid": 4.07,
+   "bid_sz": 31,
+   "ask": 4.18,
+   "ask_sz": 15,
+   "spread": 0.11
+  },
+  {
+   "sample": "S3_calls_1306",
+   "strike": 766,
+   "bid": 3.2,
+   "bid_sz": 44,
+   "ask": 3.27,
+   "ask_sz": 64,
+   "spread": 0.07
+  },
+  {
+   "sample": "S3_calls_1306",
+   "strike": 767,
+   "bid": 2.48,
+   "bid_sz": 49,
+   "ask": 2.51,
+   "ask_sz": 173,
+   "spread": 0.03
+  },
+  {
+   "sample": "S3_calls_1306",
+   "strike": 768,
+   "bid": 1.74,
+   "bid_sz": 54,
+   "ask": 1.75,
+   "ask_sz": 77,
+   "spread": 0.01
+  },
+  {
+   "sample": "S3_calls_1306",
+   "strike": 769,
+   "bid": 1.14,
+   "bid_sz": 100,
+   "ask": 1.15,
+   "ask_sz": 264,
+   "spread": 0.01
+  },
+  {
+   "sample": "S3_calls_1306",
+   "strike": 770,
+   "bid": 0.63,
+   "bid_sz": 411,
+   "ask": 0.68,
+   "ask_sz": 191,
+   "spread": 0.05
+  },
+  {
+   "sample": "S3_calls_1306",
+   "strike": 771,
+   "bid": 0.36,
+   "bid_sz": 697,
+   "ask": 0.37,
+   "ask_sz": 545,
+   "spread": 0.01
+  },
+  {
+   "sample": "S3_calls_1306",
+   "strike": 772,
+   "bid": 0.14,
+   "bid_sz": 1360,
+   "ask": 0.19,
+   "ask_sz": 551,
+   "spread": 0.05
+  }
+ ],
+ "buckets": [
+  {
+   "bucket": "$0.00-$0.20",
+   "n": 6,
+   "bid_min": 169,
+   "bid_med": 638.0,
+   "bid_max": 1360,
+   "ask_min": 517,
+   "ask_med": 2137.5,
+   "ask_max": 4007,
+   "spread_med": 0.030000000000000002
+  },
+  {
+   "bucket": "$0.20-$0.50",
+   "n": 4,
+   "bid_min": 390,
+   "bid_med": 553.5,
+   "bid_max": 800,
+   "ask_min": 476,
+   "ask_med": 579.5,
+   "ask_max": 757,
+   "spread_med": 0.01
+  },
+  {
+   "bucket": "$0.50-$1.00",
+   "n": 4,
+   "bid_min": 155,
+   "bid_med": 238.0,
+   "bid_max": 411,
+   "ask_min": 6,
+   "ask_med": 242.0,
+   "ask_max": 394,
+   "spread_med": 0.030000000000000002
+  },
+  {
+   "bucket": "$1.00-$1.50",
+   "n": 3,
+   "bid_min": 77,
+   "bid_med": 100.0,
+   "bid_max": 181,
+   "ask_min": 212,
+   "ask_med": 246.0,
+   "ask_max": 264,
+   "spread_med": 0.01
+  },
+  {
+   "bucket": "$1.50-$2.50",
+   "n": 6,
+   "bid_min": 34,
+   "bid_med": 46.0,
+   "bid_max": 57,
+   "ask_min": 50,
+   "ask_med": 95.0,
+   "ask_max": 173,
+   "spread_med": 0.015
+  },
+  {
+   "bucket": "$2.50-$4.00",
+   "n": 3,
+   "bid_min": 26,
+   "bid_med": 36.0,
+   "bid_max": 44,
+   "ask_min": 32,
+   "ask_med": 64.0,
+   "ask_max": 126,
+   "spread_med": 0.07
+  },
+  {
+   "bucket": "$4.00-$99.00",
+   "n": 7,
+   "bid_min": 25,
+   "bid_med": 31.0,
+   "bid_max": 116,
+   "ask_min": 8,
+   "ask_med": 15.0,
+   "ask_max": 83,
+   "spread_med": 0.11
+  }
+ ],
+ "entry_ask_med": 246.0,
+ "exit_bid_med": 46.0,
+ "deep_exit_bid_med": 33.5
+}

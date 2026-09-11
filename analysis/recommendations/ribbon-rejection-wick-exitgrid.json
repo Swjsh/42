@@ -1,0 +1,643 @@
+{
+ "rule_id": "ribbon-rejection-wick-exitgrid",
+ "generated_at": "2026-07-07T15:17:40",
+ "smoke": false,
+ "premise": "exit-redesign rescue of the 0/24-killed wick entry; J scalp exit is the untested lever",
+ "fixed_entry": {
+  "wick": 0.35,
+  "lookback": 12,
+  "vol": 1.5,
+  "stack": "not_flipped"
+ },
+ "exit_grid_preregistered": [
+  "E1_baseline_repro",
+  "E2_quick_scalp",
+  "E3_quick_runner",
+  "E4_mid_runner",
+  "E5_tight_stop",
+  "E6_fast_tight",
+  "E7_bigtp_tight",
+  "E8_j_scalp"
+ ],
+ "window": {
+  "start": "2025-01-02",
+  "end": "2026-07-01",
+  "oos_cut": "2026-01-01"
+ },
+ "pnl_authority": "OPRA real fills via shotgun_scalper_grinder._simulate_trade_real",
+ "multiplicity": "BH-FDR alpha=0.1 across 8 pre-registered exit configs; entry fixed",
+ "fidelity_caveat": "premium-% stop is a PROXY for J's structure (ribbon-reclaim) stop",
+ "fdr_survivors": 5,
+ "verdict": "FAIL",
+ "results": [
+  {
+   "exit_id": "E8_j_scalp",
+   "exit": {
+    "tp_premium_pct": 0.4,
+    "stop_premium_pct": -0.18,
+    "chandelier_arm_pct": 0.12,
+    "tp1_qty_fraction": 0.667,
+    "time_stop_min": 40
+   },
+   "full": {
+    "n": 195,
+    "pnl": -1676.28,
+    "wr": 0.441,
+    "expectancy": -8.6
+   },
+   "short": {
+    "n": 115,
+    "pnl": -13.14,
+    "wr": 0.504,
+    "expectancy": -0.11
+   },
+   "long": {
+    "n": 80,
+    "pnl": -1663.14,
+    "wr": 0.35,
+    "expectancy": -20.79
+   },
+   "is": {
+    "n": 118,
+    "pnl": -1300.44,
+    "wr": 0.407,
+    "expectancy": -11.02
+   },
+   "oos": {
+    "n": 77,
+    "pnl": -375.84,
+    "wr": 0.494,
+    "expectancy": -4.88
+   },
+   "drop_top3_pnl": -2217.48,
+   "half1": {
+    "n": 96,
+    "pnl": -1011.78,
+    "wr": 0.417,
+    "expectancy": -10.54
+   },
+   "half2": {
+    "n": 99,
+    "pnl": -664.5,
+    "wr": 0.465,
+    "expectancy": -6.71
+   },
+   "slippage_breakeven_cents_per_side": -1.43,
+   "p_null": 0.01,
+   "exit_reasons": {
+    "STOP": 49,
+    "CHANDELIER": 142,
+    "TIME_STOP": 3,
+    "TP_PREMIUM": 1
+   },
+   "null_expectancy": {
+    "short": -17.45,
+    "long": -23.16
+   },
+   "bh_fdr_survivor": true,
+   "bh_rank": 1,
+   "clears": false,
+   "fails": [
+    "exp -8.6<=0",
+    "oos_exp -4.88<=0",
+    "drop3 -2217.48<=0",
+    "halves not both>0",
+    "slip -1.43c<2c",
+    "bear exp -0.11<=0"
+   ]
+  },
+  {
+   "exit_id": "E6_fast_tight",
+   "exit": {
+    "tp_premium_pct": 0.35,
+    "stop_premium_pct": -0.15,
+    "chandelier_arm_pct": 0.15,
+    "tp1_qty_fraction": 0.667,
+    "time_stop_min": 30
+   },
+   "full": {
+    "n": 198,
+    "pnl": -1782.6,
+    "wr": 0.439,
+    "expectancy": -9.0
+   },
+   "short": {
+    "n": 115,
+    "pnl": -126.6,
+    "wr": 0.496,
+    "expectancy": -1.1
+   },
+   "long": {
+    "n": 83,
+    "pnl": -1656.0,
+    "wr": 0.361,
+    "expectancy": -19.95
+   },
+   "is": {
+    "n": 120,
+    "pnl": -1161.9,
+    "wr": 0.425,
+    "expectancy": -9.68
+   },
+   "oos": {
+    "n": 78,
+    "pnl": -620.7,
+    "wr": 0.462,
+    "expectancy": -7.96
+   },
+   "drop_top3_pnl": -2323.8,
+   "half1": {
+    "n": 98,
+    "pnl": -935.25,
+    "wr": 0.439,
+    "expectancy": -9.54
+   },
+   "half2": {
+    "n": 100,
+    "pnl": -847.35,
+    "wr": 0.44,
+    "expectancy": -8.47
+   },
+   "slippage_breakeven_cents_per_side": -1.5,
+   "p_null": 0.0145,
+   "exit_reasons": {
+    "STOP": 64,
+    "CHANDELIER": 130,
+    "TIME_STOP": 4
+   },
+   "null_expectancy": {
+    "short": -15.78,
+    "long": -21.45
+   },
+   "bh_fdr_survivor": true,
+   "bh_rank": 2,
+   "clears": false,
+   "fails": [
+    "exp -9.0<=0",
+    "oos_exp -7.96<=0",
+    "drop3 -2323.8<=0",
+    "halves not both>0",
+    "slip -1.5c<2c",
+    "bear exp -1.1<=0"
+   ]
+  },
+  {
+   "exit_id": "E4_mid_runner",
+   "exit": {
+    "tp_premium_pct": 0.4,
+    "stop_premium_pct": -0.2,
+    "chandelier_arm_pct": 0.15,
+    "tp1_qty_fraction": 0.667,
+    "time_stop_min": 60
+   },
+   "full": {
+    "n": 194,
+    "pnl": -1924.8,
+    "wr": 0.464,
+    "expectancy": -9.92
+   },
+   "short": {
+    "n": 114,
+    "pnl": -133.2,
+    "wr": 0.518,
+    "expectancy": -1.17
+   },
+   "long": {
+    "n": 80,
+    "pnl": -1791.6,
+    "wr": 0.388,
+    "expectancy": -22.39
+   },
+   "is": {
+    "n": 118,
+    "pnl": -1106.4,
+    "wr": 0.449,
+    "expectancy": -9.38
+   },
+   "oos": {
+    "n": 76,
+    "pnl": -818.4,
+    "wr": 0.487,
+    "expectancy": -10.77
+   },
+   "drop_top3_pnl": -2481.6,
+   "half1": {
+    "n": 96,
+    "pnl": -743.4,
+    "wr": 0.469,
+    "expectancy": -7.74
+   },
+   "half2": {
+    "n": 98,
+    "pnl": -1181.4,
+    "wr": 0.459,
+    "expectancy": -12.06
+   },
+   "slippage_breakeven_cents_per_side": -1.65,
+   "p_null": 0.025,
+   "exit_reasons": {
+    "STOP": 54,
+    "CHANDELIER": 138,
+    "TIME_STOP": 1,
+    "TP_PREMIUM": 1
+   },
+   "null_expectancy": {
+    "short": -15.78,
+    "long": -26.2
+   },
+   "bh_fdr_survivor": true,
+   "bh_rank": 3,
+   "clears": false,
+   "fails": [
+    "exp -9.92<=0",
+    "oos_exp -10.77<=0",
+    "drop3 -2481.6<=0",
+    "halves not both>0",
+    "slip -1.65c<2c",
+    "bear exp -1.17<=0"
+   ]
+  },
+  {
+   "exit_id": "E3_quick_runner",
+   "exit": {
+    "tp_premium_pct": 0.3,
+    "stop_premium_pct": -0.2,
+    "chandelier_arm_pct": 0.15,
+    "tp1_qty_fraction": 0.667,
+    "time_stop_min": 45
+   },
+   "full": {
+    "n": 194,
+    "pnl": -2034.0,
+    "wr": 0.464,
+    "expectancy": -10.48
+   },
+   "short": {
+    "n": 114,
+    "pnl": -259.2,
+    "wr": 0.518,
+    "expectancy": -2.27
+   },
+   "long": {
+    "n": 80,
+    "pnl": -1774.8,
+    "wr": 0.388,
+    "expectancy": -22.18
+   },
+   "is": {
+    "n": 118,
+    "pnl": -1232.4,
+    "wr": 0.449,
+    "expectancy": -10.44
+   },
+   "oos": {
+    "n": 76,
+    "pnl": -801.6,
+    "wr": 0.487,
+    "expectancy": -10.55
+   },
+   "drop_top3_pnl": -2590.8,
+   "half1": {
+    "n": 96,
+    "pnl": -869.4,
+    "wr": 0.469,
+    "expectancy": -9.06
+   },
+   "half2": {
+    "n": 98,
+    "pnl": -1164.6,
+    "wr": 0.459,
+    "expectancy": -11.88
+   },
+   "slippage_breakeven_cents_per_side": -1.75,
+   "p_null": 0.046,
+   "exit_reasons": {
+    "STOP": 54,
+    "CHANDELIER": 137,
+    "TIME_STOP": 2,
+    "TP_PREMIUM": 1
+   },
+   "null_expectancy": {
+    "short": -15.78,
+    "long": -24.96
+   },
+   "bh_fdr_survivor": true,
+   "bh_rank": 5,
+   "clears": false,
+   "fails": [
+    "exp -10.48<=0",
+    "oos_exp -10.55<=0",
+    "drop3 -2590.8<=0",
+    "halves not both>0",
+    "slip -1.75c<2c",
+    "bear exp -2.27<=0"
+   ]
+  },
+  {
+   "exit_id": "E2_quick_scalp",
+   "exit": {
+    "tp_premium_pct": 0.3,
+    "stop_premium_pct": -0.2,
+    "chandelier_arm_pct": 99.0,
+    "tp1_qty_fraction": 1.0,
+    "time_stop_min": 30
+   },
+   "full": {
+    "n": 186,
+    "pnl": -1983.6,
+    "wr": 0.409,
+    "expectancy": -10.66
+   },
+   "short": {
+    "n": 109,
+    "pnl": -293.1,
+    "wr": 0.468,
+    "expectancy": -2.69
+   },
+   "long": {
+    "n": 77,
+    "pnl": -1690.5,
+    "wr": 0.325,
+    "expectancy": -21.95
+   },
+   "is": {
+    "n": 116,
+    "pnl": -818.4,
+    "wr": 0.422,
+    "expectancy": -7.06
+   },
+   "oos": {
+    "n": 70,
+    "pnl": -1165.2,
+    "wr": 0.386,
+    "expectancy": -16.65
+   },
+   "drop_top3_pnl": -2469.6,
+   "half1": {
+    "n": 93,
+    "pnl": -650.1,
+    "wr": 0.419,
+    "expectancy": -6.99
+   },
+   "half2": {
+    "n": 93,
+    "pnl": -1333.5,
+    "wr": 0.398,
+    "expectancy": -14.34
+   },
+   "slippage_breakeven_cents_per_side": -1.78,
+   "p_null": 0.6985,
+   "exit_reasons": {
+    "STOP": 107,
+    "TP_PREMIUM": 71,
+    "TIME_STOP": 8
+   },
+   "null_expectancy": {
+    "short": -3.33,
+    "long": -13.25
+   },
+   "bh_fdr_survivor": false,
+   "bh_rank": 8,
+   "clears": false,
+   "fails": [
+    "exp -10.66<=0",
+    "oos_exp -16.65<=0",
+    "drop3 -2469.6<=0",
+    "halves not both>0",
+    "p_null 0.6985>0.05",
+    "BH-FDR non-survivor",
+    "slip -1.78c<2c",
+    "bear exp -2.69<=0"
+   ]
+  },
+  {
+   "exit_id": "E7_bigtp_tight",
+   "exit": {
+    "tp_premium_pct": 0.75,
+    "stop_premium_pct": -0.15,
+    "chandelier_arm_pct": 0.25,
+    "tp1_qty_fraction": 0.667,
+    "time_stop_min": 90
+   },
+   "full": {
+    "n": 194,
+    "pnl": -2539.2,
+    "wr": 0.49,
+    "expectancy": -13.09
+   },
+   "short": {
+    "n": 113,
+    "pnl": -578.1,
+    "wr": 0.549,
+    "expectancy": -5.12
+   },
+   "long": {
+    "n": 81,
+    "pnl": -1961.1,
+    "wr": 0.407,
+    "expectancy": -24.21
+   },
+   "is": {
+    "n": 118,
+    "pnl": -1824.3,
+    "wr": 0.466,
+    "expectancy": -15.46
+   },
+   "oos": {
+    "n": 76,
+    "pnl": -714.9,
+    "wr": 0.526,
+    "expectancy": -9.41
+   },
+   "drop_top3_pnl": -3128.4,
+   "half1": {
+    "n": 97,
+    "pnl": -1576.2,
+    "wr": 0.474,
+    "expectancy": -16.25
+   },
+   "half2": {
+    "n": 97,
+    "pnl": -963.0,
+    "wr": 0.505,
+    "expectancy": -9.93
+   },
+   "slippage_breakeven_cents_per_side": -2.18,
+   "p_null": 0.025,
+   "exit_reasons": {
+    "STOP": 96,
+    "CHANDELIER": 97,
+    "TIME_STOP": 1
+   },
+   "null_expectancy": {
+    "short": -20.01,
+    "long": -24.86
+   },
+   "bh_fdr_survivor": true,
+   "bh_rank": 4,
+   "clears": false,
+   "fails": [
+    "exp -13.09<=0",
+    "oos_exp -9.41<=0",
+    "drop3 -3128.4<=0",
+    "halves not both>0",
+    "slip -2.18c<2c",
+    "bear exp -5.12<=0"
+   ]
+  },
+  {
+   "exit_id": "E1_baseline_repro",
+   "exit": {
+    "tp_premium_pct": 0.5,
+    "stop_premium_pct": -0.3,
+    "chandelier_arm_pct": 0.25,
+    "tp1_qty_fraction": 1.0,
+    "time_stop_min": 60
+   },
+   "full": {
+    "n": 175,
+    "pnl": -3010.5,
+    "wr": 0.651,
+    "expectancy": -17.2
+   },
+   "short": {
+    "n": 106,
+    "pnl": -1315.8,
+    "wr": 0.66,
+    "expectancy": -12.41
+   },
+   "long": {
+    "n": 69,
+    "pnl": -1694.7,
+    "wr": 0.638,
+    "expectancy": -24.56
+   },
+   "is": {
+    "n": 108,
+    "pnl": -826.2,
+    "wr": 0.676,
+    "expectancy": -7.65
+   },
+   "oos": {
+    "n": 67,
+    "pnl": -2184.3,
+    "wr": 0.612,
+    "expectancy": -32.6
+   },
+   "drop_top3_pnl": -3813.3,
+   "half1": {
+    "n": 87,
+    "pnl": -420.6,
+    "wr": 0.701,
+    "expectancy": -4.83
+   },
+   "half2": {
+    "n": 88,
+    "pnl": -2589.9,
+    "wr": 0.602,
+    "expectancy": -29.43
+   },
+   "slippage_breakeven_cents_per_side": -2.87,
+   "p_null": 0.1065,
+   "exit_reasons": {
+    "CHANDELIER": 114,
+    "STOP": 58,
+    "TIME_STOP": 3
+   },
+   "null_expectancy": {
+    "short": -23.53,
+    "long": -33.41
+   },
+   "bh_fdr_survivor": false,
+   "bh_rank": 6,
+   "clears": false,
+   "fails": [
+    "exp -17.2<=0",
+    "oos_exp -32.6<=0",
+    "drop3 -3813.3<=0",
+    "halves not both>0",
+    "p_null 0.1065>0.05",
+    "BH-FDR non-survivor",
+    "slip -2.87c<2c",
+    "bear exp -12.41<=0"
+   ]
+  },
+  {
+   "exit_id": "E5_tight_stop",
+   "exit": {
+    "tp_premium_pct": 0.5,
+    "stop_premium_pct": -0.15,
+    "chandelier_arm_pct": 99.0,
+    "tp1_qty_fraction": 1.0,
+    "time_stop_min": 60
+   },
+   "full": {
+    "n": 185,
+    "pnl": -3533.7,
+    "wr": 0.168,
+    "expectancy": -19.1
+   },
+   "short": {
+    "n": 107,
+    "pnl": -1503.0,
+    "wr": 0.187,
+    "expectancy": -14.05
+   },
+   "long": {
+    "n": 78,
+    "pnl": -2030.7,
+    "wr": 0.141,
+    "expectancy": -26.03
+   },
+   "is": {
+    "n": 115,
+    "pnl": -1749.75,
+    "wr": 0.174,
+    "expectancy": -15.22
+   },
+   "oos": {
+    "n": 70,
+    "pnl": -1783.95,
+    "wr": 0.157,
+    "expectancy": -25.48
+   },
+   "drop_top3_pnl": -4352.7,
+   "half1": {
+    "n": 92,
+    "pnl": -1201.2,
+    "wr": 0.196,
+    "expectancy": -13.06
+   },
+   "half2": {
+    "n": 93,
+    "pnl": -2332.5,
+    "wr": 0.14,
+    "expectancy": -25.08
+   },
+   "slippage_breakeven_cents_per_side": -3.18,
+   "p_null": 0.2615,
+   "exit_reasons": {
+    "STOP": 154,
+    "TP_PREMIUM": 29,
+    "TIME_STOP": 2
+   },
+   "null_expectancy": {
+    "short": -23.83,
+    "long": -22.18
+   },
+   "bh_fdr_survivor": false,
+   "bh_rank": 7,
+   "clears": false,
+   "fails": [
+    "exp -19.1<=0",
+    "oos_exp -25.48<=0",
+    "drop3 -4352.7<=0",
+    "halves not both>0",
+    "p_null 0.2615>0.05",
+    "BH-FDR non-survivor",
+    "slip -3.18c<2c",
+    "bear exp -14.05<=0"
+   ]
+  }
+ ]
+}

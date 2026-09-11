@@ -1,18 +1,18 @@
 {
   "_doc": "exit_manager_replay.py -- EXIT-MANAGER-REPLAY-HARNESS (GOAL-REPLAY-TODAY-GREEN iteration 6).\n\nWHY (the FRAME AUDIT, GOAL-REPLAY-TODAY-GREEN.md 2026-07-17 ~20:30 ET): iterations 2-3 proved\n`simulate_trade_real`'s exit model is KNOWN-DIVERGENT from the live exit_manager -- live ran\ncore_safe's 13:01 746P to +$241; the sim breakeven-zeroed it in 2 minutes. This module abandons\nsimulate_trade_real for exit-fidelity purposes and instead drives the ACTUAL production exit\ncode (`automation/state/fleet/exit_manager.py plan_exit_actions`, via\n`backtest/lib/exit_manager_walk.py`) tick-by-tick over today's REAL 1-minute OPRA option bars\n(backtest/data/highres/, fetched iteration 3) for the 6 engine-fireable core round trips\n(5 core_safe + 1 core_bold; the 12:04 J-called 746C stays OUT OF SCOPE -- no engine rule fires\nit, confirmed again via journal/trades.csv j_override='Y', consistent with every prior\niteration).\n\nSECOND ROOT CAUSE FOUND BUILDING THIS (not previously documented): the sim-based harness was\nnot merely using a coarser/divergent EXIT MECHANISM -- it was reading the WRONG EXIT NUMBERS.\n`simulate_trade_real` callers (replay_today_eval.py iterations 2-3 included) source exit knobs\nfrom automation/state/params.json's top-level keys (tp1_premium_pct=0.5, v15_profit_lock_mode=\n\"fixed\", runner_max_premium_pct=2.5). But heartbeat_core.py:1471-1477's REAL exit_manager\nregistration for ribbon_ride entries (BEARISH_REJECTION_RIDE_THE_RIBBON /\nBULLISH_RECLAIM_RIDE_THE_RIBBON -- 5 of today's 6 entries) reads\n`automation/state/fleet/strategies.py#RIBBON_RIDE.exit.to_dict()` instead: tp1_premium_pct=1.0,\nprofit_lock_mode=\"trailing\" (chandelier, arm +5%/trail 15%), runner_target_pct=99.0 (rides via\ntrail/structure/time-stop, not a fixed target), stop_mode=\"structure\" (chart-level primary,\n-50% catastrophe cap demoted). params.json's structure_stop_enabled=true (both accounts,\nconfirmed) resolves 5/6 of today's real entries to STRUCTURE mode at from_entry -- exactly the\nmechanism the sim never modeled. Only the isolated bollinger_squeeze entry (14:03) genuinely\nuses params.json's j_bollinger_squeeze_* keys (that mapping WAS correct in the prior harness).\n\nEntry data: read verbatim from automation/state/core-decisions.jsonl (SIGNAL/DECISION layer,\niteration-2-faithful, unchanged) -- symbol/side/strike/qty/setup/stop_mode/trigger_level, and\ncritically entry_premium = the REAL BROKER FILL PRICE (fill.filled_avg_price), not a re-derived\napproximation. This deliberately ISOLATES the exit-mechanism fidelity question (this iteration's\njob) from the entry-fill-price question (iteration 3 already closed that to $0.00-$0.08).\n\nRun: backtest/.venv/Scripts/python.exe backtest/tools/exit_manager_replay.py\n",
-  "generated_at": "2026-07-17T20:21:24.975934",
+  "generated_at": "2026-09-10T21:24:21.342931",
   "trade_date": "2026-07-17",
   "n_entries": 6,
-  "n_faithful": 6,
+  "n_faithful": 5,
   "n_scored": 6,
-  "all_faithful": true,
+  "all_faithful": false,
   "faithfulness_tolerance": {
     "abs_dollars": 40.0,
     "pct_of_live": 0.15
   },
-  "replay_total_pnl": 324.85,
+  "replay_total_pnl": 261.45,
   "live_total_pnl": 342.0,
-  "total_delta": -17.15,
+  "total_delta": -80.55,
   "per_arm": {
     "core_safe": {
       "n_trades": 5,
@@ -22,9 +22,9 @@
     },
     "core_bold": {
       "n_trades": 1,
-      "replay_pnl": 177.4,
+      "replay_pnl": 114.0,
       "live_pnl": 191.0,
-      "delta": -13.6
+      "delta": -77.0
     }
   },
   "trades": [
@@ -144,35 +144,26 @@
       "entry_premium": 0.38,
       "resolved_stop_mode": "structure",
       "trigger_level": 745.98,
-      "exit_reason": "runner_stop @ 0.7",
-      "exit_time_et": "2026-07-17T14:30:00",
-      "hold_minutes": 39,
-      "n_ticks_walked": 39,
+      "exit_reason": "premium_stop @ 0.61",
+      "exit_time_et": "2026-07-17T14:24:00",
+      "hold_minutes": 33,
+      "n_ticks_walked": 33,
       "legs": [
         {
-          "kind": "SELL_PARTIAL",
-          "qty": 3,
-          "fill_price": 0.76,
-          "reason": "tp1 @ +100%",
-          "stage": "tp1",
-          "ts_et": "2026-07-17T14:26:00",
-          "leg_pnl": 114.0
-        },
-        {
           "kind": "SELL_ALL",
-          "qty": 2,
-          "fill_price": 0.697,
-          "reason": "runner_stop @ 0.7",
-          "stage": "trail",
-          "ts_et": "2026-07-17T14:30:00",
-          "leg_pnl": 63.4
+          "qty": 5,
+          "fill_price": 0.608,
+          "reason": "premium_stop @ 0.61",
+          "stage": "premium_stop",
+          "ts_et": "2026-07-17T14:24:00",
+          "leg_pnl": 114.0
         }
       ],
-      "replay_dollar_pnl": 177.4,
+      "replay_dollar_pnl": 114.0,
       "live_dollar_pnl": 191.0,
-      "delta": -13.6,
+      "delta": -77.0,
       "tolerance": 40.0,
-      "faithful": true
+      "faithful": false
     },
     {
       "arm": "core_safe",

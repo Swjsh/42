@@ -1,0 +1,297 @@
+{
+  "_doc": "A1 task: cost-model rebuild from trades-enriched.jsonl with OCC/ORF/TAF/SEC/CAT fees (cost-model.json rates, ceil-to-cent per component) + exit-side slippage sweep (0/1/2/3/5c/contract, applied once per exiting contract). Breakeven = per-book linear solve for net=0. Read-only analysis; source ledger analysis/trades-enriched.jsonl (canonical, built 2026-08-27) cross-checked n_round_trips against automation/state/fills-ledger.jsonl.",
+  "generated_et": "2026-08-28",
+  "rates_used": {
+    "occ_per_contract": 0.025,
+    "orf_per_contract": 0.015,
+    "taf_per_contract_sell": 0.00329,
+    "sec_rate_per_dollar_sell": 2.0600000000000003e-05,
+    "cat_per_arm_day": 0.01
+  },
+  "august_2026": {
+    "window": [
+      "2026-08-01",
+      "2026-08-27"
+    ],
+    "book": {
+      "label": "AUGUST BOOK (5 arms)",
+      "n_round_trips": 210,
+      "as_traded_pnl": 1744.0,
+      "fee_ex_cat_total": 100.64,
+      "cat_total": 0.71,
+      "fee_total": 101.35,
+      "net_at_zero_slippage": 1642.65,
+      "total_exit_contracts": 1125.0,
+      "scenarios": {
+        "0c": 1642.65,
+        "1c": 1631.4,
+        "2c": 1620.15,
+        "3c": 1608.9,
+        "5c": 1586.4
+      },
+      "breakeven_slippage_cents_per_contract": 146.013
+    },
+    "per_arm": {
+      "bold-2": {
+        "label": "bold-2",
+        "n_round_trips": 30,
+        "as_traded_pnl": 470.0,
+        "fee_ex_cat_total": 14.0,
+        "cat_total": 0.12,
+        "fee_total": 14.12,
+        "net_at_zero_slippage": 455.88,
+        "total_exit_contracts": 155.0,
+        "scenarios": {
+          "0c": 455.88,
+          "1c": 454.33,
+          "2c": 452.78,
+          "3c": 451.23,
+          "5c": 448.13
+        },
+        "breakeven_slippage_cents_per_contract": 294.116
+      },
+      "risky-1": {
+        "label": "risky-1",
+        "n_round_trips": 54,
+        "as_traded_pnl": 870.0,
+        "fee_ex_cat_total": 25.22,
+        "cat_total": 0.14,
+        "fee_total": 25.36,
+        "net_at_zero_slippage": 844.64,
+        "total_exit_contracts": 277.0,
+        "scenarios": {
+          "0c": 844.64,
+          "1c": 841.87,
+          "2c": 839.1,
+          "3c": 836.33,
+          "5c": 830.79
+        },
+        "breakeven_slippage_cents_per_contract": 304.924
+      },
+      "risky-3": {
+        "label": "risky-3",
+        "n_round_trips": 52,
+        "as_traded_pnl": -216.0,
+        "fee_ex_cat_total": 38.76,
+        "cat_total": 0.15,
+        "fee_total": 38.91,
+        "net_at_zero_slippage": -254.91,
+        "total_exit_contracts": 449.0,
+        "scenarios": {
+          "0c": -254.91,
+          "1c": -259.4,
+          "2c": -263.89,
+          "3c": -268.38,
+          "5c": -277.36
+        },
+        "breakeven_slippage_cents_per_contract": -56.773
+      },
+      "safe-2": {
+        "label": "safe-2",
+        "n_round_trips": 43,
+        "as_traded_pnl": 320.0,
+        "fee_ex_cat_total": 12.34,
+        "cat_total": 0.18,
+        "fee_total": 12.52,
+        "net_at_zero_slippage": 307.48,
+        "total_exit_contracts": 132.0,
+        "scenarios": {
+          "0c": 307.48,
+          "1c": 306.16,
+          "2c": 304.84,
+          "3c": 303.52,
+          "5c": 300.88
+        },
+        "breakeven_slippage_cents_per_contract": 232.939
+      },
+      "safe-3": {
+        "label": "safe-3",
+        "n_round_trips": 31,
+        "as_traded_pnl": 300.0,
+        "fee_ex_cat_total": 10.32,
+        "cat_total": 0.12,
+        "fee_total": 10.44,
+        "net_at_zero_slippage": 289.56,
+        "total_exit_contracts": 112.0,
+        "scenarios": {
+          "0c": 289.56,
+          "1c": 288.44,
+          "2c": 287.32,
+          "3c": 286.2,
+          "5c": 283.96
+        },
+        "breakeven_slippage_cents_per_contract": 258.536
+      }
+    },
+    "right_tail_tp1_trail": {
+      "label": "tail (tp1+trail)",
+      "n_round_trips": 39,
+      "as_traded_pnl": 12530.0,
+      "fee_ex_cat_total": 16.19,
+      "cat_total": 0.33,
+      "fee_total": 16.52,
+      "net_at_zero_slippage": 12513.48,
+      "total_exit_contracts": 176.0,
+      "scenarios": {
+        "0c": 12513.48,
+        "1c": 12511.72,
+        "2c": 12509.96,
+        "3c": 12508.2,
+        "5c": 12504.68
+      },
+      "breakeven_slippage_cents_per_contract": 7109.932
+    },
+    "rest_ex_tail": {
+      "label": "rest",
+      "n_round_trips": 171,
+      "as_traded_pnl": -10786.0,
+      "fee_ex_cat_total": 84.45,
+      "cat_total": 0.62,
+      "fee_total": 85.07,
+      "net_at_zero_slippage": -10871.07,
+      "total_exit_contracts": 949.0,
+      "scenarios": {
+        "0c": -10871.07,
+        "1c": -10880.56,
+        "2c": -10890.05,
+        "3c": -10899.54,
+        "5c": -10918.52
+      },
+      "breakeven_slippage_cents_per_contract": -1145.529
+    }
+  },
+  "full_history": {
+    "window": [
+      "2026-06-26",
+      "2026-08-27"
+    ],
+    "book": {
+      "label": "FULL HISTORY BOOK (all arms)",
+      "n_round_trips": 377,
+      "as_traded_pnl": -96.0,
+      "fee_ex_cat_total": 165.56,
+      "cat_total": 1.38,
+      "fee_total": 166.94,
+      "net_at_zero_slippage": -262.94,
+      "total_exit_contracts": 1843.0,
+      "scenarios": {
+        "0c": -262.94,
+        "1c": -281.37,
+        "2c": -299.8,
+        "3c": -318.23,
+        "5c": -355.09
+      },
+      "breakeven_slippage_cents_per_contract": -14.267
+    },
+    "per_arm": {
+      "bold-2": {
+        "label": "bold-2",
+        "n_round_trips": 39,
+        "as_traded_pnl": 33.0,
+        "fee_ex_cat_total": 17.9,
+        "cat_total": 0.2,
+        "fee_total": 18.1,
+        "net_at_zero_slippage": 14.9,
+        "total_exit_contracts": 198.0,
+        "scenarios": {
+          "0c": 14.9,
+          "1c": 12.92,
+          "2c": 10.94,
+          "3c": 8.96,
+          "5c": 5.0
+        },
+        "breakeven_slippage_cents_per_contract": 7.525
+      },
+      "risky-1": {
+        "label": "risky-1",
+        "n_round_trips": 78,
+        "as_traded_pnl": 642.0,
+        "fee_ex_cat_total": 36.59,
+        "cat_total": 0.25,
+        "fee_total": 36.84,
+        "net_at_zero_slippage": 605.16,
+        "total_exit_contracts": 404.0,
+        "scenarios": {
+          "0c": 605.16,
+          "1c": 601.12,
+          "2c": 597.08,
+          "3c": 593.04,
+          "5c": 584.96
+        },
+        "breakeven_slippage_cents_per_contract": 149.792
+      },
+      "risky-3": {
+        "label": "risky-3",
+        "n_round_trips": 90,
+        "as_traded_pnl": -70.0,
+        "fee_ex_cat_total": 58.36,
+        "cat_total": 0.3,
+        "fee_total": 58.66,
+        "net_at_zero_slippage": -128.66,
+        "total_exit_contracts": 670.0,
+        "scenarios": {
+          "0c": -128.66,
+          "1c": -135.36,
+          "2c": -142.06,
+          "3c": -148.76,
+          "5c": -162.16
+        },
+        "breakeven_slippage_cents_per_contract": -19.203
+      },
+      "safe-1": {
+        "label": "safe-1",
+        "n_round_trips": 24,
+        "as_traded_pnl": -242.0,
+        "fee_ex_cat_total": 9.29,
+        "cat_total": 0.08,
+        "fee_total": 9.37,
+        "net_at_zero_slippage": -251.37,
+        "total_exit_contracts": 104.0,
+        "scenarios": {
+          "0c": -251.37,
+          "1c": -252.41,
+          "2c": -253.45,
+          "3c": -254.49,
+          "5c": -256.57
+        },
+        "breakeven_slippage_cents_per_contract": -241.702
+      },
+      "safe-2": {
+        "label": "safe-2",
+        "n_round_trips": 88,
+        "as_traded_pnl": -737.0,
+        "fee_ex_cat_total": 25.12,
+        "cat_total": 0.3,
+        "fee_total": 25.42,
+        "net_at_zero_slippage": -762.42,
+        "total_exit_contracts": 269.0,
+        "scenarios": {
+          "0c": -762.42,
+          "1c": -765.11,
+          "2c": -767.8,
+          "3c": -770.49,
+          "5c": -775.87
+        },
+        "breakeven_slippage_cents_per_contract": -283.428
+      },
+      "safe-3": {
+        "label": "safe-3",
+        "n_round_trips": 58,
+        "as_traded_pnl": 278.0,
+        "fee_ex_cat_total": 18.3,
+        "cat_total": 0.25,
+        "fee_total": 18.55,
+        "net_at_zero_slippage": 259.45,
+        "total_exit_contracts": 198.0,
+        "scenarios": {
+          "0c": 259.45,
+          "1c": 257.47,
+          "2c": 255.49,
+          "3c": 253.51,
+          "5c": 249.55
+        },
+        "breakeven_slippage_cents_per_contract": 131.035
+      }
+    }
+  }
+}

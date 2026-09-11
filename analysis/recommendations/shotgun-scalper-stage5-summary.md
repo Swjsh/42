@@ -1,6 +1,6 @@
 # SHOTGUN_SCALPER Stage 5 — Ratification Scorecard
 
-Generated: 2026-07-14T17:01:29.840143+00:00
+Generated: 2026-09-10T17:12:09.923235+00:00
 Source: stage4  |  Input keepers: 7  |  Stage5 passed: 5
 
 ## Summary of all candidates

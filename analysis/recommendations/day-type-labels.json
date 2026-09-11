@@ -1,8 +1,8 @@
 {
  "_meta": {
   "prereg": "analysis/recommendations/prereg-day-type-classifier-2026-09-03.md",
-  "generated_at_et": "2026-09-03T18:16:47.088852",
-  "today_session_et": "2026-09-03",
+  "generated_at_et": "2026-09-10T17:20:00.687126",
+  "today_session_et": "2026-09-10",
   "label_table_start_date": "2026-07-01",
   "sources": {
    "labels": "automation/state/fills-ledger.jsonl",
@@ -15,16 +15,17 @@
    "2026-08-27",
    "2026-08-28"
   ],
-  "build_wall_seconds": 0.827
+  "build_wall_seconds": 0.963
  },
  "label_summary": {
   "label_counts": {
-   "tax": 16,
-   "paying": 16,
+   "tax": 17,
+   "paying": 17,
    "mixed": 9,
+   "no_trade": 1,
    "in_progress": 1
   },
-  "n_sessions": 42,
+  "n_sessions": 45,
   "anchor_day_check": {
    "2026-08-06": {
     "label": "paying",
@@ -1740,8 +1741,8 @@
    "n_still_open": 0,
    "book_pnl": 734.0,
    "had_exit_ge_1_3x": true,
-   "label": "in_progress",
-   "label_rule": "current_session_never_finalized",
+   "label": "paying",
+   "label_rule": "book>0_and_exit>=1.3x",
    "arms_active": [
     "bold-2",
     "risky-1",
@@ -1768,6 +1769,127 @@
     "n_ticks_in_window": 15,
     "opening_range_width_dollars": 4.605,
     "opening_range_position_vs_prior_range": 1.2098,
+    "first_15min_ribbon_flips_count": 0
+   }
+  },
+  {
+   "date": "2026-09-04",
+   "day_of_week": "Friday",
+   "n_activities_total": 2,
+   "n_closed": 0,
+   "n_winners": 0,
+   "n_losers": 0,
+   "n_scratch": 0,
+   "n_still_open": 2,
+   "book_pnl": 0,
+   "had_exit_ge_1_3x": false,
+   "label": "no_trade",
+   "label_rule": "zero_closed_activities",
+   "arms_active": [
+    "bold-2",
+    "safe-2"
+   ],
+   "features_0935": {
+    "overnight_gap_dollars": -0.04,
+    "overnight_gap_pct": -0.0052,
+    "prior_day_range_dollars": 8.76,
+    "vix_level_0935": 14.11,
+    "vix_overnight_change": -0.25,
+    "vix_5d_slope": 0.012,
+    "vix_5d_slope_n": 5,
+    "vix_20d_slope": 0.01044,
+    "vix_20d_slope_n": 20,
+    "event_calendar_flag": false,
+    "event_calendar_severity": null,
+    "event_calendar_reason": "from this tick's own context_bundle.events",
+    "es_spy_premarket_trend": null,
+    "es_spy_premarket_trend_reason": "no cached ES/premarket-futures bar series exists in this repo (verified this build) -- frozen NOT_AVAILABLE, never fabricated (C7)"
+   },
+   "features_0945": {
+    "n_ticks_in_window": 15,
+    "opening_range_width_dollars": 0.715,
+    "opening_range_position_vs_prior_range": 0.8827,
+    "first_15min_ribbon_flips_count": 1
+   }
+  },
+  {
+   "date": "2026-09-08",
+   "day_of_week": "Tuesday",
+   "n_activities_total": 2,
+   "n_closed": 2,
+   "n_winners": 0,
+   "n_losers": 2,
+   "n_scratch": 0,
+   "n_still_open": 0,
+   "book_pnl": -116.0,
+   "had_exit_ge_1_3x": false,
+   "label": "tax",
+   "label_rule": "book<0_and_zero_winners",
+   "arms_active": [
+    "bold-2",
+    "safe-2"
+   ],
+   "features_0935": {
+    "overnight_gap_dollars": 0.0,
+    "overnight_gap_pct": 0.0,
+    "prior_day_range_dollars": 0.0,
+    "vix_level_0935": 15.34,
+    "vix_overnight_change": 0.04,
+    "vix_5d_slope": -0.322,
+    "vix_5d_slope_n": 5,
+    "vix_20d_slope": 0.00215,
+    "vix_20d_slope_n": 20,
+    "event_calendar_flag": false,
+    "event_calendar_severity": null,
+    "event_calendar_reason": "from this tick's own context_bundle.events",
+    "es_spy_premarket_trend": null,
+    "es_spy_premarket_trend_reason": "no cached ES/premarket-futures bar series exists in this repo (verified this build) -- frozen NOT_AVAILABLE, never fabricated (C7)"
+   },
+   "features_0945": {
+    "n_ticks_in_window": 15,
+    "opening_range_width_dollars": 2.235,
+    "opening_range_position_vs_prior_range": null,
+    "first_15min_ribbon_flips_count": 1
+   }
+  },
+  {
+   "date": "2026-09-10",
+   "day_of_week": "Thursday",
+   "n_activities_total": 4,
+   "n_closed": 4,
+   "n_winners": 0,
+   "n_losers": 4,
+   "n_scratch": 0,
+   "n_still_open": 0,
+   "book_pnl": -790.0,
+   "had_exit_ge_1_3x": false,
+   "label": "in_progress",
+   "label_rule": "current_session_never_finalized",
+   "arms_active": [
+    "bold-2",
+    "risky-1",
+    "safe-3"
+   ],
+   "features_0935": {
+    "overnight_gap_dollars": -0.265,
+    "overnight_gap_pct": -0.0347,
+    "prior_day_range_dollars": 3.085,
+    "vix_level_0935": 17.7,
+    "vix_overnight_change": 1.51,
+    "vix_5d_slope": 0.485,
+    "vix_5d_slope_n": 5,
+    "vix_20d_slope": 0.01471,
+    "vix_20d_slope_n": 20,
+    "event_calendar_flag": false,
+    "event_calendar_severity": null,
+    "event_calendar_reason": "from this tick's own context_bundle.events",
+    "es_spy_premarket_trend": null,
+    "es_spy_premarket_trend_reason": "no cached ES/premarket-futures bar series exists in this repo (verified this build) -- frozen NOT_AVAILABLE, never fabricated (C7)"
+   },
+   "features_0945": {
+    "n_ticks_in_window": 15,
+    "opening_range_width_dollars": 4.635,
+    "opening_range_position_vs_prior_range": -0.312,
     "first_15min_ribbon_flips_count": 0
    }
   }
@@ -1972,15 +2094,27 @@
     "predicted": "trade",
     "realized_label": "paying",
     "in_sample": true
+   },
+   {
+    "date": "2026-09-03",
+    "predicted": "trade",
+    "realized_label": "paying",
+    "in_sample": true
+   },
+   {
+    "date": "2026-09-08",
+    "predicted": "trade",
+    "realized_label": "tax",
+    "in_sample": false
    }
   ],
   "forward_counts": {
    "tax_days_predicted_stand_down": 0,
-   "tax_days_total": 0,
+   "tax_days_total": 1,
    "paying_days_predicted_trade": 0,
    "paying_days_total": 0
   },
-  "n_forward_sessions": 0,
+  "n_forward_sessions": 1,
   "forward_min_sessions": 20,
   "status": "ACCRUING"
  }

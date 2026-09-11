@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T22:06:36",
+  "generated_at": "2026-09-10T06:50:28",
   "purpose": "Quantify the 'day+side selection / L174 NOT INDEPENDENT' caveat at the OOS(2026) VALIDATION level (the historical half of the 2026-07-25 postmortem thread; the LIVE-sample half was already closed same day via trade_to_learn_digest.py n_distinct_days).",
   "data_window": {
     "start": "2025-01-01",

@@ -1,0 +1,231 @@
+{
+  "generated": "chef 2026-07-07 offline vwapcont_dte_atm_ab",
+  "family": "vwap_continuation",
+  "cell": {
+    "strike_offset": 0,
+    "note": "ATM Safe-2 armed cell",
+    "premium_stop": -0.06,
+    "tp1_pct": 0.3
+  },
+  "window": "2025-01-02..2026-06-16",
+  "oos_year": 2026,
+  "cells": {
+    "0dte": {
+      "n": 156,
+      "fill_rate": 0.94,
+      "wr": 44.9,
+      "exp": 37.08,
+      "oos_n": 49,
+      "oos_exp": 28.9,
+      "oos_wr": 38.8,
+      "oos_drop3_exp": 16.74,
+      "held_overnight_pct": 0.0,
+      "total_pnl": 5785.0,
+      "null_exp": 4.63,
+      "p_null": 0.005
+    },
+    "2dte": {
+      "n": 165,
+      "fill_rate": 0.994,
+      "wr": 38.2,
+      "exp": 54.21,
+      "oos_n": 50,
+      "oos_exp": 45.04,
+      "oos_wr": 36.0,
+      "oos_drop3_exp": 22.39,
+      "held_overnight_pct": 0.6,
+      "total_pnl": 8945.0,
+      "null_exp": 1.38,
+      "p_null": 0.0647
+    }
+  },
+  "gates": {
+    "oos_positive_and_2dte_gt_0dte": true,
+    "walk_forward_ge_0.70": false,
+    "quarters_stable_no_much_worse": false,
+    "anchor_no_regression": true,
+    "drop_top3_positive": true,
+    "same_day_exit_unaffected": true
+  },
+  "gate_thresholds": {
+    "wf_min": 0.7,
+    "quarter_much_worse": -8.0
+  },
+  "walk_forward": {
+    "ratio": 0.556,
+    "windows": [
+      {
+        "month": "2025-01",
+        "e0": 78.89,
+        "e2": 143.08,
+        "2dte_ge_0dte": true
+      },
+      {
+        "month": "2025-02",
+        "e0": 66.14,
+        "e2": 154.88,
+        "2dte_ge_0dte": true
+      },
+      {
+        "month": "2025-03",
+        "e0": 82.23,
+        "e2": -11.43,
+        "2dte_ge_0dte": false
+      },
+      {
+        "month": "2025-04",
+        "e0": 28.89,
+        "e2": 35.07,
+        "2dte_ge_0dte": true
+      },
+      {
+        "month": "2025-05",
+        "e0": 6.98,
+        "e2": 82.53,
+        "2dte_ge_0dte": true
+      },
+      {
+        "month": "2025-06",
+        "e0": 60.02,
+        "e2": 89.33,
+        "2dte_ge_0dte": true
+      },
+      {
+        "month": "2025-07",
+        "e0": 14.2,
+        "e2": 8.42,
+        "2dte_ge_0dte": false
+      },
+      {
+        "month": "2025-08",
+        "e0": 22.26,
+        "e2": 89.82,
+        "2dte_ge_0dte": true
+      },
+      {
+        "month": "2025-09",
+        "e0": 48.37,
+        "e2": -182.1,
+        "2dte_ge_0dte": false
+      },
+      {
+        "month": "2025-10",
+        "e0": -10.79,
+        "e2": -18.9,
+        "2dte_ge_0dte": false
+      },
+      {
+        "month": "2025-11",
+        "e0": 84.42,
+        "e2": 229.61,
+        "2dte_ge_0dte": true
+      },
+      {
+        "month": "2025-12",
+        "e0": 41.14,
+        "e2": 95.65,
+        "2dte_ge_0dte": true
+      },
+      {
+        "month": "2026-01",
+        "e0": 51.39,
+        "e2": 78.12,
+        "2dte_ge_0dte": true
+      },
+      {
+        "month": "2026-02",
+        "e0": 63.85,
+        "e2": 258.41,
+        "2dte_ge_0dte": true
+      },
+      {
+        "month": "2026-03",
+        "e0": 22.68,
+        "e2": -59.13,
+        "2dte_ge_0dte": false
+      },
+      {
+        "month": "2026-04",
+        "e0": 27.39,
+        "e2": -19.0,
+        "2dte_ge_0dte": false
+      },
+      {
+        "month": "2026-05",
+        "e0": 7.35,
+        "e2": -7.68,
+        "2dte_ge_0dte": false
+      },
+      {
+        "month": "2026-06",
+        "e0": -28.62,
+        "e2": -78.36,
+        "2dte_ge_0dte": false
+      }
+    ]
+  },
+  "quarters": [
+    {
+      "quarter": "2025Q1",
+      "e0": 76.01,
+      "e2": 87.28,
+      "delta_2dte_minus_0dte": 11.27
+    },
+    {
+      "quarter": "2025Q2",
+      "e0": 30.74,
+      "e2": 62.2,
+      "delta_2dte_minus_0dte": 31.46
+    },
+    {
+      "quarter": "2025Q3",
+      "e0": 26.19,
+      "e2": -14.7,
+      "delta_2dte_minus_0dte": -40.89
+    },
+    {
+      "quarter": "2025Q4",
+      "e0": 32.75,
+      "e2": 87.55,
+      "delta_2dte_minus_0dte": 54.8
+    },
+    {
+      "quarter": "2026Q1",
+      "e0": 46.72,
+      "e2": 100.74,
+      "delta_2dte_minus_0dte": 54.02
+    },
+    {
+      "quarter": "2026Q2",
+      "e0": 8.76,
+      "e2": -20.35,
+      "delta_2dte_minus_0dte": -29.11
+    }
+  ],
+  "quarters_much_worse": [
+    "2025Q3",
+    "2026Q2"
+  ],
+  "anchor": [
+    {
+      "day": "2025-04-29",
+      "pnl_0dte": -38.16,
+      "pnl_2dte": -92.34,
+      "regression": false
+    },
+    {
+      "day": "2025-05-01",
+      "pnl_0dte": 0,
+      "pnl_2dte": 0,
+      "regression": false
+    },
+    {
+      "day": "2025-05-04",
+      "pnl_0dte": 0,
+      "pnl_2dte": 0,
+      "regression": false
+    }
+  ],
+  "anchor_regression": false,
+  "verdict": "HOLD"
+}

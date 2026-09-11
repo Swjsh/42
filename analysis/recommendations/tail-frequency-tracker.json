@@ -1,0 +1,42 @@
+{
+  "generated_at_et": "2026-09-10 23:25:12 ",
+  "prereg_id": "PREREG-TAIL-FREQUENCY-2026-09-10",
+  "prereg_file": "analysis/preregs/prereg-tail-frequency-2026-09-10.json",
+  "observation_window": {
+    "start": "2026-09-11",
+    "end": "2026-10-30"
+  },
+  "primary_metric": "count of trading days with all-arms engine-attributed book P&L > +$500",
+  "n_tail_days": 0,
+  "n_trading_days_with_fills": 0,
+  "verdict": "UNDERPOWERED",
+  "verdict_reason": "only 0 trading day(s) with engine fills in the window (need >= 10); no verdict rather than a weak one",
+  "decision_rule_frozen_before_data": true,
+  "scopes": {
+    "all_arms": {
+      "lifetime_trips": 419,
+      "lifetime_days": 47,
+      "lifetime_net": 349.0,
+      "lifetime_net_ex_top_1_day": -3275.0,
+      "best_day": "2026-08-04",
+      "window_days_with_fills": 0,
+      "window_net": 0,
+      "tail_days_gt_500": [],
+      "n_tail_days": 0,
+      "n_tail_days_gt_1000": 0
+    },
+    "active_4": {
+      "lifetime_trips": 300,
+      "lifetime_days": 44,
+      "lifetime_net": 1121.0,
+      "lifetime_net_ex_top_1_day": -1698.0,
+      "best_day": "2026-08-04",
+      "window_days_with_fills": 0,
+      "window_net": 0,
+      "tail_days_gt_500": [],
+      "n_tail_days": 0,
+      "n_tail_days_gt_1000": 0
+    }
+  },
+  "freeze_note": "Measurement only. Authorises no config change. CONFIG FREEZE 2026-08-31 -> 2026-10-30 unaffected."
+}

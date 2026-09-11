@@ -1,0 +1,2779 @@
+{
+ "_meta": {
+  "prereg": "analysis/recommendations/prereg-day-type-classifier-2026-09-03.md",
+  "generated_at_et": "2026-09-05T12:05:30.722795",
+  "today_session_et": "2026-09-05",
+  "labels_source": "analysis/recommendations/day-type-labels.json",
+  "labels_regenerated_this_run": true,
+  "n_sessions_total": 43,
+  "n_labeled_paying_tax": 33,
+  "label_summary": {
+   "label_counts": {
+    "tax": 16,
+    "paying": 17,
+    "mixed": 9,
+    "no_trade": 1
+   },
+   "n_sessions": 43,
+   "anchor_day_check": {
+    "2026-08-06": {
+     "label": "paying",
+     "is_paying": true
+    },
+    "2026-08-13": {
+     "label": "paying",
+     "is_paying": true
+    },
+    "2026-08-27": {
+     "label": "paying",
+     "is_paying": true
+    },
+    "2026-08-28": {
+     "label": "paying",
+     "is_paying": true
+    }
+   },
+   "all_four_anchor_days_paying": true
+  },
+  "n_weeks": 10,
+  "features_considered": [
+   "overnight_gap_dollars",
+   "overnight_gap_pct",
+   "prior_day_range_dollars",
+   "vix_level_0935",
+   "vix_overnight_change",
+   "vix_5d_slope",
+   "vix_20d_slope",
+   "opening_range_width_dollars",
+   "opening_range_position_vs_prior_range",
+   "first_15min_ribbon_flips_count"
+  ],
+  "features_excluded": {
+   "day_of_week": "categorical -- no natural decile threshold for a single-split rule",
+   "event_calendar_flag": "boolean with heavy missingness (context_bundle v1.1 only from 2026-07-15) -- not a continuous decile-splittable feature",
+   "es_spy_premarket_trend": "always null in this repo -- no cached ES/premarket-futures bar series exists anywhere (day_type_labels.py verified this)"
+  },
+  "missing_feature_policy": "a session missing the candidate's required feature value at predict time is always predicted 'trade' (never auto-stand-down on data the classifier never saw)",
+  "n_boot": 20000,
+  "build_wall_seconds": 2.27
+ },
+ "candidates": [
+  {
+   "WF": 0.7,
+   "n_folds": 10,
+   "fold_details": [
+    {
+     "week": "2026-W27",
+     "n_train": 31,
+     "n_test": 2,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 1,
+     "n_tax_blocked": 1,
+     "n_paying": 1,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 1.0,
+     "share_paying_blocked": 0.0,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": -0.145,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.7238
+     }
+    },
+    {
+     "week": "2026-W28",
+     "n_train": 30,
+     "n_test": 3,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 3,
+     "n_tax_blocked": 3,
+     "n_paying": 0,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 1.0,
+     "share_paying_blocked": 0.0,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": -0.2475,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.7188
+     }
+    },
+    {
+     "week": "2026-W29",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 3,
+     "n_tax_blocked": 3,
+     "n_paying": 1,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 1.0,
+     "share_paying_blocked": 0.0,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": -0.235,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.6667
+     }
+    },
+    {
+     "week": "2026-W30",
+     "n_train": 30,
+     "n_test": 3,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 3,
+     "n_tax_blocked": 0,
+     "n_paying": 0,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 0.0,
+     "share_paying_blocked": 0.0,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": {
+      "threshold": -0.015,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.7917
+     }
+    },
+    {
+     "week": "2026-W31",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 2,
+     "n_tax_blocked": 2,
+     "n_paying": 2,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 1.0,
+     "share_paying_blocked": 0.0,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": -0.19,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.6795
+     }
+    },
+    {
+     "week": "2026-W32",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [
+      "2026-08-06"
+     ],
+     "anchor_ok": true,
+     "n_tax": 1,
+     "n_tax_blocked": 1,
+     "n_paying": 3,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 1.0,
+     "share_paying_blocked": 0.0,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": -0.25,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.7005
+     }
+    },
+    {
+     "week": "2026-W33",
+     "n_train": 30,
+     "n_test": 3,
+     "anchor_days_in_fold": [
+      "2026-08-13"
+     ],
+     "anchor_ok": true,
+     "n_tax": 1,
+     "n_tax_blocked": 0,
+     "n_paying": 2,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 0.0,
+     "share_paying_blocked": 0.0,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": {
+      "threshold": -0.255,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.7214
+     }
+    },
+    {
+     "week": "2026-W34",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 0,
+     "n_tax_blocked": 0,
+     "n_paying": 4,
+     "n_paying_blocked": 2,
+     "share_tax_blocked": null,
+     "share_paying_blocked": 0.5,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": -0.145,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.7833
+     }
+    },
+    {
+     "week": "2026-W35",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [
+      "2026-08-27",
+      "2026-08-28"
+     ],
+     "anchor_ok": false,
+     "n_tax": 2,
+     "n_tax_blocked": 1,
+     "n_paying": 2,
+     "n_paying_blocked": 1,
+     "share_tax_blocked": 0.5,
+     "share_paying_blocked": 0.5,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": {
+      "threshold": -0.145,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.7775
+     }
+    },
+    {
+     "week": "2026-W36",
+     "n_train": 31,
+     "n_test": 2,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 0,
+     "n_tax_blocked": 0,
+     "n_paying": 2,
+     "n_paying_blocked": 2,
+     "share_tax_blocked": null,
+     "share_paying_blocked": 1.0,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": -0.235,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.7595
+     }
+    }
+   ],
+   "anchor_day_predictions": {
+    "2026-08-06": "trade",
+    "2026-08-13": "trade",
+    "2026-08-27": "trade",
+    "2026-08-28": "standdown"
+   },
+   "oos": {
+    "n_trade_predicted_sessions": 17,
+    "bootstrap_pf_ci": {
+     "n_days": 17,
+     "n_boot_valid": 19951,
+     "pf_point": 4.916,
+     "ci_lower_2.5": 1.128,
+     "ci_upper_97.5": 74.43,
+     "p_pf_le_1": 0.017,
+     "total_pnl": 9587.0
+    },
+    "ci_lower_2.5": 1.128,
+    "tax_removal_rate": 0.7474,
+    "total_tax_entries": 95,
+    "removed_tax_entries": 71,
+    "max_week_pnl_share": 0.5865,
+    "sub_window_stable": false
+   },
+   "gates": {
+    "anchor_days_ok": false,
+    "wf_ge_0_70": true,
+    "ci_lower_gt_1": true,
+    "tax_removal_ge_50pct": true,
+    "sub_window_stable": false
+   },
+   "verdict": "NOT_SHIPPABLE",
+   "candidate_id": "single_split__overnight_gap_dollars",
+   "type": "single_split",
+   "feature": "overnight_gap_dollars"
+  },
+  {
+   "WF": 0.7,
+   "n_folds": 10,
+   "fold_details": [
+    {
+     "week": "2026-W27",
+     "n_train": 31,
+     "n_test": 2,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 1,
+     "n_tax_blocked": 1,
+     "n_paying": 1,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 1.0,
+     "share_paying_blocked": 0.0,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": -0.0189,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.7238
+     }
+    },
+    {
+     "week": "2026-W28",
+     "n_train": 30,
+     "n_test": 3,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 3,
+     "n_tax_blocked": 3,
+     "n_paying": 0,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 1.0,
+     "share_paying_blocked": 0.0,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": -0.0331,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.7188
+     }
+    },
+    {
+     "week": "2026-W29",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 3,
+     "n_tax_blocked": 3,
+     "n_paying": 1,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 1.0,
+     "share_paying_blocked": 0.0,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": -0.0314,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.6667
+     }
+    },
+    {
+     "week": "2026-W30",
+     "n_train": 30,
+     "n_test": 3,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 3,
+     "n_tax_blocked": 0,
+     "n_paying": 0,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 0.0,
+     "share_paying_blocked": 0.0,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": {
+      "threshold": -0.00195,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.7917
+     }
+    },
+    {
+     "week": "2026-W31",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 2,
+     "n_tax_blocked": 2,
+     "n_paying": 2,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 1.0,
+     "share_paying_blocked": 0.0,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": -0.02515,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.6795
+     }
+    },
+    {
+     "week": "2026-W32",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [
+      "2026-08-06"
+     ],
+     "anchor_ok": true,
+     "n_tax": 1,
+     "n_tax_blocked": 1,
+     "n_paying": 3,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 1.0,
+     "share_paying_blocked": 0.0,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": -0.03344,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.7005
+     }
+    },
+    {
+     "week": "2026-W33",
+     "n_train": 30,
+     "n_test": 3,
+     "anchor_days_in_fold": [
+      "2026-08-13"
+     ],
+     "anchor_ok": true,
+     "n_tax": 1,
+     "n_tax_blocked": 0,
+     "n_paying": 2,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 0.0,
+     "share_paying_blocked": 0.0,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": {
+      "threshold": -0.03411999999999999,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.7214
+     }
+    },
+    {
+     "week": "2026-W34",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 0,
+     "n_tax_blocked": 0,
+     "n_paying": 4,
+     "n_paying_blocked": 2,
+     "share_tax_blocked": null,
+     "share_paying_blocked": 0.5,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": -0.0189,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.7833
+     }
+    },
+    {
+     "week": "2026-W35",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [
+      "2026-08-27",
+      "2026-08-28"
+     ],
+     "anchor_ok": false,
+     "n_tax": 2,
+     "n_tax_blocked": 1,
+     "n_paying": 2,
+     "n_paying_blocked": 1,
+     "share_tax_blocked": 0.5,
+     "share_paying_blocked": 0.5,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": {
+      "threshold": -0.0189,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.7775
+     }
+    },
+    {
+     "week": "2026-W36",
+     "n_train": 31,
+     "n_test": 2,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 0,
+     "n_tax_blocked": 0,
+     "n_paying": 2,
+     "n_paying_blocked": 2,
+     "share_tax_blocked": null,
+     "share_paying_blocked": 1.0,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": -0.0314,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.7595
+     }
+    }
+   ],
+   "anchor_day_predictions": {
+    "2026-08-06": "trade",
+    "2026-08-13": "trade",
+    "2026-08-27": "trade",
+    "2026-08-28": "standdown"
+   },
+   "oos": {
+    "n_trade_predicted_sessions": 17,
+    "bootstrap_pf_ci": {
+     "n_days": 17,
+     "n_boot_valid": 19951,
+     "pf_point": 4.916,
+     "ci_lower_2.5": 1.128,
+     "ci_upper_97.5": 74.43,
+     "p_pf_le_1": 0.017,
+     "total_pnl": 9587.0
+    },
+    "ci_lower_2.5": 1.128,
+    "tax_removal_rate": 0.7474,
+    "total_tax_entries": 95,
+    "removed_tax_entries": 71,
+    "max_week_pnl_share": 0.5865,
+    "sub_window_stable": false
+   },
+   "gates": {
+    "anchor_days_ok": false,
+    "wf_ge_0_70": true,
+    "ci_lower_gt_1": true,
+    "tax_removal_ge_50pct": true,
+    "sub_window_stable": false
+   },
+   "verdict": "NOT_SHIPPABLE",
+   "candidate_id": "single_split__overnight_gap_pct",
+   "type": "single_split",
+   "feature": "overnight_gap_pct"
+  },
+  {
+   "WF": 0.7,
+   "n_folds": 10,
+   "fold_details": [
+    {
+     "week": "2026-W27",
+     "n_train": 31,
+     "n_test": 2,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 1,
+     "n_tax_blocked": 1,
+     "n_paying": 1,
+     "n_paying_blocked": 1,
+     "share_tax_blocked": 1.0,
+     "share_paying_blocked": 1.0,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": {
+      "threshold": 6.44,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.6062
+     }
+    },
+    {
+     "week": "2026-W28",
+     "n_train": 30,
+     "n_test": 3,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 3,
+     "n_tax_blocked": 1,
+     "n_paying": 0,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 0.3333333333333333,
+     "share_paying_blocked": 0.0,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": 6.563,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.6425
+     }
+    },
+    {
+     "week": "2026-W29",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 3,
+     "n_tax_blocked": 0,
+     "n_paying": 1,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 0.0,
+     "share_paying_blocked": 0.0,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": {
+      "threshold": 6.72,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.7067
+     }
+    },
+    {
+     "week": "2026-W30",
+     "n_train": 30,
+     "n_test": 3,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 3,
+     "n_tax_blocked": 1,
+     "n_paying": 0,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 0.3333333333333333,
+     "share_paying_blocked": 0.0,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": 6.563,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.6425
+     }
+    },
+    {
+     "week": "2026-W31",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 2,
+     "n_tax_blocked": 2,
+     "n_paying": 2,
+     "n_paying_blocked": 1,
+     "share_tax_blocked": 1.0,
+     "share_paying_blocked": 0.5,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": 6.670000000000001,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.6452
+     }
+    },
+    {
+     "week": "2026-W32",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [
+      "2026-08-06"
+     ],
+     "anchor_ok": true,
+     "n_tax": 1,
+     "n_tax_blocked": 1,
+     "n_paying": 3,
+     "n_paying_blocked": 1,
+     "share_tax_blocked": 1.0,
+     "share_paying_blocked": 0.3333333333333333,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": 6.882000000000001,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.631
+     }
+    },
+    {
+     "week": "2026-W33",
+     "n_train": 30,
+     "n_test": 3,
+     "anchor_days_in_fold": [
+      "2026-08-13"
+     ],
+     "anchor_ok": true,
+     "n_tax": 1,
+     "n_tax_blocked": 1,
+     "n_paying": 2,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 1.0,
+     "share_paying_blocked": 0.0,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": 6.563,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.6
+     }
+    },
+    {
+     "week": "2026-W34",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 0,
+     "n_tax_blocked": 0,
+     "n_paying": 4,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": null,
+     "share_paying_blocked": 0.0,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": 6.72,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.6418
+     }
+    },
+    {
+     "week": "2026-W35",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [
+      "2026-08-27",
+      "2026-08-28"
+     ],
+     "anchor_ok": true,
+     "n_tax": 2,
+     "n_tax_blocked": 0,
+     "n_paying": 2,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 0.0,
+     "share_paying_blocked": 0.0,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": {
+      "threshold": 6.72,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.6833
+     }
+    },
+    {
+     "week": "2026-W36",
+     "n_train": 31,
+     "n_test": 2,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 0,
+     "n_tax_blocked": 0,
+     "n_paying": 2,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": null,
+     "share_paying_blocked": 0.0,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": 6.57,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.6521
+     }
+    }
+   ],
+   "anchor_day_predictions": {
+    "2026-08-06": "trade",
+    "2026-08-13": "trade",
+    "2026-08-27": "trade",
+    "2026-08-28": "trade"
+   },
+   "oos": {
+    "n_trade_predicted_sessions": 23,
+    "bootstrap_pf_ci": {
+     "n_days": 23,
+     "n_boot_valid": 19999,
+     "pf_point": 6.746,
+     "ci_lower_2.5": 2.381,
+     "ci_upper_97.5": 22.953,
+     "p_pf_le_1": 0.001,
+     "total_pnl": 9452.0
+    },
+    "ci_lower_2.5": 2.381,
+    "tax_removal_rate": 0.5474,
+    "total_tax_entries": 95,
+    "removed_tax_entries": 52,
+    "max_week_pnl_share": 0.3094,
+    "sub_window_stable": true
+   },
+   "gates": {
+    "anchor_days_ok": true,
+    "wf_ge_0_70": true,
+    "ci_lower_gt_1": true,
+    "tax_removal_ge_50pct": true,
+    "sub_window_stable": true
+   },
+   "verdict": "SHADOW_CANDIDATE",
+   "candidate_id": "single_split__prior_day_range_dollars",
+   "type": "single_split",
+   "feature": "prior_day_range_dollars"
+  },
+  {
+   "WF": 0.5,
+   "n_folds": 10,
+   "fold_details": [
+    {
+     "week": "2026-W27",
+     "n_train": 31,
+     "n_test": 2,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 1,
+     "n_tax_blocked": 1,
+     "n_paying": 1,
+     "n_paying_blocked": 1,
+     "share_tax_blocked": 1.0,
+     "share_paying_blocked": 1.0,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": {
+      "threshold": 15.998,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.7214
+     }
+    },
+    {
+     "week": "2026-W28",
+     "n_train": 30,
+     "n_test": 3,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 3,
+     "n_tax_blocked": 2,
+     "n_paying": 0,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 0.6666666666666666,
+     "share_paying_blocked": 0.0,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": 16.03,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.7396
+     }
+    },
+    {
+     "week": "2026-W29",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 3,
+     "n_tax_blocked": 0,
+     "n_paying": 1,
+     "n_paying_blocked": 1,
+     "share_tax_blocked": 0.0,
+     "share_paying_blocked": 1.0,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": {
+      "threshold": 16.744,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.7583
+     }
+    },
+    {
+     "week": "2026-W30",
+     "n_train": 30,
+     "n_test": 3,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 3,
+     "n_tax_blocked": 3,
+     "n_paying": 0,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 1.0,
+     "share_paying_blocked": 0.0,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": 16.15,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.6875
+     }
+    },
+    {
+     "week": "2026-W31",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 2,
+     "n_tax_blocked": 2,
+     "n_paying": 2,
+     "n_paying_blocked": 1,
+     "share_tax_blocked": 1.0,
+     "share_paying_blocked": 0.5,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": 16.15,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.7359
+     }
+    },
+    {
+     "week": "2026-W32",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [
+      "2026-08-06"
+     ],
+     "anchor_ok": true,
+     "n_tax": 1,
+     "n_tax_blocked": 0,
+     "n_paying": 3,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 0.0,
+     "share_paying_blocked": 0.0,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": {
+      "threshold": 16.168,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.7445
+     }
+    },
+    {
+     "week": "2026-W33",
+     "n_train": 30,
+     "n_test": 3,
+     "anchor_days_in_fold": [
+      "2026-08-13"
+     ],
+     "anchor_ok": true,
+     "n_tax": 1,
+     "n_tax_blocked": 0,
+     "n_paying": 2,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 0.0,
+     "share_paying_blocked": 0.0,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": {
+      "threshold": 16.15,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.7286
+     }
+    },
+    {
+     "week": "2026-W34",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 0,
+     "n_tax_blocked": 0,
+     "n_paying": 4,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": null,
+     "share_paying_blocked": 0.0,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": 16.168,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.7167
+     }
+    },
+    {
+     "week": "2026-W35",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [
+      "2026-08-27",
+      "2026-08-28"
+     ],
+     "anchor_ok": true,
+     "n_tax": 2,
+     "n_tax_blocked": 0,
+     "n_paying": 2,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 0.0,
+     "share_paying_blocked": 0.0,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": {
+      "threshold": 16.0,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.7775
+     }
+    },
+    {
+     "week": "2026-W36",
+     "n_train": 31,
+     "n_test": 2,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 0,
+     "n_tax_blocked": 0,
+     "n_paying": 2,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": null,
+     "share_paying_blocked": 0.0,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": 16.15,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.7286
+     }
+    }
+   ],
+   "anchor_day_predictions": {
+    "2026-08-06": "trade",
+    "2026-08-13": "trade",
+    "2026-08-27": "trade",
+    "2026-08-28": "trade"
+   },
+   "oos": {
+    "n_trade_predicted_sessions": 22,
+    "bootstrap_pf_ci": {
+     "n_days": 22,
+     "n_boot_valid": 19998,
+     "pf_point": 2.646,
+     "ci_lower_2.5": 0.734,
+     "ci_upper_97.5": 30.492,
+     "p_pf_le_1": 0.067,
+     "total_pnl": 8790.0
+    },
+    "ci_lower_2.5": 0.734,
+    "tax_removal_rate": 0.4947,
+    "total_tax_entries": 95,
+    "removed_tax_entries": 47,
+    "max_week_pnl_share": 0.334,
+    "sub_window_stable": true
+   },
+   "gates": {
+    "anchor_days_ok": true,
+    "wf_ge_0_70": false,
+    "ci_lower_gt_1": false,
+    "tax_removal_ge_50pct": false,
+    "sub_window_stable": true
+   },
+   "verdict": "NOT_SHIPPABLE",
+   "candidate_id": "single_split__vix_level_0935",
+   "type": "single_split",
+   "feature": "vix_level_0935"
+  },
+  {
+   "WF": 0.2,
+   "n_folds": 10,
+   "fold_details": [
+    {
+     "week": "2026-W27",
+     "n_train": 31,
+     "n_test": 2,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 1,
+     "n_tax_blocked": 0,
+     "n_paying": 1,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 0.0,
+     "share_paying_blocked": 0.0,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": {
+      "threshold": -0.6059999999999999,
+      "direction": "high_is_paying",
+      "train_balanced_acc": 0.6071
+     }
+    },
+    {
+     "week": "2026-W28",
+     "n_train": 30,
+     "n_test": 3,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 3,
+     "n_tax_blocked": 0,
+     "n_paying": 0,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 0.0,
+     "share_paying_blocked": 0.0,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": {
+      "threshold": -0.6489999999999999,
+      "direction": "high_is_paying",
+      "train_balanced_acc": 0.625
+     }
+    },
+    {
+     "week": "2026-W29",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 3,
+     "n_tax_blocked": 0,
+     "n_paying": 1,
+     "n_paying_blocked": 1,
+     "share_tax_blocked": 0.0,
+     "share_paying_blocked": 1.0,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": {
+      "threshold": 1.038,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.625
+     }
+    },
+    {
+     "week": "2026-W30",
+     "n_train": 30,
+     "n_test": 3,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 3,
+     "n_tax_blocked": 0,
+     "n_paying": 0,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 0.0,
+     "share_paying_blocked": 0.0,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": {
+      "threshold": -0.6489999999999999,
+      "direction": "high_is_paying",
+      "train_balanced_acc": 0.625
+     }
+    },
+    {
+     "week": "2026-W31",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 2,
+     "n_tax_blocked": 0,
+     "n_paying": 2,
+     "n_paying_blocked": 1,
+     "share_tax_blocked": 0.0,
+     "share_paying_blocked": 0.5,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": {
+      "threshold": -0.136,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.6282
+     }
+    },
+    {
+     "week": "2026-W32",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [
+      "2026-08-06"
+     ],
+     "anchor_ok": true,
+     "n_tax": 1,
+     "n_tax_blocked": 0,
+     "n_paying": 3,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 0.0,
+     "share_paying_blocked": 0.0,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": {
+      "threshold": -0.692,
+      "direction": "high_is_paying",
+      "train_balanced_acc": 0.6071
+     }
+    },
+    {
+     "week": "2026-W33",
+     "n_train": 30,
+     "n_test": 3,
+     "anchor_days_in_fold": [
+      "2026-08-13"
+     ],
+     "anchor_ok": true,
+     "n_tax": 1,
+     "n_tax_blocked": 0,
+     "n_paying": 2,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 0.0,
+     "share_paying_blocked": 0.0,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": {
+      "threshold": -0.6059999999999999,
+      "direction": "high_is_paying",
+      "train_balanced_acc": 0.6
+     }
+    },
+    {
+     "week": "2026-W34",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 0,
+     "n_tax_blocked": 0,
+     "n_paying": 4,
+     "n_paying_blocked": 3,
+     "share_tax_blocked": null,
+     "share_paying_blocked": 0.75,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": 0.11,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.6333
+     }
+    },
+    {
+     "week": "2026-W35",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [
+      "2026-08-27",
+      "2026-08-28"
+     ],
+     "anchor_ok": true,
+     "n_tax": 2,
+     "n_tax_blocked": 0,
+     "n_paying": 2,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 0.0,
+     "share_paying_blocked": 0.0,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": {
+      "threshold": -0.692,
+      "direction": "high_is_paying",
+      "train_balanced_acc": 0.6154
+     }
+    },
+    {
+     "week": "2026-W36",
+     "n_train": 31,
+     "n_test": 2,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 0,
+     "n_tax_blocked": 0,
+     "n_paying": 2,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": null,
+     "share_paying_blocked": 0.0,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": -0.6059999999999999,
+      "direction": "high_is_paying",
+      "train_balanced_acc": 0.6
+     }
+    }
+   ],
+   "anchor_day_predictions": {
+    "2026-08-06": "trade",
+    "2026-08-13": "trade",
+    "2026-08-27": "trade",
+    "2026-08-28": "trade"
+   },
+   "oos": {
+    "n_trade_predicted_sessions": 28,
+    "bootstrap_pf_ci": {
+     "n_days": 28,
+     "n_boot_valid": 20000,
+     "pf_point": 1.697,
+     "ci_lower_2.5": 0.501,
+     "ci_upper_97.5": 6.44,
+     "p_pf_le_1": 0.183,
+     "total_pnl": 5453.0
+    },
+    "ci_lower_2.5": 0.501,
+    "tax_removal_rate": 0.0,
+    "total_tax_entries": 95,
+    "removed_tax_entries": 0,
+    "max_week_pnl_share": 0.5384,
+    "sub_window_stable": false
+   },
+   "gates": {
+    "anchor_days_ok": true,
+    "wf_ge_0_70": false,
+    "ci_lower_gt_1": false,
+    "tax_removal_ge_50pct": false,
+    "sub_window_stable": false
+   },
+   "verdict": "NOT_SHIPPABLE",
+   "candidate_id": "single_split__vix_overnight_change",
+   "type": "single_split",
+   "feature": "vix_overnight_change"
+  },
+  {
+   "WF": 0.4,
+   "n_folds": 10,
+   "fold_details": [
+    {
+     "week": "2026-W27",
+     "n_train": 31,
+     "n_test": 2,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 1,
+     "n_tax_blocked": 0,
+     "n_paying": 1,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 0.0,
+     "share_paying_blocked": 0.0,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": {
+      "threshold": -0.174,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.6542
+     }
+    },
+    {
+     "week": "2026-W28",
+     "n_train": 30,
+     "n_test": 3,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 3,
+     "n_tax_blocked": 0,
+     "n_paying": 0,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 0.0,
+     "share_paying_blocked": 0.0,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": {
+      "threshold": -0.05,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.6697
+     }
+    },
+    {
+     "week": "2026-W29",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 3,
+     "n_tax_blocked": 3,
+     "n_paying": 1,
+     "n_paying_blocked": 1,
+     "share_tax_blocked": 1.0,
+     "share_paying_blocked": 1.0,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": {
+      "threshold": -0.16279999999999997,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.6418
+     }
+    },
+    {
+     "week": "2026-W30",
+     "n_train": 30,
+     "n_test": 3,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 3,
+     "n_tax_blocked": 3,
+     "n_paying": 0,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 1.0,
+     "share_paying_blocked": 0.0,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": -0.1544,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.629
+     }
+    },
+    {
+     "week": "2026-W31",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 2,
+     "n_tax_blocked": 2,
+     "n_paying": 2,
+     "n_paying_blocked": 1,
+     "share_tax_blocked": 1.0,
+     "share_paying_blocked": 0.5,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": -0.17859999999999998,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.631
+     }
+    },
+    {
+     "week": "2026-W32",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [
+      "2026-08-06"
+     ],
+     "anchor_ok": false,
+     "n_tax": 1,
+     "n_tax_blocked": 0,
+     "n_paying": 3,
+     "n_paying_blocked": 2,
+     "share_tax_blocked": 0.0,
+     "share_paying_blocked": 0.6666666666666666,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": {
+      "threshold": -0.09719999999999995,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.7214
+     }
+    },
+    {
+     "week": "2026-W33",
+     "n_train": 30,
+     "n_test": 3,
+     "anchor_days_in_fold": [
+      "2026-08-13"
+     ],
+     "anchor_ok": false,
+     "n_tax": 1,
+     "n_tax_blocked": 1,
+     "n_paying": 2,
+     "n_paying_blocked": 1,
+     "share_tax_blocked": 1.0,
+     "share_paying_blocked": 0.5,
+     "direction_ok": true,
+     "fold_success": false,
+     "fit_used": {
+      "threshold": -0.17779999999999999,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.6333
+     }
+    },
+    {
+     "week": "2026-W34",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 0,
+     "n_tax_blocked": 0,
+     "n_paying": 4,
+     "n_paying_blocked": 3,
+     "share_tax_blocked": null,
+     "share_paying_blocked": 0.75,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": -0.1284,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.6827
+     }
+    },
+    {
+     "week": "2026-W35",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [
+      "2026-08-27",
+      "2026-08-28"
+     ],
+     "anchor_ok": false,
+     "n_tax": 2,
+     "n_tax_blocked": 2,
+     "n_paying": 2,
+     "n_paying_blocked": 2,
+     "share_tax_blocked": 1.0,
+     "share_paying_blocked": 1.0,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": {
+      "threshold": -0.20979999999999996,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.631
+     }
+    },
+    {
+     "week": "2026-W36",
+     "n_train": 31,
+     "n_test": 2,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 0,
+     "n_tax_blocked": 0,
+     "n_paying": 2,
+     "n_paying_blocked": 1,
+     "share_tax_blocked": null,
+     "share_paying_blocked": 0.5,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": -0.012,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.6813
+     }
+    }
+   ],
+   "anchor_day_predictions": {
+    "2026-08-06": "standdown",
+    "2026-08-13": "standdown",
+    "2026-08-27": "standdown",
+    "2026-08-28": "standdown"
+   },
+   "oos": {
+    "n_trade_predicted_sessions": 11,
+    "bootstrap_pf_ci": {
+     "n_days": 11,
+     "n_boot_valid": 19985,
+     "pf_point": 0.315,
+     "ci_lower_2.5": 0.049,
+     "ci_upper_97.5": 4.685,
+     "p_pf_le_1": 0.796,
+     "total_pnl": -2493.0
+    },
+    "ci_lower_2.5": 0.049,
+    "tax_removal_rate": 0.4737,
+    "total_tax_entries": 95,
+    "removed_tax_entries": 45,
+    "max_week_pnl_share": 0.8636,
+    "sub_window_stable": false
+   },
+   "gates": {
+    "anchor_days_ok": false,
+    "wf_ge_0_70": false,
+    "ci_lower_gt_1": false,
+    "tax_removal_ge_50pct": false,
+    "sub_window_stable": false
+   },
+   "verdict": "NOT_SHIPPABLE",
+   "candidate_id": "single_split__vix_5d_slope",
+   "type": "single_split",
+   "feature": "vix_5d_slope"
+  },
+  {
+   "WF": 0.3,
+   "n_folds": 10,
+   "fold_details": [
+    {
+     "week": "2026-W27",
+     "n_train": 31,
+     "n_test": 2,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 1,
+     "n_tax_blocked": 1,
+     "n_paying": 1,
+     "n_paying_blocked": 1,
+     "share_tax_blocked": 1.0,
+     "share_paying_blocked": 1.0,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": {
+      "threshold": -0.2267,
+      "direction": "high_is_paying",
+      "train_balanced_acc": 0.6333
+     }
+    },
+    {
+     "week": "2026-W28",
+     "n_train": 30,
+     "n_test": 3,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 3,
+     "n_tax_blocked": 3,
+     "n_paying": 0,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 1.0,
+     "share_paying_blocked": 0.0,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": -0.027346000000000002,
+      "direction": "high_is_paying",
+      "train_balanced_acc": 0.5814
+     }
+    },
+    {
+     "week": "2026-W29",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 3,
+     "n_tax_blocked": 3,
+     "n_paying": 1,
+     "n_paying_blocked": 1,
+     "share_tax_blocked": 1.0,
+     "share_paying_blocked": 1.0,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": {
+      "threshold": -0.026241999999999998,
+      "direction": "high_is_paying",
+      "train_balanced_acc": 0.5962
+     }
+    },
+    {
+     "week": "2026-W30",
+     "n_train": 30,
+     "n_test": 3,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 3,
+     "n_tax_blocked": 0,
+     "n_paying": 0,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 0.0,
+     "share_paying_blocked": 0.0,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": {
+      "threshold": -0.19497199999999998,
+      "direction": "high_is_paying",
+      "train_balanced_acc": 0.6629
+     }
+    },
+    {
+     "week": "2026-W31",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 2,
+     "n_tax_blocked": 0,
+     "n_paying": 2,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 0.0,
+     "share_paying_blocked": 0.0,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": {
+      "threshold": -0.034394000000000036,
+      "direction": "high_is_paying",
+      "train_balanced_acc": 0.6619
+     }
+    },
+    {
+     "week": "2026-W32",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [
+      "2026-08-06"
+     ],
+     "anchor_ok": true,
+     "n_tax": 1,
+     "n_tax_blocked": 0,
+     "n_paying": 3,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 0.0,
+     "share_paying_blocked": 0.0,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": {
+      "threshold": -0.202904,
+      "direction": "high_is_paying",
+      "train_balanced_acc": 0.631
+     }
+    },
+    {
+     "week": "2026-W33",
+     "n_train": 30,
+     "n_test": 3,
+     "anchor_days_in_fold": [
+      "2026-08-13"
+     ],
+     "anchor_ok": true,
+     "n_tax": 1,
+     "n_tax_blocked": 0,
+     "n_paying": 2,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 0.0,
+     "share_paying_blocked": 0.0,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": {
+      "threshold": -0.19497199999999998,
+      "direction": "high_is_paying",
+      "train_balanced_acc": 0.6333
+     }
+    },
+    {
+     "week": "2026-W34",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 0,
+     "n_tax_blocked": 0,
+     "n_paying": 4,
+     "n_paying_blocked": 4,
+     "share_tax_blocked": null,
+     "share_paying_blocked": 1.0,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": -0.134426,
+      "direction": "high_is_paying",
+      "train_balanced_acc": 0.7115
+     }
+    },
+    {
+     "week": "2026-W35",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [
+      "2026-08-27",
+      "2026-08-28"
+     ],
+     "anchor_ok": true,
+     "n_tax": 2,
+     "n_tax_blocked": 0,
+     "n_paying": 2,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 0.0,
+     "share_paying_blocked": 0.0,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": {
+      "threshold": -0.202904,
+      "direction": "high_is_paying",
+      "train_balanced_acc": 0.6452
+     }
+    },
+    {
+     "week": "2026-W36",
+     "n_train": 31,
+     "n_test": 2,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 0,
+     "n_tax_blocked": 0,
+     "n_paying": 2,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": null,
+     "share_paying_blocked": 0.0,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": -0.18704,
+      "direction": "high_is_paying",
+      "train_balanced_acc": 0.5896
+     }
+    }
+   ],
+   "anchor_day_predictions": {
+    "2026-08-06": "trade",
+    "2026-08-13": "trade",
+    "2026-08-27": "trade",
+    "2026-08-28": "trade"
+   },
+   "oos": {
+    "n_trade_predicted_sessions": 20,
+    "bootstrap_pf_ci": {
+     "n_days": 20,
+     "n_boot_valid": 20000,
+     "pf_point": 1.996,
+     "ci_lower_2.5": 0.546,
+     "ci_upper_97.5": 11.513,
+     "p_pf_le_1": 0.134,
+     "total_pnl": 6431.0
+    },
+    "ci_lower_2.5": 0.546,
+    "tax_removal_rate": 0.4737,
+    "total_tax_entries": 95,
+    "removed_tax_entries": 45,
+    "max_week_pnl_share": 0.4565,
+    "sub_window_stable": true
+   },
+   "gates": {
+    "anchor_days_ok": true,
+    "wf_ge_0_70": false,
+    "ci_lower_gt_1": false,
+    "tax_removal_ge_50pct": false,
+    "sub_window_stable": true
+   },
+   "verdict": "NOT_SHIPPABLE",
+   "candidate_id": "single_split__vix_20d_slope",
+   "type": "single_split",
+   "feature": "vix_20d_slope"
+  },
+  {
+   "WF": 0.5,
+   "n_folds": 10,
+   "fold_details": [
+    {
+     "week": "2026-W27",
+     "n_train": 31,
+     "n_test": 2,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 1,
+     "n_tax_blocked": 0,
+     "n_paying": 1,
+     "n_paying_blocked": 1,
+     "share_tax_blocked": 0.0,
+     "share_paying_blocked": 1.0,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": {
+      "threshold": 4.17,
+      "direction": "high_is_paying",
+      "train_balanced_acc": 0.6238
+     }
+    },
+    {
+     "week": "2026-W28",
+     "n_train": 30,
+     "n_test": 3,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 3,
+     "n_tax_blocked": 0,
+     "n_paying": 0,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 0.0,
+     "share_paying_blocked": 0.0,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": {
+      "threshold": 4.623,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.5833
+     }
+    },
+    {
+     "week": "2026-W29",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 3,
+     "n_tax_blocked": 0,
+     "n_paying": 1,
+     "n_paying_blocked": 1,
+     "share_tax_blocked": 0.0,
+     "share_paying_blocked": 1.0,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": {
+      "threshold": 5.728000000000001,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.625
+     }
+    },
+    {
+     "week": "2026-W30",
+     "n_train": 30,
+     "n_test": 3,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 3,
+     "n_tax_blocked": 1,
+     "n_paying": 0,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 0.3333333333333333,
+     "share_paying_blocked": 0.0,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": 4.125,
+      "direction": "high_is_paying",
+      "train_balanced_acc": 0.625
+     }
+    },
+    {
+     "week": "2026-W31",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 2,
+     "n_tax_blocked": 2,
+     "n_paying": 2,
+     "n_paying_blocked": 1,
+     "share_tax_blocked": 1.0,
+     "share_paying_blocked": 0.5,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": 2.2869999999999995,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.5846
+     }
+    },
+    {
+     "week": "2026-W32",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [
+      "2026-08-06"
+     ],
+     "anchor_ok": true,
+     "n_tax": 1,
+     "n_tax_blocked": 1,
+     "n_paying": 3,
+     "n_paying_blocked": 2,
+     "share_tax_blocked": 1.0,
+     "share_paying_blocked": 0.6666666666666666,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": 2.476,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.5852
+     }
+    },
+    {
+     "week": "2026-W33",
+     "n_train": 30,
+     "n_test": 3,
+     "anchor_days_in_fold": [
+      "2026-08-13"
+     ],
+     "anchor_ok": true,
+     "n_tax": 1,
+     "n_tax_blocked": 0,
+     "n_paying": 2,
+     "n_paying_blocked": 1,
+     "share_tax_blocked": 0.0,
+     "share_paying_blocked": 0.5,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": {
+      "threshold": 4.17,
+      "direction": "high_is_paying",
+      "train_balanced_acc": 0.5833
+     }
+    },
+    {
+     "week": "2026-W34",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 0,
+     "n_tax_blocked": 0,
+     "n_paying": 4,
+     "n_paying_blocked": 3,
+     "share_tax_blocked": null,
+     "share_paying_blocked": 0.75,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": 3.24,
+      "direction": "high_is_paying",
+      "train_balanced_acc": 0.5917
+     }
+    },
+    {
+     "week": "2026-W35",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [
+      "2026-08-27",
+      "2026-08-28"
+     ],
+     "anchor_ok": false,
+     "n_tax": 2,
+     "n_tax_blocked": 2,
+     "n_paying": 2,
+     "n_paying_blocked": 2,
+     "share_tax_blocked": 1.0,
+     "share_paying_blocked": 1.0,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": {
+      "threshold": 4.11,
+      "direction": "high_is_paying",
+      "train_balanced_acc": 0.5934
+     }
+    },
+    {
+     "week": "2026-W36",
+     "n_train": 31,
+     "n_test": 2,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 0,
+     "n_tax_blocked": 0,
+     "n_paying": 2,
+     "n_paying_blocked": 2,
+     "share_tax_blocked": null,
+     "share_paying_blocked": 1.0,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": 2.368,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.6143
+     }
+    }
+   ],
+   "anchor_day_predictions": {
+    "2026-08-06": "trade",
+    "2026-08-13": "trade",
+    "2026-08-27": "standdown",
+    "2026-08-28": "standdown"
+   },
+   "oos": {
+    "n_trade_predicted_sessions": 14,
+    "bootstrap_pf_ci": {
+     "n_days": 14,
+     "n_boot_valid": 20000,
+     "pf_point": 1.292,
+     "ci_lower_2.5": 0.068,
+     "ci_upper_97.5": 6.637,
+     "p_pf_le_1": 0.383,
+     "total_pnl": 1066.0
+    },
+    "ci_lower_2.5": 0.068,
+    "tax_removal_rate": 0.3368,
+    "total_tax_entries": 95,
+    "removed_tax_entries": 32,
+    "max_week_pnl_share": 1.3743,
+    "sub_window_stable": false
+   },
+   "gates": {
+    "anchor_days_ok": false,
+    "wf_ge_0_70": false,
+    "ci_lower_gt_1": false,
+    "tax_removal_ge_50pct": false,
+    "sub_window_stable": false
+   },
+   "verdict": "NOT_SHIPPABLE",
+   "candidate_id": "single_split__opening_range_width_dollars",
+   "type": "single_split",
+   "feature": "opening_range_width_dollars"
+  },
+  {
+   "WF": 0.5,
+   "n_folds": 10,
+   "fold_details": [
+    {
+     "week": "2026-W27",
+     "n_train": 31,
+     "n_test": 2,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 1,
+     "n_tax_blocked": 1,
+     "n_paying": 1,
+     "n_paying_blocked": 1,
+     "share_tax_blocked": 1.0,
+     "share_paying_blocked": 1.0,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": {
+      "threshold": 0.2889,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.6607
+     }
+    },
+    {
+     "week": "2026-W28",
+     "n_train": 30,
+     "n_test": 3,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 3,
+     "n_tax_blocked": 2,
+     "n_paying": 0,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 0.6666666666666666,
+     "share_paying_blocked": 0.0,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": 0.35328000000000015,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.6667
+     }
+    },
+    {
+     "week": "2026-W29",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 3,
+     "n_tax_blocked": 1,
+     "n_paying": 1,
+     "n_paying_blocked": 1,
+     "share_tax_blocked": 0.3333333333333333,
+     "share_paying_blocked": 1.0,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": {
+      "threshold": 0.9177,
+      "direction": "high_is_paying",
+      "train_balanced_acc": 0.6786
+     }
+    },
+    {
+     "week": "2026-W30",
+     "n_train": 30,
+     "n_test": 3,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 3,
+     "n_tax_blocked": 1,
+     "n_paying": 0,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 0.3333333333333333,
+     "share_paying_blocked": 0.0,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": 0.3962,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.6303
+     }
+    },
+    {
+     "week": "2026-W31",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 2,
+     "n_tax_blocked": 1,
+     "n_paying": 2,
+     "n_paying_blocked": 1,
+     "share_tax_blocked": 0.5,
+     "share_paying_blocked": 0.5,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": {
+      "threshold": 0.35328000000000015,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.6948
+     }
+    },
+    {
+     "week": "2026-W32",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [
+      "2026-08-06"
+     ],
+     "anchor_ok": true,
+     "n_tax": 1,
+     "n_tax_blocked": 1,
+     "n_paying": 3,
+     "n_paying_blocked": 1,
+     "share_tax_blocked": 1.0,
+     "share_paying_blocked": 0.3333333333333333,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": 0.35328000000000015,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.6442
+     }
+    },
+    {
+     "week": "2026-W33",
+     "n_train": 30,
+     "n_test": 3,
+     "anchor_days_in_fold": [
+      "2026-08-13"
+     ],
+     "anchor_ok": false,
+     "n_tax": 1,
+     "n_tax_blocked": 0,
+     "n_paying": 2,
+     "n_paying_blocked": 2,
+     "share_tax_blocked": 0.0,
+     "share_paying_blocked": 1.0,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": {
+      "threshold": 0.14715,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.6538
+     }
+    },
+    {
+     "week": "2026-W34",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 0,
+     "n_tax_blocked": 0,
+     "n_paying": 4,
+     "n_paying_blocked": 4,
+     "share_tax_blocked": null,
+     "share_paying_blocked": 1.0,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": 0.8426299999999999,
+      "direction": "high_is_paying",
+      "train_balanced_acc": 0.6503
+     }
+    },
+    {
+     "week": "2026-W35",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [
+      "2026-08-27",
+      "2026-08-28"
+     ],
+     "anchor_ok": false,
+     "n_tax": 2,
+     "n_tax_blocked": 2,
+     "n_paying": 2,
+     "n_paying_blocked": 2,
+     "share_tax_blocked": 1.0,
+     "share_paying_blocked": 1.0,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": {
+      "threshold": 0.24586000000000005,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.6329
+     }
+    },
+    {
+     "week": "2026-W36",
+     "n_train": 31,
+     "n_test": 2,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 0,
+     "n_tax_blocked": 0,
+     "n_paying": 2,
+     "n_paying_blocked": 1,
+     "share_tax_blocked": null,
+     "share_paying_blocked": 0.5,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": 0.3962,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.6154
+     }
+    }
+   ],
+   "anchor_day_predictions": {
+    "2026-08-06": "trade",
+    "2026-08-13": "standdown",
+    "2026-08-27": "standdown",
+    "2026-08-28": "standdown"
+   },
+   "oos": {
+    "n_trade_predicted_sessions": 11,
+    "bootstrap_pf_ci": {
+     "n_days": 11,
+     "n_boot_valid": 20000,
+     "pf_point": 1.044,
+     "ci_lower_2.5": 0.064,
+     "ci_upper_97.5": 6.677,
+     "p_pf_le_1": 0.482,
+     "total_pnl": 144.0
+    },
+    "ci_lower_2.5": 0.064,
+    "tax_removal_rate": 0.5789,
+    "total_tax_entries": 95,
+    "removed_tax_entries": 55,
+    "max_week_pnl_share": 13.8819,
+    "sub_window_stable": false
+   },
+   "gates": {
+    "anchor_days_ok": false,
+    "wf_ge_0_70": false,
+    "ci_lower_gt_1": false,
+    "tax_removal_ge_50pct": true,
+    "sub_window_stable": false
+   },
+   "verdict": "NOT_SHIPPABLE",
+   "candidate_id": "single_split__opening_range_position_vs_prior_range",
+   "type": "single_split",
+   "feature": "opening_range_position_vs_prior_range"
+  },
+  {
+   "WF": 0.8,
+   "n_folds": 10,
+   "fold_details": [
+    {
+     "week": "2026-W27",
+     "n_train": 31,
+     "n_test": 2,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 1,
+     "n_tax_blocked": 1,
+     "n_paying": 1,
+     "n_paying_blocked": 1,
+     "share_tax_blocked": 1.0,
+     "share_paying_blocked": 1.0,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": {
+      "threshold": 0.0,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.6548
+     }
+    },
+    {
+     "week": "2026-W28",
+     "n_train": 30,
+     "n_test": 3,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 3,
+     "n_tax_blocked": 1,
+     "n_paying": 0,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 0.3333333333333333,
+     "share_paying_blocked": 0.0,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": 0.0,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.6875
+     }
+    },
+    {
+     "week": "2026-W29",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 3,
+     "n_tax_blocked": 2,
+     "n_paying": 1,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 0.6666666666666666,
+     "share_paying_blocked": 0.0,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": 0.0,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.6333
+     }
+    },
+    {
+     "week": "2026-W30",
+     "n_train": 30,
+     "n_test": 3,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 3,
+     "n_tax_blocked": 2,
+     "n_paying": 0,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 0.6666666666666666,
+     "share_paying_blocked": 0.0,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": 0.0,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.6458
+     }
+    },
+    {
+     "week": "2026-W31",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 2,
+     "n_tax_blocked": 1,
+     "n_paying": 2,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 0.5,
+     "share_paying_blocked": 0.0,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": 0.0,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.6462
+     }
+    },
+    {
+     "week": "2026-W32",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [
+      "2026-08-06"
+     ],
+     "anchor_ok": true,
+     "n_tax": 1,
+     "n_tax_blocked": 1,
+     "n_paying": 3,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 1.0,
+     "share_paying_blocked": 0.0,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": 0.0,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.5907
+     }
+    },
+    {
+     "week": "2026-W33",
+     "n_train": 30,
+     "n_test": 3,
+     "anchor_days_in_fold": [
+      "2026-08-13"
+     ],
+     "anchor_ok": false,
+     "n_tax": 1,
+     "n_tax_blocked": 0,
+     "n_paying": 2,
+     "n_paying_blocked": 2,
+     "share_tax_blocked": 0.0,
+     "share_paying_blocked": 1.0,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": {
+      "threshold": 0.0,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.6905
+     }
+    },
+    {
+     "week": "2026-W34",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 0,
+     "n_tax_blocked": 0,
+     "n_paying": 4,
+     "n_paying_blocked": 2,
+     "share_tax_blocked": null,
+     "share_paying_blocked": 0.5,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": 0.0,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.6667
+     }
+    },
+    {
+     "week": "2026-W35",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [
+      "2026-08-27",
+      "2026-08-28"
+     ],
+     "anchor_ok": true,
+     "n_tax": 2,
+     "n_tax_blocked": 2,
+     "n_paying": 2,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 1.0,
+     "share_paying_blocked": 0.0,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": 0.0,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.5934
+     }
+    },
+    {
+     "week": "2026-W36",
+     "n_train": 31,
+     "n_test": 2,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 0,
+     "n_tax_blocked": 0,
+     "n_paying": 2,
+     "n_paying_blocked": 1,
+     "share_tax_blocked": null,
+     "share_paying_blocked": 0.5,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": {
+      "threshold": 0.0,
+      "direction": "low_is_paying",
+      "train_balanced_acc": 0.6548
+     }
+    }
+   ],
+   "anchor_day_predictions": {
+    "2026-08-06": "trade",
+    "2026-08-13": "standdown",
+    "2026-08-27": "trade",
+    "2026-08-28": "trade"
+   },
+   "oos": {
+    "n_trade_predicted_sessions": 17,
+    "bootstrap_pf_ci": {
+     "n_days": 17,
+     "n_boot_valid": 19994,
+     "pf_point": 3.606,
+     "ci_lower_2.5": 1.014,
+     "ci_upper_97.5": 20.005,
+     "p_pf_le_1": 0.024,
+     "total_pnl": 9094.0
+    },
+    "ci_lower_2.5": 1.014,
+    "tax_removal_rate": 0.5368,
+    "total_tax_entries": 95,
+    "removed_tax_entries": 51,
+    "max_week_pnl_share": 0.6183,
+    "sub_window_stable": false
+   },
+   "gates": {
+    "anchor_days_ok": false,
+    "wf_ge_0_70": true,
+    "ci_lower_gt_1": true,
+    "tax_removal_ge_50pct": true,
+    "sub_window_stable": false
+   },
+   "verdict": "NOT_SHIPPABLE",
+   "candidate_id": "single_split__first_15min_ribbon_flips_count",
+   "type": "single_split",
+   "feature": "first_15min_ribbon_flips_count"
+  },
+  {
+   "WF": 0.4,
+   "n_folds": 10,
+   "fold_details": [
+    {
+     "week": "2026-W27",
+     "n_train": 31,
+     "n_test": 2,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 1,
+     "n_tax_blocked": 0,
+     "n_paying": 1,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 0.0,
+     "share_paying_blocked": 0.0,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": "tree_fit_ok"
+    },
+    {
+     "week": "2026-W28",
+     "n_train": 30,
+     "n_test": 3,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 3,
+     "n_tax_blocked": 1,
+     "n_paying": 0,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 0.3333333333333333,
+     "share_paying_blocked": 0.0,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": "tree_fit_ok"
+    },
+    {
+     "week": "2026-W29",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 3,
+     "n_tax_blocked": 0,
+     "n_paying": 1,
+     "n_paying_blocked": 1,
+     "share_tax_blocked": 0.0,
+     "share_paying_blocked": 1.0,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": "tree_fit_ok"
+    },
+    {
+     "week": "2026-W30",
+     "n_train": 30,
+     "n_test": 3,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 3,
+     "n_tax_blocked": 0,
+     "n_paying": 0,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 0.0,
+     "share_paying_blocked": 0.0,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": "tree_fit_ok"
+    },
+    {
+     "week": "2026-W31",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 2,
+     "n_tax_blocked": 2,
+     "n_paying": 2,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 1.0,
+     "share_paying_blocked": 0.0,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": "tree_fit_ok"
+    },
+    {
+     "week": "2026-W32",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [
+      "2026-08-06"
+     ],
+     "anchor_ok": false,
+     "n_tax": 1,
+     "n_tax_blocked": 0,
+     "n_paying": 3,
+     "n_paying_blocked": 1,
+     "share_tax_blocked": 0.0,
+     "share_paying_blocked": 0.3333333333333333,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": "tree_fit_ok"
+    },
+    {
+     "week": "2026-W33",
+     "n_train": 30,
+     "n_test": 3,
+     "anchor_days_in_fold": [
+      "2026-08-13"
+     ],
+     "anchor_ok": true,
+     "n_tax": 1,
+     "n_tax_blocked": 0,
+     "n_paying": 2,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 0.0,
+     "share_paying_blocked": 0.0,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": "tree_fit_ok"
+    },
+    {
+     "week": "2026-W34",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 0,
+     "n_tax_blocked": 0,
+     "n_paying": 4,
+     "n_paying_blocked": 3,
+     "share_tax_blocked": null,
+     "share_paying_blocked": 0.75,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": "tree_fit_ok"
+    },
+    {
+     "week": "2026-W35",
+     "n_train": 29,
+     "n_test": 4,
+     "anchor_days_in_fold": [
+      "2026-08-27",
+      "2026-08-28"
+     ],
+     "anchor_ok": true,
+     "n_tax": 2,
+     "n_tax_blocked": 0,
+     "n_paying": 2,
+     "n_paying_blocked": 0,
+     "share_tax_blocked": 0.0,
+     "share_paying_blocked": 0.0,
+     "direction_ok": false,
+     "fold_success": false,
+     "fit_used": "tree_fit_ok"
+    },
+    {
+     "week": "2026-W36",
+     "n_train": 31,
+     "n_test": 2,
+     "anchor_days_in_fold": [],
+     "anchor_ok": true,
+     "n_tax": 0,
+     "n_tax_blocked": 0,
+     "n_paying": 2,
+     "n_paying_blocked": 1,
+     "share_tax_blocked": null,
+     "share_paying_blocked": 0.5,
+     "direction_ok": true,
+     "fold_success": true,
+     "fit_used": "tree_fit_ok"
+    }
+   ],
+   "anchor_day_predictions": {
+    "2026-08-06": "standdown",
+    "2026-08-13": "trade",
+    "2026-08-27": "trade",
+    "2026-08-28": "trade"
+   },
+   "oos": {
+    "n_trade_predicted_sessions": 24,
+    "bootstrap_pf_ci": {
+     "n_days": 24,
+     "n_boot_valid": 20000,
+     "pf_point": 1.847,
+     "ci_lower_2.5": 0.483,
+     "ci_upper_97.5": 10.166,
+     "p_pf_le_1": 0.174,
+     "total_pnl": 5373.0
+    },
+    "ci_lower_2.5": 0.483,
+    "tax_removal_rate": 0.2,
+    "total_tax_entries": 95,
+    "removed_tax_entries": 19,
+    "max_week_pnl_share": 0.5442,
+    "sub_window_stable": false
+   },
+   "gates": {
+    "anchor_days_ok": false,
+    "wf_ge_0_70": false,
+    "ci_lower_gt_1": false,
+    "tax_removal_ge_50pct": false,
+    "sub_window_stable": false
+   },
+   "verdict": "NOT_SHIPPABLE",
+   "candidate_id": "tree_depth2__all_features",
+   "type": "decision_tree_depth2",
+   "features": [
+    "overnight_gap_dollars",
+    "overnight_gap_pct",
+    "prior_day_range_dollars",
+    "vix_level_0935",
+    "vix_overnight_change",
+    "vix_5d_slope",
+    "vix_20d_slope",
+    "opening_range_width_dollars",
+    "opening_range_position_vs_prior_range",
+    "first_15min_ribbon_flips_count"
+   ]
+  }
+ ],
+ "decision_rule_applied": {
+  "source": "analysis/recommendations/prereg-day-type-classifier-2026-09-03.md section 5 (+ section 4 point 6 for the fifth gate)",
+  "gates_required_all_true_for_shadow_candidate": [
+   "anchor_days_ok -- none of the 4 named anchor days is ever predicted stand-down in the LOWO fold where its own week is held out",
+   "tax_removal_ge_50pct -- at least half of all tax-labeled sessions' closed-activity entries, pooled across OOS folds, occurred on a session predicted stand-down (weighted by entries-per-session per the prereg's own equivalence)",
+   "wf_ge_0_70 -- fraction of LOWO folds whose fold_success is True (prereg section 4 point 3) is >= 0.70",
+   "ci_lower_gt_1 -- go_live_gate.bootstrap_pf_ci ci_lower_2.5 > 1.0 on the pooled trade-predicted sessions' daily book_pnl (n_boot=20000, the go-live gate's own criterion, not a softer one invented here)",
+   "sub_window_stable -- no single held-out week accounts for more than 50% of the pooled trade-predicted P&L. Section 5's own bullet list does not restate this explicitly, but section 4 point 6 freezes it as part of the SAME validation protocol section 5 draws from, and CLAUDE.md OP-11's project-wide auto-ratify formula requires it alongside WF and OOS-positive for every instrument of this shape -- included here as a disclosed judgment call, not a silent addition."
+  ],
+  "verdict_enum": [
+   "SHADOW_CANDIDATE",
+   "NOT_SHIPPABLE"
+  ],
+  "reaching_the_bar_means": "permission to build the SHADOW forward clock (prereg section 6, a distinct FUTURE build) -- never permission to ship live."
+ },
+ "best_candidate_id": "single_split__prior_day_range_dollars",
+ "verdict": "SHADOW_CANDIDATE",
+ "caveat": "n=43 total sessions / n=33 labeled paying+tax across 10 ISO-week LOWO folds (average 3.3 labeled sessions per fold) is a THIN sample for any classifier claim. Every number in this file is exploratory (Kitchen free-swarm output), not confirmatory -- per prereg section 6, clearing the ship gate is permission to build a forward SHADOW clock (a distinct future build), never permission to ship live, and the forward clock itself needs >=20 forward sessions before any ship-consideration read."
+}

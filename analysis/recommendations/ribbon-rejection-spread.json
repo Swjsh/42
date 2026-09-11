@@ -1,0 +1,476 @@
+{
+ "rule_id": "ribbon-rejection-spread",
+ "setup_name": "RIBBON_REJECTION_DEBIT_SPREAD",
+ "generated_at": "2026-07-07T16:19:39",
+ "thesis": "express J's ribbon-rejection dump as a defined-risk debit spread (bear put / bull call) to slash 0DTE premium bleed at the cost of capping the convex winner. Does reduced bleed > capped winners?",
+ "smoke_window": {
+  "start": "2026-05-19",
+  "end": "2026-07-01",
+  "oos_cut": "2026-06-15"
+ },
+ "pnl_authority": "REAL OPRA per-leg bars; spread_value=long_close-short_close; NO Black-Scholes",
+ "anchor_filter": {
+  "wick_min": 0.35,
+  "lookback_max": 12,
+  "vol_min": 1.5,
+  "not_flipped": true
+ },
+ "spread_widths": [
+  2,
+  3,
+  5
+ ],
+ "exits": {
+  "EOD": [
+   null,
+   null
+  ],
+  "TP60_SL60": [
+   0.6,
+   0.6
+  ],
+  "TP80_SL50": [
+   0.8,
+   0.5
+  ]
+ },
+ "qty": 3,
+ "n_anchor_events": 19,
+ "opra_miss": {
+  "w2_long": 3,
+  "w3_long": 3,
+  "w5_short": 9,
+  "w5_long": 3
+ },
+ "trace_events_shown": 3,
+ "verdict": "SMOKE_NEGATIVE \u2014 no config survives drop-top3 + OOS + p_null<=0.10 jointly; debit spread does NOT rescue the signal on this window; recommend KILL (or full 18mo only if bear-side isolable)",
+ "combos": [
+  {
+   "width": 5,
+   "exit": "EOD",
+   "full": {
+    "n": 9,
+    "pnl": 2055.0,
+    "wr": 0.889,
+    "expectancy": 228.33
+   },
+   "short": {
+    "n": 3,
+    "pnl": 558.0,
+    "wr": 0.667,
+    "expectancy": 186.0
+   },
+   "long": {
+    "n": 6,
+    "pnl": 1497.0,
+    "wr": 1.0,
+    "expectancy": 249.5
+   },
+   "is": {
+    "n": 7,
+    "pnl": 2460.0,
+    "wr": 1.0,
+    "expectancy": 351.43
+   },
+   "oos": {
+    "n": 2,
+    "pnl": -405.0,
+    "wr": 0.5,
+    "expectancy": -202.5
+   },
+   "drop_top3_pnl": 147.0,
+   "p_null": 0.1895,
+   "null_exp": {
+    "short": -61.12,
+    "long": 211.91
+   },
+   "exit_reasons": {
+    "EOD": 9
+   },
+   "n_days": 9,
+   "avg_debit": 1.467,
+   "clears_smoke": false
+  },
+  {
+   "width": 5,
+   "exit": "TP80_SL50",
+   "full": {
+    "n": 9,
+    "pnl": 1869.0,
+    "wr": 0.778,
+    "expectancy": 207.67
+   },
+   "short": {
+    "n": 3,
+    "pnl": 546.0,
+    "wr": 0.667,
+    "expectancy": 182.0
+   },
+   "long": {
+    "n": 6,
+    "pnl": 1323.0,
+    "wr": 0.833,
+    "expectancy": 220.5
+   },
+   "is": {
+    "n": 7,
+    "pnl": 2442.0,
+    "wr": 1.0,
+    "expectancy": 348.86
+   },
+   "oos": {
+    "n": 2,
+    "pnl": -573.0,
+    "wr": 0.0,
+    "expectancy": -286.5
+   },
+   "drop_top3_pnl": -21.0,
+   "p_null": 0.1785,
+   "null_exp": {
+    "short": -117.38,
+    "long": 198.55
+   },
+   "exit_reasons": {
+    "EOD": 5,
+    "TP": 2,
+    "STOP": 2
+   },
+   "n_days": 9,
+   "avg_debit": 1.467,
+   "clears_smoke": false
+  },
+  {
+   "width": 5,
+   "exit": "TP60_SL60",
+   "full": {
+    "n": 9,
+    "pnl": 1557.0,
+    "wr": 0.667,
+    "expectancy": 173.0
+   },
+   "short": {
+    "n": 3,
+    "pnl": 429.0,
+    "wr": 0.667,
+    "expectancy": 143.0
+   },
+   "long": {
+    "n": 6,
+    "pnl": 1128.0,
+    "wr": 0.667,
+    "expectancy": 188.0
+   },
+   "is": {
+    "n": 7,
+    "pnl": 2079.0,
+    "wr": 0.857,
+    "expectancy": 297.0
+   },
+   "oos": {
+    "n": 2,
+    "pnl": -522.0,
+    "wr": 0.0,
+    "expectancy": -261.0
+   },
+   "drop_top3_pnl": -51.0,
+   "p_null": 0.199,
+   "null_exp": {
+    "short": -160.5,
+    "long": 197.73
+   },
+   "exit_reasons": {
+    "EOD": 4,
+    "STOP": 3,
+    "TP": 2
+   },
+   "n_days": 9,
+   "avg_debit": 1.467,
+   "clears_smoke": false
+  },
+  {
+   "width": 3,
+   "exit": "EOD",
+   "full": {
+    "n": 10,
+    "pnl": 1680.0,
+    "wr": 0.8,
+    "expectancy": 168.0
+   },
+   "short": {
+    "n": 3,
+    "pnl": 438.0,
+    "wr": 0.667,
+    "expectancy": 146.0
+   },
+   "long": {
+    "n": 7,
+    "pnl": 1242.0,
+    "wr": 0.857,
+    "expectancy": 177.43
+   },
+   "is": {
+    "n": 8,
+    "pnl": 1824.0,
+    "wr": 0.875,
+    "expectancy": 228.0
+   },
+   "oos": {
+    "n": 2,
+    "pnl": -144.0,
+    "wr": 0.5,
+    "expectancy": -72.0
+   },
+   "drop_top3_pnl": 420.0,
+   "p_null": 0.14,
+   "null_exp": {
+    "short": -60.0,
+    "long": 132.0
+   },
+   "exit_reasons": {
+    "EOD": 10
+   },
+   "n_days": 10,
+   "avg_debit": 1.098,
+   "clears_smoke": false
+  },
+  {
+   "width": 3,
+   "exit": "TP80_SL50",
+   "full": {
+    "n": 10,
+    "pnl": 1401.0,
+    "wr": 0.7,
+    "expectancy": 140.1
+   },
+   "short": {
+    "n": 3,
+    "pnl": 372.0,
+    "wr": 0.667,
+    "expectancy": 124.0
+   },
+   "long": {
+    "n": 7,
+    "pnl": 1029.0,
+    "wr": 0.714,
+    "expectancy": 147.0
+   },
+   "is": {
+    "n": 8,
+    "pnl": 1806.0,
+    "wr": 0.875,
+    "expectancy": 225.75
+   },
+   "oos": {
+    "n": 2,
+    "pnl": -405.0,
+    "wr": 0.0,
+    "expectancy": -202.5
+   },
+   "drop_top3_pnl": 159.0,
+   "p_null": 0.092,
+   "null_exp": {
+    "short": -98.1,
+    "long": 94.62
+   },
+   "exit_reasons": {
+    "EOD": 5,
+    "TP": 3,
+    "STOP": 2
+   },
+   "n_days": 10,
+   "avg_debit": 1.098,
+   "clears_smoke": false
+  },
+  {
+   "width": 2,
+   "exit": "EOD",
+   "full": {
+    "n": 10,
+    "pnl": 1317.0,
+    "wr": 0.8,
+    "expectancy": 131.7
+   },
+   "short": {
+    "n": 3,
+    "pnl": 348.0,
+    "wr": 0.667,
+    "expectancy": 116.0
+   },
+   "long": {
+    "n": 7,
+    "pnl": 969.0,
+    "wr": 0.857,
+    "expectancy": 138.43
+   },
+   "is": {
+    "n": 8,
+    "pnl": 1323.0,
+    "wr": 0.875,
+    "expectancy": 165.38
+   },
+   "oos": {
+    "n": 2,
+    "pnl": -6.0,
+    "wr": 0.5,
+    "expectancy": -3.0
+   },
+   "drop_top3_pnl": 489.0,
+   "p_null": 0.1345,
+   "null_exp": {
+    "short": -27.9,
+    "long": 98.77
+   },
+   "exit_reasons": {
+    "EOD": 10
+   },
+   "n_days": 10,
+   "avg_debit": 0.866,
+   "clears_smoke": false
+  },
+  {
+   "width": 3,
+   "exit": "TP60_SL60",
+   "full": {
+    "n": 11,
+    "pnl": 1269.0,
+    "wr": 0.636,
+    "expectancy": 115.36
+   },
+   "short": {
+    "n": 4,
+    "pnl": 264.0,
+    "wr": 0.5,
+    "expectancy": 66.0
+   },
+   "long": {
+    "n": 7,
+    "pnl": 1005.0,
+    "wr": 0.714,
+    "expectancy": 143.57
+   },
+   "is": {
+    "n": 9,
+    "pnl": 1662.0,
+    "wr": 0.778,
+    "expectancy": 184.67
+   },
+   "oos": {
+    "n": 2,
+    "pnl": -393.0,
+    "wr": 0.0,
+    "expectancy": -196.5
+   },
+   "drop_top3_pnl": 228.0,
+   "p_null": 0.023,
+   "null_exp": {
+    "short": -119.1,
+    "long": 65.54
+   },
+   "exit_reasons": {
+    "TP": 4,
+    "STOP": 4,
+    "EOD": 3
+   },
+   "n_days": 10,
+   "avg_debit": 1.035,
+   "clears_smoke": false
+  },
+  {
+   "width": 2,
+   "exit": "TP80_SL50",
+   "full": {
+    "n": 10,
+    "pnl": 912.0,
+    "wr": 0.7,
+    "expectancy": 91.2
+   },
+   "short": {
+    "n": 3,
+    "pnl": 243.0,
+    "wr": 0.667,
+    "expectancy": 81.0
+   },
+   "long": {
+    "n": 7,
+    "pnl": 669.0,
+    "wr": 0.714,
+    "expectancy": 95.57
+   },
+   "is": {
+    "n": 8,
+    "pnl": 1254.0,
+    "wr": 0.875,
+    "expectancy": 156.75
+   },
+   "oos": {
+    "n": 2,
+    "pnl": -342.0,
+    "wr": 0.0,
+    "expectancy": -171.0
+   },
+   "drop_top3_pnl": 168.0,
+   "p_null": 0.095,
+   "null_exp": {
+    "short": -67.2,
+    "long": 55.38
+   },
+   "exit_reasons": {
+    "EOD": 5,
+    "TP": 3,
+    "STOP": 2
+   },
+   "n_days": 10,
+   "avg_debit": 0.866,
+   "clears_smoke": false
+  },
+  {
+   "width": 2,
+   "exit": "TP60_SL60",
+   "full": {
+    "n": 11,
+    "pnl": 759.0,
+    "wr": 0.636,
+    "expectancy": 69.0
+   },
+   "short": {
+    "n": 4,
+    "pnl": 165.0,
+    "wr": 0.5,
+    "expectancy": 41.25
+   },
+   "long": {
+    "n": 7,
+    "pnl": 594.0,
+    "wr": 0.714,
+    "expectancy": 84.86
+   },
+   "is": {
+    "n": 9,
+    "pnl": 1038.0,
+    "wr": 0.778,
+    "expectancy": 115.33
+   },
+   "oos": {
+    "n": 2,
+    "pnl": -279.0,
+    "wr": 0.0,
+    "expectancy": -139.5
+   },
+   "drop_top3_pnl": 114.0,
+   "p_null": 0.1355,
+   "null_exp": {
+    "short": -27.0,
+    "long": 42.69
+   },
+   "exit_reasons": {
+    "TP": 5,
+    "STOP": 4,
+    "EOD": 2
+   },
+   "n_days": 10,
+   "avg_debit": 0.819,
+   "clears_smoke": false
+  }
+ ],
+ "note": "SMOKE only. Full 18mo deferred to parent (OPRA-cache contention with concurrent exit_manager edit)."
+}

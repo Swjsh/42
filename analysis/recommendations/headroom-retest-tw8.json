@@ -1,6 +1,6 @@
 {
   "_doc": "T-W8 HEADROOM + RETEST pre-registered entry-candidate study. Confirmatory read = fresh window (2026-06-19..2026-07-08); exploratory window (2025-01-01..2026-06-18) is BURNED, directional-consistency check only. 2026-07-09 excluded from both (generated the hypothesis). ANALYSIS ONLY -- no trading-path file touched.",
-  "generated_at": "2026-07-09T11:28:14.183439",
+  "generated_at": "2026-09-02T03:48:37.115006",
   "preregistration_file": "analysis/recommendations/headroom-retest-preregistration.json",
   "preflight": {
     "exploratory_sha256_16": "b5e8931994b9d34b",
@@ -546,55 +546,55 @@
             "threshold_usd": 0.75,
             "exit": "CONTROL",
             "n_total": 18,
-            "n_kept": 8,
-            "n_skipped": 10,
-            "expectancy": -145.25,
-            "total": -1162.0,
+            "n_kept": 7,
+            "n_skipped": 11,
+            "expectancy": -158.86,
+            "total": -1112.0,
             "wr": 0.0,
             "control_all_population_expectancy": -100.67,
-            "control_same_kept_subset_expectancy": -145.25,
-            "delta_vs_control_full_population": -44.58,
+            "control_same_kept_subset_expectancy": -158.86,
+            "delta_vs_control_full_population": -58.19,
             "delta_vs_control_same_subset": 0.0,
-            "skipped_cohort_expectancy_under_control": -65.0,
-            "skipped_cohort_total_under_control": -650.0,
+            "skipped_cohort_expectancy_under_control": -63.64,
+            "skipped_cohort_total_under_control": -700.0,
             "skipped_cohort_net_negative": true,
             "null_random_skip": {
               "n_trials": 1000,
-              "k": 8,
-              "mean_of_means": -100.136,
-              "stdev": 37.6048,
-              "min": -182.25,
-              "max": -10.75
+              "k": 7,
+              "mean_of_means": -99.2431,
+              "stdev": 42.2034,
+              "min": -199.14,
+              "max": 4.0
             },
             "beats_random_skip_null": false,
-            "small_n": false
+            "small_n": true
           },
           "exit-A": {
             "threshold_usd": 0.75,
             "exit": "exit-A",
             "n_total": 18,
-            "n_kept": 8,
-            "n_skipped": 10,
-            "expectancy": -363.12,
-            "total": -2905.0,
+            "n_kept": 7,
+            "n_skipped": 11,
+            "expectancy": -397.14,
+            "total": -2780.0,
             "wr": 0.0,
             "control_all_population_expectancy": -100.67,
-            "control_same_kept_subset_expectancy": -145.25,
-            "delta_vs_control_full_population": -262.45,
-            "delta_vs_control_same_subset": -217.87,
-            "skipped_cohort_expectancy_under_control": -65.0,
-            "skipped_cohort_total_under_control": -650.0,
+            "control_same_kept_subset_expectancy": -158.86,
+            "delta_vs_control_full_population": -296.47,
+            "delta_vs_control_same_subset": -238.28,
+            "skipped_cohort_expectancy_under_control": -63.64,
+            "skipped_cohort_total_under_control": -700.0,
             "skipped_cohort_net_negative": true,
             "null_random_skip": {
               "n_trials": 1000,
-              "k": 8,
-              "mean_of_means": -272.2303,
-              "stdev": 77.916,
-              "min": -455.62,
-              "max": -73.85
+              "k": 7,
+              "mean_of_means": -269.4748,
+              "stdev": 87.2575,
+              "min": -497.86,
+              "max": -43.69
             },
             "beats_random_skip_null": false,
-            "small_n": false
+            "small_n": true
           }
         },
         "1.0": {
@@ -602,55 +602,55 @@
             "threshold_usd": 1.0,
             "exit": "CONTROL",
             "n_total": 18,
-            "n_kept": 8,
-            "n_skipped": 10,
-            "expectancy": -145.25,
-            "total": -1162.0,
+            "n_kept": 6,
+            "n_skipped": 12,
+            "expectancy": -149.67,
+            "total": -898.0,
             "wr": 0.0,
             "control_all_population_expectancy": -100.67,
-            "control_same_kept_subset_expectancy": -145.25,
-            "delta_vs_control_full_population": -44.58,
+            "control_same_kept_subset_expectancy": -149.67,
+            "delta_vs_control_full_population": -49.0,
             "delta_vs_control_same_subset": 0.0,
-            "skipped_cohort_expectancy_under_control": -65.0,
-            "skipped_cohort_total_under_control": -650.0,
+            "skipped_cohort_expectancy_under_control": -76.17,
+            "skipped_cohort_total_under_control": -914.0,
             "skipped_cohort_net_negative": true,
             "null_random_skip": {
               "n_trials": 1000,
-              "k": 8,
-              "mean_of_means": -100.136,
-              "stdev": 37.6048,
-              "min": -182.25,
-              "max": -10.75
+              "k": 6,
+              "mean_of_means": -102.7483,
+              "stdev": 47.2068,
+              "min": -215.67,
+              "max": 19.33
             },
             "beats_random_skip_null": false,
-            "small_n": false
+            "small_n": true
           },
           "exit-A": {
             "threshold_usd": 1.0,
             "exit": "exit-A",
             "n_total": 18,
-            "n_kept": 8,
-            "n_skipped": 10,
-            "expectancy": -363.12,
-            "total": -2905.0,
+            "n_kept": 6,
+            "n_skipped": 12,
+            "expectancy": -374.17,
+            "total": -2245.0,
             "wr": 0.0,
             "control_all_population_expectancy": -100.67,
-            "control_same_kept_subset_expectancy": -145.25,
-            "delta_vs_control_full_population": -262.45,
-            "delta_vs_control_same_subset": -217.87,
-            "skipped_cohort_expectancy_under_control": -65.0,
-            "skipped_cohort_total_under_control": -650.0,
+            "control_same_kept_subset_expectancy": -149.67,
+            "delta_vs_control_full_population": -273.5,
+            "delta_vs_control_same_subset": -224.5,
+            "skipped_cohort_expectancy_under_control": -76.17,
+            "skipped_cohort_total_under_control": -914.0,
             "skipped_cohort_net_negative": true,
             "null_random_skip": {
               "n_trials": 1000,
-              "k": 8,
-              "mean_of_means": -272.2303,
-              "stdev": 77.916,
-              "min": -455.62,
-              "max": -73.85
+              "k": 6,
+              "mean_of_means": -278.0409,
+              "stdev": 97.2333,
+              "min": -539.17,
+              "max": -14.3
             },
             "beats_random_skip_null": false,
-            "small_n": false
+            "small_n": true
           }
         },
         "1.5": {
@@ -658,25 +658,25 @@
             "threshold_usd": 1.5,
             "exit": "CONTROL",
             "n_total": 18,
-            "n_kept": 4,
-            "n_skipped": 14,
-            "expectancy": -201.5,
-            "total": -806.0,
+            "n_kept": 2,
+            "n_skipped": 16,
+            "expectancy": -271.0,
+            "total": -542.0,
             "wr": 0.0,
             "control_all_population_expectancy": -100.67,
-            "control_same_kept_subset_expectancy": -201.5,
-            "delta_vs_control_full_population": -100.83,
+            "control_same_kept_subset_expectancy": -271.0,
+            "delta_vs_control_full_population": -170.33,
             "delta_vs_control_same_subset": 0.0,
-            "skipped_cohort_expectancy_under_control": -71.86,
-            "skipped_cohort_total_under_control": -1006.0,
+            "skipped_cohort_expectancy_under_control": -79.38,
+            "skipped_cohort_total_under_control": -1270.0,
             "skipped_cohort_net_negative": true,
             "null_random_skip": {
               "n_trials": 1000,
-              "k": 4,
-              "mean_of_means": -102.6055,
-              "stdev": 61.7947,
-              "min": -247.5,
-              "max": 54.5
+              "k": 2,
+              "mean_of_means": -101.908,
+              "stdev": 93.9175,
+              "min": -300.0,
+              "max": 149.0
             },
             "beats_random_skip_null": false,
             "small_n": true
@@ -685,25 +685,25 @@
             "threshold_usd": 1.5,
             "exit": "exit-A",
             "n_total": 18,
-            "n_kept": 4,
-            "n_skipped": 14,
-            "expectancy": -503.75,
-            "total": -2015.0,
+            "n_kept": 2,
+            "n_skipped": 16,
+            "expectancy": -677.5,
+            "total": -1355.0,
             "wr": 0.0,
             "control_all_population_expectancy": -100.67,
-            "control_same_kept_subset_expectancy": -201.5,
-            "delta_vs_control_full_population": -403.08,
-            "delta_vs_control_same_subset": -302.25,
-            "skipped_cohort_expectancy_under_control": -71.86,
-            "skipped_cohort_total_under_control": -1006.0,
+            "control_same_kept_subset_expectancy": -271.0,
+            "delta_vs_control_full_population": -576.83,
+            "delta_vs_control_same_subset": -406.5,
+            "skipped_cohort_expectancy_under_control": -79.38,
+            "skipped_cohort_total_under_control": -1270.0,
             "skipped_cohort_net_negative": true,
             "null_random_skip": {
               "n_trials": 1000,
-              "k": 4,
-              "mean_of_means": -277.6525,
-              "stdev": 127.3594,
-              "min": -618.75,
-              "max": 42.3
+              "k": 2,
+              "mean_of_means": -276.5664,
+              "stdev": 193.624,
+              "min": -750.0,
+              "max": 184.6
             },
             "beats_random_skip_null": false,
             "small_n": true
@@ -766,15 +766,15 @@
             "n_missed": 3,
             "fill_rate": 0.786,
             "n_spy_bar_lookup_miss": 0,
-            "expectancy_incl_misses": -67.86,
-            "total_incl_misses": -950.0,
+            "expectancy_incl_misses": -64.14,
+            "total_incl_misses": -898.0,
             "wr_incl_misses": 0.071,
-            "expectancy_filled_only": -86.36,
+            "expectancy_filled_only": -81.64,
             "n_filled_only": 11,
             "control_all_population_expectancy": -100.67,
             "control_same_eligible_subset_expectancy": -101.14,
-            "delta_vs_control_full_population": 32.81,
-            "delta_vs_control_same_subset": 33.28,
+            "delta_vs_control_full_population": 36.53,
+            "delta_vs_control_same_subset": 37.0,
             "small_n": false
           },
           "exit-A": {
@@ -787,15 +787,15 @@
             "n_missed": 3,
             "fill_rate": 0.786,
             "n_spy_bar_lookup_miss": 0,
-            "expectancy_incl_misses": -196.49,
-            "total_incl_misses": -2750.8,
+            "expectancy_incl_misses": -187.2,
+            "total_incl_misses": -2620.8,
             "wr_incl_misses": 0.071,
-            "expectancy_filled_only": -250.07,
+            "expectancy_filled_only": -238.25,
             "n_filled_only": 11,
             "control_all_population_expectancy": -100.67,
             "control_same_eligible_subset_expectancy": -101.14,
-            "delta_vs_control_full_population": -95.82,
-            "delta_vs_control_same_subset": -95.35,
+            "delta_vs_control_full_population": -86.53,
+            "delta_vs_control_same_subset": -86.06,
             "small_n": false
           }
         }
@@ -842,9 +842,9 @@
             "beats_random_skip_null": false,
             "skipped_cohort_net_negative": true
           },
-          "small_n": false,
-          "overall": "FAIL",
-          "reason": "fresh: exp=$-145.25 n_kept=8 delta=-44.58 | exploratory: exp=$-23.78 delta=-46.69 | null_mean=-100.136 beats_null=False | skipped_net_negative=True"
+          "small_n": true,
+          "overall": "INCONCLUSIVE_SMALL_N",
+          "reason": "fresh: exp=$-158.86 n_kept=7 delta=-58.19 | exploratory: exp=$-23.78 delta=-46.69 | null_mean=-99.2431 beats_null=False | skipped_net_negative=True"
         },
         "exit-A": {
           "threshold_usd": 0.75,
@@ -855,9 +855,9 @@
             "beats_random_skip_null": false,
             "skipped_cohort_net_negative": true
           },
-          "small_n": false,
-          "overall": "FAIL",
-          "reason": "fresh: exp=$-363.12 n_kept=8 delta=-262.45 | exploratory: exp=$-7.92 delta=-30.83 | null_mean=-272.2303 beats_null=False | skipped_net_negative=True"
+          "small_n": true,
+          "overall": "INCONCLUSIVE_SMALL_N",
+          "reason": "fresh: exp=$-397.14 n_kept=7 delta=-296.47 | exploratory: exp=$-7.92 delta=-30.83 | null_mean=-269.4748 beats_null=False | skipped_net_negative=True"
         }
       },
       "1.0": {
@@ -870,9 +870,9 @@
             "beats_random_skip_null": false,
             "skipped_cohort_net_negative": true
           },
-          "small_n": false,
-          "overall": "FAIL",
-          "reason": "fresh: exp=$-145.25 n_kept=8 delta=-44.58 | exploratory: exp=$-42.3 delta=-65.21 | null_mean=-100.136 beats_null=False | skipped_net_negative=True"
+          "small_n": true,
+          "overall": "INCONCLUSIVE_SMALL_N",
+          "reason": "fresh: exp=$-149.67 n_kept=6 delta=-49.0 | exploratory: exp=$-42.3 delta=-65.21 | null_mean=-102.7483 beats_null=False | skipped_net_negative=True"
         },
         "exit-A": {
           "threshold_usd": 1.0,
@@ -883,9 +883,9 @@
             "beats_random_skip_null": false,
             "skipped_cohort_net_negative": true
           },
-          "small_n": false,
-          "overall": "FAIL",
-          "reason": "fresh: exp=$-363.12 n_kept=8 delta=-262.45 | exploratory: exp=$-27.69 delta=-50.6 | null_mean=-272.2303 beats_null=False | skipped_net_negative=True"
+          "small_n": true,
+          "overall": "INCONCLUSIVE_SMALL_N",
+          "reason": "fresh: exp=$-374.17 n_kept=6 delta=-273.5 | exploratory: exp=$-27.69 delta=-50.6 | null_mean=-278.0409 beats_null=False | skipped_net_negative=True"
         }
       },
       "1.5": {
@@ -900,7 +900,7 @@
           },
           "small_n": true,
           "overall": "INCONCLUSIVE_SMALL_N",
-          "reason": "fresh: exp=$-201.5 n_kept=4 delta=-100.83 | exploratory: exp=$-65.16 delta=-88.07 | null_mean=-102.6055 beats_null=False | skipped_net_negative=True"
+          "reason": "fresh: exp=$-271.0 n_kept=2 delta=-170.33 | exploratory: exp=$-65.16 delta=-88.07 | null_mean=-101.908 beats_null=False | skipped_net_negative=True"
         },
         "exit-A": {
           "threshold_usd": 1.5,
@@ -913,7 +913,7 @@
           },
           "small_n": true,
           "overall": "INCONCLUSIVE_SMALL_N",
-          "reason": "fresh: exp=$-503.75 n_kept=4 delta=-403.08 | exploratory: exp=$-83.87 delta=-106.78 | null_mean=-277.6525 beats_null=False | skipped_net_negative=True"
+          "reason": "fresh: exp=$-677.5 n_kept=2 delta=-576.83 | exploratory: exp=$-83.87 delta=-106.78 | null_mean=-276.5664 beats_null=False | skipped_net_negative=True"
         }
       }
     },
@@ -955,7 +955,7 @@
           },
           "small_n": false,
           "overall": "FAIL",
-          "reason": "fresh: exp_incl_misses=$-67.86 n_eligible=14 n_missed=3 fill_rate=0.786 delta=32.81 | exploratory: exp_incl_misses=$13.94 delta=-8.97"
+          "reason": "fresh: exp_incl_misses=$-64.14 n_eligible=14 n_missed=3 fill_rate=0.786 delta=36.53 | exploratory: exp_incl_misses=$13.94 delta=-8.97"
         },
         "exit-A": {
           "patience_bars": 6,
@@ -967,19 +967,19 @@
           },
           "small_n": false,
           "overall": "FAIL",
-          "reason": "fresh: exp_incl_misses=$-196.49 n_eligible=14 n_missed=3 fill_rate=0.786 delta=-95.82 | exploratory: exp_incl_misses=$51.34 delta=28.43"
+          "reason": "fresh: exp_incl_misses=$-187.2 n_eligible=14 n_missed=3 fill_rate=0.786 delta=-86.53 | exploratory: exp_incl_misses=$51.34 delta=28.43"
         }
       }
     }
   },
   "key_findings": [
     "Fresh-slice CONTROL baseline (n=18, fresh): expectancy $-100.67, WR 0.056, total $-1812.0 -- the number every H/R cell in the fresh window is measured against.",
-    "Verdict tally across all (candidate, parameter, exit) cells: 0 PASS, 10 FAIL, 2 INCONCLUSIVE_SMALL_N (fresh window n=18 is SMALL BY CONSTRUCTION -- most cells are expected to land here per the pre-registration's own disclosure).",
+    "Verdict tally across all (candidate, parameter, exit) cells: 0 PASS, 6 FAIL, 6 INCONCLUSIVE_SMALL_N (fresh window n=18 is SMALL BY CONSTRUCTION -- most cells are expected to land here per the pre-registration's own disclosure).",
     "R eligibility (a detectable trigger_level on the recovered trigger bar): 14/18 fresh signals, 98/250 exploratory signals -- the majority of ribbon_ride signals are admitted via ribbon_flip/sequence/confluence-only triggers with no literal level cross on the trigger bar, and R has no defined action for those.",
     "H@$0.5 (CONTROL exit, fresh): kept 9/18, skipped 9 with expectancy $-55.78 under CONTROL (net_negative=True); kept-cohort delta vs control $-44.89; beats random-skip null: False (null mean $-100.0222).",
-    "H@$0.75 (CONTROL exit, fresh): kept 8/18, skipped 10 with expectancy $-65.0 under CONTROL (net_negative=True); kept-cohort delta vs control $-44.58; beats random-skip null: False (null mean $-100.136).",
-    "H@$1.0 (CONTROL exit, fresh): kept 8/18, skipped 10 with expectancy $-65.0 under CONTROL (net_negative=True); kept-cohort delta vs control $-44.58; beats random-skip null: False (null mean $-100.136).",
-    "H@$1.5 (CONTROL exit, fresh): kept 4/18, skipped 14 with expectancy $-71.86 under CONTROL (net_negative=True); kept-cohort delta vs control $-100.83; beats random-skip null: False (null mean $-102.6055)."
+    "H@$0.75 (CONTROL exit, fresh): kept 7/18, skipped 11 with expectancy $-63.64 under CONTROL (net_negative=True); kept-cohort delta vs control $-58.19; beats random-skip null: False (null mean $-99.2431).",
+    "H@$1.0 (CONTROL exit, fresh): kept 6/18, skipped 12 with expectancy $-76.17 under CONTROL (net_negative=True); kept-cohort delta vs control $-49.0; beats random-skip null: False (null mean $-102.7483).",
+    "H@$1.5 (CONTROL exit, fresh): kept 2/18, skipped 16 with expectancy $-79.38 under CONTROL (net_negative=True); kept-cohort delta vs control $-170.33; beats random-skip null: False (null mean $-101.908)."
   ],
   "disclosures": [
     "Fresh window n=18 signals (~13 trading days) -- SMALL BY CONSTRUCTION, disclosed not padded (same convention as T5's fresh slice, which T-W8 reuses verbatim).",

@@ -1,0 +1,304 @@
+{
+  "family": "vwap_continuation",
+  "analysis": "walk_forward_exit_optimization",
+  "run_date": "2026-07-07",
+  "window": "2025-01-01..2026-05-15",
+  "question": "Does rolling re-optimization of static exit params (premium_stop_pct, tp1_premium_pct) GENERALIZE or OVERFIT? (J: 'why static numbers from months ago -- make it dynamic')",
+  "fills_authority": "real OPRA via lib.simulator_real.simulate_trade_real (C1)",
+  "n_signals": 158,
+  "n_common_trades": 149,
+  "pre_registered_grid": {
+    "stops": [
+      -0.06,
+      -0.08,
+      -0.12
+    ],
+    "tp1s": [
+      0.25,
+      0.3,
+      0.4
+    ],
+    "n_cells": 9
+  },
+  "static_under_test": {
+    "premium_stop_pct": -0.08,
+    "tp1_premium_pct": 0.3
+  },
+  "min_trades_per_fold": 15,
+  "coverage": {
+    "cov_by_cell": {
+      "stop-0.06_tp10.25": {
+        "signals": 158,
+        "filled": 149,
+        "cache_miss": 9,
+        "sim_none_or_cap_blocked": 0,
+        "fill_rate": 0.943,
+        "median_entry_premium": 1.35
+      },
+      "stop-0.06_tp10.30": {
+        "signals": 158,
+        "filled": 149,
+        "cache_miss": 9,
+        "sim_none_or_cap_blocked": 0,
+        "fill_rate": 0.943,
+        "median_entry_premium": 1.35
+      },
+      "stop-0.06_tp10.40": {
+        "signals": 158,
+        "filled": 149,
+        "cache_miss": 9,
+        "sim_none_or_cap_blocked": 0,
+        "fill_rate": 0.943,
+        "median_entry_premium": 1.35
+      },
+      "stop-0.08_tp10.25": {
+        "signals": 158,
+        "filled": 149,
+        "cache_miss": 9,
+        "sim_none_or_cap_blocked": 0,
+        "fill_rate": 0.943,
+        "median_entry_premium": 1.35
+      },
+      "stop-0.08_tp10.30": {
+        "signals": 158,
+        "filled": 149,
+        "cache_miss": 9,
+        "sim_none_or_cap_blocked": 0,
+        "fill_rate": 0.943,
+        "median_entry_premium": 1.35
+      },
+      "stop-0.08_tp10.40": {
+        "signals": 158,
+        "filled": 149,
+        "cache_miss": 9,
+        "sim_none_or_cap_blocked": 0,
+        "fill_rate": 0.943,
+        "median_entry_premium": 1.35
+      },
+      "stop-0.12_tp10.25": {
+        "signals": 158,
+        "filled": 149,
+        "cache_miss": 9,
+        "sim_none_or_cap_blocked": 0,
+        "fill_rate": 0.943,
+        "median_entry_premium": 1.35
+      },
+      "stop-0.12_tp10.30": {
+        "signals": 158,
+        "filled": 149,
+        "cache_miss": 9,
+        "sim_none_or_cap_blocked": 0,
+        "fill_rate": 0.943,
+        "median_entry_premium": 1.35
+      },
+      "stop-0.12_tp10.40": {
+        "signals": 158,
+        "filled": 149,
+        "cache_miss": 9,
+        "sim_none_or_cap_blocked": 0,
+        "fill_rate": 0.943,
+        "median_entry_premium": 1.35
+      }
+    },
+    "n_common": 149,
+    "dropped_not_in_all_cells": 0
+  },
+  "walk_forward": {
+    "feasible": true,
+    "k_folds": 5,
+    "warmup_train_only": 24,
+    "n_test_total": 125,
+    "folds": [
+      {
+        "fold": 0,
+        "n_train": 24,
+        "n_test": 25,
+        "train_dates": [
+          "2025-01-02",
+          "2025-03-24"
+        ],
+        "test_dates": [
+          "2025-03-25",
+          "2025-07-03"
+        ],
+        "chosen_cell": "stop-0.06_tp10.30",
+        "wf_test_total": 1416.02,
+        "wf_test_exp": 56.64,
+        "static_test_total": 1305.56,
+        "static_test_exp": 52.22
+      },
+      {
+        "fold": 1,
+        "n_train": 49,
+        "n_test": 25,
+        "train_dates": [
+          "2025-01-02",
+          "2025-07-03"
+        ],
+        "test_dates": [
+          "2025-07-09",
+          "2025-09-26"
+        ],
+        "chosen_cell": "stop-0.06_tp10.40",
+        "wf_test_total": 277.62,
+        "wf_test_exp": 11.1,
+        "static_test_total": 103.44,
+        "static_test_exp": 4.14
+      },
+      {
+        "fold": 2,
+        "n_train": 74,
+        "n_test": 25,
+        "train_dates": [
+          "2025-01-02",
+          "2025-09-26"
+        ],
+        "test_dates": [
+          "2025-10-01",
+          "2025-12-17"
+        ],
+        "chosen_cell": "stop-0.06_tp10.40",
+        "wf_test_total": 1434.48,
+        "wf_test_exp": 57.38,
+        "static_test_total": 1129.64,
+        "static_test_exp": 45.19
+      },
+      {
+        "fold": 3,
+        "n_train": 99,
+        "n_test": 25,
+        "train_dates": [
+          "2025-01-02",
+          "2025-12-17"
+        ],
+        "test_dates": [
+          "2025-12-18",
+          "2026-02-26"
+        ],
+        "chosen_cell": "stop-0.06_tp10.40",
+        "wf_test_total": 2645.44,
+        "wf_test_exp": 105.82,
+        "static_test_total": 2426.12,
+        "static_test_exp": 97.04
+      },
+      {
+        "fold": 4,
+        "n_train": 124,
+        "n_test": 25,
+        "train_dates": [
+          "2025-01-02",
+          "2026-02-26"
+        ],
+        "test_dates": [
+          "2026-03-02",
+          "2026-05-15"
+        ],
+        "chosen_cell": "stop-0.06_tp10.40",
+        "wf_test_total": 810.1,
+        "wf_test_exp": 32.4,
+        "static_test_total": 636.8,
+        "static_test_exp": 25.47
+      }
+    ],
+    "wf_aggregate_total": 6583.66,
+    "wf_aggregate_exp": 52.67,
+    "static_aggregate_total": 5601.56,
+    "static_aggregate_exp": 44.81,
+    "wf_minus_static_total": 982.1,
+    "wf_minus_static_exp": 7.86,
+    "best_fixed_cell_on_test": "stop-0.06_tp10.40",
+    "best_fixed_total": 6897.46,
+    "best_fixed_exp": 55.18,
+    "wf_minus_bestfixed_exp": -2.51,
+    "bestfixed_minus_static_exp": 10.37,
+    "chosen_cells_by_fold": [
+      "stop-0.06_tp10.30",
+      "stop-0.06_tp10.40",
+      "stop-0.06_tp10.40",
+      "stop-0.06_tp10.40",
+      "stop-0.06_tp10.40"
+    ],
+    "distinct_cells_chosen": 2,
+    "drift_note": "VARIES across 2 cells -> noise, static safer unless WF wins"
+  },
+  "chosen_k": 5,
+  "sensitivity_sweep": {
+    "per_cell": {
+      "stop-0.06_tp10.25": {
+        "n": 149,
+        "exp": 46.7,
+        "total": 6958.66,
+        "wr": 37.6
+      },
+      "stop-0.06_tp10.30": {
+        "n": 149,
+        "exp": 49.8,
+        "total": 7420.26,
+        "wr": 36.9
+      },
+      "stop-0.06_tp10.40": {
+        "n": 149,
+        "exp": 54.73,
+        "total": 8155.46,
+        "wr": 34.9
+      },
+      "stop-0.08_tp10.25": {
+        "n": 149,
+        "exp": 44.18,
+        "total": 6582.16,
+        "wr": 37.6
+      },
+      "stop-0.08_tp10.30": {
+        "n": 149,
+        "exp": 47.27,
+        "total": 7043.76,
+        "wr": 36.9
+      },
+      "stop-0.08_tp10.40": {
+        "n": 149,
+        "exp": 52.21,
+        "total": 7778.96,
+        "wr": 34.9
+      },
+      "stop-0.12_tp10.25": {
+        "n": 149,
+        "exp": 38.93,
+        "total": 5800.72,
+        "wr": 37.6
+      },
+      "stop-0.12_tp10.30": {
+        "n": 149,
+        "exp": 42.03,
+        "total": 6262.32,
+        "wr": 36.9
+      },
+      "stop-0.12_tp10.40": {
+        "n": 149,
+        "exp": 46.96,
+        "total": 6997.52,
+        "wr": 34.9
+      }
+    },
+    "static_cell": "stop-0.08_tp10.30",
+    "static_exp": 47.27,
+    "best_cell": "stop-0.06_tp10.40",
+    "best_exp": 54.73,
+    "static_is_peak": false,
+    "static_minus_best_exp": -7.46,
+    "stop_curve_at_static_tp1": {
+      "-0.06": 49.8,
+      "-0.08": 47.27,
+      "-0.12": 42.03
+    },
+    "stop_knob_range": 7.77,
+    "tp1_curve_at_static_stop": {
+      "0.25": 44.18,
+      "0.30": 47.27,
+      "0.40": 52.21
+    },
+    "tp1_knob_range": 8.03,
+    "stop_knob_live": true,
+    "tp1_knob_live": true
+  },
+  "verdict": "STATIC-IS-JUSTIFIED (better-static, not dynamic): WF beats the CURRENT static by $7.86/tr, but does NOT beat the best FIXED cell stop-0.06_tp10.40 (WF-bestfixed=$-2.51/tr). The win is 'the static number -0.08/0.30 is suboptimal by $10.37/tr', NOT that dynamic re-optimization adapts -- WF just converged to one better fixed cell (2 distinct). Fix the static number once; don't add re-opt machinery."
+}

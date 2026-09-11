@@ -1,25 +1,42 @@
 {
  "prereg": "analysis/recommendations/prereg-tp1-r50-forward-shadow-2026-09-03.md",
- "generated_at_et": "2026-09-03T04:45:47.790808",
+ "generated_at_et": "2026-09-10T17:10:00.689632",
  "accrual_start": "2026-09-03",
- "n_trades": 0,
- "n_tp1_reached": 0,
- "n_never_reached_tp1": 0,
+ "n_trades": 23,
+ "n_tp1_reached": 7,
+ "n_never_reached_tp1": 16,
  "n_no_op_rounding": 0,
- "sum_delta": 0.0,
- "mean_delta": null,
- "session_clustered_ci": null,
- "top3_concentration_share": 0.0,
- "days_accrued": 0,
- "days_to_bar": 20,
- "tp1_reached_to_bar": 25,
+ "days_accrued": 3,
+ "date_span": "2026-09-03..2026-09-10",
+ "sum_delta": 3.0,
+ "mean_delta": 0.1304,
+ "mean_delta_given_tp1_reached": 0.4286,
+ "ex_best_day_sum_delta": 0.0,
+ "session_clustered_ci": {
+  "n_boot": 2000,
+  "n_days_clustered": 3,
+  "ci_lower_2.5": 0.0,
+  "ci_upper_97.5": 0.1765
+ },
+ "top3_concentration_share": 0.8989,
+ "days_to_bar": 17,
+ "tp1_reached_to_bar": 18,
  "bar_met": false,
- "status": "ARMED_AWAITING_FILLS",
- "note": "No qualifying ribbon_ride (live tp1_qty_fraction=0.667) closed trades on/after the accrual start yet. An empty clock on day 0 is expected, NOT a failure -- but a clock still empty after several trading days means the upstream entry-quality-ledger stopped feeding it.",
+ "status": "ACCRUING",
+ "decision_rule": "This ledger NEVER ships R_tp100_f50 by itself. At days_accrued>=20 AND n_tp1_reached>=25 it becomes eligible for the FROZEN decision rule in analysis/recommendations/prereg-tp1-r50-forward-shadow-2026-09-03.md: ship-candidate only if session_clustered_ci.ci_lower_2.5 > 0 AND top3_concentration_share < 0.50 AND ex_best_day_sum_delta > 0. Reaching the bar is permission to READ the verdict, not to ship -- and the bar is not softened.",
  "new_this_run": 0,
- "skipped_this_run": [],
- "input_ledger_newest_date": "2026-09-02",
- "input_expected_through": "2026-09-02",
+ "skipped_this_run": [
+  {
+   "activity_id": "20260904094605044::163d6051-00a9-4db7-8c84-2f3278f8f476",
+   "reason": "not fully closed in raw fills-ledger.jsonl (still open / no matching sell fill)"
+  },
+  {
+   "activity_id": "20260904094607438::eb75d87e-95d8-406d-92b0-94f081294705",
+   "reason": "not fully closed in raw fills-ledger.jsonl (still open / no matching sell fill)"
+  }
+ ],
+ "input_ledger_newest_date": "2026-09-10",
+ "input_expected_through": "2026-09-09",
  "input_stale": false,
  "input_note": "fed"
 }

@@ -1,0 +1,231 @@
+{
+ "_doc": "g1_sole_blocker_costing_2026_09_05.py -- GOAL-GATE-EXPIRY-RECONCILE-2026-09-05 G1.\n\nOne-off driver (NOT a standing instrument -- the standing instrument is\nbacktest/tools/postfix_gate_costing.py, extended in place by G3's escalation wiring). Runs\nEXACTLY postfix_gate_costing.py's Part B sim path (sole_blocker_rows selector, cluster_events,\nreplay_event -> walk_exit_manager via gate_revalidation_ab.replay_row -- the SAME sound replay\ngate_expiry_check.py's own nightly pass uses) but scoped to the two named cohorts only\n(bear filter 8, bull filter 10), over TWO windows:\n  (a) August:  2026-08-03..2026-08-28\n  (b) frozen:  2026-08-31..today (2026-09-05)\nCombines safe+bold into one cross-account cohort per window (byte-identical dedupe to\ngate_expiry_check.mine_sole_blockers' episodes_distinct: HOLD rows across both accounts at the\nsame signal moment are the same refused market moment, re-clustered together, never summed\nper-account) so the $ verdict is stated once per (door, filter, window), not double-counted.\n\nNever blocks, never kills, never edits params/registry -- writes a report only:\nanalysis/recommendations/gate-postfix-costing-sole-b8b10-2026-09-05.json\n\nRun: backtest/.venv/Scripts/python.exe backtest/tools/g1_sole_blocker_costing_2026_09_05.py\n",
+ "generated_at": "2026-09-05T10:09:45.893373",
+ "floor": 10,
+ "cohorts": {
+  "filter-8-bear-sole": {
+   "august": {
+    "window": "2026-08-03..2026-08-28",
+    "per_account_raw": {
+     "safe": {
+      "n_raw_sole_blocker_rows": 349,
+      "n_events": 43,
+      "status_counts": {
+       "ok": 42,
+       "no_contract": 1
+      }
+     },
+     "bold": {
+      "n_raw_sole_blocker_rows": 347,
+      "n_events": 43,
+      "status_counts": {
+       "ok": 42,
+       "no_contract": 1
+      }
+     }
+    },
+    "n_distinct_episodes": 43,
+    "replayed_as_safe_qty_exit_shape": {
+     "window": "2026-08-03..2026-08-28",
+     "n": 42,
+     "n_days": 11,
+     "wr_pct": 26.2,
+     "exp_per_trade": -30.64,
+     "total_dollar": -1286.85,
+     "sign": "NEGATIVE",
+     "best_day": 288.5,
+     "worst_day": -801.0,
+     "win_days": 4,
+     "loss_days": 7,
+     "first_fill": "2026-08-05",
+     "last_fill": "2026-08-28",
+     "best_day_share": -0.224
+    },
+    "replayed_as_bold_qty_exit_shape": {
+     "window": "2026-08-03..2026-08-28",
+     "n": 42,
+     "n_days": 11,
+     "wr_pct": 26.2,
+     "exp_per_trade": -50.76,
+     "total_dollar": -2131.9,
+     "sign": "NEGATIVE",
+     "best_day": 492.0,
+     "worst_day": -1335.0,
+     "win_days": 4,
+     "loss_days": 7,
+     "first_fill": "2026-08-05",
+     "last_fill": "2026-08-28",
+     "best_day_share": -0.231
+    },
+    "replay_engine": "walk_exit_manager",
+    "replay_soundness": "sound"
+   },
+   "frozen": {
+    "window": "2026-08-31..2026-09-05",
+    "per_account_raw": {
+     "safe": {
+      "n_raw_sole_blocker_rows": 153,
+      "n_events": 16,
+      "status_counts": {
+       "no_contract": 11,
+       "ok": 5
+      }
+     },
+     "bold": {
+      "n_raw_sole_blocker_rows": 153,
+      "n_events": 16,
+      "status_counts": {
+       "no_contract": 11,
+       "ok": 5
+      }
+     }
+    },
+    "n_distinct_episodes": 16,
+    "replayed_as_safe_qty_exit_shape": {
+     "window": "2026-08-31..2026-09-05",
+     "n": 5,
+     "n_days": 1,
+     "wr_pct": 60.0,
+     "exp_per_trade": 62.96,
+     "total_dollar": 314.8,
+     "sign": "POSITIVE",
+     "best_day": 314.8,
+     "worst_day": 314.8,
+     "win_days": 1,
+     "loss_days": 0,
+     "first_fill": "2026-09-01",
+     "last_fill": "2026-09-01",
+     "best_day_share": 1.0
+    },
+    "replayed_as_bold_qty_exit_shape": {
+     "window": "2026-08-31..2026-09-05",
+     "n": 5,
+     "n_days": 1,
+     "wr_pct": 60.0,
+     "exp_per_trade": 104.36,
+     "total_dollar": 521.8,
+     "sign": "POSITIVE",
+     "best_day": 521.8,
+     "worst_day": 521.8,
+     "win_days": 1,
+     "loss_days": 0,
+     "first_fill": "2026-09-01",
+     "last_fill": "2026-09-01",
+     "best_day_share": 1.0
+    },
+    "replay_engine": "walk_exit_manager",
+    "replay_soundness": "sound"
+   }
+  },
+  "filter-10-bull-sole": {
+   "august": {
+    "window": "2026-08-03..2026-08-28",
+    "per_account_raw": {
+     "safe": {
+      "n_raw_sole_blocker_rows": 450,
+      "n_events": 49,
+      "status_counts": {
+       "ok": 49
+      }
+     },
+     "bold": {
+      "n_raw_sole_blocker_rows": 452,
+      "n_events": 49,
+      "status_counts": {
+       "ok": 49
+      }
+     }
+    },
+    "n_distinct_episodes": 49,
+    "replayed_as_safe_qty_exit_shape": {
+     "window": "2026-08-03..2026-08-28",
+     "n": 49,
+     "n_days": 14,
+     "wr_pct": 40.8,
+     "exp_per_trade": 38.68,
+     "total_dollar": 1895.1,
+     "sign": "POSITIVE",
+     "best_day": 1545.4,
+     "worst_day": -468.0,
+     "win_days": 5,
+     "loss_days": 9,
+     "first_fill": "2026-08-03",
+     "last_fill": "2026-08-28",
+     "best_day_share": 0.815
+    },
+    "replayed_as_bold_qty_exit_shape": {
+     "window": "2026-08-03..2026-08-28",
+     "n": 49,
+     "n_days": 14,
+     "wr_pct": 40.8,
+     "exp_per_trade": 70.48,
+     "total_dollar": 3453.7,
+     "sign": "POSITIVE",
+     "best_day": 2748.8,
+     "worst_day": -780.0,
+     "win_days": 5,
+     "loss_days": 9,
+     "first_fill": "2026-08-03",
+     "last_fill": "2026-08-28",
+     "best_day_share": 0.796
+    },
+    "replay_engine": "walk_exit_manager",
+    "replay_soundness": "sound"
+   },
+   "frozen": {
+    "window": "2026-08-31..2026-09-05",
+    "per_account_raw": {
+     "safe": {
+      "n_raw_sole_blocker_rows": 67,
+      "n_events": 10,
+      "status_counts": {
+       "ok": 10
+      }
+     },
+     "bold": {
+      "n_raw_sole_blocker_rows": 67,
+      "n_events": 10,
+      "status_counts": {
+       "ok": 10
+      }
+     }
+    },
+    "n_distinct_episodes": 10,
+    "replayed_as_safe_qty_exit_shape": {
+     "window": "2026-08-31..2026-09-05",
+     "n": 10,
+     "n_days": 2,
+     "wr_pct": 40.0,
+     "exp_per_trade": 58.07,
+     "total_dollar": 580.7,
+     "sign": "POSITIVE",
+     "best_day": 484.7,
+     "worst_day": 96.0,
+     "win_days": 2,
+     "loss_days": 0,
+     "first_fill": "2026-09-02",
+     "last_fill": "2026-09-03",
+     "best_day_share": 0.835
+    },
+    "replayed_as_bold_qty_exit_shape": {
+     "window": "2026-08-31..2026-09-05",
+     "n": 10,
+     "n_days": 2,
+     "wr_pct": 40.0,
+     "exp_per_trade": 104.44,
+     "total_dollar": 1044.4,
+     "sign": "POSITIVE",
+     "best_day": 884.4,
+     "worst_day": 160.0,
+     "win_days": 2,
+     "loss_days": 0,
+     "first_fill": "2026-09-02",
+     "last_fill": "2026-09-03",
+     "best_day_share": 0.847
+    },
+    "replay_engine": "walk_exit_manager",
+    "replay_soundness": "sound"
+   }
+  }
+ }
+}

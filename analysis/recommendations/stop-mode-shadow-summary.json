@@ -1,33 +1,65 @@
 {
  "prereg": "STOP-MODE-STRUCTURE-VS-PREMIUM-2026-08-09 (prereg commit 2a36724a)",
- "generated_at_et": "2026-08-16T13:10:04.626186",
+ "generated_at_et": "2026-09-10T16:35:54.089670",
  "accrual_start": "2026-08-10",
- "n_trades": 95,
- "n_days": 5,
- "date_span": "2026-08-10..2026-08-14",
- "days_to_bar": 15,
- "cum_delta_dollars": 1808.6,
- "mean_delta_per_trade": 19.04,
- "control_total": -1994.7,
- "premium_total": -186.1,
- "wr_control": 0.2632,
- "wr_premium": 0.2632,
- "delta_wr": 0.0,
+ "n_trades": 210,
+ "n_days": 20,
+ "date_span": "2026-08-10..2026-09-08",
+ "days_to_bar": 0,
+ "cum_delta_dollars": -956.1,
+ "mean_delta_per_trade": -4.55,
+ "control_total": 4697.15,
+ "premium_total": 3741.05,
+ "wr_control": 0.3381,
+ "wr_premium": 0.2905,
+ "delta_wr": -0.0476,
  "mechanism_signature_holds": false,
  "per_day_delta": {
   "2026-08-10": 119.2,
   "2026-08-11": 166.0,
   "2026-08-12": -139.6,
   "2026-08-13": 581.2,
-  "2026-08-14": 1081.8
+  "2026-08-14": 1081.8,
+  "2026-08-17": -2073.3,
+  "2026-08-18": 0.0,
+  "2026-08-19": -329.5,
+  "2026-08-20": 0.0,
+  "2026-08-21": 1091.8,
+  "2026-08-24": 0.0,
+  "2026-08-25": 108.2,
+  "2026-08-26": 0.0,
+  "2026-08-27": -834.1,
+  "2026-08-28": -1712.6,
+  "2026-09-01": 0.0,
+  "2026-09-02": 180.0,
+  "2026-09-03": 804.8,
+  "2026-09-04": 0.0,
+  "2026-09-08": 0.0
  },
- "days_premium_better": 4,
- "status": "ACCRUING",
+ "days_premium_better": 8,
+ "status": "BAR_MET_AWAITING_PREREG_AB",
  "decision_rule": "This ledger NEVER changes stop_mode by itself. At n_days >= 20 it becomes the evidence base for a separate pre-registered A/B. Reaching the bar is permission to TEST, not to ship.",
- "new_this_run": 29,
- "skipped_this_run": [],
- "input_ledger_newest_date": "2026-08-14",
- "input_expected_through": "2026-08-14",
+ "new_this_run": 2,
+ "skipped_this_run": [
+  {
+   "activity_id": "20260910121104207::ba4e21c7-6b84-4898-b023-2991150934e2",
+   "reason": "no_opra_cache"
+  },
+  {
+   "activity_id": "20260910121206215::b6178c33-09f0-4bb7-9e63-27a8cece282b",
+   "reason": "no_opra_cache"
+  },
+  {
+   "activity_id": "20260910121208370::40f791ec-ddd1-4d73-9580-468902cec00f",
+   "reason": "no_opra_cache"
+  },
+  {
+   "activity_id": "20260910143304094::e8f1ffd6-7535-41af-b895-6593267581a1",
+   "reason": "no_opra_cache"
+  }
+ ],
+ "input_ledger_newest_date": "2026-09-10",
+ "input_expected_through": "2026-09-09",
  "input_stale": false,
  "input_note": "fed"
 }

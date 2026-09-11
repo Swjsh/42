@@ -1,0 +1,706 @@
+{
+  "_doc": "PROFIT-P2-RIBBON-RIDE-STRIKE-AB (extended: strike x exit head-to-head). ANALYSIS/SCORECARD ONLY -- no params/config/trading-path file touched, no orders placed. MEASURED tier: real OPRA local 5-min trade bars (backtest/data/options/*.csv) replayed through the LIVE exit_manager decision core (plan_exit_actions / structure_stop_study.replay_structure_aware) -- NOT live broker fills. Touch-based stop/TP resolution on 5-min bars (1-min intrabar timing not modeled), same disclosed gap as every T4/T5/structure_stop_study/p5_topcell_real_fills_confirm replay in this repo.",
+  "generated_at": "2026-07-11T19:56:37.732334",
+  "smoke_mode": false,
+  "signal_cohort": {
+    "source": "_signal_cache.load_or_build_signals() (analysis/exit-parity/signal-set.json)",
+    "window": "2025-01-01..2026-06-18",
+    "n_raw": 250,
+    "n_call_bull": 59,
+    "n_put_bear": 191,
+    "n_with_recoverable_trigger_level": 98
+  },
+  "shapes": {
+    "SS-B": {
+      "premium_stop_pct": -0.5,
+      "tp1_premium_pct": 1.0,
+      "tp1_qty_fraction": 0.667,
+      "profit_lock_mode": "trailing",
+      "trail_pct": 0.15,
+      "runner_target_pct": 9.9,
+      "structure_buffer": 0.0,
+      "note": "reused unchanged from structure_stop_study.py; exact live params"
+    },
+    "P5-CHALLENGER": {
+      "premium_stop_pct": -0.08,
+      "tp1_premium_pct": 0.3,
+      "tp1_qty_fraction": 0.5,
+      "profit_lock_mode": "trailing",
+      "trail_pct": 0.15,
+      "profit_lock_arm_scope": "post_tp1",
+      "profit_lock_arm_pct": 0.0,
+      "note": "reused verbatim from p5_topcell_real_fills_confirm.py's LAYER A shape_live dict (rank 1/106 P5 survivor, OTM-1_stop-8_trailing0.15)"
+    }
+  },
+  "oos_boundary": "2026-01-01",
+  "op16_anchor": {
+    "j_winners": [
+      [
+        "2026-04-29",
+        "P",
+        342.0
+      ],
+      [
+        "2026-05-01",
+        "P",
+        470.0
+      ],
+      [
+        "2026-05-04",
+        "P",
+        730.0
+      ]
+    ],
+    "j_losers": [
+      [
+        "2026-05-05",
+        "P",
+        -260.0
+      ],
+      [
+        "2026-05-06",
+        "P",
+        -300.0
+      ],
+      [
+        "2026-05-07",
+        "C",
+        -45.0
+      ]
+    ],
+    "edge_capture_max": 1542.0,
+    "note": "edge_capture_rel = winner_day_pnl_sum - loser_day_loss_penalty (t4_exit_matrix.battery), QTY=10 fixed -- RELATIVE not the OP-16 account-size absolute. J_LOSERS as coded here has 3 entries; CLAUDE.md OP-16 prose lists a 4th (5/07 737C) not present in the reused constant -- inherited, not modified here."
+  },
+  "axis1_strike": {
+    "control": "OTM-2",
+    "winner": "ITM-2",
+    "selection_rule": "max OOS total pnl among candidates, tie-break full-sample expectancy",
+    "cells": {
+      "OTM-2": {
+        "cell_id": "OTM-2/SS-B",
+        "strike_label": "OTM-2",
+        "so_simulator_convention": 2,
+        "exit_label": "SS-B",
+        "n_no_local_bars": 0,
+        "metrics": {
+          "n": 250,
+          "total": 4465.6,
+          "expectancy": 17.86,
+          "wr": 0.308,
+          "edge_capture_rel": -24.4,
+          "oos_total": 2759.8,
+          "oos_positive": true,
+          "wf": 2.876,
+          "wf_ge_070": true,
+          "qpf": 0.5,
+          "exp_drop_top3": -2.13,
+          "worst_trade": -905.0,
+          "worst_decile_mean": -613.2,
+          "max_dd": -4797.6,
+          "n_stopped": 0,
+          "top3_day_share": 1.188,
+          "sub_window_stable": true,
+          "both_halves": {
+            "first": {
+              "n": 125,
+              "total": 4343.0
+            },
+            "second": {
+              "n": 125,
+              "total": 122.6
+            }
+          }
+        },
+        "sensitivity_old_fillbar_convention": {
+          "n": 250,
+          "n_no_local_bars": 0,
+          "expectancy": 17.37,
+          "wr": 0.308,
+          "oos_total": 2672.2,
+          "oos_positive": true,
+          "wf": 2.845,
+          "edge_capture_rel": -24.4
+        },
+        "null": {
+          "seeds": 20,
+          "n_eligible": 26236,
+          "n_drawn": 250,
+          "per_trade_mean": -27.51,
+          "per_trade_max": 30.47
+        },
+        "null_gate": {
+          "beats_null_mean": true,
+          "beats_null_max": false,
+          "drop_top5_beats_null_mean": true,
+          "edge_over_null_per_trade": 45.37,
+          "null_pass": false
+        },
+        "p_null": 0.1429,
+        "bh_fdr_survivor": false,
+        "bh_rank": 6
+      },
+      "OTM-1": {
+        "cell_id": "OTM-1/SS-B",
+        "strike_label": "OTM-1",
+        "so_simulator_convention": 1,
+        "exit_label": "SS-B",
+        "n_no_local_bars": 1,
+        "metrics": {
+          "n": 249,
+          "total": 9209.2,
+          "expectancy": 36.98,
+          "wr": 0.333,
+          "edge_capture_rel": 92.6,
+          "oos_total": 6753.4,
+          "oos_positive": true,
+          "wf": 4.858,
+          "wf_ge_070": true,
+          "qpf": 0.667,
+          "exp_drop_top3": 12.72,
+          "worst_trade": -1095.0,
+          "worst_decile_mean": -782.92,
+          "max_dd": -5581.0,
+          "n_stopped": 0,
+          "top3_day_share": 0.728,
+          "sub_window_stable": true,
+          "both_halves": {
+            "first": {
+              "n": 124,
+              "total": 4372.0
+            },
+            "second": {
+              "n": 125,
+              "total": 4837.2
+            }
+          }
+        },
+        "sensitivity_old_fillbar_convention": {
+          "n": 249,
+          "n_no_local_bars": 1,
+          "expectancy": 40.14,
+          "wr": 0.337,
+          "oos_total": 7012.6,
+          "oos_positive": true,
+          "wf": 4.155,
+          "edge_capture_rel": 92.6
+        },
+        "null": {
+          "seeds": 20,
+          "n_eligible": 26236,
+          "n_drawn": 249,
+          "per_trade_mean": -51.01,
+          "per_trade_max": 53.4
+        },
+        "null_gate": {
+          "beats_null_mean": true,
+          "beats_null_max": false,
+          "drop_top5_beats_null_mean": true,
+          "edge_over_null_per_trade": 87.99,
+          "null_pass": false
+        },
+        "p_null": 0.0952,
+        "bh_fdr_survivor": false,
+        "bh_rank": 4
+      },
+      "ATM": {
+        "cell_id": "ATM/SS-B",
+        "strike_label": "ATM",
+        "so_simulator_convention": 0,
+        "exit_label": "SS-B",
+        "n_no_local_bars": 6,
+        "metrics": {
+          "n": 244,
+          "total": 16061.0,
+          "expectancy": 65.82,
+          "wr": 0.357,
+          "edge_capture_rel": 361.4,
+          "oos_total": 11333.4,
+          "oos_positive": true,
+          "wf": 4.25,
+          "wf_ge_070": true,
+          "qpf": 0.667,
+          "exp_drop_top3": 36.64,
+          "worst_trade": -1290.0,
+          "worst_decile_mean": -966.04,
+          "max_dd": -7707.0,
+          "n_stopped": 0,
+          "top3_day_share": 0.572,
+          "sub_window_stable": true,
+          "both_halves": {
+            "first": {
+              "n": 122,
+              "total": 6551.2
+            },
+            "second": {
+              "n": 122,
+              "total": 9509.8
+            }
+          }
+        },
+        "sensitivity_old_fillbar_convention": {
+          "n": 244,
+          "n_no_local_bars": 6,
+          "expectancy": 69.69,
+          "wr": 0.361,
+          "oos_total": 11323.4,
+          "oos_positive": true,
+          "wf": 3.534,
+          "edge_capture_rel": 361.4
+        },
+        "null": {
+          "seeds": 20,
+          "n_eligible": 26236,
+          "n_drawn": 244,
+          "per_trade_mean": -79.48,
+          "per_trade_max": 19.77
+        },
+        "null_gate": {
+          "beats_null_mean": true,
+          "beats_null_max": true,
+          "drop_top5_beats_null_mean": true,
+          "edge_over_null_per_trade": 145.3,
+          "null_pass": true
+        },
+        "p_null": 0.0476,
+        "bh_fdr_survivor": true,
+        "bh_rank": 1
+      },
+      "ITM-2": {
+        "cell_id": "ITM-2/SS-B",
+        "strike_label": "ITM-2",
+        "so_simulator_convention": -2,
+        "exit_label": "SS-B",
+        "n_no_local_bars": 19,
+        "metrics": {
+          "n": 231,
+          "total": 2560.6,
+          "expectancy": 11.08,
+          "wr": 0.346,
+          "edge_capture_rel": 1149.0,
+          "oos_total": 19554.4,
+          "oos_positive": true,
+          "wf": null,
+          "wf_ge_070": false,
+          "qpf": 0.5,
+          "exp_drop_top3": -30.19,
+          "worst_trade": -1800.0,
+          "worst_decile_mean": -1470.65,
+          "max_dd": -20843.8,
+          "n_stopped": 0,
+          "top3_day_share": 5.538,
+          "sub_window_stable": false,
+          "both_halves": {
+            "first": {
+              "n": 115,
+              "total": -9230.2
+            },
+            "second": {
+              "n": 116,
+              "total": 11790.8
+            }
+          }
+        },
+        "sensitivity_old_fillbar_convention": {
+          "n": 231,
+          "n_no_local_bars": 19,
+          "expectancy": 11.47,
+          "wr": 0.346,
+          "oos_total": 19534.4,
+          "oos_positive": true,
+          "wf": null,
+          "edge_capture_rel": 1149.0
+        },
+        "null": {
+          "seeds": 20,
+          "n_eligible": 26236,
+          "n_drawn": 231,
+          "per_trade_mean": -215.85,
+          "per_trade_max": -77.79
+        },
+        "null_gate": {
+          "beats_null_mean": true,
+          "beats_null_max": true,
+          "drop_top5_beats_null_mean": true,
+          "edge_over_null_per_trade": 226.93,
+          "null_pass": true
+        },
+        "p_null": 0.0476,
+        "bh_fdr_survivor": true,
+        "bh_rank": 2
+      }
+    },
+    "comparisons": {
+      "OTM-1": {
+        "label": "OTM-1 vs OTM-2 (SS-B fixed)",
+        "candidate": "OTM-1/SS-B",
+        "control": "OTM-2/SS-B",
+        "delta_expectancy": 19.12,
+        "delta_oos_total": 3993.6,
+        "candidate_beats_control": true,
+        "sensitivity_delta_expectancy_old_convention": 22.77,
+        "unstable_on_open_audit": false,
+        "anchor_no_regression_op16": true,
+        "candidate_edge_capture_rel": 92.6,
+        "control_edge_capture_rel": -24.4,
+        "auto_ratify_flags": {
+          "oos_positive": true,
+          "wf_ge_070": true,
+          "sub_window_stable": true
+        },
+        "clears_auto_ratify_bar": true,
+        "ship_or_wait": "SHIP"
+      },
+      "ATM": {
+        "label": "ATM vs OTM-2 (SS-B fixed)",
+        "candidate": "ATM/SS-B",
+        "control": "OTM-2/SS-B",
+        "delta_expectancy": 47.96,
+        "delta_oos_total": 8573.6,
+        "candidate_beats_control": true,
+        "sensitivity_delta_expectancy_old_convention": 52.32,
+        "unstable_on_open_audit": false,
+        "anchor_no_regression_op16": true,
+        "candidate_edge_capture_rel": 361.4,
+        "control_edge_capture_rel": -24.4,
+        "auto_ratify_flags": {
+          "oos_positive": true,
+          "wf_ge_070": true,
+          "sub_window_stable": true
+        },
+        "clears_auto_ratify_bar": true,
+        "ship_or_wait": "SHIP"
+      },
+      "ITM-2": {
+        "label": "ITM-2 vs OTM-2 (SS-B fixed)",
+        "candidate": "ITM-2/SS-B",
+        "control": "OTM-2/SS-B",
+        "delta_expectancy": -6.78,
+        "delta_oos_total": 16794.6,
+        "candidate_beats_control": false,
+        "sensitivity_delta_expectancy_old_convention": -5.9,
+        "unstable_on_open_audit": false,
+        "anchor_no_regression_op16": true,
+        "candidate_edge_capture_rel": 1149.0,
+        "control_edge_capture_rel": -24.4,
+        "auto_ratify_flags": {
+          "oos_positive": true,
+          "wf_ge_070": false,
+          "sub_window_stable": false
+        },
+        "clears_auto_ratify_bar": false,
+        "ship_or_wait": "WAIT_EVIDENCE"
+      }
+    }
+  },
+  "axis2_exit": {
+    "strikes_tested": [
+      "OTM-2",
+      "ITM-2"
+    ],
+    "cells": {
+      "OTM-2": {
+        "cell_id": "OTM-2/P5-CHALLENGER",
+        "strike_label": "OTM-2",
+        "so_simulator_convention": 2,
+        "exit_label": "P5-CHALLENGER",
+        "n_no_local_bars": 0,
+        "metrics": {
+          "n": 250,
+          "total": 9224.45,
+          "expectancy": 36.9,
+          "wr": 0.276,
+          "edge_capture_rel": 479.6,
+          "oos_total": 5029.55,
+          "oos_positive": true,
+          "wf": 2.131,
+          "wf_ge_070": true,
+          "qpf": 0.833,
+          "exp_drop_top3": 26.87,
+          "worst_trade": -183.2,
+          "worst_decile_mean": -103.26,
+          "max_dd": -687.2,
+          "n_stopped": 0,
+          "top3_day_share": 0.3,
+          "sub_window_stable": true,
+          "both_halves": {
+            "first": {
+              "n": 125,
+              "total": 4197.4
+            },
+            "second": {
+              "n": 125,
+              "total": 5027.05
+            }
+          }
+        },
+        "sensitivity_old_fillbar_convention": {
+          "n": 250,
+          "n_no_local_bars": 0,
+          "expectancy": 7.92,
+          "wr": 0.18,
+          "oos_total": 1598.95,
+          "oos_positive": true,
+          "wf": 7.483,
+          "edge_capture_rel": -275.2
+        },
+        "null": {
+          "seeds": 20,
+          "n_eligible": 26236,
+          "n_drawn": 250,
+          "per_trade_mean": 11.44,
+          "per_trade_max": 29.6
+        },
+        "null_gate": {
+          "beats_null_mean": true,
+          "beats_null_max": true,
+          "drop_top5_beats_null_mean": true,
+          "edge_over_null_per_trade": 25.46,
+          "null_pass": true
+        },
+        "p_null": 0.0476,
+        "bh_fdr_survivor": true,
+        "bh_rank": 3
+      },
+      "ITM-2": {
+        "cell_id": "ITM-2/P5-CHALLENGER",
+        "strike_label": "ITM-2",
+        "so_simulator_convention": -2,
+        "exit_label": "P5-CHALLENGER",
+        "n_no_local_bars": 19,
+        "metrics": {
+          "n": 231,
+          "total": 16036.6,
+          "expectancy": 69.42,
+          "wr": 0.286,
+          "edge_capture_rel": 576.05,
+          "oos_total": 13303.95,
+          "oos_positive": true,
+          "wf": 8.681,
+          "wf_ge_070": true,
+          "qpf": 0.667,
+          "exp_drop_top3": 49.94,
+          "worst_trade": -288.8,
+          "worst_decile_mean": -249.43,
+          "max_dd": -3646.65,
+          "n_stopped": 0,
+          "top3_day_share": 0.323,
+          "sub_window_stable": true,
+          "both_halves": {
+            "first": {
+              "n": 115,
+              "total": 6190.5
+            },
+            "second": {
+              "n": 116,
+              "total": 9846.1
+            }
+          }
+        },
+        "sensitivity_old_fillbar_convention": {
+          "n": 231,
+          "n_no_local_bars": 19,
+          "expectancy": 14.04,
+          "wr": 0.221,
+          "oos_total": 7028.6,
+          "oos_positive": true,
+          "wf": null,
+          "edge_capture_rel": -1029.6
+        },
+        "null": {
+          "seeds": 20,
+          "n_eligible": 26236,
+          "n_drawn": 231,
+          "per_trade_mean": 26.51,
+          "per_trade_max": 75.7
+        },
+        "null_gate": {
+          "beats_null_mean": true,
+          "beats_null_max": false,
+          "drop_top5_beats_null_mean": true,
+          "edge_over_null_per_trade": 42.91,
+          "null_pass": false
+        },
+        "p_null": 0.0952,
+        "bh_fdr_survivor": false,
+        "bh_rank": 5
+      }
+    },
+    "comparisons": {
+      "OTM-2": {
+        "label": "P5-CHALLENGER vs SS-B (at OTM-2)",
+        "candidate": "OTM-2/P5-CHALLENGER",
+        "control": "OTM-2/SS-B",
+        "delta_expectancy": 19.04,
+        "delta_oos_total": 2269.75,
+        "candidate_beats_control": true,
+        "sensitivity_delta_expectancy_old_convention": -9.45,
+        "unstable_on_open_audit": true,
+        "anchor_no_regression_op16": true,
+        "candidate_edge_capture_rel": 479.6,
+        "control_edge_capture_rel": -24.4,
+        "auto_ratify_flags": {
+          "oos_positive": true,
+          "wf_ge_070": true,
+          "sub_window_stable": true
+        },
+        "clears_auto_ratify_bar": false,
+        "ship_or_wait": "WAIT_OPEN_AUDIT_CHIPS"
+      },
+      "ITM-2": {
+        "label": "P5-CHALLENGER vs SS-B (at ITM-2)",
+        "candidate": "ITM-2/P5-CHALLENGER",
+        "control": "ITM-2/SS-B",
+        "delta_expectancy": 58.34,
+        "delta_oos_total": -6250.45,
+        "candidate_beats_control": true,
+        "sensitivity_delta_expectancy_old_convention": 2.57,
+        "unstable_on_open_audit": false,
+        "anchor_no_regression_op16": false,
+        "candidate_edge_capture_rel": 576.05,
+        "control_edge_capture_rel": 1149.0,
+        "auto_ratify_flags": {
+          "oos_positive": true,
+          "wf_ge_070": true,
+          "sub_window_stable": true
+        },
+        "clears_auto_ratify_bar": false,
+        "ship_or_wait": "WAIT_EVIDENCE"
+      }
+    },
+    "note": "P5-CHALLENGER shape parameters held FIXED across strikes (only the underlying strike/contract varies) -- an isolated-variable exit-axis test, mirroring axis 1's own isolated-variable strike test."
+  },
+  "bh_fdr": {
+    "alpha": 0.1,
+    "n_comparisons": 6,
+    "n_survivors": 3,
+    "method": "benjamini-hochberg (ribbon_rejection_wick_battery.bh_fdr, reused unchanged)"
+  },
+  "ship_vs_wait": {
+    "ship_per_op11_auto_ratify": [
+      {
+        "label": "OTM-1 vs OTM-2 (SS-B fixed)",
+        "candidate": "OTM-1/SS-B",
+        "control": "OTM-2/SS-B",
+        "delta_expectancy": 19.12,
+        "delta_oos_total": 3993.6,
+        "candidate_beats_control": true,
+        "sensitivity_delta_expectancy_old_convention": 22.77,
+        "unstable_on_open_audit": false,
+        "anchor_no_regression_op16": true,
+        "candidate_edge_capture_rel": 92.6,
+        "control_edge_capture_rel": -24.4,
+        "auto_ratify_flags": {
+          "oos_positive": true,
+          "wf_ge_070": true,
+          "sub_window_stable": true
+        },
+        "clears_auto_ratify_bar": true,
+        "ship_or_wait": "SHIP"
+      },
+      {
+        "label": "ATM vs OTM-2 (SS-B fixed)",
+        "candidate": "ATM/SS-B",
+        "control": "OTM-2/SS-B",
+        "delta_expectancy": 47.96,
+        "delta_oos_total": 8573.6,
+        "candidate_beats_control": true,
+        "sensitivity_delta_expectancy_old_convention": 52.32,
+        "unstable_on_open_audit": false,
+        "anchor_no_regression_op16": true,
+        "candidate_edge_capture_rel": 361.4,
+        "control_edge_capture_rel": -24.4,
+        "auto_ratify_flags": {
+          "oos_positive": true,
+          "wf_ge_070": true,
+          "sub_window_stable": true
+        },
+        "clears_auto_ratify_bar": true,
+        "ship_or_wait": "SHIP"
+      }
+    ],
+    "wait_on_open_audit_chips": [
+      {
+        "label": "P5-CHALLENGER vs SS-B (at OTM-2)",
+        "candidate": "OTM-2/P5-CHALLENGER",
+        "control": "OTM-2/SS-B",
+        "delta_expectancy": 19.04,
+        "delta_oos_total": 2269.75,
+        "candidate_beats_control": true,
+        "sensitivity_delta_expectancy_old_convention": -9.45,
+        "unstable_on_open_audit": true,
+        "anchor_no_regression_op16": true,
+        "candidate_edge_capture_rel": 479.6,
+        "control_edge_capture_rel": -24.4,
+        "auto_ratify_flags": {
+          "oos_positive": true,
+          "wf_ge_070": true,
+          "sub_window_stable": true
+        },
+        "clears_auto_ratify_bar": false,
+        "ship_or_wait": "WAIT_OPEN_AUDIT_CHIPS"
+      }
+    ],
+    "wait_more_evidence": [
+      {
+        "label": "ITM-2 vs OTM-2 (SS-B fixed)",
+        "candidate": "ITM-2/SS-B",
+        "control": "OTM-2/SS-B",
+        "delta_expectancy": -6.78,
+        "delta_oos_total": 16794.6,
+        "candidate_beats_control": false,
+        "sensitivity_delta_expectancy_old_convention": -5.9,
+        "unstable_on_open_audit": false,
+        "anchor_no_regression_op16": true,
+        "candidate_edge_capture_rel": 1149.0,
+        "control_edge_capture_rel": -24.4,
+        "auto_ratify_flags": {
+          "oos_positive": true,
+          "wf_ge_070": false,
+          "sub_window_stable": false
+        },
+        "clears_auto_ratify_bar": false,
+        "ship_or_wait": "WAIT_EVIDENCE"
+      },
+      {
+        "label": "P5-CHALLENGER vs SS-B (at ITM-2)",
+        "candidate": "ITM-2/P5-CHALLENGER",
+        "control": "ITM-2/SS-B",
+        "delta_expectancy": 58.34,
+        "delta_oos_total": -6250.45,
+        "candidate_beats_control": true,
+        "sensitivity_delta_expectancy_old_convention": 2.57,
+        "unstable_on_open_audit": false,
+        "anchor_no_regression_op16": false,
+        "candidate_edge_capture_rel": 576.05,
+        "control_edge_capture_rel": 1149.0,
+        "auto_ratify_flags": {
+          "oos_positive": true,
+          "wf_ge_070": true,
+          "sub_window_stable": true
+        },
+        "clears_auto_ratify_bar": false,
+        "ship_or_wait": "WAIT_EVIDENCE"
+      }
+    ],
+    "open_audit_chips_blocking": [
+      "task_4935ea80",
+      "task_86001855"
+    ]
+  },
+  "disclosures": [
+    "MEASURED (real OPRA) not REALIZED (no broker fills exist for these strike/exit combinations) -- this is a scorecard/simulation-replay artifact, per OP-33 labeled as such throughout; arming anything is a SEPARATE step this script does not take.",
+    "Signal cohort is the FULL _signal_cache population (n as reported above), NOT re-detected per strike -- axis 1 is a true isolated-variable strike swap. Per-cell n differs slightly only where a given strike/date combination has no cached OPRA file (n_no_local_bars, disclosed per cell) -- exactly the same disclosed coverage-gap pattern WP5-STRIKE-AB and p5_topcell_real_fills_confirm.py already use.",
+    "Trigger-level recovery is DIRECT (tw8_level_context.enrich_signal, the same per-day level-freeze convention lib/orchestrator.py used to fire these signals), NOT the backward-scan heuristic real-fills anchors need -- higher fidelity than a fleet-fills LAYER B, matching structure_stop_study's own FRESH-SLICE tier. Signals with no recoverable trigger_level fall back to SS-B's premium-only catastrophe-cap behavior (never dropped), per structure_stop_study's documented contract.",
+    "Sensitivity column (OLD `>=` fill-bar convention) is HEADLINE METRICS ONLY (n/expectancy/wr/oos/edge_capture_rel via t4.battery) -- the random-entry-null and BH-FDR were NOT re-run a second time under the old convention (out of the stated 'top-line cells' scope; would double an already substantial compute budget for a check whose purpose is a directional-verdict-flip flag, not a second full battery).",
+    "Random-entry null is SEED-LEVEL (random_entry_null: 20 deterministic seeds, each drawing n_signals random RTH entries with the real cell's call/put mix, replayed through the SAME strike+exit-shape engine via a custom sim_fn) -- this is the established WP5/fraud_gates convention for this exact research stream, DISTINCT from ribbon_rejection_wick_battery.bootstrap_p's individual-trade-level bootstrap; p_null here is an add-one empirical p-value over the 20 seed-level means, not a bootstrap p-value -- disclosed, not conflated.",
+    "drop-top-3 (not drop-top-5) is this script's concentration-robustness convention, matching t4_exit_matrix/structure_stop_study/fleet_exit_parity_per_arm (the structure-stop research lineage this ticket extends) -- distinct from fraud_gates/null_baseline's drop-top-5 convention (the vwap_continuation/edgehunt research lineage). null_gate() receives exp_drop_top3 as its drop-top5_per_trade argument (functionally: 'the day-concentration-robust per-trade number', regardless of whether 3 or 5 days were dropped) -- not re-computed as a top-5 variant here.",
+    "sub_window_stable = both chronological halves (fleet_exit_parity_per_arm.py convention) show positive total pnl -- the OP-11 'sub_window_stable' gate leg.",
+    "QTY=10 fixed (t4/p5_topcell/structure_stop_study Layer-A convention) -- absolute $ figures are RELATIVE-to-shape-comparison, not the OP-16 account-size absolute.",
+    "Open audit chips blocking any UNSTABLE_ON_OPEN_AUDIT verdict from shipping: task_4935ea80, task_86001855 (the fill-bar methodology fix itself, per the task brief)."
+  ],
+  "verdicts": {
+    "strike_axis": "ATM WINS. The only strike that clears the OP-11 auto-ratify bar AND the full battery: +$47.96/tr over the OTM-2 control (exp $65.82 vs $17.86, n=244/250 identical signals), positive BOTH years (IS-2025 +$4,728 / OOS-2026 +$11,333), WF 4.25, both halves positive, drop-top-3 exp +$36.64, beats its 20-seed random-entry null (p_null 0.0476), BH-FDR survivor, and STABLE on the fill-bar sensitivity toggle (delta +$52.32 old convention, same sign). OTM-1 (+$19.12/tr, toggle-stable) confirms the direction monotonically but FAILS its own random-entry null (null_pass=False, BH non-survivor) and is dominated by ATM on every column -- do not ship the weaker cell. ITM-2 is NOT a valid gradient endpoint on this cohort: its $19,554 OOS rides a -$16,994 IS-2025 (drop-top-3 exp -$30.19, top3-day share 5.5x, maxdd -$20,844) -- a 2026-regime-concentration profile (C22), fails beats-control/WF/sub-window. The WP5 monotonic ITM>ATM>OTM gradient reproduces on ribbon_ride only through ATM (OTM-2 < OTM-1 < ATM) and BREAKS at ITM-2 -- the ranked plan's kill criterion ('gradient doesn't reproduce on this setup's cohort') is PARTIALLY triggered, exactly at the expensive end. Corroborating detail: the OTM-2 control's own drop-top-3 expectancy is NEGATIVE (-$2.13/tr) -- the live tier's entire full-sample edge rides its 3 best trades, independently confirming the friction-stream/WP5 'fragile at OTM-2' read on core ribbon_ride itself.",
+    "exit_axis": "SS-B STAYS -- nothing ships on the exit axis tonight. At OTM-2 the P5 top-cell shape (stop-8%/tp+30%/sell50%/trail15/ts10) beats SS-B by +$19.04/tr on the CORRECTED fill-bar convention but the delta FLIPS to -$9.45/tr under the OLD convention -- the exact instability the two open audit chips (task_4935ea80, task_86001855) exist to resolve -> UNSTABLE_ON_OPEN_AUDIT per the pre-declared rule; cannot ship until the chips land. (Mechanism: a -8% stop is same-bar-reachable from the fill price on most entries, so this shape family is maximally sensitive to whether the fill bar's own low counts -- SS-B's -50% catastrophe cap is not, which is why the strike axis is toggle-stable.) At ITM-2 the challenger is toggle-stable and +$58.34/tr BUT regresses the OP-16 J-anchor capture (edge_capture_rel 576 vs SS-B's 1149): the structure stop rides J's big winner days fully; the tp+30% partial banks early and caps exactly those days -> fails anchor_no_regression -> WAIT_EVIDENCE. Honest flag for the rematch after the chips land: the challenger's risk profile is dramatically smoother at both strikes (OTM-2 maxdd -$687 vs SS-B's -$4,798; top3-day share 0.30 vs 1.19) -- there is real signal here, it is just not shippable on an unstable toggle / an anchor regression.",
+    "ship_vs_wait_op11": "MAY SHIP per OP-11 auto-ratify (OOS_positive AND WF>=0.70 AND sub_window_stable AND anchor_no_regression, toggle-stable): the strike move OTM-2 -> ATM for core ribbon_ride under the SS-B exit shape. Scorecard eligibility ONLY -- this task changes no params/config; arming is the separate v15.4 weekend-rule-update step with this scorecard attached (ranked-plan P2 path). OTM-1 clears the OP-11 arithmetic too but fails its own random-entry null -- recommend NOT arming it (ATM dominates). WAITS ON THE OPEN CHIPS (task_4935ea80, task_86001855): the P5-challenger-vs-SS-B exit verdict at OTM-2 (sign-flips on the fill-bar toggle). WAITS ON MORE EVIDENCE: ITM-2 strike (C22 regime concentration, IS-2025 -$17.0K), P5-challenger at ITM-2 (OP-16 anchor regression)."
+  }
+}
