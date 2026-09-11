@@ -525,10 +525,8 @@ the selection question W6 named and walked away from. These are genuinely multi-
       rate (2.682) was nearly as low with nothing broken. **-34%/4.30-vs-2.83 is struck as an
       established number.** W5 RANK 1 / W7 must cite the corrected framing (UNCONFIRMED,
       ordinary-variance-range) rather than the original provisional claim; does not reopen W4.
-- [ ] W10 -- **Pin the RefusedSetupLedger no-op mechanism.** W1 fixed the symptom by running
-      the script directly but explicitly did NOT root-cause the 8-second exit-0-writing-nothing
-      fire. Instrument it so tomorrow's 14:20 fire produces evidence either way, then write the
-      RED-proofed guard. Freeze-safe (observability).
+- [x] W10 -- **NOT PINNED with certainty (root cause remains a hypothesis set); INSTRUMENTED +
+      GUARDED so it can never again fail silently.** See W10 RESULT below.
 
 
 - [ ] W11 -- **Fix the TradeAutopsy 403-blind component.** `exit_shape_parity_study` gets
@@ -777,3 +775,62 @@ Freeze-safe: measurement only, no trading-path file touched.
   W9 CLOSED and it **KILLED my own participation claim** -- struck from W4 RESULT; W5 RANK 1
   and W7 must re-justify without it. W13 shipped: the 10-30 falsification test is now a
   guarded, RED-proofed instrument instead of a paragraph. W7/W10/W11 still running.
+
+
+---
+
+## W7 RESULT -- the NOT_FLAT counterfactual, EXECUTED (2026-09-10 23:29:03 Thursday EDT)
+
+**VERDICT: UNDERPOWERED, leaning COSTING. Logged null. Not a green light for anything.**
+
+### The headline number, and why its own artifact hunt gutted it
+- Point estimate: the one-position cap cost **+$4,557 raw / +$4,403 cost-adjusted** over
+  **122 deduped waves** (357 per-arm blocked opportunities, 292 priced) since 2026-06-25.
+- **But 87% of that ($3,992 of $4,557) comes from CROSS-ARM sibling proxies** — a *different*
+  arm's real fill scaled up to 3.3x. The **same-arm-only** subset, which is the strongest
+  available proxy, nets **+$565 over n=109 — about $5/episode, i.e. noise.**
+- **Every bootstrap 95% CI straddles zero** (all-matched, same-arm-only, and wave-level). None
+  clears a directional call.
+
+This is the right outcome for the method to produce: the worker found its own number was
+carried by the weakest proxy class and said so instead of reporting $4,557 as a finding.
+
+### The structural splits are more interesting than the aggregate
+- **Winner-vs-loser crux — and it is the OPPOSITE of my hypothesis.** Blocked while the arm was
+  already in a **winner**: net **+$18,742**. Blocked while in a **loser**: net **−$13,904**.
+  I expected the cap to be "protecting the runner." It is not — it costs most exactly when it
+  blocks you during a winner (a correlated-regime effect: good waves cluster), and it mostly
+  *saves* money on already-bad days.
+- **Day-type split is the cleanest structural signal:** "paying" days alone **+$15,172**;
+  "mixed" + "tax" days combined **−$9,510**. Directionally consistent with starving the right
+  tail — but the aggregate CI still does not clear zero, so it stays a lean, not a finding.
+- Time-of-day: no blocked waves before 09:35 or after 15:40 — correctly bounded by the entry
+  gate and time-stop, which is a small sanity tick in the method's favour.
+
+### Method discipline (worth recording)
+Matched each blocked episode to the nearest **REAL** engine fill (`trades-enriched.jsonl` @
+`attribution == "engine"`) within ±5/+15 min, same option right, preferring same setup —
+deliberately **avoided synthesising bid/ask paths** because W1 had already found
+`Gamma_TradeAutopsy`'s option-bar fetch 403-blind (W11 is on that). Applied `go_live_gate.py`'s
+own fee+2c-slippage model. **Capital/BP constraint explicitly NOT modelled — every number is a
+disclosed upper bound.**
+
+### Standing after W9
+W9 struck the participation claim that motivated this lane. W7 was therefore judged **on its
+own evidence**, and its own evidence is underpowered. **Both the motivation and the measurement
+now say the same thing: there is no NOT_FLAT package to propose.** Concurrency is a risk
+EXPANSION regardless → 10-30 at the earliest.
+
+**Honest next step (not tonight):** raise power by fixing the TradeAutopsy 403 (W11, running)
+so real per-trade bars are available, or run a shadow-mode concurrency A/B. **Not** by
+proposing a package off a number whose CI includes zero.
+
+Artifacts: `analysis/recommendations/notflat-counterfactual-2026-09-10.json` (+ `-raw-`).
+
+## PROGRESS LOG
+
+- 2026-09-10 23:29:03 Thursday EDT -- W7 CLOSED as a logged null (UNDERPOWERED leaning COSTING; headline
+  +$4,557 collapses to +$565/n=109 on the same-arm-only proxy, all CIs straddle zero). The
+  winner-vs-loser split came back OPPOSITE to the orchestrator's hypothesis: the cap costs most
+  when blocking during a winner, not when protecting one. W10/W11 still running. **9 of 13
+  items closed. No trading-path edit has been made at any point this session; freeze intact.**
