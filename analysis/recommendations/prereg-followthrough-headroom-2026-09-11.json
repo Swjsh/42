@@ -1,0 +1,51 @@
+{
+  "prereg_id": "FOLLOWTHROUGH-HEADROOM-2026-09-11",
+  "frozen_at_et": "2026-09-11 15:30 ET",
+  "frozen_by": "Gamma (Opus) — committed BEFORE the runner exists, per BACKTESTING-PLAYBOOK disclosure standard",
+  "status": "FROZEN — not yet run",
+
+  "question": "At entry time, does a CAUSAL feature exist that predicts whether the trade will get follow-through? Follow-through is the only clean green/red separator found on 2026-09-11 (green days median favorable excursion $1.16 vs red $0.43; 61% vs 17% of entries reach $0.80 favorable within 60 min) and nothing currently measures it before we are in the trade.",
+
+  "primary_hypothesis": "HEADROOM. A directional 0DTE entry needs unobstructed distance to the next OPPOSING level. If the nearest opposing level is close, the move has nowhere to go and the trade chops out regardless of how good the trigger was. Formally: headroom = |nearest opposing level from key-levels.json − entry spot|, computed from the level set as it stood BEFORE the entry bar.",
+
+  "explicitly_not_a_repeat_of": [
+    "ENTRY-LOCATION-GATE-2026-08-14 (adjudicated NULL 2026-09-05, bull side re-measured NULL 2026-09-11): that measured WHERE the entry sits relative to the intraday extreme (prox) and the prior run. HEADROOM measures the distance to the OBSTACLE AHEAD. Different quantity, opposite geometry. If this is judged a restatement of prox, it must be killed on that ground and logged as such.",
+    "The morning efficiency-ratio gate killed 2026-09-11 was a DAY-level 09:30-11:00 statistic. Feature F3 below is ENTRY-LOCAL (prior 30 min). Related but not the same test; the day-level null does not settle it."
+  ],
+
+  "population": "Real-fills entry EVENTS (deduped by date + entry minute + strike), the extended population built for entry-location-gate-2026-09-11 (n=388; P 235 / C 153). Same causal exclusions. Reuse that builder — do NOT rebuild the population a second way.",
+
+  "causality_rule_non_negotiable": "Every feature computed from bars and level-state STRICTLY BEFORE the entry bar. Entry price = entry bar OPEN. The entry bar's own high/low never enters any feature. key-levels.json must be read as-of the entry date, never a later revision. A violation VOIDS the cell — it is not footnoted.",
+
+  "frozen_features": [
+    {"id": "F1_headroom_abs",  "def": "abs($ distance from entry spot to nearest opposing level)", "bands": [0.25, 0.50, 1.00], "gate_direction": "gate when headroom <= band (too little room)"},
+    {"id": "F2_headroom_atr",  "def": "F1 divided by ATR of the prior 12 5m bars", "bands": [0.5, 1.0, 2.0], "gate_direction": "gate when ratio <= band"},
+    {"id": "F3_er_prior30",    "def": "efficiency ratio (|net|/path) over the 6 5m bars before entry", "bands": [0.15, 0.30], "gate_direction": "gate when ER <= band (entering into chop)"},
+    {"id": "F4_atr_prior12",   "def": "ATR of the prior 12 5m bars, in $", "bands": [0.20, 0.30], "gate_direction": "gate when ATR <= band (dead tape)"},
+    {"id": "F5_range_used",    "def": "(intraday range so far) / (median of prior 20 sessions' full RTH range)", "bands": [0.70, 0.90], "gate_direction": "gate when ratio >= band (day's range spent)"}
+  ],
+  "cell_family": "5 features x their bands x 2 sides = 24 cells. This list is CLOSED. Any cell not enumerated here is EXPLORATORY, must be labelled as such, and CANNOT support a decision. No threshold may be added, moved, or re-swept after this file is committed.",
+
+  "metrics": {
+    "primary_mechanism": "FAV60 — favorable SPY excursion in the trade's direction over 60 minutes from entry, in $. This is what the hypothesis is ABOUT.",
+    "primary_ratifying": "delta expectancy in $/trade (real-OPRA-fills dollar_pnl), the project's standard decision metric.",
+    "requirement": "A cell must move BOTH in the same direction to count. A feature that improves FAV60 but not dollars is a mechanism with no edge; a feature that improves dollars but not FAV60 is probably an accounting artifact and must be hunted per /fable-too-good BEFORE it is reported.",
+    "win_rate": "DIAGNOSTIC ONLY — excluded from the FDR family, cannot support a decision (the validated engine is low-WR right-tail)."
+  },
+
+  "battery": {
+    "G_n": "n_gated >= 30 AND n_kept >= 30 per cell, else NOT-RUN (report the real n, do not pool bands to reach it)",
+    "G_bhfdr": "Benjamini-Hochberg across the FULL family of measured cells, q=0.10. Report the required threshold alongside every p.",
+    "G_drop3": "verdict must survive dropping the 3 largest-|pnl| trades",
+    "G_oos": "chronological split at the population median date; sign must agree in both halves",
+    "G3_blocked_winners": "every cell reports blocked-WINNER count and dollars (C20: a location/quality veto's whole risk is cutting the runners). A cell whose blocked-winner dollars exceed its avoided-loser dollars is REFUTED regardless of p."
+  },
+
+  "kill_conditions": [
+    "If F1/F2 (headroom, the primary) fail G_bhfdr, the HEADROOM hypothesis is DEAD and must be logged as a null in LESSONS-LEARNED — not softened, not re-swept at new bands.",
+    "If every cell's gated_mean exceeds its kept_mean (the shape the bull entry-location run produced), the correct conclusion is that the engine's entry selection is ALREADY doing this job and the losses are elsewhere. Say that plainly."
+  ],
+
+  "freeze_compliance": "MEASUREMENT ONLY. Config freeze runs to 2026-10-30. Nothing here may touch params*.json, heartbeat*, filters.py, exit_manager.py or build_shared_signal.py, and nothing may be armed. Any surviving cell is a prereg result for the 10-30 window, NOT a September change.",
+  "output": "analysis/recommendations/followthrough-headroom-2026-09-11.json + a verdict section folded into analysis/recommendations/ENTRY-LOCATION-GATE-2026-08-14.md's sibling living doc or its own living doc if none fits (OP-22: append, never a new dated one-off per run)."
+}
