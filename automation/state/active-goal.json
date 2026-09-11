@@ -1,10 +1,11 @@
 {
-  "id": "GOAL-FULL-SUITE-RED-TRIAGE-2026-09-10",
-  "active": true,
-  "opened_at_et": "2026-09-10T05:37:31",
-  "expires_at_et": "2026-09-17",
-  "file": "automation/state/goals/GOAL-FULL-SUITE-RED-TRIAGE-2026-09-10.md",
-  "queue_id": "GOAL-FULL-SUITE-RED-TRIAGE-2026-09-10",
-  "max_continuations_per_session": 3,
-  "last_next_item": null
+ "id": "GOAL-WHY-THIS-WEEK-2026-09-10",
+ "active": true,
+ "opened_at_et": "2026-09-10T23:00:14",
+ "expires_at_et": "2026-09-24",
+ "file": "automation/state/goals/GOAL-WHY-THIS-WEEK-2026-09-10.md",
+ "queue_id": "GOAL-WHY-THIS-WEEK-2026-09-10",
+ "max_continuations_per_session": 3,
+ "last_next_item": "W1 -- light the diagnostic layer (dark producers) before any verdict.",
+ "opened_by": "J directive 2026-09-10 (full-audit follow-up); prior goal GOAL-FULL-SUITE-RED-TRIAGE-2026-09-10 returned to queued with T4 still open"
 }
