@@ -229,3 +229,105 @@ the 2026-10-30 window, NOT a September change.
 **Caveat on this update:** excursion and replay numbers are SPY-dollar terms off 5m bars, not
 option P&L — the 13:06 cell made +$175 in premium while SPY closed −$0.30 from entry (intrabar
 TP1). SPY terms are the right unit for *entry location*; they are not a P&L claim.
+
+---
+
+## UPDATE 2026-09-11 (part 2, fold, OP-22) — BULL-ENTRY-LOCATION-RERUN executed: MEASURED for the first time, NULL after BH-FDR
+
+Ran `backtest/autoresearch/entry_location_gate_rerun_2026_09_11.py` (new driver; imports
+`build_cells`, `gated`, `evaluate`, `bh_fdr`, `PROX_BANDS`, `RUN_BANDS`, `MIN_CELL_N` etc.
+verbatim from the frozen `entry_location_gate_2026_08_14.py` — no cell, threshold, FDR, or
+blocked-winner logic changed) against an EXTENDED population.
+
+**Discrepancy flagged before results (honesty bar, not a blocker):** this prereg
+(`prereg-entry-location-gate-2026-08-14.json`) already carries `"status": "NULL"` /
+`"adjudicated_at_et": "2026-09-05 00:38 ET"` from the P4+P5 batch adjudication pass — but that
+adjudication's own text says the LITERAL cells "were never run at floor-n (still NOT-RUN by the
+prereg's own n>=30 rule)" and closed the prereg using a DIFFERENT, superseding study instead
+(`analysis/deep-research/2026-09-03-money/entry-location.md`, chase-at-range-extreme, n=186).
+This run is not reopening a closed prereg against doctrine — it fills in the one thing that
+adjudication explicitly left undone (the literal frozen cells, never actually run on bull data),
+and its result agrees with that adjudication's NULL conclusion. The prereg JSON was NOT modified.
+
+### Population build
+
+- Original 191-trade replay (`engine-fullhist-replay-2026-07-23.json`, 2025-01-02..2026-07-21)
+  concatenated with real fills 2026-07-28..2026-09-11: `journal/trades.csv` (`fill_quality ==
+  real_fill`) plus `automation/state/pnl-statement.json` `round_trips` for 2026-09-11 (today,
+  not yet backfilled into trades.csv). Deduped to distinct entry EVENTS by (date, entry minute,
+  strike): **133 distinct bull events** — matches this doc's own 2026-09-11 (part 1) claim
+  exactly. 84 new put events also added (not previously blocked, but now larger-n).
+- Bars: pinned `backtest/data/spy_5m_2025-01-01_2026-07-08.csv` (untouched) merged with a NEW
+  `backtest/data/spy_5m_2026-07-09_2026-09-11_extension.csv`, fetched fresh via
+  `backtest/tools/alpaca_bars.py` (SIP feed, already-wired credentials, no new vendor).
+
+### Root cause found and fixed before results were trustworthy
+
+First pass at the extended population returned population n=205 with bull n=**44** only — most
+of the new data silently vanished. Root cause, one sentence: the frozen `features()` requires
+the entry timestamp to land EXACTLY on a 5-minute bar boundary, which is true by construction
+for the backtest-replay population (verified: 100% of the original 191 entries are grid-aligned)
+but NOT true for real fills from the live 1-minute heartbeat — 191 of 217 new events (88%,
+verified by direct count) land on an off-grid minute (e.g. 10:51, 13:06, 13:26) and were
+excluded as `"no_causal_features"`, not because the data was causally unavailable but because of
+a grid-alignment mismatch between two different data sources. Fixed with `features_floor()` in
+the new driver: the IDENTICAL causal rule (bars strictly before the entry bar; entry price =
+entry bar's open) applied to the 5m bar whose interval CONTAINS the entry timestamp instead of
+requiring exact equality — no cell, threshold, or FDR/blocked-winner accounting touched. After
+the fix: population n=388 (C=153, P=235), 20 total exclusions (down from 223 pre-fix + orig).
+
+**G1 control: PASS, exactly.** The original 191-trade population's own subtotal reconciles to
+the cent on the extended bars: kept 181/191 trades summing $3,727.60, excluded 10 summing
+$1,081.15 — 3,727.60 + 1,081.15 = **$4,808.75**, the published total. (The extension also
+resolved 8 of the original doc's 18 "past cache end" exclusions; only the 10 "lacking causal
+bars" ones remain, exactly as this doc's original G1 note described.) **G2 monotonicity: PASS**
+both sides (gated-n grows non-decreasing with band width).
+
+### Bull (C) — MEASURED for the first time. n=153, mean $28.01, WR 32.7%
+
+| cell | n_gated | gated mean | kept mean | p | survives BH-FDR q0.10 | book_delta if gated | blocked winners |
+|---|---|---|---|---|---|---|---|
+| `prox<=0.10` | 61 | +$100.50 | −$20.05 | 0.0497 | NO | −$6,130.55 | 23 ($11,528.55) |
+| `prox<=0.20` | 77 | +$59.41 | −$3.79 | 0.302 | NO | −$4,574.45 | 27 ($12,137.45) |
+| `prox<=0.30` | 90 | +$32.74 | +$21.26 | 0.851 | NO | −$2,946.65 | 32 ($13,100.65) |
+| `run>=2.0` | 58 | +$74.90 | −$0.61 | 0.222 | NO | −$4,344.10 | 21 ($10,896.10) |
+| `run>=3.0` | 30 | +$109.17 | +$8.22 | 0.184 | NO | −$3,275.10 | 11 ($6,312.10) |
+| `prox<=0.20 AND run>=2.0` | 30 | +$181.80 | −$9.49 | **0.0112** | NO | −$5,453.90 | 14 ($7,597.90) |
+| `prox<=0.30 AND run>=2.0` | 37 | +$103.14 | +$4.05 | 0.159 | NO | −$3,816.10 | 16 ($8,159.10) |
+| `prox<=0.10 AND run>=2.0` (26) / `run>=3.0` (18); `prox<=0.20 AND run>=3.0` (19); `prox<=0.30 AND run>=3.0` (23) | — | — | — | — | — | — | **NOT-RUN** (n<30) |
+
+**Every measured bull cell runs OPPOSITE to the hypothesis** — gated_mean > kept_mean in all 7
+measured cells. Buying calls close to the intraday high, and/or after a big up day, made MORE
+money than the rest of the bull population, not less. The closest-to-significant cell
+(`prox<=0.20 AND run>=2.0`, p=0.0112 — the smallest p in the whole 14-cell family) would, if
+gated, have thrown away **$5,453.90** of net book value. **Nothing survives BH-FDR q=0.10**
+(m=14; smallest p=0.0112 needed ≤ (1/14)×0.10=0.00714 at rank 1 — it does not clear it).
+
+### Bear (P) — re-measured on the extended population, same shape as 2026-08-14
+
+n=235, mean $5.89, WR 28.5%. `prox<=0.10` gated mean −$43.24 vs kept +$26.31, p=0.0335 (needs
+≤0.00714, fails). All other cells weaker. Nothing survives, consistent with the original run.
+
+### What this settles
+
+1. **The bull-side blocker from 2026-08-14 (NOT-RUN, n=29) is closed.** The literal frozen
+   cells are MEASURED for the first time on bull data, at n=153 (5.3× the n≥30 floor).
+2. **The naive proximity/run gate does not survive its own pre-registered correction on either
+   side**, at roughly 2× the original data volume — the SECOND independent confirmation of
+   NULL (the first being the 2026-09-05 adjudication's superseding chase-at-range-extreme
+   study), and the first to run the literal frozen cells rather than a proxy operationalization.
+3. **This does not explain the 3 red days.** The 2026-09-08/09-10/09-11 bull entries sat at
+   gaps of 0.09–0.79 — squarely inside cells that this run says would have been *profitable to
+   keep*, not gate. Whatever caused the 3 red days, "entered too close to the high" is refuted
+   by the data a second time. The live mechanism remains the ribbon-flip/structure-stop
+   interaction described in the 2026-09-11 (part 1) update above, not entry location.
+
+### Files written this run
+
+- `backtest/data/spy_5m_2026-07-09_2026-09-11_extension.csv` (new; pinned CSV untouched)
+- `backtest/autoresearch/entry_location_gate_rerun_2026_09_11.py` (new driver)
+- `analysis/recommendations/entry-location-gate-2026-09-11.json` (raw output)
+- this section (OP-22 append, no new dated file)
+
+Nothing armed. Config freeze (to 2026-10-30) untouched — this is measurement only, filed as a
+prereg result for the 10-30 window per the original ship_rule.
