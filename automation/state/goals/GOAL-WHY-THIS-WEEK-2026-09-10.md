@@ -117,19 +117,19 @@ strike tier do not transfer to another.
       same setup 5x on structure-veto. No order was ever submitted. Guard green this session
       (`test_min_entry_premium_floor.py` 11 passed). Not unique, not new, no silent-swallow
       pattern anywhere 08-24 onward. Null fix -- nothing shipped.
-- [ ] W3 -- structure-veto x BEARISH_REJECTION net-$ verdict across the frozen window,
-      wave-deduped, split by structure state: EARNING / COSTING / UNDERPOWERED with n.
+- [x] W3 -- **UNDERPOWERED, leaning COSTING. Logged null, no package.** n=7 veto waves, only 2
+      with matching real fills. With 09-10: +$102. WITHOUT 09-10: **+$832 COSTING**. Also:
+      the veto is NOT wired into the fleet arms at all -- extending it is architecture work.
 - [x] W4 -- **VERDICT: VARIANCE, not regime-break.** Done 2026-09-10 23:03:47 Thursday EDT. Numbers below.
-- [ ] W5 -- ranked pre-registered improvement set. UNBLOCKED by W4, and W4 REDIRECTS it:
+- [x] W5 -- **DONE: reduction-only / measurement-only set. See W5 RESULT.** Original text:
       the lever is **PARTICIPATION, not gates**. Do not propose loosening anything to 'win
       more' -- the WR is normal. Investigate why waves/day fell 4.30 (Aug) -> 2.83 (frozen
       window) and whether that decline is (a) market conditions, (b) a gate/config change,
       or (c) silent execution loss (see W2). Only (b)/(c) are actionable, and only as
       pre-registered 09-29/10-30 packages.
-- [~] W6 -- PARTIAL: shared-wave decomposition done (n=25, arms near-identical -> mechanics do
-      NOT explain the gap). **BLOCKED on a measurement reconciliation** (ledger +$1,117 vs
-      gate -$654 for safe-2) that must be resolved before any 'safe-2 is the losing arm' claim
-      is trusted. See W6 RESULT.
+- [x] W6 -- **CLOSED. Reconciled: the GATE was right, safe-2 IS net negative in engine terms
+      (-$675 over 95 engine trips). My +$1,117 ledger figure was inflated by 12 PRE-ENGINE
+      April-June legs worth +$1,587. Mechanism = SELECTION, not sizing/strike/exit.**
 
 ## PROGRESS LOG
 
@@ -340,3 +340,145 @@ next session does not re-chase it.
   10/11 were already lit; 1 fixed (RefusedSetupLedger, mechanism unpinned, flagged for
   tomorrow's fire); 2 real silent-degradation defects named. W3 unblocked. W4 confirmed
   independent of the UNTAGGED regime data. No trading-path edits; freeze intact.
+
+
+---
+
+## W3 RESULT -- structure-veto x BEARISH_REJECTION: LOGGED NULL (2026-09-10 23:10:28 Thursday EDT)
+
+**VERDICT: UNDERPOWERED, and what signal exists leans COSTING. No 09-29 package proposed.**
+
+### This kills the hypothesis the audit raised
+The audit observed *"safe-2's structure-veto refused exactly the trades the other arms lost
+$790 on."* Tested properly it does not survive:
+
+- 48 raw `SKIP_STRUCTURE_VETO` ticks -> **7 waves**; only **2** have matching real fills.
+  - **2026-09-03** (BULL / downtrend): bold +85, safe-3 +433, risky-1 +314 = **+$832** -- the
+    veto would have blocked real **winners**.
+  - **2026-09-10** (BEAR / uptrend): -$730 -- veto would have saved losers. **This is the
+    anecdote itself, n=1.**
+- **With 09-10: +$102. Without 09-10: +$832 -- drop the day that suggested the idea and there
+  is no EARNING story left at all.** A wider 5-week lookback sums to -$726 but is dominated by
+  two outlier waves; the sign flips across window boundaries = textbook underpowered.
+
+**Artifact hunt clean**: no look-ahead (bars <= trigger bar, code-verified), no wave
+double-counting (qty-split rows confirmed single round trips). Revenge-research check: **the
+09-03 COSTING wave sat in the same data a week ago and nobody flagged it** -- the gate was only
+noticed on the day it happened to pay.
+
+### Architecture finding
+- `safe-2`: veto **ON** (`automation/state/params.json:314`, `engine_cli.py:626-646`).
+- `bold-2`: veto **explicitly OFF** since 2026-08-12 -- config difference only.
+- `safe-3`/`risky-1`/`risky-3`: separate execution path (`fleet_rest` via
+  `build_shared_signal.py`) that **never calls `engine_cli.decide_payload`** -- the gate is not
+  wired there at all. safe-3 inherits safe-2's refusal only indirectly via shared-signal (and
+  on 09-10 it leaked through and lost $280 anyway).
+- **So "extend the veto to the other arms" was never a param flip -- it is architecture work.**
+
+---
+
+## W5 RESULT -- the ranked improvement set (2026-09-10 23:10:28 Thursday EDT)
+
+**W4 = VARIANCE, W2 = no-defect, W3 = null. Per this goal's own DONE-WHEN the honest set is
+therefore reduction-/measurement-only. Nothing proposes loosening a gate, adding an entry
+path, or changing size. Nothing ships tonight.**
+
+### KILLED outright (recorded so they are not re-proposed)
+- **Extend structure-veto to the other arms** -- W3 null, leans COSTING, and it is architecture
+  not config. Do not revisit without a genuinely new window.
+- **Any gate loosening to "win more"** -- W4: the win rate is normal (rolling 31.7%, inside the
+  31.7-58.3% band). No WR problem exists to fix. Fails the last-Friday test.
+- **Any sizing change in response to this week** -- L168/C31: the killer in J's 667 real trades
+  was sizing-UP and adding, not flat count.
+
+### RANK 1 -- measure what NOT_FLAT costs (measurement only; 10-30 at best)
+**Mechanism:** the one-position-at-a-time cap refuses ENTER verdicts on the highest-signal days
+-- **43 of 81 on 09-03, 29 of 40 on 08-27**. A right-tail engine starved of at-bats cannot
+express its edge; at-bats are down ~34% (Aug 4.30 waves/day -> frozen 2.83, **PROVISIONAL n=6**).
+**The measurement that would kill it:** for every wave NOT_FLAT blocked, price what that wave
+subsequently did under the arm's own strike/exit rules. If blocked waves are net **losers**, the
+cap is EARNING and the thread dies -- a real possible outcome, since the cap also prevents
+stacking into a bad session.
+**Why NOT a 09-29 item:** raising concurrency is a **risk EXPANSION** -> 10-30 regardless of
+what the measurement says. Tonight's deliverable is the shadow ledger, not a change.
+
+### RANK 2 -- the two silent-degradation defects (freeze-safe, ship anytime)
+Both C7 "silent success is failure", both exit 0 while blind:
+1. `Gamma_RefusedSetupLedger` 8-second no-op fire -- **mechanism unpinned**; watch tomorrow's
+   14:20 fire, then write the guard. Do not guess-fix.
+2. `Gamma_TradeAutopsy` `exit_shape_parity_study` 403-blind on historical bars back to 09-02
+   while the task reports green.
+
+### RANK 3 -- reconcile ledger vs gate for safe-2 (blocks all per-arm conclusions)
++$1,117 ledger vs -$654 gate. **Until this reconciles, no per-arm claim is trustworthy** --
+including the audit's own "safe-2 is the losing arm" line, **withdrawn pending reconciliation**.
+W6 also inherits RANK 2's pricing blindness.
+
+### Bottom line
+**There is no trading-path change worth making off this week.** It was ordinary variance on very
+few swings; the one genuine lead (participation) is provisional, measurement-only, and gated to
+10-30 even if it confirms. The real deliverables were two **corrections to the audit's own
+claims** plus one live defect fixed. Per OP-22 that is a valid terminal state.
+
+## PROGRESS LOG
+
+- 2026-09-10 23:10:28 Thursday EDT -- W3 CLOSED (logged null; kills the audit structure-veto hypothesis;
+  surfaces that the veto is not wired into fleet arms). W5 CLOSED (reduction/measurement-only,
+  3 kills recorded, RANK 1 gated to 10-30). Only W6 reconciliation remains open. No
+  trading-path edits all session; freeze intact.
+
+
+---
+
+## W6 CLOSE -- ledger vs gate RECONCILED (2026-09-10 23:11:59 Thursday EDT)
+
+### The reconciliation
+The gate reads `analysis/trades-enriched.jsonl` filtered to `attribution == "engine"` --
+**not** `journal/trades.csv`. Matching on that basis:
+
+| source | population | n | net |
+|---|---|---:|---:|
+| gate | engine trips, its window | 94 | **−$654** |
+| `trades-enriched.jsonl` engine, safe-2 | 07-02 → 09-08 | **95** | **−$675** |
+| `journal/trades.csv` safe-2 | all legs, all time | 148 | +$1,117 |
+| ...of which **outside** the engine span | **2026-04-29 → 2026-06-26** | **12** | **+$1,587** |
+
+**Reconciled to within one trip / $21** (a window-boundary difference). The entire +$1,792
+discrepancy is **12 pre-engine legs from April–June** — including a +$1,795 day on 2026-05-14
+and +$730 on 05-04 — which are J-era/manual trades, **not the engine's work**.
+
+### ⚠️ Reversing my own correction
+The W6 PARTIAL section above withdrew the audit's *"safe-2 is net negative"* line pending this
+reconciliation. **That withdrawal was wrong and is hereby reversed.** The gate was right the
+whole time; my full-ledger number was the misleading one because it silently included the
+pre-engine era. **safe-2's engine-era record is −$675 over 95 trips, and the audit's original
+statement stands.** Cross-arm, engine-attributed: safe-3 **+$953**, risky-1 **+$939**, bold-2
+**−$96**, safe-2 **−$675**.
+
+**The generalisable trap** (worth a lesson): `journal/trades.csv` spans the pre-engine era;
+`trades-enriched.jsonl @ attribution==engine` does not. **Any per-arm engine claim sourced
+from the raw CSV will be inflated by J-era trades.** This is a C1/C4 provenance-seam error --
+right file, wrong population.
+
+### Mechanism verdict (stands from the PARTIAL)
+On the 25 waves where safe-2 and safe-3 took the **same** signal they are near-identical
+(spread +$140 total, outlier-dominated, strikes usually identical). **So the −$675 vs +$953
+gap is NOT sizing, strike or exit mechanics — it is SELECTION**: which waves each arm takes
+solo. safe-2 solo 70 waves, safe-3 solo 42.
+
+**Next question for a future goal (not opened tonight):** what does safe-2 take solo that
+safe-3 declines, and is that population systematically worse? That is a real, bounded,
+freeze-safe measurement -- and it is the actual "why is safe-2 behind" question, now that
+mechanics are ruled out.
+
+⚠️ Caveat carried forward: W1 defect #2 (`TradeAutopsy` 403-blind on historical option bars
+back to 09-02) means per-trade bar pricing is incomplete on recent dates. It does not affect
+this reconciliation (which uses realised `pnl_dollars`, not re-priced bars) but it will affect
+any re-pricing study.
+
+## PROGRESS LOG
+
+- 2026-09-10 23:11:59 Thursday EDT -- W6 CLOSED. Ledger-vs-gate reconciled to within 1 trip/$21: the gate was
+  right, the CSV was inflated by 12 pre-engine legs (+$1,587). My earlier withdrawal of the
+  audit's safe-2 claim is REVERSED. Mechanism = selection, not mechanics. **ALL SIX ITEMS
+  (W1-W6) NOW CLOSED.** No trading-path edits all session; freeze intact.

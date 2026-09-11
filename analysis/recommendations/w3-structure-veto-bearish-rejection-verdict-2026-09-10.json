@@ -1,0 +1,104 @@
+{
+  "id": "W3-STRUCTURE-VETO-BEARISH-REJECTION-VERDICT-2026-09-10",
+  "goal": "automation/state/goals/GOAL-WHY-THIS-WEEK-2026-09-10.md, item W3",
+  "filed_by": "Sonnet worker, W3 fire",
+  "filed_at_et": "2026-09-10T23:07:39 (et_clock.py, quoted verbatim, not typed)",
+  "verdict": "UNDERPOWERED",
+  "one_line": "n=2 real waves in the frozen window, opposite signs (+$832 vs -$730), net +$102 COSTING; dropping today (the day that suggested the hypothesis) leaves ONLY the costing wave. No package proposed.",
+
+  "1_mechanism_in_code": {
+    "gate": "backtest/lib/engine/engine_cli.py:626-646, function _veto_side (line 177) + _classify_sameday_5m (line 189)",
+    "what_it_computes": "Classifies same-day 5m bars (via crypto.lib.trendlines.find_swing_points + crypto.lib.market_structure.classify_trend/label_swings) into uptrend/downtrend/range/unknown. If gate_params['structure_veto_enabled'] is True: blocks P(bear) entries when trend=='uptrend' and C(bull) entries when trend=='downtrend'. range/unknown = no veto (fail-open, preserves the 5/04 +$730 range reversal per OP-16).",
+    "which_arms_actually_carry_it": {
+      "safe-2 (core, mcp_heartbeat path)": "structure_veto_enabled: true -- automation/state/params.json:314. The ONLY arm where the gate is directly evaluated.",
+      "bold-2 (core, mcp_heartbeat path)": "structure_veto_enabled: false, EXPLICIT since 2026-08-12 -- automation/state/aggressive/params.json:52. Same code path as safe-2 (engine_cli.decide_payload), gate simply never fires because the flag is off. This IS a config difference, not a threshold or timing difference.",
+      "safe-3 / risky-1 / risky-3 (fleet_rest path)": "The structure-veto gate is architecturally ABSENT from this path -- automation/state/fleet/build_shared_signal.py and fleet_executor.py never call engine_cli.decide_payload or _classify_sameday_5m at all (verified: zero matches for decide_payload/score_bar/evaluate_gates/classify_trend/_classify_sameday_5m in build_shared_signal.py). These arms do NOT independently evaluate the veto -- they read `signal['safe']`, which is built directly from safe-2's own core-decisions.jsonl row (fleet_executor._perception_for_arm: arms whose id starts with 'safe' read signal['safe']). So when safe-2's engine returns SKIP_STRUCTURE_VETO, safe-3's inherited 'safe' block is marked not-passed on that SAME tick -- but only via this shared-signal inheritance, never via a native veto evaluation of its own. risky-1's id does NOT start with 'safe' (grid cell 'risky x FULL-SEND'), so per accounts.json's map_doc correction (2026-08-02) it reads signal['bold'], which never carries the veto refusal -- risky-1 is NOT structurally blocked the way safe-3 is. This matches the analysis/recommendations/structure-veto-lift-package-2026-09-05/README.md trace (section 1b), re-verified this session.",
+      "correction_to_the_goals_own_framing": "The goal file assumes all three non-safe-2 arms are symmetric non-veto arms. They are not: bold-2 and risky-1 are architecturally independent of safe-2's veto (different signal source); safe-3 is the one arm that DOES inherit the same-tick refusal via shared signal, yet still traded a losing bear setup today (2026-09-10 12:12, -$280) -- meaning even safe-3's inheritance did not block it, most likely because its own gate_override (min_triggers=2/confluence) or fleet read-cadence (up to ~3min lag per fleet_gate_leak_shadow.py's own documented ENTRY WINDOW) let a later, independently-scored bear signal through after the shared block's tick had passed. This is a real, un-resolved leak in the inheritance path, separate from the EARNING/COSTING question below, and is flagged for W1/observability follow-up, not fixed here (frozen)."
+    }
+  },
+
+  "2_measurement": {
+    "window": "2026-08-31 to 2026-09-10 (the CONFIG-FREEZE window), real fills only (C1: real fills are the only P&L/WR authority)",
+    "instrument": "Direct cross-reference of automation/state/core-decisions.jsonl (account=safe, verdict=SKIP_STRUCTURE_VETO rows, which carry side + trend in the `reason` field) against journal/trades.csv real fills for bold-2/safe-3/risky-1 whose entry_ts_et falls inside the wave window. Cross-checked against the pre-existing analysis/recommendations/fleet-gate-leak-ledger.jsonl (Gamma_FleetGateLeakShadow, fresh as of 2026-09-10 15:20) and the 2026-09-05 GATE-NET-COST OPRA-counterfactual walk (analysis/gate-net-cost/GATE-NET-COST-2026-09-05.json) -- all three sources agree on the two waves reported below (safe-3 +433/risky-1 +314 on 09-03; safe-3 -280/risky-1 -320/bold -130 on 09-10).",
+    "raw_skip_structure_veto_count_in_window": 48,
+    "n_after_wave_dedupe": "7 waves total (contiguous SKIP_STRUCTURE_VETO ticks, gap <=10min = same wave, per fleet_gate_leak_shadow.py's own documented 300s fleet-read-cadence justification): 3 waves on 2026-09-03 (C/downtrend), 1 on 2026-09-04 (P/uptrend), 1 on 2026-09-08 (P/uptrend), 1 on 2026-09-09 (P/uptrend), 1 on 2026-09-10 (P/uptrend). Of these 7 waves, only 2 have a matching REAL fill from bold-2/safe-3/risky-1 inside the wave window -- the other 5 waves produced ZERO real trades from those arms (their own independent gates, e.g. MIN_TRIGGERS_GATE, refused too, for unrelated reasons)."
+  },
+
+  "3_wave_dedupe_rule": "One wave = one contiguous run of same-side SKIP_STRUCTURE_VETO ticks on the same day with no gap >10 minutes (justified by fleet_gate_leak_shadow.py's own documented fleet 3-min read cadence + broker latency margin). Multiple arms trading the SAME wave within minutes of each other are counted as ONE market event for the EARNING/COSTING sign, but each arm's own real dollar P&L is still summed (a wave can be a net winner or loser in aggregate even if the underlying event count is 1).",
+
+  "4_split_by_structure_state": {
+    "BEARISH_REJECTION (P side, blocked when structure=uptrend) -- the goal's specific focus": {
+      "waves_in_window": 4,
+      "waves_with_real_fills_from_non_veto_arms": 1,
+      "wave": "2026-09-10 12:02-12:14 ET, uptrend, 7 SKIP_STRUCTURE_VETO ticks on safe",
+      "real_fills_inside_wave": [
+        {"arm": "bold-2", "entry": "12:11:04", "contract": "SPY 2026-09-10 756P", "qty": 5, "dollar_pnl": -130},
+        {"arm": "safe-3", "entry": "12:12:06", "contract": "SPY 2026-09-10 758P", "qty": 5, "dollar_pnl": -280},
+        {"arm": "risky-1", "entry": "12:12:08", "contract": "SPY 2026-09-10 758P", "qty": 5, "dollar_pnl": -320, "note": "qty split into 2 CSV rows (1+4) -- ONE round trip, not two"}
+      ],
+      "wave_net_dollars": -730,
+      "interpretation": "If the veto had been active on bold-2/safe-3/risky-1, this ONE wave's -$730 loss would have been avoided. This is the exact anecdote that triggered the goal -- it is the n=1 event, not independent confirmation of it.",
+      "other_3_waves_09_04_09_08_09_09": "Zero matching real fills from bold-2/safe-3/risky-1 inside any of these 3 windows -- those arms' own independent gates refused for other reasons at those exact ticks. No dollar evidence either direction."
+    },
+    "BULLISH_RECLAIM (C side, blocked when structure=downtrend) -- the mirror gate, included per the goal's own split-by-structure-state requirement": {
+      "waves_in_window": 3,
+      "waves_with_real_fills_from_non_veto_arms": 1,
+      "wave": "2026-09-03 11:11-11:35 ET, downtrend, 17 SKIP_STRUCTURE_VETO ticks on safe",
+      "real_fills_inside_wave": [
+        {"arm": "bold-2", "entry": "11:27:05", "dollar_pnl": 85},
+        {"arm": "safe-3", "entry": "11:22:07", "dollar_pnl": 433, "note": "2 CSV rows, 267+166, one round trip"},
+        {"arm": "risky-1", "entry": "11:22:08", "dollar_pnl": 314, "note": "2 CSV rows, 150+164, one round trip"}
+      ],
+      "wave_net_dollars": 832,
+      "interpretation": "If the veto had been active on these arms, this ONE wave's +$832 of REAL WINNERS would have been blocked -- COSTING, not EARNING. This directly matches C20 (gate direction must match setup structure) -- the SAME mechanism that saved money on the bear side cost money on the bull side, in the SAME 10-day window.",
+      "other_2_waves_13_56_and_15_21_09_03": "Zero matching real fills. No dollar evidence either direction."
+    }
+  },
+
+  "5_with_and_without_2026_09_10": {
+    "frozen_window_full_incl_2026_09_10": {
+      "waves": ["2026-09-03 11:11 (BULL, +832)", "2026-09-10 12:02 (BEAR, -730)"],
+      "net_dollars": 102,
+      "sign": "COSTING (barely) -- extending the veto would have cost a net $102 over the frozen window, the two waves nearly canceling."
+    },
+    "frozen_window_excl_2026_09_10": {
+      "waves": ["2026-09-03 11:11 (BULL, +832)"],
+      "net_dollars": 832,
+      "sign": "COSTING -- the ONLY wave left is the one where extending the veto would have blocked $832 of real winners. Without today's data, the frozen-window evidence argues the OPPOSITE of the hypothesis that triggered this goal.",
+      "significance": "This is the load-bearing check the goal asked for (\"drop 2026-09-10 and re-run\"). It fails the hypothesis: the day that suggested 'the veto pays' is, once removed, replaced by a day where the veto would have cost real money. The EARNING story lives entirely inside the single day that prompted it."
+    },
+    "wider_history_2026_08_07_to_2026_09_10_for_context_NOT_the_frozen_window": {
+      "note": "Included for stability context only -- NOT part of the frozen-window verdict, since 08-07/08-12/08-21 predate the 08-31 freeze start.",
+      "waves": [
+        "2026-08-07 (BULL, -828, 3 arms: safe-3 -384, risky-1 -240, risky-3 -204)",
+        "2026-08-12 (BEAR, -40, risky-1 x2 -20/-20)",
+        "2026-08-21 (BULL, +40, safe-3 +15, risky-1 +25)",
+        "2026-09-03 (BULL, +832)",
+        "2026-09-10 (BEAR, -730)"
+      ],
+      "sum_dollars": -726,
+      "sign": "EARNING over the wider 5-week lookback, but dominated by two single waves (08-07 and 09-10) worth -828 and -730 respectively out of -726 net -- i.e. the sign flips depending entirely on which 10-day slice you draw the window around. This instability across window boundaries is itself the UNDERPOWERED signature, not evidence for either direction."
+    }
+  },
+
+  "6_artifact_hunt": {
+    "look_ahead_c6": "_classify_sameday_5m consumes payload['sameday_5m_bars'], which heartbeat_core.py builds as 'Same-day 5m bars up to and including the trigger bar' (line ~997) -- confirmed <= current bar, no future data. Not a look-ahead defect.",
+    "wave_double_counting": "Checked explicitly: risky-1's paired CSV rows (e.g. -64/-256 on 09-10, 150/164 and 189/154 on 09-03) are qty splits (1+4, 2+3) of ONE round trip at the SAME entry_ts_et and SAME contract, not two independent trades. Verified via time_entry/time_exit/contract equality. Summed as one trade per arm per wave throughout.",
+    "scored_on_the_day_that_suggested_it": "Yes -- see 5_with_and_without_2026_09_10 above. This is the single most important check and it REVERSES the sign for the frozen window when 09-10 is dropped.",
+    "survivorship": "The 5 waves with zero matching real fills (09-04, 09-08, 09-09, and 2 of the 3 on 09-03) are reported as zero-evidence, not silently dropped -- they are not survivorship-biased away, they simply have no dollar outcome to report because no arm without the veto traded in that window.",
+    "revenge_research_check": "Would this have been proposed last Friday at +$2,323? No -- the 09-03 wave (COSTING, +832 blocked-winners) was sitting in the SAME dataset a week ago and nobody proposed extending the veto off the back of it. Only today's losing wave prompted the question. That asymmetry is exactly the revenge-research pattern the goal's OPERATING RULES warn against; naming it here is the required disclosure, not a justification either way since the verdict below does not ship anything."
+  },
+
+  "7_verdict_detail": {
+    "verdict": "UNDERPOWERED",
+    "n": "2 waves with real-dollar evidence in the frozen window (1 BEAR, 1 BULL), opposite signs. 5 additional waves with zero real-fill evidence either direction. 5 additional waves with real evidence outside the frozen window (wider lookback), also mixed-sign and still net-driven by 2 outlier waves.",
+    "effect_size_detectable": "With n=2 independent wave-events and a per-wave range of roughly $700-830, no statistically meaningful CI can be constructed; a single additional wave in either direction would flip the frozen-window sign. This is not close to the >=20-event bar the standing prereg (PREREG-STRUCTURE-VETO-STANDING-AB-2026-09-05) itself set as its own kill/extend threshold for safe-2's OWN gate -- extending the SAME gate to 3 MORE arms with only 2 dollar-bearing waves total is far short of that bar.",
+    "why_not_earning": "Today's $730-saved wave is real and large, but it is outweighed on its own terms by the $832-blocked wave 7 days earlier inside the SAME frozen window. Reporting EARNING off 1 wave when the very next-nearest wave says the opposite is exactly the L140/C24 pattern this goal was opened to guard against.",
+    "why_not_costing": "The wider lookback (08-07 to 09-10) sums net EARNING (-$726, i.e. blocking would have saved money) -- so a firm COSTING verdict is equally unsupported. The sign is genuinely unresolved at this n, not leaning either way once the window is widened even slightly.",
+    "why_not_a_confident_verdict_either_way": "n=2 in-window waves, sign flips on both window-boundary choice (frozen vs wider) and on dropping a single day (2026-09-10). This is the textbook UNDERPOWERED case, and OP-22 states a logged null IS the deliverable."
+  },
+
+  "8_action": "NO package proposed for 09-29 or any other checkpoint. No params.json/accounts.json/gate change staged, drafted, or patched -- config freeze (2026-08-31 to 2026-10-30) fully respected; this file is analysis-only under analysis/recommendations/, no trading-path file touched, verified against setup/hooks/doctrine.py FROZEN_TRADING_PATH scope (observability/analysis output, not a listed frozen path).",
+  "standing_instrument_this_extends": "PREREG-STRUCTURE-VETO-STANDING-AB-2026-09-05.json's own kill/extend criterion (n>=20 forward SKIP_STRUCTURE_VETO events, counterfactual CI-lower(2.5%)<0 to kill) remains the correct long-run instrument for safe-2's OWN gate. This file does not replace it -- it answers a narrower, separate question (should the SAME gate be EXTENDED to bold-2/safe-3/risky-1) and finds insufficient evidence either way. Re-run this cross-reference once Gamma_FleetGateLeakShadow accrues more forward waves; do not re-open before then absent a repeat top-of-ladder trigger.",
+  "revert": "Delete this file. Nothing else references it; it changes no behavior."
+}
