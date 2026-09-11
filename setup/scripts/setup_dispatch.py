@@ -585,8 +585,16 @@ class SetupDispatcher:
         """Session date (YYYY-MM-DD) for THIS tick, derived from the payload's own
         sameday_5m_bars (the trigger day) -- never wall-clock, never assumed. Returns
         None when the payload carries no bars yet (fail-open: callers must treat a
-        missing session date as "cannot verify", not as an error)."""
-        bars = self._payload.get("sameday_5m_bars") or []
+        missing session date as "cannot verify", not as an error).
+
+        2026-09-11 (GOAL-FULL-SUITE-RED-TRIAGE T2): `self._payload` itself may be
+        absent (a caller that never ran __init__, or any future refactor that
+        constructs a dispatcher lazily) -- that must ALSO fail open to None rather
+        than raise AttributeError, matching this method's own documented contract.
+        Root cause of the prior bug: `getattr` was missing, so a caller without
+        `_payload` crashed instead of getting "cannot verify"."""
+        payload = getattr(self, "_payload", None) or {}
+        bars = payload.get("sameday_5m_bars") or []
         if not bars:
             return None
         try:

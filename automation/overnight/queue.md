@@ -121,7 +121,7 @@
 ## Active backlog
 > 2026-09-03 18:30 ET: 15 `[x]` done items (25,523 bytes) moved verbatim to `queue-archive-2026-09-03.md` (cap 450,000 -- see test_queue_md_retention_cap.py).
 > 2026-09-02 23:58 ET tranche 2: 8 more `[x]` done items (19,483 bytes) moved verbatim to `queue-archive-2026-09-02.md` (cap 450,000 -- see test_queue_md_retention_cap.py).
-- [ ] GOAL-FULL-SUITE-RED-TRIAGE-2026-09-10 (HIGH, goal) :: triage the 19-failure FULL-SUITE RED (11 test files) to a fix/stale-assumption/flaky disposition per file, STATUS.md line corrected -- file: automation/state/goals/GOAL-FULL-SUITE-RED-TRIAGE-2026-09-10.md :: depends:none :: status:in_progress
+- [ ] GOAL-FULL-SUITE-RED-TRIAGE-2026-09-10 (HIGH, goal) :: triage the 19-failure FULL-SUITE RED (11 test files) to a fix/stale-assumption/flaky disposition per file, STATUS.md line corrected -- file: automation/state/goals/GOAL-FULL-SUITE-RED-TRIAGE-2026-09-10.md :: depends:none :: status:done
 - [ ] GOAL-LOSS-MECHANISMS-2026-09-08 (HIGH, goal) :: today's loss mechanisms -> decidable checkpoint rows: chop battery run, cap-by-tier prereg discovered, strike-matrix doc corrected, catalyst-day-tag W6 spec -- file: automation/state/goals/GOAL-LOSS-MECHANISMS-2026-09-08.md :: depends:none :: status:done
 - [ ] GOAL-WAVE-DAY-CONDITIONS-2026-09-05 (HIGH, goal) :: what August's 2x wave mornings looked like before 09:41 vs zero-wave days (n=5, hypothesis only) -> INFORMATIONAL prereg + $0 daily premarket row from Tuesday -- file: automation/state/goals/GOAL-WAVE-DAY-CONDITIONS-2026-09-05.md :: depends:none :: status:done
 - [ ] GOAL-SELF-AUDIT-BACKLOG-2026-09-07 (HIGH, goal) :: triage the 3 oldest fully-untriaged self-audit gap batches (09-03/09-04/09-05, ~36 lines) to a disposition per line (fixed/duplicate/refuted/deferred-to-J) -- file: automation/state/goals/GOAL-SELF-AUDIT-BACKLOG-2026-09-07.md :: depends:none :: status:done
@@ -1491,6 +1491,9 @@ See automation/overnight/forward-backlog-2026-06-19.md for the post-all-night-lo
 
 ## HARVESTED-FROM-GYM (auto-queued by crypto/benchmarks/gym_harvester.py)
 
+- [ ] HARVEST-RIBBONFLIP-20260910-100014 (MED) :: v08_ribbon flip MIXED -> BEAR | spread=111.34>100 | recent dist BULL=38 BEAR=66 MIXED=95 :: key=EDGE_RIBBON_FLIP:2026-09-10T09:00:00+00:00:BEAR :: depends:none :: status:queued
+- [ ] HARVEST-SWEEP-20260910-100015 (MED) :: v14_sweep liquidity-grab at level=78000 dir=down bar_idx=37 | wick_excess=0.1082% close_back=0.1258% — feeds v15.2 sweep-blocker doctrine :: key=EDGE_SWEEP_DETECTED:2026-09-10T09:57:01.755593+00:00:78000:down:37 :: depends:none :: status:queued
+- [ ] HARVEST-SWEEP-20260910-100016 (MED) :: v14_sweep liquidity-grab at level=78000 dir=down bar_idx=54 | wick_excess=0.0242% close_back=0.1462% — feeds v15.2 sweep-blocker doctrine :: key=EDGE_SWEEP_DETECTED:2026-09-10T09:57:01.755593+00:00:78000:down:54 :: depends:none :: status:queued
 - [ ] HARVEST-SWEEP-20260910-030344 (MED) :: v14_sweep liquidity-grab at level=78000 dir=down bar_idx=121 | wick_excess=0.1082% close_back=0.1258% — feeds v15.2 sweep-blocker doctrine :: key=EDGE_SWEEP_DETECTED:2026-09-10T02:57:11.416281+00:00:78000:down:121 :: depends:none :: status:queued
 - [ ] HARVEST-SWEEP-20260910-030345 (MED) :: v14_sweep liquidity-grab at level=78000 dir=down bar_idx=138 | wick_excess=0.0242% close_back=0.1462% — feeds v15.2 sweep-blocker doctrine :: key=EDGE_SWEEP_DETECTED:2026-09-10T02:57:11.416281+00:00:78000:down:138 :: depends:none :: status:queued
 - [ ] HARVEST-RIBBONFLIP-20260907-100020 (MED) :: v08_ribbon flip MIXED -> BEAR | spread=126.04>100 | recent dist BULL=33 BEAR=79 MIXED=87 :: key=EDGE_RIBBON_FLIP:2026-09-07T09:00:00+00:00:BEAR :: depends:none :: status:queued
@@ -1503,9 +1506,6 @@ See automation/overnight/forward-backlog-2026-06-19.md for the post-all-night-lo
 - [ ] HARVEST-REGIMEEXT-20260903-100018 (LOW) :: v09_regime TREND_UP dominant: 56/80 bars (70%) | last_regime=TREND_UP atr_14=122 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-09-03T07:00:00+00:00:TREND_UP :: depends:none :: status:queued
 - [ ] HARVEST-SWEEP-20260903-100019 (MED) :: v14_sweep liquidity-grab at level=77000 dir=down bar_idx=93 | wick_excess=0.0918% close_back=0.1066% — feeds v15.2 sweep-blocker doctrine :: key=EDGE_SWEEP_DETECTED:2026-09-03T09:57:01.913129+00:00:77000:down:93 :: depends:none :: status:queued
 - [ ] HARVEST-SWEEP-20260903-100020 (MED) :: v14_sweep liquidity-grab at level=78000 dir=up bar_idx=173 | wick_excess=0.0491% close_back=0.1730% — feeds v15.2 sweep-blocker doctrine :: key=EDGE_SWEEP_DETECTED:2026-09-03T09:57:01.913129+00:00:78000:up:173 :: depends:none :: status:queued
-- [ ] HARVEST-SWEEP-20260903-100021 (MED) :: v14_sweep liquidity-grab at level=78000 dir=up bar_idx=178 | wick_excess=0.0480% close_back=0.1340% — feeds v15.2 sweep-blocker doctrine :: key=EDGE_SWEEP_DETECTED:2026-09-03T09:57:01.913129+00:00:78000:up:178 :: depends:none :: status:queued
-- [ ] HARVEST-RSIEXTREME-20260902-100018 (MED) :: BTC v03_indicators rsi_14=18.72 (oversold) at last_close=76993.02 bin=2026-09-02T08:45:00+00:00 :: key=EDGE_RSI_EXTREME:2026-09-02T08:45:00+00:00:oversold :: depends:none :: status:queued
-- [ ] HARVEST-RSIEXTREME-20260902-100019 (MED) :: BTC v03_indicators rsi_14=15.00 (oversold) at last_close=76832.01 bin=2026-09-02T08:50:00+00:00 :: key=EDGE_RSI_EXTREME:2026-09-02T08:50:00+00:00:oversold :: depends:none :: status:queued
 
 ### T-GYM-20260619 HIGH gym-session RED for 2026-06-19
 
@@ -2422,3 +2422,37 @@ family already KILLED twice) -- this proposal MUST explain why it differs or it 
 - [ ] ESCALATION (worker_fabrication) [ff6ce5055ab88552] — chef claimed artifacts that do not exist for 'cook': analysis/recommendations/nlwb-pullback-reclaim-20260905-1453.txt _(gamma_manager 2026-09-05 14:53 ET)_
 
 - [ ] ESCALATION (manager_flagged) [4a24c80841493afe] — T-W7 confirmatory validation: the mass-grind sweep shows 8835 rows with a completed contender having -717.6 edge capture and 9.07 expectancy - requires immediate validation before deployment to confir _(gamma_manager 2026-09-07 16:13 ET)_
+
+### T-AUTOPSY-H-2026-09-10-entry-spike MED — autopsy hypothesis: paying_the_signal_spike
+
+**Claim:** entries fill materially above the signal-minute low -- the marketable ask+buffer buys the local premium spike (defect #2). **Evidence:** `{"median_paid_above_min_low": 0.133, "n": 30}` (analysis/autopsies/2026-09-10.md).
+**Action:** entry_manager shadow (T-W5): log limit-below/patience counterfactual fills next to real entries for 3+ sessions :: depends:none :: status:proposed
+
+### T-FULL-SUITE-RED-2026-09-11 HIGH — NEW 8-failure RED, independent of the just-closed GOAL-FULL-SUITE-RED-TRIAGE-2026-09-10 set
+
+**Context:** GOAL-FULL-SUITE-RED-TRIAGE-2026-09-10 closed this fire (T1-T4 done) -- the ORIGINAL
+19-failure/11-file signature is now 0 remaining (2 files fixed this fire: `test_engine_liveness_guards.py`
+STALE-ASSUMPTION -- weekday `MSFT_TaskWeeklyTrigger` triggers were wrongly read as the one-shot bug;
+`test_gap_prior_close.py` FIX -- `SetupDispatcher._session_date_str()` raised `AttributeError` instead
+of failing open per its own docstring). A THIRD, unrelated bug was found and fixed in passing: a test
+(`test_trendline_headless_draw_2026_09_03.py`) was polluting the REAL `STATUS.md` Known-broken channel
+with a synthetic "boom" error on every full-suite run (both constants must be monkeypatched, only one
+was) -- fixed + 2 fake entries in STATUS.md corrected in place.
+
+**But `guard_runner_full.py`'s own independent fresh run (2026-09-11 00:19 ET, logged to STATUS.md
+Known-broken) found a DIFFERENT 8-failure signature, none of which overlap the original 11 files:**
+`test_checkpoint_packet_catastrophe_cap_by_strike_tier_2026_09_10.py::test_catastrophe_cap_by_strike_tier_insufficient_n_while_frozen_live`,
+`test_gex_archive_continuity.py::test_live_archive_known_gaps_resolve_the_two_2026_07_gaps`,
+`test_queue_md_retention_cap.py::test_queue_md_under_retention_cap`,
+`test_rrw_bull_veto_study.py::test_scorecard_cache_matches_battery_window`,
+`test_status_known_broken_preamble_2026_09_02.py::test_preamble_carries_a_do_not_move_note`,
+`test_twin_chaos_drill_reaper_exemption.py::TestInstallerCommandLineMatchesExemption::test_installer_pythonw_var_points_at_backtest_venv`,
+`test_twin_chaos_drill_reaper_exemption.py::TestInstallerCommandLineMatchesExemption::test_installer_wscript_args_actually_uses_the_pythonw_var`,
+`test_window_leak_compliance.py::test_no_py_subprocess_missing_creationflags`.
+**13856 passed, 8 failed, 20 skipped (retry recovered 9).** Not triaged this fire (scope: this fire's
+one bounded task was closing the ORIGINAL goal; opening a fresh 8-file triage is a new item).
+**Note:** a supplementary interactive full-suite re-run was attempted this fire and killed after
+~13min at ~60% progress (CPU still climbing, no end in sight) in favor of guard_runner_full's
+already-fresher complete result -- its own piped exit code is NOT trustworthy evidence (known
+piped-exit-code trap) and was not used.
+**Action:** open a GOAL-FULL-SUITE-RED-TRIAGE-2026-09-11-style triage per file (same T1-T4 shape) :: depends:none :: status:queued

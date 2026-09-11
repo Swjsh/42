@@ -76,7 +76,16 @@ _SNAPSHOT_PATH = _REPO / "automation" / "state" / "engine-task-snapshot.json"
 _ONE_SHOT_PATTERN = re.compile(
     r"<CalendarTrigger>.*?</CalendarTrigger>", re.DOTALL
 )
-_DAILY_MARKER = re.compile(r"<ScheduleByDay>")
+# A task recurs forever (is NOT the one-shot anti-pattern) if its CalendarTrigger
+# carries EITHER a daily schedule (<ScheduleByDay>, MSFT_TaskDailyTrigger) OR a
+# weekly schedule (<ScheduleByWeek>, MSFT_TaskWeeklyTrigger -- e.g. weekday-only
+# market-hours windows). Both recur indefinitely; only the absence of BOTH (a bare
+# <CalendarTrigger> with just a StartBoundary/Repetition) is the one-shot bug.
+# 2026-09-11 (GOAL-FULL-SUITE-RED-TRIAGE T2, STALE-ASSUMPTION): the live engine
+# tasks were re-registered with weekday-scoped MSFT_TaskWeeklyTrigger triggers
+# (correctly skip weekends) alongside/instead of MSFT_TaskDailyTrigger ones -- both
+# are legitimately recurring-forever, so the marker must accept either.
+_DAILY_MARKER = re.compile(r"<ScheduleByDay>|<ScheduleByWeek>")
 
 
 def _query_task_xml_live(task_name: str) -> str | None:
@@ -160,9 +169,9 @@ def _assert_daily_recurring(task_name: str) -> None:
     for block in calendar_blocks:
         has_daily = bool(_DAILY_MARKER.search(block))
         assert has_daily, (
-            f"[{source}] {task_name}: CalendarTrigger found but contains NO "
-            "<ScheduleByDay> element -- this is the one-shot anti-pattern (fires only "
-            "once, engine goes dark the next day). Re-register with -Daily:\n"
+            f"[{source}] {task_name}: CalendarTrigger found but contains NEITHER "
+            "<ScheduleByDay> NOR <ScheduleByWeek> -- this is the one-shot anti-pattern "
+            "(fires only once, engine goes dark the next day). Re-register with -Daily:\n"
             "  Unregister-ScheduledTask -TaskName '{task_name}' -Confirm:$false\n"
             "  # re-run the task's install script with the -Daily trigger fix\n"
             "Regressed trigger XML:\n" + textwrap.indent(block, "  ")
@@ -203,6 +212,36 @@ _FIXED_DAILY_XML = """\
       <ScheduleByDay>
         <DaysInterval>1</DaysInterval>
       </ScheduleByDay>
+    </CalendarTrigger>
+  </Triggers>
+</Task>
+"""
+
+# 2026-09-11: the shape actually seen live on Gamma_HealthBeacon/SightBeacon/
+# HeartbeatCore/FleetExecutor -- a weekday-scoped MSFT_TaskWeeklyTrigger. This is
+# recurring-forever (every week, on the named weekdays), NOT the one-shot bug, and
+# must PASS the guard just like a ScheduleByDay trigger does.
+_FIXED_WEEKLY_XML = """\
+<?xml version="1.0"?>
+<Task xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
+  <Triggers>
+    <CalendarTrigger>
+      <StartBoundary>2026-09-05T06:00:00-06:00</StartBoundary>
+      <Repetition>
+        <Interval>PT1M</Interval>
+        <Duration>PT8H30M</Duration>
+        <StopAtDurationEnd>true</StopAtDurationEnd>
+      </Repetition>
+      <ScheduleByWeek>
+        <WeeksInterval>1</WeeksInterval>
+        <DaysOfWeek>
+          <Monday />
+          <Tuesday />
+          <Wednesday />
+          <Thursday />
+          <Friday />
+        </DaysOfWeek>
+      </ScheduleByWeek>
     </CalendarTrigger>
   </Triggers>
 </Task>
@@ -250,6 +289,21 @@ class TestTriggerGuard:
         assert calendar_blocks, "Fixed XML must have CalendarTrigger"
         for block in calendar_blocks:
             assert _DAILY_MARKER.search(block), "Fixed XML must have ScheduleByDay"
+
+    def test_fixed_weekly_pattern_passes(self):
+        """PASS: a weekday-scoped MSFT_TaskWeeklyTrigger (<ScheduleByWeek> +
+        <DaysOfWeek>) is recurring-forever, not the one-shot bug -- this is the
+        exact shape live on Gamma_HealthBeacon/SightBeacon/HeartbeatCore/
+        FleetExecutor as of 2026-09-11 (RED-PROOF: this failed before the
+        _DAILY_MARKER broadening, since ScheduleByWeek has no <ScheduleByDay>)."""
+        triggers_section = re.search(r"<Triggers>(.*?)</Triggers>", _FIXED_WEEKLY_XML, re.DOTALL)
+        assert triggers_section is not None
+        calendar_blocks = re.findall(
+            r"<CalendarTrigger>.*?</CalendarTrigger>", triggers_section.group(1), re.DOTALL
+        )
+        assert calendar_blocks, "Fixed weekly XML must have CalendarTrigger"
+        for block in calendar_blocks:
+            assert _DAILY_MARKER.search(block), "Fixed weekly XML must match ScheduleByWeek"
 
     @pytest.mark.parametrize("task_name", _ENGINE_TASKS)
     def test_engine_task_is_daily_recurring(self, task_name):

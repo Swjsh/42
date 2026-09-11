@@ -153,10 +153,22 @@ def test_fail_open_on_cdp_down_writes_skipped_tv_down_and_exits_0(tmp_path, monk
 
 def test_unexpected_exception_never_raises_uncaught(tmp_path, monkeypatch):
     """A genuine bug inside the CDP session (not TV-down) must still never propagate an
-    unhandled exception into the scheduler -- it is caught, stamped ERROR, and returns 1."""
+    unhandled exception into the scheduler -- it is caught, stamped ERROR, and returns 1.
+
+    2026-09-11 (GOAL-FULL-SUITE-RED-TRIAGE, found in passing): this test deliberately
+    drives the ERROR path, which calls the module's own `flag_status_md()` -- and that
+    function writes to the MODULE-LEVEL `STATUS_MD` constant, a SEPARATE variable from
+    `STATE_FILE`. Patching only `STATE_FILE` (as this test did before) left `STATUS_MD`
+    pointed at the REAL `automation/overnight/STATUS.md`, so every run of this test (part
+    of the ordinary full-suite / CI run) appended a synthetic "boom: unexpected chart-api
+    failure" line to J's real Known-broken signal channel. Must patch both."""
     stamp = tmp_path / "trendline-headless-draw.json"
     monkeypatch.setattr(thd, "STATE_FILE", stamp)
+    monkeypatch.setattr(thd, "STATUS_MD", tmp_path / "STATUS.md")
     monkeypatch.setattr(thd, "fetch_bars", lambda n_days=3: _synthetic_bars())
+
+    real_status_md = REPO / "automation" / "overnight" / "STATUS.md"
+    real_before = real_status_md.read_text(encoding="utf-8") if real_status_md.exists() else None
 
     class _BoomChart(_FakeChart):
         def require_chart_api(self):
@@ -169,6 +181,18 @@ def test_unexpected_exception_never_raises_uncaught(tmp_path, monkeypatch):
     out = json.loads(stamp.read_text(encoding="utf-8"))
     assert out["status"] == "ERROR"
     assert "boom" in out["reason"]
+
+    # The ERROR path must still flag SOMEWHERE (the fake STATUS_MD), proving
+    # flag_status_md's own behaviour isn't silently lost by the patch -- and the
+    # REAL production STATUS.md must be provably untouched by this test run.
+    fake_status_md = thd.STATUS_MD
+    assert fake_status_md.exists(), "flag_status_md must still write to the patched path"
+    assert "boom" in fake_status_md.read_text(encoding="utf-8")
+    real_after = real_status_md.read_text(encoding="utf-8") if real_status_md.exists() else None
+    assert real_after == real_before, (
+        "the REAL production STATUS.md must be byte-identical before/after this test -- "
+        "any diff means flag_status_md wrote to the wrong (unpatched) STATUS_MD constant"
+    )
 
 
 # --------------------------------------------------------------------------- 2. dry-run

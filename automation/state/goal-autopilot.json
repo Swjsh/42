@@ -1,9 +1,9 @@
 {
-  "checked_at_et": "2026-09-05 14:44 ET",
-  "action": "noop",
-  "reason": "active goal has an open item",
-  "active_goal_id": "GOAL-SILENT-RIG-2026-09-05",
-  "next_item": "R3 -- Fable: register Gamma_LaunchRate (daily 23:40 ET, system pythonw hidden chain) so launch_rate.py flags any market-closed hour > 60; re-enable ConductorWeekend after one watched fire proves the discord/MCP shim (hook log = proof); tickers lane = J's call.",
+  "checked_at_et": "2026-09-11 00:47 ET",
+  "action": "closed_ladder_empty",
+  "reason": "queue fully terminal (no bare '- [ ] ' item left)",
+  "active_goal_id": null,
+  "next_item": null,
   "ladder": [
     {
       "id": "GOAL-COCKPIT-REDESIGN-2026-09-03",
@@ -127,7 +127,7 @@
     },
     {
       "id": "GOAL-SILENT-RIG-2026-09-05",
-      "state": "active",
+      "state": "done",
       "eligible": true,
       "why": "ok"
     },
@@ -139,36 +139,60 @@
     },
     {
       "id": "GOAL-GATE-EXPIRY-RECONCILE-2026-09-05",
-      "state": "queued",
+      "state": "done",
       "eligible": false,
       "why": "no ## QUEUE section or no bare '- [ ] ' item"
     },
     {
       "id": "GOAL-WAVE-DAY-CONDITIONS-2026-09-05",
-      "state": "queued",
-      "eligible": true,
-      "why": "ok"
+      "state": "done",
+      "eligible": false,
+      "why": "no ## QUEUE section or no bare '- [ ] ' item"
+    },
+    {
+      "id": "GOAL-SELF-AUDIT-BACKLOG-2026-09-07",
+      "state": "done",
+      "eligible": false,
+      "why": "no ## QUEUE section or no bare '- [ ] ' item"
     },
     {
       "id": "GOAL-FUTURES-YELLOWS-2026-09-05",
-      "state": "queued",
+      "state": "done",
       "eligible": false,
       "why": "no ## QUEUE section or no bare '- [ ] ' item"
     },
     {
       "id": "GOAL-FIRST-FIRES-2026-09-08",
-      "state": "queued",
+      "state": "done",
       "eligible": false,
-      "why": "not before 2026-09-08 (today 2026-09-05)"
+      "why": "no ## QUEUE section or no bare '- [ ] ' item"
+    },
+    {
+      "id": "GOAL-WHY-THIS-WEEK-2026-09-10",
+      "state": "done",
+      "eligible": false,
+      "why": "no ## QUEUE section or no bare '- [ ] ' item"
     },
     {
       "id": "GOAL-SEPT-MIDWINDOW-READ-2026-09-15",
       "state": "queued",
       "eligible": false,
-      "why": "not before 2026-09-15 (today 2026-09-05)"
+      "why": "not before 2026-09-15 (today 2026-09-11)"
+    },
+    {
+      "id": "GOAL-LOSS-MECHANISMS-2026-09-08",
+      "state": "done",
+      "eligible": false,
+      "why": "no ## QUEUE section or no bare '- [ ] ' item"
+    },
+    {
+      "id": "GOAL-FULL-SUITE-RED-TRIAGE-2026-09-10",
+      "state": "done",
+      "eligible": false,
+      "why": "no ## QUEUE section or no bare '- [ ] ' item"
     }
   ],
-  "last_opened": "GOAL-SILENT-RIG-2026-09-05",
-  "last_closed": "GOAL-RIG-SIGNAL-HYGIENE-2026-09-05",
+  "last_opened": "GOAL-FULL-SUITE-RED-TRIAGE-2026-09-10",
+  "last_closed": "GOAL-FULL-SUITE-RED-TRIAGE-2026-09-10",
   "error": null
 }

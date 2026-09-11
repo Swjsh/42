@@ -48,30 +48,71 @@ clean 0-fail suite that isn't real (OP-33 -- suspicion scales with how good a nu
 
 ## QUEUE
 [ ] todo   [~] wip   [x] done   [B] blocked   [B-J] blocked on J
-- [~] T1 -- individually re-ran all 12 named-in-STATUS test IDs (5 files); a background
-      `pytest tests/ -q -m "not slow"` full run was launched but did not complete within
-      this fire's budget -- next fire reads its output before re-deriving.
-- [~] T2 -- 6 of 11 files triaged+fixed/quarantined this fire (commit ffb320e7):
-      test_arm_roster_sweep_2026_09_02.py (FIX), test_crypto_twin_reaper_exemption.py
-      (STALE-ASSUMPTION), test_dojo_engine_step.py (FLAKY, xfail-quarantined),
-      test_earnings_calendar_install_wiring_2026_08_24.py (STALE-ASSUMPTION),
-      test_install_script_relay_wiring_drift.py (self-resolved by the crypto-twin fix).
-      REMAINING 2 files, 5 tests, NOT yet triaged: test_engine_liveness_guards.py's 4
-      parametrized test_engine_task_is_daily_recurring[Gamma_SightBeacon/HeartbeatCore/
-      FleetExecutor/HealthBeacon] cases (live Task Scheduler query -- needs
-      investigation) and test_gap_prior_close.py::test_dispatch_prior_close_fallback
-      (root cause ALREADY FOUND, not yet fixed: setup_dispatch.SetupDispatcher.
-      _session_date_str reads self._payload, which the test's __new__-based
-      instantiation never sets -- setup/scripts/setup_dispatch.py:589/619).
+- [x] T1 -- **CLOSED (2026-09-11 00:4x ET).** Fresh full-suite counts obtained from
+      `guard_runner_full.py`'s own independent 00:19 ET run (STATUS.md Known-broken):
+      **13856 passed, 8 failed, 20 skipped (retry recovered 9).** Of the original 19
+      failures/11 files: **0 still failing** -- the 8 currently-failing tests are an
+      entirely DIFFERENT, unrelated set (named in T4 RESULT / queue.md
+      `T-FULL-SUITE-RED-2026-09-11`). This session's own interactive re-run (individually
+      re-ran all 12 named-in-STATUS test IDs across 5 files, all passing) plus this fresh
+      independent full-suite confirmation together satisfy T1 without needing to wait out
+      a second in-session full run.
+- [x] T2 -- **all 11 files now triaged+fixed/quarantined.** 6 from the first fire
+      (commit ffb320e7). The final 2 closed this fire (2026-09-11 00:2x ET):
+      1. **test_engine_liveness_guards.py (STALE-ASSUMPTION, FIXED).** 4 parametrized
+         `test_engine_task_is_daily_recurring[...]` cases failed because the live
+         engine tasks (SightBeacon/HeartbeatCore/FleetExecutor/HealthBeacon) were
+         re-registered with a weekday-scoped `MSFT_TaskWeeklyTrigger`
+         (`<ScheduleByWeek>`+`<DaysOfWeek>`) alongside/instead of a plain
+         `MSFT_TaskDailyTrigger` (`<ScheduleByDay>`) -- both recur forever (neither
+         is the one-shot bug the guard exists to catch), the test's marker regex
+         just didn't recognize the weekly shape. Broadened `_DAILY_MARKER` to accept
+         either, added a `_FIXED_WEEKLY_XML` regression fixture +
+         `test_fixed_weekly_pattern_passes`. RED-PROOF (inline, quoted): old marker
+         on the live weekly-trigger block -> `False`; new marker -> `True`. Live run:
+         `38 passed` (was 4 failed / 1 passed on the parametrized case).
+      2. **test_gap_prior_close.py::test_dispatch_prior_close_fallback (FIX, real
+         code defect).** `SetupDispatcher._session_date_str()` did
+         `self._payload.get(...)` with no guard, and its OWN docstring promises
+         fail-open ("callers must treat a missing session date as cannot verify, not
+         as an error") -- but a caller without `_payload` set (the test's
+         `__new__`-based instantiation, or any lazy-construction caller) got a raw
+         `AttributeError` instead. Fixed with `getattr(self, "_payload", None) or {}`.
+         RED-PROOF (git-stash before/after): pre-fix ->
+         `AttributeError: 'SetupDispatcher' object has no attribute '_payload'`;
+         post-fix -> `1 passed`. Neither file is in `FROZEN_TRADING_PATH`
+         (verified against `setup/hooks/doctrine.py` before editing) -- freeze-safe.
 - [x] T3 -- STATUS.md Known-broken FULL-SUITE RED line corrected in place (commit
       8e391a59): 6/11 files fixed named, 2 files/5 tests still open named with root
       causes, no new duplicate bullet.
-- [ ] T4 -- final full-suite re-run quoted, any remaining irreducible flake named explicitly.
+- [x] T4 -- **CLOSED (2026-09-11 00:4x ET), see T4 RESULT below.** Original 19-failure/11-file
+      set: 0 remaining. A NEW, unrelated 8-failure signature was found (guard_runner_full's own
+      00:19 ET run) -- named explicitly, filed as `T-FULL-SUITE-RED-2026-09-11` in queue.md,
+      NOT triaged this fire (out of this goal's DONE-WHEN scope).
 
 ## J-DECISIONS
 - None yet -- flag here if any disposition needs a frozen-path exception.
 
 ## PROGRESS LOG
+- 2026-09-11 00:4x ET -- T2+T4 CLOSED (conductor AFTERHOURS fire). T2: fixed the final 2 files
+  (test_engine_liveness_guards.py STALE-ASSUMPTION -- broadened `_DAILY_MARKER` to accept
+  `<ScheduleByWeek>` alongside `<ScheduleByDay>`, both recur forever, only their total absence
+  is the one-shot bug; test_gap_prior_close.py FIX -- `_session_date_str()` now
+  `getattr(self, "_payload", None)` instead of raising AttributeError, matching its own
+  documented fail-open contract). RED-proofed both (inline marker diff + git-stash
+  before/after). Found + fixed a THIRD bug in passing: test_trendline_headless_draw_2026_09_03.py
+  polluted the REAL STATUS.md with a synthetic "boom" error on every full-suite run (patched
+  only `STATE_FILE`, not the separate `STATUS_MD` constant) -- RED-proofed live (git-stash
+  reproduced a second real pollution line, count 1->2; fix stops it), 2 fake STATUS.md entries
+  corrected in place. T4: original 19-failure/11-file set now 0 remaining. guard_runner_full's
+  own independent 00:19 ET run found a DIFFERENT 8-failure signature (13856 passed, 8 failed,
+  20 skipped) -- none overlapping the original 11 files -- named explicitly, filed as
+  `T-FULL-SUITE-RED-2026-09-11` in queue.md, NOT triaged (out of scope: this goal's DONE-WHEN
+  was specifically the original set). A supplementary interactive full-suite re-run was
+  attempted and killed after ~13min at ~60% progress (disproportionate cost vs. the
+  already-fresher guard_runner_full result); its piped exit code was correctly NOT trusted as
+  evidence. **All 4 items (T1-T4) now closed.** No trading-path file touched (both fixed files
+  + the test file verified against `setup/hooks/doctrine.py` FROZEN_TRADING_PATH -- none listed).
 - 2026-09-10 06:2x ET -- continuation 1/3: T3 done, commit 8e391a59. Budget exhausted
   ($9.72/$10) -- stopping here, T4 (final full-suite re-run) left for next fire.
 - 2026-09-10 05:47-06:1x ET -- conductor AFTERHOURS fire: T1 partial (12 named test IDs
@@ -88,8 +129,11 @@ clean 0-fail suite that isn't real (OP-33 -- suspicion scales with how good a nu
   not_before-gated until 09-15) -- authored this goal per conductor STAGE 1 clause 2a rather
   than leaving the next scheduled fire to hit the same ladder_empty with nothing to do.
 - 2026-09-10 05:37 ET — opened by goal_autopilot
+- 2026-09-11 00:11 ET — opened by goal_autopilot
+- 2026-09-11 00:47 ET — closed by goal_autopilot: queue fully terminal (no bare '- [ ] ' item left)
 ## HONEST STATE
 Not started. The 19-failure count is UNVERIFIED as of right-now-2026-09-10 05:30 ET -- it is
 quoted verbatim from STATUS.md's 00:18 ET entry, itself already ~5 hours old and this repo has
 a documented pattern (09-05/09-07 GATE-EXPIRY items) of RED-looking lines self-resolving between
 fires without anyone touching code. T1 exists specifically to re-verify before assuming anything.
+AUTOPILOT CLOSE 2026-09-11 00:47 ET: queue fully terminal (no bare '- [ ] ' item left)

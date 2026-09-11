@@ -141,7 +141,7 @@ strike tier do not transfer to another.
 
 
 ---
-
+- 2026-09-11 00:11 ET — closed by goal_autopilot: queue fully terminal (no bare '- [ ] ' item left)
 ## W4 RESULT -- variance-vs-mechanism verdict (orchestrator, 2026-09-10 23:03:47 Thursday EDT)
 
 **VERDICT: VARIANCE. This week is inside the engine's known distribution. The correct action
@@ -501,13 +501,9 @@ the selection question W6 named and walked away from. These are genuinely multi-
 
 ## QUEUE -- PHASE 2 (execution, not specification)
 
-- [ ] W7 -- **EXECUTE the NOT_FLAT counterfactual** (W5 RANK 1, the single biggest lever).
-      For every ENTER verdict refused with NOT_FLAT across the full decisions history, price
-      what that wave would have done under the refusing arm's OWN strike-selection and exit
-      rules. Deliverable: net $ that the one-position cap cost or saved, wave-deduped, split
-      by (a) whether the arm's open position was itself a winner and (b) day archetype.
-      A NET-EARNING result kills the participation thesis outright -- that is a real outcome.
-      Shadow/measurement only; concurrency is a risk EXPANSION so nothing ships before 10-30.
+- [x] W7 -- **CLOSED, see W7 RESULT below.** UNDERPOWERED, leaning COSTING, logged null.
+      Headline +$4,557 collapses to +$565/n=109 on the same-arm-only proxy; every bootstrap CI
+      straddles zero. No NOT_FLAT package. Concurrency is a risk EXPANSION -> 10-30 at earliest.
 - [x] W8 -- **ANSWERED, see W8 RESULT below.** Discriminator: safe-2's solo deficit is NOT
       spread across its whole solo population -- it is 96% concentrated (-$836 of -$867, 28 of
       58 waves) in 4 SAFE-only secondary setups (vwap_continuation/vwap_reclaim_failed_break/
@@ -529,10 +525,9 @@ the selection question W6 named and walked away from. These are genuinely multi-
       GUARDED so it can never again fail silently.** See W10 RESULT below.
 
 
-- [ ] W11 -- **Fix the TradeAutopsy 403-blind component.** `exit_shape_parity_study` gets
-      `HTTP 403 Forbidden` on option-bar fetches back to 2026-09-02 while the task exits 0 and
-      Task Scheduler reads green. This BLOCKS any re-pricing study (W7 and W8 both need clean
-      per-trade bars). C7 silent-degradation. Freeze-safe (observability).
+- [x] W11 -- **CLOSED, see W11 RESULT below.** 403 was transient OPRA indexing lag, not
+      entitlement -- all dates recovered, 0 permanently blind, clears W7/W8's pricing caveat.
+      Real defect was content-blind freshness monitoring; RED-proofed guard shipped.
 - [x] W12 -- **ANSWERED: UNDERSAMPLED, not disproven. See W12 RESULT.** Original: **The concentration question -- the real go-live blocker, and nobody has asked it.**
       Book is +$2,027 as-traded over 42 days but **-$792 ex-best-day** (PF 0.924). Drop ONE day
       (2026-08-04) and the entire edge is gone. Is the right tail REAL AND RARE (a genuine
@@ -1095,3 +1090,6 @@ invocations.
   latent `-m` log-collision defect pre-commit (zero live exposure, 0 of 92 affected) and fixed
   it with a RED-proof. One invalid verification of my own (fail-open) explicitly labelled rather
   than claimed. **All 14 items closed. Zero trading-path edits this entire session.**
+
+## HONEST STATE
+AUTOPILOT CLOSE 2026-09-11 00:11 ET: queue fully terminal (no bare '- [ ] ' item left)
