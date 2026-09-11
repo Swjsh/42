@@ -1020,7 +1020,7 @@ the false success print; post-fix → `4 passed`; full file `9 passed in 0.35s`.
 
 ## ⛔ W14 OPENED -- the rig throws away 92 tasks' worth of evidence
 
-- [ ] W14 -- **`run_cmd_hidden.py` silently discards child stdout/stderr unless `--log` is
+- [x] W14 -- **DONE + orchestrator-verified (one real defect caught pre-commit).** `run_cmd_hidden.py` silently discarded child stdout/stderr unless `--log` is
       passed. Live registry: 195 Gamma tasks — 12 WITH `--log`, 92 via the launcher WITHOUT it,
       91 not via the launcher. So 92 scheduled tasks have NO evidence channel at all.**
       This is very likely the root enabler of the C7 "silent success is failure" class that
@@ -1041,3 +1041,57 @@ the false success print; post-fix → `4 passed`; full file `9 passed in 0.35s`.
   real defect was content-blind freshness monitoring, now RED-proofed; clears W7/W8's pricing
   caveat). **All 13 original items closed.** W14 OPENED off W10's root finding: 92 of 195
   scheduled tasks have no stdout/stderr evidence channel. Worker dispatched.
+
+
+---
+
+## W14 RESULT -- 92 blind tasks now have an evidence channel (2026-09-10 23:42:47 Thursday EDT)
+
+**Blast radius enumerated before editing:** 104 live tasks invoke `run_cmd_hidden.py`; **92
+omit `--log`**, 12 already pass it (that code path untouched, byte-for-byte). **`Gamma_HeartbeatCore`
+does NOT go through this file** — it uses `run_ps1_hidden.py` — so the trading engine itself is
+unaffected. `run_cmd_hidden.py` re-confirmed NOT in `FROZEN_TRADING_PATH` (`doctrine.py:166-177`).
+
+**Fix:** stdout+stderr now default to `automation/state/logs/auto/<command-stem>.log`.
+**Retention:** 5 MB per-file rotation (one `.log.1` backup), 14-day age prune, 300 MB dir-wide
+cap oldest-first — all gated behind an hourly sentinel so 1-minute-cadence keepalives stay
+cheap, and pruning is hard-scoped to `logs/auto/` (a test proves a sibling dir survives).
+**Fail-open:** two independent guards (log-path setup, and the file open itself) each degrade
+to the old discard behaviour for that invocation only; the child still runs, exit code unchanged.
+
+### Orchestrator verification -- and it caught a real defect
+I re-ran and re-derived rather than accepting the report (this was the night's
+highest-blast-radius change):
+- ✅ `37 passed` on the worker's guard + the existing masked-exit suite, re-run independently.
+- ✅ `CREATE_NO_WINDOW` present on both `subprocess.run` calls (lines 321, 329).
+- ✅ **Live smoke test**: `run_cmd_hidden.py -- python -c "..."` with no `--log` captured BOTH
+  canaries (`W14-STDOUT-CANARY`, `W14-STDERR-CANARY`), launcher exit 0.
+- ❌ **My own fail-open check was INVALID** and I am not claiming it: I monkeypatched
+  `_default_auto_log_path` in the parent process and then spawned a *fresh* subprocess, which
+  never carried the patch. Fail-open is covered by the worker's own guard tests (inside the 37),
+  **not by my independent check.**
+- 🐛 **DEFECT FOUND PRE-COMMIT:** `_derive_log_stem` fell through to "last non-python token" for
+  `python -m pkg.mod --flag`, so `pkg.alpha --daily` and `pkg.beta --daily` **both resolved to
+  `--daily.log`** — silently merging two producers into one evidence channel, *the exact failure
+  this change exists to prevent*. **Live exposure: ZERO** — verified against the registry that
+  **0 of the 92** black-hole tasks use `-m` (all use `.py` paths, which resolved correctly). So
+  it was a latent trap for the first `-m` task ever registered, not a current outage.
+  **Fixed** (handle `-m <module>` before the reversed-token fallback) + 4 guard tests appended.
+  **RED-proof quoted:** pre-fix logic gives `pkg.alpha -> '--daily'`, `pkg.beta -> '--daily'`,
+  collision `True`; post-fix `pkg_alpha` / `pkg_beta`.
+  One of my own new tests failed first because I asserted a guessed sanitizer contract
+  (dots preserved) instead of the real one (dots -> underscores) — **the test was wrong, not the
+  code**; corrected the assertion rather than the behaviour.
+- ✅ **Final combined run across all of tonight's guards: `72 passed in 4.69s`.**
+
+**Coverage: all 92 previously-blind tasks get a real evidence channel on their next fire.**
+No scheduled task was fired to verify any of this (standing rule); all checks were direct
+invocations.
+
+## PROGRESS LOG
+
+- 2026-09-10 23:42:47 Thursday EDT -- W14 CLOSED. 92 blind tasks now capture stdout/stderr by default, with
+  retention, fail-open and an unchanged exit-code contract. Orchestrator verification caught a
+  latent `-m` log-collision defect pre-commit (zero live exposure, 0 of 92 affected) and fixed
+  it with a RED-proof. One invalid verification of my own (fail-open) explicitly labelled rather
+  than claimed. **All 14 items closed. Zero trading-path edits this entire session.**

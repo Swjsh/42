@@ -1,37 +1,37 @@
 {
   "_doc": "Runner execution of prereg-profitability-2026-08-08.json (BOLD2-QTY-NORMALIZE-V1). REAL FILLS ONLY. Method = production tp1_qty rounding applied to REAL exit legs (see module docstring for why a full walk_exit_manager bar replay is blocked by a confirmed missing trigger_level history, and why this method is strictly more faithful than the prereg's own flagged linear-rescale approximation).",
-  "generated_at_utc": "2026-09-10T12:45:16.028924+00:00",
+  "generated_at_utc": "2026-09-11T03:42:59.504962+00:00",
   "prereg_path": "analysis/recommendations/prereg-profitability-2026-08-08.json",
   "tp1_qty_fraction_used": 0.667,
   "ship_date_cutoff": "2026-07-18",
   "population": {
-    "post_ship_only_n": 44,
-    "all_time_n": 48
+    "post_ship_only_n": 46,
+    "all_time_n": 50
   },
   "cells": {
     "qty3_post_ship_only": {
       "target_qty": 3,
       "scope": "post_ship_only",
-      "n": 44,
-      "n_changed_trades": 44,
-      "win_rate": 0.3409,
-      "baseline_net": -312.0,
-      "rescaled_net": -54.0,
-      "delta_net": 258.0,
+      "n": 46,
+      "n_changed_trades": 46,
+      "win_rate": 0.3261,
+      "baseline_net": -502.0,
+      "rescaled_net": -168.0,
+      "delta_net": 334.0,
       "is_oos_split": {
-        "IS_n": 44,
+        "IS_n": 46,
         "OOS_n": 0,
         "note": "OOS_forward (2026-08-10 onward) has not accrued yet -- shadow clock, not armed"
       },
       "drop_best_day": {
         "best_day": "2026-08-04",
-        "baseline_ex_best_day": -791.0,
-        "rescaled_ex_best_day": -345.0,
-        "delta_ex_best_day": 446.0
+        "baseline_ex_best_day": -981.0,
+        "rescaled_ex_best_day": -459.0,
+        "delta_ex_best_day": 522.0
       },
       "per_account_cuts": {
         "bold-2": {
-          "delta": 258.0
+          "delta": 334.0
         },
         "safe-2": {
           "delta": 0.0
@@ -39,18 +39,18 @@
       },
       "subwindow_stability": {
         "half_a": {
-          "n": 21,
+          "n": 22,
           "evaluable": true,
-          "baseline": -978.0,
-          "rescaled": -445.0,
-          "delta": 533.0
+          "baseline": -898.0,
+          "rescaled": -397.0,
+          "delta": 501.0
         },
         "half_b": {
-          "n": 23,
+          "n": 24,
           "evaluable": true,
-          "baseline": 666.0,
-          "rescaled": 391.0,
-          "delta": -275.0
+          "baseline": 396.0,
+          "rescaled": 229.0,
+          "delta": -167.0
         },
         "evaluable": true
       },
@@ -98,9 +98,11 @@
         28.0,
         -34.0,
         0.0,
-        38.0
+        38.0,
+        52.0,
+        24.0
       ],
-      "bootstrap_p_one_sided_delta_le_0": 0.3383,
+      "bootstrap_p_one_sided_delta_le_0": 0.3188,
       "gates": {
         "G1_aggregate_positive_delta": true,
         "G2_survives_drop_best_day": true,
@@ -113,26 +115,26 @@
     "qty3_all_time_robustness_diagnostic_only": {
       "target_qty": 3,
       "scope": "all_time_robustness_diagnostic_only",
-      "n": 48,
-      "n_changed_trades": 48,
-      "win_rate": 0.3542,
-      "baseline_net": 94.0,
-      "rescaled_net": 162.0,
-      "delta_net": 68.0,
+      "n": 50,
+      "n_changed_trades": 50,
+      "win_rate": 0.34,
+      "baseline_net": -96.0,
+      "rescaled_net": 48.0,
+      "delta_net": 144.0,
       "is_oos_split": {
-        "IS_n": 48,
+        "IS_n": 50,
         "OOS_n": 0,
         "note": "OOS_forward (2026-08-10 onward) has not accrued yet -- shadow clock, not armed"
       },
       "drop_best_day": {
         "best_day": "2026-08-04",
-        "baseline_ex_best_day": -385.0,
-        "rescaled_ex_best_day": -129.0,
-        "delta_ex_best_day": 256.0
+        "baseline_ex_best_day": -575.0,
+        "rescaled_ex_best_day": -243.0,
+        "delta_ex_best_day": 332.0
       },
       "per_account_cuts": {
         "bold-2": {
-          "delta": 68.0
+          "delta": 144.0
         },
         "safe-2": {
           "delta": 0.0
@@ -147,11 +149,11 @@
           "delta": 484.0
         },
         "half_b": {
-          "n": 24,
+          "n": 26,
           "evaluable": true,
-          "baseline": 1026.0,
-          "rescaled": 610.0,
-          "delta": -416.0
+          "baseline": 836.0,
+          "rescaled": 496.0,
+          "delta": -340.0
         },
         "evaluable": true
       },
@@ -203,9 +205,11 @@
         28.0,
         -34.0,
         0.0,
-        38.0
+        38.0,
+        52.0,
+        24.0
       ],
-      "bootstrap_p_one_sided_delta_le_0": 0.4578,
+      "bootstrap_p_one_sided_delta_le_0": 0.3913,
       "gates": {
         "G1_aggregate_positive_delta": true,
         "G2_survives_drop_best_day": true,
@@ -217,26 +221,26 @@
     "qty4_post_ship_only": {
       "target_qty": 4,
       "scope": "post_ship_only",
-      "n": 44,
-      "n_changed_trades": 44,
-      "win_rate": 0.3409,
-      "baseline_net": -312.0,
-      "rescaled_net": -56.0,
-      "delta_net": 256.0,
+      "n": 46,
+      "n_changed_trades": 46,
+      "win_rate": 0.3261,
+      "baseline_net": -502.0,
+      "rescaled_net": -208.0,
+      "delta_net": 294.0,
       "is_oos_split": {
-        "IS_n": 44,
+        "IS_n": 46,
         "OOS_n": 0,
         "note": "OOS_forward (2026-08-10 onward) has not accrued yet -- shadow clock, not armed"
       },
       "drop_best_day": {
         "best_day": "2026-08-04",
-        "baseline_ex_best_day": -791.0,
-        "rescaled_ex_best_day": -432.0,
-        "delta_ex_best_day": 359.0
+        "baseline_ex_best_day": -981.0,
+        "rescaled_ex_best_day": -584.0,
+        "delta_ex_best_day": 397.0
       },
       "per_account_cuts": {
         "bold-2": {
-          "delta": 256.0
+          "delta": 294.0
         },
         "safe-2": {
           "delta": 0.0
@@ -244,18 +248,18 @@
       },
       "subwindow_stability": {
         "half_a": {
-          "n": 21,
+          "n": 22,
           "evaluable": true,
-          "baseline": -978.0,
-          "rescaled": -606.0,
-          "delta": 372.0
+          "baseline": -898.0,
+          "rescaled": -542.0,
+          "delta": 356.0
         },
         "half_b": {
-          "n": 23,
+          "n": 24,
           "evaluable": true,
-          "baseline": 666.0,
-          "rescaled": 550.0,
-          "delta": -116.0
+          "baseline": 396.0,
+          "rescaled": 334.0,
+          "delta": -62.0
         },
         "evaluable": true
       },
@@ -303,9 +307,11 @@
         14.0,
         -17.0,
         0.0,
-        19.0
+        19.0,
+        26.0,
+        12.0
       ],
-      "bootstrap_p_one_sided_delta_le_0": 0.2554,
+      "bootstrap_p_one_sided_delta_le_0": 0.2389,
       "gates": {
         "G1_aggregate_positive_delta": true,
         "G2_survives_drop_best_day": true,
@@ -318,26 +324,26 @@
     "qty4_all_time_robustness_diagnostic_only": {
       "target_qty": 4,
       "scope": "all_time_robustness_diagnostic_only",
-      "n": 48,
-      "n_changed_trades": 48,
-      "win_rate": 0.3542,
-      "baseline_net": 94.0,
-      "rescaled_net": 164.0,
-      "delta_net": 70.0,
+      "n": 50,
+      "n_changed_trades": 50,
+      "win_rate": 0.34,
+      "baseline_net": -96.0,
+      "rescaled_net": 12.0,
+      "delta_net": 108.0,
       "is_oos_split": {
-        "IS_n": 48,
+        "IS_n": 50,
         "OOS_n": 0,
         "note": "OOS_forward (2026-08-10 onward) has not accrued yet -- shadow clock, not armed"
       },
       "drop_best_day": {
         "best_day": "2026-08-04",
-        "baseline_ex_best_day": -385.0,
-        "rescaled_ex_best_day": -212.0,
-        "delta_ex_best_day": 173.0
+        "baseline_ex_best_day": -575.0,
+        "rescaled_ex_best_day": -364.0,
+        "delta_ex_best_day": 211.0
       },
       "per_account_cuts": {
         "bold-2": {
-          "delta": 70.0
+          "delta": 108.0
         },
         "safe-2": {
           "delta": 0.0
@@ -352,11 +358,11 @@
           "delta": 264.0
         },
         "half_b": {
-          "n": 24,
+          "n": 26,
           "evaluable": true,
-          "baseline": 1026.0,
-          "rescaled": 832.0,
-          "delta": -194.0
+          "baseline": 836.0,
+          "rescaled": 680.0,
+          "delta": -156.0
         },
         "evaluable": true
       },
@@ -408,9 +414,11 @@
         14.0,
         -17.0,
         0.0,
-        19.0
+        19.0,
+        26.0,
+        12.0
       ],
-      "bootstrap_p_one_sided_delta_le_0": 0.4468,
+      "bootstrap_p_one_sided_delta_le_0": 0.3933,
       "gates": {
         "G1_aggregate_positive_delta": true,
         "G2_survives_drop_best_day": true,
@@ -431,13 +439,13 @@
     "conclusion": "walk_exit_manager without a historical trigger_level does NOT reproduce the real fill -- confirms structure-stop was live and its trigger_level is not recoverable from any persisted state this session found (current-position-bold.json has no trigger_level field; decisions.jsonl's own `trigger` field stops 2026-06-25, before every post-ship trade). Real-fills-stage rescale used instead (see module docstring)."
   },
   "verdict": "FREEZE-WITH-CLOCK",
-  "verdict_reasoning": "Mechanically computed from the gate ladder: power floor n>=15 changed trades is MET (n=44 today). Per the prereg's own battery, a candidate cannot SHIP without the power floor regardless of how the other gates read -- verdict is FREEZE-WITH-CLOCK unless n_changed_trades >= 15, matching the frozen prereg's own verdict. This Runner independently reproduces that verdict from a MORE precise (rounding-aware, not linear-approximated) recomputation, not merely restates it.",
+  "verdict_reasoning": "Mechanically computed from the gate ladder: power floor n>=15 changed trades is MET (n=46 today). Per the prereg's own battery, a candidate cannot SHIP without the power floor regardless of how the other gates read -- verdict is FREEZE-WITH-CLOCK unless n_changed_trades >= 15, matching the frozen prereg's own verdict. This Runner independently reproduces that verdict from a MORE precise (rounding-aware, not linear-approximated) recomputation, not merely restates it.",
   "operator_bottom_line": {
     "core_book_14d_measured_loss": -539.0,
     "primary_cell": "qty3_post_ship_only",
-    "primary_cell_delta": 258.0,
-    "what_the_last_14_days_would_have_netted_under_this_rule": -281.0,
-    "implied_recovery_per_traded_day": 25.8,
+    "primary_cell_delta": 334.0,
+    "what_the_last_14_days_would_have_netted_under_this_rule": -205.0,
+    "implied_recovery_per_traded_day": 33.4,
     "still_net_negative": true
   }
 }
