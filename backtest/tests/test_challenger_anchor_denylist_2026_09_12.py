@@ -223,6 +223,24 @@ def test_map_core_row_passes_through_conviction():
     assert blocks["bull"]["trigger_anchor_label"] == "INTRADAY_SWING_LOW_2026-09-11"
 
 
+# --- (e) activation constraint: no two ACTIVE arms may share a broker account_number -----
+# This is the exact constraint that made the challenger's activation BLOCKED, then
+# unblocked (2026-09-12, coordinator decision): weekly-1 is not built (status:pending_build,
+# never places an order), so risky-3 can safely take PA3V7JT25H6Z today -- but weekly-1 (or
+# any future arm) must never be flipped active onto an account another ACTIVE arm already
+# holds, or the SPY-symbol-filtered flat-check (fleet_broker.is_flat_spy_options) goes blind
+# to whatever the other arm is holding on that account (C11).
+def test_no_two_active_arms_share_an_account_number():
+    from collections import Counter
+    active = [a for a in _ACCOUNTS["arms"] if str(a.get("status", "")).lower() == "active"]
+    counts = Counter(a.get("account_number") for a in active)
+    dupes = {acct: n for acct, n in counts.items() if n > 1}
+    assert not dupes, (
+        f"two or more ACTIVE arms share an account_number: {dupes} -- this is the exact "
+        f"flat-check blind spot (C11) that blocked/gated risky-3's reactivation"
+    )
+
+
 def test_map_core_row_conviction_absent_is_none_safe():
     raw = {"ts_et": "2026-09-11T09:35:00", "verdict": "HOLD", "action": "HOLD",
            "spy": 760.0, "bull_score": 1, "bear_score": 1, "triggers": []}
