@@ -116,9 +116,59 @@ produce evidence that changes what the rig does the next day, on a surface J alr
 
 - 2026-09-12 17:2x ET (Sonnet builder, item 3): **(3) DONE** — `obsidian_vault_sync.py::render_tickers_lane` (+call site in `render_other_lanes`) now prints a per-arm per-session table for the 5 sessions on disk (09-04/08/09/10/11) plus cumulative-since-09-04 per arm and a lane total, evidence-class-labelled "paper fills on real quotes -- same scorer as SPY core"; regenerated HOME.md shows tickers-1 −$89.00 / tickers-2 −$204.00 / tickers-3 −$492.00 / lane −$785.00 over 11+9+13=33 fills, reconciling the memory-note figure. NVDA 09-10 gap: `flatten-last-run.log` shows tickers-1's NVDA260911P00217500 WAS closed by the 14:52 ET safety-net flatten (`closed=['NVDA260911P00217500']`) but `_lookup_closing_fill` found 0 matching broker sell orders (`FLATTEN_PNL_UNRESOLVED`), so no SELL row/P&L landed anywhere -- a reconciliation gap, not a naked position; filed as `TICKERS-DAYFILE-EXIT-GAP` in `automation/overnight/queue.md` (fix needs a poll/retry, not an obvious ≤10-line patch). Anchor-class read: `trigger_anchor_class_read.py --lane tickers` added; the tickers ENTER row schema carries NO `matched_level_label`/`level` field at all (bull/bear_triggers only: level_reclaim, level_rejection, trendline_rejection, ribbon_flip, confluence) and `level-states/*.json` carries only a numeric ladder with a generic `role`, not a class -- so the read is a PROXY bucketing by trigger name; 09-04..09-11 verdict: LEVEL_RECLAIM −$458/8 legs, TRENDLINE_REJECTION −$129/5 legs, LEVEL_REJECTION −$198/1 leg, 1 open/unreconciled leg (the NVDA gap) -- same-shape losing pattern as SPY core's swing-pivot disease, though the class taxonomy doesn't map 1:1. Guard `backtest/tests/test_home_tickers_lane_2026_09_12.py` (6 tests) RED-proofed on `classify_tickers_row`. Filtered suite (`-k "obsidian or vault_sync or trigger_anchor"`) 29 passed, 0 pre-existing REDs.
 
+- 2026-09-12 17:3x ET (Sonnet builder, item 1): **(1) PARTIAL / BLOCKED on activation.**
+  Confirmed `conviction.matched_level_label` is populated on real ENTER rows (grepped
+  `core-decisions.jsonl` 09-11 10:01/10:51 bold rows: `MEMORY_RES_153` / `INTRADAY_SWING_LOW_
+  2026-09-11`). Shipped: `build_shared_signal.py` -- `_map_core_row` now passes through the
+  core row's `conviction` dict (WITHOUT this the whole gate is a dead knob: neither
+  `_bold_passed_blocks_from_row` nor the top-level bear/bull ever see conviction otherwise),
+  both perceptions' bear/bull blocks + `_ribbon_strategy_entries`' FIX2 `strategies[]` entries
+  now carry additive `trigger_anchor_label` (production's live route is FIX2,
+  `EMIT_STRATEGIES=True`, so the label had to reach `_gate_block_for_entry` too, not just the
+  side-block fallback -- fixed). `fleet_executor.py::_gate_check` denies
+  `anchor_class_denied:<label>` on a prefix match, fail-open on None/missing;
+  `_gate_block_for_entry` passes the label through. `accounts.json`: risky-3's `gate_override`/
+  `params_patch`/`exit_profile` set BYTE-IDENTICAL to risky-1's resolved config (incl.
+  `full_send:true` -- a twin means the whole risk profile) plus
+  `gate_override.anchor_class_denylist: ["INTRADAY_SWING_"]`; removed `consumes_scoring_peak`,
+  `score_ladder_doc` (no floor was actually set), `gate_params`/`gate_params_doc`
+  (hard_skip_verdicts opt-out), `strike_tier_table_doc` + the retired premium-stop docs as
+  pure-twin-breaking leftovers. **BLOCKED: did NOT flip status/live.** risky-3's account
+  `PA3V7JT25H6Z` was re-tasked to `weekly-1` on 2026-08-28 (verified live via
+  `fleet_broker.get_account`: acct ****5H6Z, equity $4,282.65 -- matches weekly-1's tracked
+  balance, confirming it's the SAME account, not a fresh one) and weekly-1's own
+  `hard_prerequisite_met`/risky-3's own `retired_reason` fields explicitly say not to revert
+  risky-3 while weekly-1 is wired to it (SPY-symbol-filtered flat-check blind spot, C11) --
+  un-wiring weekly-1 is a separate decision outside this item's file scope. Documented as
+  `revival_blocked_2026_09_12` on the arm; two unblock paths named (repoint weekly-1's
+  account, or give the challenger a new dedicated account). Guard
+  `backtest/tests/test_challenger_anchor_denylist_2026_09_12.py` (18 tests) RED-proofed
+  (broke the prefix check -> 2 failures -> restored -> 18/18 green). Offline replay of the
+  real 09-11 core-decisions rows (no broker call): 10:01 `MEMORY_RES_153` -> both risky-1 and
+  risky-3 ENTER; 10:51 `INTRADAY_SWING_LOW_2026-09-11` -> risky-1 ENTERs,
+  risky-3 `anchor_class_denied:INTRADAY_SWING_LOW_2026-09-11` -> HOLD. **Caused regression**
+  (named, not fixed -- out of this item's file scope): risky-3's identity change breaks 18
+  pre-existing assertions across 7 files (`test_bold_core_strike_tier_2026_07_15.py`,
+  `test_dojo_exit_diversity_replay.py`, `test_fleet_arm_parity.py`,
+  `test_fleet_arm_replay.py`, `test_fleet_strike_tier_floor_collision_2026_07_31.py`,
+  `test_trade_today_watcher.py`, `test_vwap_reclaim_fleet_extension_2026_08_04.py`) that
+  hardcode risky-3's old retired identity; filed as a follow-up chip (task_9e8814e8). Filtered
+  suite `-k "fleet or shared_signal or arm_roster or accounts_json or line_level_consolidation"`:
+  421 passed, 18 failed (all named above, all caused by this change), 1 xfailed. Commit +
+  `conductor_outcome.py` record done same session. QUEUE item (1) stays `[~]` (not `[x]`):
+  the gate mechanism ships and is guard-proven, but the arm is not live, so the DONE-WHEN's
+  "risky-3 refusing while risky-1 keeps them" is proven only in an offline replay, not on a
+  running paper arm yet.
+
 ## HONEST STATE
-Opened. Nothing built yet. The challenger (1) is the load-bearing item: without it, 09-14..09-17
-produce four more copies of one trade and the 09-18 verdict is "nothing learned". UNVERIFIED until
-the builder proves it: that `conviction.matched_level_label` is populated on every ENTER row the
-fleet consumes (the audit's read joins on it, so it is populated on the ticks the audit counted),
-and that risky-3's paper credentials still resolve.
+Opened. The challenger (1) is BLOCKED on activation, not on the mechanism: the gate itself
+(build_shared_signal's `trigger_anchor_label` passthrough + fleet_executor's
+`anchor_class_denylist` check) is built, guard-tested, RED-proofed, and proven against real
+09-11 data offline. What's missing is an account for risky-3 to trade on -- its own account is
+now weekly-1's, and reactivating it there would reopen a closed safety hole (C11 flat-check
+blind spot). Until that's resolved (repoint weekly-1, or give the challenger a fresh account),
+09-14..09-17 still produce four copies of one trade and the 09-18 verdict stays "nothing
+learned" on THIS item. Two other sessions completed items 3 and 4 in parallel this evening
+(see their PROGRESS LOG entries above) -- item 1 was the load-bearing one and is the one that
+did not fully land. UNVERIFIED / needs a human or a follow-up session: which unblock path J
+wants (repoint weekly-1's account_number, or provision a new paper account for risky-3).

@@ -165,6 +165,12 @@ def _map_core_row(row: dict) -> dict:
         # written before the core field existed -> None -> the cooldown fails open (never
         # blocks), exactly like exit_actuator.same_bar_cooldown_active's own contract.
         "trigger_bar_et": row.get("trigger_bar_et"),
+        # ANCHOR-CLASS DENYLIST (2026-09-12, GOAL-EARN-YOUR-KEEP item 1). GAMMA_FREEZE_OVERRIDE
+        # -- pre-registered kill-type risk reduction. Passthrough of heartbeat_core's top-level
+        # "conviction" dict (whose matched_level_label is what build()/_bold_passed_blocks_
+        # from_row read) so it survives the raw-row -> mapped-row translation. Absent/None on
+        # a row where conviction was never scored -> None downstream, fail-open.
+        "conviction": row.get("conviction"),
     }
 
 
@@ -526,6 +532,13 @@ def _ribbon_strategy_entries(bear: dict, bull: dict, spot, now: datetime | None 
             "spot": spot,
             "trigger_level": _nearest_level(levels, spot, side),
             "trigger_level_exact": (float(_tl_exact) if _tl_exact is not None else None),
+            # ANCHOR-CLASS DENYLIST (2026-09-12, GOAL-EARN-YOUR-KEEP item 1). GAMMA_FREEZE_OVERRIDE
+            # -- pre-registered kill-type risk reduction. Passthrough of the side-block's
+            # trigger_anchor_label so FIX2's strategies[] path (production's live route --
+            # EMIT_STRATEGIES=True) reaches fleet_executor._gate_block_for_entry with the label
+            # too. Without this the denylist would be a dead knob: EMIT_STRATEGIES routes
+            # production through _plan_from_strategies, never the side-block fallback in plan_entry.
+            "trigger_anchor_label": blk.get("trigger_anchor_label"),
         })
         if _tier == "SUPER":
             _note_super_tier_day(now, side, out[-1]["setup"], trigs)
@@ -607,6 +620,15 @@ def _bold_passed_blocks_from_row(row: "dict | None") -> dict:
     # top-level bear/bull blocks (see comment there) -- sourced from the BOLD row itself,
     # since _latest_today_decision(..., account="bold") already routed _map_core_row here.
     _tl_exact = row.get("trigger_level_exact")
+    # ANCHOR-CLASS DENYLIST (2026-09-12, GOAL-EARN-YOUR-KEEP item 1, GAMMA_FREEZE_OVERRIDE --
+    # pre-registered risk-reduction gate, prereg-trigger-anchor-level-class-2026-09-11.md):
+    # additive, None-safe passthrough of the core row's conviction.matched_level_label (e.g.
+    # "INTRADAY_SWING_LOW_2026-09-11", "MEMORY_RES_153", "PRIOR_DAY_HIGH_..."). Consumed ONLY
+    # by fleet_executor._gate_check for an arm carrying gate_override.anchor_class_denylist
+    # (risky-3); every other reader ignores the key. Never gated on bull_peak/bear_peak -- the
+    # label describes the ANCHOR the tick's conviction score matched, independent of which
+    # side passed, so it rides unconditionally (None when conviction is absent/unscored).
+    _anchor_label = ((row.get("conviction") or {}).get("matched_level_label"))
     # GATE-TIERS-IMPLEMENT (2026-07-23): "score_peak_passed"/"hard_skip_action" ride ALONGSIDE
     # the unchanged "passed" so fleet_executor._effective_passed() can rescue a hard-skip-only
     # block for an arm whose gate_params.hard_skip_verdicts opts out. triggers_fired/setup_name/
@@ -620,14 +642,16 @@ def _bold_passed_blocks_from_row(row: "dict | None") -> dict:
                  "triggers_fired": trigs if bull_peak else [],
                  "setup_name": setup if bull_peak else None,
                  "confluence": bool(bull_peak and has_conf),
-                 "trigger_level_exact": (_tl_exact if bull_peak else None)},
+                 "trigger_level_exact": (_tl_exact if bull_peak else None),
+                 "trigger_anchor_label": _anchor_label},
         "bear": {"passed": bear_p, "score": row.get("bear_score", 0),
                  "score_peak_passed": bear_peak,
                  "hard_skip_action": action if (hard_skip and bear_peak) else None,
                  "triggers_fired": trigs if bear_peak else [],
                  "setup_name": setup if bear_peak else None,
                  "confluence": bool(bear_peak and has_conf),
-                 "trigger_level_exact": (_tl_exact if bear_peak else None)},
+                 "trigger_level_exact": (_tl_exact if bear_peak else None),
+                 "trigger_anchor_label": _anchor_label},
     }
 
 
@@ -761,6 +785,9 @@ def build(now: datetime | None = None, scoring_peak: bool | None = None,
     # value keyed to whichever side WON the tick (mirrors triggers_fired/setup_name's own
     # win-gated emission below) -- None on the losing side or a HOLD/SKIP tick.
     _tl_exact = row.get("trigger_level_exact")
+    # ANCHOR-CLASS DENYLIST (2026-09-12, GOAL-EARN-YOUR-KEEP item 1, GAMMA_FREEZE_OVERRIDE):
+    # same additive passthrough as _bold_passed_blocks_from_row above -- see that comment.
+    _anchor_label = ((row.get("conviction") or {}).get("matched_level_label"))
     bear = {"passed": bear_pass, "score": row.get("bear_score", 0),
             "triggers_fired": triggers if bear_pass else [],
             "setup_name": setup if bear_pass else None,
@@ -769,12 +796,14 @@ def build(now: datetime | None = None, scoring_peak: bool | None = None,
             # NOT read "confluence" as a trigger NAME. So emit the boolean here whenever a
             # confluence/multi_day_confluence trigger fired for this side.
             "confluence": bool(bear_pass and has_conf),
-            "trigger_level_exact": (_tl_exact if bear_pass else None)}
+            "trigger_level_exact": (_tl_exact if bear_pass else None),
+            "trigger_anchor_label": _anchor_label}
     bull = {"passed": bull_pass, "score": row.get("bull_score", 0),
             "triggers_fired": triggers if bull_pass else [],
             "setup_name": setup if bull_pass else None,
             "confluence": bool(bull_pass and has_conf),
-            "trigger_level_exact": (_tl_exact if bull_pass else None)}
+            "trigger_level_exact": (_tl_exact if bull_pass else None),
+            "trigger_anchor_label": _anchor_label}
 
     _ledger = "core-decisions.jsonl" if USE_CORE_LEDGER else "decisions.jsonl"
     sig = {

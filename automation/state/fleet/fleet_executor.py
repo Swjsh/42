@@ -618,6 +618,20 @@ def _gate_check(arm: Mapping[str, Any], blk: Mapping[str, Any], signal: Mapping[
         return "requires confluence/sequence"
     if str(g.get("min_setup_quality", "")).upper() == "EXCELLENT" and not elite:
         return "setup not EXCELLENT"
+    # ANCHOR-CLASS DENYLIST (2026-09-12, GOAL-EARN-YOUR-KEEP item 1). GAMMA_FREEZE_OVERRIDE --
+    # pre-registered kill-type risk reduction, prereg-trigger-anchor-level-class-2026-09-11.md,
+    # run 15 days early on a paper challenger arm (risky-3). An arm carrying gate_override.
+    # anchor_class_denylist (a list of label PREFIXES, e.g. "INTRADAY_SWING_") refuses any
+    # tick whose trigger_anchor_label starts with one of them. A None/missing label (no
+    # conviction score, a vwap-family entry, or a pre-fix row) is NOT denied -- fail-open on
+    # the label, denial only on a positive prefix match, so this can only ever ADD strictness.
+    denylist = g.get("anchor_class_denylist")
+    if denylist:
+        label = blk.get("trigger_anchor_label")
+        if label is not None:
+            for prefix in denylist:
+                if str(label).startswith(str(prefix)):
+                    return f"anchor_class_denied:{label}"
     return None
 
 
@@ -715,6 +729,11 @@ def _gate_block_for_entry(entry: Mapping[str, Any]) -> dict:
         "confluence": str(entry.get("quality", "")).upper() == "ELITE" or any(
             "confluence" in str(t).lower() for t in trigs),
         "confidence": entry.get("confidence"),
+        # ANCHOR-CLASS DENYLIST (2026-09-12, GOAL-EARN-YOUR-KEEP item 1). GAMMA_FREEZE_OVERRIDE
+        # -- pre-registered kill-type risk reduction (prereg-trigger-anchor-level-class-
+        # 2026-09-11.md). Passthrough so _gate_check sees the FIX2 entry's anchor label; None
+        # when absent (vwap-family entries, pre-fix rows) -- fail-open, never denied.
+        "trigger_anchor_label": entry.get("trigger_anchor_label"),
     }
 
 
