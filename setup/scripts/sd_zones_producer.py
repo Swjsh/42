@@ -61,6 +61,7 @@ import argparse
 import datetime as dt
 import json
 import sys
+import time
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
@@ -95,6 +96,17 @@ FORWARD_CLOCK_FILE = STATE_DIR / "sd-zone-forward-clock.json"
 # live (`data_get_pine_boxes(study_filter="Smart Money")` returned 5 zones).
 STUDY_FILTER = "Smart Money"
 SOURCE_STUDY = "Smart Money Concepts [LuxAlgo]"
+
+# INPUT TRIM, ENFORCED PER FIRE (2026-09-12 01:3x ET). The study's inputs are what J wants read:
+# in_3  "Show Internal Structure" OFF  -- internal order blocks are the "too many lines" class;
+# in_21 "Swing Order Blocks"      ON   -- the supply/demand BASES this goal is about.
+# Positional ids read live 2026-09-11 (goal file). Setting them via the page API + Ctrl+S did NOT
+# survive a cold TradingView relaunch (verified 2026-09-12 01:28 ET: defaults in_3=true/in_21=false
+# came back, box count 10 -> 5), so the producer sets them itself before every read. Deterministic
+# across relaunches and auto-updates; fail-open (an enforcement failure is recorded in the state
+# file and the boxes are still read).
+SD_STUDY_INPUTS: dict[str, bool] = {"in_3": False, "in_21": True}
+STUDY_RECOMPUTE_WAIT_S = 3.0   # let the study re-render its boxes after an input change
 
 # Marker for our own drawn rectangles -- distinct from draw_key_levels.py's "[G] " and
 # trendline_headless_draw.py's "[GTL] " so all three producers can never mistake each
@@ -179,6 +191,43 @@ def flag_status_md(message: str) -> None:
             fh.write(f"\n### BROKEN: sd_zones_producer {stamp}\n- {message}\n")
     except OSError:
         pass
+
+
+def _enforce_inputs_js() -> str:
+    return """
+    (function() {
+      var want = %s, filter = %s, out = [];
+      var c = window.TradingViewApi.activeChart();
+      c.getAllStudies().forEach(function(s) {
+        if ((s.name || '').indexOf(filter) === -1) return;
+        var st = c.getStudyById(s.id);
+        var pick = function(vals) { return vals.filter(function(x) { return Object.prototype.hasOwnProperty.call(want, x.id); })
+                                                .map(function(x) { return [x.id, x.value]; }); };
+        var before = pick(st.getInputValues());
+        var need = before.filter(function(p) { return p[1] !== want[p[0]]; });
+        if (need.length) { st.setInputValues(need.map(function(p) { return {id: p[0], value: want[p[0]]}; })); }
+        out.push({id: s.id, name: s.name, changed: need.length, before: before, after: pick(st.getInputValues())});
+      });
+      return out;
+    })()
+    """ % (json.dumps(SD_STUDY_INPUTS), json.dumps(STUDY_FILTER))
+
+
+def enforce_study_inputs(chart) -> dict:
+    """Set SD_STUDY_INPUTS on every matching study before the box read (see the constant's note).
+    Fail-open: a chart client without `evaluate` (tests, older clients) or a JS failure is RECORDED,
+    never raised -- the box read that follows is the fire's real job."""
+    ev = getattr(chart, "evaluate", None)
+    if ev is None:
+        return {"status": "unavailable", "wanted": dict(SD_STUDY_INPUTS)}
+    try:
+        res = ev(_enforce_inputs_js()) or []
+    except Exception as exc:  # noqa: BLE001 -- enforcement is best-effort by design
+        return {"status": "error", "message": f"{type(exc).__name__}: {exc}"[:160], "wanted": dict(SD_STUDY_INPUTS)}
+    changed = sum(int(r.get("changed") or 0) for r in res)
+    if changed and STUDY_RECOMPUTE_WAIT_S > 0:
+        time.sleep(STUDY_RECOMPUTE_WAIT_S)
+    return {"status": "ok" if res else "no_study", "changed": changed, "studies": res, "wanted": dict(SD_STUDY_INPUTS)}
 
 
 def classify_zones(raw_zones: list[dict], spot: float, df) -> list[dict]:
@@ -299,6 +348,7 @@ def main(argv: list[str] | None = None) -> int:
             if spot is None:
                 raise TvCdpError("chart.last_price() returned None")
 
+            out["inputs_enforced"] = enforce_study_inputs(chart)
             studies = chart.pine_boxes(study_filter=STUDY_FILTER)
             raw_zones: list[dict] = []
             for s in studies:

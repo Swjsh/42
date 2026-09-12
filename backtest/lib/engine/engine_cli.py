@@ -170,7 +170,7 @@ import pandas as pd  # noqa: E402
 
 from lib.engine.gates import GateBlock, GateContext, evaluate_gates  # noqa: E402
 from lib.engine.score import ScoreResult, score_bar  # noqa: E402
-from lib.filters import BarContext, LevelState  # noqa: E402
+from lib.filters import TRENDLINE_ANCHOR_OFF_FROM, BarContext, LevelState  # noqa: E402
 from lib.ribbon import RibbonState  # noqa: E402
 
 
@@ -563,7 +563,10 @@ def decide_payload(payload: Mapping[str, Any]) -> dict:
     # untouched (byte-identical). Exactly False -> evaluate_bearish_setup skips the in-engine
     # descending-trendline detector, so no entry can anchor on a line J cannot see.
     # heartbeat_core passes the key through GATE_KEYS from the account's params.json.
-    if gate_params.get("trendline_anchor_enabled", True) is False:
+    # DATE-GATED (filters.TRENDLINE_ANCHOR_OFF_FROM = 2026-09-14): bars before the switch's first
+    # live session keep the anchor ON, so replay/parity tools fed today's params still reproduce
+    # what the engine actually did back then. Live bars are always on/after the date.
+    if gate_params.get("trendline_anchor_enabled", True) is False             and ctx.timestamp_et.date() >= TRENDLINE_ANCHOR_OFF_FROM:
         bear_kwargs = dict(bear_kwargs, trendline_anchor_enabled=False)
 
     # 1) SCORE both sides (the shared scoring entry point).

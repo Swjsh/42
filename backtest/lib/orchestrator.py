@@ -28,7 +28,7 @@ from .ribbon import compute_ribbon, ribbon_at, RibbonState
 from .filters import (
     BarContext, evaluate_bearish_setup, evaluate_bullish_setup,
     vol_baseline_20bar, range_baseline_20bar,
-    LevelState, _bar_geometry,
+    LevelState, _bar_geometry, TRENDLINE_ANCHOR_OFF_FROM,
 )
 from . import filters as _filters_mod  # dynamic attribute access for runner-patched constants
 from .levels import _detect_from_history, LevelSet
@@ -1018,7 +1018,7 @@ def run_backtest(
             no_trade_window=no_trade_window,
             f9_vol_mult=f9_vol_mult,
             sweep_blocker_enabled=sweep_blocker_enabled,
-            trendline_anchor_enabled=trendline_anchor_enabled,
+            trendline_anchor_enabled=(trendline_anchor_enabled or bar_date < TRENDLINE_ANCHOR_OFF_FROM),
             sweep_min_wick_pct=sweep_min_wick_pct,
             sweep_min_close_back_pct=sweep_min_close_back_pct,
             sweep_block_window_bars=sweep_block_window_bars,
@@ -1071,7 +1071,7 @@ def run_backtest(
                     no_trade_window=no_trade_window,
                     f9_vol_mult=f9_vol_mult,
                     sweep_blocker_enabled=sweep_blocker_enabled,
-                    trendline_anchor_enabled=trendline_anchor_enabled,
+                    trendline_anchor_enabled=(trendline_anchor_enabled or bar_date < TRENDLINE_ANCHOR_OFF_FROM),
                     sweep_min_wick_pct=sweep_min_wick_pct,
                     sweep_min_close_back_pct=sweep_min_close_back_pct,
                     sweep_block_window_bars=sweep_block_window_bars,

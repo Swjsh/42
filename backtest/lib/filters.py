@@ -1532,6 +1532,17 @@ def _bullish_volume_divergence_failed(prior_bars: pd.DataFrame, idx: int) -> boo
 
 # ----- filter evaluation -----
 
+# TRENDLINE ANCHOR SWITCH effective date (J directive 2026-09-12, LINE & LEVEL CONSOLIDATION).
+# The switch (`trendline_anchor_enabled=false` in both params files) took effect for live trading on
+# 2026-09-14, the first session after it shipped and the clean-window restart date. The two flip
+# points (engine_cli.decide_payload for the live path, orchestrator for replays) apply the flag ONLY
+# to bars on/after this date: a replay of an earlier session must reproduce what the engine actually
+# did then (as-traded parity -- with the flag applied retroactively the dojo reproduced 0 of 11 real
+# 2026-07-17 ENTER_BEAR bars and the fleet replay missed 6 of 16 risky-3 entries, 2026-09-12 00:36 ET).
+# evaluate_bearish_setup itself stays date-blind; callers decide. Guard: test_line_level_consolidation.
+TRENDLINE_ANCHOR_OFF_FROM = dt.date(2026, 9, 14)
+
+
 def evaluate_bearish_setup(
     ctx: BarContext,
     disable_filters: Optional[list[int]] = None,

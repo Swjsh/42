@@ -432,3 +432,51 @@ def test_forward_clock_becomes_eligible_at_ten_accrued_sessions(tmp_path, monkey
     assert clock["sessions_accrued"] == 10
     assert clock["eligible_for_forward_read"] is True
 
+
+# --------------------------------------------------------------------------- input trim (2026-09-12)
+
+class _EvalChart(_FakeChart):
+    """A fake chart that also answers `evaluate` the way the live page API does for the trim JS."""
+
+    def __init__(self, *a, before: dict | None = None, **k):
+        super().__init__(*a, **k)
+        self.evaluated: list[str] = []
+        self._before = before or {"in_3": True, "in_21": False}     # TradingView defaults after a relaunch
+
+    def evaluate(self, js: str):
+        self.evaluated.append(js)
+        need = [k for k, v in szp.SD_STUDY_INPUTS.items() if self._before.get(k) != v]
+        return [{"id": "foIsMP", "name": "Smart Money Concepts [LuxAlgo]", "changed": len(need),
+                 "before": list(self._before.items()), "after": list(szp.SD_STUDY_INPUTS.items())}]
+
+
+def test_producer_enforces_the_study_input_trim_before_reading_boxes(tmp_path, monkeypatch):
+    """Verified 2026-09-12 01:28 ET: the trim set via page API + Ctrl+S did NOT survive a cold TV
+    relaunch (defaults came back, 10 boxes -> 5). The producer therefore sets in_3=false /
+    in_21=true itself on every fire and records what it did."""
+    stamp = tmp_path / "sd-zones.json"
+    monkeypatch.setattr(szp, "STATE_FILE", stamp)
+    monkeypatch.setattr(szp, "STATUS_MD", tmp_path / "STATUS.md")
+    monkeypatch.setattr(szp, "_spy_bars", lambda: _bars_df())
+    monkeypatch.setattr(szp, "STUDY_RECOMPUTE_WAIT_S", 0)
+    chart = _EvalChart(boxes=[{"low": 751.8, "high": 752.2}], spot=750.0)
+    monkeypatch.setattr(szp, "TvChart", lambda: chart)
+    assert szp.main([]) == 0
+    enf = json.loads(stamp.read_text(encoding="utf-8"))["inputs_enforced"]
+    assert enf["status"] == "ok" and enf["changed"] == 2
+    assert enf["wanted"] == {"in_3": False, "in_21": True}
+    assert len(chart.evaluated) == 1 and "setInputValues" in chart.evaluated[0]
+
+
+def test_producer_input_enforcement_is_fail_open(tmp_path, monkeypatch):
+    """A chart client without `evaluate` (or a JS failure) must not cost the fire its box read."""
+    stamp = tmp_path / "sd-zones.json"
+    monkeypatch.setattr(szp, "STATE_FILE", stamp)
+    monkeypatch.setattr(szp, "STATUS_MD", tmp_path / "STATUS.md")
+    monkeypatch.setattr(szp, "_spy_bars", lambda: _bars_df())
+    chart = _FakeChart(boxes=[{"low": 751.8, "high": 752.2}], spot=750.0)      # no evaluate at all
+    monkeypatch.setattr(szp, "TvChart", lambda: chart)
+    assert szp.main([]) == 0
+    doc = json.loads(stamp.read_text(encoding="utf-8"))
+    assert doc["inputs_enforced"]["status"] == "unavailable" and len(doc["zones"]) == 1
+

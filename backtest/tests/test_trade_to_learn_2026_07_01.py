@@ -184,10 +184,13 @@ class TestParamsArming:
         """
         armed = SAFE_PARAMS.get("extra_setup_exec_armed")
         assert isinstance(armed, dict)
-        # Still armed for execution -- 2026-07-01 validated cell, zero live placements to date.
+        # LINE & LEVEL CONSOLIDATION C3 (2026-09-12): double_bottom_base_quiet was the LAST exec-armed
+        # extra setup (armed 2026-07-01 trade-to-learn, 0 placements and 0 extra-signal actions in 73
+        # days) -- disarmed on J's directive that the engine trades only level-anchored setups. Every
+        # extra_setup_exec_armed flag is now False; an accidental re-arm must fail here.
         for s in ("double_bottom_base_quiet",):
-            assert armed.get(s) is True, f"Safe must keep {s} armed (still-validated cell)"
-            assert hc._extra_exec_armed(SAFE_PARAMS, s) is True
+            assert armed.get(s) is False, f"{s} disarmed 2026-09-12 (consolidation C3; all extras off)"
+            assert hc._extra_exec_armed(SAFE_PARAMS, s) is False
         # Disarmed 2026-07-25 on live falsification -- must stay off until re-validated.
         for s in ("vix_regime_dayside", "vwap_continuation"):
             assert armed.get(s) is False, f"{s} disarmed 2026-07-25 (0-for-12 live, -$357)"

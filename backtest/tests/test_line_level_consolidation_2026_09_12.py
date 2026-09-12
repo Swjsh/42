@@ -47,13 +47,13 @@ PARAMS_AGG = ROOT / "automation" / "state" / "aggressive" / "params.json"
 
 # ── fixtures (same shape as test_g2_trendline_bypass_scope.py) ─────────────────────────────
 
-def _mixed_ribbon_ctx() -> BarContext:
+def _mixed_ribbon_ctx(when: dt.datetime = dt.datetime(2026, 9, 14, 11, 0)) -> BarContext:
     hist = [{"open": 700.0, "high": 700.3, "low": 699.7, "close": 700.0, "volume": 900_000}] * 30
     df = pd.DataFrame(hist)
     idx = len(df) - 1
     rs = RibbonState(fast=700.05, pivot=700.10, slow=700.00, stack="MIXED", spread_cents=50.0)
     return BarContext(
-        bar_idx=idx, timestamp_et=dt.datetime(2026, 9, 14, 11, 0),
+        bar_idx=idx, timestamp_et=when,
         bar=df.iloc[idx], prior_bars=df, ribbon_now=rs, ribbon_history=[rs] * 6,
         vix_now=14.0, vix_prior=14.5,
         vol_baseline_20=900_000, range_baseline_20=0.6,
@@ -144,6 +144,21 @@ def test_live_params_switch_is_off_and_no_extra_setup_is_exec_armed():
     assert a.get("trendline_anchor_enabled") is False
     armed = p.get("extra_setup_exec_armed") or {}
     assert armed and all(v is False for v in armed.values()), armed
+
+
+def test_switch_is_date_gated_so_history_replays_as_traded(monkeypatch):
+    """The switch took effect live on 2026-09-14. A bar BEFORE that date keeps the anchor ON even
+    with the live params flag False, so replay / parity instruments fed today's params reproduce
+    what the engine actually did (2026-09-12 00:36 ET, flag applied retroactively: the dojo
+    reproduced NONE of 11 real 07-17 ENTER_BEAR bars and the fleet replay missed 6 of 16 risky-3
+    entries -- exactly the trendline-only share). On/after the date the flag rules."""
+    _force(monkeypatch, level=False, trendline=True)
+    off = {"trendline_anchor_enabled": False}
+    before = decide_payload(_payload_for(_mixed_ribbon_ctx(dt.datetime(2026, 9, 11, 11, 0)), gate_params=off))
+    after = decide_payload(_payload_for(_mixed_ribbon_ctx(dt.datetime(2026, 9, 14, 9, 35)), gate_params=off))
+    assert "trendline_rejection" in (before.get("bear_triggers_raw") or [])
+    assert "trendline_rejection" not in (after.get("bear_triggers_raw") or [])
+    assert filters_mod.TRENDLINE_ANCHOR_OFF_FROM == dt.date(2026, 9, 14)
 
 
 # ── C2: cap authority on the read side ──────────────────────────────────────────────────────

@@ -336,3 +336,17 @@ J: *"now audit and consolidate again make sure engine only trades what it should
   pins that the orchestrator only passes kwargs each evaluator declares. Lesson: run the orchestrator suites before a
   knob ships, not only the unit guard.
 
+### 2026-09-12 (Sat, ~02:00 ET) -- anchor switch date-gated; SD-zones input trim enforced per fire
+
+- **Date gate.** `trendline_anchor_enabled=false` now applies only to bars on/after `filters.TRENDLINE_ANCHOR_OFF_FROM`
+  (2026-09-14, the switch's first live session) at both flip points (`engine_cli.decide_payload`, orchestrator bear
+  sites). Applied retroactively it had rewritten history in every replay instrument fed live params (dojo 0/11 real
+  07-17 ENTER_BEAR bars reproduced; fleet replay missed 6/16 risky-3 entries). Live behaviour from Monday is unchanged;
+  replays before the date reproduce what the engine actually did. Under `GAMMA_FREEZE_OVERRIDE`, same directive.
+  Guards in `test_line_level_consolidation_2026_09_12.py` (date gate + AST kwarg pin).
+- **SD-zones input trim.** A cold TradingView relaunch (TV crashed on its own ~00:45 ET after an auto-update download)
+  proved the SMC [LuxAlgo] input trim set via page API + Ctrl+S does not persist. `sd_zones_producer.py` now sets
+  `SD_STUDY_INPUTS` (internal structure OFF, swing order blocks ON) before every read, fail-open, and records it in
+  `sd-zones.json.inputs_enforced`. Verified live (changed=2, 10 zones). Guards 20/20.
+- `test_trade_to_learn_2026_07_01` arming pin updated to consolidation C3 (all extra setups off).
+
