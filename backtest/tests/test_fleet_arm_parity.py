@@ -83,7 +83,15 @@ _ARM_MAP = {a["id"]: a for a in _ACCOUNTS["arms"]}
 SAFE_LOOSE  = _ARM_MAP["safe-1"]   # min_triggers=1, no ELITE req, reads signal['safe']
 SAFE_TIGHT  = _ARM_MAP["safe-3"]   # min_triggers=2, require_confluence, reads signal['safe']
 RISKY_TIGHT = _ARM_MAP["risky-1"]  # min_triggers=2, require_confluence, reads signal['bold']
-RISKY_LOOSE = _ARM_MAP["risky-3"]  # min_triggers=1, no ELITE req,  reads signal['bold']
+# RISKY_LOOSE (risky-3) SUPERSEDED 2026-09-12: GOAL-EARN-YOUR-KEEP-2026-09-12 item 1
+# reconfigured risky-3 as risky-1's EXACT TWIN (the anchor-class-denylist challenger) --
+# it is no longer "loose" (min_triggers=1, no ELITE req). Its gate_override is now
+# byte-identical to RISKY_TIGHT's (full_send, min_triggers=2, require_confluence_or_
+# sequence) plus one new key. The variable name is kept (many tests below reference it,
+# and it is still a DISTINCT arm/account/ledger from RISKY_TIGHT worth testing
+# independently) but every test that assumed loose-gate behavior was updated in the same
+# commit that changed accounts.json -- see each test's own SUPERSEDED-2026-09-12 note.
+RISKY_LOOSE = _ARM_MAP["risky-3"]  # min_triggers=2, require_confluence (twin of RISKY_TIGHT), reads signal['bold']
 
 SPY_SPOT   = 600.0
 EQUITY_2K  = 2000.0  # real starting equity for risky arms; also tests safe arms at $2K
@@ -173,8 +181,15 @@ def _dual_signal(
 # =============================================================================
 
 def test_bold_bear_pass_risky_loose_enters():
-    """RISKY_LOOSE reads signal['bold']: a bold-only bear pass → ENTER PUT."""
-    sig = _dual_signal(bold_bear_passed=True, n_triggers=1)
+    """RISKY_LOOSE reads signal['bold']: a bold-only bear pass → ENTER PUT.
+
+    SIGNAL STRENGTHENED 2026-09-12 (assertion unchanged): risky-3's gate is now
+    risky-1's twin (min_triggers=2, require_confluence_or_sequence), so the bare
+    1-trigger signal this used to pass would HOLD -- see
+    test_risky_tight_HOLDS_on_non_elite_bold_bear_after_the_gate_revert's own history
+    of the identical fix on risky-1. The perception-routing contract under test
+    (bold-only pass reaches a bold-reading arm) is unaffected by the gate strength."""
+    sig = _dual_signal(bold_bear_passed=True, n_triggers=2, confluence=True)
     assert sig["safe"]["bear"]["passed"] is False   # safe account did NOT pass
     assert sig["bold"]["bear"]["passed"] is True    # bold passed
 
@@ -191,8 +206,11 @@ def test_bold_bear_pass_safe_loose_holds():
 
 
 def test_bold_bull_pass_risky_loose_enters():
-    """RISKY_LOOSE reads signal['bold']: bold-only bull pass → ENTER CALL."""
-    sig = _dual_signal(bold_bull_passed=True, n_triggers=1)
+    """RISKY_LOOSE reads signal['bold']: bold-only bull pass → ENTER CALL.
+
+    SIGNAL STRENGTHENED 2026-09-12, same reason as test_bold_bear_pass_risky_loose_enters:
+    risky-3's gate is now risky-1's twin (min_triggers=2, require_confluence_or_sequence)."""
+    sig = _dual_signal(bold_bull_passed=True, n_triggers=2, confluence=True)
     plan = fx.plan_entry(RISKY_LOOSE, sig, equity=EQUITY_2K, params=fx._params_for(RISKY_LOOSE))
     assert plan.action == "ENTER", plan.reason
     assert plan.side == "C"
@@ -274,18 +292,41 @@ def test_risky_tight_enters_on_elite_bold_bear():
     assert plan.quality == "ELITE"
 
 
-def test_risky_loose_enters_on_non_elite_bold_bear():
-    """RISKY_LOOSE: one plain trigger suffices → ENTER PUT."""
-    sig = _dual_signal(bold_bear_passed=True, n_triggers=1, confluence=False)
+def test_risky_loose_HOLDS_on_non_elite_bold_bear_since_it_is_risky_tights_twin():
+    """SUPERSEDED 2026-09-12 (was test_risky_loose_enters_on_non_elite_bold_bear, which
+    asserted "one plain trigger suffices"). GOAL-EARN-YOUR-KEEP-2026-09-12 item 1 made
+    risky-3's gate risky-1's exact twin (min_triggers=2, require_confluence_or_sequence),
+    so a single plain trigger -- and even two plain (non-confluence) triggers -- now HOLD.
+    Mirrors test_risky_tight_HOLDS_on_non_elite_bold_bear_after_the_gate_revert exactly."""
+    sig = _dual_signal(bold_bear_passed=True, n_triggers=2, confluence=False)
+    plan = fx.plan_entry(RISKY_LOOSE, sig, equity=EQUITY_2K, params=fx._params_for(RISKY_LOOSE))
+    assert plan.action == "HOLD", (
+        f"risky-3 entered a non-elite/no-confluence bold bear: {plan.reason}. Its twin gate "
+        "requires confluence-or-sequence; if it was deliberately loosened again, update "
+        "accounts.json's twin_doc_2026_09_12 and this test together.")
+    assert "gate" in (plan.reason or "").lower(), plan.reason
+
+
+def test_risky_loose_enters_on_elite_bold_bear():
+    """SUPERSEDED-2026-09-12 companion: risky-3 (now gated like risky-1) DOES still enter
+    once the confluence/sequence requirement is met -- mirrors
+    test_risky_tight_enters_on_elite_bold_bear exactly, proven independently per-arm
+    since risky-3 is a distinct account/ledger."""
+    sig = _dual_signal(bold_bear_passed=True, n_triggers=2, confluence=True)
     plan = fx.plan_entry(RISKY_LOOSE, sig, equity=EQUITY_2K, params=fx._params_for(RISKY_LOOSE))
     assert plan.action == "ENTER"
-    assert plan.quality == "BASE"
+    assert plan.side == "P"
+    assert plan.quality == "ELITE"
 
 
 def test_risky_loose_both_directions():
-    """RISKY_LOOSE has no direction_lock: bull and bear ENTERs are both legal."""
-    sig_bear = _dual_signal(bold_bear_passed=True, n_triggers=1)
-    sig_bull = _dual_signal(bold_bull_passed=True, n_triggers=1)
+    """RISKY_LOOSE has no direction_lock: bull and bear ENTERs are both legal.
+
+    SIGNAL STRENGTHENED 2026-09-12 (assertion unchanged): risky-3's gate is now risky-1's
+    twin (min_triggers=2, require_confluence_or_sequence) -- a bare 1-trigger signal
+    would HOLD on both sides now, which would prove nothing about direction_lock."""
+    sig_bear = _dual_signal(bold_bear_passed=True, n_triggers=2, confluence=True)
+    sig_bull = _dual_signal(bold_bull_passed=True, n_triggers=2, confluence=True)
     plan_bear = fx.plan_entry(RISKY_LOOSE, sig_bear, equity=EQUITY_2K, params=fx._params_for(RISKY_LOOSE))
     plan_bull = fx.plan_entry(RISKY_LOOSE, sig_bull, equity=EQUITY_2K, params=fx._params_for(RISKY_LOOSE))
     assert plan_bear.action == "ENTER" and plan_bear.side == "P"
@@ -333,11 +374,14 @@ def test_safe3_risky_arms_use_bold_core_atm_strike_tiers_at_2k():
     (n=14, -$653), so it flipped to strike_tier_table='bold_core_pre_ext'
     (V15_BOLD_CORE_PRE_EXT_TIERS) -- byte-identical to bold_core EXCEPT the $2K-10K row
     reverted to OTM-2 (its pre-2026-08-04 value). risky-1 (n=11, +$903) did NOT meet the
-    kill bar and stays on 'bold_core' / ATM. See test_risky3_pre_ext_strike_tier_at_2k
-    below for risky-3's own coverage (was silently stale here until this conductor
-    fire caught it via the full fleet suite -- the S3 ship's own vary-and-assert guard
-    didn't include this file)."""
-    for arm in (SAFE_TIGHT, RISKY_TIGHT):
+    kill bar and stays on 'bold_core' / ATM.
+
+    REJOINED 2026-09-12: GOAL-EARN-YOUR-KEEP-2026-09-12 item 1 reconfigured risky-3 as
+    risky-1's EXACT TWIN (the anchor-class-denylist challenger), resetting its
+    strike_tier_table to 'bold_core' -- so RISKY_LOOSE is back in this loop, and
+    test_risky3_pre_ext_strike_tier_at_2k below now documents the supersession instead
+    of asserting the retired pre_ext table."""
+    for arm in (SAFE_TIGHT, RISKY_TIGHT, RISKY_LOOSE):
         tiers = fx._tiers_for_arm(arm)
         assert tiers is fx.strike_selection.V15_BOLD_CORE_TIERS, \
             f"{arm['id']} should use BOLD_CORE tiers, got a different table"
@@ -351,20 +395,21 @@ def test_safe3_risky_arms_use_bold_core_atm_strike_tiers_at_2k():
 
 
 def test_risky3_pre_ext_strike_tier_at_2k():
-    """risky-3 ONLY (2026-08-06 per-arm kill, 3ac1d7b2): now resolves
-    V15_BOLD_CORE_PRE_EXT_TIERS, whose $2K-10K row reverted to OTM-2 -- SPY=600 at
-    EQUITY_2K gets 598/602, matching the pre-2026-08-04 shared-table behavior, NOT
-    risky-1/safe-3's ATM. Un-kill (accounts.json strike_tier_table -> 'bold_core')
-    restores ATM here too -- if this test starts failing after that edit, it is
-    expected; delete/update it in the same commit as the un-kill."""
+    """SUPERSEDED 2026-09-12: the 2026-08-06 per-arm kill (V15_BOLD_CORE_PRE_EXT_TIERS,
+    OTM-2 at $2K-10K) was itself superseded the same day risky-3 was reconfigured as
+    risky-1's EXACT TWIN (GOAL-EARN-YOUR-KEEP-2026-09-12 item 1) -- risky-3 resolves
+    V15_BOLD_CORE_TIERS again, ATM/600-600 at EQUITY_2K, same as risky-1/safe-3 (see the
+    shared loop in test_safe3_risky_arms_use_bold_core_atm_strike_tiers_at_2k above,
+    which now includes RISKY_LOOSE). This test is kept (not deleted) to pin the NEW truth
+    explicitly at the id the old pre_ext-specific test used to own."""
     tiers = fx._tiers_for_arm(RISKY_LOOSE)
-    assert tiers is fx.strike_selection.V15_BOLD_CORE_PRE_EXT_TIERS, \
-        f"{RISKY_LOOSE['id']} should use BOLD_CORE_PRE_EXT tiers post-kill, got a different table"
+    assert tiers is fx.strike_selection.V15_BOLD_CORE_TIERS, \
+        f"{RISKY_LOOSE['id']} should use BOLD_CORE tiers post-twin, got a different table"
 
     put_strike  = fx.strike_selection.pick_strike(SPY_SPOT, EQUITY_2K, "P", tiers)
     call_strike = fx.strike_selection.pick_strike(SPY_SPOT, EQUITY_2K, "C", tiers)
-    assert put_strike  == 598, f"OTM-2 PUT strike at $2K should be 598 post-kill, got {put_strike}"
-    assert call_strike == 602, f"OTM-2 CALL strike at $2K should be 602 post-kill, got {call_strike}"
+    assert put_strike  == 600, f"ATM PUT strike at $2K should be 600 post-twin, got {put_strike}"
+    assert call_strike == 600, f"ATM CALL strike at $2K should be 600 post-twin, got {call_strike}"
 
 
 def test_arm_plan_carries_atm_strike():
@@ -389,15 +434,18 @@ def test_arm_plan_carries_atm_strike():
 
 
 def test_arm_plan_carries_pre_ext_strike():
-    """risky-3 (RISKY_LOOSE, post-kill) ENTERING at $2K on SPY=600 gets the OTM-2 strike
-    in the plan -- the live-path proof for test_risky3_pre_ext_strike_tier_at_2k above
-    (that test exercises strike_selection directly; this one goes through the real
-    fleet_executor.plan_entry, same discipline the old test_arm_plan_carries_atm_strike
-    used before the 2026-08-06 kill)."""
-    sig = _dual_signal(bold_bear_passed=True, n_triggers=1)
+    """SUPERSEDED 2026-09-12 (was risky-3's OTM-2/598 pre_ext proof). GOAL-EARN-YOUR-KEEP-
+    2026-09-12 item 1 reconfigured risky-3 as risky-1's EXACT TWIN, resetting its strike
+    table to bold_core (ATM) AND its gate to min_triggers=2/require_confluence_or_
+    sequence -- so this is now the live-path proof for test_risky3_pre_ext_strike_tier_at_2k
+    above (renamed truth, same id kept), through the real fleet_executor.plan_entry, same
+    discipline test_arm_plan_carries_atm_strike uses for risky-1. Signal strengthened to
+    clear the twin gate (2 triggers + confluence), same fix as
+    test_arm_plan_carries_atm_strike's own 2026-08-12 history."""
+    sig = _dual_signal(bold_bear_passed=True, n_triggers=2, confluence=True)
     plan = fx.plan_entry(RISKY_LOOSE, sig, equity=EQUITY_2K, params=fx._params_for(RISKY_LOOSE))
-    assert plan.action == "ENTER"
-    assert plan.strike == 598, f"PUT OTM-2 should be 598 post-kill, got {plan.strike}"
+    assert plan.action == "ENTER", plan.reason
+    assert plan.strike == 600, f"PUT ATM should be 600 post-twin, got {plan.strike}"
 
 
 # =============================================================================
@@ -414,11 +462,18 @@ def test_safe_arms_use_safe_sizing():
 
 
 def test_risky_arms_use_bold_sizing():
-    """RISKY_LOOSE reads BOLD params → base_qty=8 at $2K equity."""
-    sig = _dual_signal(bold_bear_passed=True, n_triggers=1)
+    """RISKY_LOOSE reads BOLD params → base_qty=8 at $2K equity.
+
+    SIGNAL STRENGTHENED 2026-09-12 (assertion unchanged): risky-3's gate is now risky-1's
+    twin (min_triggers=2, require_confluence_or_sequence); a bare 1-trigger signal HOLDs."""
+    sig = _dual_signal(bold_bear_passed=True, n_triggers=2, confluence=True)
     plan = fx.plan_entry(RISKY_LOOSE, sig, equity=EQUITY_2K, params=fx._params_for(RISKY_LOOSE))
-    assert plan.action == "ENTER"
-    assert plan.qty == 8, f"risky-3 base qty should be 8 (BOLD params), got {plan.qty}"
+    assert plan.action == "ENTER", plan.reason
+    assert plan.qty == 12, (
+        f"risky-3 elite qty should be 12 (BOLD params, matching risky-1's own "
+        f"test_risky_elite_bold_sizing) since a confluence signal is always ELITE-quality "
+        f"-- got {plan.qty}"
+    )
 
 
 def test_risky_elite_bold_sizing():
@@ -534,9 +589,9 @@ def test_recency_yellow_does_not_clamp_risky_elite_qty(monkeypatch):
 
 
 def test_recency_red_clamps_base_tier_ribbon_ride_too(monkeypatch):
-    """RED clamps by STRATEGY (ribbon_ride, C29), not by quality tier — RISKY_LOOSE's
-    non-elite BASE-tier entry is the same strategy and gets clamped too. Confirms the clamp
-    scope is strategy-wide, not elite-only.
+    """RED clamps by STRATEGY (ribbon_ride, C29), not by quality tier — a non-elite
+    BASE-tier entry is the same strategy and gets clamped too. Confirms the clamp scope
+    is strategy-wide, not elite-only.
 
     UPDATED 2026-08-13 (MIN-CONTRACTS-EQUITY-SCALING), same reason as
     test_recency_red_clamps_risky_elite_qty: risky-3's floor of 5 was authored at $1,648 equity
@@ -547,15 +602,27 @@ def test_recency_red_clamps_base_tier_ribbon_ride_too(monkeypatch):
     after it shipped and this expectation was not moved with it, so the guard sat RED. Default
     path now asserts the DISARMED floor; the scaling arithmetic stays covered flag-on in
     test_min_contracts_equity_scaling_2026_08_13.py.
-    """
+
+    RETARGETED 2026-09-12 from RISKY_LOOSE to SAFE_LOOSE: GOAL-EARN-YOUR-KEEP-2026-09-12
+    item 1 made risky-3 (RISKY_LOOSE) risky-1's exact twin -- min_triggers=2 AND
+    require_confluence_or_sequence -- and _is_elite keys off exactly the same
+    confluence/sequence signal require_confluence_or_sequence gates on, so risky-3 can no
+    longer produce a genuinely-gated BASE-tier ENTER through plan_entry's normal lane (only
+    ELITE-quality signals clear its gate at all; a BASE entry only reaches it via the
+    separate full-send min-size rescue lane, a different code path this test does not
+    exercise). safe-1 (SAFE_LOOSE, min_triggers=1, no ELITE requirement) is now the arm
+    that can still produce a genuine BASE-tier ENTER via plan_entry, so it is the correct
+    witness for "BASE tier gets clamped too, not just elite" -- the scope claim itself is
+    unchanged, only which arm proves it."""
     monkeypatch.setattr(fx, "_recency_verdict", lambda *a, **k: "RED")
-    sig = _dual_signal(bold_bear_passed=True, n_triggers=1, confluence=False)
-    plan = fx.plan_entry(RISKY_LOOSE, sig, equity=EQUITY_2K, params=fx._params_for(RISKY_LOOSE))
-    assert plan.action == "ENTER"
-    assert plan.qty == 5, (
-        f"with min_contracts_equity_scaled DISARMED the floor is the authored count 5, "
+    sig = _dual_signal(safe_bear_passed=True, n_triggers=1, confluence=False)
+    plan = fx.plan_entry(SAFE_LOOSE, sig, equity=EQUITY_2K, params=fx._params_for(SAFE_LOOSE))
+    assert plan.action == "ENTER", plan.reason
+    assert plan.quality == "BASE", "this test's whole premise is a non-elite BASE entry"
+    assert plan.qty == 3, (
+        f"RED verdict should clamp safe-1's BASE qty to its min_contracts floor (3), "
         f"got {plan.qty}")
-    assert plan.qty < 8, "BASE-tier entries must still be clamped -- that is this test's scope claim"
+    assert plan.qty < 5, "BASE-tier entries must still be clamped -- that is this test's scope claim"
     assert "recency red" in plan.reason.lower(), plan.reason
 
 

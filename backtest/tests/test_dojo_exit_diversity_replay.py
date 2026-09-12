@@ -181,6 +181,13 @@ def test_exit_profiles_pulled_from_live_accounts_json():
     re-runnable as pre-registered until a human re-scopes its profile set in a new prereg.
     The published EXIT-DIVERSITY-2026-07-20 result is unaffected -- only reproduction is
     blocked. Restore the profile assertions below if a ZONE-RIDE lane is ever re-armed.
+
+    STILL RETIRED 2026-09-12: the PREMIUM-STOP lane that superseded ZONE-RIDE is ITSELF now
+    superseded -- GOAL-EARN-YOUR-KEEP-2026-09-12 item 1 reconfigured risky-3 as risky-1's
+    EXACT TWIN (the anchor-class-denylist challenger), so risky-3 carries exit_profile
+    'REACHABLE-TP1', duplicating risky-1 rather than sourcing a distinct 4th lane. The loader
+    (dojo_exit_diversity_replay.py::_load_exit_profiles) now refuses for THIS reason too --
+    see its second ValueError block, added the same commit as this test update.
     """
     with pytest.raises(ValueError, match="ZONE-RIDE lane RETIRED"):
         ddr._load_exit_profiles()

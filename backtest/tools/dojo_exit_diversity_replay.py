@@ -137,6 +137,23 @@ def _load_exit_profiles() -> dict:
             "in a new prereg) before trusting any output from this tool. The already-published "
             "EXIT-DIVERSITY-2026-07-20 result is unaffected; only reproduction is blocked."
         )
+    # 2026-09-12: PREMIUM-STOP lane also RETIRED. GOAL-EARN-YOUR-KEEP-2026-09-12 item 1
+    # reconfigured risky-3 as risky-1's EXACT TWIN (the anchor-class-denylist challenger),
+    # so risky-3 now carries exit_profile 'REACHABLE-TP1' -- the SAME lane as risky-1, not a
+    # fourth distinct one. The study's 4-profile set (CONTROL/RIBBON/ZONE-RIDE/REACHABLE-TP1)
+    # still has no live 4th source; this refuses loudly again rather than silently sourcing
+    # risky-3 as a duplicate of risky-1 (which would make the "genuinely different lanes"
+    # premise this whole tool exists to prove false without saying so).
+    if (arms["risky-3"].get("exit_profile") == "REACHABLE-TP1"
+            and arms["risky-1"].get("exit_profile") == "REACHABLE-TP1"):
+        raise ValueError(
+            "ZONE-RIDE lane RETIRED (still): risky-3 was reconfigured as risky-1's exact "
+            "twin by GOAL-EARN-YOUR-KEEP-2026-09-12 item 1 (accounts.json twin_doc_2026_09_12) "
+            "-- risky-3 now carries exit_profile 'REACHABLE-TP1', duplicating risky-1, not a "
+            "distinct 4th lane. This study cannot be re-run as pre-registered until a human "
+            "re-scopes its profile set in a new prereg. The already-published "
+            "EXIT-DIVERSITY-2026-07-20 result is unaffected; only reproduction is blocked."
+        )
     expected_labels = {"safe-2": "CORE", "risky-1": "REACHABLE-TP1", "safe-3": "RIBBON", "risky-3": "ZONE-RIDE"}
     for arm_id, want in expected_labels.items():
         got = arms[arm_id].get("exit_profile")

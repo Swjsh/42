@@ -43,7 +43,7 @@
     "commits 43bb979d (risky-1/risky-3 extension) + 9b6a3e35 (safe-3 extension) -- the template ships"
   ],
   "results_artifact_planned": "analysis/recommendations/atm-tier-extension-2k10k.json (written when the sample floor is reached; per-arm cohort P&L, floor-refusal delta, verdict KEEP/REVERT)",
-  "status": "EXTEND -- per-arm split already resolved in code; extension still live for bold-2/safe-3/risky-1",
+  "status": "SUPERSEDED-2026-09-12 -- risky-3's per-arm kill (bold_core_pre_ext) was retired the same day risky-3 itself was reconfigured as risky-1's exact twin for GOAL-EARN-YOUR-KEEP-2026-09-12 item 1 (the anchor-class-denylist challenger); risky-3 now resolves 'bold_core' (V15_BOLD_CORE_TIERS) like bold-2/safe-3/risky-1, so this prereg's per-arm split is no longer live for any arm. See test_atm_tier_extension_risky3_kill_2026_08_06.py and accounts.json's twin_doc_2026_09_12 for the new truth.",
   "adjudicated_at_et": "2026-09-05T00:45:00",
   "evidence": {
     "command": "grep -n V15_BOLD_CORE_PRE_EXT_TIERS crypto/lib/strike_selection.py",

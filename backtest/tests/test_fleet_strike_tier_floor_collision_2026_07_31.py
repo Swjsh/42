@@ -123,15 +123,20 @@ def test_risky_and_safe3_arms_now_resolve_to_bold_core_atm_tiers(fx, ss, arm_id)
     assert tiers is not ss.V15_BOLD_TIERS, f"{arm_id} must not have reverted to the old OTM table"
 
 
-def test_risky3_resolves_pre_ext_table_after_2026_08_06_kill(fx, ss):
-    """ATM-TIER-EXTENSION-2K-10K per-arm kill (2026-08-06): risky-3 resolves
-    V15_BOLD_CORE_PRE_EXT_TIERS ($0-2K still ATM per the 2026-08-01 extension; $2K-10K
-    back to OTM-2). Full vary-and-assert coverage:
+def test_risky3_resolves_bold_core_after_2026_09_12_twin(fx, ss):
+    """SUPERSEDED-2026-09-12: the 2026-08-06 per-arm kill (V15_BOLD_CORE_PRE_EXT_TIERS,
+    $2K-10K back to OTM-2) was itself superseded the same day risky-3 was reconfigured as
+    risky-1's EXACT TWIN for GOAL-EARN-YOUR-KEEP-2026-09-12 item 1 (the anchor-class-
+    denylist challenger) -- params_patch.strike_tier_table is 'bold_core' again, so
+    risky-3 resolves V15_BOLD_CORE_TIERS (ATM through $10K) exactly like risky-1/safe-3.
+    See analysis/recommendations/atm-tier-extension-2k10k-prereg-2026-08-03.json's status
+    field and accounts.json's twin_doc_2026_09_12. Full vary-and-assert coverage:
     test_atm_tier_extension_risky3_kill_2026_08_06.py."""
     tiers = fx._tiers_for_arm(ARMS_BY_ID["risky-3"])
-    assert tiers is ss.V15_BOLD_CORE_PRE_EXT_TIERS, (
-        "risky-3 no longer resolves the pre-extension table -- if the kill was deliberately "
-        "un-done, fold the new evidence into atm-tier-extension-2k10k-prereg-2026-08-03.json."
+    assert tiers is ss.V15_BOLD_CORE_TIERS, (
+        "risky-3 no longer resolves the bold_core table -- if the 2026-09-12 twin config "
+        "was deliberately un-done, fold the new evidence into "
+        "atm-tier-extension-2k10k-prereg-2026-08-03.json's status field."
     )
 
 

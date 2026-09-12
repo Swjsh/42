@@ -100,28 +100,59 @@ def _plans(arm_id, params, equity=EQ_5K, signal=SIGNAL):
 # ---------------------------------------------------------------------------------
 # 1. THE DIVERGENCE CONTRACT (risky-3 enters, safe-3 holds, risky-1 min-size)
 # ---------------------------------------------------------------------------------
-def test_risky3_enters_the_reclaim_entry_at_tier_qty():
+def test_risky3_holds_the_base_reclaim_since_it_is_risky1s_twin():
+    """SUPERSEDED 2026-09-12 (was test_risky3_enters_the_reclaim_entry_at_tier_qty).
+
+    GOAL-EARN-YOUR-KEEP-2026-09-12 item 1 reconfigured risky-3 as risky-1's EXACT TWIN
+    (gate_override now carries require_confluence_or_sequence:true, same as risky-1) --
+    so risky-3 no longer ENTERs this BASE-quality (no confluence/sequence trigger) signal
+    at tier qty. It HOLDs on exactly the reason risky-1 does
+    (test_risky1_holds_the_base_reclaim_since_its_gate_was_restored) and safe-3 does
+    (below) -- the three-way divergence this file used to demonstrate collapsed into a
+    two-way one (safe-3/risky-1/risky-3 all HOLD; only the full-send min-size rescue lane,
+    see test_risky3_enters_at_full_send_min_size_on_an_elite_reclaim below, still enters)."""
     plans = _plans("risky-3", BOLD_PARAMS)
+    mine = [p for p in plans if p.strategy == "vwap_reclaim_failed_break"]
+    assert len(mine) == 1
+    assert mine[0].action == "HOLD"
+    assert "confluence/sequence" in mine[0].reason, mine[0].reason
+
+
+def test_risky3_enters_at_full_send_min_size_on_an_elite_reclaim():
+    """SUPERSEDED 2026-09-12 complement to the HOLD test above -- mirrors risky-1's own
+    test_risky1_enters_at_full_send_min_size_on_an_elite_reclaim exactly, since risky-3
+    now carries the identical gate_override.full_send:true. Kept as its own test (not
+    folded into risky-1's) because risky-3 is a DIFFERENT account with its own ledger --
+    the mechanism proof must hold per-arm, not just once."""
+    elite_signal = {"spot": 737.3, "strategies": [
+        dict(REAL_SHAPED_ENTRY,
+             triggers=[*REAL_SHAPED_ENTRY["triggers"], "sequence_rejection"])]}
+    plans = _plans("risky-3", BOLD_PARAMS, signal=elite_signal)
     enters = [p for p in plans if p.action == "ENTER"
               and p.strategy == "vwap_reclaim_failed_break"]
-    assert len(enters) == 1, f"risky-3 must ENTER the reclaim entry, got {plans}"
-    p = enters[0]
-    assert p.side == "P"
-    assert p.qty == 8, "BOLD tier base qty at $5K (recency clamp is ribbon_ride-scoped)"
-    assert p.trigger_level == pytest.approx(738.42), \
-        "failed-break extreme must ride as the chart-stop anchor"
+    assert len(enters) == 1, [(p.action, p.reason) for p in plans]
+    assert enters[0].qty == BOLD_PARAMS["min_contracts"], \
+        "full-send arm-level clamp must bind on the reclaim entry too"
+    assert "FULL_SEND min size" in enters[0].reason
 
 
-def test_safe3_holds_the_same_entry_on_its_own_gate():
+def test_safe3_holds_the_same_entry_as_risky3_now_does():
+    """SUPERSEDED 2026-09-12: this used to be a DIVERGENCE test (risky-3 ENTER vs safe-3
+    HOLD). Since risky-3 became risky-1's twin, both now HOLD the BASE-quality signal for
+    the SAME reason -- the divergence this file exists to pin moved to the full-send
+    rescue lane (test_risky3_enters_at_full_send_min_size_on_an_elite_reclaim /
+    test_risky1_enters_at_full_send_min_size_on_an_elite_reclaim), which safe-3 has no
+    equivalent of (safe-3 carries no gate_override.full_send)."""
     plans = _plans("safe-3", SAFE_PARAMS)
     mine = [p for p in plans if p.strategy == "vwap_reclaim_failed_break"]
     assert len(mine) == 1
     assert mine[0].action == "HOLD", "safe-3 must gate the reclaim entry out"
     assert "confluence/sequence" in mine[0].reason, mine[0].reason
-    # DIVERGENCE, stated as one assertion: same signal, opposite decisions.
+    # NO LONGER A DIVERGENCE: same signal, same verdict, same reason.
     r3 = [p for p in _plans("risky-3", BOLD_PARAMS)
           if p.strategy == "vwap_reclaim_failed_break"][0]
-    assert (r3.action, mine[0].action) == ("ENTER", "HOLD")
+    assert (r3.action, mine[0].action) == ("HOLD", "HOLD")
+    assert "confluence/sequence" in r3.reason
 
 
 def test_risky1_holds_the_base_reclaim_since_its_gate_was_restored():
@@ -159,8 +190,16 @@ def test_risky1_enters_at_full_send_min_size_on_an_elite_reclaim():
 # 2. STRIKE ROUTING IS LIVE (C14): reclaim prices PROBE table, ribbon prices arm table
 # ---------------------------------------------------------------------------------
 def test_strike_routing_diverges_from_arm_table_where_tables_disagree():
-    eq = 15_000.0  # PROBE: +1 (Slight ITM); bold_core: -1 (OTM-1) -- tables DISAGREE here
-    plans = _plans("risky-3", BOLD_PARAMS, equity=eq)
+    # SUPERSEDED 2026-09-12: risky-3 (now risky-1's twin, require_confluence_or_sequence)
+    # HOLDs the BASE-quality REAL_SHAPED_ENTRY -- no ENTER plan exists to read a strike
+    # off. Use the same elite_signal the full-send tests above use so an ENTER exists;
+    # the strike-routing mechanism (reclaim prices PROBE table regardless of gate path)
+    # is unaffected by which gate/rescue lane produced the ENTER.
+    eq = 15_000.0  # PROBE=738 (ATM-class); bold_core(risky-3)=736 -- tables DISAGREE here
+    elite_signal = {"spot": 737.3, "strategies": [
+        dict(REAL_SHAPED_ENTRY,
+             triggers=[*REAL_SHAPED_ENTRY["triggers"], "sequence_rejection"])]}
+    plans = _plans("risky-3", BOLD_PARAMS, equity=eq, signal=elite_signal)
     p = [x for x in plans if x.strategy == "vwap_reclaim_failed_break"][0]
     ss = fx.strike_selection  # the module fleet_executor itself resolved (crypto/lib)
     probe_strike = ss.pick_strike(737.3, eq, "P", fx.PROBE_STRIKE_TIERS)
@@ -168,9 +207,15 @@ def test_strike_routing_diverges_from_arm_table_where_tables_disagree():
     assert probe_strike != arm_strike, "fixture must exercise a genuinely-different bracket"
     assert p.strike == probe_strike, "reclaim entry must price the PROBE (ATM-class) table"
 
+    # SUPERSEDED 2026-09-12: risky-3's gate now requires min_triggers=2 +
+    # confluence/sequence (the twin of risky-1's gate_override), so a single plain
+    # trigger no longer clears it -- give the ribbon entry a second, confluence-named
+    # trigger so it ENTERs through the NORMAL (non-rescue) lane, same as the elite
+    # reclaim entry above; the routing mechanism under test is unaffected by which
+    # lane produced the ENTER.
     ribbon_entry = {
         "name": "ribbon_ride", "side": "P", "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
-        "triggers": ["level_rejection"], "quality": "BASE", "spot": 737.3,
+        "triggers": ["level_rejection", "multi_day_confluence"], "quality": "ELITE", "spot": 737.3,
     }
     plans2 = fx.plan_all(_ARM["risky-3"], {"spot": 737.3, "strategies": [ribbon_entry]},
                           eq, BOLD_PARAMS)
@@ -199,18 +244,28 @@ def test_arm_exit_patch_overlays_on_top_of_the_ported_cell():
     `test_exit_profile_matches_live_accounts_json`.
 
     risky-1 still carries a real `params_patch.exit_patch`, so the shallow-merge contract is
-    proven there instead of being deleted. risky-3 now asserts the COMPLEMENT -- an arm with no
-    exit_patch inherits the ported cell verbatim -- which is the other half of the same
-    mechanism and was never covered before."""
+    proven there instead of being deleted. risky-3 asserted the COMPLEMENT (an arm with no
+    exit_patch inherits the ported cell verbatim) from 2026-08-15 until 2026-09-12.
+
+    RE-PINNED AGAIN 2026-09-12: GOAL-EARN-YOUR-KEEP-2026-09-12 item 1 reconfigured risky-3
+    as risky-1's EXACT TWIN, including params_patch.exit_patch (tp1_premium_pct: 0.5,
+    stop_mode: structure) -- so risky-3 NOW shallow-merges the SAME overlay risky-1 does,
+    and the "no exit_patch" complement no longer has a live source on this arm. The
+    complement case (arm with no exit_patch inherits the ported cell verbatim) is still
+    exercised by the elsewhere-covered safe-2/bold-2 core arms (test_registry_cell_is_the_
+    safe2_armed_atm_cell above proves the base cell itself); this test now proves risky-3's
+    overlay matches risky-1's byte-for-byte, which is exactly what "twin" means."""
     patched = fx._exit_shape_dict(fstrat.VWAP_RECLAIM_FAILED_BREAK, _ARM["risky-1"])
     assert patched["premium_stop_pct"] == -0.08, "un-patched keys keep the ported cell"
     assert patched["tp1_premium_pct"] == 0.5, \
         "risky-1's accounts.json exit_patch must shallow-merge over the ported cell"
     assert patched["stop_mode"] == "structure"
 
-    inherited = fx._exit_shape_dict(fstrat.VWAP_RECLAIM_FAILED_BREAK, _ARM["risky-3"])
-    assert (inherited["premium_stop_pct"], inherited["tp1_premium_pct"]) == (-0.08, 0.30), \
-        "an arm with no exit_patch must inherit the Safe-2 armed ATM cell verbatim"
+    twin = fx._exit_shape_dict(fstrat.VWAP_RECLAIM_FAILED_BREAK, _ARM["risky-3"])
+    assert twin == patched, (
+        "risky-3's exit_patch overlay must be byte-identical to risky-1's twin config -- "
+        f"got {twin} vs risky-1's {patched}"
+    )
 
 
 # ---------------------------------------------------------------------------------

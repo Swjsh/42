@@ -564,7 +564,11 @@ def test_exit_profile_matches_live_accounts_json():
         # sandboxed: this assertion exists to catch accounts.json edits and it caught a real
         # one -- the edit was deliberate and pre-registered, so the pin moves to match.
         # NOTE for the exit review: this arm is a CONFOUND in any PRE/POST 08-10 exit split.
-        assert w._exit_profile_for_arm("risky-3") == "PREMIUM-STOP"
+        # SUPERSEDED 2026-09-12: GOAL-EARN-YOUR-KEEP-2026-09-12 item 1 reconfigured risky-3
+        # as risky-1's EXACT TWIN (the anchor-class-denylist challenger) -- exit_profile is
+        # now REACHABLE-TP1, same as risky-1. RE-PINNED again, same reason as 08-15: this
+        # assertion caught a real, deliberate, pre-registered accounts.json edit.
+        assert w._exit_profile_for_arm("risky-3") == "REACHABLE-TP1"
         assert w._exit_profile_for_arm("safe-2") == "CORE"
         assert w._exit_profile_for_arm("bold-2") == "CORE"
     finally:

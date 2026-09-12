@@ -48,15 +48,40 @@ ACCOUNTS = json.loads(
 ARMS_BY_ID = {a["id"]: a for a in ACCOUNTS["arms"]}
 
 
-def test_risky3_resolves_otm2_at_5k():
-    """THE KILL: risky-3 at $5K equity (the live 2K-10K band) prices OTM-2, not ATM."""
+def test_risky3_kill_SUPERSEDED_now_resolves_bold_core_at_5k():
+    """THE KILL's per-arm split is SUPERSEDED-2026-09-12: GOAL-EARN-YOUR-KEEP item 1
+    reconfigured risky-3 as risky-1's EXACT TWIN (the anchor-class-denylist challenger),
+    which resets params_patch.strike_tier_table back to 'bold_core' -- so risky-3 now
+    resolves ATM at $5K exactly like risky-1, NOT the pre-ext OTM-2 band this test used to
+    pin. See analysis/recommendations/atm-tier-extension-2k10k-prereg-2026-08-03.json's
+    status field and accounts.json's twin_doc_2026_09_12 for the new truth. The mechanism
+    this test proves is unchanged (accounts.json's strike_tier_table key drives the
+    resolution) -- only the LIVE VALUE for risky-3 changed, so this test now asserts the
+    live (bold_core/ATM) resolution instead of the retired (pre_ext/OTM-2) one."""
     tiers = fx._tiers_for_arm(ARMS_BY_ID["risky-3"])
+    assert tiers is ss.V15_BOLD_CORE_TIERS, (
+        "risky-3 no longer resolves bold_core_pre_ext -- if that changes again, update "
+        "this test AND the prereg's status field together, never one without the other"
+    )
+    tier = ss.pick_tier(5_000.0, tiers)
+    assert tier.strike_offset == 0 and tier.label == "ATM", (
+        f"risky-3 $5K band must be ATM post-twin (2026-09-12), got {tier}"
+    )
+    assert ss.pick_strike(748.0, 5_000.0, "C", tiers) == 748
+
+
+def test_bold_core_pre_ext_table_still_reachable_via_explicit_patch():
+    """The bold_core_pre_ext BRANCH in fleet_executor._tiers_for_arm is NOT deleted (it is
+    still a valid strike_tier_table value, just no longer risky-3's live default) --
+    proven the same vary-and-assert way test_vary_and_assert_knob_is_live below proves the
+    'bold_core' branch: flip a COPY of risky-3's arm dict to 'bold_core_pre_ext' and confirm
+    OTM-2 at $5K, so a future arm can still opt into this table by name."""
+    arm = copy.deepcopy(ARMS_BY_ID["risky-3"])
+    arm["params_patch"]["strike_tier_table"] = "bold_core_pre_ext"
+    tiers = fx._tiers_for_arm(arm)
     assert tiers is ss.V15_BOLD_CORE_PRE_EXT_TIERS
     tier = ss.pick_tier(5_000.0, tiers)
-    assert tier.strike_offset == -2 and tier.label == "OTM-2", (
-        f"risky-3 $5K band must be OTM-2 after the pre-registered kill, got {tier}"
-    )
-    # C 748 spot -> 2 strikes OTM = 750
+    assert tier.strike_offset == -2 and tier.label == "OTM-2"
     assert ss.pick_strike(748.0, 5_000.0, "C", tiers) == 750
 
 
