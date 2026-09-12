@@ -1,10 +1,10 @@
 {
-  "id": "GOAL-SD-LIQUIDITY-ZONES-2026-09-11",
+  "id": "GOAL-EARN-YOUR-KEEP-2026-09-12",
   "active": true,
-  "opened_at_et": "2026-09-11T23:43:14",
-  "expires_at_et": "2026-10-02",
-  "file": "automation/state/goals/GOAL-SD-LIQUIDITY-ZONES-2026-09-11.md",
-  "queue_id": "GOAL-SD-LIQUIDITY-ZONES-2026-09-11",
+  "opened_at_et": "2026-09-12T17:12:00",
+  "expires_at_et": "2026-09-18",
+  "file": "automation/state/goals/GOAL-EARN-YOUR-KEEP-2026-09-12.md",
+  "queue_id": "GOAL-EARN-YOUR-KEEP-2026-09-12",
   "max_continuations_per_session": 3,
   "last_next_item": null
 }
