@@ -204,6 +204,119 @@ def sd_zone_read(since: str, until: str) -> dict:
     }
 
 
+TICKERS_ARMS = ("tickers-1", "tickers-2", "tickers-3")
+TICKERS_STATE_DIR = REPO / "automation" / "state" / "tickers"
+TICKERS_JOURNAL_DIR = REPO / "journal"
+# Trigger-name priority when a fill's WOULD_PLACE row carries more than one trigger for the
+# acting side -- first match wins, mirroring the SPY engine's single anchor-per-signal shape.
+_TICKERS_PROXY_ORDER = ("level_reclaim", "level_rejection", "trendline_rejection",
+                        "ribbon_flip", "confluence")
+
+
+def classify_tickers_row(row: dict) -> str:
+    """PROXY class for one tickers-lane WOULD_PLACE/ledger row (GOAL-EARN-YOUR-KEEP item 3).
+
+    2026-09-12 schema check (quoted in the goal's builder report): a tickers ENTER row has
+    NO `conviction.matched_level_label` (or any `level`/`trigger_level_label`) field -- the
+    SPY engine's named anchor-class taxonomy (INTRADAY_SWING_ / PRIOR_DAY_ / SHELF_ / MEMORY_)
+    does not exist on this lane. `level-states/*.json` carries only a numeric price ladder
+    with a generic `role` (`broken_to_support` / `broken_to_resistance` / null) -- not a class.
+    The best available proxy is the row's own `bull_triggers`/`bear_triggers` list (whichever
+    side the `action` fired on), bucketed by trigger NAME. This is a PROXY, not the SPY
+    class read -- callers must label it as such rather than implying parity.
+    """
+    action = str(row.get("action") or "")
+    side_key = "bull_triggers" if "BULL" in action else "bear_triggers" if "BEAR" in action else None
+    triggers = set((row.get(side_key) or []) if side_key else
+                   (row.get("bull_triggers") or []) + (row.get("bear_triggers") or []))
+    for name in _TICKERS_PROXY_ORDER:
+        if name in triggers:
+            return name.upper()
+    return "NONE"
+
+
+def _tickers_ledger_rows(arm: str, state_dir: Path = TICKERS_STATE_DIR) -> list[dict]:
+    path = state_dir / arm / "ledger.jsonl"
+    if not path.exists():
+        return []
+    out: list[dict] = []
+    with path.open(encoding="utf-8", errors="ignore") as fh:
+        for line in fh:
+            try:
+                out.append(json.loads(line))
+            except json.JSONDecodeError:
+                continue
+    return out
+
+
+def read_tickers_lane(since: str, until: str, *, state_dir: Path = TICKERS_STATE_DIR,
+                       journal_dir: Path = TICKERS_JOURNAL_DIR, arms=TICKERS_ARMS) -> dict:
+    """Anchor-class (PROXY) read over the non-SPY tickers lane's fills, `since`..`until`.
+
+    Joins each arm's ENTRY_FILLED ledger row (has `contract`+`trade_id`) to the most recent
+    prior WOULD_PLACE row for the same contract (carries the triggers -> classify_tickers_row),
+    then to that trade_id's EXIT row in journal/trades-tickers-<arm>.csv for `pnl_dollars`.
+    An EXIT not yet written (open/naked leg) is counted in `open_legs`, never silently
+    dropped and never counted as a $0 leg.
+    """
+    per_class: dict[str, dict] = collections.defaultdict(
+        lambda: {"legs": 0, "wins": 0, "pnl": 0.0, "signals": collections.defaultdict(float)})
+    open_legs = 0
+    unmatched = 0
+    for arm in arms:
+        rows = _tickers_ledger_rows(arm, state_dir)
+        would_place_by_contract: dict[str, dict] = {}
+        exits_by_trade_id: dict[str, dict] = {}
+        journal_path = journal_dir / f"trades-tickers-{arm}.csv"
+        if journal_path.exists():
+            with journal_path.open(encoding="utf-8-sig") as fh:
+                for jrow in csv.DictReader(fh):
+                    if jrow.get("row_type") == "EXIT":
+                        exits_by_trade_id[jrow["trade_id"]] = jrow
+
+        for row in rows:
+            day = str(row.get("ts_et", ""))[:10]
+            if row.get("decision") == "WOULD_PLACE" and row.get("contract"):
+                if since <= day <= until:
+                    would_place_by_contract[row["contract"]] = row
+                continue
+            if row.get("decision") != "ENTRY_FILLED":
+                continue
+            if not (since <= day <= until):
+                continue
+            contract = row.get("contract")
+            trade_id = row.get("trade_id")
+            wp = would_place_by_contract.get(contract)
+            cls = classify_tickers_row(wp) if wp else "NONE"
+            jexit = exits_by_trade_id.get(trade_id)
+            if jexit is None:
+                open_legs += 1
+                continue
+            try:
+                pnl = float(jexit.get("pnl_dollars") or 0)
+            except ValueError:
+                unmatched += 1
+                continue
+            bucket = per_class[cls]
+            bucket["legs"] += 1
+            bucket["wins"] += pnl > 0
+            bucket["pnl"] += pnl
+            bucket["signals"][f"{arm}:{trade_id}"] += pnl
+
+    return {"since": since, "until": until, "unmatched_legs": unmatched, "open_legs": open_legs,
+            "classes": {k: {"signals": len(v["signals"]), "legs": v["legs"], "wins": v["wins"],
+                            "pnl": round(v["pnl"], 2),
+                            "signal_pnls": sorted(round(x) for x in v["signals"].values())}
+                        for k, v in per_class.items()}}
+
+
+def _print_class_table(res: dict) -> None:
+    print(f"{'class':16s} {'signals':>7s} {'legs':>5s} {'WR%':>5s} {'P&L':>9s}  signal P&Ls (sorted)")
+    for name, c in sorted(res["classes"].items(), key=lambda kv: kv[1]["pnl"]):
+        wr = (c["wins"] / c["legs"] * 100) if c["legs"] else 0
+        print(f"{name:16s} {c['signals']:7d} {c['legs']:5d} {wr:5.0f} {c['pnl']:+9.0f}  {c['signal_pnls']}")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--since", required=True)
@@ -211,7 +324,21 @@ def main() -> int:
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--sd-zone", action="store_true",
                      help="overlay read: was the entry price inside a sd-zones-archive zone (item d)")
+    ap.add_argument("--lane", choices=("spy", "tickers"), default="spy",
+                     help="tickers: PROXY anchor-class read over the non-SPY lane (item 3, "
+                          "GOAL-EARN-YOUR-KEEP-2026-09-12) -- no matched_level_label exists "
+                          "on that lane, see classify_tickers_row's docstring")
     args = ap.parse_args()
+
+    if args.lane == "tickers":
+        res = read_tickers_lane(args.since, args.until)
+        if args.json:
+            print(json.dumps(res, indent=1))
+            return 0
+        print(f"tickers-lane PROXY anchor-class read {res['since']}..{res['until']}  "
+              f"(unmatched legs: {res['unmatched_legs']}, open/unreconciled legs: {res['open_legs']})")
+        _print_class_table(res)
+        return 0
 
     if args.sd_zone:
         res = sd_zone_read(args.since, args.until)

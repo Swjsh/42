@@ -380,6 +380,92 @@ def render_other_lanes() -> list[str]:
     L.append(f"- **twin** last journal row `{last_ts or '?'}` · {n_rows} events "
              f"(24/7 mechanism validator — its P&L is NEVER SPY evidence)")
     L.append("")
+
+    L.extend(render_tickers_lane())
+    return L
+
+
+TICKERS_ARMS = ("tickers-1", "tickers-2", "tickers-3")
+
+
+def _tickers_symbols(fills: list) -> str:
+    """Distinct underlyings traded that session, from each fill's OCC contract prefix
+    (letters before the 6-digit expiry). Never raises on a malformed contract string."""
+    syms: set[str] = set()
+    for f in fills or []:
+        c = str((f or {}).get("contract") or "")
+        m = re.match(r"^([A-Z]+)\d{6}", c)
+        if m:
+            syms.add(m.group(1))
+    return ",".join(sorted(syms)) if syms else "-"
+
+
+def render_tickers_lane(state_dir: Path = None) -> list[str]:
+    """The non-SPY tickers lane (AMZN/AAPL/NVDA/TSLA/AVGO/QQQ/GLD, 3 paper arms,
+    tickers-1/2/3), invisible on HOME.md as of 2026-09-12 despite trading every session
+    since 09-04 (GOAL-EARN-YOUR-KEEP-2026-09-12 item 3). Per-arm per-session table over the
+    last 5 sessions found on disk, then a cumulative line per arm and a lane total.
+
+    Fail-open like the sibling blocks in this function: an unreadable/missing day file
+    degrades that ROW to `?`, never an exception -- a dark lane must still render, since
+    that is exactly when the lane needs to be visible.
+    """
+    d = state_dir or (STATE / "tickers")
+    L: list[str] = ["### 🎯 Tickers (non-SPY 0DTE, 3 paper arms, production scorer)", ""]
+    L.append("*Evidence class: paper fills on real quotes -- same scorer as SPY core.*")
+    L.append("")
+
+    # Union of session dates across all three arms' day-*.json files, most recent 5.
+    dates: set[str] = set()
+    for arm in TICKERS_ARMS:
+        try:
+            for p in (d / arm).glob("day-????-??-??.json"):
+                dates.add(p.stem[len("day-"):])
+        except Exception:  # noqa: BLE001 -- an unreadable arm dir must not blank the lane
+            continue
+    all_dates = sorted(dates)
+    last5 = all_dates[-5:]
+
+    L.append("| Session | Arm | SoD equity | Realized P&L | Kill | Fills | Symbols |")
+    L.append("|---|---|---:|---:|---|---:|---|")
+    for date_str in last5:
+        for arm in TICKERS_ARMS:
+            day = read_json(d / arm / f"day-{date_str}.json")
+            if not isinstance(day, dict):
+                L.append(f"| {date_str} | {arm} | ? | ? | ? | ? | ? |")
+                continue
+            fills = day.get("fills") or []
+            pnl = float(day.get("realized_pnl_today") or 0.0)
+            L.append(f"| {date_str} | {arm} | "
+                     f"${float(day.get('start_of_day_equity') or 0):,.2f} | "
+                     f"{money(pnl)} | {'YES' if day.get('kill_tripped') else 'no'} | "
+                     f"{len(fills)} | {_tickers_symbols(fills)} |")
+    L.append("")
+
+    # Cumulative since 09-04 -- ALL sessions on disk, not just the last5 shown in the table
+    # above (a table row cap must never quietly truncate the running total).
+    cum: dict[str, dict] = {arm: {"pnl": 0.0, "fills": 0, "sessions": 0} for arm in TICKERS_ARMS}
+    lane_total = {"pnl": 0.0, "fills": 0}
+    for date_str in all_dates:
+        for arm in TICKERS_ARMS:
+            day = read_json(d / arm / f"day-{date_str}.json")
+            if not isinstance(day, dict):
+                continue
+            fills = day.get("fills") or []
+            pnl = float(day.get("realized_pnl_today") or 0.0)
+            cum[arm]["pnl"] += pnl
+            cum[arm]["fills"] += len(fills)
+            cum[arm]["sessions"] += 1
+            lane_total["pnl"] += pnl
+            lane_total["fills"] += len(fills)
+
+    for arm in TICKERS_ARMS:
+        c = cum[arm]
+        L.append(f"- **{arm}** cumulative since 09-04: {money(c['pnl'])} · "
+                 f"{c['fills']} fills over {c['sessions']} sessions")
+    L.append(f"- **lane total** (3 arms, {len(all_dates)} sessions since 09-04): "
+             f"{money(lane_total['pnl'])} · {lane_total['fills']} fills")
+    L.append("")
     return L
 
 

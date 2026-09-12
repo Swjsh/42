@@ -1,20 +1,20 @@
 # 🕰️ Shadow & Prereg Board
 
-> Auto-generated `2026-09-05 07:47:37 Saturday EDT` by obsidian_vault_sync.py. Shadow tallies update nightly; a missing tally means that instrument has not fired yet.
+> Auto-generated `2026-09-12 17:20:19 Saturday EDT` by obsidian_vault_sync.py. Shadow tallies update nightly; a missing tally means that instrument has not fired yet.
 
 ## Live shadow instruments
 
-- **Score ladder** (`Gamma_LadderRungShadow`, 16:40 ET) — 56 session rows; latest: `{"date": "2026-09-04", "arm_id": "risky-1", "rung": 8, "tallied_at": "2026-09-04T14:40:04.677278", "est": false, "n_added": 61, "added_pnl": -500.0, "binary_day_pnl": 108.0, "ladde`
+- **Score ladder** (`Gamma_LadderRungShadow`, 16:40 ET) — 64 session rows; latest: `{"date": "2026-09-11", "arm_id": "risky-1", "rung": 8, "tallied_at": "2026-09-11T14:40:03.177088", "est": false, "n_added": 36, "added_pnl": 260.0, "binary_day_pnl": -400.0, "ladde`
 - **V-d1 / V-e3 entry shadow** (16:25 fold) — artifact: `analysis\entry-quality\shadow-tally.jsonl` — ADJUDICATED: V-d1 **KILL** (pooled F4 p=0.6661) · V-e3 **EXTEND** (pooled F4 p=0.1252)
 - **Chop exposure meter** (`Gamma_ChopMeter`, 16:08 ET) — artifact appears after the next close.
 
-- **stop_mode premium-vs-structure** (16:25 fold) — n=206 trades / 18 days, cum Δ **$-956.10** (-4.64/tr), mechanism FAILS, 2 days to bar
+- **stop_mode premium-vs-structure** (16:25 fold) — n=214 trades / 21 days, cum Δ **$-555.10** (-2.59/tr), mechanism FAILS, 0 days to bar
 - **Direction symmetry** (16:25 fold) — **RED**: 2 asymmetric knobs, 4 gates on stale evidence, 26 phantom documented knobs → [[analysis/deep-research/DIRECTION-SYMMETRY-AUDIT-2026-08-09]]
 - **Trendline shadow** (`Gamma_TrendlineShadow`, 14:22 MT) — latest verdict 2026-09-02: 73 sessions, n=1451, +0.0386 pts/trade, session-clustered 95% CI [-0.0301, 0.1177] (straddles zero), top-3 sessions 105% of profit — NOT a green light; promotion bar: [[analysis/trendlines/shadow-verdict.json]]
 
-## Frozen preregs — auto-discovered (62 non-terminal)
+## Frozen preregs — auto-discovered (68 non-terminal)
 
-_62 non-terminal preregs — grouped by status below; every one is listed, nothing truncated._
+_68 non-terminal preregs — grouped by status below; every one is listed, nothing truncated._
 
 ### `FROZEN_BEFORE_ANY_RESULT` (6)
 
@@ -25,8 +25,9 @@ _62 non-terminal preregs — grouped by status below; every one is listed, nothi
 - `prereg-multi-intraday-null-2026-08-20` — [[analysis/recommendations/prereg-multi-intraday-null-2026-08-20]] · `FROZEN_BEFORE_ANY_RESULT`
 - `prereg-weekly-expiry-comparison-2026-08-18` — [[analysis/recommendations/prereg-weekly-expiry-comparison-2026-08-18]] · `FROZEN_BEFORE_ANY_RESULT`
 
-### `FROZEN_BEFORE_ANY_RESULT -- 10-30 checkpoint candidate (EXPANSION)` (4)
+### `FROZEN_BEFORE_ANY_RESULT -- 10-30 checkpoint candidate (EXPANSION)` (5)
 
+- `prereg-catastrophe-cap-by-strike-tier-10-30-2026-09-08` — [[analysis/recommendations/prereg-catastrophe-cap-by-strike-tier-10-30-2026-09-08]] · `FROZEN_BEFORE_ANY_RESULT -- 10-30 checkpoint candidate (EXPANSION)`
 - `PREREG-NOT-FLAT-SECOND-WAVE-10-30-2026-09-05` — [[analysis/recommendations/prereg-not-flat-second-wave-10-30-2026-09-05]] · `FROZEN_BEFORE_ANY_RESULT -- 10-30 checkpoint candidate (EXPANSION)`
 - `PREREG-RUNNER-TARGET-VS-TAPE-PEAK-10-30-2026-09-05` — [[analysis/recommendations/prereg-runner-target-vs-tape-peak-10-30-2026-09-05]] · `FROZEN_BEFORE_ANY_RESULT -- 10-30 checkpoint candidate (EXPANSION)`
 - `prereg-fleet-capture-mechanism6-sizing-floor-10-30-2026-09-05` — [[analysis/recommendations/prereg-fleet-capture-mechanism6-sizing-floor-10-30-2026-09-05]] · `FROZEN_BEFORE_ANY_RESULT -- 10-30 checkpoint candidate (EXPANSION)`
@@ -62,6 +63,11 @@ _62 non-terminal preregs — grouped by status below; every one is listed, nothi
 
 - `prereg-f10-vol-baseline-session-reset-10-30-2026-09-03` — [[analysis/recommendations/prereg-f10-vol-baseline-session-reset-10-30-2026-09-03]] · `FROZEN_BEFORE_ANY_RESULT -- 10-30 checkpoint candidate`
 - `PREREG-SPY-SIGNAL-1-2DTE-VIA-WEEKLY-LANE-2026-09-05` — [[analysis/recommendations/prereg-spy-signal-1-2dte-via-weekly-lane-2026-09-05]] · `FROZEN_BEFORE_ANY_RESULT -- 10-30 checkpoint candidate`
+
+### `FROZEN_BEFORE_ANY_RESULT -- 10-30 checkpoint candidate (INFORMATIONAL)` (2)
+
+- `PREREG-CATALYST-DAY-TAG-W6-10-30-2026-09-10` — [[analysis/recommendations/prereg-catalyst-day-tag-w6-2026-09-10]] · `FROZEN_BEFORE_ANY_RESULT -- 10-30 checkpoint candidate (INFORMATIONAL)`
+- `PREREG-WAVE-DAY-CONDITIONS-10-30-2026-09-05` — [[analysis/recommendations/prereg-wave-day-conditions-10-30-2026-09-05]] · `FROZEN_BEFORE_ANY_RESULT -- 10-30 checkpoint candidate (INFORMATIONAL)`
 
 ### `ACCRUING -- n=26/30 scored days, clock running correctly` (1)
 
@@ -119,6 +125,10 @@ _62 non-terminal preregs — grouped by status below; every one is listed, nothi
 
 - `PREREG-RUNNER-COUNT-2026-09-01` — [[analysis/recommendations/prereg-runner-count-2026-09-01]] · `FROZEN -- not run; measurement only; nothing armed`
 
+### `FROZEN — not yet run` (1)
+
+- `FOLLOWTHROUGH-HEADROOM-2026-09-11` — [[analysis/recommendations/prereg-followthrough-headroom-2026-09-11]] · `FROZEN — not yet run`
+
 ### `FROZEN — runner NOT yet built. Nothing ships until every gate below...` (1)
 
 - `profit-lock-arm-scope-prereg-2026-08-06` — [[analysis/recommendations/profit-lock-arm-scope-prereg-2026-08-06]] · `FROZEN — runner NOT yet built. Nothing ships until every gate below...`
@@ -126,6 +136,14 @@ _62 non-terminal preregs — grouped by status below; every one is listed, nothi
 ### `FROZEN_BEFORE_ANY_ADDITIONAL_RESULT` (1)
 
 - `prereg-tickers-theta-budget-cadence-2026-09-05` — [[analysis/recommendations/prereg-tickers-theta-budget-cadence-2026-09-05]] · `FROZEN_BEFORE_ANY_ADDITIONAL_RESULT`
+
+### `FROZEN_BEFORE_ANY_RESULT -- 10-30 checkpoint candidate (EXPANSION -...` (1)
+
+- `PREREG-FILTER10-BULL-SOLE-UNBLOCK-10-30-2026-09-05` — [[analysis/recommendations/prereg-filter10-bull-sole-unblock-10-30-2026-09-05]] · `FROZEN_BEFORE_ANY_RESULT -- 10-30 checkpoint candidate (EXPANSION -...`
+
+### `FROZEN_BEFORE_ANY_RESULT -- 10-30 checkpoint candidate (SHAPE CHANGE)` (1)
+
+- `prereg-trendline-fitter-v2-swap-10-30-2026-09-09` — [[analysis/recommendations/prereg-trendline-fitter-v2-swap-10-30-2026-09-09]] · `FROZEN_BEFORE_ANY_RESULT -- 10-30 checkpoint candidate (SHAPE CHANGE)`
 
 ### `FROZEN_QUESTIONS_RUNNER_NOT_YET_BUILT` (1)
 
