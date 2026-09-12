@@ -55,7 +55,7 @@ structure shift (2026-07-28). The feed never produced zones of that kind.
   or zones do not out-respect the uniform-touch levels over the 10-session read.
 
 ## QUEUE
-- [ ] (a) add the indicator to the live layout via `chart_manage_indicator` (try the candidates in order), confirm `data_get_pine_boxes` reads it, confirm it persists across a TV relaunch, screenshot.
+- [x] (a) add the indicator to the live layout via `chart_manage_indicator` (try the candidates in order), confirm `data_get_pine_boxes` reads it, confirm it persists across a TV relaunch, screenshot.
 - [ ] (b) `sd-zones.json` producer inside the existing refresher fire (CDP read → zones → uniform touches), drawer support, fail-open + guard test.
 - [ ] (c) playbook "Levels" section: S/D base + liquidity definition, indicator mapping, what is NOT a zone.
 - [ ] (d) `SD_ZONE` class in `trigger_anchor_class_read.py` + forward clock + promotion prereg (09-29 / 10-30 row).
@@ -77,3 +77,16 @@ structure shift (2026-07-28). The feed never produced zones of that kind.
   confirm the study is still present after the relaunch; trim SMC inputs to order blocks + EQH/EQL (the default
   also paints internal structure labels + FVG + premium/discount, which is the clutter J just asked us to remove).
 - 2026-09-11 23:43 ET — opened by goal_autopilot
+- 2026-09-11 23:52 ET (Fable, continuation 2/3): **(a) DONE, verified by a real relaunch.** Layout read "All changes saved";
+  ran `setup/launch_tv_debug.ps1 -Kill` (the same launcher `Gamma_LaunchTV` uses; note that task SKIPS when CDP is
+  already live, so Monday 08:00 would not have relaunched anyway) -> TradingView.exe restarted 23:47:09 ET (pid 17872),
+  CDP back on 9222, same layout URL. After the relaunch `chart_get_state` still lists **Smart Money Concepts [LuxAlgo]**
+  (id `foIsMP`) and `data_get_pine_boxes` returns the same **5 zones** (766.32-765.91 / 765.30-765.01 / 764.64-764.54 /
+  764.14-764.00 / 761.85-761.36). Screenshots filed: `journal/screenshots/smc-luxalgo-added-2026-09-11.png` and
+  `journal/screenshots/smc-luxalgo-after-relaunch-2026-09-11.png`. INPUT TRIM: `indicator_set_inputs` (in_3 internal
+  structure OFF, in_21 swing order blocks ON) reported success but did NOT survive the relaunch (defaults came back);
+  re-applied via the page API `study.setInputValues` + Ctrl+S -- **persistence of the trim is UNVERIFIED** until the
+  next relaunch (leave it to (b)'s first session: read in_3/in_21 via `getInputValues`; if defaults again, set them
+  through the study's settings dialog). SMC input map (positional, read live): in_0 mode, in_3 show internal
+  structure, in_10 show swing structure, in_19 internal OBs, in_21 swing OBs, in_29 EQH/EQL, in_33 FVG (off),
+  in_48 premium/discount (off). Next item: (b) `sd-zones.json` producer.
