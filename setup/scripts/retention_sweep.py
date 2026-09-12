@@ -57,6 +57,9 @@ DIRECTORIES: list[dict] = [
     {"dir": "analysis/manager", "glob": "*", "policy": "keep-N", "n": 200},
     {"dir": "analysis/daily-brief", "glob": "*", "policy": "keep-days", "days": 30},
     {"dir": "analysis/swarm-consult", "glob": "*", "policy": "keep-N", "n": 60},
+    # kitchen reviewer transcripts (one per fire since 2026-05-21; 124 untracked on 2026-09-12). Glob-limited
+    # so the tracked living files there (PROVENANCE-AUDIT.md, provenance-audit.json) are never touched.
+    {"dir": "analysis/kitchen-review", "glob": "*-review.md", "policy": "keep-N", "n": 60},
     # free-model-audit is split into 4 per-touchpoint subdirs, not flat files -- sweep
     # each independently so a busy touchpoint doesn't starve a quiet one's keep window.
     *[

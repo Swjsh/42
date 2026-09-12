@@ -1221,3 +1221,13 @@ def test_declarative_which_is_not_a_menu(msg):
     """"Which" as a relative pronoun, and a reported decision, must stay legal --
     otherwise the guard blocks the very reports OP-0 asks for."""
     assert not D.is_permission_question(msg)
+
+
+def test_goal_continuation_reason_tells_the_session_to_claim_the_item():
+    """2026-09-12: an interactive session and a conductor fire built GOAL-SD item (b) twice
+    because the item was never flipped to `[~]` (the marker goal_autopilot / the conductor
+    already treat as owned). The continuation message must carry the claim step."""
+    msg = D.goal_continuation_reason("GOAL-X", "(b) the item", "automation/state/goals/GOAL-X.md", 1, 3)
+    assert "[~]" in msg and "(b) the item" in msg and "GOAL-X.md" in msg
+    assert "back to `[ ]`" in msg          # release on an unfinished stop, so a dead session cannot pin it
+

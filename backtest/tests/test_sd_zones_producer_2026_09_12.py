@@ -212,6 +212,7 @@ def test_dry_run_reads_the_chart_but_writes_no_stamp_and_draws_nothing(tmp_path,
     untouched."""
     stamp = tmp_path / "sd-zones.json"
     monkeypatch.setattr(szp, "STATE_FILE", stamp)
+    monkeypatch.setattr(szp, "STATUS_MD", tmp_path / "STATUS.md")   # 00:22 ET 2026-09-12: an earlier cut leaked into the real STATUS.md
     monkeypatch.setattr(szp, "_spy_bars", lambda: _bars_df())
     boxes = [{"low": 751.8, "high": 752.2}]
     chart = _FakeChart(boxes=boxes, spot=750.0)
@@ -328,3 +329,14 @@ def test_module_never_imports_heartbeat_core_or_writes_key_levels():
     assert "import heartbeat_core" not in src and "from heartbeat_core" not in src
     assert "KEY_LEVELS" not in src, "no key-levels.json path constant -- this module must not be able to write it"
     assert szp.STATE_FILE.name == "sd-zones.json", "the producer must write ONLY the shadow file, never key-levels.json"
+
+
+def test_trading_path_never_references_the_shadow_file():
+    """Consumer-side pin of the SHADOW contract (the module-side pin above covers the producer's
+    own imports/writes): the engine and the fleet signal builder never mention sd-zones.json.
+    Promotion happens through a pre-registered checkpoint row, never through a quiet read."""
+    core = (REPO / "setup" / "scripts" / "heartbeat_core.py").read_text(encoding="utf-8")
+    fleet = (REPO / "automation" / "state" / "fleet" / "build_shared_signal.py").read_text(encoding="utf-8")
+    for text, name in ((core, "heartbeat_core.py"), (fleet, "build_shared_signal.py")):
+        assert "sd-zones" not in text and "sd_zones" not in text, f"{name} references the shadow file"
+

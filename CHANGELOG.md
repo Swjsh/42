@@ -308,3 +308,21 @@ J: *"now audit and consolidate again make sure engine only trades what it should
 - Guard: `backtest/tests/test_line_level_consolidation_2026_09_12.py` (RED 6 → GREEN 351 / 20 suites). Applied under
   `GAMMA_FREEZE_OVERRIDE` on J's directive; the frozen-window restart date stays 2026-09-14. Full trace: FABLE-FULL-AUDIT-2026-09-11 §7.
 
+### 2026-09-12 (Sat, ~00:40 ET) -- GOAL-SD item (b): sd-zones.json SHADOW producer + lane-collision fix
+
+- **Shipped by the conductor fire (00:10-00:31 ET, commits ee9bdc19 / 441a270c):** `setup/scripts/sd_zones_producer.py` +
+  task `Gamma_SdZonesProducer` (08:44 ET weekdays, then every 15 min) reads the Smart Money Concepts [LuxAlgo] boxes over
+  CDP (`tv_cdp.TvChart.pine_boxes`), scores each zone with the MOST-TOUCHED cap's `_uniform_touches` imported read-only
+  (zero frozen-file edits), and writes `automation/state/sd-zones.json` (now gitignored). SHADOW by construction:
+  `heartbeat_core` and the fleet never reference it (consumer-side pin added to its guard suite). Promotion only via a
+  pre-registered checkpoint row (goal items d/e).
+- **Lane collision, folded:** an interactive build of the same item (refresher-hosted scorer under `GAMMA_FREEZE_OVERRIDE`)
+  ran in parallel and was discarded before commit -- the 2026-09-10 freeze rule stands. Cause: goal items were never
+  claimed. The Stop-hook continuation now instructs CLAIM FIRST (`- [ ]` -> `- [~]`, release on an unfinished stop); guard
+  in `setup/hooks/test_doctrine_hooks.py`.
+- **Full-suite REDs from the conductor's 00:18 run triaged:** two were this session's own (prior-day level fixture lacked the
+  cap-off line; trade-to-learn smoke assumed >=1 exec-armed extra setup after C3 disarmed the last one) -- fixed; the
+  window-leak guard's docstring false positive reworded; `analysis/kitchen-review` given a retention row. Residual REDs
+  listed in STATUS (checkpoint-packet `atm_pool_forward_n`, GEX archive gap 2026-09-09, queue.md over cap and depends-blocked,
+  RRW cache missing, twin-chaos installer test stale).
+

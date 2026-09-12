@@ -241,3 +241,16 @@ def test_prose_quoting_the_marker_does_not_count_as_the_section():
         "the hoist was skipped because prose quoting the marker was mistaken for the "
         "section itself -- the real block is still inside a dated entry and will roll off"
     )
+
+
+def test_do_not_move_note_never_spells_the_split_token(text: str):
+    """2026-09-09: a producer inserting at the FIRST occurrence of the split token found it inside
+    this note's own prose and glued its entry heading onto the note, destroying the block (found
+    2026-09-12). The note must describe the token without spelling it, so no naive inserter can
+    ever land inside it again."""
+    preamble, _ = _retention().split_entries(text)
+    token = "## " + "["
+    for line in preamble.splitlines():
+        if line.startswith("> "):
+            assert token not in line, line[:120]
+

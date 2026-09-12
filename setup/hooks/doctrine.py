@@ -913,8 +913,11 @@ def goal_should_continue(
 def goal_continuation_reason(goal_id: str, item: str, goal_file: str, n: int, max_n: int) -> str:
     """The Stop-block message: names the item, tells the session what to do next."""
     return (
-        f"Goal {goal_id} still has open work. Next item: {item}. Do it, then append one "
-        f"PROGRESS LOG line to {goal_file}, record the outcome via "
+        f"Goal {goal_id} still has open work. Next item: {item}. CLAIM IT FIRST: flip its "
+        f"`- [ ]` to `- [~]` in {goal_file} (a `[~]` item is owned -- the conductor fire and "
+        f"goal_autopilot skip it; on 2026-09-12 two sessions built the same item because nobody "
+        f"claimed it), and flip it back to `[ ]` if you stop without finishing. Do it, flip it to "
+        f"`[x]`, append one PROGRESS LOG line to {goal_file}, record the outcome via "
         f"`python setup/scripts/conductor_outcome.py record ...`, then stop. "
         f"Continuation {n}/{max_n}."
     )

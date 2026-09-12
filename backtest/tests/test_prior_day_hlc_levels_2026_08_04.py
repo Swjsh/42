@@ -77,6 +77,9 @@ def _state(tmp_path, monkeypatch):
     # Same isolation fix as test_refresh_levels_intraday.py's _state fixture: a synthetic
     # fixture's PASS/FAIL must not depend on today's real live SPY shelf zones.
     monkeypatch.setattr(rli, "daily_context", None)
+    # MOST-TOUCHED CAP (2026-09-11): legacy synthetic frames have no multi-touch structure; cap OFF here
+    # = the pre-cap byte-identical path (the cap has its own tests in test_refresh_levels_intraday.py).
+    monkeypatch.setattr(rli, "MOST_TOUCHED_PER_SIDE", 0, raising=False)
     return kl, bias
 
 

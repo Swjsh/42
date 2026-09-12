@@ -142,7 +142,13 @@ def test_smoke_against_real_journal_and_params():
     d = t2l.compute_since_arm()
     assert d["unmapped_armed_setups"] == []
     live_safe = t2l.live_armed_setups(t2l.PARAMS_JSON)
-    assert live_safe, "expected at least one live-armed trade-to-learn setup"
+    # LINE & LEVEL CONSOLIDATION C3 (2026-09-12): the last exec-armed extra setup
+    # (double_bottom_base_quiet) was disarmed, so an EMPTY armed set is the doctrine state,
+    # not a broken read -- pin that it is empty because every flag is literally False (a
+    # missing/renamed block would also read empty and must not pass silently).
+    if not live_safe:
+        armed = json.loads(t2l.PARAMS_JSON.read_text(encoding="utf-8")).get("extra_setup_exec_armed") or {}
+        assert armed and all(v is False for v in armed.values()), armed
     for expected in live_safe:
         assert expected in d["setups"]
     # real evidence pinned 2026-07-18 (verified live this fire): bollinger_squeeze has

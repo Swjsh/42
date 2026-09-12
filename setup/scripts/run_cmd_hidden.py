@@ -39,7 +39,7 @@ launcher keeps the two concerns clean.
 2026-09-10 -- W14 DEFAULT-LOG FIX (goal GOAL-WHY-THIS-WEEK-2026-09-10, item W14).
 FINDING: when a task action omits --log (measured live this session: 92 of 104
 Gamma_* tasks invoking this file do), the old code ran the child with
-`subprocess.run(..., capture_output=True)` and only ever logged `proc.returncode`
+`capture_output=True` (no log path) and only ever logged `proc.returncode`
 to the shared per-date launcher log -- the captured stdout/stderr was read into
 memory and thrown away, even on a crashing child with a live traceback. This is
 the suspected root enabler of this codebase's C7 failure class ("silent success
