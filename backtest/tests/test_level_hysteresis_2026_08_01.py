@@ -308,6 +308,9 @@ def _state(tmp_path, monkeypatch):
     monkeypatch.setattr(rli, "PARAMS", tmp_path / "params.json")       # memory wire OFF
     monkeypatch.setattr(rli, "MEMORY_MAP", tmp_path / "no-mem.json")   # no memory map
     monkeypatch.setattr(rli, "daily_context", None)
+    # MOST-TOUCHED CAP (2026-09-11): these tests exercise hysteresis on tiny synthetic frames;
+    # the production cap (top-3 per side, zero-respect levels pruned) would empty them. Cap OFF.
+    monkeypatch.setattr(rli, "MOST_TOUCHED_PER_SIDE", 0, raising=False)
     return kl, bias
 
 

@@ -108,6 +108,24 @@ MEMORY_MERGE_CAP = 6            # overall doc cap (kept for reference/back-compa
 # both exist in the candidate pool (same total-6 budget, split 3/3 instead of nearest-6-blind).
 MEMORY_MERGE_CAP_PER_SIDE = 3
 
+# MOST-TOUCHED CAP (J directive 2026-09-11 23:0x ET, verbatim: "remove all lines other than the
+# most touched ones, there are too many"; applied under GAMMA_FREEZE_OVERRIDE -- the level
+# producers were added to the frozen trading path the same evening, and this edit restarts the
+# clean scoring window from 2026-09-14; see STATUS.md + CHANGELOG.md 2026-09-11). Every level
+# inside ACTIVE_BAND is scored with ONE uniform touch count -- distinct 30-minute blocks in the
+# loaded bar window in which price reached into the level's zone and closed back OUTSIDE it on
+# the near side (a respect; a close through the level is a break, a close inside the zone is
+# hovering, neither is a touch) -- and only the top
+# MOST_TOUCHED_PER_SIDE above spot and below spot survive. Levels with zero respects never
+# survive. Uniform on purpose: SHELF_ touches are sessions, MEMORY_ touches are 5m bars, and
+# PRIOR_DAY_/INTRADAY_ carried none -- FABLE-FULL-AUDIT-2026-09-11 S2b measured what that mix
+# was anchoring. Dropped levels are written to key-levels.json `pruned_levels` with their count
+# and reason (C7: a prune must be loud). 0 = cap OFF = byte-identical legacy file (no
+# pruned_levels / level_cap keys). Env GAMMA_LEVELS_PER_SIDE overrides the constant.
+# Guard: backtest/tests/test_refresh_levels_intraday.py (most-touched block). Revert: git revert.
+MOST_TOUCHED_PER_SIDE = 3
+TOUCH_DEDUP_MIN = 30   # one respect per level per 30-minute block; hovering is not touching
+
 # Degeneracy guard (2026-07-27, J live-flagged): the 07-27 incident's PMH=744.90 was a
 # SINGLE 80-share IEX print (n=1, v=80) — the engine trusted a level with essentially no
 # data behind it. Refuse to WRITE a computed level whose source bars are this thin;
@@ -585,6 +603,93 @@ def _merge_memory_levels(levels: list[dict], spot: float, now_iso: str) -> list[
     return kept + merged
 
 
+def _most_touched_per_side() -> int:
+    """MOST_TOUCHED_PER_SIDE, overridable by env GAMMA_LEVELS_PER_SIDE (0 = cap off)."""
+    import os as _os
+    raw = _os.environ.get("GAMMA_LEVELS_PER_SIDE")
+    if raw is None or not str(raw).strip():
+        return int(MOST_TOUCHED_PER_SIDE)
+    try:
+        return max(0, int(str(raw).strip()))
+    except ValueError:
+        return int(MOST_TOUCHED_PER_SIDE)
+
+
+def _uniform_touches(level: dict, df: pd.DataFrame, spot: float) -> int:
+    """Distinct (session, 30-min block) count in which a bar reached into the level's zone and
+    closed back OUTSIDE it on the near side. Resistance: high >= price - w and close < price - w.
+    Support: low <= price + w and close > price + w. Same rule for every source, so the ranking
+    is fair; a close through the level is a break, and a close inside the zone is hovering."""
+    try:
+        price = float(level["price"])
+    except (KeyError, TypeError, ValueError):
+        return 0
+    try:
+        w = float(level.get("zone_width")) if level.get("zone_width") is not None else _zone_width(price)
+    except (TypeError, ValueError):
+        w = _zone_width(price)
+    role = str(level.get("role") or ("resistance" if price > spot else "support")).lower()
+    if df is None or df.empty or not {"high", "low", "close", "date", "hm"} <= set(df.columns):
+        return 0
+    hi = df["high"].astype(float)
+    lo = df["low"].astype(float)
+    cl = df["close"].astype(float)
+    # A respect = the bar REACHED INTO the zone and CLOSED BACK OUTSIDE it on the near side.
+    # Requiring the close to leave the zone (not merely sit under the level's centre) is what
+    # stops a level parked inside the day's chop range from collecting a "touch" every bar.
+    mask = ((hi >= price - w) & (cl < price - w)) if role == "resistance" else ((lo <= price + w) & (cl > price + w))
+    if not bool(mask.any()):
+        return 0
+    hm = df.loc[mask, "hm"].astype(str)
+    block = hm.str[:2] + "-" + (hm.str[3:5].astype(int) // TOUCH_DEDUP_MIN).astype(str)
+    return int((df.loc[mask, "date"].astype(str) + "T" + block).nunique())
+
+
+def _keep_most_touched(levels: list[dict], df: pd.DataFrame, spot: float,
+                       per_side: int) -> tuple[list[dict], list[dict], dict | None]:
+    """Keep the top `per_side` most-touched ACTIVE in-band levels above and below spot; prune the
+    rest (and anything with zero respects). Out-of-band and tier=='expired' entries pass through
+    untouched. per_side <= 0 returns the input unchanged (cap off)."""
+    if per_side <= 0:
+        return levels, [], None
+    in_band: list[dict] = []
+    for lv in levels:
+        try:
+            price = float(lv.get("price"))
+        except (TypeError, ValueError):
+            continue
+        if str(lv.get("tier", "")).lower() == "expired" or abs(price - spot) > ACTIVE_BAND:
+            continue
+        in_band.append(lv)
+    scored = [(lv, _uniform_touches(lv, df, spot)) for lv in in_band]
+    kept: dict[tuple, dict] = {}
+    pruned: list[dict] = []
+    for side_above in (True, False):
+        cands = [(lv, t) for lv, t in scored if (float(lv["price"]) > spot) == side_above]
+        cands.sort(key=lambda it: (-it[1], -int(it[0].get("weight") or 0), abs(float(it[0]["price"]) - spot)))
+        for rank, (lv, t) in enumerate(cands, start=1):
+            if t >= 1 and rank <= per_side:
+                kept[(lv.get("label"), lv.get("price"))] = {**lv, "touches_uniform": t, "touch_rank": rank}
+            else:
+                reason = ("0 respects in the loaded window" if t < 1
+                          else f"rank {rank} > top-{per_side} most touched on its side")
+                pruned.append({"label": lv.get("label"), "price": lv.get("price"), "role": lv.get("role"),
+                               "source": lv.get("source"), "touches_uniform": t, "reason": reason})
+    in_band_ids = {(lv.get("label"), lv.get("price")) for lv in in_band}
+    out: list[dict] = []
+    for lv in levels:
+        key = (lv.get("label"), lv.get("price"))
+        if key in in_band_ids:
+            if key in kept:
+                out.append(kept[key])
+            continue
+        out.append(lv)
+    cap_info = {"per_side": per_side, "dedup_minutes": TOUCH_DEDUP_MIN,
+                "window_sessions": int(df["date"].nunique()) if df is not None and not df.empty and "date" in df.columns else 0,
+                "kept": len(kept), "pruned": len(pruned)}
+    return out, pruned, cap_info
+
+
 def refresh(df: pd.DataFrame | None = None) -> dict:
     now = et_now()
     now_iso = now.strftime("%Y-%m-%dT%H:%M:%S-04:00")
@@ -761,6 +866,17 @@ def refresh(df: pd.DataFrame | None = None) -> dict:
     # 6-9x curated PMH/PML pile-up self-heals every run (2026-06-30 contradictory-role fix).
     levels = _normalize_levels(levels, spot)
 
+    # MOST-TOUCHED CAP (J 2026-09-11) -- see the constant block. Runs LAST so hysteresis,
+    # memory merge and the role/dedup normalizer all see the full candidate set first.
+    _per_side = _most_touched_per_side()
+    levels, pruned_levels, cap_info = _keep_most_touched(levels, df, spot, _per_side)
+    if cap_info is not None:
+        kl["pruned_levels"] = pruned_levels
+        kl["level_cap"] = cap_info
+    else:
+        kl.pop("pruned_levels", None)
+        kl.pop("level_cap", None)
+
     kl["levels"] = levels
     kl["as_of"] = now_iso
     kl["spot_at_compute"] = round(spot, 2)
@@ -826,6 +942,7 @@ def refresh(df: pd.DataFrame | None = None) -> dict:
             # supplemented the delayed-SIP spine this run (0 = pure-SIP, pre-fix behavior).
             "iex_tail": tail_meta,
             "memory_merged": memory_merged, "engine_active_levels": active, "ema": ema_patch,
+            "most_touched": cap_info, "pruned_levels": pruned_levels,
             # WS3 (2026-08-01): held-by-hysteresis visibility (C7 — a carry must be loud in
             # the run output, not silently indistinguishable from a fresh qualification).
             "hysteresis_held": [{"label": lv.get("label"), "price": lv.get("price"),

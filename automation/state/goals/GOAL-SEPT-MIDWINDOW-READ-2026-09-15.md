@@ -38,3 +38,5 @@ what n remains; NO recommendation to arm (that is J's on 09-29/10-30 with the pa
 - {now} ET -- queued by Fable (EOD-audit session).
 ## HONEST STATE
 Queued. Not before 2026-09-15 16:30 ET.
+
+> **CONFIG CHANGE INSIDE THE WINDOW (added 2026-09-11 23:38 ET):** the level feed changed on J's directive (MOST-TOUCHED cap, `refresh_levels_intraday.py`, live from the 2026-09-14 open). Days 08-31..09-11 and days from 09-14 are NOT the same configuration. This read must report them as two segments and treat 09-14 as the new window start for any arming arithmetic; do not pool them.

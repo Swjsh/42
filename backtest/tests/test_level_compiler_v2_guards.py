@@ -166,6 +166,7 @@ def _state(tmp_path, monkeypatch):
     monkeypatch.setattr(rli, "KEY_LEVELS", kl)
     monkeypatch.setattr(rli, "TODAY_BIAS", bias)
     monkeypatch.setattr(rli, "daily_context", None)  # isolate this guard from the shelf wire
+    monkeypatch.setattr(rli, "MOST_TOUCHED_PER_SIDE", 0, raising=False)  # cap OFF: not under test here (2026-09-11)
     # isolate from the REAL project's params.json / key-levels-memory.json -- without this,
     # _memory_merge_enabled() reads the live repo state and can inject real level_memory
     # entries near the test's prices, contaminating the degeneracy assertions below.

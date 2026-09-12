@@ -86,6 +86,11 @@ def _state(tmp_path, monkeypatch):
     # zones have their own dedicated coverage in test_level_compiler_v2_guards.py, so disabling
     # them here makes this file deterministic without losing shelf test coverage anywhere.
     monkeypatch.setattr(rli, "daily_context", None)
+    # MOST-TOUCHED CAP (2026-09-11): legacy fixtures are tiny synthetic frames with no
+    # multi-touch structure, so the production cap (top-3 per side, zero-respect levels pruned)
+    # would empty them. Cap OFF here = the pre-2026-09-11 byte-identical path; the cap has its
+    # own block of tests at the bottom of this file that turn it on explicitly.
+    monkeypatch.setattr(rli, "MOST_TOUCHED_PER_SIDE", 0, raising=False)
     return kl, bias
 
 
@@ -427,3 +432,121 @@ def test_refresh_flag_on_missing_map_no_crash(tmp_path, monkeypatch, _state):
     _set_flag(tmp_path, monkeypatch, True)
     out = rli.refresh(df=_mixed_df())
     assert out["ok"] and out["memory_merged"] == 0         # fail-open no-op, feed intact
+
+
+# --- MOST-TOUCHED CAP (J directive 2026-09-11: "remove all lines other than the most touched
+# ones, there are too many") -----------------------------------------------------------------
+import datetime as _dt
+
+
+def _grid(date, touches_r=(), touches_s=(), r_price=752.0, s_price=748.0, weak_r_at=None):
+    """One session of 5m bars on `date`: filler chop 749.8-750.2 closing 750.0 (inside every
+    nearby zone, so hovering never scores), with crafted
+    rejections of r_price at the `touches_r` times (close back BELOW the zone) and bounces off
+    s_price at the `touches_s` times (close back ABOVE the zone). Optional single weak
+    rejection of 754.0 at `weak_r_at` (also the session high)."""
+    rows = []
+    for hm in ("08:00", "08:30", "09:00"):
+        rows.append({"date": date, "hm": hm, "high": 750.3, "low": 749.7, "close": 750.0, "volume": 40_000})
+    t = _dt.datetime(2026, 1, 1, 9, 30)
+    while t <= _dt.datetime(2026, 1, 1, 15, 55):
+        hm = t.strftime("%H:%M")
+        row = {"date": date, "hm": hm, "high": 750.2, "low": 749.8, "close": 750.0, "volume": 50_000}
+        if hm in touches_r:
+            row.update(high=r_price + 0.1, low=751.2, close=r_price - 0.4)
+        elif hm in touches_s:
+            row.update(low=s_price - 0.1, high=748.8, close=s_price + 0.4)
+        elif weak_r_at and hm == weak_r_at:
+            row.update(high=754.1, low=753.0, close=753.5)
+        rows.append(row)
+        t += _dt.timedelta(minutes=5)
+    return rows
+
+
+def _two_session_frame():
+    today = rli.et_now()
+    d0 = today.strftime("%Y-%m-%d")
+    d_1 = (today - _dt.timedelta(days=1)).strftime("%Y-%m-%d")
+    rows = _grid(d_1, touches_r=("10:00", "11:00", "13:00"), touches_s=("10:30", "14:00"))
+    rows += _grid(d0, touches_r=("10:00", "12:00"), touches_s=("10:30", "13:30"), weak_r_at="11:00")
+    return pd.DataFrame(rows)   # last close == 750.0 == spot
+
+
+_CURATED = [
+    {"price": 752.0, "role": "resistance", "type": "resistance", "label": "R_STRONG", "tier": "Active",
+     "source": "curated", "zone_width": 0.3, "weight": 4},
+    {"price": 754.0, "role": "resistance", "type": "resistance", "label": "R_WEAK", "tier": "Active",
+     "source": "curated", "zone_width": 0.3, "weight": 4},
+    {"price": 748.0, "role": "support", "type": "support", "label": "S_STRONG", "tier": "Active",
+     "source": "curated", "zone_width": 0.3, "weight": 4},
+    {"price": 746.0, "role": "support", "type": "support", "label": "S_ZERO", "tier": "Active",
+     "source": "curated", "zone_width": 0.3, "weight": 4},
+]
+
+
+def _seed(kl):
+    kl.write_text(json.dumps({"schema_version": 1, "spot_at_compute": 750.0,
+                              "levels": json.loads(json.dumps(_CURATED))}), encoding="utf-8")
+
+
+def _in_band(data, side):
+    spot = data["spot_at_compute"]
+    return [lv for lv in data["levels"]
+            if abs(lv["price"] - spot) <= 12.0 and str(lv.get("tier", "")).lower() != "expired"
+            and ((lv["price"] > spot) if side == "above" else (lv["price"] <= spot))]
+
+
+def test_uniform_touches_counts_distinct_30min_blocks_and_ignores_hovering():
+    df = pd.DataFrame(_grid("2026-09-10", touches_r=("10:00", "10:05", "10:10", "12:00")))
+    r = {"price": 752.0, "role": "resistance", "zone_width": 0.3}
+    assert rli._uniform_touches(r, df, 750.0) == 2          # 10:00/05/10 = ONE block, + 12:00
+    hover = {"price": 750.3, "role": "resistance", "zone_width": 0.38}
+    assert rli._uniform_touches(hover, df, 750.0) == 0      # chop closes INSIDE the zone: not a touch
+    s = {"price": 748.0, "role": "support", "zone_width": 0.3}
+    assert rli._uniform_touches(s, pd.DataFrame(_grid("2026-09-10", touches_s=("10:30", "10:35", "14:00"))), 750.0) == 2
+
+
+def test_most_touched_cap_keeps_top_per_side_and_prunes_rest(_state, monkeypatch):
+    kl, _ = _state
+    monkeypatch.setattr(rli, "MOST_TOUCHED_PER_SIDE", 1)
+    monkeypatch.delenv("GAMMA_LEVELS_PER_SIDE", raising=False)
+    _seed(kl)
+    out = rli.refresh(df=_two_session_frame())
+    assert out["ok"] is True
+    data = json.loads(kl.read_text(encoding="utf-8"))
+    above, below = _in_band(data, "above"), _in_band(data, "below")
+    assert len(above) == 1 and abs(above[0]["price"] - 752.0) <= 0.15, above
+    assert len(below) == 1 and abs(below[0]["price"] - 748.0) <= 0.15, below
+    for lv in above + below:
+        assert lv["touches_uniform"] >= 1 and lv["touch_rank"] == 1
+    assert above[0]["touches_uniform"] == 5 and below[0]["touches_uniform"] == 4
+    pruned = data["pruned_levels"]
+    by_price = {round(float(p["price"]), 1): p for p in pruned}
+    assert "0 respects" in by_price[746.0]["reason"]
+    weak = [p for p in pruned if p["price"] >= 753.9]
+    assert weak and all("rank" in p["reason"] for p in weak), weak
+    assert data["level_cap"]["per_side"] == 1 and data["level_cap"]["kept"] == 2
+    assert out["most_touched"]["pruned"] == len(pruned) >= 4
+
+
+def test_most_touched_cap_off_is_the_legacy_file(_state):
+    kl, _ = _state                       # fixture: cap OFF
+    _seed(kl)
+    out = rli.refresh(df=_two_session_frame())
+    assert out["ok"] is True and out["most_touched"] is None
+    data = json.loads(kl.read_text(encoding="utf-8"))
+    assert "pruned_levels" not in data and "level_cap" not in data
+    assert any(abs(lv["price"] - 746.0) < 1e-9 for lv in data["levels"])   # nothing pruned
+
+
+def test_most_touched_env_override(monkeypatch):
+    monkeypatch.setattr(rli, "MOST_TOUCHED_PER_SIDE", 3)
+    monkeypatch.setenv("GAMMA_LEVELS_PER_SIDE", "2")
+    assert rli._most_touched_per_side() == 2
+    monkeypatch.setenv("GAMMA_LEVELS_PER_SIDE", "0")
+    assert rli._most_touched_per_side() == 0
+    monkeypatch.setenv("GAMMA_LEVELS_PER_SIDE", "junk")
+    assert rli._most_touched_per_side() == 3
+    monkeypatch.delenv("GAMMA_LEVELS_PER_SIDE")
+    assert rli._most_touched_per_side() == 3
+

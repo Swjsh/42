@@ -122,6 +122,11 @@ Where it costs:
 
 ---
 
+### 5a. Same night, J's two directives (after reading this audit)
+
+1. *"remove all lines other than the most touched ones, there are too many"* → **shipped 2026-09-11 23:38 ET**: the level feed keeps only the 3 most-respected levels above and 3 below spot (uniform touch count, see CHANGELOG 2026-09-11). Live: 22 → 6. Applied under the freeze override on J's directive; **the clean scoring window restarts 2026-09-14**.
+2. *"what we really need is true supply and demand liquidity zones … find the indicator an get it on the chart /goal"* → `GOAL-SD-LIQUIDITY-ZONES-2026-09-11` at the top of the ladder. §2b's anchor-class table is the evidence it stands on; the cap is triage until zones replace pivots and memory prices as the anchor source.
+
 ## 6. UNVERIFIED / limits
 
 - SPY ranges come from the IEX daily cache (volume ~1.2M/day = IEX only); OHLC is approximate.
