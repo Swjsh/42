@@ -58,8 +58,8 @@ structure shift (2026-07-28). The feed never produced zones of that kind.
 - [x] (a) add the indicator to the live layout via `chart_manage_indicator` (try the candidates in order), confirm `data_get_pine_boxes` reads it, confirm it persists across a TV relaunch, screenshot.
 - [x] (b) `sd-zones.json` producer inside the existing refresher fire (CDP read → zones → uniform touches), drawer support, fail-open + guard test.
 - [x] (c) playbook "Levels" section: S/D base + liquidity definition, indicator mapping, what is NOT a zone.
-- [ ] (d) `SD_ZONE` class in `trigger_anchor_class_read.py` + forward clock + promotion prereg (09-29 / 10-30 row).
-- [ ] (e) 10-session read → promote / extend / kill, recorded here and in STATUS.
+- [x] (d) `SD_ZONE` class in `trigger_anchor_class_read.py` + forward clock + promotion prereg (09-29 / 10-30 row).
+- [ ] (e) 10-session read → promote / extend / kill, recorded here and in STATUS. **NOT-BEFORE ~2026-09-25** (forward-clock needs ≥10 archived sessions, first possible 2026-09-14 at one/trading-day; do not pick this up early — a premature read is not evidence, see prereg §3).
 
 ## PROGRESS LOG
 - 2026-09-11 23:4x ET (Fable, audit session): goal authored on J's mid-turn directive; placed at the
@@ -134,4 +134,42 @@ structure shift (2026-07-28). The feed never produced zones of that kind.
   `test_trendline_reclaim_trigger.py`) 8/8 unaffected; curated safety gate 59/59. Doc-only
   change, no code/test needed. Next: (d) `SD_ZONE` class in `trigger_anchor_class_read.py` —
   needs several sessions of `sd-zones.json` accrual before the forward read is meaningful.
+- 2026-09-12 01:0x ET (conductor AFTERHOURS): **(d) DONE.** `sd_zones_producer.py` only
+  ever overwrote the live `sd-zones.json` in place — a "forward read" comparing sessions
+  had no history to read. Shipped: (1) daily archiving — a successful (`status="OK"`,
+  non-dry-run) capture also writes `journal/sd-zones-archive/{day}.json` (same one-file-
+  per-session convention as `journal/gex-archive/`), last snapshot of the day wins;
+  (2) a forward-clock state file `automation/state/sd-zone-forward-clock.json` that
+  accrues distinct archived dates and flips `eligible_for_forward_read` at ≥10 — a
+  `--dry-run` or a `SKIPPED_TV_DOWN` carry-forward tick deliberately does NOT advance
+  either the archive or the clock (would silently inflate "sessions accrued" with days TV
+  never actually answered); (3) an `SD_ZONE` overlay in `backtest/tools/
+  trigger_anchor_class_read.py` (`--sd-zone` flag, new `sd_zone_read()`) that joins each
+  fill's entry to its ENTER tick's live SPY spot (same ±2min tolerance as the existing
+  ratified `read()` path) and checks that spot against the day's archived zone list —
+  buckets `in_zone` / `out_of_zone` / `no_archive_days` (the last kept structurally
+  distinct so a day with no archive can never be silently folded into `out_of_zone`);
+  (4) the promotion prereg, `analysis/recommendations/prereg-sd-zone-anchor-promotion-
+  2026-09-12.md` — G1–G6 forward gates + kill criterion, explicitly an **EXPANSION**
+  candidate (10-30 checkpoint only, never 09-29, since it would ADD a live anchor class),
+  gated on the forward-clock eligibility flag before any read counts as evidence.
+  **Verified live (OP-33), scoped honestly:** did NOT re-run the real TV/CDP producer this
+  fire (Saturday, no live TradingView session — nothing to gain and the archive/clock
+  changes are already covered by 5 new offline unit tests that fake the chart, same
+  convention as the rest of this module's suite). DID run the real, non-mocked
+  `--sd-zone` CLI against the actual `core-decisions.jsonl` / `trades.csv` for
+  2026-09-01..09-12: correctly reports 0 in/out-of-zone legs and 7 `no_archive_days`
+  (the archive genuinely does not exist yet before today — exactly the expected state,
+  proving the new code path runs clean against real data with zero exceptions).
+  RED-proofed live: broke `_in_zone`'s bound check, 3 of the new tests failed exactly as
+  expected, reverted, green again. 25/25 new+existing tests across both files green
+  (18 in `test_sd_zones_producer_2026_09_12.py`, 7 in the new
+  `test_trigger_anchor_sd_zone_overlay_2026_09_12.py`). Neither touched file is on
+  `FROZEN_TRADING_PATH` (verified via `doctrine.frozen_path_hit`, all None). First
+  possible archived session is **2026-09-14** (Monday, `Gamma_SdZonesProducer`'s first
+  weekday fire); at one session/trading-day the clock cannot clear before roughly
+  **2026-09-25** — item (e) is correctly NOT-BEFORE that date, not idle-blocked, and the
+  ladder should not re-pick it earlier than that. REVOKE: `git revert <this commit>` (pure
+  addition — no existing function's behavior changed, confirmed by the unchanged-`_cls`
+  regression test).
 - 2026-09-12 00:37 ET (Fable, interactive): LANE COLLISION on item (b) -- this session built a second (b) in parallel (drawer-hosted CDP capture + a scorer INSIDE the frozen refresher under GAMMA_FREEZE_OVERRIDE, 8 guards GREEN, live smoke 10 boxes) while the 00:10 conductor fire built `sd_zones_producer.py` + `Gamma_SdZonesProducer` (zero frozen-file edits, 12 guards, task registered, ee9bdc19/441a270c). FOLDED to the conductor's; mine discarded before commit (the 2026-09-10 rule stands: do not stretch the freeze override for a shadow file). Kept from mine: `.gitignore` entry for `automation/state/sd-zones.json`, a consumer-side pin (heartbeat_core + fleet never reference the file), STATUS_MD isolation in the producer's dry-run test (its 00:22 cut leaked a `### BROKEN` block into the real STATUS.md -- removed). Independent read of the same CDP walk from this session: 10 boxes (770.48-769.80 down to 757.65-757.25), SMC inputs currently in_3=false / in_21=true (persistence across the NEXT relaunch still UNVERIFIED). ROOT CAUSE of the collision: the item was never flipped to `[~]`; the Stop-hook continuation text now says CLAIM FIRST (guard in setup/hooks/test_doctrine_hooks.py). Cadence UNVERIFIED until the first scheduled fire Mon 2026-09-14 08:44 ET advances `sd-zones.json.as_of`.

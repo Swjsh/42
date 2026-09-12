@@ -83,6 +83,14 @@ STATE_FILE = STATE_DIR / "sd-zones.json"
 STATUS_MD = REPO / "automation" / "overnight" / "STATUS.md"
 ET = pytz.timezone("America/New_York")
 
+# GOAL item (d): a "forward clock" needs one snapshot PER SESSION, not just the latest
+# in-place overwrite sd-zones.json already does. Mirrors journal/gex-archive/'s per-day
+# file pattern. Only a real, freshly-read capture counts as a session (status == "OK",
+# never a --dry-run and never a SKIPPED_TV_DOWN carry-forward of yesterday's zones --
+# counting a skip would silently inflate "sessions accrued" with days TV never answered).
+ARCHIVE_DIR = REPO / "journal" / "sd-zones-archive"
+FORWARD_CLOCK_FILE = STATE_DIR / "sd-zone-forward-clock.json"
+
 # The study added under item (a). A substring match, same convention item (a) verified
 # live (`data_get_pine_boxes(study_filter="Smart Money")` returned 5 zones).
 STUDY_FILTER = "Smart Money"
@@ -114,6 +122,53 @@ def write_state(out: dict) -> None:
     with open(tmp, "w", encoding="utf-8") as fh:
         json.dump(out, fh, indent=2)
     tmp.replace(STATE_FILE)
+
+
+def archive_snapshot(day: str, out: dict) -> None:
+    """One file per session, last-write-of-the-day wins (matches gex-archive convention).
+    Only called for a real successful capture -- see the ARCHIVE_DIR docstring above."""
+    ARCHIVE_DIR.mkdir(parents=True, exist_ok=True)
+    path = ARCHIVE_DIR / f"{day}.json"
+    snapshot = {
+        "date": day,
+        "as_of": out.get("as_of"),
+        "chart_symbol": out.get("chart_symbol"),
+        "spot": out.get("spot"),
+        "zones": out.get("zones") or [],
+    }
+    tmp = path.with_suffix(".json.tmp")
+    with open(tmp, "w", encoding="utf-8") as fh:
+        json.dump(snapshot, fh, indent=2)
+    tmp.replace(path)
+
+
+def update_forward_clock(day: str) -> dict:
+    """Append `day` to the accrued-sessions list (idempotent) and recompute eligibility.
+    GOAL-SD-LIQUIDITY-ZONES-2026-09-11 item (d) needs >= 10 accrued sessions before the
+    forward read (item e) is meaningful -- see prereg-sd-zone-anchor-promotion-2026-09-12.md."""
+    if FORWARD_CLOCK_FILE.exists():
+        try:
+            clock = json.loads(FORWARD_CLOCK_FILE.read_text(encoding="utf-8-sig"))
+        except (OSError, json.JSONDecodeError):
+            clock = {}
+    else:
+        clock = {}
+    if not isinstance(clock, dict):
+        clock = {}
+    dates = sorted(set(clock.get("archived_dates") or []) | {day})
+    clock = {
+        "schema_version": 1,
+        "first_archived_date": dates[0],
+        "archived_dates": dates,
+        "sessions_accrued": len(dates),
+        "eligible_for_forward_read": len(dates) >= 10,
+        "updated_at": day,
+    }
+    tmp = FORWARD_CLOCK_FILE.with_suffix(".json.tmp")
+    with open(tmp, "w", encoding="utf-8") as fh:
+        json.dump(clock, fh, indent=2)
+    tmp.replace(FORWARD_CLOCK_FILE)
+    return clock
 
 
 def flag_status_md(message: str) -> None:
@@ -286,6 +341,13 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     write_state(out)
+    if out["status"] == "OK" and not args.dry_run:
+        day = now.strftime("%Y-%m-%d")
+        try:
+            archive_snapshot(day, out)
+            update_forward_clock(day)
+        except OSError as exc:  # noqa: BLE001 -- archiving is best-effort, never blocks the live write
+            flag_status_md(f"sd_zones_producer archive/clock write failed -- {exc}")
     print(f"{out['status']} symbol={out.get('chart_symbol')} spot={out.get('spot')} "
           f"n_zones={len(out.get('zones') or [])}")
     for z in out.get("zones") or []:

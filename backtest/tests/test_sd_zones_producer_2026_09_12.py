@@ -340,3 +340,95 @@ def test_trading_path_never_references_the_shadow_file():
     for text, name in ((core, "heartbeat_core.py"), (fleet, "build_shared_signal.py")):
         assert "sd-zones" not in text and "sd_zones" not in text, f"{name} references the shadow file"
 
+
+# --------------------------------------------------------------------------- 7. forward-clock accrual (item d)
+
+def test_end_to_end_ok_run_archives_a_daily_snapshot_and_advances_the_clock(tmp_path, monkeypatch):
+    stamp = tmp_path / "sd-zones.json"
+    archive_dir = tmp_path / "archive"
+    clock_file = tmp_path / "clock.json"
+    monkeypatch.setattr(szp, "STATE_FILE", stamp)
+    monkeypatch.setattr(szp, "ARCHIVE_DIR", archive_dir)
+    monkeypatch.setattr(szp, "FORWARD_CLOCK_FILE", clock_file)
+    monkeypatch.setattr(szp, "_spy_bars", lambda: _bars_df())
+    monkeypatch.setattr(szp, "et_now", lambda: dt.datetime(2026, 9, 14, 9, 0))
+    boxes = [{"low": 751.8, "high": 752.2}]
+    monkeypatch.setattr(szp, "TvChart", lambda: _FakeChart(boxes=boxes, spot=750.0))
+
+    rc = szp.main([])
+    assert rc == 0
+
+    archived = archive_dir / "2026-09-14.json"
+    assert archived.exists(), "a real OK capture must write a same-day archive snapshot"
+    snap = json.loads(archived.read_text(encoding="utf-8"))
+    assert snap["date"] == "2026-09-14"
+    assert len(snap["zones"]) == 1
+
+    clock = json.loads(clock_file.read_text(encoding="utf-8"))
+    assert clock["archived_dates"] == ["2026-09-14"]
+    assert clock["sessions_accrued"] == 1
+    assert clock["eligible_for_forward_read"] is False
+
+
+def test_dry_run_never_archives_or_advances_the_clock(tmp_path, monkeypatch):
+    stamp = tmp_path / "sd-zones.json"
+    archive_dir = tmp_path / "archive"
+    clock_file = tmp_path / "clock.json"
+    monkeypatch.setattr(szp, "STATE_FILE", stamp)
+    monkeypatch.setattr(szp, "ARCHIVE_DIR", archive_dir)
+    monkeypatch.setattr(szp, "FORWARD_CLOCK_FILE", clock_file)
+    monkeypatch.setattr(szp, "STATUS_MD", tmp_path / "STATUS.md")
+    monkeypatch.setattr(szp, "_spy_bars", lambda: _bars_df())
+    boxes = [{"low": 751.8, "high": 752.2}]
+    monkeypatch.setattr(szp, "TvChart", lambda: _FakeChart(boxes=boxes, spot=750.0))
+
+    rc = szp.main(["--dry-run"])
+    assert rc == 0
+    assert not archive_dir.exists(), "--dry-run must never create an archive snapshot"
+    assert not clock_file.exists(), "--dry-run must never advance the forward clock"
+
+
+def test_tv_down_skip_never_archives_or_advances_the_clock(tmp_path, monkeypatch):
+    """A SKIPPED_TV_DOWN tick carries forward YESTERDAY's zones -- counting it as a new
+    'session accrued' would silently inflate the forward-read eligibility clock with days
+    TV never actually answered."""
+    stamp = tmp_path / "sd-zones.json"
+    archive_dir = tmp_path / "archive"
+    clock_file = tmp_path / "clock.json"
+    stamp.write_text(json.dumps({"schema_version": 1, "zones": [], "drawn": []}), encoding="utf-8")
+    monkeypatch.setattr(szp, "STATE_FILE", stamp)
+    monkeypatch.setattr(szp, "ARCHIVE_DIR", archive_dir)
+    monkeypatch.setattr(szp, "FORWARD_CLOCK_FILE", clock_file)
+    monkeypatch.setattr(szp, "_spy_bars", lambda: _bars_df())
+    monkeypatch.setattr(szp, "TvChart", _down_factory)
+
+    rc = szp.main([])
+    assert rc == 0
+    assert not archive_dir.exists(), "a TV-down skip must never archive a snapshot"
+    assert not clock_file.exists(), "a TV-down skip must never advance the forward clock"
+
+
+def test_forward_clock_is_idempotent_across_same_day_reruns(tmp_path, monkeypatch):
+    clock_file = tmp_path / "clock.json"
+    monkeypatch.setattr(szp, "FORWARD_CLOCK_FILE", clock_file)
+    c1 = szp.update_forward_clock("2026-09-14")
+    c2 = szp.update_forward_clock("2026-09-14")
+    assert c1 == c2
+    assert c2["sessions_accrued"] == 1
+
+    c3 = szp.update_forward_clock("2026-09-15")
+    assert c3["sessions_accrued"] == 2
+    assert c3["archived_dates"] == ["2026-09-14", "2026-09-15"]
+    assert c3["first_archived_date"] == "2026-09-14"
+
+
+def test_forward_clock_becomes_eligible_at_ten_accrued_sessions(tmp_path, monkeypatch):
+    clock_file = tmp_path / "clock.json"
+    monkeypatch.setattr(szp, "FORWARD_CLOCK_FILE", clock_file)
+    days = [f"2026-{9 if d <= 30 else 10:02d}-{d if d <= 30 else d - 30:02d}" for d in range(14, 24)]
+    clock = None
+    for day in days:
+        clock = szp.update_forward_clock(day)
+    assert clock["sessions_accrued"] == 10
+    assert clock["eligible_for_forward_read"] is True
+
