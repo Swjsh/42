@@ -65,7 +65,7 @@ Falsifiable, each checked by a command or ledger row quoted in the PROGRESS LOG:
   `Gamma_Home`), not a new task.
 
 ## QUEUE
-- [ ] (a) dry-run the registration map: table of every Disabled `Gamma_*` task with held-since, restore-list membership, install script → commit `analysis/audits/task-registrations-2026-09-1x.md`; then unregister the eligible set; run the registry test; STATUS line.
+- [x] (a) dry-run the registration map: table of every Disabled `Gamma_*` task with held-since, restore-list membership, install script → commit `analysis/audits/task-registrations-2026-09-1x.md`; then unregister the eligible set; run the registry test; STATUS line.
 - [ ] (b) tick dead-man inside `dead_mans_switch.py` + RED-proofed test + 09-09 replay check.
 - [ ] (c) Misses block: find the producer (`journal` EOD writer), fix the sign handling, guard test, regenerate 09-10.
 - [ ] (d) `_shared.ps1` kill logging (image + cmdline per pid), then the keep/retire decision after ≥ 2 sessions of kill logs.
@@ -78,3 +78,4 @@ Falsifiable, each checked by a command or ledger row quoted in the PROGRESS LOG:
   The "retire the LLM flatteners" recommendation from the audit's §5 was WITHDRAWN on fresh
   evidence (both ran exit=0 on 09-10 and 09-11) — replaced by item (d).
 - 2026-09-11 20:49 ET — opened by goal_autopilot
+- 2026-09-11 22:5x ET (Fable, continuation 1/3): **(a) DONE.** Map first (`analysis/audits/task-registrations-2026-09-11.md`, commit `a38f2138`): 195 = 23 ESSENTIAL + 135 nightly-blackout + 37 parked -- the goal's own premise ('172 parked') corrected. Unregistered 6 (FuturesEod dup, Grind_Vwap, Drive, ConductorRTH, MultiCore, TwinChaos): count 195 -> 189 (Ready 23 / Disabled 166), `test_scheduled_tasks_doc.py` 5 passed, registry section `## Unregistered 2026-09-11` added with restore commands. HELD Gamma_DailyReview for (e): `run-daily-review.ps1` is the key-levels-archive writer (stopped 07-02 = its last run). 30 parked stay (no install script / ESSENTIAL / restore-listed / started by name). Revoke = the install script per row.

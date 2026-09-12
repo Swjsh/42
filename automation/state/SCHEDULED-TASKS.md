@@ -283,6 +283,21 @@
 | `Gamma_Funnel_4` | ON-DEMAND (no trigger) | **DISABLED 2026-07-01 (consolidate-hard).** See `Gamma_Funnel_0`. |
 | `Gamma_Funnel_5` | ON-DEMAND (no trigger) | **DISABLED 2026-07-01 (consolidate-hard).** See `Gamma_Funnel_0`. |
 
+## Unregistered 2026-09-11 (subtraction pass, GOAL-SUBTRACTION-2026-09-11 item a)
+
+> Dry-run map committed first: `analysis/audits/task-registrations-2026-09-11.md` (195 registered = 23 ESSENTIAL + 135 nightly quiet-mode blackout + 37 parked). Rule: Disabled >= 7 days AND not on `quiet-mode-restore.json`/`quiet-mode-never-restore.json` AND restorable by an install script AND not ESSENTIAL AND not started by name from any script. Verified after: `Get-ScheduledTask Gamma_*` = 189 (Ready 23, Disabled 166); `test_scheduled_tasks_doc.py` 5 passed. Install scripts are untouched, so each name below is still "documented" here and still re-registrable in one command.
+
+| Task | Last run | Why dead | Restore |
+|---|---|---|---|
+| `Gamma_FuturesEod` | never (0x41303) | superseded by `Gamma_FuturesEod2` (ran 2026-09-11 14:42; `futures_health.py` checks the `2`) | `setup\scripts\install-futures-eod.ps1` (registers the successor) |
+| `Gamma_Grind_Vwap` | never, no trigger | dead grind pipeline (consolidate-hard 2026-07-01) | `setup\install-grind-vwap.ps1` |
+| `Gamma_Drive` | 2026-06-30 | LLM gamma-drive fire, replaced by `Gamma_GoalAutopilot` | `setup\install-gamma-drive-task.ps1` |
+| `Gamma_ConductorRTH` | 2026-07-23 | disabled in the 2026-07-25 cost pass (24.5 fires/weekday) | `setup\install-conductor-rth-task.ps1` |
+| `Gamma_MultiCore` | 2026-08-20 | multi lane STOPPED on its frozen null; tickers lane superseded it | `setup\scripts\install-multi-core.ps1` |
+| `Gamma_TwinChaos` | 2026-08-30 | weekly twin chaos drill; twin now a resident loop, ledger unread since | `setup\scripts\install-twin-chaos-drill.ps1` |
+
+**Held, not removed:** `Gamma_DailyReview` (last 2026-07-02) -- `run-daily-review.ps1` is the `journal/key-levels-archive/` writer; the archive stopped the day it did. Decided under GOAL-SUBTRACTION item (e). The 30 other parked registrations stay for named reasons (no install script, ESSENTIAL, on a restore list, or started by name) -- see the map.
+
 ## Reference — still removed since the 2026-05-23 reset (NOT registered; not parsed by audit)
 
 > Run-scripts (`setup/scripts/run-*.ps1`) still exist for all of these; re-registering is fast if J wants them.
