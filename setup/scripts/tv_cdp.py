@@ -264,6 +264,110 @@ class TvChart:
         )
         return eid or None
 
+    def create_rectangle(self, point: dict, point2: dict, text: str, overrides: dict | None = None) -> str | None:
+        """Draw one two-point `rectangle` shape; returns the new entity_id (or None).
+
+        Added 2026-09-12 (GOAL-SD-LIQUIDITY-ZONES item b): mirrors the TradingView MCP's
+        own `drawShape` for a 2-point shape (SwjshAlgoKnife/mcp-servers/tradingview-mcp/
+        src/core/drawing.js) -- `createMultipointShape([p1, p2], {shape: "rectangle", ...})`
+        -- but uses the before/after id-diff `create_horizontal_line` already proved live,
+        rather than trusting a direct return value (unverified for `rectangle`
+        specifically; `create_trend_line`'s direct-return path was verified live for
+        `trend_line` only, per that method's own docstring).
+        """
+        for pt in (point, point2):
+            v = float(pt["price"])
+            if v != v or v in (float("inf"), float("-inf")):
+                raise ValueError(f"non-finite price in point: {pt!r}")
+        p1 = json.dumps({"time": int(point["time"]), "price": float(point["price"])})
+        p2 = json.dumps({"time": int(point2["time"]), "price": float(point2["price"])})
+        ovr = json.dumps(overrides or {})
+        js_before = f"{CHART_API}.getAllShapes().map(function(s) {{ return s.id; }})"
+        before = set(self.evaluate(js_before) or [])
+        self.evaluate(
+            f"""
+            {CHART_API}.createMultipointShape(
+              [{p1}, {p2}],
+              {{ shape: "rectangle", overrides: {ovr}, text: {json.dumps(text)} }}
+            )
+            """
+        )
+        after = self.evaluate(js_before) or []
+        new_ids = [i for i in after if i not in before]
+        return new_ids[0] if new_ids else None
+
+    def pine_boxes(self, study_filter: str = "") -> list[dict]:
+        """Read `box.new(...)` graphics from a Pine study's rendered primitives.
+
+        Added 2026-09-12 (GOAL-SD-LIQUIDITY-ZONES item b): a Python port of the
+        TradingView MCP's `getPineBoxes` (SwjshAlgoKnife/mcp-servers/tradingview-mcp/
+        src/core/data.js) -- same `_primitivesCollection.dwgboxes.get('boxes')` walk,
+        deliberately kept mechanism-identical so this client and the MCP can never read
+        two different shapes of box data. Returns one dict per matching study:
+        `{"name": str, "total_boxes": int, "zones": [{"high": float, "low": float}, ...]}`
+        (deduplicated by exact high:low pair, sorted high-to-low). Raises TvCdpError only
+        if the underlying `evaluate()` call itself fails (JS exception / CDP error); an
+        indicator simply not being on the chart yields an empty list, not an error.
+        """
+        js = f"""
+        (function() {{
+          var chart = {CHART_API}._chartWidget;
+          var model = chart.model();
+          var sources = model.model().dataSources();
+          var results = [];
+          var filter = {json.dumps(study_filter or "")};
+          for (var si = 0; si < sources.length; si++) {{
+            var s = sources[si];
+            if (!s.metaInfo) continue;
+            try {{
+              var meta = s.metaInfo();
+              var name = meta.description || meta.shortDescription || '';
+              if (!name) continue;
+              if (filter && name.indexOf(filter) === -1) continue;
+              var g = s._graphics;
+              if (!g || !g._primitivesCollection) continue;
+              var pc = g._primitivesCollection;
+              var items = [];
+              try {{
+                var outer = pc.dwgboxes;
+                if (outer) {{
+                  var inner = outer.get('boxes');
+                  if (inner) {{
+                    var coll = inner.get(false);
+                    if (coll && coll._primitivesDataById && coll._primitivesDataById.size > 0) {{
+                      coll._primitivesDataById.forEach(function(v, id) {{ items.push({{id: id, raw: v}}); }});
+                    }}
+                  }}
+                }}
+              }} catch(e) {{}}
+              if (items.length > 0) results.push({{name: name, count: items.length, items: items}});
+            }} catch(e) {{}}
+          }}
+          return results;
+        }})()
+        """
+        raw = self.evaluate(js)
+        if not raw:
+            return []
+        studies: list[dict] = []
+        for s in raw:
+            zones: list[dict] = []
+            seen: set[tuple[float, float]] = set()
+            for item in s.get("items") or []:
+                v = item.get("raw") or {}
+                y1, y2 = v.get("y1"), v.get("y2")
+                if y1 is None or y2 is None:
+                    continue
+                high = round(max(y1, y2), 2)
+                low = round(min(y1, y2), 2)
+                key = (high, low)
+                if key not in seen:
+                    zones.append({"high": high, "low": low})
+                    seen.add(key)
+            zones.sort(key=lambda z: -z["high"])
+            studies.append({"name": s.get("name"), "total_boxes": s.get("count", 0), "zones": zones})
+        return studies
+
     def remove_entity(self, entity_id: str) -> bool:
         """Remove ONE shape by id. Returns True only if it is verifiably gone."""
         js = f"""

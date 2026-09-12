@@ -56,7 +56,7 @@ structure shift (2026-07-28). The feed never produced zones of that kind.
 
 ## QUEUE
 - [x] (a) add the indicator to the live layout via `chart_manage_indicator` (try the candidates in order), confirm `data_get_pine_boxes` reads it, confirm it persists across a TV relaunch, screenshot.
-- [ ] (b) `sd-zones.json` producer inside the existing refresher fire (CDP read → zones → uniform touches), drawer support, fail-open + guard test.
+- [x] (b) `sd-zones.json` producer inside the existing refresher fire (CDP read → zones → uniform touches), drawer support, fail-open + guard test.
 - [ ] (c) playbook "Levels" section: S/D base + liquidity definition, indicator mapping, what is NOT a zone.
 - [ ] (d) `SD_ZONE` class in `trigger_anchor_class_read.py` + forward clock + promotion prereg (09-29 / 10-30 row).
 - [ ] (e) 10-session read → promote / extend / kill, recorded here and in STATUS.
@@ -91,3 +91,30 @@ structure shift (2026-07-28). The feed never produced zones of that kind.
   structure, in_10 show swing structure, in_19 internal OBs, in_21 swing OBs, in_29 EQH/EQL, in_33 FVG (off),
   in_48 premium/discount (off). Next item: (b) `sd-zones.json` producer.
 - 2026-09-12 00:12 ET (Fable): LINE & LEVEL CONSOLIDATION shipped alongside this goal (audit S7): trendline-only anchors OFF, cap authority on both readers, last extra setup disarmed. From 09-14 the engine's only entry anchors are the capped key levels (+ FHH); item (d)'s SD_ZONE class competes against that baseline, not the old mixed one.
+- 2026-09-12 00:3x ET (conductor AFTERHOURS): **(b) DONE.** `refresh_levels_intraday.py` (+3
+  siblings) is on `FROZEN_TRADING_PATH` since 2026-09-11, so this could not go "inside the
+  existing refresher" as written — instead: brand-new `setup/scripts/sd_zones_producer.py` +
+  brand-new `Gamma_SdZonesProducer` task (freeze cannot apply to code/tasks that did not exist
+  yet). Two new `tv_cdp.TvChart` methods: `pine_boxes(study_filter)` (Python port of the
+  TradingView MCP's `getPineBoxes` — same `_primitivesCollection.dwgboxes` walk) and
+  `create_rectangle(point, point2, text)` (mirrors `create_horizontal_line`'s before/after
+  id-diff). The producer imports `_uniform_touches`/`_zone_width`/`_spy_bars` from
+  `refresh_levels_intraday` READ-ONLY (zero edits to that frozen file) so the respect-count
+  math is byte-identical to the ratified most-touched cap. **Verified LIVE against the real
+  BATS:SPY chart:** `--dry-run` and a real run both read 10 order-block boxes from `Smart Money
+  Concepts [LuxAlgo]` (spot 764.40), classified 5 supply / 5 demand, touches_uniform 1–17,
+  wrote `automation/state/sd-zones.json`; `--draw` mode created 10 real `[SD] `-tagged
+  rectangles then removed all 10 via `remove_own_drawings` in the same session (chart left
+  clean — left OFF by default in the scheduled cadence per J's "too many lines" directive,
+  since the LuxAlgo study already paints the same boxes). Guard: new
+  `backtest/tests/test_sd_zones_producer_2026_09_12.py` (12/12; the rectangle-vs-horizontal_line
+  shape-filter safety test RED-proofed live via a real mutation — reverted). Task installed +
+  verified registered (`State=Ready`, real `MSFT_TaskWeeklyTrigger`, `NextRun=09/14/2026
+  06:44:00`), documented in `SCHEDULED-TASKS.md` (count 183→184, `test_scheduled_tasks_doc.py`
+  5/5). `engine_health.py` never references `sd-zones.json` — its absence/staleness structurally
+  cannot turn the engine RED, satisfying that DONE-WHEN clause by construction. Curated safety
+  gate 59/59. Rail: neither new file is on `FROZEN_TRADING_PATH` (verified via
+  `doctrine.frozen_path_hit`); revert = `git revert <this commit>` +
+  `Unregister-ScheduledTask -TaskName Gamma_SdZonesProducer -Confirm:$false`; this entry is the
+  REVOKE report. Next: (c) playbook definition, or (d) `SD_ZONE` class in
+  `trigger_anchor_class_read.py` (needs a few sessions of `sd-zones.json` history first).
