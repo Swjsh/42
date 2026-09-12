@@ -63,6 +63,13 @@ def run_hook(payload: dict, env: dict | None = None) -> tuple[int, str, str]:
         r"automation\state\fleet\exit_manager.py",
         "backtest/lib/filters.py",
         "setup/scripts/heartbeat_core.py",
+        # 2026-09-11 (FABLE-FULL-AUDIT-2026-09-11 S3b): the level producers feed the same entry
+        # gate as filters.py -- active levels doubled 10 -> 22 under a freeze that guarded only
+        # the engine files. They are trading path.
+        "setup/scripts/refresh_levels_intraday.py",
+        r"setup\scripts\level_memory_producer.py",
+        "setup/scripts/daily_context.py",
+        "C:/Users/jackw/Desktop/42/setup/scripts/context_levels.py",
     ],
 )
 def test_frozen_paths_are_recognised(path):

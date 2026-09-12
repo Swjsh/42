@@ -78,7 +78,7 @@ September positions: **first entry per arm/setup/day −$2,059; re-entries after
 | `heartbeat_core.py` | **3,309 lines** (J's own coding rule caps a file at 800); `filters.py` 2,342; `risk_gate.py` 1,724 |
 | Entry-refusal vocabulary | 26 `SKIP_*` reasons in the core + 15 canonical gates + 2 shadow scorers that gate nothing |
 | Scripts that read or write `key-levels.json` | **20** |
-| `Gamma_*` scheduled tasks | **195 registered, 23 enabled** (172 parked by quiet mode) |
+| `Gamma_*` scheduled tasks | **195 registered, 23 enabled** (172 parked: J's 09-05 "stop everything" hold + quiet mode) |
 | Tests | 943 files, 13,856 tests (full suite currently RED, 8 failures) |
 | Markdown files | > 6,700 (MAP.md's count; `find` sees ~10,400) |
 
@@ -116,9 +116,9 @@ Where it costs:
 **10-30 window:** retire `block_bull_1100_1200` (expansion; evidence §3a). Decide bias consumption ("no-trade" → engine sits out) only after ≥ 20 archived bias days exist — that archive is the instrument gap; it is one line in an existing producer, not a new task.
 
 **Complexity — recommendation, not executed (J's tooling, J's call):**
-1. **Build-freeze to match the config freeze**: no new instruments, shadow lanes, sidecars or reports until 10-30. The 172 parked task registrations get deleted, not parked. The two dead LLM EOD flatteners retire (Core flatten + dead-man's switch already cover it).
+1. **Build-freeze to match the config freeze**: no new instruments, shadow lanes, sidecars or reports until 10-30. The parked task registrations get deleted, not parked (dry-run map first; never the restore lists). *Correction, same night:* the 09-08 "dead LLM flatteners" claim is STALE — both ran exit=0 with useful reconcile appends on 09-10 and 09-11; the real hazard is the harness's 120 s timeout tree-kill (22 pids at 15:57 on 09-10, target unknown). Decision deferred to evidence, not retired. → `GOAL-SUBTRACTION-2026-09-11` on the ladder.
 2. **One surface per question.** HOME.md already answers "how did we do"; the journal's "Engine Misses" block and the kitchen's fabricated-artifact stream (11% of 4,437 files) go.
-3. **Let the freeze protect the whole trading path**, level producers included (`refresh_levels_intraday.py`, `level_memory_producer.py`, `daily_context.py`, `context_levels.py`).
+3. **Let the freeze protect the whole trading path**, level producers included (`refresh_levels_intraday.py`, `level_memory_producer.py`, `daily_context.py`, `context_levels.py`). *Done same night:* added to `setup/hooks/doctrine.py#FROZEN_TRADING_PATH` with the hook test extended.
 
 ---
 

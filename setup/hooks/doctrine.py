@@ -174,6 +174,13 @@ FROZEN_TRADING_PATH = (
     "backtest/lib/filters.py",
     "backtest/lib/risk_gate.py",
     "setup/scripts/heartbeat_core.py",
+    # Level producers (added 2026-09-11, FABLE-FULL-AUDIT-2026-09-11 S3b). They write the
+    # key-levels.json the entry gate reads; the active-level set doubled (median 10 -> 22)
+    # while only the engine files were frozen. A trigger anchor is trading path.
+    "setup/scripts/refresh_levels_intraday.py",
+    "setup/scripts/level_memory_producer.py",
+    "setup/scripts/daily_context.py",
+    "setup/scripts/context_levels.py",
 )
 
 # Written only by obsidian_vault_sync.py. Hand-edits are overwritten on the next sync,
