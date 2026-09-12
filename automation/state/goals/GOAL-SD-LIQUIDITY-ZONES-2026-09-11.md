@@ -65,3 +65,15 @@ structure shift (2026-07-28). The feed never produced zones of that kind.
 - 2026-09-11 23:4x ET (Fable, audit session): goal authored on J's mid-turn directive; placed at the
   TOP of the ladder — `GOAL-SUBTRACTION-2026-09-11` re-queued right behind it (its item (a) is done;
   (b)–(e) remain). The MOST-TOUCHED cap shipped the same night as the stopgap (see STATUS).
+- 2026-09-11 23:43 ET (Fable): **(a) mostly done, live.** `chart_manage_indicator` cannot add community scripts by name
+  (`new_study_count 0` for both spellings). What worked: `ui_click` aria-label "Indicators, metrics, and strategies"
+  -> `ui_type_text` "Smart Money Concepts" -> `ui_evaluate` click on the row
+  `[data-role="list-item"][data-id="PUB;6daafb2cabe6419d98ae25229d2327f8"]` (the `ui_click by=text` matcher
+  cannot see list rows; the JS row-click can). `chart_get_state` now lists **Smart Money Concepts [LuxAlgo]**
+  (study id `foIsMP`) on BATS:SPY 5m; `data_get_pine_boxes(study_filter="Smart Money")` returns **5 zones**
+  (766.32-765.91, 765.30-765.01, 764.64-764.54, 764.14-764.00, 761.85-761.36) -- readable headlessly, so (b)
+  has a source. Layout save sent (Ctrl+S) -- **persistence across `Gamma_LaunchTV` UNVERIFIED until Monday's
+  08:00 relaunch**; screenshot `smc-luxalgo-added-2026-09-11` captured via `capture_screenshot`. LEFT IN (a):
+  confirm the study is still present after the relaunch; trim SMC inputs to order blocks + EQH/EQL (the default
+  also paints internal structure labels + FVG + premium/discount, which is the clutter J just asked us to remove).
+- 2026-09-11 23:43 ET — opened by goal_autopilot

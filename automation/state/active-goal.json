@@ -1,12 +1,10 @@
 {
-  "id": "GOAL-FULL-SUITE-RED-TRIAGE-2026-09-10",
-  "active": false,
-  "opened_at_et": "2026-09-11T00:11:46",
-  "expires_at_et": "2026-09-18",
-  "file": "automation/state/goals/GOAL-FULL-SUITE-RED-TRIAGE-2026-09-10.md",
-  "queue_id": "GOAL-FULL-SUITE-RED-TRIAGE-2026-09-10",
+  "id": "GOAL-SD-LIQUIDITY-ZONES-2026-09-11",
+  "active": true,
+  "opened_at_et": "2026-09-11T23:43:14",
+  "expires_at_et": "2026-10-02",
+  "file": "automation/state/goals/GOAL-SD-LIQUIDITY-ZONES-2026-09-11.md",
+  "queue_id": "GOAL-SD-LIQUIDITY-ZONES-2026-09-11",
   "max_continuations_per_session": 3,
-  "last_next_item": null,
-  "closed_at_et": "2026-09-11 00:47 ET",
-  "closed_reason": "queue fully terminal (no bare '- [ ] ' item left)"
+  "last_next_item": null
 }
