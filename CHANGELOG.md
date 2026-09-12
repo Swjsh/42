@@ -293,3 +293,18 @@ J (~23:00 ET): *"remove all lines other than the most touched ones, there are to
   regardless of tier), definition folded into the playbook, `SD_ZONE` class in the anchor-class read, promotion
   by prereg only. The cap is the stopgap; this is the destination.
 - Revert (cap): `git revert <sha>` or `GAMMA_LEVELS_PER_SIDE=0` in the refresher's environment.
+
+### 2026-09-12 (Sat, ~00:xx ET) -- LINE & LEVEL CONSOLIDATION (J directive)
+
+J: *"now audit and consolidate again make sure engine only trades what it should be looking at line and level wise."*
+
+- **Trendline anchor OFF** (`trendline_anchor_enabled=false`, both params files → `heartbeat_core.GATE_KEYS` → `engine_cli` flip
+  point → `filters.evaluate_bearish_setup`). The in-engine descending-trendline fitter anchored 37 of 110 filled signals since
+  08-01 with no key level (+$1,084 net, −$1,137 without its two best trades) -- a line never drawn on J's chart. Level-anchored
+  entries are byte-identical. Orchestrator gained the parity kwarg (default legacy).
+- **Cap authority on the read side**: under `level_cap`, the core and fleet level readers accept only levels the MOST-TOUCHED
+  cap stamped (`touch_rank`); no other writer of `key-levels.json` can put a level in front of the engine.
+- **Last armed non-level extra setup disarmed** (`double_bottom_base_quiet`, 0 placements in 73 days). All extras now off.
+- Guard: `backtest/tests/test_line_level_consolidation_2026_09_12.py` (RED 6 → GREEN 351 / 20 suites). Applied under
+  `GAMMA_FREEZE_OVERRIDE` on J's directive; the frozen-window restart date stays 2026-09-14. Full trace: FABLE-FULL-AUDIT-2026-09-11 §7.
+

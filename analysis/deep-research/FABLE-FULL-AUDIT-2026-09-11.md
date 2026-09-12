@@ -134,3 +134,29 @@ Where it costs:
 - The 09-11 504 root cause is undiagnosed (the ledger row does not name the endpoint).
 - Whether the premarket bias has skill cannot be measured — no history exists.
 - `levels_active` in the ledger is a price list, not labels; the anchor class was resolved through the conviction shadow's `matched_level_label` (core account, 08-17 onward) and joined to fleet fills by entry minute. 14 of 172 legs did not join.
+
+---
+
+## 7. Line & level consolidation (J directive 2026-09-12 ~00:0x ET: "make sure engine only trades what it should be looking at line and level wise")
+
+**What reaches the entry decision (traced):** `heartbeat_core` reads three line files -- `key-levels.json` (the entry-anchor set, ±$12, expiry-filtered), `confluence-zones.json` and `trendlines-live.json` (both feed the **shadow-only** conviction scorer; no branch acts on them). The fleet arms mirror the core's verdicts (`build_shared_signal` reads `core-decisions.jsonl`) and keep their own copy of the level reader only for the structure-stop level. The bear side had **five** trigger types (`level_rejection`, `fhh_level_rejection`, `sequence_rejection`, `ribbon_flip`, `trendline_rejection`); the bull side three (`level_reclaim`, `wick_reclaim`, `confluence`).
+
+**What was actually trading (08-01..09-11, ENTER ticks joined to fills):**
+
+| Anchor class of the filled signal | Signals | Legs | WR | P&L | ex-top-2 |
+|---|---:|---:|---:|---:|---:|
+| Key level (± confluence) | 72 | 243 | 43% | **+$2,455** | |
+| **Trendline-only** -- the in-engine fitter's descending line through the last 3 pivot highs, no key level | **37** | 79 | 47% | +$1,084 | **−$1,137** (Jul +266/−955 · Aug +939/−1,282 · Sep +145/−406) |
+| FHH-only / sequence-only / ribbon-flip-only | 0 | 0 | | | |
+
+ENTER verdict ticks: 566 level-anchored vs **342 trendline-only** (37%). That line is computed inside `filters.detect_trendline_rejection_bearish`, is **never drawn on J's chart**, and the 2026-09-10 TA dial-in showed the same fitter class reproduces **0 of 24** of J's own lines. It is not a line J is looking at.
+
+**Consolidated (all under `GAMMA_FREEZE_OVERRIDE` on J's directive; guard `test_line_level_consolidation_2026_09_12.py`, RED 6 failed → GREEN 351 passed / 4 skipped across 20 suites):**
+- **C1 trendline anchor OFF.** `trendline_anchor_enabled=false` in both params files → `GATE_KEYS` → `engine_cli` flip point → `filters.evaluate_bearish_setup` skips the detector, so `trendline_rejection` never enters `triggers` and a trendline-only bar fails filter 10. Level-anchored bars byte-identical. Orchestrator got the parity kwarg (default legacy). Live check: both accounts' `gate_params` carry `False`. Revert: set `true`.
+- **C2 cap authority on the read side.** When `key-levels.json` carries `level_cap`, `heartbeat_core._read_level_records` and the fleet's `_active_level_prices` return only levels the MOST-TOUCHED cap stamped (`touch_rank`). A level any other writer injects between 5-minute refreshes is invisible to the engine until the refresher scores it. 20 scripts touch that file; the cap is now the one gate. Live check: 6 stamped in-band levels, both readers return exactly those 6.
+- **C3 the last armed non-level extra setup disarmed.** `double_bottom_base_quiet` (armed 2026-07-01 trade-to-learn, 0 placements and 0 extra-signal actions in 73 days) → `false`. Every `extra_setup_exec_armed` value is now `false`. `test_money_path_2026_07_01` pin updated with the reason.
+
+**Left as is, deliberately:** `fhh_level_rejection` (first-hour high -- a level J watches; never traded alone in the window), `sequence_rejection` / `ribbon_flip` (never anchored a fill alone), MEMORY levels (inside the cap), the shadow reads of confluence zones and live trendlines (feed a scorer nothing acts on -- subtraction candidates for `GOAL-SUBTRACTION`, with the six `Gamma_Trendline*` tasks). `SKIP_LOW_CONVICTION` has no live branch (comments only).
+
+**Honest cost:** the trendline-only class was net positive over the window (+$1,084) on the strength of two trades (+$1,501, +$720). J's directive removes it; the ex-top-2 sign says the class was not paying its way. Forward read: `trigger_anchor_class_read.py` will show zero trendline-only signals from 09-14; the 10-30 review compares the level-anchored class against this table.
+

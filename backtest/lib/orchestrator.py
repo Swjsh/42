@@ -561,6 +561,10 @@ def run_backtest(
     # where the level was recently swept in the counter-direction (5/14 09:58 misfire class).
     # Default False = no change to existing behavior.
     sweep_blocker_enabled: bool = False,
+    # TRENDLINE ANCHOR SWITCH parity kwarg (J 2026-09-12): live params set
+    # trendline_anchor_enabled=false; a replay that wants live parity passes
+    # params.get("trendline_anchor_enabled", True) here. Default True = legacy.
+    trendline_anchor_enabled: bool = True,
     sweep_min_wick_pct: float = 0.0003,
     sweep_min_close_back_pct: float = 0.0005,
     sweep_block_window_bars: int = 3,
@@ -1014,6 +1018,7 @@ def run_backtest(
             no_trade_window=no_trade_window,
             f9_vol_mult=f9_vol_mult,
             sweep_blocker_enabled=sweep_blocker_enabled,
+            trendline_anchor_enabled=trendline_anchor_enabled,
             sweep_min_wick_pct=sweep_min_wick_pct,
             sweep_min_close_back_pct=sweep_min_close_back_pct,
             sweep_block_window_bars=sweep_block_window_bars,
@@ -1036,6 +1041,7 @@ def run_backtest(
                 no_trade_window=no_trade_window,
                 f10_vol_mult=(f10_vol_mult_bull if f10_vol_mult_bull is not None else f9_vol_mult),
                 sweep_blocker_enabled=sweep_blocker_enabled,
+                trendline_anchor_enabled=trendline_anchor_enabled,
                 sweep_min_wick_pct=sweep_min_wick_pct,
                 sweep_min_close_back_pct=sweep_min_close_back_pct,
                 sweep_block_window_bars=sweep_block_window_bars,
@@ -1066,6 +1072,7 @@ def run_backtest(
                     no_trade_window=no_trade_window,
                     f9_vol_mult=f9_vol_mult,
                     sweep_blocker_enabled=sweep_blocker_enabled,
+                    trendline_anchor_enabled=trendline_anchor_enabled,
                     sweep_min_wick_pct=sweep_min_wick_pct,
                     sweep_min_close_back_pct=sweep_min_close_back_pct,
                     sweep_block_window_bars=sweep_block_window_bars,
@@ -1081,6 +1088,7 @@ def run_backtest(
                     no_trade_window=no_trade_window,
                     f10_vol_mult=(f10_vol_mult_bull if f10_vol_mult_bull is not None else f9_vol_mult),
                     sweep_blocker_enabled=sweep_blocker_enabled,
+                    trendline_anchor_enabled=trendline_anchor_enabled,
                     sweep_min_wick_pct=sweep_min_wick_pct,
                     sweep_min_close_back_pct=sweep_min_close_back_pct,
                     sweep_block_window_bars=sweep_block_window_bars,

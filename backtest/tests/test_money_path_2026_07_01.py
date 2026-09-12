@@ -429,8 +429,9 @@ class TestExtraSetupArming:
         # params.json `_extra_setup_exec_armed_disarm_doc_2026_08_24`.
         assert armed.get("vwap_reclaim_failed_break") is False,             "vwap_reclaim_failed_break disarmed 2026-08-24 (lane n=26 -$1,055 real fills)"
         assert armed.get("bollinger_squeeze") is False,             "bollinger_squeeze disarmed 2026-08-24 (n=13 WR 38% -$451 real fills)"
-        # Still armed at its validated cell (zero live placements to date).
-        assert armed.get("double_bottom_base_quiet") is True
+        # DISARMED 2026-09-12 (J: the engine trades only the level set). Armed 2026-07-01
+        # trade-to-learn; 0 live placements in 73 days -> dead knob (C14). Revert = flip true.
+        assert armed.get("double_bottom_base_quiet") is False
         # Never armed.
         assert armed.get("gap_and_go") is not True, \
             "gap_and_go must NOT be armed (0 robust cells on 06-28 re-validation + broken feed)"

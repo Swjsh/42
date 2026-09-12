@@ -337,9 +337,15 @@ def _active_level_prices(now: datetime) -> list[float]:
         return []
     levels = kl.get("levels") or kl.get("key_levels") or []
     today = now.strftime("%Y-%m-%d")
+    # CAP AUTHORITY (J 2026-09-12) -- mirrors heartbeat_core._read_level_records: under the
+    # MOST-TOUCHED cap only stamped ("touch_rank") levels count. Guard:
+    # backtest/tests/test_line_level_consolidation_2026_09_12.py.
+    capped = isinstance(kl.get("level_cap"), dict)
     out: list[float] = []
     for lv in levels:
         if not isinstance(lv, dict):
+            continue
+        if capped and "touch_rank" not in lv:
             continue
         exp = str(lv.get("expires_at") or "")[:10]
         if exp and exp < today:

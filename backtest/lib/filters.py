@@ -1591,6 +1591,17 @@ def evaluate_bearish_setup(
     # Frozen pre-reg: analysis/recommendations/prereg-g2-trendline-bypass-2026-08-01.json.
     # Guard: backtest/tests/test_g2_trendline_bypass_scope.py (RED-proofed, default inert).
     trendline_bypass_scope: str = "trendline_only",
+    # TRENDLINE ANCHOR SWITCH (J directive 2026-09-12, "make sure engine only trades what it
+    # should be looking at line and level wise"). detect_trendline_rejection_bearish fits a
+    # descending line through the last 3 pivot highs of a 60-bar window -- a line the engine
+    # computes for itself, never draws on J's chart, and that reproduces 0 of 24 of J's own
+    # lines (TA dial-in 2026-09-10). 2026-08-01..09-11: 342 of 922 ENTER ticks and 37 of 110
+    # filled signals were trendline-ONLY anchored (no key level): +$1,084 net, -$1,137 without
+    # the two best. False -> the detector is not consulted, "trendline_rejection" never enters
+    # triggers, so a trendline-only bar fails filter 10 (no level-tied trigger). True (default)
+    # = byte-identical legacy. Live params.json + aggressive/params.json set it False under
+    # GAMMA_FREEZE_OVERRIDE. Guard: backtest/tests/test_line_level_consolidation_2026_09_12.py.
+    trendline_anchor_enabled: bool = True,
 ) -> SetupResult:
     """Run all 10 bearish filters + trigger checks. Return SetupResult.
 
@@ -1714,10 +1725,13 @@ def evaluate_bearish_setup(
     # NEW 2026-05-09 night: trendline_rejection trigger (CLAUDE.md OP 17 TDD).
     # Encodes J's 5/1-style setup: rejection of a descending intraday trendline.
     # Verified by tests/test_trendline_trigger.py (3/3 passing).
-    trendline_level = detect_trendline_rejection_bearish(
-        ctx.bar, ctx.prior_bars, ctx.bar_idx,
-        lookback_bars=TRENDLINE_LOOKBACK_BARS,
-        min_swings=TRENDLINE_MIN_SWINGS,
+    trendline_level = (
+        detect_trendline_rejection_bearish(
+            ctx.bar, ctx.prior_bars, ctx.bar_idx,
+            lookback_bars=TRENDLINE_LOOKBACK_BARS,
+            min_swings=TRENDLINE_MIN_SWINGS,
+        )
+        if trendline_anchor_enabled else None  # TRENDLINE ANCHOR SWITCH -- see the kwarg doc
     )
 
     # NEW 2026-05-10: wick_rejection trigger (CLAUDE.md OP 17 TDD).

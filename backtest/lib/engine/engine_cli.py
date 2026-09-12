@@ -558,6 +558,14 @@ def decide_payload(payload: Mapping[str, Any]) -> dict:
         bear_kwargs = dict(bear_kwargs, structure_shift_confirmation=True)
         bull_kwargs = dict(bull_kwargs, structure_shift_confirmation=True)
 
+    # ── TRENDLINE ANCHOR SWITCH (gate_params["trendline_anchor_enabled"], J 2026-09-12) ──
+    # Same single-flip-point pattern as structure-shift above. Absent/True -> bear_kwargs
+    # untouched (byte-identical). Exactly False -> evaluate_bearish_setup skips the in-engine
+    # descending-trendline detector, so no entry can anchor on a line J cannot see.
+    # heartbeat_core passes the key through GATE_KEYS from the account's params.json.
+    if gate_params.get("trendline_anchor_enabled", True) is False:
+        bear_kwargs = dict(bear_kwargs, trendline_anchor_enabled=False)
+
     # 1) SCORE both sides (the shared scoring entry point).
     score: ScoreResult = score_bar(
         ctx,

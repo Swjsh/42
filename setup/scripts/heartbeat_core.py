@@ -189,6 +189,10 @@ GATE_KEYS = [
     "midday_trendline_gate", "block_conf_lvl_rej_midday_afternoon", "block_conf_lvl_rec_afternoon",
     "entry_bar_body_pct_min", "entry_bar_body_pct_min_bull", "vix_bear_hard_cap",
     "structure_veto_enabled",
+    # TRENDLINE ANCHOR SWITCH (J 2026-09-12): pass-through of params.json's
+    # trendline_anchor_enabled to engine_cli's flip point (exactly False = no trendline
+    # anchors; absent/True = legacy). Guard: test_line_level_consolidation_2026_09_12.py.
+    "trendline_anchor_enabled",
     # STRUCTURE-SHIFT-CONFIRMATION-AT-LEVELS (2026-07-28) — wiring-only addition. Listing
     # the key here does NOT arm anything: pass-through only fires if the key is later added
     # to params.json (a separate ratification decision per the pre-reg's arming_plan).
@@ -498,9 +502,18 @@ def _read_level_records(spy: float) -> list[dict]:
         levels = kl.get("levels") or kl.get("key_levels") or []
         today_et = _et_now().strftime("%Y-%m-%d")
         out: list[dict] = []
+        # CAP AUTHORITY (J 2026-09-12 consolidation). When the producer wrote the file under
+        # the MOST-TOUCHED cap (top-level "level_cap" present), only levels the cap STAMPED
+        # ("touch_rank") reach the engine. A level any other writer injects between refreshes
+        # is invisible until the next refresh scores it -- the producer's cap is the one gate
+        # and cannot be bypassed by writing the file. No "level_cap" key (cap off / legacy
+        # file) -> unchanged behaviour. Guard: test_line_level_consolidation_2026_09_12.py.
+        capped = isinstance(kl.get("level_cap"), dict)
         for lv in levels:
             if _level_expired(lv, today_et):
                 continue  # drop levels that expired on a prior ET day (fail-open on bad/absent date)
+            if capped and (not isinstance(lv, dict) or "touch_rank" not in lv):
+                continue  # CAP AUTHORITY: unstamped level -> not the engine's to see
             p = lv.get("price") or lv.get("level") or lv.get("value")
             if isinstance(p, (int, float)) and abs(p - spy) <= 12:
                 out.append(lv)

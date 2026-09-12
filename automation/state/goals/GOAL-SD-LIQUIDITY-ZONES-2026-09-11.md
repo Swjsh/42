@@ -90,3 +90,4 @@ structure shift (2026-07-28). The feed never produced zones of that kind.
   through the study's settings dialog). SMC input map (positional, read live): in_0 mode, in_3 show internal
   structure, in_10 show swing structure, in_19 internal OBs, in_21 swing OBs, in_29 EQH/EQL, in_33 FVG (off),
   in_48 premium/discount (off). Next item: (b) `sd-zones.json` producer.
+- 2026-09-12 00:12 ET (Fable): LINE & LEVEL CONSOLIDATION shipped alongside this goal (audit S7): trendline-only anchors OFF, cap authority on both readers, last extra setup disarmed. From 09-14 the engine's only entry anchors are the capped key levels (+ FHH); item (d)'s SD_ZONE class competes against that baseline, not the old mixed one.
