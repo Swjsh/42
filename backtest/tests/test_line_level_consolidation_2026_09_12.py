@@ -178,3 +178,39 @@ def test_fleet_reader_returns_only_cap_stamped_levels(tmp_path, monkeypatch):
     assert bss._active_level_prices(now) == [750.0]
     _write_levels(kl, capped=False, expires_day=now.strftime("%Y-%m-%d"))
     assert sorted(bss._active_level_prices(now)) == [750.0, 751.0]
+
+
+# ── C1b: the orchestrator path (replays, e2e, parity, graduated guards) ────────────────────────
+
+def test_orchestrator_only_passes_kwargs_each_evaluator_accepts():
+    """REGRESSION PIN (2026-09-12 00:36 ET): the consolidation apply added the anchor switch to
+    the orchestrator's shared kwarg block, which fed BOTH evaluators -- evaluate_bullish_setup has
+    no such parameter, so every orchestrator-path replay raised TypeError while the live path
+    (engine_cli builds bear_kwargs separately) stayed green. Walks orchestrator.py's AST: each
+    direct `evaluate_*_setup(...)` call and each `bear_kwargs=dict(...)` / `bull_kwargs=dict(...)`
+    block may only name keywords the target evaluator's signature declares."""
+    import ast
+    import inspect
+    from lib import orchestrator as orch
+    from lib.filters import evaluate_bullish_setup as bull_fn
+    sig = {"bear": set(inspect.signature(evaluate_bearish_setup).parameters),
+           "bull": set(inspect.signature(bull_fn).parameters)}
+    tree = ast.parse(Path(orch.__file__).read_text(encoding="utf-8"))
+    checked = 0
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call):
+            continue
+        fname = getattr(node.func, "id", None) or getattr(node.func, "attr", None)
+        targets = []
+        if fname in ("evaluate_bearish_setup", "evaluate_bullish_setup"):
+            targets.append(("bear" if "bearish" in fname else "bull", node))
+        for kw in node.keywords:
+            if kw.arg in ("bear_kwargs", "bull_kwargs") and isinstance(kw.value, ast.Call)                     and getattr(kw.value.func, "id", None) == "dict":
+                targets.append((kw.arg[:4], kw.value))
+        for side, call in targets:
+            names = {kw.arg for kw in call.keywords if kw.arg is not None}
+            unknown = names - sig[side]
+            assert not unknown, f"orchestrator.py:{call.lineno} passes {sorted(unknown)} to the {side} evaluator"
+            checked += 1
+    assert checked >= 4, checked
+

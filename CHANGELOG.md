@@ -326,3 +326,13 @@ J: *"now audit and consolidate again make sure engine only trades what it should
   listed in STATUS (checkpoint-packet `atm_pool_forward_n`, GEX archive gap 2026-09-09, queue.md over cap and depends-blocked,
   RRW cache missing, twin-chaos installer test stale).
 
+### 2026-09-12 (Sat, ~00:55 ET) -- REGRESSION FIX: consolidation kwarg leaked into the bull evaluator
+
+- 464a5efc added `trendline_anchor_enabled` to the orchestrator's shared kwarg block, which also feeds
+  `evaluate_bullish_setup` (no such parameter) -- every orchestrator-path replay, e2e, parity and graduated-guard
+  suite raised TypeError from ~00:12 ET. The live engine path (`engine_cli` builds `bear_kwargs` on its own) was
+  unaffected. Fixed under `GAMMA_FREEZE_OVERRIDE` (same directive) by removing the kwarg from the two bull-side calls;
+  the bull path is byte-identical to pre-consolidation. New AST guard in `test_line_level_consolidation_2026_09_12.py`
+  pins that the orchestrator only passes kwargs each evaluator declares. Lesson: run the orchestrator suites before a
+  knob ships, not only the unit guard.
+
