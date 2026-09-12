@@ -57,7 +57,7 @@ structure shift (2026-07-28). The feed never produced zones of that kind.
 ## QUEUE
 - [x] (a) add the indicator to the live layout via `chart_manage_indicator` (try the candidates in order), confirm `data_get_pine_boxes` reads it, confirm it persists across a TV relaunch, screenshot.
 - [x] (b) `sd-zones.json` producer inside the existing refresher fire (CDP read → zones → uniform touches), drawer support, fail-open + guard test.
-- [ ] (c) playbook "Levels" section: S/D base + liquidity definition, indicator mapping, what is NOT a zone.
+- [x] (c) playbook "Levels" section: S/D base + liquidity definition, indicator mapping, what is NOT a zone.
 - [ ] (d) `SD_ZONE` class in `trigger_anchor_class_read.py` + forward clock + promotion prereg (09-29 / 10-30 row).
 - [ ] (e) 10-session read → promote / extend / kill, recorded here and in STATUS.
 
@@ -118,3 +118,19 @@ structure shift (2026-07-28). The feed never produced zones of that kind.
   `Unregister-ScheduledTask -TaskName Gamma_SdZonesProducer -Confirm:$false`; this entry is the
   REVOKE report. Next: (c) playbook definition, or (d) `SD_ZONE` class in
   `trigger_anchor_class_read.py` (needs a few sessions of `sd-zones.json` history first).
+- 2026-09-12 00:4x ET (conductor continuation 1/3): **(c) DONE.** Added a new `## Levels`
+  section to `markdown/0dte/playbook.md` (between "How a setup gets into this playbook" and
+  "## Setups") defining S/D base (origin candle of a displacement move, a band not a price) vs
+  liquidity (EQH/EQL, swing extremes, prior-day/week H-L — where stops cluster, not a base),
+  mapping both onto the live `Smart Money Concepts [LuxAlgo]` study (order blocks=bases,
+  EQH/EQL=liquidity, FVG/premium-discount left off-scope), naming the current SHADOW-file state
+  (`sd-zones.json`, not in the live entry gate), and explicitly excluding the two classes
+  `FABLE-FULL-AUDIT-2026-09-11` found losing money as anchors (3-bar `INTRADAY_SWING` pivots
+  −$586/−$1,237 Sept; multi-day `MEMORY` prices −$106/−$811 Sept) plus round numbers with no
+  structure — while leaving the already-validated PDH/PDL/PMH/PML/RTH-HL class untouched (it is
+  liquidity by this section's own definition, +$3,037 in the same audit window). Verified: file
+  not on `FROZEN_TRADING_PATH` (`doctrine.frozen_path_hit` → None); playbook-adjacent guard
+  suites (`test_playbook_setup_registry_parity_2026_08_18.py`,
+  `test_trendline_reclaim_trigger.py`) 8/8 unaffected; curated safety gate 59/59. Doc-only
+  change, no code/test needed. Next: (d) `SD_ZONE` class in `trigger_anchor_class_read.py` —
+  needs several sessions of `sd-zones.json` accrual before the forward read is meaningful.

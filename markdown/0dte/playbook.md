@@ -20,6 +20,66 @@
 
 ---
 
+## Levels
+
+> Added 2026-09-12 (GOAL-SD-LIQUIDITY-ZONES-2026-09-11 item c). J's own doctrine already says
+> levels are ZONES, not exact prices (2026-07-17), and the play is zone → wait for the return →
+> structure shift (2026-07-28). This section makes that concrete: what counts as a
+> supply/demand base and a liquidity pool in THIS playbook, how the live indicator maps onto
+> that, and what does NOT count — because the audit that opened this goal
+> (`FABLE-FULL-AUDIT-2026-09-11`) found the engine anchoring on the wrong things.
+
+**Supply / demand base (S/D zone).** The last opposing candle(s) before a displacement move —
+i.e. the ORIGIN of an impulsive move, not a pivot high or low reached during one. A **supply**
+zone sits above spot and marks where sellers overwhelmed buyers hard enough to launch a
+down-move; a **demand** zone sits below spot, same logic for an up-move. The zone IS that
+candle's body-to-wick range (a band), never a single price — consistent with the existing
+"levels are zones" doctrine, just with a different origin rule.
+
+**Liquidity.** Price levels where stop orders and resting orders cluster: equal highs / equal
+lows (EQH/EQL), swing extremes, and prior-day/prior-week highs and lows. Liquidity is not a
+base — it is where price often SWEEPS (a stop run) before reacting off a base nearby. A
+liquidity level and a S/D base can sit near each other; they are graded and named separately.
+
+**Indicator mapping.** The live SPY 5m chart carries `Smart Money Concepts [LuxAlgo]`
+(added 2026-09-11, study id verified via `chart_get_state`, boxes read headlessly via
+`tv_cdp.TvChart.pine_boxes` / `data_get_pine_boxes`):
+- Internal + swing **order blocks** → S/D bases (the `box.new(...)` zones this playbook means
+  above).
+- **EQH / EQL** → liquidity, per the definition above.
+- **FVG** (fair value gap) and **premium/discount** are left OFF on this chart — they are a
+  different concept (imbalance / range positioning) and are not scored by this playbook.
+
+**Current state (2026-09-12).** Zones read off that indicator are written to a SHADOW file,
+`automation/state/sd-zones.json` (via `Gamma_SdZonesProducer`, headless, $0), each carrying a
+`touches_uniform` respect count computed by the SAME rule the engine's most-touched level cap
+uses. This file is **not** part of the live entry gate — `heartbeat_core` never reads it.
+Promotion into `key-levels.json` as a real anchor class needs the forward `SD_ZONE` read
+(goal item d, `backtest/tools/trigger_anchor_class_read.py`) to out-respect the level classes
+below, with a pre-registered checkpoint gate (09-29 if it only removes anchors, 10-30 if it
+adds any).
+
+**What does NOT count as a zone or a liquidity level here** — these are exactly the classes
+`FABLE-FULL-AUDIT-2026-09-11` found losing money as trigger anchors, which is why this section
+exists:
+- **A 3-bar swing pivot** (`INTRADAY_SWING_HIGH`/`INTRADAY_SWING_LOW`, i.e.
+  `refresh_levels_intraday._swing_levels()`). A local high/low reached DURING a move is not the
+  candle that CAUSED the move — it is where the move paused or turned, which is a different
+  thing. The audit found 13 same-day swing-pivot anchors net −$586 since 08-17 (−$1,237 in
+  September alone, 8 of 10 losers).
+- **A multi-day MEMORY price** (`level_memory_producer.py`'s carried-forward "this price got
+  respected before" level). A price that reacted once is a memory of a REACTION, not the base
+  that produced it — no candle-structure test is applied to qualify it. The same audit found 15
+  MEMORY anchors net −$106 (−$811 in September).
+- **A round number, or any level chosen because "price stopped there once"** with no candle
+  structure or liquidity-cluster reasoning behind it.
+- Prior-day/premarket/session highs-lows (PDH/PDL/PMH/PML/RTH H-L) stay a SEPARATE, already-
+  validated class (the audit's structural class, +$3,037 over the same window) — they are
+  liquidity by the definition above, not S/D bases, and this section does not touch their
+  standing.
+
+---
+
 ## Setups
 
 ### Setup name: BEARISH_REJECTION_RIDE_THE_RIBBON (PUTS)
