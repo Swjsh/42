@@ -260,6 +260,32 @@ produce evidence that changes what the rig does the next day, on a surface J alr
   indefinitely, so this code change will not take effect until the bridge is next killed/crashes
   or someone restarts it manually. Tokens this fire (harness-measured, not estimated): ~95K.
 
+- 2026-09-13 (Sonnet builder, item 6 follow-up): **Alarm dedupe shipped** in
+  `discord-bridge.py` -- `classify_outbox_row()` gains `posted_fingerprints`/`now` params;
+  `normalize_alarm_content()` strips mentions + collapses digit runs (ages/counts/dates) so
+  re-fires of the same alarm with different numbers still fingerprint identically;
+  `alarm_fingerprint()` hashes (source, normalized content); on-disk ring
+  `automation/state/discord-posted-fingerprints.json` (capped 500, pruned >24h via
+  `prune_fingerprints()`) loaded/saved once per `drain_outbox()` call so it survives a bridge
+  restart by construction (a fresh process reloads the same file). Alarm rows only -- briefs and
+  `j_decision`/`deliver` rows are never fingerprinted, guard-tested explicitly. REPLAY of the real
+  09-11 rows, `now` set to each row's own timestamp (matching how the live bridge ticks
+  near-real-time, NOT real "now" -- using real now against 2-day-old sim data wrongly reported 0
+  dedupes on the first attempt, caught and fixed before shipping): **before dedupe 27 posted /
+  147 held; after dedupe 16 posted / 158 held** (self_check's 21 rows collapse to 10 distinct
+  alarms -- e.g. RUN-PS1-HIDDEN MASKED EXIT fired byte-identical 6x that day, now posts once).
+  Guard: extended `test_discord_bridge_allowlist_2026_09_13.py` (+9 tests: real-replay-with-dedupe,
+  normalize-same-unit, mention-invariance, second-identical-held, TTL-expiry-reposts,
+  briefs-never-deduped, j_decision-never-deduped, dedupe-opt-in-via-None-param, prune caps/TTL)
+  RED-proofed (forced the TTL comparison to `False` -> 3 dedupe tests failed as expected ->
+  restored -> 22/22 green). Filtered suite `-k "discord or daily_brief or learned or
+  home_tickers or obsidian"`: **138 passed, 0 pre-existing REDs**. **Bridge restart**: J restarted
+  it himself at 10:1x ET (pid 14244 stopped); confirmed from `discord-bridge-heartbeat.json`
+  (`last_tick_at: 2026-09-13T13:55:15Z`, pid file now shows 9316|2026-09-13T13:51:38Z) that the
+  relaunched process IS running this code -- it writes `held_today: 0` and `allowlist_off: false`,
+  fields that did not exist before item 6's first commit, so their presence proves the new module
+  loaded. Tokens this fire (harness-measured): ~48K.
+
 ## HONEST STATE
 Opened. The challenger (1) is BLOCKED on activation, not on the mechanism: the gate itself
 (build_shared_signal's `trigger_anchor_label` passthrough + fleet_executor's

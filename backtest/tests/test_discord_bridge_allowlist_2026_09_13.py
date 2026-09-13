@@ -259,3 +259,147 @@ def test_red_proof_disabling_the_allowlist_check_would_have_caught_the_original_
     fake_delivers = frozenset({"trade_today_watcher"}) | bridge.DISCORD_DELIVER_SOURCES
     assert "trade_today_watcher" in fake_delivers  # sanity: the broken world would post this
     assert "trade_today_watcher" not in bridge.DISCORD_DELIVER_SOURCES  # the real allowlist still refuses it
+
+
+# ----------------------------------------------------------------- alarm dedupe (2026-09-13 follow-up)
+
+
+def _parse_row_ts(row: dict):
+    import datetime as _dt
+    raw = row.get("queued_at") or row.get("ts")
+    parsed = _dt.datetime.fromisoformat(raw.replace("Z", "+00:00"))
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=_dt.timezone.utc)
+    return parsed
+
+
+def test_replay_09_11_with_dedupe_collapses_repeat_self_check_alarms(bridge, rows_09_11):
+    """Real 09-11 self_check rows: 21 total, several byte-identical re-fires of the same
+    condition (e.g. RUN-PS1-HIDDEN MASKED EXIT fired 6x that day). With the fingerprint ring
+    active (processing `now` = each row's own timestamp, matching how the live bridge ticks
+    near-real-time), self_check must collapse to one post per distinct underlying alarm."""
+    fps: dict = {}
+    posted = held = 0
+    dedupe_held = 0
+    self_check_posted = 0
+    for row in rows_09_11:
+        now = _parse_row_ts(row)
+        verdict = bridge.classify_outbox_row(row, allowlist_off=False, posted_fingerprints=fps, now=now)
+        if verdict["post"]:
+            posted += 1
+            if row.get("source") == "self_check":
+                self_check_posted += 1
+            if verdict["fingerprint"]:
+                fps[verdict["fingerprint"]] = row.get("queued_at") or row.get("ts")
+        else:
+            held += 1
+            if verdict["held_reason"] == "dedupe":
+                dedupe_held += 1
+
+    # Before dedupe (measured separately, no fingerprints): 27 posted / 147 held, 21 of the
+    # posted are self_check. After dedupe: self_check collapses to its distinct-alarm count
+    # (10, measured against the real on-disk content), total posted drops to 16, held rises to
+    # 158 (147 + 11 newly-deduped self_check re-fires).
+    assert self_check_posted <= 10, f"self_check posted={self_check_posted}, expected the 21 real rows to collapse to <=10 distinct alarms"
+    assert dedupe_held >= 10, f"dedupe_held={dedupe_held}, expected most of self_check's 21 rows to collapse"
+    assert posted <= 16, f"posted={posted} with dedupe active, expected <=16 (6 briefs + <=10 distinct alarms)"
+    assert held >= 158, f"held={held} with dedupe active"
+
+
+def test_dedupe_normalizes_ages_and_counts(bridge):
+    """Two alarm rows that differ only by a count/age NUMBER (same unit/word, real-world shape --
+    e.g. self_check's real 'N real non-zero exit(s)' and 'N untracked files' lines) must
+    fingerprint identically."""
+    fp1 = bridge.alarm_fingerprint("self_check", "SELF-CHECK BROKEN: X stale 25m old, 1 file")
+    fp2 = bridge.alarm_fingerprint("self_check", "SELF-CHECK BROKEN: X stale 48m old, 2 file")
+    assert fp1 == fp2
+
+
+def test_dedupe_ignores_mention_differences(bridge):
+    fp1 = bridge.alarm_fingerprint("self_check", "<@1> SELF-CHECK BROKEN: same alarm")
+    fp2 = bridge.alarm_fingerprint("self_check", "SELF-CHECK BROKEN: same alarm")
+    assert fp1 == fp2
+
+
+def test_second_identical_alarm_within_24h_is_held_dedupe(bridge):
+    fps: dict = {}
+    base_row = {"source": "self_check", "content": "SELF-CHECK BROKEN: X: 1 real non-zero exit(s)"}
+    v1 = bridge.classify_outbox_row(base_row, allowlist_off=False, posted_fingerprints=fps)
+    assert v1["post"] is True
+    fps[v1["fingerprint"]] = bridge.now_iso()
+
+    repeat_row = {"source": "self_check", "content": "SELF-CHECK BROKEN: X: 2 real non-zero exit(s)"}
+    v2 = bridge.classify_outbox_row(repeat_row, allowlist_off=False, posted_fingerprints=fps)
+    assert v2["post"] is False
+    assert v2["held_reason"] == "dedupe"
+
+
+def test_alarm_after_ttl_expiry_posts_again(bridge):
+    import datetime as _dt
+    fps: dict = {}
+    base_row = {"source": "self_check", "content": "SELF-CHECK BROKEN: X: 1 real non-zero exit(s)"}
+    old_ts = (_dt.datetime.now(_dt.timezone.utc) - _dt.timedelta(hours=25)).isoformat()
+    v1 = bridge.classify_outbox_row(base_row, allowlist_off=False, posted_fingerprints=fps)
+    fps[v1["fingerprint"]] = old_ts  # pretend it was first posted >24h ago
+
+    v2 = bridge.classify_outbox_row(base_row, allowlist_off=False, posted_fingerprints=fps)
+    assert v2["post"] is True, "an alarm fingerprint older than the TTL must post again"
+
+
+def test_briefs_are_never_deduped(bridge):
+    fps: dict = {}
+    row = {"source": "firm_brief", "content": "GAMMA FIRM BRIEF -- flat today, 0 fills"}
+    v1 = bridge.classify_outbox_row(row, allowlist_off=False, posted_fingerprints=fps)
+    assert v1["post"] is True
+    assert v1["fingerprint"] is None  # briefs are never fingerprinted
+    v2 = bridge.classify_outbox_row(row, allowlist_off=False, posted_fingerprints=fps)
+    assert v2["post"] is True, "a brief must never be held as a dedupe, even if byte-identical"
+
+
+def test_j_decision_row_is_never_deduped(bridge):
+    fps: dict = {}
+    row = {"source": "self_check", "content": "J decision needed <@1>", "j_decision": True}
+    v1 = bridge.classify_outbox_row(row, allowlist_off=False, posted_fingerprints=fps)
+    assert v1["post"] is True
+    assert v1["fingerprint"] is None
+    v2 = bridge.classify_outbox_row(row, allowlist_off=False, posted_fingerprints=fps)
+    assert v2["post"] is True
+
+
+def test_dedupe_disabled_when_posted_fingerprints_is_none(bridge):
+    """Callers that don't pass posted_fingerprints (every pre-follow-up caller/test) get the
+    old undeduped behaviour -- dedupe is additive, opt-in via the parameter."""
+    row = {"source": "self_check", "content": "SELF-CHECK BROKEN: X: 1 real non-zero exit(s)"}
+    v1 = bridge.classify_outbox_row(row, allowlist_off=False)
+    v2 = bridge.classify_outbox_row(row, allowlist_off=False)
+    assert v1["post"] is True
+    assert v2["post"] is True
+
+
+def test_prune_fingerprints_drops_stale_and_caps_size(bridge):
+    import datetime as _dt
+    now = _dt.datetime.now(_dt.timezone.utc)
+    fps = {
+        "fresh": (now - _dt.timedelta(hours=1)).isoformat(),
+        "stale": (now - _dt.timedelta(hours=25)).isoformat(),
+    }
+    pruned = bridge.prune_fingerprints(fps, now=now)
+    assert "fresh" in pruned
+    assert "stale" not in pruned
+
+    many = {f"fp{i}": (now - _dt.timedelta(minutes=i)).isoformat() for i in range(600)}
+    capped = bridge.prune_fingerprints(many, now=now)
+    assert len(capped) <= bridge.FINGERPRINT_CAP
+
+
+# ----------------------------------------------------------------- RED-proof (dedupe)
+
+def test_red_proof_dedupe_is_load_bearing(bridge):
+    """If the TTL comparison were replaced with 'always fresh' (i.e. dedupe never fires), the
+    second identical alarm would wrongly post. Prove the real function does NOT do that."""
+    fps: dict = {}
+    row = {"source": "self_check", "content": "SELF-CHECK BROKEN: X: 1 real non-zero exit(s)"}
+    v1 = bridge.classify_outbox_row(row, allowlist_off=False, posted_fingerprints=fps)
+    fps[v1["fingerprint"]] = bridge.now_iso()
+    v2 = bridge.classify_outbox_row(row, allowlist_off=False, posted_fingerprints=fps)
+    assert v2["post"] is False  # true with real dedupe in place -- broken code would say True

@@ -42,8 +42,10 @@ if _os.path.basename(_sys.executable).lower() == "pythonw.exe":
 # ========================================================================================
 
 import datetime as dt
+import hashlib
 import json
 import logging
+import re as _re
 import sys
 import time
 from pathlib import Path
@@ -117,7 +119,70 @@ DISCORD_DELIVER_SOURCES = DISCORD_ALARM_SOURCES | DISCORD_BRIEF_SOURCES
 # tests set the env var before importing/reloading this module.
 DISCORD_ALLOWLIST_OFF = _os.environ.get("GAMMA_DISCORD_ALLOWLIST_OFF") == "1"
 
-_MENTION_RE = __import__("re").compile(r"<@[!&]?\d+>")
+_MENTION_RE = _re.compile(r"<@[!&]?\d+>")
+_NUM_RE = _re.compile(r"\d+(\.\d+)?")
+
+# ALARM DEDUPE (2026-09-13 follow-up). self_check alone posted 21 rows on 09-11 -- many of them
+# the SAME underlying alarm re-firing every 30min while the condition stayed true (RUN-PS1-HIDDEN
+# MASKED EXIT fired 6x that day, byte-identical). The allowlist correctly lets alarm content
+# through, but "correctly delivered 6 times" is still spam on a muted channel. Dedupe collapses
+# an alarm to its first post per rolling 24h window, keyed on a fingerprint of (source, content
+# with digits/ages/counts/mentions normalized out) so "1 exit" vs "2 exits" or "25m" vs "48.3h"
+# still collapse to the same fingerprint. Briefs and j_decision rows are NEVER deduped -- only
+# alarm-source rows are frequent enough to need it, and a J-decision must never be silently
+# swallowed as a "duplicate".
+FINGERPRINT_PATH = STATE_DIR / "discord-posted-fingerprints.json"
+FINGERPRINT_CAP = 500
+FINGERPRINT_TTL_HOURS = 24
+
+
+def normalize_alarm_content(content: str) -> str:
+    """Strip mentions and collapse every digit run (ages like '48.3h', counts, dates, dollar
+    amounts) to '#' so re-fires of the same alarm with different numbers still fingerprint
+    identically."""
+    c = _MENTION_RE.sub("", content)
+    c = _NUM_RE.sub("#", c)
+    return _re.sub(r"\s+", " ", c).strip()
+
+
+def alarm_fingerprint(source: "str | None", content: str) -> str:
+    normalized = normalize_alarm_content(content)
+    return hashlib.sha1(f"{source}|{normalized}".encode("utf-8")).hexdigest()[:16]
+
+
+def load_posted_fingerprints() -> dict:
+    if FINGERPRINT_PATH.exists():
+        try:
+            return json.loads(FINGERPRINT_PATH.read_text(encoding="utf-8"))
+        except Exception:
+            return {}
+    return {}
+
+
+def save_posted_fingerprints(fps: dict) -> None:
+    tmp = FINGERPRINT_PATH.with_suffix(FINGERPRINT_PATH.suffix + ".tmp")
+    tmp.write_text(json.dumps(fps), encoding="utf-8")
+    tmp.replace(FINGERPRINT_PATH)
+
+
+def prune_fingerprints(fps: dict, now: "dt.datetime | None" = None) -> dict:
+    """Drop entries older than FINGERPRINT_TTL_HOURS, then cap to the most recent
+    FINGERPRINT_CAP -- keeps the ring small and survives a bridge restart (on-disk)."""
+    now = now or dt.datetime.now(dt.timezone.utc)
+    fresh = {}
+    for fp, ts in fps.items():
+        try:
+            parsed = dt.datetime.fromisoformat(str(ts).replace("Z", "+00:00"))
+        except (ValueError, TypeError):
+            continue
+        if parsed.tzinfo is None:
+            parsed = parsed.replace(tzinfo=dt.timezone.utc)
+        if (now - parsed).total_seconds() <= FINGERPRINT_TTL_HOURS * 3600:
+            fresh[fp] = ts
+    if len(fresh) > FINGERPRINT_CAP:
+        newest = sorted(fresh.items(), key=lambda kv: kv[1], reverse=True)[:FINGERPRINT_CAP]
+        fresh = dict(newest)
+    return fresh
 
 
 def strip_mentions(content: str) -> str:
@@ -125,7 +190,12 @@ def strip_mentions(content: str) -> str:
     return _MENTION_RE.sub("", content).strip()
 
 
-def classify_outbox_row(row: dict, allowlist_off: "bool | None" = None) -> dict:
+def classify_outbox_row(
+    row: dict,
+    allowlist_off: "bool | None" = None,
+    posted_fingerprints: "dict | None" = None,
+    now: "dt.datetime | None" = None,
+) -> dict:
     """Pure decision function: should this outbox row be POSTED to Discord or HELD?
 
     No I/O, no network -- factored out so the allowlist logic is unit-testable without hitting the
@@ -133,16 +203,30 @@ def classify_outbox_row(row: dict, allowlist_off: "bool | None" = None) -> dict:
     level env read but can be overridden per-call (used by tests to exercise both branches without
     reloading the module).
 
+    `posted_fingerprints`, if given, is a fingerprint -> first_posted_at(ISO) dict (the on-disk
+    ring at FINGERPRINT_PATH). ALARM rows only (self_check et al.) are deduped against it: a
+    fingerprint already present and posted within FINGERPRINT_TTL_HOURS is HELD with
+    held_reason="dedupe" instead of posted -- the caller (drain_outbox) is responsible for
+    recording a newly-posted fingerprint into the dict and persisting it; this function never
+    mutates its input. Passing None (the default) disables dedupe entirely (used by every existing
+    caller/test that predates the follow-up). Briefs and j_decision/deliver rows are NEVER
+    deduped -- only alarm-source content repeats often enough to need it.
+
     Returns:
-        {"post": bool, "held_reason": str | None, "is_alarm": bool, "content": str}
-    `content` is the (possibly mention-stripped) text to actually send/hold.
+        {"post": bool, "held_reason": str | None, "is_alarm": bool, "content": str,
+         "fingerprint": str | None}
+    `content` is the (possibly mention-stripped) text to actually send/hold. `fingerprint` is set
+    whenever this is an alarm row being considered for post (so the caller can record it), else
+    None.
     """
     off = DISCORD_ALLOWLIST_OFF if allowlist_off is None else allowlist_off
+    now = now or dt.datetime.now(dt.timezone.utc)
     source = row.get("source")
     j_decision = bool(row.get("j_decision"))
     deliver_flag = bool(row.get("deliver"))
     is_alarm = source in DISCORD_ALARM_SOURCES
     content = (row.get("content") or row.get("message") or "")
+    fingerprint = None
 
     if off:
         post, held_reason = True, None
@@ -154,12 +238,31 @@ def classify_outbox_row(row: dict, allowlist_off: "bool | None" = None) -> dict:
         post = False
         held_reason = "source_not_allowlisted" if source else "no_source"
 
+    # ALARM DEDUPE: only for rows that would otherwise post, only for alarm sources, only when
+    # off/j_decision/deliver don't already force delivery (a forced row must never be silently
+    # swallowed as a "duplicate").
+    if post and is_alarm and not off and not j_decision and not deliver_flag:
+        fingerprint = alarm_fingerprint(source, content)
+        if posted_fingerprints is not None:
+            prior = posted_fingerprints.get(fingerprint)
+            if prior:
+                try:
+                    prior_dt = dt.datetime.fromisoformat(str(prior).replace("Z", "+00:00"))
+                    if prior_dt.tzinfo is None:
+                        prior_dt = prior_dt.replace(tzinfo=dt.timezone.utc)
+                    if (now - prior_dt).total_seconds() <= FINGERPRINT_TTL_HOURS * 3600:
+                        post = False
+                        held_reason = "dedupe"
+                except (ValueError, TypeError):
+                    pass  # undateable prior entry -- fail toward delivery, not toward dedupe
+
     # Strip @mentions unless this is a J-decision (should ping) or an alarm (should ping) --
     # everything else is a scheduled brief that does not need to wake J's phone.
     if post and not off and not (j_decision or is_alarm):
         content = strip_mentions(content)
 
-    return {"post": post, "held_reason": held_reason, "is_alarm": is_alarm, "content": content}
+    return {"post": post, "held_reason": held_reason, "is_alarm": is_alarm, "content": content,
+            "fingerprint": fingerprint}
 
 logging.basicConfig(
     level=logging.INFO,
@@ -337,6 +440,9 @@ def drain_outbox(config: dict, wm: dict) -> tuple[int, int, int, int]:
 
     CHANNEL ALLOWLIST (2026-09-13): a row that fails `classify_outbox_row` is HELD (written to
     HELD_PATH) instead of posted -- see DISCORD_DELIVER_SOURCES / DISCORD_ALARM_SOURCES above.
+    ALARM DEDUPE (2026-09-13 follow-up): the on-disk fingerprint ring at FINGERPRINT_PATH is
+    loaded once per call, consulted/updated per row, and saved once at the end if it changed --
+    survives a bridge restart by design (a fresh process reloads the same ring from disk).
     """
     if not OUTBOX_PATH.exists():
         return (0, 0, 0, 0)
@@ -347,6 +453,14 @@ def drain_outbox(config: dict, wm: dict) -> tuple[int, int, int, int]:
     sent = 0
     dropped = 0
     held = 0
+    fps = load_posted_fingerprints()
+    fps_changed = False
+
+    def _finish(pending_val: int) -> tuple[int, int, int, int]:
+        if fps_changed:
+            save_posted_fingerprints(prune_fingerprints(fps))
+        return (sent, dropped, pending_val, held)
+
     last_line_no = wm.get("last_outbox_line_no", 0)
     with OUTBOX_PATH.open(encoding="utf-8") as f:
         lines = f.readlines()
@@ -390,13 +504,21 @@ def drain_outbox(config: dict, wm: dict) -> tuple[int, int, int, int]:
         # CHANNEL ALLOWLIST (2026-09-13): hold anything not on DISCORD_DELIVER_SOURCES / not
         # flagged deliver|j_decision instead of posting it. Nothing is dropped -- held rows land on
         # HELD_PATH, same schema + held_reason, so they're still greppable (C7).
-        verdict = classify_outbox_row(row)
+        verdict = classify_outbox_row(row, posted_fingerprints=fps)
         if not verdict["post"]:
             held += 1
             _write_held_row(row, verdict["held_reason"])
             wm["last_outbox_line_no"] = i + 1
             save_watermarks(wm)
             continue
+        if verdict["fingerprint"]:
+            # Record NOW, not after the send succeeds: a duplicate alarm firing again a few
+            # seconds later (self_check reruns every 30min, well outside any retry window) must
+            # not slip through because this row is still in flight. If the send below fails and
+            # retries, worst case is this fingerprint's TTL starts a few seconds early -- never
+            # a missed real alarm, since the FIRST occurrence always posts.
+            fps[verdict["fingerprint"]] = now_iso()
+            fps_changed = True
         content = verdict["content"]
         if not content:
             wm["last_outbox_line_no"] = i + 1
@@ -419,7 +541,7 @@ def drain_outbox(config: dict, wm: dict) -> tuple[int, int, int, int]:
         if file_path:
             r = _send_file_message(token, channel_id, content, file_path)
             if r is None:
-                return (sent, dropped, len(lines) - wm.get("last_outbox_line_no", 0), held)  # network error -- don't advance watermark, retry this line later
+                return _finish(len(lines) - wm.get("last_outbox_line_no", 0))  # network error -- don't advance watermark, retry this line later
             if r == "missing":
                 logger.error("outbox line %d file attachment missing on disk -- skipping", i)
                 wm["last_outbox_line_no"] = i + 1
@@ -435,7 +557,7 @@ def drain_outbox(config: dict, wm: dict) -> tuple[int, int, int, int]:
                 )
             except requests.RequestException as e:
                 logger.error("outbox send network error: %s -- will retry next tick", e)
-                return (sent, dropped, len(lines) - wm.get("last_outbox_line_no", 0), held)  # don't advance watermark; retry this line later
+                return _finish(len(lines) - wm.get("last_outbox_line_no", 0))  # don't advance watermark; retry this line later
         if r.status_code in (200, 201):
             sent += 1
             wm["last_outbox_line_no"] = i + 1
@@ -447,7 +569,7 @@ def drain_outbox(config: dict, wm: dict) -> tuple[int, int, int, int]:
             retry_after = float(r.headers.get("Retry-After", "5"))
             logger.warning("rate limited; sleeping %.1fs", retry_after)
             time.sleep(retry_after)
-            return (sent, dropped, len(lines) - wm.get("last_outbox_line_no", 0), held)  # retry this line on next iteration
+            return _finish(len(lines) - wm.get("last_outbox_line_no", 0))  # retry this line on next iteration
         else:
             logger.error("outbox http %d: %s -- skipping line %d", r.status_code, r.text[:200], i)
             wm["last_outbox_line_no"] = i + 1
@@ -456,7 +578,7 @@ def drain_outbox(config: dict, wm: dict) -> tuple[int, int, int, int]:
     if dropped:
         logger.warning("dropped %d outbox message(s) older than %d min (stale-alert policy)",
                        dropped, MAX_MESSAGE_AGE_MIN)
-    return (sent, dropped, len(lines) - wm.get("last_outbox_line_no", 0), held)
+    return _finish(len(lines) - wm.get("last_outbox_line_no", 0))
 
 
 def main() -> int:
