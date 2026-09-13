@@ -97,7 +97,7 @@ produce evidence that changes what the rig does the next day, on a surface J alr
 - [x] (3) tickers lane on HOME (per-arm per-session table from `automation/state/tickers/*/day-*.json`) + anchor-class read over the tickers ledgers 09-04..09-17. DONE-WHEN: table renders; read prints per-class $ for the lane.
 - [x] (4) challenger LADDER rows (H1 live, H2, H3, H4) with kill/promote criteria + n, appended to the existing prereg doc (`prereg-trigger-anchor-level-class-2026-09-11.md`), not a new file. DONE-WHEN: rows exist; conductor.md STAGE 1 knows to read the top row when H1 terminates.
 - [x] (6) Discord signal hygiene + EOD brief carries the learned-today block: per-signal watcher cards / watcher pings / prospector / level-memory rows stop reaching Discord (own ledgers only, per-source flag = revoke); channel carries briefs + RED Known-broken + J-decisions only; `daily_brief.py --mode eod` appends the HOME learned-today block. DONE-WHEN: outbox rows destined for Discord on the next trading day ≤ 3 excluding RED alarms, 0 @mentions outside a J-decision; EOD brief text contains 'What Gamma learned today'.
-- [~] (7) CRYPTO = the 24/7 proving ground (J 09-13): (a) twin orphan BTC reconciled, adopt-not-prune + sentinel UNTRACKED_EXPOSURE, scenario retry cap [builder running]; (b) control sizing 10% of equity notional per entry (~$900) with a -5%/day equity breaker; (c) H1-crypto challenger as a LEDGER OVERLAY on the control's real fills (refuse `SWING_PIVOT` anchors; challenger P&L = control minus refused, by construction exact, no second account needed -- none exists); (d) HOME crypto block + EOD/morning brief line: control vs H1 last 4h / 24h / since start, refused n/6, refused net $, F1 sign, tomorrow's change. DONE-WHEN: twin flat-reconciled and ticking with 0 403s for 30 min; first organic entry at the new size lands with a real Alpaca fill id; `challenger-h1.jsonl` exists and HOME shows the crypto block; by Monday 09:30 ET the block reports >= 8h of evidence.
+- [~] (7) CRYPTO = the 24/7 proving ground (J 09-13): (a) twin orphan BTC reconciled, adopt-not-prune + sentinel UNTRACKED_EXPOSURE, scenario retry cap **DONE** (`954a7018`/`82e660fa`/`2bb259e6`); (b) control sizing 10% of equity notional per entry with a -5%/day equity breaker **DONE** (`c60644db`); (c) H1-crypto challenger as a LEDGER OVERLAY on the control's real fills (refuse `SWING_PIVOT` anchors; challenger P&L = control minus refused, by construction exact, no second account needed -- none exists) **DONE** (`4c2ed8cc`); (d) HOME crypto block + EOD/morning brief line: control vs H1 last 4h / 24h / since start, refused n/6, refused net $, F1 sign, tomorrow's change **DONE** (`48eb9883`). REMAINING before [x]: twin has been ticking clean since the 16:32:52 UTC restart (0 403s, pid 2024 alive, `journal.jsonl`/`decisions.jsonl` both advancing) but has not yet crossed the DONE-WHEN's 30-min clean-tick mark or produced a first organic fill -- a 25-min live poll (16:33-16:58 UTC) found ZERO organic entries of any kind (not just none at the new size; the scenario/forced path was also quiet this window), a valid null (see PROGRESS LOG), not forced. DONE-WHEN: twin flat-reconciled and ticking with 0 403s for 30 min (met at ~17:03 UTC, not independently re-verified after this session's fire); first organic entry at the new size lands with a real Alpaca fill id (STILL PENDING -- no organic signal fired in the 25-min observation window); `challenger-h1.jsonl` exists and HOME shows the crypto block (met); by Monday 09:30 ET the block reports >= 8h of evidence (not yet reachable, needs the conductor/keepalive to keep the loop alive unattended through Monday).
 - [ ] (5) 09-18 HONEST STATE verdict with the numbers in DONE-WHEN (5). NOT-BEFORE 2026-09-17 close.
 
 ## J-DECISIONS
@@ -290,6 +290,7 @@ produce evidence that changes what the rig does the next day, on a surface J alr
 - 2026-09-13 10:0x ET (Fable): item (6) shipped `a4030f4e` + dedupe `12fd66e0`; 09-11 replay through the bridge filter: 174 rows -> 16 posted (6 briefs + 10 distinct alarms) / 158 held. Bridge restarted twice by hand (allowlist, then dedupe); heartbeat carries `held_today`/`allowlist_off`. Pushed. Tokens today (harness): research 125K + builder 233K + follow-up ~279K cumulative on that agent.
 
 - 2026-09-13 11:4x ET (Fable): J correction -- crypto is the proving ground, never wait for Monday. 4-agent fan-out (root-cause / evidence / venues / crypto_paper audit, ~530K Sonnet tokens): twin holds an ORPHAN 0.115 BTC (~$8.9K) since 09-09 (fill stuck, local state pruned), cash $110 -> 720 403s today, scenario cap counts successes only -> infinite retry; organic twin 215 trips WR 19.5% -$23 at $200 notional, SWING_PIVOT worst class (n=71, WR 8.5%, -$17) = same disease as SPY; standalone crypto_paper line KILLED 07-16 (0/324 FDR); Alpaca crypto paper routes to the live orderbook (real fills), spot-only; OKX demo = leverage venue if J opens an account. Item (7) authored.
+- 2026-09-13 12:30 ET (Fable, judgment/spec): J directive -- last month of the $200 Max; wants Gamma on its own always-on box on the TV (voice/webcam/'employees' view, Tailscale to his PC), a cheaper brain, and self-generated ideas (5th 'make Gamma alive' ask). Delivered the lift plan `markdown/planning/GAMMA-STATION.md` (commit 606e8640, pushed; artifact one-pager) + pointers in markdown/README, FUTURE-IMPROVEMENTS #29, BRAIN-SOVEREIGNTY changelog, CHANGELOG, + memory. Relation to this goal: the structural answer to 'stops needing chatbot prompting' (mind off J's session, ambient TV surface, $0 curiosity loop). Phase 0 = re-point every `claude` fire off Max via PER-FIRE env (never a router), Max->Pro, capped API key, blackout drill -- due before the 09-18 renewal; freeze-safe, no trading path, tracked as FUTURE-IMPROVEMENTS #29 not as a QUEUE item here. QUEUE item (5) left `[ ]` on purpose: NOT-BEFORE 2026-09-17 close -- a verdict today would be fake. No trading-path file touched; no subagents; 11 web searches + 1 fetch; no full-suite run (pre-commit safety gate 59 passed, secrets audit GREEN).
 
 ## HONEST STATE
 Opened. The challenger (1) is BLOCKED on activation, not on the mechanism: the gate itself
@@ -382,3 +383,116 @@ wants (repoint weekly-1's account_number, or provision a new paper account for r
   the true broker qty regardless, so this only affects the partial-exit leg's precision, not
   whether the position ever gets closed). No SPY/fleet/params/STATUS.md/scheduled-task file
   touched; no BUY placed; no subagents; no full-suite run.
+
+- 2026-09-13 12:5x ET (Sonnet, worker-tier, item 7 parts b/c/d): **STEP 0 cold read** (read-
+  only, `crypto_twin_broker`'s own creds loader): cash $8,884.55 / equity $8,945.93 /
+  buying_power $35,538.20 / status ACTIVE; one small open position (0.000794727 BTC, avg
+  entry $77,058.21, unrealized +$0.14 -- the runner leftover from prior fires' scenario
+  work); pid file showed a stale `9999` (not a real process); last 3 decisions.jsonl rows
+  were `MANAGED` on that same position; 0 confirmed 403s once the timezone (pid file uses
+  LOCAL/MDT, not UTC) was correctly converted.
+
+  **PART B** (`c60644db`): ORGANIC entries (genuine ribbon+level verdict -- neither
+  `--force-entry` nor scenario-tagged) now size at `ORGANIC_SIZING_PCT=0.10` of the broker's
+  start-of-day equity, cached once/UTC-day in `sizing.json` (gitignored, mirrors
+  `breaker.json`), computed via new `_resolve_entry_sizing`/`_load_todays_sizing_notional`
+  in `crypto_twin_core.py`; FORCED/scenario entries + the fail-open fallback keep the exact
+  old $200 rail (`sizing=None` default on `place_entry`/`place_entry_ab` reproduces pre-
+  change behavior byte for byte -- verified zero blast radius on 18+ existing direct-caller
+  tests AND on every `run_tick(..., force_entry=...)` test site, which take the
+  `scenario_rail` branch with ZERO new broker calls, confirmed by a dedicated guard).
+  `unit_qty_btc` computed via `_floor_to_precision` (8dp floor, matching
+  `crypto_twin_broker.place_crypto_order`'s own documented sell-side precision rule --
+  applied conservatively to the buy side too, so notional spent never exceeds the sized
+  amount). Every PLACED/FILLED journal row now carries `notional_usd`/`sizing_mode`.
+  **TP1-leg-math fix** (required by the sizing change, per the item's own acceptance bar):
+  `manage_positions`' SELL_PARTIAL now reads the POSITION's own stamped `unit_qty_btc`
+  (persisted by `place_entry`/`_register_passive_position`) instead of the static
+  `cfg.unit_qty_btc`, with a same-value fallback for pre-existing records (old positions,
+  the adopt path) -- byte-identical for those. Breaker: `daily_loss_kill_switch_pct`
+  0.30 -> 0.05 (halts organic AND scenario entries alike, no scenario-based exemption in
+  `_risk_gate_check`/`risk_gate.check_order`); `save_breaker` now writes a `_doc` field;
+  `breaker.json` itself is gitignored (regenerated every tick) but was hand-updated locally
+  for immediate consistency. Guards: `test_crypto_twin_control_sizing_2026_09_13.py` (13
+  tests) RED-proofed this session (broke `ORGANIC_SIZING_PCT`, the breaker default, and the
+  SELL_PARTIAL `unit_qty_btc` read; confirmed each failed; restored).
+
+  **PART C** (`4c2ed8cc`): new `crypto_twin_challenger.py` -- the H1-crypto ledger overlay.
+  **Coordinator course-correction mid-fire** (quoted verbatim in this session): two read-
+  only agents had classified the same 215 organic trips differently via `triggers`/`reason`
+  STRING heuristics (Agent A: SWING_PIVOT 71/ROUND_NUMBER 64/NO_LEVEL_TRIGGER 35/
+  SESSION_H_L 28/PRIOR_UTC_DAY_H_L_C 15/INTRADAY_H_L_FORMING 2; Agent B: 78/84/0/30/21/2) --
+  directed to derive the class from the field `crypto_twin_signal.py`'s `evaluate()` itself
+  uses to pick the anchor, not a string heuristic. Rebuilt `classify_anchor_class()` to
+  price-match `trigger_level_exact` against `levels_active`'s structured `label` field (the
+  SAME `Level` `lvl.price`/`lvl.label` `evaluate()` selects via
+  `nearest_directional_level`) -- run live against the real repo (`--table`): **n=215,
+  {SWING_PIVOT:78, ROUND_NUMBER:84, SESSION_H_L:30, PRIOR_UTC_DAY_H_L_C:21,
+  INTRADAY_H_L_FORMING:2, NO_LEVEL_TRIGGER:0}** -- EXACT match to Agent B, and structurally
+  proves Agent A's NO_LEVEL_TRIGGER=35 was a parse gap (both of `evaluate()`'s ENTER return
+  paths require a non-None `lvl`, so `trigger_level_exact` is never null on a genuine
+  organic ENTER). Backfilled all 215 historical trips into `challenger-h1.jsonl` (labelled
+  `forward:false`, in-sample); historical tally: control -$23.42/215, refused[SWING_PIVOT]
+  -$21.32/78, challenger net -$2.10 (removing SWING_PIVOT would have cut the loss ~91%
+  in-sample -- NOT ratifying anything, per the prereg's own in-sample caveat). Also
+  pre-registered (found already in `markdown/planning/TWIN-PROGRAM.md`, written by another
+  session mid-fire): H2 = refuse ribbon `stack_n<=3`, H3 = refuse 18:00-24:00 UTC entries,
+  same KILL/SHIP thresholds as H1 -- `_next_ladder_row()` reads that table's real rows
+  (never hardcoded H2's text). **PERFORMANCE**: measured `pnl.reconstruct_trips()` at 1.8s
+  and a full `decisions.jsonl` scan at 0.8s on the real files (135MB/56.5K + 24MB/47.5K
+  lines) -- too slow for an unconditional every-15-tick hook, so `update_ledger()` gates the
+  expensive join behind a cheap `os.stat()` size check on `journal.jsonl` (grows only on
+  entry/exit/management events, never a bare HOLD tick); confirmed empirically: first call
+  4.08s (full backfill), second call (nothing new) 0.35s. Wired: (a)
+  `crypto_twin_health.py::run_tick_with_health` calls `chal.update_ledger()` every 15 ticks
+  (fail-open); (b) `obsidian_vault_sync.py::main()` runs `crypto_twin_challenger.py --update`
+  as a subprocess before the HOME build. Guards: `test_crypto_twin_challenger_2026_09_13.py`
+  (29 tests, incl. 3 REAL production rows pinned -- one, 2026-07-14, predates the
+  `levels_active` field and is a DOCUMENTED disagreement point: this module says
+  NO_LEVEL_TRIGGER where a string reader would say PRIOR_UTC_DAY_H_L_C) RED-proofed (broke
+  the SWING label match, confirmed 2 failures, restored).
+
+  **PART D** (`48eb9883`): `obsidian_vault_sync.py` gains `render_crypto_challenger_block()`
+  -- a `### Crypto (24/7 proving ground)` SUBSECTION appended right after
+  `render_learned_today()` inside the SAME `## What Gamma learned today` block (no new `##`
+  heading; `grep -c "What Gamma learned today" HOME.md` == 1, confirmed on the real
+  regenerated file). Shows all 4 windows, the kill/ship forward tally, F1 sign, tomorrow's
+  change, and one live-health line (pid liveness via `_proc_table.py`, last tick, breaker,
+  equity; `cash` honestly rendered `n/a` -- no twin state file carries it, only a live broker
+  read does). `daily_brief.py` gains `_crypto_challenger_brief_line()`, wired into both
+  `--mode eod` and `--mode morning`, reading the SAME `challenger-h1-summary.json` so the
+  brief and HOME never disagree. **Quoted real `--no-voice` dry-runs (2026-09-13, real
+  et_clock)**: EOD -- `"...What Gamma learned today: Challenger starts Monday; nothing to
+  score yet. Crypto 24/7: control 0 trades $+0.00 last 24h; H1 refused 0, net $+0.00;
+  tomorrow: none (H1-crypto clock running: 0/6 refused)"`; Morning -- `"...On crypto, I
+  traded my own signal 215 times overnight: 20 percent win rate, down 6.65 percent. Paper,
+  and not SPY evidence. Crypto 24/7: control 0 trades $+0.00 last 24h; H1 refused 0, net
+  $+0.00; tomorrow: none (H1-crypto clock running: 0/6 refused)"` -- both match the required
+  template exactly. Guards: `test_crypto_home_and_brief_2026_09_13.py` (7 tests) RED-proofed
+  (broke the brief line's f-string, confirmed the template test failed, restored).
+
+  **VERIFY**: killed the pre-change resident loop (real pid 20928, found via `_proc_table`
+  cross-check -- the pid FILE itself was stale/wrong at `9999`, a discrepancy noted but not
+  root-caused this session, out of scope) and relaunched via
+  `crypto_twin_keepalive.py::main()` exactly (system pythonw + PYTHONPATH,
+  `--live --loop --duration-sec 86400`) -- new pid `2024`, launched 16:32:52 UTC, confirmed
+  alive via `_proc_table` and ticking every ~60s since. **25-minute live poll (16:33-16:58
+  UTC) for the first `sizing_mode=organic_10pct` FILLED row: NONE landed** -- honest null,
+  not forced (0 `PLACED` rows of ANY kind, organic or scenario, fired in this window; the
+  twin spent the whole window `MANAGED`-ing the one small pre-existing position). 0 403s
+  confirmed since the restart (timezone-corrected: the pid file's `launched_at` is LOCAL/
+  MDT, not UTC -- an initial naive comparison wrongly found 441 "403" substring matches
+  before catching this and re-deriving the correct UTC threshold). Filtered suite
+  (`-k "crypto_twin or twin_sentinel or scenario or challenger or obsidian or daily_brief or
+  learned"`, scoped to `backtest/tests`, per the known bare-`-k` collection-error caveat):
+  **553 passed, 0 pre-existing REDs, 0 regressions**. Pre-commit gate: secret scan GREEN +
+  59-test safety gate PASS quoted on `c60644db`; `4c2ed8cc`/`48eb9883` committed via
+  `commit_scoped.py` (this checkout's shared-index-absorption fix -- both commits' file
+  lists confirmed to contain ONLY this session's own paths, no absorption). Item (7) stays
+  `[~]`: parts (a)-(d) are all DONE and shipped, but the organic-fill and 30-min-clean-tick
+  DONE-WHEN criteria are not yet independently met/re-verified as of this write -- see the
+  QUEUE line's own REMAINING note. No SPY/fleet/params/heartbeat/filters/STATUS.md/
+  scheduled-task/Discord-bridge/twin-signal-or-level-logic file touched; no order placed by
+  hand (only the loop traded, and it traded nothing this window); no subagents; no full-
+  suite run. Tokens this fire: not independently metered by this session (harness-measured
+  figures were not available at write time).
