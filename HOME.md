@@ -1,6 +1,6 @@
 # 🎛️ Gamma — HOME
 
-> Auto-generated `2026-09-13 10:15:20 Sunday EDT` · market **CLOSED** · regenerate: `python setup/scripts/obsidian_vault_sync.py`
+> Auto-generated `2026-09-13 12:37:55 Sunday EDT` · market **CLOSED** · regenerate: `python setup/scripts/obsidian_vault_sync.py`
 > Nothing here is hand-maintained. If a number looks stale, the producer behind it is stale.
 
 ## Position & P&L
@@ -22,6 +22,23 @@
 
 **Tomorrow's change:** none (H1 clock running: 0/6 refused)
 
+### Crypto (24/7 proving ground)
+
+*H1: refuse `SWING_PIVOT` anchors -- forward clock from `2026-09-13T16:25:00+00:00`. Overlay = control's real fills minus refused entries, exact by construction (no second account).*
+
+| Window | Control n | Control $ | Refused n | Refused $ | Challenger $ |
+|---|---:|---:|---:|---:|---:|
+| Last 4h | 0 | +0.00 | 0 | +0.00 | +0.00 |
+| Last 24h | 0 | +0.00 | 0 | +0.00 | +0.00 |
+| Forward since start | 0 | +0.00 | 0 | +0.00 | +0.00 |
+| Historical (in-sample) | 215 | -23.42 | 78 | -21.32 | -2.10 |
+
+**Forward gate:** refused **0/6** (kill) · **0/20** (ship) · F1 sign: refused net >= 0 (does not hold) · status: **RUNNING**
+
+**Tomorrow's change:** none (H1-crypto clock running: 0/6 refused)
+
+*Twin health: pid `9999` (not found) · last tick `2026-09-13T12:37:54.027520` · breaker ok · equity +8,945.91 · cash n/a*
+
 ## The gate
 
 - **overall verdict:** `RED` (as of `2026-09-03T14:43:34`)
@@ -42,7 +59,7 @@
 
 ## Today's levels
 
-*as of `2026-09-13T10:15:01-04:00`*
+*as of `2026-09-13T12:35:01-04:00`*
 
 - **748.09** — SHELF_747.29_748.89_2026-09-13
 - **761.32** — SHELF_760.52_762.12_2026-09-13
@@ -61,7 +78,7 @@
 
 ### 📈 Futures (MES · two lanes: fillsim = book, tastytrade SANDBOX = real fills)
 
-- **lane health** `RED` (as of `2026-09-13 10:00:00`) — [YELLOW] broker_transport: 3/6 recent probe(s) show transport errors (rate 50%), 4 excluded as session-closed -- newest 2026-09-12T23:29:15 -> SESSION_NOT_ACTIVE (inconclusive -- re-run while CME is open); CME session_phase=WEEKEND (open=False, per futures_session/et_clock); broker-transport.jsonl: 253 row(s), 210 transport-error, 5 broker-rejected, 6 NOT-RETRIED-AMBIGUOUS (possible unconfirmed order); newest 2026-09-11T16:01:27 get_account_equity/transport_error
+- **lane health** `RED` (as of `2026-09-13 12:30:00`) — [YELLOW] broker_transport: 3/6 recent probe(s) show transport errors (rate 50%), 4 excluded as session-closed -- newest 2026-09-12T23:29:15 -> SESSION_NOT_ACTIVE (inconclusive -- re-run while CME is open); CME session_phase=WEEKEND (open=False, per futures_session/et_clock); broker-transport.jsonl: 253 row(s), 210 transport-error, 5 broker-rejected, 6 NOT-RETRIED-AMBIGUOUS (possible unconfirmed order); newest 2026-09-11T16:01:27 get_account_equity/transport_error
 - **book lane** (fillsim) `HOLD` — last tick `2026-09-11T16:00:01` · session GLOBEX
 - **broker lane** (tastytrade SANDBOX, REAL fills) `HOLD` — last tick `2026-09-11T16:00:01` · session GLOBEX
 - **sim book** equity $1,595.86 (start $2,000.00) · day $-256.24 · 11 trades
@@ -78,7 +95,7 @@
     - ⚠️ `pin-chain-verify` **YELLOW** — rule_version=v15.3, mismatches=1
     - ⚠️ `heartbeat-pulse-check` **NOT_APPLICABLE** — max gap 0.0min
     - ⚠️ `watcher-state-inspector` **YELLOW** — odf_state empty (may be correct if no drive-then-fade pattern) (obs_today=119)
-- **twin** last journal row `2026-09-13T14:14:56.299725+00:00` · 47246 events (24/7 mechanism validator — its P&L is NEVER SPY evidence)
+- **twin** last journal row `2026-09-13T16:03:39.017890+00:00` · 47497 events (24/7 mechanism validator — its P&L is NEVER SPY evidence)
 
 ### 🎯 Tickers (non-SPY 0DTE, 3 paper arms, production scorer)
 

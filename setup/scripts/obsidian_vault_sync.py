@@ -697,6 +697,91 @@ def render_learned_today(
     return L
 
 
+# --- Crypto (24/7 proving ground) -- GOAL-EARN-YOUR-KEEP item 7d (2026-09-13) -------------
+def _pid_alive(pid: int) -> bool | None:
+    """Best-effort: is `pid` a currently-running process on this box? None (not False) when
+    the check itself fails -- a failed liveness probe is NOT evidence of death (2026-09-09
+    wmic-removal lesson: an empty/failed process read must never be read as "process gone").
+    Reuses `_proc_table.py` (the project's own Win11-24H2-safe process-table reader, built
+    after `wmic` broke the whole keepalive fleet -- see that module's docstring)."""
+    try:
+        sys.path.insert(0, str(REPO / "setup" / "scripts"))
+        import _proc_table  # type: ignore  # noqa: PLC0415
+
+        table = _proc_table.parse_process_table(_proc_table.process_table_text())
+        return int(pid) in table
+    except Exception:  # noqa: BLE001 -- liveness is advisory, must never break HOME
+        return None
+
+
+def render_crypto_challenger_block() -> list[str]:
+    """`### Crypto (24/7 proving ground)` -- lives INSIDE the existing `## What Gamma
+    learned today` block (the caller appends this list right after render_learned_today's
+    own, no new `##` heading -- `grep -c "What Gamma learned today"` must stay == 1).
+
+    Reads challenger-h1-summary.json (crypto_twin_challenger.py, GOAL-EARN-YOUR-KEEP item
+    7c) for control-vs-H1 by window + the kill/ship verdict, plus three twin state files
+    for the one-line live-health glance: `crypto-twin-loop.pid` (process liveness, best-
+    effort -- see `_pid_alive`), `twin-health.json` (last_tick_et -- the honest liveness
+    signal: a stale tick means the loop is effectively dead regardless of whether the OS
+    pid happens to still exist), and `crypto-twin/breaker.json` (tripped/equity). FAILS
+    OPEN at every read (C7) -- a missing/corrupt file renders 'n/a', never an exception."""
+    L: list[str] = ["### Crypto (24/7 proving ground)", ""]
+
+    summary = read_json(STATE / "crypto-twin" / "challenger-h1-summary.json")
+    if not isinstance(summary, dict):
+        L.append("> n/a -- `challenger-h1-summary.json` missing or unreadable "
+                 "(crypto_twin_challenger.py has not run yet)")
+        L.append("")
+    else:
+        windows = summary.get("windows") or {}
+        ks = summary.get("kill_ship_status") or {}
+
+        def _w(name: str, label: str) -> str:
+            w = windows.get(name) or {}
+            return (f"| {label} | {w.get('control_n', 'n/a')} | {money(w.get('control_net_usd', 0.0))} "
+                    f"| {w.get('refused_n', 'n/a')} | {money(w.get('refused_net_usd', 0.0))} "
+                    f"| {money(w.get('challenger_net_usd', 0.0))} |")
+
+        L.append(f"*H1: refuse `{summary.get('h1_refuse_class', '?')}` anchors -- forward clock "
+                 f"from `{summary.get('h1_forward_start_utc', '?')}`. Overlay = control's real "
+                 f"fills minus refused entries, exact by construction (no second account).*")
+        L.append("")
+        L.append("| Window | Control n | Control $ | Refused n | Refused $ | Challenger $ |")
+        L.append("|---|---:|---:|---:|---:|---:|")
+        L.append(_w("last_4h", "Last 4h"))
+        L.append(_w("last_24h", "Last 24h"))
+        L.append(_w("forward_since_start", "Forward since start"))
+        L.append(_w("historical_in_sample", "Historical (in-sample)"))
+        L.append("")
+        L.append(f"**Forward gate:** refused **{ks.get('n', 0)}/{summary.get('kill_n', 6)}** "
+                 f"(kill) · **{ks.get('n', 0)}/{summary.get('ship_n', 20)}** (ship) · "
+                 f"F1 sign: {summary.get('f1_sign', 'n/a')} · status: **{ks.get('status', 'n/a')}**")
+        L.append("")
+        L.append(f"**Tomorrow's change:** {summary.get('tomorrow_change', 'n/a')}")
+        L.append("")
+
+    pid_doc = read_json(STATE / "crypto-twin-loop.pid")
+    health = read_json(STATE / "twin-health.json")
+    breaker = read_json(STATE / "crypto-twin" / "breaker.json")
+
+    pid = pid_doc.get("pid") if isinstance(pid_doc, dict) else None
+    alive = _pid_alive(pid) if pid is not None else None
+    alive_s = "alive" if alive else ("not found" if alive is False else "n/a")
+    last_tick = health.get("last_tick_et") if isinstance(health, dict) else None
+    tripped = breaker.get("tripped") if isinstance(breaker, dict) else None
+    equity = breaker.get("current_equity") if isinstance(breaker, dict) else None
+    cash = None  # not carried by any twin state file -- see STEP 0's live broker read for cash
+
+    L.append(f"*Twin health: pid `{pid if pid is not None else 'n/a'}` ({alive_s}) · "
+            f"last tick `{last_tick or 'n/a'}` · "
+            f"breaker {'TRIPPED' if tripped else ('ok' if tripped is not None else 'n/a')} · "
+            f"equity {money(equity) if isinstance(equity, (int, float)) else 'n/a'} · "
+            f"cash {money(cash) if isinstance(cash, (int, float)) else 'n/a'}*")
+    L.append("")
+    return L
+
+
 def learned_today_summary(
     fleet_dir: Path = None,
     pnl_path: Path = None,
@@ -907,6 +992,7 @@ def build_home(date: str, stamp: str, market_open: bool, snap: dict) -> str:
     L.extend(render_positions_table(snap))
 
     L.extend(render_learned_today())
+    L.extend(render_crypto_challenger_block())
 
     L.extend(render_gate_block())
 
@@ -1841,6 +1927,22 @@ def main(argv: list[str] | None = None) -> int:
     try:
         subprocess.run(
             [sys.executable, str(REPO / "setup" / "scripts" / "claude_usage_ledger.py")],
+            cwd=str(REPO), timeout=30, capture_output=True, check=False,
+            creationflags=_CREATE_NO_WINDOW,
+        )
+    except Exception:  # noqa: BLE001
+        pass
+
+    # Refresh the H1-crypto challenger overlay before the HOME build (GOAL-EARN-YOUR-KEEP
+    # item 7d) so render_crypto_challenger_block() reads a fresh challenger-h1-summary.json
+    # -- same pattern as the usage-ledger call above. update_ledger()'s own cheap watermark
+    # pre-check (crypto_twin_challenger.py's module docstring, PERFORMANCE) makes the common
+    # call near-instant; a 30s timeout covers the rare full-rejoin path. Fails open: any
+    # error here degrades render_crypto_challenger_block() to its own 'n/a' branch, never
+    # blocks HOME generation (C7).
+    try:
+        subprocess.run(
+            [sys.executable, str(REPO / "setup" / "scripts" / "crypto_twin_challenger.py"), "--update"],
             cwd=str(REPO), timeout=30, capture_output=True, check=False,
             creationflags=_CREATE_NO_WINDOW,
         )

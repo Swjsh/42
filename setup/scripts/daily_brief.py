@@ -351,6 +351,30 @@ def _crypto_overnight_line() -> str:
         return "Crypto twin P&L unavailable this morning -- worth a look."
 
 
+def _crypto_challenger_brief_line() -> Optional[str]:
+    """ONE line, shared verbatim by both --mode morning and --mode eod (GOAL-EARN-YOUR-KEEP
+    item 7d): control vs the H1-crypto challenger overlay (crypto_twin_challenger.py, item
+    7c) over the last 24h. Reads challenger-h1-summary.json directly -- the SAME file
+    obsidian_vault_sync.render_crypto_challenger_block() reads for the HOME.md subsection,
+    so the brief and the vault page never disagree. Distinct from `_crypto_overnight_line`
+    above (that one reports the twin's OVERALL organic P&L; this one reports the CONTROL-
+    vs-CHALLENGER comparison specifically). Fail-open (C7): any read/parse problem returns
+    None, never breaks the brief."""
+    try:
+        path = REPO / "automation" / "state" / "crypto-twin" / "challenger-h1-summary.json"
+        summary = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:  # noqa: BLE001
+        return None
+    if not isinstance(summary, dict):
+        return None
+    w24 = (summary.get("windows") or {}).get("last_24h") or {}
+    tomorrow = summary.get("tomorrow_change", "n/a")
+    return (f"Crypto 24/7: control {w24.get('control_n', 0)} trades "
+           f"${w24.get('control_net_usd', 0.0):+.2f} last 24h; H1 refused "
+           f"{w24.get('refused_n', 0)}, net ${w24.get('refused_net_usd', 0.0):+.2f}; "
+           f"tomorrow: {tomorrow}")
+
+
 def _trendline_morning_line() -> str:
     """WS8 (2026-08-01): ONE lean spoken sentence from the trendline watch surface
     (automation/state/trendline-watch.json, producer backtest/autoresearch/
@@ -384,6 +408,9 @@ def compose_morning_text(facts: dict) -> str:
     lines.append(_trendline_morning_line())
     lines.append(f"Kill switches: Safe {facts['safe_breaker']}, Bold {facts['bold_breaker']}.")
     lines.append(_crypto_overnight_line())
+    crypto_challenger = _crypto_challenger_brief_line()
+    if crypto_challenger:
+        lines.append(crypto_challenger)
     overnight = facts.get("overnight_headers") or []
     if overnight:
         lines.append("Overnight I shipped: " + "; ".join(overnight) + ".")
@@ -568,6 +595,9 @@ def compose_eod_text(facts: dict) -> str:
     learned = _learned_today_eod_line(facts["day"])
     if learned:
         lines.append(learned)
+    crypto_challenger = _crypto_challenger_brief_line()
+    if crypto_challenger:
+        lines.append(crypto_challenger)
     return truncate_to_word_cap(" ".join(lines))
 
 
