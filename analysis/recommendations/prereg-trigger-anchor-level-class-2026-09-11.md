@@ -53,3 +53,28 @@ If the STRUCTURAL class (prior-day / premarket / session H-L) also goes negative
 ## 7. Revert / revoke
 
 Before 09-29: nothing to revert (paper only). After a 09-29 ship: `git revert <ship sha>`; the swing levels are still produced and drawn, so the revert is behaviour-only and byte-identical to today.
+
+## 8. Challenger LADDER (added 2026-09-12 under GOAL-EARN-YOUR-KEEP; J's six-day mandate)
+
+The forward read in §3 no longer waits for the 09-29 checkpoint to produce evidence: from 2026-09-14
+this rule runs LIVE on the paper challenger `risky-3` (revived as `risky-1`'s exact twin plus
+`gate_override.anchor_class_denylist=["INTRADAY_SWING_"]`), while `risky-1` is the control and
+`safe-2`/`safe-3` stay frozen for the score window. Gates F1-F5 and the §5 kill criterion apply
+UNCHANGED to the challenger's refusals (a refusal on risky-3 of a signal risky-1 filled is one
+forward "blocked" observation with a real dollar outcome). The 09-29 decision for the frozen arms
+reads THIS ledger, not a replay.
+
+One hypothesis holds the challenger at a time. When the live row terminates (KILL / SHIP / EXTEND per
+its own criterion), the conductor moves the next `[ ]` row onto `risky-3` and logs it in the goal.
+Rows are decision rows the conductor executes; no rotation code exists and none is planned.
+
+| # | State | Hypothesis (ONE per-arm gate, reduction only) | Ship criterion | Kill criterion | n needed |
+|---|---|---|---|---|---|
+| H1 | `[~]` live 09-14 | deny `INTRADAY_SWING_*` as trigger anchor | F1-F5 above | §5: refused signals net ≥ 0 over ≥ 6 | 6 refused signals |
+| H2 | `[ ]` next | deny `MEMORY_*` as trigger anchor (Sept −$811, 15 signals; §2 disclosure says weaker) | same F1-F5 on MEMORY refusals | refused net ≥ 0 over ≥ 6 | 6 refused signals |
+| H3 | `[ ]` | compression sit-out: no entry before 10:30 when the 09:30-10:00 range < 0.35 × 20-day median first-30-min range (deterministic, computable at 10:00) | sat-out sessions' control P&L net < 0 AND F2-style winner test | sat-out sessions' control P&L net ≥ 0 over ≥ 5 sessions | 5 sat-out sessions |
+| H4 | `[ ]` not before ~09-25 | SD-zone anchor: entries only when spot is inside an archived zone (`prereg-sd-zone-anchor-promotion-2026-09-12.md`, its own G1-G6) | its own prereg (EXPANSION — 10-30 only, never 09-29) | its own prereg | 10 archived sessions first |
+
+H3's threshold (0.35 × median) is a first guess and is written here so it cannot be tuned after the
+fact; if it never triggers in 5 sessions it is EXTENDED once, then KILLED as untestable. Nothing in
+this table adds an entry, sizes up, or widens a stop.
