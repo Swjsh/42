@@ -75,7 +75,7 @@ $nextScript = Join-Path $dashDir "node_modules\next\dist\bin\next"
 
 $psi = New-Object System.Diagnostics.ProcessStartInfo
 $psi.FileName = $node
-$psi.Arguments = "`"$nextScript`" start -p $port"
+$psi.Arguments = "`"$nextScript`" start -p $port -H 127.0.0.1"   # loopback only (GAMMA-STATION item 10, 2026-09-13): was 0.0.0.0 + a Public-profile firewall Allow for node.exe
 $psi.WorkingDirectory = $dashDir
 $psi.UseShellExecute = $false
 $psi.CreateNoWindow = $true

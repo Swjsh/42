@@ -444,3 +444,6 @@ automation/state/station/kiosk-snapshot.png
 automation/state/station/kiosk.pid
 automation/state/station/.tv-token
 automation/state/logs/nothink-proxy.log
+automation/state/station/tv.json
+automation/state/station/kiosk-ledger.jsonl
+automation/state/station/presence-ledger.jsonl
