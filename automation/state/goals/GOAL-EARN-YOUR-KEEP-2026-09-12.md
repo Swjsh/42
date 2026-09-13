@@ -286,6 +286,8 @@ produce evidence that changes what the rig does the next day, on a surface J alr
   fields that did not exist before item 6's first commit, so their presence proves the new module
   loaded. Tokens this fire (harness-measured): ~48K.
 
+- 2026-09-13 10:0x ET (Fable): item (6) shipped `a4030f4e` + dedupe `12fd66e0`; 09-11 replay through the bridge filter: 174 rows -> 16 posted (6 briefs + 10 distinct alarms) / 158 held. Bridge restarted twice by hand (allowlist, then dedupe); heartbeat carries `held_today`/`allowlist_off`. Pushed. Tokens today (harness): research 125K + builder 233K + follow-up ~279K cumulative on that agent.
+
 ## HONEST STATE
 Opened. The challenger (1) is BLOCKED on activation, not on the mechanism: the gate itself
 (build_shared_signal's `trigger_anchor_label` passthrough + fleet_executor's
