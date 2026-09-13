@@ -1,7 +1,18 @@
+## [2026-09-13] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-08-06..2026-09-10), real OPRA fills, floor n>=10
+
+> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-09-10). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
+> - **Live-tier verdicts:** #1 ATM (Safe-2)=CONFIRM; #1 ATM (Bold)=CONFIRM; #2 ATM=YELLOW; #4 ATM=YELLOW
+> - **Books:** Safe2_ATM_1+2+4=CONFIRM ($1626.55); Bold_ATM_1+2=RED ($-608.8)
+> - **edges_confirmed_on_recent = True** (any RED=True). CONFIRMED: #1 ATM (Safe-2), #1 ATM (Bold). RED-BLOCKED: Bold_ATM_1+2 — no live flip on these.
+> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
+
+---
+
 ## Known broken
 
+- [2026-09-13 05:45:04 ET] TASK-OUTPUT-FRESHNESS: 9 finding(s): Gamma_RosterLiveness[nonzero_exit], Gamma_UnattendedHealth[nonzero_exit], Gamma_FuturesBrokerLane[missing_launch], Gamma_FuturesMirror[missing_launch], Gamma_FuturesTrader[missing_launch], Gamma_MarketKeepAwakeKeepalive[missing_launch], Gamma_OpenBellStatus[missing_launch], Gamma_PremarketReadiness[missing_launch], Gamma_PreopenReadiness[missing_launch]
+- [2026-09-12T23:20:02 ET] MCP_AUDIT_YELLOW: safe=ok, bold=ok, tv=FAIL, mcp_procs=ok -- port 9222 unreachable -- URLError: <urlopen error [WinError 10061] No connection could be made 
 - [2026-09-12T10:40+00:00] ROSTER-LIVENESS: 1 lane(s) permanently DEAD (404/archived): openrouter::minimax/minimax-m3:free. Roles are falling through to their next lane or the local floor. Repoint in automation/state/model-roster.json, then re-run setup/scripts/roster_liveness.py. See automation/state/roster-health.json.
-- [2026-09-12 05:45:03 ET] TASK-OUTPUT-FRESHNESS: 4 finding(s): Gamma_GuardsFull[nonzero_exit], Gamma_RosterLiveness[nonzero_exit], Gamma_UnattendedHealth[nonzero_exit], Gamma_FuturesBrokerProbe[missing_launch]
 - [2026-09-11T23:02:00] GATE-EXPIRY CLEARED :: filter-8-bear-sole :: bear sole-[8]: REPLAYED costing over 2026-08-13..2026-09-10 -- n=58 distinct episode(s), net $-318.25 (safe qty) -- refusals are LOSERS net (KEEP). RED clears -- ratifying instrument: backtest/tools/postfix_gate_costing.py :: re-check: backtest\.venv\Scripts\python.exe backtest\autoresearch\gate_expiry_check.py --gate filter-8-bear-sole
 - [2026-09-11T23:02:00] GATE-EXPIRY YELLOW :: filter-10-bull-sole :: bull sole-[10]: REPLAYED costing over 2026-08-13..2026-09-10 -- n=36 distinct episode(s), net $+92.40 (safe qty) but ex_best_day $-406.75 <= 0, best_day_share=5.402 -- CONCENTRATED, one day is doing all the work; not a robust COST read, RED downgrades to watch, not cleared :: re-check: backtest\.venv\Scripts\python.exe backtest\autoresearch\gate_expiry_check.py --gate filter-10-bull-sole
 > **This section is the PREAMBLE and must stay above the first dated-entry heading** (a line
@@ -17,6 +28,8 @@
 > it down). Restored 2026-09-02 and pinned by NAME via `status_retention.PINNED_SECTIONS` +
 > `backtest/tests/test_status_known_broken_preamble_2026_09_02.py`; restored again 2026-09-12.
 > **Prepend new dated entries BELOW this block.**
+
+- [2026-09-13 08:27 ET] conductor AFTERHOURS: OK :: GOAL-SUBTRACTION item (b) SHIPPED -- tick dead-man watchdog. `dead_mans_switch.py::check_tick_deadman()` reads the shared `core-decisions-tick.json` marker during 09:35-15:55 ET weekdays and raises a de-duplicating `## Known broken` line via `status_known_broken.upsert()` when it goes stale >5m, independent of whether any position is open (closes the ENGINE-STOPPED-EARLY-2026-09-09 gap: 50m dark, no alarm, because nothing watched the TICK itself, only positions). Replayed against 09-09's own numbers: last tick 15:06:14 -> would have fired 15:11:15, 44 min before that gap was ever surfaced. Picked via STAGE-1 clause 2a's fallback: active goal GOAL-EARN-YOUR-KEEP's only open items (1)/(5) are Monday-only/NOT-BEFORE-09-17, so per that goal's own operating rule GOAL-SUBTRACTION item (b) is next. RED-proofed live (forced `stale=False`, 4 new tests failed as expected, reverted, 23/23 green); filtered sweep `-k "dead_mans or status_known_broken or known_broken"` 77 passed, 0 regressions; neither touched file is on `FROZEN_TRADING_PATH` (no override needed); curated safety gate 59/59. Commit `4a5484b9` (2 files, +286/-0, additive only). REVOKE: `git revert 4a5484b9`.
 
 - [2026-09-12 17:12 ET] GOAL OPENED :: GOAL-EARN-YOUR-KEEP-2026-09-12 (J '/goal', six-day mandate to 09-18) :: risky-3 revived as risky-1's exact twin + ONE per-arm gate `gate_override.anchor_class_denylist=[INTRADAY_SWING_]` (the filed 09-29 prereg, run live on a paper challenger from 09-14; safe-2/safe-3/risky-1/bold-2 byte-identical, clean window intact); HOME.md gains a generator-written 'What Gamma learned today' block + the tickers lane; challenger LADDER rows H1-H4. Applied under GAMMA_FREEZE_OVERRIDE on J's 09-12 directive. REVOKE: git revert the build commit, or accounts.json risky-3.status=retired. Subtraction posture holds: no new task/dashboard/lane. GOAL-SUBTRACTION re-queued directly behind.
 - [2026-09-12 02:03 ET] SLOW REPLAY BATCH after the date gate :: 141 passed / 1 skipped (structure_shift_cascade_ab fast, engine_fullhist_replay, graduated_guards not-slow, dojo, replay_fleet_arms, structure_stop) + slow-marked 1 passed / 1 failed. The one RED is test_structure_shift_cascade_ab::TestBaselineAnchorReproduction::test_control_prefix_reproduces_stored_scorecard (189 vs the hardcoded 190) -- PRE-EXISTING: queue.md RE-ANCHOR-FULLHIST-REPLAY filed 2026-09-03 01:15 ET from the first slow-suite run since July (deterministic 3/3 then), control run uses the hand-built SAFE_BASE_LIVE kwargs (not live params) so tonight's switch/disarm cannot reach it; last engine-path change before tonight was 08-23 (level_state resolution). Not this lane; the queued adjudication owns it. Tonight's verification is complete: 124c8103 pushed.
@@ -103,16 +116,6 @@
 
 ---
 
-## [2026-09-11] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-08-06..2026-09-10), real OPRA fills, floor n>=10
-
-> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-09-10). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
-> - **Live-tier verdicts:** #1 ATM (Safe-2)=CONFIRM; #1 ATM (Bold)=CONFIRM; #2 ATM=YELLOW; #4 ATM=YELLOW
-> - **Books:** Safe2_ATM_1+2+4=CONFIRM ($1626.55); Bold_ATM_1+2=RED ($-608.8)
-> - **edges_confirmed_on_recent = True** (any RED=True). CONFIRMED: #1 ATM (Safe-2), #1 ATM (Bold). RED-BLOCKED: Bold_ATM_1+2 — no live flip on these.
-> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
-
----
-
 ## [2026-09-11 09:30 ET] RED -- INCIDENT FIX ROSTER REGRESSED (1 RED, 0 unguarded)
 
 - **no-console-popups** -- closes: console flash regression class
@@ -190,44 +193,6 @@ Source: `setup/scripts/incident_fix_status.py --alert` (2026-08-14 incident rost
 
 ---
 
-## [2026-09-10 01:22 ET] conductor AFTERHOURS (continuation 1/3): GOAL-LOSS-MECHANISMS-2026-09-08 CLOSED -- L4 catalyst-day-tag-w6 prereg filed, all 4 QUEUE items done -- REVOKE surface
-
-L4 filed `analysis/recommendations/prereg-catalyst-day-tag-w6-2026-09-10.json` (INFORMATIONAL, 10-30). Earnings leg (tickers-lane mega_tech bucket, yfinance, $0) discloses a real n=2 backward fragment: NVDA (AMC 08-26 -> reacts 08-27) and AVGO (AMC 09-02 -> reacts 09-03) both landed WAVE+BIG vs the 80%/56% backfill base rates -- explicitly flagged as a hypothesis fragment, never cited as a separator. The 8-K M&A leg (EDGAR full-text search confirmed reachable with a User-Agent header, $0, but unrestricted queries return mostly micro-cap noise needing a validated mega-cap CIK filter) and the Alpaca-news leg (endpoint wired, no materiality classifier built/validated) are explicitly PARKED with reasons rather than shipping a fabricated-looking n. `goal_autopilot.py` auto-closed the goal (queue fully terminal) and now reports `ladder_empty` -- **flagged for the next conductor fire to author the next research goal** (LADDER.md has no remaining eligible `[ ]` entry; GOAL-GATE-EXPIRY-RECONCILE-2026-09-05 and GOAL-FUTURES-YELLOWS-2026-09-05 are both `queued` but their files lack a live `## QUEUE` bare item per the autopilot's own eligibility check, and GOAL-SEPT-MIDWINDOW-READ-2026-09-15 is gated `not_before:2026-09-15`).
-
-**Verified, quoted (OP-33):** `pytest tests/ -k checkpoint_packet` -> 33 passed (unchanged from the L1-L3 fire, confirming no regression from the L4 doc-only work). Curated safety gate -> 59 passed, PASS. `prereg_hygiene.py` -> 146 files, 0 malformed. Commit `a0232229`.
-
-**Rail (doc/prereg-only, zero FROZEN_TRADING_PATH touched):** guard = curated safety gate stayed green (a); revert = `git revert a0232229` (additive-only diff) (b); this entry is the REVOKE + goal-CLOSE report (c).
-
----
-
 
 ## Kitchen
-Kitchen: alive, queue 55 pending, last cook 0 min ago, today $0.00, model=?
-
-- [2026-09-12 03:27:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 76.32% in last 24h (29/38) | stage v15_three_source_parity.live pass rate dropped to 94.74% in last 24h (36/38) :: see crypto/data/scorecards/drift_report.json
-
-- [2026-09-12 04:00:02] scheduled-tasks audit RED -- see automation/state/scheduled-tasks-audit.json
-
-[2026-09-12 04:00:02] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-09-12.md
-
-### BROKEN: self-check 2026-09-12T06:09:57
-- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [YELLOW] broker_transport: 4/7 recent probe(s) show transport errors (rate 57%), 3 excluded as session-closed -- newest 2026-09-10T23:05:09 -> PROBE_FAILED; CME session_phase=WEEKEND (open=False, per futures_session/et_clock); broker-transport.jsonl: 253 row(s), 210 transport-error, 5 broker-rejected, 6 NOT-RETRIED-AMBIGUOUS (possible unconfirmed order); newest 2026-09-11T16:01:27 get_account_equity/transport_error -- CME currently CLOSED per et_clock, capped at YELLOW (cannot confirm the transport is broken right now vs. simply idle); [RED] broker_exit_pairing: 2 ENTER(s) with NO matching journaled EXIT and not the currently-tracked open position -- 2026-09-08T12:00:02 order_ids=[1567718]; 2026-09-08T14:00:02 order_ids=[1571093, 1571096, 1571097] (6 real ENTER row(s) in window, 7 journaled BROKER entry id(s), open-entry.json present)
-- TASK-STALENESS DEGRADED (YELLOW): Gamma_FeeRecalibrate, Gamma_GitHubAudit, Gamma_FuturesBrokerProbe, Gamma_BookEquityRefresh, Gamma_SdZonesProducer
-
-- [2026-09-12 06:57:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 78.95% in last 24h (30/38) | stage v15_three_source_parity.live pass rate dropped to 94.74% in last 24h (36/38) :: see crypto/data/scorecards/drift_report.json
-
-- [2026-09-12 07:27:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 81.58% in last 24h (31/38) | stage v15_three_source_parity.live pass rate dropped to 94.74% in last 24h (36/38) :: see crypto/data/scorecards/drift_report.json
-
-- [2026-09-12 07:57:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 84.21% in last 24h (32/38) | stage v15_three_source_parity.live pass rate dropped to 94.74% in last 24h (36/38) :: see crypto/data/scorecards/drift_report.json
-
-- [2026-09-12 08:27:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 86.84% in last 24h (33/38) | stage v15_three_source_parity.live pass rate dropped to 94.74% in last 24h (36/38) :: see crypto/data/scorecards/drift_report.json
-
-- [2026-09-12 08:57:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 89.47% in last 24h (34/38) | stage v15_three_source_parity.live pass rate dropped to 94.74% in last 24h (36/38) :: see crypto/data/scorecards/drift_report.json
-
-- [2026-09-12 09:27:00] crypto-harness drift RED :: stage v02_source_parity pass rate dropped to 92.11% in last 24h (35/38) | stage v15_three_source_parity.live pass rate dropped to 94.74% in last 24h (36/38) :: see crypto/data/scorecards/drift_report.json
-
-- [2026-09-12 10:27:00] crypto-harness drift GREEN (recovered) :: see crypto/data/scorecards/drift_report.json
-
-### BROKEN: self-check 2026-09-12T12:39:56
-- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [YELLOW] broker_transport: 4/7 recent probe(s) show transport errors (rate 57%), 3 excluded as session-closed -- newest 2026-09-10T23:05:09 -> PROBE_FAILED; CME session_phase=WEEKEND (open=False, per futures_session/et_clock); broker-transport.jsonl: 253 row(s), 210 transport-error, 5 broker-rejected, 6 NOT-RETRIED-AMBIGUOUS (possible unconfirmed order); newest 2026-09-11T16:01:27 get_account_equity/transport_error -- CME currently CLOSED per et_clock, capped at YELLOW (cannot confirm the transport is broken right now vs. simply idle); [RED] broker_exit_pairing: 2 ENTER(s) with NO matching journaled EXIT and not the currently-tracked open position -- 2026-09-08T12:00:02 order_ids=[1567718]; 2026-09-08T14:00:02 order_ids=[1571093, 1571096, 1571097] (6 real ENTER row(s) in window, 7 journaled BROKER entry id(s), open-entry.json present)
-- TASK-STALENESS DEGRADED (YELLOW): Gamma_FeeRecalibrate, Gamma_GitHubAudit, Gamma_FuturesBrokerProbe, Gamma_BookEquityRefresh, Gamma_SdZonesProducer
+Kitchen: alive, queue 26 pending, last cook 0 min ago, today $0.00, model=none (RUNNER-FAILED, no model call)

@@ -66,7 +66,7 @@ Falsifiable, each checked by a command or ledger row quoted in the PROGRESS LOG:
 
 ## QUEUE
 - [x] (a) dry-run the registration map: table of every Disabled `Gamma_*` task with held-since, restore-list membership, install script → commit `analysis/audits/task-registrations-2026-09-1x.md`; then unregister the eligible set; run the registry test; STATUS line.
-- [ ] (b) tick dead-man inside `dead_mans_switch.py` + RED-proofed test + 09-09 replay check.
+- [x] (b) tick dead-man inside `dead_mans_switch.py` + RED-proofed test + 09-09 replay check.
 - [ ] (c) Misses block: find the producer (`journal` EOD writer), fix the sign handling, guard test, regenerate 09-10.
 - [ ] (d) `_shared.ps1` kill logging (image + cmdline per pid), then the keep/retire decision after ≥ 2 sessions of kill logs.
 - [ ] (e) bias + key-levels archive lines inside an existing daily fire; re-check after 3 sessions.
@@ -80,3 +80,34 @@ Falsifiable, each checked by a command or ledger row quoted in the PROGRESS LOG:
 - 2026-09-11 20:49 ET — opened by goal_autopilot
 - 2026-09-11 22:5x ET (Fable, continuation 1/3): **(a) DONE.** Map first (`analysis/audits/task-registrations-2026-09-11.md`, commit `a38f2138`): 195 = 23 ESSENTIAL + 135 nightly-blackout + 37 parked -- the goal's own premise ('172 parked') corrected. Unregistered 6 (FuturesEod dup, Grind_Vwap, Drive, ConductorRTH, MultiCore, TwinChaos): count 195 -> 189 (Ready 23 / Disabled 166), `test_scheduled_tasks_doc.py` 5 passed, registry section `## Unregistered 2026-09-11` added with restore commands. HELD Gamma_DailyReview for (e): `run-daily-review.ps1` is the key-levels-archive writer (stopped 07-02 = its last run). 30 parked stay (no install script / ESSENTIAL / restore-listed / started by name). Revoke = the install script per row.
 - 2026-09-11 23:38 ET (Fable): J's follow-up directives superseded the queue order -- MOST-TOUCHED level cap shipped (22 -> 6 lines, STATUS line) and `GOAL-SD-LIQUIDITY-ZONES-2026-09-11` authored; this goal is RE-QUEUED right behind it (items (b)-(e) still open, (a) done). Item (e) note: `run-daily-review.ps1` is the key-levels archiver.
+- 2026-09-12 01:19 ET — opened by goal_autopilot
+- 2026-09-13 08:2x ET (conductor AFTERHOURS): **(b) DONE.** `check_tick_deadman()` added to
+  `dead_mans_switch.py` -- reads the shared `core-decisions-tick.json` marker (written every
+  core tick by `heartbeat_core._write_tick_marker`, both accounts) during 09:35-15:55 ET on a
+  weekday, raises a de-duplicating `status_known_broken.upsert()` '## Known broken' line past
+  5 minutes stale, clears itself once fresh/outside the window. Runs unconditionally every
+  fire (own gating, independent of the per-arm position checks and their wider 09:32-15:58
+  window). Wired into both the "outside_rth" snapshot and the normal report as
+  `report["tick_deadman"]`. Picked because item (5)'s NOT-BEFORE 09-17 clock and item (1)'s
+  Monday-only DONE-WHEN left the active goal (GOAL-EARN-YOUR-KEEP) with no pickable item this
+  fire -- the goal's own operating rule says take this item "the moment this goal has no open
+  item".
+  **09-09 replay (DONE-WHEN's own re-check):** new test pins the exact incident numbers --
+  last tick `2026-09-09T15:06:14`; at 15:10:00 (3m46s later) `stale=False`; at 15:11:15
+  (5m1s later) `stale=True, action=FLAGGED` -- would have fired 44 minutes before the 50-min
+  gap was ever surfaced anywhere.
+  **RED-proofed live:** temporarily forced `stale = False` in `check_tick_deadman` -- 4 of the
+  10 new tests failed exactly as expected (`test_check_tick_deadman_flags_stale_marker_during_window`,
+  `..._replay_2026_09_09_fires_at_1511`, `..._clears_when_fresh_again`,
+  `test_main_wires_tick_deadman_into_the_report`) -- reverted, 23/23 green again.
+  **Verified, quoted:** `pytest backtest/tests/test_dead_mans_switch_2026_09_01.py -q` ->
+  23 passed. Filtered sweep `-k "dead_mans or status_known_broken or known_broken"` -> 77
+  passed, 0 pre-existing regressions. `doctrine.frozen_path_hit()` -> None on both touched
+  files (neither is on `FROZEN_TRADING_PATH` -- this is a pure safety-monitoring addition,
+  no `GAMMA_FREEZE_OVERRIDE` needed). Curated pre-commit safety gate: 59 passed. Commit
+  `4a5484b9` (2 files, 286 insertions, 0 deletions -- additive only, no existing function's
+  behavior changed).
+  **Rail:** guard = the 10 new RED-proofed tests + 59/59 curated safety gate (a); revert =
+  `git revert 4a5484b9` (b); this entry is the REVOKE report (c).
+  **Note for item (e)/(c)/(d):** still open, not picked up this fire (scope discipline --
+  one bounded item per conductor fire).
