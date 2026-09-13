@@ -44,3 +44,53 @@ def _quiet_mode_never_touches_live_state(monkeypatch, tmp_path):
         if hasattr(qm, attr):
             monkeypatch.setattr(qm, attr, tmp_path / f"quiet-mode-{attr.lower()}")
     yield
+
+
+# ---------------------------------------------------------------------------------------
+# crypto-twin-loop.pid LIVE-STATE GUARD (added 2026-09-13, structural fix for a live incident)
+#
+# automation/state/crypto-twin-loop.pid names the pid of the REAL resident
+# crypto_twin_health.py --loop process (relaunched by Gamma_SupervisorKeepalive). At least
+# one test called the real crypto_twin_keepalive.launch_loop() with a monkeypatched
+# ctk.PID_FILE, but launch_loop()'s own _write_pid_file(proc.pid) call used a default
+# argument (`pid_file: Path = PID_FILE`) BOUND ONCE at module-import time, so the
+# monkeypatch never redirected the write -- it landed on the real file, overwriting the
+# live loop's actual pid (2024) with the test's fake one (9999) at 10:33:41 ET on
+# 2026-09-13 (see test_crypto_twin_keepalive_2026_09_05.py::
+# test_launch_loop_command_includes_live_and_loop_flags's docstring for the full story and
+# crypto_twin_keepalive.py's _write_pid_file/_read_pid_file for the source-level fix -- both
+# now resolve PID_FILE fresh inside the function body instead of via a bound default).
+#
+# This session-scoped guard is the backstop for the NEXT test that makes the same mistake
+# with a DIFFERENT bound-default or a forgotten monkeypatch: it snapshots the real pid
+# file's (mtime_ns, sha256) once at session start and asserts it is byte-and-timestamp
+# identical at session end, regardless of which test caused the drift.
+import hashlib as _hashlib  # noqa: E402
+
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+_CRYPTO_TWIN_PID_FILE = _REPO_ROOT / "automation" / "state" / "crypto-twin-loop.pid"
+
+
+def _crypto_twin_pid_file_fingerprint():
+    p = _CRYPTO_TWIN_PID_FILE
+    if not p.exists():
+        return None
+    try:
+        return (p.stat().st_mtime_ns, _hashlib.sha256(p.read_bytes()).hexdigest())
+    except OSError:
+        return "unreadable"
+
+
+@_pytest.fixture(scope="session", autouse=True)
+def _crypto_twin_pid_file_untouched_by_tests():
+    before = _crypto_twin_pid_file_fingerprint()
+    yield
+    after = _crypto_twin_pid_file_fingerprint()
+    assert after == before, (
+        f"automation/state/crypto-twin-loop.pid changed during this test session "
+        f"(before={before!r}, after={after!r}) -- some test wrote to the LIVE crypto-twin "
+        f"pid file instead of fully isolating it via monkeypatch. This is the exact class of "
+        f"bug that clobbered the real running loop's pid with a test's fake one on "
+        f"2026-09-13 -- see this file's own comment above and "
+        f"crypto_twin_keepalive.py::_write_pid_file's docstring."
+    )

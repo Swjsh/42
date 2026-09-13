@@ -108,20 +108,42 @@ def _log(msg: str) -> None:
         f.write(f"[{ts}] {msg}\n")
 
 
-def _read_pid_file(pid_file: Path = PID_FILE) -> Optional[int]:
-    if not pid_file.exists():
+def _read_pid_file(pid_file: Optional[Path] = None) -> Optional[int]:
+    # RESOLVED INSIDE THE BODY, NOT A BOUND DEFAULT (2026-09-13 fix -- see _write_pid_file's
+    # docstring for the incident this class of bug caused). `pid_file: Path = PID_FILE` as a
+    # parameter default is evaluated ONCE at module-import time, so a test that does
+    # `monkeypatch.setattr(ctk, "PID_FILE", tmp_path/...)` and then calls this with no
+    # explicit argument would silently keep reading the REAL production path.
+    path = pid_file if pid_file is not None else PID_FILE
+    if not path.exists():
         return None
     try:
-        return int(json.loads(pid_file.read_text(encoding="utf-8")).get("pid"))
+        return int(json.loads(path.read_text(encoding="utf-8")).get("pid"))
     except Exception:  # noqa: BLE001 -- a malformed/missing pid file just means "unknown", not fatal
         return None
 
 
-def _write_pid_file(pid: int, pid_file: Path = PID_FILE) -> None:
+def _write_pid_file(pid: int, pid_file: Optional[Path] = None) -> None:
+    """Writes {"pid", "launched_at"} to `pid_file` (defaults to the module-level PID_FILE,
+    resolved fresh on every call -- see the 2026-09-13 incident this fixes).
+
+    INCIDENT (2026-09-13): the previous signature was `pid_file: Path = PID_FILE` -- a
+    default argument bound ONCE at function-definition time (module import), same class of
+    bug twin_chaos_drill.py's force_flatten_position docstring already warns about ("resolved
+    inside the body, not a bound default"). launch_loop() calls `_write_pid_file(proc.pid)`
+    with no explicit path, so even a test that did `monkeypatch.setattr(ctk, "PID_FILE",
+    tmp_path/...)` before calling the real `ctk.launch_loop()` (e.g. to unit-test the launched
+    command's --live/--loop flags with a fake subprocess.Popen) had that write land on the
+    REAL production automation/state/crypto-twin-loop.pid instead of the tmp_path override --
+    test_launch_loop_command_includes_live_and_loop_flags in
+    test_crypto_twin_keepalive_2026_09_05.py did exactly this, overwriting the real pid file
+    with the test's fake pid (9999) every time that test ran, most recently clobbering the
+    real running loop's pid (2024) at 10:33:41 ET on 2026-09-13."""
+    path = pid_file if pid_file is not None else PID_FILE
     try:
-        pid_file.parent.mkdir(parents=True, exist_ok=True)
-        pid_file.write_text(json.dumps({"pid": pid, "launched_at": dt.datetime.now().isoformat()}),
-                            encoding="utf-8")
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps({"pid": pid, "launched_at": dt.datetime.now().isoformat()}),
+                        encoding="utf-8")
     except OSError:
         pass  # fail-open: a pid-file write failure just means the NEXT fire re-launches too
 

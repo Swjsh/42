@@ -149,7 +149,19 @@ def test_main_does_not_relaunch_when_loop_already_alive(monkeypatch):
 
 def test_launch_loop_command_includes_live_and_loop_flags(monkeypatch, tmp_path):
     """The launched command must carry --live (the old task's own flag -- never silently
-    downgrade to watch-only) AND --loop (the whole point of R2)."""
+    downgrade to watch-only) AND --loop (the whole point of R2).
+
+    ISOLATION (load-bearing, root-caused 2026-09-13 -- same class of bug
+    test_twin_chaos_drill.py's module docstring documents for ledger_path): this test calls
+    the REAL ctk.launch_loop(), which calls _write_pid_file(proc.pid) with no explicit path.
+    _write_pid_file/_read_pid_file used to default `pid_file: Path = PID_FILE` -- a value
+    bound ONCE at module-import time -- so monkeypatching `ctk.PID_FILE` below did NOT
+    redirect that write; it landed on the REAL automation/state/crypto-twin-loop.pid,
+    overwriting the live loop's actual pid (2024) with this test's fake one (9999) every time
+    this test ran, most recently caught at 10:33:41 ET on 2026-09-13. Fixed at the source
+    (_write_pid_file/_read_pid_file now resolve PID_FILE fresh inside the function body), but
+    this test ALSO asserts the real path is untouched so a future regression in that fix is
+    caught right here, not just by the session-wide conftest guard."""
     captured = {}
 
     class _FakeProc:
@@ -159,9 +171,13 @@ def test_launch_loop_command_includes_live_and_loop_flags(monkeypatch, tmp_path)
         captured["cmd"] = cmd
         return _FakeProc()
 
+    real_pid_file = ctk.PID_FILE
+    real_pid_file_before = (real_pid_file.read_bytes() if real_pid_file.exists() else None)
+    fake_pid_file = tmp_path / "crypto-twin-loop.pid"
+
     monkeypatch.setattr(ctk.subprocess, "Popen", fake_popen)
     monkeypatch.setattr(ctk.time, "sleep", lambda s: None)
-    monkeypatch.setattr(ctk, "PID_FILE", tmp_path / "crypto-twin-loop.pid")
+    monkeypatch.setattr(ctk, "PID_FILE", fake_pid_file)
     ok, pid = ctk.launch_loop()
     assert ok is True
     assert pid == 9999
@@ -170,3 +186,13 @@ def test_launch_loop_command_includes_live_and_loop_flags(monkeypatch, tmp_path)
     assert "--loop" in cmd
     assert str(ctk.SYS_PYTHONW) == cmd[0]
     assert str(ctk.TWIN_HEALTH_SCRIPT) == cmd[1]
+
+    # The write must have landed on the monkeypatched tmp_path file, and the REAL production
+    # pid file must be byte-identical to before this test ran (or still absent, if it never
+    # existed) -- the regression this test exists to catch.
+    assert fake_pid_file.exists(), "launch_loop() must write via the (monkeypatched) PID_FILE"
+    real_pid_file_after = (real_pid_file.read_bytes() if real_pid_file.exists() else None)
+    assert real_pid_file_after == real_pid_file_before, (
+        "launch_loop()/_write_pid_file() wrote to the REAL production pid file despite "
+        "monkeypatching ctk.PID_FILE -- the 2026-09-13 bound-default regression is back"
+    )
