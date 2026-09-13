@@ -301,6 +301,28 @@ function Get-DescendantPids {
     return ,$all
 }
 
+function Get-ProcessKillInfo {
+    # GOAL-SUBTRACTION-2026-09-11 item (d): before a timeout kill removes a subtree,
+    # CIM data for those pids disappears with the process. Capture Name + CommandLine
+    # for a list of pids WHILE THEY ARE STILL ALIVE so the caller can log exactly what
+    # was killed (image name + full command line, one row per pid). This is read-only --
+    # it never kills anything itself. Returns an array of PSCustomObject{Pid,Name,CommandLine};
+    # a pid that has already exited (or CIM can't see) is skipped, not padded with nulls,
+    # so the caller's row count reflects only pids it can actually attribute.
+    param([Parameter(Mandatory)][int[]]$Pids)
+    $info = @()
+    foreach ($procId in $Pids) {
+        $proc = Get-CimInstance Win32_Process -Filter "ProcessId=$procId" -ErrorAction SilentlyContinue
+        if (-not $proc) { continue }
+        $info += [PSCustomObject]@{
+            Pid         = $procId
+            Name        = $proc.Name
+            CommandLine = $proc.CommandLine
+        }
+    }
+    return ,$info
+}
+
 function Stop-StaleClaudeProcesses {
     # Boot-time cleanup ONLY. Called at the top of each task script BEFORE we spawn
     # our own claude.exe. This is the safety net for the rare case where a prior
@@ -833,6 +855,18 @@ function Invoke-Claude {
             $descendants = Get-DescendantPids -ParentId $rootPid
             $killMsg = "TIMEOUT after " + $TimeoutSec + "s - killing root pid=" + $rootPid + " plus " + $descendants.Count + " descendants"
             Write-TaskLog -TaskName $TaskName -Message $killMsg
+
+            # GOAL-SUBTRACTION-2026-09-11 item (d): capture image name + full command
+            # line for every pid in the subtree BEFORE Stop-ProcessTree removes them --
+            # CIM can't see a process once it's gone. This is the evidence the keep/
+            # retire decision for the LLM flatteners' timeout kill is made from: if a
+            # logged row ever names alpaca-mcp-server or a Core process, that process
+            # was hit by this kill and the flatteners get retired; if every row is our
+            # own claude.exe/MCP children, they're kept.
+            $killTargets = Get-ProcessKillInfo -Pids (@($rootPid) + $descendants)
+            foreach ($target in $killTargets) {
+                Write-TaskLog -TaskName $TaskName -Message ("  KILL_TARGET pid=" + $target.Pid + " image=" + $target.Name + " cmdline=" + $target.CommandLine)
+            }
 
             $killed = Stop-ProcessTree -ParentId $rootPid
             Write-TaskLog -TaskName $TaskName -Message ("  killed pids: " + (($killed | Sort-Object) -join ','))
