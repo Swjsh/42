@@ -496,3 +496,64 @@ wants (repoint weekly-1's account_number, or provision a new paper account for r
   hand (only the loop traded, and it traded nothing this window); no subagents; no full-
   suite run. Tokens this fire: not independently metered by this session (harness-measured
   figures were not available at write time).
+
+- 2026-09-13 13:1x ET (Sonnet, worker-tier, crypto twin defect fixes -- context only, item 7's
+  QUEUE not edited): two root-caused defects fixed, one commit each. **DEFECT 1** (`0c9503f3`):
+  `crypto_twin_broker.get_twin_creds` collapsed a transient `/v2/account` READ FAILURE
+  (`fleet_broker._request`'s `{"_error": ...}` marker, no `crypto_status` key) into the SAME
+  branch as a genuinely non-ACTIVE account -- 11/119 decisions.jsonl rows in one 2h window were
+  transient reads misreported as `CryptoNotApprovedError` with remediation text pointing at a
+  problem that never existed. New `BrokerTransientError` raised only when the account dict
+  carries `_error`; `CryptoNotApprovedError` now raised only on a SUCCESSFUL read with
+  `crypto_status != "ACTIVE"`. `crypto_twin_core.run_tick` and `crypto_twin_health.account_status`
+  both gained a `BrokerTransientError` -> `BLOCKED_BROKER_TRANSIENT` branch; exit management is
+  UNCHANGED by this fix either way (`manage_positions` returns `BLOCKED_NO_ACCOUNT` per open
+  symbol with zero broker calls whenever `creds is None` -- read from the real code, not assumed;
+  this fix only renames the reported reason, it does not restore exit management on a transient
+  tick). Every other `CryptoNotApprovedError` caller checked (grep, 5 files): `crypto_twin_health`
+  + `crypto_twin_core` fixed above; `broker_canary.py` uses `verify_crypto_status=False` so never
+  raises it; `firm_brief.py` only displays the `account_status` string, no except-clause to miss;
+  `twin_sentinel.py`'s `ACCOUNT_REGRESSION` rule compares status strings generically (already
+  fired on ANY non-LIVE transition before this fix, including a transient one -- unchanged, not a
+  new silent-ignore). 6 guard tests (3 files), RED-proofed by reverting the `_error` check and
+  confirming 2 of the 6 fail, then restoring. **DEFECT 2** (`257dde92`): PROVEN by isolation (real
+  pid file seeded to a known value, ran ONE test alone, checked the file after) that
+  `test_launch_loop_command_includes_live_and_loop_flags` in
+  `test_crypto_twin_keepalive_2026_09_05.py` was the leak -- it calls the REAL
+  `ctk.launch_loop()`, which calls `_write_pid_file(proc.pid)` with no explicit path;
+  `_write_pid_file`/`_read_pid_file` defaulted `pid_file: Path = PID_FILE`, bound ONCE at
+  module-import time, so the test's `monkeypatch.setattr(ctk, "PID_FILE", tmp_path/...)` never
+  reached the write -- it always landed on the real `automation/state/crypto-twin-loop.pid`,
+  overwriting the live loop's real pid (2024, confirmed via `Get-CimInstance Win32_Process`,
+  CreationDate 10:32:52) with the test's fake one (9999) at 10:33:41 ET, matching the goal's own
+  evidence exactly. Fixed both functions to resolve `PID_FILE` fresh inside the body (same
+  "resolved inside the body, not a bound default" pattern `test_twin_chaos_drill.py` already
+  documents for `ledger_path`); the leaking test now also asserts the real file is
+  byte-identical before/after. New session-scoped autouse fixture in `backtest/tests/conftest.py`
+  (`_crypto_twin_pid_file_untouched_by_tests`) snapshots `(mtime_ns, sha256)` of the real pid file
+  at session start and asserts unchanged at session end -- backstop for a future regression via a
+  different bound default. RED-proofed TWICE: (1) reverted the source fix, confirmed the test's
+  own new assertions fail; (2) reverted the source fix AND stripped the test back to its
+  pre-fix body, confirmed the conftest guard ALONE fails at teardown (independent proof it
+  isn't just riding the test's own assertion). Both restored. Real pid file restored to
+  `{"pid": 2024, "launched_at": "2026-09-13T10:32:52..."}` (gitignored, not committed) --
+  re-verified via a fresh `Get-CimInstance` AFTER the full filtered suite that pid 2024 is
+  still the live `crypto_twin_health.py --live --loop --duration-sec 86400` process.
+  **SUITES**: `-k "crypto_twin or twin_sentinel or supervisor or keepalive or scenario or
+  challenger"` scoped to `backtest/tests`: **592 passed, 0 pre-existing REDs, 0 regressions**.
+  Pre-commit gate quoted per commit: DEFECT 1 -- secret scan `OK -- no staged secrets found`,
+  safety gate `59 passed in 6.48s` / `PASS -- curated safety gate (6 suites) green`; DEFECT 2
+  committed via `commit_scoped.py` (hook ran, exit 0; safety gate re-run standalone afterward
+  for the quote: `59 passed in 6.61s` / `PASS`). Did NOT restart the live loop -- this fix is
+  picked up at the loop's next scheduled relaunch (Monday ~10:32 ET via
+  Gamma_SupervisorKeepalive), per this fire's own instruction not to restart it by hand. No
+  SPY/fleet/params/sizing/signal/levels/overlay/HOME/briefs/STATUS.md/scheduled-task file
+  touched; no subagents. OPEN RISKS (named, not fixed): (1) `crypto_twin_health.py`'s
+  `account_status()` distinguishes `BLOCKED_BROKER_TRANSIENT` from `BLOCKED_CRYPTO_NOT_APPROVED`
+  but `twin_sentinel.py`'s `ACCOUNT_REGRESSION` rule still treats every non-LIVE transition
+  identically (pre-existing behavior, not worsened, but a transient blip from a previously-LIVE
+  account will still fire a RED sentinel row until that rule is taught the distinction). (2) the
+  DEFECT 1 fix has not yet observed a REAL transient read in production (no live 403/timeout
+  landed during this session's window) -- the mechanism is guard-proven and code-reviewed against
+  the exact evidenced shape (`_request`'s `{"_error": ...}` return), not yet confirmed against a
+  fresh real occurrence.
