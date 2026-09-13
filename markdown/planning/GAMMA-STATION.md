@@ -6,6 +6,15 @@
 > **Update 2026-09-13 12:45 ET (J):** **Windows, not Linux** ("easy for me to use"); **$0 per month after the purchase** is the target ("who knows if they will increase LLM costs and price people out — I want to build my own"); candidate box = Minisforum N5 MAX AI NAS 128GB ($3,599 on sale). J also asked for the mechanism: *how do people get models to be always on and go do stuff on their own* — §11. Sections 0, 2, 3b, 4, 4b, 5, 6, 7, 9 updated; any Linux reference left in §3 is landscape, not plan.
 > **Update 2026-09-13 13:29 ET (J):** *"Was only prepared to spend 2k — the $1,985 tag was launch hype. Not up to spending 4k. So we either make the autonomy happen here or find a different option."* §3c added: prices re-checked, **Option A = brain on J's RTX 5080 PC + a Raspberry Pi at the TV (~$200–300)**; a dedicated box waits for sub-$2K pricing.
 > **Update 2026-09-13 12:59 ET (J):** *"I want to run smart models, not crappy ones. Do more research on the models. I'm fine not getting the server — I just need like the GTR9 but also 196GB maybe."* NAS dropped. The 192GB Windows box exists (Minisforum MS-S1 MAX-P495, Ryzen AI Max+ Pro 495). §3b and §4b rewritten from a fresh model/hardware pass; the planner is now **Qwen3.8-27B**, not gpt-oss-120b.
+> **Update 2026-09-13 17:10 ET (execution + J's step-back):** the status line above is stale — **Option A is BUILT and running on J's RTX 5080 PC** (goal [`GOAL-GAMMA-STATION-2026-09-13.md`](../../automation/state/goals/GOAL-GAMMA-STATION-2026-09-13.md) is the execution log: E: home, Ollama moved, `gamma-planner-fast` 100% GPU at 47–48 tok/s, `Gamma_Station` every 30 min, gaming switch, dashboard hardened to loopback, TV found over Wi-Fi so **no Raspberry Pi and no HDMI are needed for the face** — the Pi in §3c is superseded). J then asked for the person, not the loop (*"not another chatbot that spins up every thirty minutes… Gamma's a person… hungry to make that money… runs the sectors… spins up agents to test things"*): approved plan = identity capsule + deterministic scorer over the nightly autopsy rows + one Sectors table + swing-by-evidence, subtract first (`C:\Users\jackw\.claude\plans\dapper-cuddling-peacock.md`; goal items (11)–(14)).
+>
+> **Pages for J (claude.ai artifacts, private; the live board is the dashboard's `/station` page):**
+>
+> | Page | What it is | URL |
+> |---|---|---|
+> | Gamma Station (this plan, rev 4) | verdict, root cause, landscape, budget, architecture, phases | https://claude.ai/code/artifact/3e3317eb-8d60-4992-a3ce-34b67863c907 |
+> | How Gamma Runs Itself | animated ELI5 walkthrough of the always-on loop | https://claude.ai/code/artifact/66f38e54-c453-47a7-8c33-12424b082da9 |
+> | Gamma Station Build Board | animated stage tracker + measured speed + graded smartness + TV path + security | https://claude.ai/code/artifact/71adf505-a86e-46fa-8f3a-4d226180518c |
 
 ---
 

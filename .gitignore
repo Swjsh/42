@@ -450,3 +450,8 @@ automation/state/station/presence-ledger.jsonl
 automation/state/station/station-inbox.jsonl
 automation/state/station/station-inbox-processed.jsonl
 automation/state/station/chat-ledger.jsonl
+
+# GAMMA-STATION security (2026-09-13): the isolated Claude Code config dir for local-brain fires is RUNTIME STATE
+# (machineID/userID, approved-key responses, plugin caches, fire transcripts, history). Only settings.json is seed config.
+setup/ollama/cfg/*
+!setup/ollama/cfg/settings.json
