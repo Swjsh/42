@@ -529,3 +529,12 @@ that fixed 8-name set, WOULD_PLACE rows only, ≥20 signals / ≥15 sessions / r
 paper order.** $0, no new account (reuse a tickers key read-only). Executor work on a live lane → file at the
 2026-09-29 checkpoint as a non-risk shadow item, not before. Kill if the production scorer fires <20 signals in
 15 sessions on these names (the L199 shape). Revoke = delete this block.
+
+---
+
+## NEW 2026-09-13 — Gamma Station (J-directed: own box, brain off Max)
+
+### 29. GAMMA-STATION rollout (`markdown/planning/GAMMA-STATION.md`)
+**Context:** J 2026-09-13: *last month of the $200 Max*; wants Gamma on its own always-on box on the TV, a cheaper brain, and self-generated ideas (fifth variant of the presence ask). Supersedes #27(b) — the "wallet action" is now *leave Max*.
+**Queued tasks:** Phase 0 (before 09-18, no hardware): inventory + re-point/park every `claude` fire via per-fire env; Max→Pro; one capped Anthropic API key for the judgment line; blackout drill (BRAIN-SOVEREIGNTY §7). Phases 1–3 on hardware arrival: Ubuntu box + Tailscale + kiosk on the TV; voice + webcam presence; curiosity loop + ideas board on the local model. Phase 4 after 10-30: port the hands, delete the Windows runner layer (~186 tasks → ~6 units).
+**Gate:** paper keys only on the Station; per-process env, never a router; scorecard for every model promotion; the trading path stays frozen until 10-30.

@@ -357,3 +357,11 @@ J: *"now audit and consolidate again make sure engine only trades what it should
 - **Shipped:** orphan sold at market (fill id in journal); adopt-not-prune reconciliation + sentinel UNTRACKED_EXPOSURE rule; attempt-based scenario cap; organic sizing 10% of start-of-day equity (scenario entries keep the $200 rail); breaker 0.30 -> 0.05; H1-crypto challenger as a ledger OVERLAY on the control's real fills (`crypto_twin_challenger.py`, pre-registered KILL n>=6 / SHIP-CANDIDATE n>=20 rules); HOME `What Gamma learned today` gains a Crypto subsection; briefs carry one crypto line. Standalone `crypto_paper/` line stays KILLED (07-16, 0/324 FDR).
 - **Revoke:** `git revert` the commits named in STATUS 2026-09-13; sizing/breaker constants listed in the commit messages.
 
+## 2026-09-13 — GAMMA-STATION plan created (J-directed): Gamma's own box + brain re-base off Max
+
+J: *"this is the last month of the $200 … I want my own agent … its own box, its own everything … Gamma doesn't think on its own."* Fifth variant of the presence ask (07-17, 07-20, 07-22, 08-08, 09-12).
+
+- **Plan doc** [`markdown/planning/GAMMA-STATION.md`](markdown/planning/GAMMA-STATION.md): keep the Claude Code harness as the runtime; a Linux Station box on the TV (mind + face + off-box watchdog first, hands after the 10-30 freeze); brain ladder local $0 → GLM Coding Plan ~$18 → capped Opus 5 API; monthly $200 → ~$65; three forks left to J (box, subscription, face v1) with picks stated.
+- **Phase 0 needs no hardware** and is due before the 09-18 renewal: re-point or park every `claude` fire via per-fire env (never a router), Max→Pro, one capped API key, blackout drill.
+- **OP-3's "$200/mo Max 20x" figure goes stale the day J downgrades**; the CLAUDE.md line is left for that day (not yet executed; context budget).
+- Research recorded in the doc (§3, §10): Grok Bot Galaxy 09-15..17, Meta Muse 09-08, GLM-5.3 vs frontier (≈85–90% at ≈10% price, not "beats"), OpenClaw v2026.7.1, Claude Code Channels, Strix Halo vs Mac mini, TradingView Linux .deb.
