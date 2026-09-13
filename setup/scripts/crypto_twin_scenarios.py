@@ -220,20 +220,32 @@ def _build_scenario_cfg(branch: str, base_cfg: ctc.TwinConfig) -> tuple[ctc.Twin
 def _default_branch_record(meta: dict) -> dict:
     return {"tier": meta["tier"],
            "status": "NOT_YET_COVERED" if meta["tier"] == "SIM" else "PENDING",
-           "count_today": 0, "last_exercised_utc": None, "last_result": None}
+           "count_today": 0,
+           # 2026-09-13 GOAL-EARN-YOUR-KEEP retry-cap fix: attempts_today counts every
+           # FORCED tick for this branch (success OR failure), separately from count_today
+           # (which only increments when a scenario reaches a TERMINAL grade -- see
+           # _mark_exercise_result). Without this, a branch whose entry order keeps
+           # getting REJECTED (e.g. Alpaca 403 insufficient balance) never reaches
+           # ENTERED, so scenario_state.active_branch never gets set, _mark_exercise_touch
+           # never runs, count_today never increments, and _pick_next_branch re-selects
+           # the SAME capped-in-spirit branch forever -- confirmed live 2026-09-13
+           # (ENTRY_TP1_TRAIL retried 720+ times in one day, count_today staying 0 the
+           # whole time). attempts_today is what MAX_SCENARIO_ENTRIES_PER_DAY now caps.
+           "attempts_today": 0,
+           "last_exercised_utc": None, "last_result": None}
 
 
 def _fresh_coverage(now_utc: datetime) -> dict:
-    return {"date_utc": now_utc.strftime("%Y-%m-%d"),
+    return {"date_utc": now_utc.strftime("%Y-%m-%d"), "capped_logged_date": None,
            "branches": {name: _default_branch_record(meta) for name, meta in BRANCH_REGISTRY.items()}}
 
 
 def _load_coverage(path: Path, *, now_utc: datetime) -> dict:
     """Load-or-roll today's path-coverage.json (mirrors crypto_twin_core.load_breaker's
-    UTC-day rollover pattern). On a new UTC day, count_today resets to 0 for every branch
-    but last_exercised_utc/last_result are RETAINED as history -- the scoreboard's memory
-    of "did this branch EVER go green" should never be erased by a day boundary, only
-    "did it run TODAY" (status resets to PENDING/NOT_YET_COVERED)."""
+    UTC-day rollover pattern). On a new UTC day, count_today/attempts_today reset to 0
+    for every branch but last_exercised_utc/last_result are RETAINED as history -- the
+    scoreboard's memory of "did this branch EVER go green" should never be erased by a
+    day boundary, only "did it run TODAY" (status resets to PENDING/NOT_YET_COVERED)."""
     today = now_utc.strftime("%Y-%m-%d")
     if not path.exists():
         return _fresh_coverage(now_utc)
@@ -250,12 +262,27 @@ def _load_coverage(path: Path, *, now_utc: datetime) -> dict:
             rec["last_exercised_utc"] = prev.get("last_exercised_utc")
             rec["last_result"] = prev.get("last_result")
             branches[name] = rec
-        return {"date_utc": today, "branches": branches}
+        return {"date_utc": today, "capped_logged_date": None, "branches": branches}
     branches = dict(doc.get("branches", {}))
     for name, meta in BRANCH_REGISTRY.items():
         if name not in branches or not isinstance(branches[name], dict):
             branches[name] = _default_branch_record(meta)
-    return {"date_utc": today, "branches": branches}
+        else:
+            # backward-compat: an existing same-day doc written before this fix has no
+            # attempts_today key at all -- default it in-place rather than reset the rest.
+            branches[name].setdefault("attempts_today", 0)
+    return {"date_utc": today, "capped_logged_date": doc.get("capped_logged_date"), "branches": branches}
+
+
+def _mark_attempt(coverage: dict, branch: str, now: datetime) -> dict:
+    """Increment attempts_today for `branch` -- called on EVERY forced tick for this
+    branch, success or failure (unlike _mark_exercise_touch, which only fires once a
+    real ENTERED fill lands). This is the counter _pick_next_branch's cap reads."""
+    branches = dict(coverage.get("branches", {}))
+    rec = dict(branches.get(branch, _default_branch_record(BRANCH_REGISTRY[branch])))
+    rec["attempts_today"] = int(rec.get("attempts_today", 0)) + 1
+    branches[branch] = rec
+    return {**coverage, "branches": branches}
 
 
 def _save_coverage(path: Path, coverage: dict) -> None:
@@ -318,9 +345,14 @@ def _pick_next_branch(coverage: dict, *, today: str) -> Optional[str]:
     forced this tick (daily cap reached, or everything's already GREEN today). Priority:
     INCIDENT-today branches first (retry the failure), then least-covered-today, then
     oldest-last_exercised_utc (never-exercised sorts first via the empty-string default).
-    """
+
+    CAP FIX (2026-09-13, GOAL-EARN-YOUR-KEEP): the cap counts attempts_today (every
+    forced tick, success or failure), NOT count_today (only terminal-graded round
+    trips) -- see _default_branch_record's docstring for why count_today alone let a
+    repeatedly-REJECTED entry (e.g. a 403 insufficient-balance order) retry unbounded,
+    720+ times in one real day, because it never reached a terminal grade to count."""
     branches = coverage.get("branches", {})
-    total_today = sum(int(branches.get(b, {}).get("count_today", 0)) for b in FORCED_LIVE_BRANCHES)
+    total_today = sum(int(branches.get(b, {}).get("attempts_today", 0)) for b in FORCED_LIVE_BRANCHES)
     if total_today >= MAX_SCENARIO_ENTRIES_PER_DAY:
         return None
     candidates = [b for b in FORCED_LIVE_BRANCHES if branches.get(b, {}).get("status") != "GREEN"]
@@ -330,7 +362,7 @@ def _pick_next_branch(coverage: dict, *, today: str) -> Optional[str]:
     def _key(b: str):
         rec = branches.get(b, {})
         is_incident = 0 if rec.get("status") == "INCIDENT" else 1
-        count = int(rec.get("count_today", 0))
+        count = int(rec.get("attempts_today", 0))
         last = rec.get("last_exercised_utc") or ""
         return (is_incident, count, last)
 
@@ -386,6 +418,19 @@ def _log_incident(cfg: ctc.TwinConfig, *, branch: str, detail: str, row: dict) -
     }
     with p.open("a", encoding="utf-8") as f:
         f.write(json.dumps(entry) + "\n")
+
+
+def _journal_capped(cfg: ctc.TwinConfig, *, now: datetime, total_attempts: int) -> None:
+    """ONE row to journal.jsonl (same event-row shape ctc._journal produces -- local
+    write, mirrors _log_incident's own convention of writing directly rather than
+    reaching into ctc's private helper) the first tick each UTC day that finds the
+    scenario scheduler's daily attempt cap reached. 2026-09-13 CAP FIX."""
+    p = cfg.state_dir / "journal.jsonl"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    row = {"ts_utc": now.isoformat(), "event": "SCENARIOS_CAPPED_TODAY", "twin": True,
+          "total_attempts_today": total_attempts, "cap": MAX_SCENARIO_ENTRIES_PER_DAY}
+    with p.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(row) + "\n")
 
 
 # --- the scenario-wrapped tick (crypto_twin_health.py's new entrypoint) -----------------
@@ -449,10 +494,16 @@ def run_scenario_tick(cfg: ctc.TwinConfig = ctc.TwinConfig(), *, live: bool = Fa
         elif breaker_tripped:
             scheduler_decision["reason_no_force"] = "breaker tripped"
         else:
+            total_attempts_today = sum(
+                int(coverage.get("branches", {}).get(b, {}).get("attempts_today", 0))
+                for b in FORCED_LIVE_BRANCHES)
+            cap_reached = total_attempts_today >= MAX_SCENARIO_ENTRIES_PER_DAY
             branch = force_branch if force_branch is not None else \
                 _pick_next_branch(coverage, today=now.strftime("%Y-%m-%d"))
             if branch is None:
-                scheduler_decision["reason_no_force"] = "daily cap reached or all LIVE branches green today"
+                scheduler_decision["reason_no_force"] = (
+                    "daily cap reached" if cap_reached else "all LIVE branches green today")
+                scheduler_decision["cap_reached"] = cap_reached
             else:
                 entry_cfg, trigger_offset = _build_scenario_cfg(branch, cfg)
                 force_entry = "bull"
@@ -471,6 +522,14 @@ def run_scenario_tick(cfg: ctc.TwinConfig = ctc.TwinConfig(), *, live: bool = Fa
     try:
         coverage = _load_coverage(coverage_path, now_utc=now)
         scenario_state = _load_scenario_state(scenario_state_path)
+
+        # CAP FIX (2026-09-13): mark the ATTEMPT the moment a branch is forced this
+        # tick, success or failure -- see _pick_next_branch/_default_branch_record's
+        # docstrings. This must happen BEFORE the ENTERED-only block below (which only
+        # advances scenario_state/status), so a REJECTED order still counts toward the
+        # daily cap even though it never reaches ENTERED/active_branch.
+        if scheduler_decision.get("forced_branch"):
+            coverage = _mark_attempt(coverage, scheduler_decision["forced_branch"], now)
 
         if scenario_tag is not None and row.get("action") == "ENTERED":
             scenario_state = {"active_branch": scenario_tag, "started_utc": now.isoformat()}
@@ -497,6 +556,17 @@ def run_scenario_tick(cfg: ctc.TwinConfig = ctc.TwinConfig(), *, live: bool = Fa
             coverage = _mark_exercise_touch(coverage, "ORGANIC_SIGNAL", now)
             coverage = _mark_exercise_result(coverage, "ORGANIC_SIGNAL", now, "GREEN",
                                              "ORGANIC_SIGNAL: natural signal-driven entry placed")
+
+        # CAP FIX (2026-09-13): log SCENARIOS_CAPPED_TODAY ONCE per UTC day (never once
+        # per tick -- that would be the exact "silent retry spam" class of bug this fix
+        # closes, just moved into the journal instead of the broker) the first tick that
+        # finds the daily attempt cap reached.
+        today_str = now.strftime("%Y-%m-%d")
+        if scheduler_decision.get("cap_reached") and coverage.get("capped_logged_date") != today_str:
+            coverage = {**coverage, "capped_logged_date": today_str}
+            _journal_capped(cfg, now=now,
+                            total_attempts=sum(int(v.get("attempts_today", 0))
+                                               for v in coverage.get("branches", {}).values()))
 
         _save_coverage(coverage_path, coverage)
     except Exception as e:  # noqa: BLE001 -- bookkeeping must never mask a successful tick.

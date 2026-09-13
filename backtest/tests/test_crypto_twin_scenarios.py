@@ -62,10 +62,18 @@ class _FakeBroker:
         self.closes = []
         self.position_qty = 0.0
         self.quote = None  # (ask, bid)
+        # 2026-09-13 CAP FIX: simulates a broker-REJECTED order (e.g. Alpaca 403
+        # insufficient balance) -- place_crypto_order returns an error, the order never
+        # fills, and the position never opens, so run_tick's action becomes
+        # "ENTRY_ATTEMPT_FAILED" (never "ENTERED") -- the exact live 2026-09-13 shape.
+        self.reject_orders = False
 
     def place_crypto_order(self, creds, *, symbol, side, notional=None, qty=None,
                            order_type="market", limit_price=None, live):
         self.orders.append({"symbol": symbol, "side": side, "notional": notional, "qty": qty, "live": live})
+        if self.reject_orders:
+            return {"_error": "HTTP Error 403: Forbidden", "_status": 403,
+                   "_body": {"message": "insufficient balance for USD"}}
         if qty:
             self.position_qty = qty
         return {"id": f"order-{len(self.orders)}", "status": "accepted"}
@@ -157,6 +165,7 @@ def test_default_branch_record_sim_tier_is_not_yet_covered():
     rec = cts._default_branch_record({"tier": "SIM"})
     assert rec["status"] == "NOT_YET_COVERED"
     assert rec["count_today"] == 0
+    assert rec["attempts_today"] == 0
 
 
 def test_default_branch_record_live_tier_is_pending():
@@ -256,14 +265,35 @@ def test_pick_next_branch_none_when_everything_green(tmp_path):
 
 
 def test_pick_next_branch_none_when_daily_cap_reached(tmp_path):
+    """CAP FIX (2026-09-13): the cap counts attempts_today (every forced tick), not
+    count_today (only terminal-graded round trips) -- see _default_branch_record's
+    docstring. 6 completed reps spread across branches (not all green -- cap is
+    global, not per-branch); each _mark_exercise_result call here is paired with the
+    _mark_attempt call a real forced tick would have made BEFORE the entry resolved."""
     now = datetime(2026, 7, 11, 12, 0, tzinfo=timezone.utc)
     doc = cts._fresh_coverage(now)
-    # 6 completed reps spread across branches (not all green -- cap is global, not per-branch)
     for i in range(cts.MAX_SCENARIO_ENTRIES_PER_DAY):
         b = cts.FORCED_LIVE_BRANCHES[i % len(cts.FORCED_LIVE_BRANCHES)]
+        doc = cts._mark_attempt(doc, b, now)
         doc = cts._mark_exercise_result(doc, b, now, "INCIDENT", "retry me")
-    assert sum(doc["branches"][b]["count_today"] for b in cts.FORCED_LIVE_BRANCHES) == \
+    assert sum(doc["branches"][b]["attempts_today"] for b in cts.FORCED_LIVE_BRANCHES) == \
         cts.MAX_SCENARIO_ENTRIES_PER_DAY
+    assert cts._pick_next_branch(doc, today="2026-07-11") is None
+
+
+def test_pick_next_branch_none_after_n_failed_attempts_with_zero_successes(tmp_path):
+    """THE BITE (2026-09-13 GOAL-EARN-YOUR-KEEP task spec, verbatim): 6 failed attempts
+    on the SAME branch (an order that keeps getting broker-rejected, e.g. 403
+    insufficient balance -- NEVER reaches ENTERED, so count_today/_mark_exercise_result
+    never runs) must still cap out to None. This is the exact live 2026-09-13 bug:
+    ENTRY_TP1_TRAIL retried 720+ times in one day because the old cap only counted
+    count_today, which stayed 0 the entire time."""
+    now = datetime(2026, 7, 11, 12, 0, tzinfo=timezone.utc)
+    doc = cts._fresh_coverage(now)
+    for _ in range(cts.MAX_SCENARIO_ENTRIES_PER_DAY):
+        doc = cts._mark_attempt(doc, "ENTRY_TP1_TRAIL", now)  # every attempt REJECTED -- never graded
+    assert doc["branches"]["ENTRY_TP1_TRAIL"]["count_today"] == 0  # zero successes, zero terminal grades
+    assert doc["branches"]["ENTRY_TP1_TRAIL"]["attempts_today"] == cts.MAX_SCENARIO_ENTRIES_PER_DAY
     assert cts._pick_next_branch(doc, today="2026-07-11") is None
 
 
@@ -492,6 +522,7 @@ def test_run_scenario_tick_respects_daily_cap(tmp_path, fake_broker):
     doc = cts._fresh_coverage(now)
     for i in range(cts.MAX_SCENARIO_ENTRIES_PER_DAY):
         b = cts.FORCED_LIVE_BRANCHES[i % len(cts.FORCED_LIVE_BRANCHES)]
+        doc = cts._mark_attempt(doc, b, now)
         doc = cts._mark_exercise_result(doc, b, now, "INCIDENT", "retry me")
     cts._save_coverage(coverage_path, doc)
     result = cts.run_scenario_tick(cfg, live=True, now_utc=now, raw_bars=_flat_bars(now),
@@ -499,6 +530,55 @@ def test_run_scenario_tick_respects_daily_cap(tmp_path, fake_broker):
     assert result["scheduler_decision"]["forced_branch"] is None
     assert "cap" in result["scheduler_decision"]["reason_no_force"]
     assert not fake_broker.orders
+
+
+def test_run_scenario_tick_rejected_orders_still_cap_out_and_log_once(tmp_path, fake_broker, monkeypatch):
+    """THE INTEGRATION BITE (2026-09-13): a broker that REJECTS every entry (never
+    reaches ENTERED, so the OLD count_today-based cap never tripped -- confirmed live,
+    720+ retries in one day on ENTRY_TP1_TRAIL) must still exhaust the daily attempt cap
+    after MAX_SCENARIO_ENTRIES_PER_DAY ticks, and journal.jsonl gets exactly ONE
+    SCENARIOS_CAPPED_TODAY row (not one per subsequent tick).
+
+    Bypasses the real A/B passive/marketable cohort dispatcher (place_entry_ab) via a
+    direct monkeypatch -- that machinery has its own 20s-per-poll real-time passive
+    path (TwinConfig.passive_poll_seconds), irrelevant to this fix and unsafe to run
+    for real in a unit test; faking the broker's place_crypto_order alone would leave
+    the passive cohort's own limit-order path unfaked. What matters here is only that
+    run_tick's `action` comes back "ENTRY_ATTEMPT_FAILED" (never "ENTERED"), exactly
+    like the real 403-rejected order did live."""
+    fake_broker.reject_orders = True
+    monkeypatch.setattr(ctc, "place_entry_ab", lambda *a, **k: {"placed": False, "order": {"_error": "403"}})
+    cfg = _twin_cfg(tmp_path)
+    paths = _paths(cfg)
+    now = datetime(2026, 7, 11, 12, 0, tzinfo=timezone.utc)
+
+    results = []
+    for i in range(cts.MAX_SCENARIO_ENTRIES_PER_DAY + 2):  # 2 ticks past the cap
+        tick_now = now + timedelta(minutes=i)
+        r = cts.run_scenario_tick(cfg, live=True, now_utc=tick_now,
+                                  raw_bars=_flat_bars(tick_now), **paths)
+        results.append(r)
+
+    # every one of the first N ticks actually forced a (rejected) branch; none ever ENTERED
+    forced = [r for r in results[:cts.MAX_SCENARIO_ENTRIES_PER_DAY] if r["scheduler_decision"]["forced_branch"]]
+    assert len(forced) == cts.MAX_SCENARIO_ENTRIES_PER_DAY
+    assert all(r["row"]["action"] == "ENTRY_ATTEMPT_FAILED" for r in forced)
+
+    coverage = json.loads((cfg.state_dir / "path-coverage.json").read_text())
+    total_attempts = sum(v.get("attempts_today", 0) for v in coverage["branches"].values())
+    total_count = sum(v.get("count_today", 0) for v in coverage["branches"].values())
+    assert total_attempts == cts.MAX_SCENARIO_ENTRIES_PER_DAY  # capped
+    assert total_count == 0                                    # zero successes, per the task's own bite
+
+    # the LAST two ticks (past the cap) must have forced nothing further
+    for r in results[cts.MAX_SCENARIO_ENTRIES_PER_DAY:]:
+        assert r["scheduler_decision"]["forced_branch"] is None
+        assert "cap" in r["scheduler_decision"]["reason_no_force"]
+
+    journal_rows = [json.loads(l) for l in (cfg.state_dir / "journal.jsonl").read_text().splitlines()]
+    capped_rows = [r for r in journal_rows if r.get("event") == "SCENARIOS_CAPPED_TODAY"]
+    assert len(capped_rows) == 1  # logged ONCE, not once per subsequent tick
+    assert capped_rows[0]["total_attempts_today"] == cts.MAX_SCENARIO_ENTRIES_PER_DAY
 
 
 def test_run_scenario_tick_max_hold_reaches_expected_stage_green(tmp_path, fake_broker, monkeypatch):
