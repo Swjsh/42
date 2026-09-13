@@ -84,7 +84,9 @@ def station_face_url(config: dict) -> str:
     # The Tizen TV browser treats any URL with an explicit port as a Google search (2026-09-13), so the
     # face is served on port 80 and the URL carries no port suffix at all.
     suffix = "" if port == 80 else f":{port}"
-    return f"http://{pc_lan_ips[0]}{suffix}/station?kiosk=1"
+    # J (2026-09-13): just http://<pc-lan-ip>/station -- station_serve.py serves the kiosk view for a bare
+    # /station from any LAN client, so the TV never needs the query string.
+    return f"http://{pc_lan_ips[0]}{suffix}/station"
 
 
 def _import_samsungtvws():

@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useCallback, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import useSWR from "swr";
 import Link from "next/link";
@@ -26,7 +26,15 @@ const fetcher = (url: string): Promise<StationApiResponse> =>
 
 function StationView() {
   const searchParams = useSearchParams();
-  const kiosk = searchParams.get("kiosk") === "1";
+  // J (2026-09-13): the TV's address is just http://<pc-lan-ip>/station. Any view reached through the
+  // LAN address (i.e. via station_serve.py, never localhost) is the kiosk glance surface; the query
+  // string still works. Decided after mount so the server-rendered HTML never mismatches on hydration.
+  const [lanKiosk, setLanKiosk] = useState(false);
+  useEffect(() => {
+    const host = window.location.hostname;
+    setLanKiosk(!(host === "localhost" || host === "127.0.0.1" || host === "::1"));
+  }, []);
+  const kiosk = searchParams.get("kiosk") === "1" || lanKiosk;
   // Interactive viewing polls fast (J might just clicked a button); a TV
   // nobody is touching polls slower (amendments 2 + 4, reconciled: kiosk = a
   // read-only glance surface, not a live control panel).

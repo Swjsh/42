@@ -160,6 +160,10 @@ def make_handler(allowlist: set, upstream: str):
                 return
 
             upstream_url = upstream + self.path  # query string (e.g. ?kiosk=1) passes through as-is
+            # J (2026-09-13): the TV address is just http://<pc-lan-ip>/station -- a bare /station from a LAN
+            # client (the TV) is the kiosk view; the PC's own full UI stays at http://127.0.0.1:3000/station.
+            if parsed.path == "/station" and not parsed.query and client_ip != "127.0.0.1":
+                upstream_url = upstream + "/station?kiosk=1"
             try:
                 req = urllib.request.Request(upstream_url, method=self.command)
                 with urllib.request.urlopen(req, timeout=UPSTREAM_TIMEOUT_S) as resp:  # noqa: S310 -- fixed upstream only
