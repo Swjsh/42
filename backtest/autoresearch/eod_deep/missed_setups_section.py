@@ -84,11 +84,43 @@ def render_section(scan_result: dict[str, Any]) -> str:
             lines.append(f"_(scanner warnings: {len(warnings)})_")
         return "\n".join(lines)
 
-    pnl_label = f"+${total_pnl:,.0f}" if total_pnl >= 0 else f"-${abs(total_pnl):,.0f}"
-    lines.append(
-        f"**Total opportunities on the chart: {missed_count} missed setups, "
-        f"{pnl_label} paper P&L left on the table.**"
-    )
+    # Compute rows FIRST (moved up from below) -- the headline needs a per-setup
+    # positive/negative split, not just the scanner's raw netted total.
+    rows = _flatten_to_rows(scan_result)
+    winners = [r for r in rows if r["pnl"] > 0]
+    losers = [r for r in rows if r["pnl"] < 0]
+    positive_pnl = sum(r["pnl"] for r in winners)
+    negative_pnl = sum(r["pnl"] for r in losers)
+
+    # GOAL-SUBTRACTION-2026-09-11 item (c), 2026-09-13: a missed setup that would have
+    # LOST money is not missed edge -- reporting the raw NET total (winners + losers
+    # summed) as "P&L left on the table" is backwards when losers outweigh winners.
+    # Live scar: 2026-09-10's journal showed "54 missed setups, -$839 ... left on the
+    # table" -- a dollar figure that reads as forgone profit but is actually a net
+    # LOSS, meaning sitting those setups out was the CORRECT outcome, not a miss.
+    # Fix: headline now sums ONLY the positive-P&L setups (the actual "left on the
+    # table" figure); if that sum is <= 0 (no winners at all, or they net to zero),
+    # it can no longer print a negative/zero dollar figure as "missed edge" -- it
+    # prints "no positive missed edge" instead. `total_pnl` (the scanner's raw net
+    # sum, still surfaced elsewhere e.g. `missed_setups_scan` JSON / edge_capture_pct)
+    # is unchanged -- only THIS headline's framing changes.
+    if positive_pnl <= 0:
+        net_label = f"-${abs(total_pnl):,.0f}" if total_pnl < 0 else f"+${total_pnl:,.0f}"
+        lines.append(
+            f"**{missed_count} setup(s) the chart offered were skipped -- no positive "
+            f"missed edge (net would-be P&L across all of them is {net_label}; sitting "
+            f"them out was correct or neutral, not a missed opportunity).**"
+        )
+    else:
+        pnl_label = f"+${positive_pnl:,.0f}"
+        loser_note = (
+            f" (before {len(losers)} would-be loser(s) worth ${abs(negative_pnl):,.0f})"
+            if losers else ""
+        )
+        lines.append(
+            f"**Total opportunities on the chart: {missed_count} missed setups, "
+            f"{pnl_label} of positive P&L left on the table{loser_note}.**"
+        )
     lines.append(
         f"**Engine captured: {edge_capture_pct:.0f}% of available edge "
         f"(engine took {engine_trades} trade(s), ${engine_pnl:,.2f}).**"
@@ -99,7 +131,6 @@ def render_section(scan_result: dict[str, Any]) -> str:
     lines.append("| Time | Level | Type | Setup | Dir | Strike | Would-be P&L | Hold | Why missed |")
     lines.append("|---|---|---|---|---|---|---|---|---|")
 
-    rows = _flatten_to_rows(scan_result)
     # Sort by would-be P&L (descending) so the biggest misses surface first.
     rows.sort(key=lambda r: r["pnl"], reverse=True)
     for r in rows:
