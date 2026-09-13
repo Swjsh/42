@@ -80,8 +80,11 @@ def station_face_url(config: dict) -> str:
     pc_lan_ips = config.get("pc_lan_ips") or []
     if not pc_lan_ips:
         return ""
-    port = config.get("station_serve_port", 8420)
-    return f"http://{pc_lan_ips[0]}:{port}/station?kiosk=1"
+    port = int(config.get("station_serve_port", 8420))
+    # The Tizen TV browser treats any URL with an explicit port as a Google search (2026-09-13), so the
+    # face is served on port 80 and the URL carries no port suffix at all.
+    suffix = "" if port == 80 else f":{port}"
+    return f"http://{pc_lan_ips[0]}{suffix}/station?kiosk=1"
 
 
 def _import_samsungtvws():
@@ -312,8 +315,16 @@ def cmd_face(args) -> int:
         return 0
     try:
         tv = SamsungTVWS(host=host, port=8002, token_file=str(TOKEN_PATH), timeout=8)  # 8002 = token-auth WSS
-        tv.open_browser(station_url)
-        print(f"FACE opened {station_url} on {host}")
+        # Researched 2026-09-13 (xchwarze/samsung-tv-ws-api APPLICATIONS.md): the Internet app's id changed on
+        # 2020+ Tizen sets -- "3202010022079" (newest) / "3201907018784" / legacy "org.tizen.browser", which is
+        # what samsungtvws.open_browser() sends and which launched nothing on this QN43Q8FAAFXZA. Send the newest
+        # id first, then the others (a repeat launch of the same app is harmless). Config may pin one.
+        ids = [i for i in [cfg.get("tv_browser_app_id"), "3202010022079", "3201907018784", "org.tizen.browser"] if i]
+        for i, app_id in enumerate(dict.fromkeys(ids)):
+            tv.run_app(app_id, "NATIVE_LAUNCH", station_url)
+            print(f"FACE launch sent app_id={app_id} url={station_url} on {host}")
+            if i < len(ids) - 1:
+                time.sleep(4)
         if args.volume is not None:
             level = max(0, min(100, args.volume))
             sc = tv.shortcuts()
