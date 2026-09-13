@@ -206,7 +206,6 @@ def test_page_server_refuses_a_second_bind_on_the_same_port():
     # 2026-09-13: SO_REUSEADDR on Windows let seven station_serve.py processes share
     # port 80, each with the allowlist it was started with (stale 404s for the TV).
     # The server class must make the SECOND bind fail instead of silently sharing.
-    from setup.scripts import station_serve as ss
     assert ss.ExclusiveThreadingHTTPServer.allow_reuse_address is False
     first = ss.ExclusiveThreadingHTTPServer(("127.0.0.1", 0), ss.BaseHTTPRequestHandler)
     try:

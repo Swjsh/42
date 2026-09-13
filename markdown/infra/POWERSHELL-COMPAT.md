@@ -22,3 +22,15 @@ appended `-Daily` trigger list), paired with an idempotent skip-if-already-ran-t
 in the target script so the extra slots are safe no-ops after the first real run of the day.
 Full incident + the dress-rehearsal fix that used this pattern:
 `strategy/candidates/_lesson-inbox/2026-08-26-scheduled-task-permission-envelope.md`.
+
+## Start-Process priority on PS 5.1 (found 2026-09-13)
+
+`Start-Process -PriorityClass` does not exist in Windows PowerShell 5.1 (PS 7+ only). To run a build or any CPU-heavy child at low priority while J is gaming (the desktop app runs PS 5.1):
+
+```powershell
+$p = Start-Process -FilePath cmd.exe -ArgumentList '/c npm run build > build.log 2>&1' -WorkingDirectory $dir -WindowStyle Hidden -PassThru
+$p.PriorityClass = 'BelowNormal'   # children (npm -> node) inherit it
+$p.WaitForExit(); "exit $($p.ExitCode)"
+```
+
+`-WindowStyle Hidden` (not `-NoNewWindow`) keeps the console off J's screen. Delete the log in a separate call: the harness's PowerShell tool refuses any command that pairs `Remove-Item` with a `'/c ...'` cmd argument.
