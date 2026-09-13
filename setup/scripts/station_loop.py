@@ -55,6 +55,14 @@ CONFIG_PATH = STATION_DIR / "config.json"
 IDEAS_BOARD_PATH = STATION_DIR / "ideas-board.json"
 BRIEF_PATH = STATION_DIR / "station-brief.md"
 LEDGER_PATH = STATION_DIR / "loop-ledger.jsonl"
+# Interactivity amendment (2026-09-13): the dashboard's /api/station/action route
+# appends here; drained every fire in run_once() regardless of yield state (see
+# station_board.apply_inbox_actions). PENDING_NOTES_PATH accumulates test/ask notes
+# until an actual model-calling fire delivers them into a prompt (drained on success
+# only -- a failed model call must never lose J's note).
+INBOX_PATH = STATION_DIR / "station-inbox.jsonl"
+INBOX_PROCESSED_PATH = STATION_DIR / "station-inbox-processed.jsonl"
+PENDING_NOTES_PATH = STATION_DIR / "station-pending-notes.json"
 STATION_PROMPT_PATH = REPO / "automation" / "prompts" / "station.md"
 LOG_DIR = Path("E:/Gamma/logs")
 
@@ -276,6 +284,28 @@ def _board_size() -> int:
     return len(station_board.load_board(IDEAS_BOARD_PATH))
 
 
+def drain_inbox() -> int:
+    """Applies every pending station-inbox.jsonl row to the board immediately, then
+    archives it -- runs on EVERY fire, yielded or not, since it is a pure file edit
+    (no model call, no trading-path write) and J's Kill/Test/Ask clicks should never
+    sit stuck for hours behind an RTH yield. Returns the number of rows drained (0
+    is the common case and is not logged as an event on its own -- the ledger row
+    already records cards_added/board_size for the fire as a whole)."""
+    inbox_rows = station_board.read_jsonl(INBOX_PATH)
+    if not inbox_rows:
+        return 0
+    board = station_board.load_board(IDEAS_BOARD_PATH)
+    new_board, new_notes = station_board.apply_inbox_actions(board, inbox_rows)
+    station_board.write_ideas_board(IDEAS_BOARD_PATH, new_board)
+    if new_notes:
+        existing = station_board.read_json_or_none(PENDING_NOTES_PATH)
+        existing = existing if isinstance(existing, list) else []
+        station_board.atomic_write_text(PENDING_NOTES_PATH, json.dumps(existing + new_notes, ensure_ascii=False))
+    station_board.append_jsonl(INBOX_PROCESSED_PATH, inbox_rows)
+    station_board.atomic_write_text(INBOX_PATH, "")
+    return len(inbox_rows)
+
+
 def _read_text(path: Path) -> Optional[str]:
     try:
         return path.read_text(encoding="utf-8-sig")
@@ -302,6 +332,8 @@ def run_once(*, force: bool = False, now_utc: Optional[datetime] = None) -> dict
     model = config.get("model", DEFAULT_CONFIG["model"])
     ts_et = et_now(now_utc=now_utc).strftime("%Y-%m-%d %H:%M:%S ET")
 
+    drain_inbox()  # every fire, yielded or not -- see drain_inbox()'s own docstring
+
     status, reason = decide_action(now_utc, config, force=force)
     if status != "ok":
         row = _ledger_row(ts_et, model, status, reason, t0)
@@ -311,7 +343,16 @@ def run_once(*, force: bool = False, now_utc: Optional[datetime] = None) -> dict
 
     facts = station_facts.gather_all_facts(config, now_utc=now_utc)
     facts_text = station_facts.render_facts_text(facts)
-    system_text = _read_text(STATION_PROMPT_PATH) or DEFAULT_SYSTEM_PROMPT
+    pending_notes = station_board.read_json_or_none(PENDING_NOTES_PATH)
+    pending_notes = pending_notes if isinstance(pending_notes, list) else []
+    notes_text = station_board.render_pending_notes_text(pending_notes)
+    if notes_text:
+        facts_text = facts_text + "\n\n" + notes_text
+    # GAMMA-STATION Slice 1 (2026-09-13): identity capsule first (who Gamma is, what J wants, conduct
+    # rules), then this loop's format contract. The chat face loads the same capsule + a prose contract.
+    identity_text = _read_text(STATION_PROMPT_PATH.with_name("station-identity.md")) or ""
+    station_text = _read_text(STATION_PROMPT_PATH) or DEFAULT_SYSTEM_PROMPT
+    system_text = (identity_text + "\n\n" + station_text) if identity_text else station_text
 
     try:
         raw = call_ollama_chat(model, system_text, facts_text, config["ollama_base_url"],

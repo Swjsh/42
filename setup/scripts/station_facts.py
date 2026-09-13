@@ -24,6 +24,18 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
+# The facts text can legitimately contain real Unicode (a U+2212 MINUS SIGN from an
+# upstream P&L formatter, curly quotes copied into a journal note, etc). Windows'
+# console defaults stdout to the cp1252 codepage, which cannot encode most of that --
+# the same mojibake class of bug gamma_home.py's own docstring documents ("MOJIBAKE
+# / MARKDOWN LEAK... on Windows subprocess(text=True) decodes with the locale
+# codepage"). This module had no __main__ before the --json CLI below, so the bug was
+# latent (every other caller passes the text through an HTTP body, never a console
+# print) until _cli() became the first code path to print it directly. Same fix
+# gamma_speak.py already uses: force UTF-8 on stdout with a replace fallback.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace", line_buffering=True)
+
 REPO = Path(__file__).resolve().parents[2]
 _HERE = str(Path(__file__).resolve().parent)
 if _HERE not in sys.path:
@@ -425,3 +437,43 @@ def render_facts_text(facts: dict) -> str:
             lines.append(f"  - {t}")
 
     return "\n".join(lines)
+
+
+def _cli() -> None:
+    """`python station_facts.py --json` -- prints the SAME facts block the loop
+    feeds the model, wrapped in a small JSON envelope, so a caller that needs it
+    on demand (the dashboard's /api/station/ask route, "Talk to Gamma") can shell
+    out once per chat message instead of duplicating the gather/render logic in
+    another language. Reads the live config.json for web_scan settings so this
+    always matches what the loop itself would see; a missing/garbled config
+    degrades to the same DEFAULT_CONFIG-shaped fallback station_loop.py uses
+    (web_scan off) rather than raising. Plain `python station_facts.py` (no
+    --json) still prints the bare rendered text, unchanged, for a human reading
+    it at a terminal."""
+    import argparse
+
+    ap = argparse.ArgumentParser(description="Print the Station's facts block.")
+    ap.add_argument("--json", action="store_true", help="wrap the rendered text in a JSON envelope")
+    args = ap.parse_args()
+
+    config_path = REPO / "automation" / "state" / "station" / "config.json"
+    try:
+        config = json.loads(config_path.read_text(encoding="utf-8-sig"))
+        if not isinstance(config, dict):
+            config = {}
+    except Exception:  # noqa: BLE001 -- a garbled config never blocks an on-demand facts read
+        config = {}
+
+    facts = gather_all_facts(config)
+    text = render_facts_text(facts)
+    if args.json:
+        print(json.dumps({
+            "gathered_at_et": et_now().replace(microsecond=0).isoformat(),
+            "facts_text": text,
+        }, ensure_ascii=False))
+    else:
+        print(text)
+
+
+if __name__ == "__main__":
+    _cli()

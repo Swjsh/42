@@ -447,3 +447,6 @@ automation/state/logs/nothink-proxy.log
 automation/state/station/tv.json
 automation/state/station/kiosk-ledger.jsonl
 automation/state/station/presence-ledger.jsonl
+automation/state/station/station-inbox.jsonl
+automation/state/station/station-inbox-processed.jsonl
+automation/state/station/chat-ledger.jsonl

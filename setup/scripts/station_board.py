@@ -113,3 +113,103 @@ def write_ideas_board(path: Path, board: list) -> None:
 def write_brief(path: Path, ts_et: str, model: str, brief_text: str, board_size: int) -> None:
     header = f"{ts_et} - model {model} - {board_size} cards on the board\n\n"
     atomic_write_text(path, header + (brief_text or "").strip() + "\n")
+
+
+# ---- Dashboard inbox consumption (interactivity amendment, 2026-09-13) ----
+# The Next.js dashboard's /api/station/action route appends {ts_et, card_id, action,
+# note} rows to automation/state/station/station-inbox.jsonl for each Test/Kill/Ask
+# button press. station_loop.py drains that file every fire (see apply_inbox_actions
+# below) -- never gated on the model call, since applying a status change is a pure,
+# cheap, deterministic file edit with no LLM and no trading-path involvement.
+
+def read_jsonl(path: Path) -> list:
+    """Fail-open JSONL read: one dict per non-blank line; a malformed line is
+    skipped rather than aborting the whole read (same contract as read_json_or_none,
+    just for the line-delimited shape). Missing/unreadable file -> []."""
+    try:
+        text = path.read_text(encoding="utf-8-sig")
+    except OSError:
+        return []
+    rows = []
+    for line in text.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            row = json.loads(line)
+        except ValueError:
+            continue
+        if isinstance(row, dict):
+            rows.append(row)
+    return rows
+
+
+def append_jsonl(path: Path, rows: list) -> None:
+    if not rows:
+        return
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a", encoding="utf-8") as f:
+        for row in rows:
+            f.write(json.dumps(row, ensure_ascii=False) + "\n")
+
+
+def apply_inbox_actions(board: list, inbox_rows: list) -> tuple:
+    """Applies J's per-card Test/Kill/Ask actions to the board. Returns
+    (new_board, pending_notes):
+      * kill -> that card's status becomes "killed". No note queued -- nothing for
+                Gamma to answer, J just wants it gone.
+      * test -> that card's status becomes "testing"; a pending note carries its
+                proposed_shadow_test into the next model prompt as "J asked you to
+                spec this test".
+      * ask  -> no status change; a pending note carries J's free-text question,
+                which the next brief must answer.
+    A card_id absent from the board, or an unrecognized action string, is skipped
+    (never raises) -- the row is still consumed by the caller either way, since a
+    stale repost is not this function's problem to solve twice. Never mutates the
+    caller's board/card objects in place."""
+    board = [dict(c) if isinstance(c, dict) else c for c in board]
+    by_id = {c.get("id"): c for c in board if isinstance(c, dict) and c.get("id")}
+    pending_notes = []
+    for row in inbox_rows:
+        if not isinstance(row, dict):
+            continue
+        card_id = row.get("card_id")
+        action = row.get("action")
+        note = str(row.get("note") or "").strip()
+        card = by_id.get(card_id)
+        if action == "kill" and card is not None:
+            card["status"] = "killed"
+        elif action == "test" and card is not None:
+            card["status"] = "testing"
+            pending_notes.append({
+                "card_id": card_id, "action": "test", "title": card.get("title", ""),
+                "proposed_shadow_test": card.get("proposed_shadow_test", ""), "note": note,
+            })
+        elif action == "ask":
+            pending_notes.append({
+                "card_id": card_id, "action": "ask",
+                "title": (card or {}).get("title", ""), "note": note,
+            })
+        # else: unknown action, or kill/test naming a card_id not on the board --
+        # silently skipped, still counted as consumed by the caller.
+    return board, pending_notes
+
+
+def render_pending_notes_text(notes: list) -> str:
+    """Turns queued J-notes into a short block the model prompt can append
+    verbatim. Empty input -> empty string (callers skip the section header
+    entirely rather than print an empty one)."""
+    if not notes:
+        return ""
+    lines = ["J's direct requests since the last fire (your brief must answer these):"]
+    for n in notes:
+        title = n.get("title") or n.get("card_id") or "?"
+        if n.get("action") == "test":
+            test = n.get("proposed_shadow_test") or "(no shadow test on file for this card)"
+            line = f"  - J asked you to spec a test for '{title}': {test}"
+        else:
+            line = f"  - J asked (re: '{title}'): {n.get('note', '')}"
+        if n.get("note") and n.get("action") == "test":
+            line += f" -- J's note: {n['note']}"
+        lines.append(line)
+    return "\n".join(lines)

@@ -36,7 +36,31 @@ LISTEN_PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 11435
 UPSTREAM = sys.argv[2] if len(sys.argv) > 2 else "http://localhost:11434"
 _HERE = os.path.dirname(os.path.abspath(__file__))
 LOG_PATH = os.path.join(_HERE, "..", "..", "automation", "state", "logs", "nothink-proxy.log")
+BRAIN_MODE_PATH = os.path.join(_HERE, "..", "..", "automation", "state", "brain-mode.json")
 DROP_TOP = ("output_config", "fallbacks", "context_management", "metadata", "tool_choice", "betas")
+
+
+def _model_map() -> dict:
+    """brain-mode.json 'map' (tier -> local model). Read per request so a mode flip needs no restart.
+    Fail-open: unreadable file -> empty map -> model ids pass through untouched."""
+    try:
+        with open(BRAIN_MODE_PATH, encoding="utf-8-sig") as fh:
+            return json.load(fh).get("map") or {}
+    except Exception:  # noqa: BLE001
+        return {}
+
+
+def rewrite_model(payload: dict, model_map: dict) -> str:
+    """GAMMA-STATION Slice 0 (2026-09-13): Claude Code resolves its own aliases ('sonnet' ->
+    'claude-sonnet-5', Agent(model:'haiku') -> 'claude-haiku-4-5', ...) and ignores ANTHROPIC_MODEL for
+    subagent spawns, so a local-brain fire that fans out would send Anthropic model ids to Ollama.
+    Map any 'claude-<tier>*' id onto the tier's local model. Returns the log token 'old->new' or 'old'."""
+    requested = str(payload.get("model") or "")
+    for tier, local in model_map.items():
+        if local and requested.startswith("claude-" + str(tier)):
+            payload["model"] = local
+            return f"{requested}->{local}"
+    return requested
 
 
 def _log(line: str) -> None:
@@ -67,6 +91,7 @@ def _text_of(content) -> str:
 def normalize(payload: dict) -> dict:
     """Return (payload, summary) with Claude-Code-only fields folded/dropped for Ollama."""
     summary = {"roles": [], "folded_system": 0, "dropped": []}
+    summary["model"] = rewrite_model(payload, _model_map())
     payload["thinking"] = {"type": "disabled"}
     for k in DROP_TOP:
         if k in payload:
@@ -164,7 +189,7 @@ class Handler(BaseHTTPRequestHandler):
 
         status = getattr(upstream, "status", 200) or 200
         if summary is not None:
-            _log(f"POST {self.path} -> {status} roles={summary['roles']} folded_system={summary['folded_system']} dropped={summary['dropped']} system={summary.get('system')} last2={summary.get('shapes')}")
+            _log(f"POST {self.path} -> {status} model={summary.get('model')} roles={summary['roles']} folded_system={summary['folded_system']} dropped={summary['dropped']} system={summary.get('system')} last2={summary.get('shapes')}")
 
         # Status line + headers (drop framing/encoding headers; HTTP/1.0 close
         # delimits the body, so no Content-Length needed for the stream).
