@@ -138,3 +138,37 @@ Falsifiable, each checked by a command or ledger row quoted in the PROGRESS LOG:
   `git revert 58d8821a` (the journal file itself is untracked state, so a code revert alone
   leaves that day's corrected text in place -- acceptable, it is a factual correction not a
   behavior change) (b); this entry is the REVOKE report (c). Items (d)/(e) still open.
+
+- 2026-09-13 10:0x ET (conductor WEEKEND): **(d) logging half DONE**, decision half still
+  open (needs >=2 sessions of live kill evidence per the item's own DONE-WHEN, not
+  applicable yet -- the flattener hasn't timed out since this shipped). GOAL-EARN-YOUR-KEEP
+  (the ladder's active goal) had no pickable item this fire: item (1) is `[~]` waiting on
+  Monday's live risky-3 ledger, item (5) is NOT-BEFORE 09-17 -- per that goal's own operating
+  rule ("the conductor should take it [GOAL-SUBTRACTION] the moment this goal has no open
+  item"), took this item.
+  Shipped `Get-ProcessKillInfo` in `_shared.ps1` (new helper, read-only, CIM-backed) +
+  wired it into the `Invoke-Claude` timeout-kill branch: before `Stop-ProcessTree` removes
+  the subtree, every pid's Name + CommandLine is captured and logged one line each
+  (`KILL_TARGET pid=... image=... cmdline=...`) via the existing `Write-TaskLog` -- no new
+  report/file, per the goal's build posture. CIM data disappears once a process is gone,
+  so this has to run BEFORE the kill, not after (a bare pid list was already logged after
+  the kill; this adds the image+cmdline WHILE the pids are still alive).
+  **$0 regression guard** (`test-kill-logging.ps1`, no `claude.exe` spawn, no Anthropic
+  tokens -- deliberately avoided `test-timeout.ps1`'s pattern of spending real tokens for a
+  smoke test): spawns a real `powershell.exe` child, asserts `Get-ProcessKillInfo` correctly
+  attributes its pid/Name/CommandLine and skips a pid that doesn't exist (no null-padded
+  rows). **RED-proofed live**: broke `Name` capture to a literal `"REDPROOF_BROKEN"` ->
+  1 of 4 assertions failed exactly as expected (`Name captured as powershell.exe`) ->
+  reverted -> 4/4 green again. Quoted: `PASS: returns exactly 1 row ... PASS: attributed
+  row's Pid matches ... PASS: Name captured as powershell.exe ... PASS: CommandLine
+  captured the real command line ... ALL PASS`.
+  `doctrine.frozen_path_hit()` -> `None` on both touched files (`_shared.ps1`,
+  `test-kill-logging.ps1`) -- no `GAMMA_FREEZE_OVERRIDE` needed, pure safety-monitoring
+  addition. Curated pre-commit safety gate: 59/59 passed. Commit `6486d77a` (2 files,
+  +84/-0, additive only -- the pre-existing "killed pids: ..." summary line is unchanged).
+  **Rail:** guard = the 4-assertion RED-proofed script + 59/59 curated gate (a); revert =
+  `git revert 6486d77a` (b); this entry is the REVOKE report (c).
+  **Decision half not yet reachable**: needs the flattener to actually timeout-kill in
+  >=2 live sessions post-ship before the keep/retire call can be made on evidence, per the
+  item's own text. Next conductor fire that finds a `KILL_TARGET` line in a task log should
+  read who it names and progress the decision. Item (e) still fully open.
