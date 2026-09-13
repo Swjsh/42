@@ -96,6 +96,7 @@ produce evidence that changes what the rig does the next day, on a surface J alr
 - [x] (2) `obsidian_vault_sync.py` gains `## What Gamma learned today` (challenger-vs-control table from the fleet ledgers + tomorrow's one change from the challenger LADDER); numbers reconcile to `fleet_eod`. DONE-WHEN: regenerated HOME.md carries the block with 09-14 numbers after that close (dry-run on 09-11 data before Monday).
 - [x] (3) tickers lane on HOME (per-arm per-session table from `automation/state/tickers/*/day-*.json`) + anchor-class read over the tickers ledgers 09-04..09-17. DONE-WHEN: table renders; read prints per-class $ for the lane.
 - [x] (4) challenger LADDER rows (H1 live, H2, H3, H4) with kill/promote criteria + n, appended to the existing prereg doc (`prereg-trigger-anchor-level-class-2026-09-11.md`), not a new file. DONE-WHEN: rows exist; conductor.md STAGE 1 knows to read the top row when H1 terminates.
+- [~] (6) Discord signal hygiene + EOD brief carries the learned-today block: per-signal watcher cards / watcher pings / prospector / level-memory rows stop reaching Discord (own ledgers only, per-source flag = revoke); channel carries briefs + RED Known-broken + J-decisions only; `daily_brief.py --mode eod` appends the HOME learned-today block. DONE-WHEN: outbox rows destined for Discord on the next trading day ≤ 3 excluding RED alarms, 0 @mentions outside a J-decision; EOD brief text contains 'What Gamma learned today'.
 - [ ] (5) 09-18 HONEST STATE verdict with the numbers in DONE-WHEN (5). NOT-BEFORE 2026-09-17 close.
 
 ## J-DECISIONS
@@ -198,6 +199,8 @@ produce evidence that changes what the rig does the next day, on a surface J alr
   present before this session, reproduced by running the bare `-k` filter with no
   `backtest/tests` path; scoping the path avoids it, which is what the guard run above
   does.
+
+- 2026-09-13 09:5x ET (Fable): J asked for deep research on Meta 'FAIRA' + SpaceX 'Grokbot'. Sonnet research (125K tokens): FAIRA does not resolve (closest = Meta Muse / Muse Code); Grok Bot = SpaceXAI persistent cloud-computer agents (08-11). Folded into `markdown/doctrine/AGENT-ORCHESTRATION.md` (5-property map vs this rig). Finding that matters: the rig ALREADY briefs J 3x/day (MorningBrief/EodBrief/FirmBrief fired 09-11 exit 0) but the channel carried 150 outbox rows on 09-11, 141 with @mention (81 unsourced watcher cards every 5 min) — the channel J muted 07-08. Item (6) authored + claimed; builder 2 of today spawned.
 
 ## HONEST STATE
 Opened. The challenger (1) is BLOCKED on activation, not on the mechanism: the gate itself

@@ -165,6 +165,44 @@ capped instead of estimated.
 7. **Audit a constraint's provenance before optimising under it.** This file's own first draft
    failed that test within an hour of being written (see the corrected cost section).
 
+## External reference: Meta Muse / SpaceXAI Grok Bot — what "alive" means, measured against this rig (2026-09-13)
+
+> J (2026-09-13, Sunday): *"a long running autonomous agent system on your computer that works on
+> your behalf, and they communicate with each other … in order for us to keep this going, we need it
+> to develop into this and not a chatbot interaction."* Research: one Sonnet pass, 8 fetches; sources
+> inline. "FAIRA" did not resolve to any Meta product — the closest real thing is **Muse** (Meta
+> Superintelligence Labs, consumer agent announced ~2026-09-08, Bloomberg) and **Muse Code** (terminal
+> agent, 2026-08-05, TechCrunch). "Grokbot" = **Grok Bot** (SpaceXAI, launched 2026-08-11 via Cursor;
+> xAI was acquired by SpaceX Feb 2026 — VentureBeat, Wikipedia).
+
+**What they are, stripped of marketing.** Both give each user/agent its own persistent CLOUD machine
+(Muse "Secure VM", Grok Bot "cloud computer") that keeps running when the laptop is closed, holds
+state and logins across sessions, runs scheduled/overnight jobs, and comes back to the human "when it
+needs approval or has finished" (Grok Bot). Both claim agents that talk to each other; neither
+publishes the mechanism, and neither exposes an open protocol (no MCP/A2A spec found). Independent
+takes on Grok Bot: beta, "rough edges", "should not be trusted unsupervised" (Composio, layer3labs);
+its finance use is research-desk automation, not order execution (Medium/Moonsat). Nothing ties Muse
+to finance. Muse Code is pitched on cost, not capability (Wang, Yahoo Finance).
+
+**The five properties that make them feel alive — and what this rig already has:**
+
+| Property | Muse / Grok Bot | Gamma today (verified 2026-09-13) | Gap |
+|---|---|---|---|
+| Persistent process | own cloud VM, always on | Windows Task Scheduler + `Gamma_SupervisorKeepalive`; conductor 3 fires/night + weekend 2h, governed by a $30/day corrected-spend cap (`conductor-budget.json`) — hit twice on 09-12 | none structural; the cap is a real bound (measured, not a bug) |
+| Self-initiated work | overnight runs, cron jobs | goal ladder (`LADDER.md`) + `goal_autopilot` + Stop-hook continuation; 30 goals closed 09-03..09-12 — all machinery, 0 on the signal until 09-11 | **which work it picks**, not whether it works |
+| Agent-to-agent messaging | "team … can communicate" (mechanism undocumented) | shared state files + `queue.md` + `STATUS.md`; subagents talk only through the orchestrator | not a gap: a file bus is auditable and deterministic, which a trading rig needs more than chat between agents |
+| Memory across sessions | VM state | auto-memory, goal files, LESSONS-LEARNED, journal | none |
+| Returns to the human | "comes back when it needs approval or is done" | `Gamma_MorningBrief` 08:45 + `Gamma_EodBrief` 16:20 (voice, since 07-22) + `Gamma_FirmBrief` — all fired 09-11 exit 0 — **buried under 150 outbox rows/day, 141 with an @mention** (09-11: 81 unsourced watcher cards every 5 min, 27 `trade_today_watcher`, 9 prospector, 6 level-memory). J muted the channel 07-08. | **the one real gap: signal-to-noise on the only channel that reaches J** |
+
+**Verdict.** The rig is not missing an agent platform; it is missing *discipline on the human
+channel* and *judgment about which work to pick*. Copying Muse/Grok Bot would add a VM and a
+subscription and change neither. What ships instead (GOAL-EARN-YOUR-KEEP item 6): the Discord
+channel carries at most the two daily briefs, RED `Known broken` alarms, and J-decisions — per-signal
+watcher cards and watcher pings stay in their ledgers; the EOD brief carries the "What Gamma learned
+today" block (challenger vs control + tomorrow's change) so the daily touchpoint says what the rig
+LEARNED and CHANGED, not what it noticed. Target: ≤3 Discord messages per trading day, @mention only
+on a J-decision. Revoke = the per-source flag the builder adds.
+
 ## Related
 
 [[markdown/infra/DOCTRINE-HOOKS]] · [[markdown/infra/KITCHEN-SPEC]] ·
