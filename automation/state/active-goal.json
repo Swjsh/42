@@ -1,10 +1,11 @@
 {
-  "id": "GOAL-EARN-YOUR-KEEP-2026-09-12",
+  "id": "GOAL-GAMMA-STATION-2026-09-13",
   "active": true,
-  "opened_at_et": "2026-09-12T17:12:00",
-  "expires_at_et": "2026-09-18",
-  "file": "automation/state/goals/GOAL-EARN-YOUR-KEEP-2026-09-12.md",
-  "queue_id": "GOAL-EARN-YOUR-KEEP-2026-09-12",
+  "opened_at_et": "2026-09-13 13:44:45 Sunday EDT",
+  "expires_at_et": "2026-09-19",
+  "file": "automation/state/goals/GOAL-GAMMA-STATION-2026-09-13.md",
+  "queue_id": "GOAL-GAMMA-STATION-2026-09-13",
   "max_continuations_per_session": 3,
-  "last_next_item": null
+  "last_next_item": null,
+  "note": "5-day push (J deadline 09-18 + honest-state day). Absorbs GOAL-EARN-YOUR-KEEP item (5); that goal re-queued behind on LADDER."
 }

@@ -1,0 +1,66 @@
+[
+  {
+    "ts_et": "2026-09-13 13:50:50 Sunday EDT",
+    "model": "gamma-planner",
+    "gpu": "NVIDIA GeForce RTX 5080, 16303 MiB",
+    "ollama": "ollama version is 0.33.3",
+    "runs": [
+      {
+        "num_ctx": 16384,
+        "prompt_tokens_target": 2000,
+        "prompt_tokens_actual": 2513,
+        "prompt_tok_per_s": 384.0,
+        "gen_tokens": 16,
+        "gen_tok_per_s": 18.9,
+        "load_s": 13.5,
+        "wall_s": 23.0,
+        "processor_split": "32%/68% CPU/GPU",
+        "resident_size": "18 GB",
+        "answer": "Gamma-Safe: \u221230%, Gamma-Bold: \u221250%.",
+        "answer_correct": true
+      },
+      {
+        "num_ctx": 16384,
+        "prompt_tokens_target": 12000,
+        "prompt_tokens_actual": 15108,
+        "prompt_tok_per_s": 1245.8,
+        "gen_tokens": 22,
+        "gen_tok_per_s": 4.4,
+        "load_s": 0.0,
+        "wall_s": 19.3,
+        "processor_split": "32%/68% CPU/GPU",
+        "resident_size": "18 GB",
+        "answer": "Gamma-Safe: \u221230% of start-of-day equity; Gamma-Bold: \u221250%.",
+        "answer_correct": true
+      },
+      {
+        "num_ctx": 32768,
+        "prompt_tokens_target": 2000,
+        "prompt_tokens_actual": 2513,
+        "prompt_tok_per_s": 914.6,
+        "gen_tokens": 22,
+        "gen_tok_per_s": 17.9,
+        "load_s": 16.2,
+        "wall_s": 22.2,
+        "processor_split": "37%/63% CPU/GPU",
+        "resident_size": "18 GB",
+        "answer": "Gamma-Safe: \u221230% of start-of-day equity; Gamma-Bold: \u221250%.",
+        "answer_correct": true
+      },
+      {
+        "num_ctx": 32768,
+        "prompt_tokens_target": 26000,
+        "prompt_tokens_actual": 16386,
+        "prompt_tok_per_s": 1024.0,
+        "gen_tokens": 22,
+        "gen_tok_per_s": 13.0,
+        "load_s": 0.0,
+        "wall_s": 20.0,
+        "processor_split": "37%/63% CPU/GPU",
+        "resident_size": "18 GB",
+        "answer": "Gamma-Safe: \u221230% of start-of-day equity; Gamma-Bold: \u221250%.",
+        "answer_correct": true
+      }
+    ]
+  }
+]

@@ -1,0 +1,14 @@
+# Modelfile.gamma-planner — Qwen3.8-27B (MTP head, q4_K_M, 18 GB) as the Station's planner brain.
+# Why this model: BenchLM open-weight #8 (64.5), model card SWE-bench Pro 61.7 vs Claude Opus 4.6 Max 53.4,
+# OSWorld-Verified 84.3; measured on an RTX 5080 16 GB at 53 tok/s (101 with MTP) — GAMMA-STATION.md §4b.
+# num_ctx 32768: the Station loop prompt is lean (<20K); the full Claude Code prompt (~44K) uses --bare.
+# Sampling per Qwen's instruct recommendation (temperature 0.7 / top_p 0.8 / top_k 20), same as claude-local.
+# Build:   ollama create gamma-planner -f setup/ollama/Modelfile.gamma-planner
+# Bench:   python setup/scripts/station_planner_bench.py --model gamma-planner
+# Scorecard clock: shadow_model_eval (>=85% over >=15 days) before it is trusted for anything but proposals.
+FROM qwen3.8:27b-mtp-q4_K_M
+PARAMETER num_ctx 32768
+PARAMETER temperature 0.7
+PARAMETER top_p 0.8
+PARAMETER top_k 20
+PARAMETER presence_penalty 1.0
