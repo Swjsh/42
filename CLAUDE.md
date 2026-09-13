@@ -136,7 +136,7 @@ See [`markdown/0dte/journaling-guide.md`](markdown/0dte/journaling-guide.md) —
 
 - **Anything failing the 10 rules** — sizing up after losses, trading past the daily-loss kill, a setup not in the playbook, mid-session rule changes. Hard vetoes, even if J insists.
 - Winning trades that broke rules still get red-flagged — process > P&L.
-- Trading crypto as an instrument — crypto is **gym-only** (`crypto/` validation harness; trading loop retired 2026-06-17).
+- Trading crypto with REAL money — crypto trades PAPER only, on the twin account (J 2026-09-13; `crypto/` harness itself never places orders).
 
 ---
 

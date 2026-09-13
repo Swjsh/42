@@ -318,3 +318,11 @@ validated edge, so it does NOT auto-apply; it sits pending until J replies `ship
 gp-2026-07-23-twin-doctrine-001` on Discord or approves on the companion wrist card).
 Once approved, `AutoApply` performs the single exact-string OP-31 replacement, runs the
 safety gate, commits, and the memory entry below is confirmed live.
+
+## 2026-09-13 -- the twin becomes the 24/7 proving ground (J directive; fold, not a new doc)
+
+- **Why:** the SPY challenger (risky-3, swing-pivot anchor denylist) was put on a Monday clock. J: the crypto gym exists so a mechanism never waits for RTH. Crypto is 24/7; evidence accrues in hours.
+- **Found first:** untracked 0.115 BTC on the twin account since 09-09 (fill stuck at the broker while local state pruned to flat) -> cash $110 -> every entry 403 on 09-13 (720 attempts); the scenario scheduler's daily cap counted successes only, so a failing branch retried forever. Organic evidence at $200 notional: 215 trips, WR 19.5%, -$23; SWING_PIVOT worst class (n=71, WR 8.5%, -$17) -- the SPY audit's shape, replicated.
+- **Changed:** orphan sold (journal `ORPHAN_RECONCILED`); `_reconcile_untracked_exposure` ADOPTS broker positions into exit-state instead of pruning; `twin_sentinel` RULE 7 `UNTRACKED_EXPOSURE`; scenario cap counts attempts. Organic sizing 10% of start-of-day equity (`sizing.json`, fallback to the $200 rail with `SIZING_FALLBACK`); scenario entries keep $200; breaker 0.30 -> 0.05.
+- **Hypotheses run here FIRST:** H1-crypto = refuse `SWING_PIVOT` anchors, implemented as a ledger OVERLAY (`crypto_twin_challenger.py`): challenger P&L = control's real fills minus refused entries, exact by construction, no second account. Pre-registered: KILL when forward refused n >= 6 and refused net >= 0; SHIP-CANDIDATE when n >= 20, refused net < 0, still < 0 ex-worst. Forward clock starts at the overlay's commit timestamp; historical rows are labelled in-sample.
+- **Where it reads:** HOME `## What Gamma learned today` -> `### Crypto (24/7 proving ground)`; one line in the morning and EOD briefs. Rule unchanged: **twin P&L is never SPY evidence** -- it is evidence about the MECHANISM, which is what the SPY checkpoint decides on.

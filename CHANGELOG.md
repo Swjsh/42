@@ -350,3 +350,10 @@ J: *"now audit and consolidate again make sure engine only trades what it should
   `sd-zones.json.inputs_enforced`. Verified live (changed=2, 10 zones). Guards 20/20.
 - `test_trade_to_learn_2026_07_01` arming pin updated to consolidation C3 (all extra setups off).
 
+### 2026-09-13 (Sun) -- CRYPTO = the 24/7 proving ground (J directive) + twin orphan reconciled
+
+- **Doctrine:** "crypto is gym-only" (2026-06-17) superseded for PAPER: the crypto twin (dedicated Alpaca paper account) is the first stop for every gate/anchor/exit hypothesis -- hours of evidence, not a Monday clock. Real money still needs J (OP-0 #1). CLAUDE.md refusal line reworded, same length.
+- **Found:** twin held an untracked 0.115 BTC (~$8.9K) since 09-09 (broker fill stuck, local state pruned to flat) -> cash $110 -> 720 HTTP-403 entry attempts on 09-13; scenario scheduler retried the same forced entry every minute because its cap counted successes only. Organic twin evidence (215 trips at ~$200 notional): WR 19.5%, -$23; SWING_PIVOT anchors worst (n=71, WR 8.5%) -- the SPY audit's disease, replicated.
+- **Shipped:** orphan sold at market (fill id in journal); adopt-not-prune reconciliation + sentinel UNTRACKED_EXPOSURE rule; attempt-based scenario cap; organic sizing 10% of start-of-day equity (scenario entries keep the $200 rail); breaker 0.30 -> 0.05; H1-crypto challenger as a ledger OVERLAY on the control's real fills (`crypto_twin_challenger.py`, pre-registered KILL n>=6 / SHIP-CANDIDATE n>=20 rules); HOME `What Gamma learned today` gains a Crypto subsection; briefs carry one crypto line. Standalone `crypto_paper/` line stays KILLED (07-16, 0/324 FDR).
+- **Revoke:** `git revert` the commits named in STATUS 2026-09-13; sizing/breaker constants listed in the commit messages.
+
