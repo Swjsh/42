@@ -1,0 +1,69 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gamma HQ · WebGL canary</title>
+<style>
+  body { margin: 0; background: #070b14; color: #e6eaf3; font: 20px/1.4 system-ui, sans-serif; }
+  .wrap { padding: 32px; }
+  h1 { font-size: 34px; margin: 0 0 12px; }
+  .row { font-size: 26px; margin: 6px 0; }
+  .ok { color: #35c27a; } .bad { color: #e5544b; } .dim { color: #8a94ac; font-size: 18px; }
+  canvas { display: block; margin-top: 18px; width: 640px; height: 360px; background: #0b1020; border: 1px solid #243050; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Gamma HQ · WebGL canary</h1>
+  <div class="row" id="ua"></div>
+  <div class="row" id="gl1"></div>
+  <div class="row" id="gl2"></div>
+  <div class="row" id="fps"></div>
+  <div class="dim">If the cube spins and WebGL2 says OK, the TV can run the three.js station. Tell Gamma what this screen says.</div>
+  <canvas id="c" width="640" height="360"></canvas>
+</div>
+<script>
+(function () {
+  var ua = navigator.userAgent;
+  document.getElementById('ua').textContent = 'Browser: ' + ua.slice(0, 140);
+  var c = document.getElementById('c');
+  var gl1 = c.getContext('webgl') || c.getContext('experimental-webgl');
+  var t = document.createElement('canvas');
+  var gl2 = t.getContext('webgl2');
+  function mark(id, ok, label, extra) {
+    var el = document.getElementById(id);
+    el.className = 'row ' + (ok ? 'ok' : 'bad');
+    el.textContent = label + ': ' + (ok ? 'OK' : 'NOT AVAILABLE') + (extra ? ' · ' + extra : '');
+  }
+  mark('gl1', !!gl1, 'WebGL 1', gl1 ? gl1.getParameter(gl1.VERSION) : '');
+  mark('gl2', !!gl2, 'WebGL 2', gl2 ? gl2.getParameter(gl2.VERSION) : '');
+  var gl = gl2 ? t.getContext('webgl2') : gl1;
+  if (!gl1) { document.getElementById('fps').textContent = 'No WebGL: the face stays 2D (Canvas/CSS).'; return; }
+  // spinning wireframe cube on WebGL1 (works on both), plus an fps counter
+  var vs = 'attribute vec3 p; uniform mat4 m; void main(){ gl_Position = m * vec4(p,1.0); }';
+  var fs = 'precision mediump float; void main(){ gl_FragColor = vec4(0.31,0.82,0.91,1.0); }';
+  function sh(type, src) { var s = gl1.createShader(type); gl1.shaderSource(s, src); gl1.compileShader(s); return s; }
+  var prog = gl1.createProgram(); gl1.attachShader(prog, sh(gl1.VERTEX_SHADER, vs)); gl1.attachShader(prog, sh(gl1.FRAGMENT_SHADER, fs)); gl1.linkProgram(prog); gl1.useProgram(prog);
+  var v = new Float32Array([-1,-1,-1, 1,-1,-1, 1,1,-1, -1,1,-1, -1,-1,1, 1,-1,1, 1,1,1, -1,1,1]);
+  var idx = new Uint16Array([0,1,1,2,2,3,3,0, 4,5,5,6,6,7,7,4, 0,4,1,5,2,6,3,7]);
+  var vb = gl1.createBuffer(); gl1.bindBuffer(gl1.ARRAY_BUFFER, vb); gl1.bufferData(gl1.ARRAY_BUFFER, v, gl1.STATIC_DRAW);
+  var ib = gl1.createBuffer(); gl1.bindBuffer(gl1.ELEMENT_ARRAY_BUFFER, ib); gl1.bufferData(gl1.ELEMENT_ARRAY_BUFFER, idx, gl1.STATIC_DRAW);
+  var loc = gl1.getAttribLocation(prog, 'p'); gl1.enableVertexAttribArray(loc); gl1.vertexAttribPointer(loc, 3, gl1.FLOAT, false, 0, 0);
+  var mloc = gl1.getUniformLocation(prog, 'm');
+  var frames = 0, last = performance.now(), a = 0;
+  function mat(a) {
+    var c1 = Math.cos(a), s1 = Math.sin(a), c2 = Math.cos(a * 0.7), s2 = Math.sin(a * 0.7), sc = 0.45, asp = 360 / 640;
+    return new Float32Array([ sc*asp*c1, sc*s1*s2, sc*s1*c2*0.0, 0,  0, sc*c2, 0, 0,  -sc*asp*s1, sc*c1*s2, 0, 0,  0, 0, 0, 1 ]);
+  }
+  function frame(now) {
+    a += 0.02; gl1.viewport(0, 0, 640, 360); gl1.clearColor(0.04, 0.06, 0.13, 1); gl1.clear(gl1.COLOR_BUFFER_BIT);
+    gl1.uniformMatrix4fv(mloc, false, mat(a)); gl1.drawElements(gl1.LINES, 24, gl1.UNSIGNED_SHORT, 0);
+    frames++; if (now - last >= 1000) { document.getElementById('fps').textContent = 'Frame rate: ' + frames + ' fps'; frames = 0; last = now; }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

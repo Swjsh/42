@@ -232,7 +232,10 @@ if ($Start) {
             if ($tvIp -and (Test-Path $serveLog)) {
                 $recent = Get-Content $serveLog -Tail 400 | Where-Object { $_ -match ("client_ip=" + [regex]::Escape($tvIp)) } | Select-Object -Last 1
                 if ($recent -and $recent -match '^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})') {
-                    $age = (Get-Date) - [datetime]::ParseExact($matches[1], 'yyyy-MM-dd HH:mm:ss', $null)
+                    # The page-server log stamps ET; this box runs Mountain -- compare in ET (a raw Get-Date diff
+                    # came out -7138 s on 2026-09-13 and made the guard fire forever).
+                    $nowEt = [TimeZoneInfo]::ConvertTime((Get-Date), [TimeZoneInfo]::FindSystemTimeZoneById('Eastern Standard Time'))
+                    $age = $nowEt - [datetime]::ParseExact($matches[1], 'yyyy-MM-dd HH:mm:ss', $null)
                     if ($age.TotalMinutes -lt 3) {
                         Write-KioskLedger @{ event = "tv_face_alive"; last_tv_request_age_s = [int]$age.TotalSeconds }
                         Write-Output "OK: TV face alive (last TV request $([int]$age.TotalSeconds)s ago) -- not re-launching"

@@ -80,7 +80,7 @@ DEFAULT_UPSTREAM = "http://127.0.0.1:3000"
 # Fixed, minimal path allowlist -- see the module docstring for why each entry
 # exists. Never grown to a wildcard/passthrough without re-reading that
 # reasoning; a new page needing this proxy is a new named entry, not "allow /".
-ALLOWED_EXACT_PATHS = {"/station", "/api/station", "/favicon.ico"}
+ALLOWED_EXACT_PATHS = {"/station", "/api/station", "/favicon.ico", "/webgl-canary.html", "/hq", "/api/hq"}
 ALLOWED_PATH_PREFIXES = ("/_next/",)
 
 UPSTREAM_TIMEOUT_S = 10
@@ -158,6 +158,22 @@ def make_handler(allowlist: set, upstream: str):
                 _log(f"404 client_ip={client_ip} path={parsed.path}")
                 self._deny(404, "Not Found")
                 return
+
+            # Static test page served straight from disk (Next.js only serves public/ files that existed at build
+            # time, and a rebuild is not worth a 2-minute WebGL canary on the TV). Read-only, fixed path.
+            if parsed.path == "/webgl-canary.html":
+                canary = Path(__file__).resolve().parents[2] / "dashboard" / "public" / "webgl-canary.html"
+                if canary.exists():
+                    body = canary.read_bytes()
+                    self.send_response(200)
+                    self.send_header("Content-Type", "text/html; charset=utf-8")
+                    self.send_header("Content-Length", str(len(body)))
+                    self.send_header("Cache-Control", "no-store")
+                    self.end_headers()
+                    if self.command != "HEAD":
+                        self.wfile.write(body)
+                    _log(f"200 client_ip={client_ip} path={parsed.path} (static)")
+                    return
 
             upstream_url = upstream + self.path  # query string (e.g. ?kiosk=1) passes through as-is
             # J (2026-09-13): the TV address is just http://<pc-lan-ip>/station -- a bare /station from a LAN
