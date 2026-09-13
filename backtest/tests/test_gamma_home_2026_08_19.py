@@ -150,6 +150,74 @@ def test_compact_calendar_preserves_source_values_exactly():
     assert "trades" not in day
 
 
+def test_station_section_renders_from_fixture_data(monkeypatch, tmp_path):
+    """GOAL-GAMMA-STATION-2026-09-13 item (5): the cockpit's Station panel must
+    carry real ideas-board/brief/planner/ledger content through to the shipped
+    page. Point gamma_cockpit_station's module-level paths at a fixture
+    automation/state/station/ directory, build the payload, and confirm (a) the
+    payload shape is correct and (b) the fixture strings actually reach the
+    rendered page's `const D=...` data blob (the JS renderer reads D.station
+    client-side; nothing here executes that JS, so the data blob is the
+    furthest point this test suite can verify short of a real browser)."""
+    import gamma_cockpit_station as gcs
+
+    station_dir = tmp_path / "station"
+    station_dir.mkdir()
+    ideas_path = station_dir / "ideas-board.json"
+    brief_path = station_dir / "station-brief.md"
+    config_path = station_dir / "config.json"
+    mode_path = station_dir / "mode.json"
+    ledger_path = station_dir / "loop-ledger.jsonl"
+
+    fixture_title = "Fixture idea for station panel test"
+    ideas_path.write_text(json.dumps([{
+        "id": "fixture01", "ts_et": "2026-09-13 12:00:00 ET", "prompted_by": "station-loop",
+        "status": "proposed", "model": "gamma-planner-fast", "title": fixture_title,
+        "mechanism": "A fixture mechanism sentence.", "evidence": ["fixture evidence line"],
+        "proposed_shadow_test": "Run a fixture shadow test.", "cost_line": "$0",
+        "confidence": "med",
+    }]), encoding="utf-8")
+    brief_path.write_text("2026-09-13 12:00:00 ET - model gamma-planner-fast - 1 cards on the board\n\n"
+                          "Fixture brief body text.\n", encoding="utf-8")
+    config_path.write_text(json.dumps({"model": "gamma-planner-fast"}), encoding="utf-8")
+    mode_path.write_text(json.dumps({"mode": "work"}), encoding="utf-8")
+    ledger_path.write_text(json.dumps({
+        "ts_et": "2026-09-13 12:00:00 ET", "model": "gamma-planner-fast", "status": "ok",
+        "reason": "", "duration_s": 12.3, "prompt_tokens": 5000, "gen_tokens": 100,
+        "cards_added": 1, "board_size": 1,
+    }) + "\n", encoding="utf-8")
+
+    monkeypatch.setattr(gcs, "STATION_DIR", station_dir)
+    monkeypatch.setattr(gcs, "IDEAS_BOARD_PATH", ideas_path)
+    monkeypatch.setattr(gcs, "BRIEF_PATH", brief_path)
+    monkeypatch.setattr(gcs, "CONFIG_PATH", config_path)
+    monkeypatch.setattr(gcs, "MODE_PATH", mode_path)
+    monkeypatch.setattr(gcs, "LEDGER_PATH", ledger_path)
+    monkeypatch.setattr(gcs, "_gpu_util_pct", lambda: None)  # never shell out in a test
+
+    station_payload = gcs.build()
+    assert station_payload["ok"] is True
+    assert station_payload["ideas"]["ok"] is True
+    assert station_payload["ideas"]["cards"][0]["title"] == fixture_title
+    assert station_payload["brief"]["ok"] is True
+    assert "Fixture brief body text." in station_payload["brief"]["text"]
+    assert station_payload["planner"]["ok"] is True
+    assert station_payload["planner"]["model"] == "gamma-planner-fast"
+    assert station_payload["planner"]["mode"] == "work"
+    assert station_payload["ledger"]["ok"] is True
+    assert len(station_payload["ledger"]["rows"]) == 1
+
+    payload = gh.build(quiet=True)
+    payload["station"] = station_payload  # splice the fixture in without rebuilding the whole page
+    html = gh.render(payload)
+
+    assert fixture_title in html, "fixture idea-card title never reached the rendered data blob"
+    assert "Fixture brief body text." in html
+    assert "gamma-planner-fast" in html
+    assert "stationPanel" in html, "the client-side Station renderer never shipped in the page JS"
+    assert "gc-station" in html
+
+
 def test_shipped_page_exists_and_is_fresh_enough():
     """Built != running. The file J opens must actually be on disk."""
     p = REPO / "analysis" / "home" / "index.html"

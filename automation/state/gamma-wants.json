@@ -12,6 +12,13 @@
       "id": "ssr-dojo-reps",
       "text": "Do 3 TV bar-replay reps of the SSR drill (markdown/research/SSR-PIVOT-LIQUIDITY-STRATEGY.md section 6) so we can compare your read to the shadow's",
       "verified_at": "2026-08-20"
+    },
+    {
+      "priority": 6,
+      "id": "kalshi-spy-leg-key",
+      "text": "Kalshi SPY-index leg has been dark since 2026-08-09. CORRECTED 2026-09-13 (this entry's own file-level verify, per the freshness rule below -- do not revert to the original framing): it is NOT waiting on an RSA key -- automation/state/fleet/kalshi-1.pem and its matching secrets.json 'kalshi-1' entry (KALSHI-LANE-SETUP.md steps 1-2) have both existed since that same day, 2026-08-09 (existence-checked only, no values read). The real blocker is two-fold: (1) kalshi_tick.py / run-kalshi-tick.ps1 was never put on a recurring schedule -- SCHEDULED-TASKS.md carries Gamma_KalshiAuto (weather leg only) and Gamma_KalshiLiquiditySurvey (spread survey, never trades), no Gamma_KalshiTick; (2) the liquidity survey that DOES run daily still verdicts the S&P-index series (KXINXU/KXINX) BLEED / NO-ATM-QUOTES against the 5c spread gate as of the 2026-09-11 RTH re-run -- KALSHI-LANE-SETUP.md's own 'open risk' section. The weather leg runs fine on its own schedule and is not affected. Decide: register the recurring SPY-index tick now that credentials are proven present (it will sit at zero trades if spreads stay wide, correctly, per the maker-only gate), or retire the SPY-index leg on 09-18 if the next RTH liquidity read doesn't clear the gate.",
+      "verified_at": "2026-09-13",
+      "verify_cmd": "python -c \"import pathlib; t = pathlib.Path('automation/state/SCHEDULED-TASKS.md').read_text(encoding='utf-8'); assert 'Gamma_KalshiTick' not in t, 'a Kalshi SPY-index tick task now exists -- re-verify before surfacing this want'; assert pathlib.Path('automation/state/fleet/kalshi-1.pem').exists(), 'kalshi-1.pem no longer exists -- the want text needs re-deriving, not just re-verifying'\""
     }
   ],
   "_retired": [

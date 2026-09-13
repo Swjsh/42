@@ -11,12 +11,27 @@
     "riotclientservices.exe",
     "battle.net.exe",
     "obs64.exe",
-    "eaconnect_microsoft.exe"
+    "eaconnect_microsoft.exe",
+    "r5apex_dx12.exe",
+    "r5apex.exe"
   ],
   "web_scan": false,
   "web_scan_feeds": [],
   "max_new_cards_per_fire": 2,
   "board_cap": 50,
   "dedupe_similarity_threshold": 0.8,
-  "_model_note": "gamma-planner-fast = unsloth UD-Q3_K_XL fully on the RTX 5080 at num_ctx 32768: 100% GPU, 47-48 tok/s (planner-bench.json record 3). gamma-planner (q4_K_M library tag) spills 35% to CPU at 13-19 tok/s."
+  "_model_note": "gamma-planner-fast = unsloth UD-Q3_K_XL fully on the RTX 5080 at num_ctx 32768: 100% GPU, 47-48 tok/s (planner-bench.json record 3). gamma-planner (q4_K_M library tag) spills 35% to CPU at 13-19 tok/s.",
+  "_tv_doc": "TV face keys (item 5, Wi-Fi/security amendments 2026-09-13). SECURITY (amendment 6, 2026-09-13): this file is TRACKED in a PUBLIC repo -- tv_host/tv_mac/tv_name/tv_model/pc_lan_ips/station_url NEVER hold real values here. Those live ONLY in automation/state/station/tv.json (gitignored) and are overlaid onto this config AT RUNTIME by station_board.load_merged_station_config() (used by station_serve.py and station_tv.py); a missing/unreadable tv.json is a loud failure ('tv.json missing'), never a silent 0.0.0.0 bind or a guessed address. tv_hdmi_source/station_serve_port/dashboard_origin/kiosk_display_index are not identifying and stay real here. kiosk_display_index is 1-based into [System.Windows.Forms.Screen]::AllScreens; 2 = the TV as second monitor when HDMI is plugged in. Pairing token lives in .tv-token (gitignored, ACL-locked to the current user by station_tv.py --pair), never in this file.",
+  "tv_host": "",
+  "tv_mac": "",
+  "tv_name": "",
+  "tv_model": "",
+  "tv_hdmi_source": "",
+  "pc_lan_ips": [],
+  "station_url": "",
+  "station_serve_port": 8420,
+  "dashboard_origin": "http://127.0.0.1:3000",
+  "kiosk_display_index": 2,
+  "_hdmi_kiosk_doc": "SAFETY GATE found during verification 2026-09-13 (Sonnet builder #2): this box already reports 2 displays for J's own normal desk setup (DISPLAY2 is his live second monitor, confirmed by a real station_kiosk.ps1 -Snapshot capture -- not a TV). The '>=2 displays -> launch a fullscreen kiosk browser' path from the original spec would therefore hijack J's own active monitor the instant Gamma_StationKiosk fires, not just when a TV is genuinely HDMI-connected. hdmi_kiosk_enabled defaults false so station_kiosk.ps1 -Start ALWAYS falls through to the Wi-Fi TV face (station_tv.py --face) regardless of display count, until a human flips this to true after physically confirming the TV is the actual HDMI-connected display (and updating kiosk_display_index to match it, not just trusting the count).",
+  "hdmi_kiosk_enabled": false
 }

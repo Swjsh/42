@@ -1074,6 +1074,19 @@ def main() -> int:
     except Exception as e:  # noqa: BLE001
         print(f"[autopsy] TWIN section append ERROR (fail-open): {e}", file=sys.stderr)
 
+    # --- Station closed idea loop nightly re-score (GOAL-GAMMA-STATION item 12, 2026-09-13) --
+    # The day file this run just wrote is now on disk, so any Station card in "testing" gets a
+    # fresh look without waiting for the next 30-min Station fire. Lazy import (matches this
+    # module's existing convention of importing heavier siblings inside functions, e.g.
+    # `import exit_shape_parity_study as esp` above) in its OWN try/except -- a scorer failure
+    # must never mask or block the SPY/TWIN autopsy sections that already completed above.
+    try:
+        import hypothesis_scorer
+        summary = hypothesis_scorer.rescore_board()
+        print(f"[autopsy] Station rescore: {summary}")
+    except Exception as e:  # noqa: BLE001 -- never raise into the autopsy
+        print(f"[autopsy] Station rescore ERROR (fail-open): {e}", file=sys.stderr)
+
     return 0
 
 

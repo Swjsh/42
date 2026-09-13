@@ -42,6 +42,41 @@ function Get-StationMode {
     return "work"
 }
 
+function Get-StationYieldConfig {
+    # gpu_util_yield_pct + yield_processes from automation/state/station/config.json (the Station loop's own
+    # yield rule); defaults mirror station_loop.DEFAULT_CONFIG. Fail-open: unreadable -> defaults.
+    $path = Join-Path $Global:WorkDir "automation\state\station\config.json"
+    $cfg = @{ gpu_util_yield_pct = 50; yield_processes = @("steam.exe", "epicgameslauncher.exe", "riotclientservices.exe", "battle.net.exe", "obs64.exe", "eaconnect_microsoft.exe") }
+    if (Test-Path $path) {
+        try {
+            $j = Get-Content $path -Raw -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop
+            if ($j.gpu_util_yield_pct) { $cfg.gpu_util_yield_pct = [int]$j.gpu_util_yield_pct }
+            if ($j.yield_processes) { $cfg.yield_processes = @($j.yield_processes | ForEach-Object { [string]$_ }) }
+        } catch { }
+    }
+    return $cfg
+}
+
+function Test-GpuBusy {
+    # Root-caused 2026-09-13 17:1x ET: Apex Legends on the RTX 5080 (99% util, 15.8/16.3 GB) dropped the planner's
+    # prefill from ~1,700 to ~25 tok/s and every local-brain fire (weekend conductor 16:00, conductor 16:17, two dry
+    # runs) timed out. The Station loop already yields on this rule; launchers must too. Returns "" when the GPU is
+    # free, else the reason. Fail-open: any error -> "" (proceed local).
+    try {
+        $cfg = Get-StationYieldConfig
+        $util = $null
+        try {
+            $out = & nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader,nounits 2>$null
+            if ($out) { $util = [int](([string]($out | Select-Object -First 1)).Trim()) }
+        } catch { }
+        if ($null -ne $util -and $util -gt $cfg.gpu_util_yield_pct) { return ("gpu_util " + $util + "% > " + $cfg.gpu_util_yield_pct + "%") }
+        $alive = @{}
+        foreach ($p in (Get-Process -ErrorAction SilentlyContinue)) { $alive[($p.ProcessName + ".exe").ToLower()] = $true }
+        foreach ($n in $cfg.yield_processes) { if ($alive[([string]$n).ToLower()]) { return ("denylisted_process:" + $n) } }
+        return ""
+    } catch { return "" }
+}
+
 function Start-NoThinkProxy {
     param([int]$Port = 11435, [int]$OllamaPort = 11434)
     $up = Test-NetConnection -ComputerName 127.0.0.1 -Port $Port -InformationLevel Quiet -WarningAction SilentlyContinue
@@ -70,6 +105,12 @@ function Resolve-BrainModel {
         $station = Get-StationMode
         if ($station -in @("gaming", "off")) {
             if ($canLog) { Write-TaskLog -TaskName $TaskName -Message ("BRAIN=local but station mode=" + $station + " (GPU reserved for J) -> Claude path") }
+            return $Tier
+        }
+
+        $busy = Test-GpuBusy
+        if ($busy) {
+            if ($canLog) { Write-TaskLog -TaskName $TaskName -Message ("BRAIN=local but the GPU is busy (" + $busy + ") -> Claude path (a game on the GPU drops local prefill to ~25 tok/s; root-caused 2026-09-13)") }
             return $Tier
         }
 

@@ -15,6 +15,7 @@ output writing) so neither file needs to grow past the 400-line guideline.
 """
 from __future__ import annotations
 
+import collections
 import csv
 import json
 import re
@@ -41,6 +42,7 @@ _HERE = str(Path(__file__).resolve().parent)
 if _HERE not in sys.path:
     sys.path.insert(0, _HERE)
 from et_clock import et_now  # noqa: E402
+import station_board  # noqa: E402 -- graveyard_titles() (pure fn) for the facts block
 
 STATE = REPO / "automation" / "state"
 AGG = STATE / "aggressive"
@@ -54,6 +56,7 @@ LADDER_MD_PATH = STATE / "goals" / "LADDER.md"
 EOD_DEEP_DIR = REPO / "analysis" / "eod-deep"
 HOME_MD_PATH = REPO / "HOME.md"
 IDEAS_BOARD_PATH = STATE / "station" / "ideas-board.json"
+AUTOPSY_DIR = REPO / "analysis" / "autopsies"  # GAMMA-STATION item 12: strategy x qty x arm aggregates
 
 
 # --------------------------------------------------------------------------- #
@@ -271,12 +274,95 @@ def gather_home_learned_today(*, path: Path = HOME_MD_PATH) -> dict:
 # --------------------------------------------------------------------------- #
 
 def gather_ideas_board_titles(max_n: int = 50, *, path: Path = IDEAS_BOARD_PATH) -> dict:
+    """Titles of every ACTIVE card (proposed/testing) -- killed/refuted/supported cards are
+    excluded here and surfaced instead by gather_graveyard_titles() under its own, more
+    strongly-worded 'never re-propose' heading (GOAL-GAMMA-STATION item 12) so the two
+    sections don't repeat the same titles twice in the facts block."""
     stamp = _mtime_stamp_et(path)
     data = _read_json(path)
     if not isinstance(data, list):
         return {"available": False, "source": str(path), "stamp_et": stamp, "titles": []}
-    titles = [c.get("title") for c in data if isinstance(c, dict) and c.get("title")]
+    titles = [c.get("title") for c in data if isinstance(c, dict) and c.get("title")
+              and c.get("status") not in ("killed", "refuted", "supported")]
     return {"available": True, "source": str(path), "stamp_et": stamp, "titles": titles[:max_n]}
+
+
+def gather_graveyard_titles(max_n: int = 100, *, path: Path = IDEAS_BOARD_PATH) -> dict:
+    """Killed/refuted/supported card titles (station_board.graveyard_titles is the pure
+    function; this wrapper adds the file read + mtime stamp, matching every other gather_*
+    helper's fail-open contract). The model must never re-propose one of these under new
+    words (station.md rule 3 + the closed idea loop: a settled verdict is settled)."""
+    stamp = _mtime_stamp_et(path)
+    data = _read_json(path)
+    if not isinstance(data, list):
+        return {"available": False, "source": str(path), "stamp_et": stamp, "titles": []}
+    titles = station_board.graveyard_titles(data)
+    return {"available": True, "source": str(path), "stamp_et": stamp, "titles": titles[:max_n]}
+
+
+# --------------------------------------------------------------------------- #
+# analysis/autopsies/*.jsonl -- deterministic strategy x qty-bucket x arm aggregates
+# (GOAL-GAMMA-STATION item 12: THE fix for counting-by-eye. Card f5deabe978 claimed "13 of 17
+# lost, qty=5 avg -$95 vs qty<=3 avg +$12"; the ledger truth is 12 of 16, -$66 vs -$11, and
+# every qty=5 fill is an aggressive-tier arm (bold-2/safe-3/risky-1) -- size is confounded
+# with the arm. These numbers are read straight off the ledger, never eyeballed.)
+# --------------------------------------------------------------------------- #
+
+def _qty_bucket(qty) -> str:
+    if not isinstance(qty, (int, float)) or isinstance(qty, bool):
+        return "unknown"
+    if qty <= 2:
+        return "1-2"
+    if qty == 3:
+        return "3"
+    return "5+"
+
+
+def gather_autopsy_rows_for_facts(*, directory: Path = AUTOPSY_DIR) -> list:
+    """Thin, fail-open wrapper around hypothesis_scorer.load_autopsy_rows() -- lazy import so
+    a broken/mid-edit hypothesis_scorer.py can never take down the whole facts block (every
+    other gather_* helper here has the same 'a missing source degrades to unavailable, never
+    a crash' contract)."""
+    try:
+        import hypothesis_scorer
+        return hypothesis_scorer.load_autopsy_rows(directory)
+    except Exception:  # noqa: BLE001 -- fail-open, matches this module's whole contract
+        return []
+
+
+def gather_autopsy_aggregates(rows: list) -> dict:
+    """strategy x qty-bucket(1-2 / 3 / 5+) x arm: n, net, mean, losers, median entry_spike_pct,
+    plus a `confound` flag when a (strategy, qty-bucket) pair maps to exactly one arm across
+    the whole population -- exactly the qty=5-is-always-aggressive-tier trap that produced
+    card f5deabe978's uncaught confound. `rows` is the caller's already-loaded autopsy rows
+    (see gather_autopsy_rows_for_facts) -- this function itself does no I/O."""
+    groups: dict = collections.defaultdict(list)
+    for r in rows:
+        if not isinstance(r, dict):
+            continue
+        key = (r.get("strategy") or "unknown", _qty_bucket(r.get("qty")), r.get("arm") or "unknown")
+        groups[key].append(r)
+
+    arms_by_strategy_bucket: dict = collections.defaultdict(set)
+    for (strategy, bucket, arm) in groups:
+        arms_by_strategy_bucket[(strategy, bucket)].add(arm)
+
+    cells = []
+    for (strategy, bucket, arm), grp in sorted(groups.items()):
+        pnls = [g["actual_pnl"] for g in grp if isinstance(g.get("actual_pnl"), (int, float))]
+        if not pnls:
+            continue
+        spikes = sorted(g["entry_spike_pct"] for g in grp
+                        if isinstance(g.get("entry_spike_pct"), (int, float)))
+        median_spike = spikes[len(spikes) // 2] if spikes else None
+        cells.append({
+            "strategy": strategy, "qty_bucket": bucket, "arm": arm,
+            "n": len(pnls), "net": round(sum(pnls), 2), "mean": round(sum(pnls) / len(pnls), 2),
+            "losers": sum(1 for p in pnls if p < 0),
+            "median_entry_spike_pct": round(median_spike, 4) if median_spike is not None else None,
+            "confound": len(arms_by_strategy_bucket[(strategy, bucket)]) == 1,
+        })
+    return {"available": bool(cells), "cells": cells}
 
 
 # --------------------------------------------------------------------------- #
@@ -339,8 +425,31 @@ def gather_all_facts(config: dict, *, now_utc: Optional[datetime] = None) -> dic
         "eod_deep": gather_eod_deep(),
         "home_learned_today": gather_home_learned_today(),
         "ideas_board_existing": gather_ideas_board_titles(),
+        "graveyard": gather_graveyard_titles(),
+        "autopsy_aggregates": gather_autopsy_aggregates(gather_autopsy_rows_for_facts()),
         "web_scan": gather_web_scan(config.get("web_scan", False), config.get("web_scan_feeds", [])),
     }
+
+
+def _render_autopsy_aggregates(agg: dict) -> list:
+    """Compact rendering of gather_autopsy_aggregates() -- capped to the worst-net 8 cells so
+    this section's growth stays well inside the ~1,200-char budget for the whole closed-loop
+    addition (graveyard + this table) at num_ctx 32768."""
+    if not agg.get("available"):
+        return ["Autopsy aggregates (strategy x qty x arm): unavailable or no autopsy rows yet."]
+    lines = ["Autopsy aggregates (strategy | qty | arm | n | net | mean | losers | med_spike%) -- "
+             "USE THESE NUMBERS, never count by eye; CONFOUND = this qty bucket appears under only "
+             "one arm for this strategy, so a size claim cannot be told apart from an arm/tier claim:"]
+    cells = sorted(agg["cells"], key=lambda c: c["net"])[:8]
+    for c in cells:
+        spike = f"{c['median_entry_spike_pct'] * 100:.0f}%" if c["median_entry_spike_pct"] is not None else "n/a"
+        flag = " CONFOUND" if c["confound"] else ""
+        lines.append(f"  {c['strategy'][:24]} | qty={c['qty_bucket']} | {c['arm']} | n={c['n']} | "
+                     f"net=${c['net']:+.0f} | mean=${c['mean']:+.0f} | losers={c['losers']} | "
+                     f"spike={spike}{flag}")
+    if len(agg["cells"]) > 8:
+        lines.append(f"  ... and {len(agg['cells']) - 8} more cell(s) (showing worst-net 8)")
+    return lines
 
 
 def render_facts_text(facts: dict) -> str:
@@ -427,6 +536,16 @@ def render_facts_text(facts: dict) -> str:
             lines.append(f"  - {t}")
     else:
         lines.append("Idea board: empty or unavailable (no existing cards to avoid repeating).")
+
+    gy = facts.get("graveyard", {})
+    if gy.get("available") and gy["titles"]:
+        lines.append("")
+        lines.append("Graveyard (never re-propose -- killed/refuted/supported already, station.md rule 3):")
+        for t in gy["titles"]:
+            lines.append(f"  - {t}")
+
+    lines.append("")
+    lines.extend(_render_autopsy_aggregates(facts.get("autopsy_aggregates", {})))
 
     ws = facts["web_scan"]
     if ws.get("enabled") and ws.get("items"):

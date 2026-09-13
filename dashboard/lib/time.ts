@@ -21,6 +21,17 @@ export function todayET(d: Date = new Date()): string {
   }).format(d);
 }
 
+/** "YYYY-MM-DD HH:MM:SS ET" -- byte-identical to the format every Python-side
+ * station_* module already writes for ts_et (station_loop.py's
+ * `et_now(...).strftime("%Y-%m-%d %H:%M:%S ET")`). The dashboard is the only
+ * non-Python writer in this pipeline (station-inbox.jsonl, chat-ledger.jsonl),
+ * so its timestamps must sort/compare identically with everything Python wrote
+ * before and after it -- a different format here would silently break any
+ * future lexical sort across the two writers. */
+export function nowEtStamp(d: Date = new Date()): string {
+  return `${todayET(d)} ${formatET(d)} ET`;
+}
+
 export function isMarketHoursET(d: Date = new Date()): boolean {
   const time = formatET(d); // "HH:MM:SS"
   const [hh, mm] = time.split(":").map(Number);

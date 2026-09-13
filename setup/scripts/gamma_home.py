@@ -715,6 +715,21 @@ def build(quiet: bool = False) -> dict:
                              "say": "NO DATA, %s failed: %s" % (_mod, str(e)[:120]),
                              "stages": [], "links": [], "days": [], "source": {}}
 
+    # Station (GOAL-GAMMA-STATION-2026-09-13 item 5): ideas board + latest brief +
+    # planner status + last 10 loop-ledger rows, all read from
+    # automation/state/station/*. Own shape (four named sub-sections, not the
+    # funnel/costpulse/righttail stages/links/days contract above), so it gets its
+    # own guarded fallback rather than forcing a mismatched shape into that loop.
+    try:
+        sys.path.insert(0, str(REPO / "setup" / "scripts"))
+        from gamma_cockpit_station import build as _build_station
+        payload["station"] = _build_station()
+    except Exception as e:                         # noqa: BLE001 - station must never lose the page
+        payload["station"] = {"ok": False, "stamp_et": None,
+                              "say": "NO DATA, gamma_cockpit_station failed: %s" % str(e)[:120],
+                              "ideas": {"ok": False, "cards": []}, "brief": {"ok": False, "text": ""},
+                              "planner": {"ok": False}, "ledger": {"ok": False, "rows": []}}
+
     if not quiet:
         if not hq_meta["ok"]:
             print("WARN: state librarian unavailable (%s) - presence renders NO DATA"

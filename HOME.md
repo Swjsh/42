@@ -1,6 +1,6 @@
 # 🎛️ Gamma — HOME
 
-> Auto-generated `2026-09-13 12:37:55 Sunday EDT` · market **CLOSED** · regenerate: `python setup/scripts/obsidian_vault_sync.py`
+> Auto-generated `2026-09-13 18:14:10 Sunday EDT` · market **CLOSED** · regenerate: `python setup/scripts/obsidian_vault_sync.py`
 > Nothing here is hand-maintained. If a number looks stale, the producer behind it is stale.
 
 ## Position & P&L
@@ -37,7 +37,7 @@
 
 **Tomorrow's change:** none (H1-crypto clock running: 0/6 refused)
 
-*Twin health: pid `9999` (not found) · last tick `2026-09-13T12:37:54.027520` · breaker ok · equity +8,945.91 · cash n/a*
+*Twin health: pid `22300` (alive) · last tick `2026-09-13T18:13:50.603754` · breaker ok · equity +8,939.61 · cash n/a*
 
 ## The gate
 
@@ -55,11 +55,11 @@
 - **null study:** WHOLE-ENGINE-NULL 2026-09-11: FAIL -- NULL_DOMINATED. engine P1 $+2072.00, N_a p95 2545.5375000000004, N_c $-3674.00.
 - **governing clock:** `2026-10-30`
 
-- **Claude consumption 14d:** $1170.89 API-equiv/day · interactive 62.8% · scheduled 3.8% · subagents 33.4%
+- **Claude consumption 14d:** $1258.23 API-equiv/day · interactive 63.1% · scheduled 3.5% · subagents 33.4%
 
 ## Today's levels
 
-*as of `2026-09-13T12:35:01-04:00`*
+*as of `2026-09-13T18:00:03-04:00`*
 
 - **748.09** — SHELF_747.29_748.89_2026-09-13
 - **761.32** — SHELF_760.52_762.12_2026-09-13
@@ -74,11 +74,26 @@
 > No core decision rows for 2026-09-13 (weekend, holiday, or the engine is dark).
 - bias: **no-trade**
 
+## Sectors
+
+| Lane | State | Arm/acct | Last evidence (ET) | Evidence | Window P&L | Health | Doc |
+|---|---|---|---|---|---:|---|---|
+| SPY 0DTE core | armed-paper | safe-3, safe-2, risky-1, bold-2, risky-3 | 2026-09-03 14:43:34 ET | go-live gate RED over 42 scored trading days (book-wide as-traded PF CI-lower bar; the gate ARMS NOTHING, i... | +2,027.00 | green | [[CLAUDE\|CLAUDE]] |
+| Crypto twin | armed-paper | crypto-twin | 2026-09-13 18:13:51 ET | 56936 decisions rows, last action ENTERED; H1 forward clock from 2026-09-13T16:25:00+00:00 (0 control trade... | +0.00 | green | [[markdown/planning/TWIN-PROGRAM\|TWIN-PROGRAM]] |
+| Futures | shadow | mes-mnq-div-futures, mes-linear-sim | 2026-09-13 18:00:02 ET | health RED: [YELLOW] broker_transport: 3/6 recent probe(s) show transport errors (rate 50%), 4 excluded as... | -93.75 | red | [[markdown/futures/README\|README]] |
+| Multi-symbol options | killed | multi-1 | 2026-08-20 21:31:45 ET | shadow-ledger frozen since the kill (lane state STOPPED_ON_NULL); Gamma_MultiEvaluate/Gamma_MultiOutcomes s... | n/a | zombie | [[markdown/planning/WEEKLY-OPTIONS-PROGRAM\|WEEKLY-OPTIONS-PROGRAM]] |
+| Weekly options (GLD/QQQ) | pending | weekly-1 | 2026-08-19 00:46:30 ET | expiry-experiment ledger frozen (593 rows); v1 signal refuted (fails random-entry null on all 4 expiry arms... | n/a | frozen | [[markdown/planning/WEEKLY-OPTIONS-PROGRAM\|WEEKLY-OPTIONS-PROGRAM]] |
+| Tickers (non-SPY 0DTE) | armed-paper | tickers-1, tickers-2, tickers-3 | 2026-09-11 14:55:24 ET | 3 paper arms on the same production scorer as SPY core; last session 2026-09-11; full per-session P&L table... | n/a | green | [[markdown/planning/TICKERS-LANE\|TICKERS-LANE]] |
+| Kalshi (prediction markets) | shadow | kalshi-1 | 2026-09-12 01:40:07 ET | weather leg alive (last prediction 2026-09-12); SPY-index leg dark since 2026-08-09 -- credentials PRESENT... | n/a | amber | [[markdown/prediction-markets/KALSHI-LANE-SETUP\|KALSHI-LANE-SETUP]] |
+| Station (local loop) | shadow | station-loop | 2026-09-13 17:51:00 ET | 17 fire(s) logged, last yielded (denylisted_process:steam.exe); 6 idea card(s) on the board; never trades | n/a | green | [[markdown/planning/GAMMA-STATION\|GAMMA-STATION]] |
+
+*Rendered by sector_rows.py; RED/zombie/frozen rows are the Station loop's first cards.*
+
 ## Other lanes
 
 ### 📈 Futures (MES · two lanes: fillsim = book, tastytrade SANDBOX = real fills)
 
-- **lane health** `RED` (as of `2026-09-13 12:30:00`) — [YELLOW] broker_transport: 3/6 recent probe(s) show transport errors (rate 50%), 4 excluded as session-closed -- newest 2026-09-12T23:29:15 -> SESSION_NOT_ACTIVE (inconclusive -- re-run while CME is open); CME session_phase=WEEKEND (open=False, per futures_session/et_clock); broker-transport.jsonl: 253 row(s), 210 transport-error, 5 broker-rejected, 6 NOT-RETRIED-AMBIGUOUS (possible unconfirmed order); newest 2026-09-11T16:01:27 get_account_equity/transport_error
+- **lane health** `RED` (as of `2026-09-13 18:00:02`) — [YELLOW] broker_transport: 3/6 recent probe(s) show transport errors (rate 50%), 4 excluded as session-closed -- newest 2026-09-12T23:29:15 -> SESSION_NOT_ACTIVE (inconclusive -- re-run while CME is open); CME session_phase=GLOBEX (open=True, per futures_session/et_clock); broker-transport.jsonl: 253 row(s), 210 transport-error, 5 broker-rejected, 6 NOT-RETRIED-AMBIGUOUS (possible unconfirmed order); newest 2026-09-11T16:01:27 get_account_equity/transport_error
 - **book lane** (fillsim) `HOLD` — last tick `2026-09-11T16:00:01` · session GLOBEX
 - **broker lane** (tastytrade SANDBOX, REAL fills) `HOLD` — last tick `2026-09-11T16:00:01` · session GLOBEX
 - **sim book** equity $1,595.86 (start $2,000.00) · day $-256.24 · 11 trades
@@ -95,7 +110,7 @@
     - ⚠️ `pin-chain-verify` **YELLOW** — rule_version=v15.3, mismatches=1
     - ⚠️ `heartbeat-pulse-check` **NOT_APPLICABLE** — max gap 0.0min
     - ⚠️ `watcher-state-inspector` **YELLOW** — odf_state empty (may be correct if no drive-then-fade pattern) (obs_today=119)
-- **twin** last journal row `2026-09-13T16:03:39.017890+00:00` · 47497 events (24/7 mechanism validator — its P&L is NEVER SPY evidence)
+- **twin** last journal row `2026-09-13T22:13:51.851175+00:00` · 47527 events (24/7 mechanism validator — its P&L is NEVER SPY evidence)
 
 ### 🎯 Tickers (non-SPY 0DTE, 3 paper arms, production scorer)
 

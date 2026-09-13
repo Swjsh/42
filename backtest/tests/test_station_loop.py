@@ -53,6 +53,15 @@ def _isolate_station_paths(monkeypatch, tmp_path):
     monkeypatch.setattr(sl, "LEDGER_PATH", tmp_path / "loop-ledger.jsonl")
     monkeypatch.setattr(sl, "STATION_PROMPT_PATH", tmp_path / "station.md")
     monkeypatch.setattr(sl, "LOG_DIR", tmp_path / "logs")
+    # GAMMA-STATION item 12 (2026-09-13): isolate the closed-loop scorer's own paths too, and
+    # stub conductor_outcome.record so no test in this file appends a real row to the repo's
+    # automation/state/conductor-outcomes.jsonl as a side effect of calling run_once()/main()
+    # (same class of bug conftest.py's _crypto_twin_pid_file_untouched_by_tests guards against
+    # for a different file -- a bound-default/unpatched dependency writing to live state).
+    monkeypatch.setattr(sl, "AUTOPSY_DIR", tmp_path / "autopsies")
+    monkeypatch.setattr(sl, "VERDICTS_LEDGER_PATH", tmp_path / "station-verdicts.jsonl")
+    monkeypatch.setattr(sl, "SETTLED_HYP_PATH", tmp_path / "hypotheses-settled.json")
+    monkeypatch.setattr(sl.conductor_outcome, "record", lambda **kw: None)
     yield
 
 
@@ -75,7 +84,8 @@ def _cfg(**overrides) -> dict:
 
 def test_decide_action_yields_during_rth_weekday():
     status, reason = sl.decide_action(_TUE_RTH_UTC, _cfg(), gpu_util_fn=lambda: 0,
-                                       process_table_fn=lambda: {}, ollama_reachable_fn=lambda u: True)
+                                       process_table_fn=lambda: {}, ollama_reachable_fn=lambda u: True,
+                                       station_mode_fn=lambda: "work")
     assert status == "yielded"
     assert "rth" in reason.lower()
 
@@ -84,7 +94,8 @@ def test_decide_action_yields_on_weekend_too():
     # Weekend is also "not RTH" for is_market_hours, but confirms the same code path holds
     # for the weekday-independent branch of the clock, not just the after-hours case.
     status, reason = sl.decide_action(_SAT_UTC, _cfg(), gpu_util_fn=lambda: 90,
-                                       process_table_fn=lambda: {}, ollama_reachable_fn=lambda u: True)
+                                       process_table_fn=lambda: {}, ollama_reachable_fn=lambda u: True,
+                                       station_mode_fn=lambda: "work")
     # Saturday is not RTH, so this falls through to the GPU check (90% > 50% default) --
     # proving decide_action does NOT mistake a weekend for an RTH yield.
     assert status == "yielded"
@@ -93,14 +104,16 @@ def test_decide_action_yields_on_weekend_too():
 
 def test_decide_action_ok_outside_rth_when_nothing_else_trips():
     status, reason = sl.decide_action(_TUE_AFTERHOURS_UTC, _cfg(), gpu_util_fn=lambda: 10,
-                                       process_table_fn=lambda: {}, ollama_reachable_fn=lambda u: True)
+                                       process_table_fn=lambda: {}, ollama_reachable_fn=lambda u: True,
+                                       station_mode_fn=lambda: "work")
     assert (status, reason) == ("ok", "")
 
 
 def test_decide_action_yields_when_gpu_above_threshold():
     status, reason = sl.decide_action(_TUE_AFTERHOURS_UTC, _cfg(gpu_util_yield_pct=50),
                                        gpu_util_fn=lambda: 51, process_table_fn=lambda: {},
-                                       ollama_reachable_fn=lambda u: True)
+                                       ollama_reachable_fn=lambda u: True,
+                                       station_mode_fn=lambda: "work")
     assert status == "yielded"
     assert "gpu" in reason.lower()
 
@@ -108,14 +121,16 @@ def test_decide_action_yields_when_gpu_above_threshold():
 def test_decide_action_ok_when_gpu_below_threshold():
     status, reason = sl.decide_action(_TUE_AFTERHOURS_UTC, _cfg(gpu_util_yield_pct=50),
                                        gpu_util_fn=lambda: 49, process_table_fn=lambda: {},
-                                       ollama_reachable_fn=lambda u: True)
+                                       ollama_reachable_fn=lambda u: True,
+                                       station_mode_fn=lambda: "work")
     assert status == "ok"
 
 
 def test_decide_action_gpu_unmeasurable_fails_open():
     # nvidia-smi missing/erroring returns None -- that is "no signal," never a yield.
     status, reason = sl.decide_action(_TUE_AFTERHOURS_UTC, _cfg(), gpu_util_fn=lambda: None,
-                                       process_table_fn=lambda: {}, ollama_reachable_fn=lambda u: True)
+                                       process_table_fn=lambda: {}, ollama_reachable_fn=lambda u: True,
+                                       station_mode_fn=lambda: "work")
     assert status == "ok"
 
 
@@ -123,7 +138,8 @@ def test_decide_action_yields_when_denylisted_process_present():
     cfg = _cfg(yield_processes=["steam.exe"])
     table = {1234: 'C:\\Program Files (x86)\\Steam\\steam.exe" -silent'}
     status, reason = sl.decide_action(_TUE_AFTERHOURS_UTC, cfg, gpu_util_fn=lambda: 0,
-                                       process_table_fn=lambda: table, ollama_reachable_fn=lambda u: True)
+                                       process_table_fn=lambda: table, ollama_reachable_fn=lambda u: True,
+                                       station_mode_fn=lambda: "work")
     assert status == "yielded"
     assert "steam.exe" in reason
 
@@ -132,7 +148,8 @@ def test_decide_action_ok_when_no_denylisted_process():
     cfg = _cfg(yield_processes=["steam.exe"])
     table = {1234: "C:\\Windows\\explorer.exe"}
     status, reason = sl.decide_action(_TUE_AFTERHOURS_UTC, cfg, gpu_util_fn=lambda: 0,
-                                       process_table_fn=lambda: table, ollama_reachable_fn=lambda u: True)
+                                       process_table_fn=lambda: table, ollama_reachable_fn=lambda u: True,
+                                       station_mode_fn=lambda: "work")
     assert status == "ok"
 
 
@@ -141,13 +158,15 @@ def test_decide_action_process_table_unreadable_fails_open():
         raise OSError("no powershell")
     cfg = _cfg(yield_processes=["steam.exe"])
     status, reason = sl.decide_action(_TUE_AFTERHOURS_UTC, cfg, gpu_util_fn=lambda: 0,
-                                       process_table_fn=_boom, ollama_reachable_fn=lambda u: True)
+                                       process_table_fn=_boom, ollama_reachable_fn=lambda u: True,
+                                       station_mode_fn=lambda: "work")
     assert status == "ok"
 
 
 def test_decide_action_error_when_ollama_unreachable():
     status, reason = sl.decide_action(_TUE_AFTERHOURS_UTC, _cfg(), gpu_util_fn=lambda: 0,
-                                       process_table_fn=lambda: {}, ollama_reachable_fn=lambda u: False)
+                                       process_table_fn=lambda: {}, ollama_reachable_fn=lambda u: False,
+                                       station_mode_fn=lambda: "work")
     assert (status, reason) == ("error", "ollama_down")
 
 
@@ -189,6 +208,61 @@ def test_parse_model_output_valid_schema_roundtrips():
 
 def test_parse_model_output_missing_required_key_raises():
     raw = {"message": {"content": json.dumps({"brief": "x", "cards": []})}}  # no "wants"
+    with pytest.raises(ValueError):
+        sl.parse_model_output(raw)
+
+
+# ============================================================================
+# test_spec on cards (GOAL-GAMMA-STATION item 12) -- schema accepts a valid spec and null,
+# rejects a bad type
+# ============================================================================
+
+def _card(**overrides) -> dict:
+    base = {"title": "T", "mechanism": "M", "evidence": ["E1"], "proposed_shadow_test": "S",
+            "cost_line": "$0", "confidence": "low"}
+    base.update(overrides)
+    return base
+
+
+def test_parse_model_output_accepts_valid_test_spec():
+    card = _card(test_spec={"type": "size_cap", "params": {"cap": 3}})
+    raw = _fake_ollama_response(cards=[card])
+    parsed = sl.parse_model_output(raw)
+    assert parsed["cards"][0]["test_spec"] == {"type": "size_cap", "params": {"cap": 3}}
+
+
+def test_parse_model_output_accepts_null_test_spec():
+    card = _card(test_spec=None)
+    raw = _fake_ollama_response(cards=[card])
+    parsed = sl.parse_model_output(raw)
+    assert parsed["cards"][0]["test_spec"] is None
+
+
+def test_parse_model_output_accepts_card_with_no_test_spec_key_at_all():
+    # Most fires won't set it -- absence must be exactly as valid as an explicit null.
+    card = _card()
+    raw = _fake_ollama_response(cards=[card])
+    parsed = sl.parse_model_output(raw)
+    assert "test_spec" not in parsed["cards"][0]
+
+
+def test_parse_model_output_rejects_bad_test_spec_type():
+    card = _card(test_spec={"type": "not_a_real_type", "params": {}})
+    raw = _fake_ollama_response(cards=[card])
+    with pytest.raises(ValueError):
+        sl.parse_model_output(raw)
+
+
+def test_parse_model_output_rejects_test_spec_with_non_dict_params():
+    card = _card(test_spec={"type": "size_cap", "params": "cap=3"})
+    raw = _fake_ollama_response(cards=[card])
+    with pytest.raises(ValueError):
+        sl.parse_model_output(raw)
+
+
+def test_parse_model_output_rejects_test_spec_that_is_not_an_object_or_null():
+    card = _card(test_spec="size_cap")
+    raw = _fake_ollama_response(cards=[card])
     with pytest.raises(ValueError):
         sl.parse_model_output(raw)
 
@@ -386,6 +460,44 @@ def test_run_once_bad_model_output_logs_error_row_not_a_crash(monkeypatch):
     assert not sl.IDEAS_BOARD_PATH.exists()
 
 
+def test_run_once_clears_pending_notes_after_a_successful_fire(monkeypatch):
+    _stub_ok_decision(monkeypatch)
+    sl.PENDING_NOTES_PATH.parent.mkdir(parents=True, exist_ok=True)
+    sl.PENDING_NOTES_PATH.write_text(json.dumps([{"card_id": "x", "action": "test", "note": "n"}]),
+                                     encoding="utf-8")
+    monkeypatch.setattr(sl, "call_ollama_chat", lambda *a, **kw: _fake_ollama_response())
+
+    row = sl.run_once(now_utc=_TUE_AFTERHOURS_UTC)
+
+    assert row["status"] == "ok"
+    assert json.loads(sl.PENDING_NOTES_PATH.read_text(encoding="utf-8")) == []
+
+
+def test_run_once_leaves_pending_notes_untouched_on_a_failed_fire(monkeypatch):
+    _stub_ok_decision(monkeypatch)
+    sl.PENDING_NOTES_PATH.parent.mkdir(parents=True, exist_ok=True)
+    original = [{"card_id": "x", "action": "test", "note": "n"}]
+    sl.PENDING_NOTES_PATH.write_text(json.dumps(original), encoding="utf-8")
+    monkeypatch.setattr(sl, "call_ollama_chat", lambda *a, **kw: {"message": {"content": "not json"}})
+
+    row = sl.run_once(now_utc=_TUE_AFTERHOURS_UTC)
+
+    assert row["status"] == "error", "a failed model call never read/delivered the notes"
+    assert json.loads(sl.PENDING_NOTES_PATH.read_text(encoding="utf-8")) == original
+
+
+def test_run_once_leaves_pending_notes_untouched_on_a_yielded_fire(monkeypatch):
+    monkeypatch.setattr(sl, "decide_action", lambda now_utc, config, **kw: ("yielded", "rth_window (weekday 09:30-15:55 ET)"))
+    sl.PENDING_NOTES_PATH.parent.mkdir(parents=True, exist_ok=True)
+    original = [{"card_id": "x", "action": "test", "note": "n"}]
+    sl.PENDING_NOTES_PATH.write_text(json.dumps(original), encoding="utf-8")
+
+    row = sl.run_once(now_utc=_TUE_RTH_UTC)
+
+    assert row["status"] == "yielded"
+    assert json.loads(sl.PENDING_NOTES_PATH.read_text(encoding="utf-8")) == original
+
+
 def test_run_once_never_exceeds_max_new_cards_per_fire(monkeypatch):
     _stub_ok_decision(monkeypatch)
     cards = [
@@ -399,6 +511,119 @@ def test_run_once_never_exceeds_max_new_cards_per_fire(monkeypatch):
     row = sl.run_once(now_utc=_TUE_AFTERHOURS_UTC)
 
     assert row["cards_added"] == sl.DEFAULT_CONFIG["max_new_cards_per_fire"] == 2
+
+
+# ============================================================================
+# GOAL-GAMMA-STATION item 12 -- the closed idea loop wiring in run_once()
+# ============================================================================
+
+def test_run_once_records_conductor_outcome_with_station_source_on_ok_fire(monkeypatch):
+    _stub_ok_decision(monkeypatch)
+    monkeypatch.setattr(sl, "call_ollama_chat", lambda *a, **kw: _fake_ollama_response())
+    calls = []
+    monkeypatch.setattr(sl.conductor_outcome, "record", lambda **kw: calls.append(kw))
+
+    sl.run_once(now_utc=_TUE_AFTERHOURS_UTC)
+
+    assert len(calls) == 1
+    assert calls[0]["source"] == "station"
+    assert calls[0]["task_id"] == "Gamma_Station"
+    assert calls[0]["items_added"] == 0   # a quiet fire (no cards) still records a row
+    assert calls[0]["items_drained"] == 0
+
+
+def test_run_once_records_conductor_outcome_on_a_yielded_fire_too(monkeypatch):
+    calls = []
+    monkeypatch.setattr(sl, "decide_action", lambda now_utc, config, **kw: ("yielded", "rth_window (weekday 09:30-15:55 ET)"))
+    monkeypatch.setattr(sl.conductor_outcome, "record", lambda **kw: calls.append(kw))
+
+    row = sl.run_once(now_utc=_TUE_RTH_UTC)
+
+    assert row["status"] == "yielded"
+    assert len(calls) == 1
+    assert calls[0]["source"] == "station"
+
+
+def test_run_once_calls_score_testing_cards_after_drain_inbox_even_when_yielded(monkeypatch):
+    order = []
+    monkeypatch.setattr(sl, "drain_inbox", lambda: order.append("drain_inbox") or 0)
+    monkeypatch.setattr(sl.station_board, "score_testing_cards",
+                        lambda *a, **kw: order.append("score_testing_cards") or {"testing_cards": 0})
+    monkeypatch.setattr(sl, "decide_action", lambda now_utc, config, **kw: ("yielded", "rth_window (weekday 09:30-15:55 ET)"))
+
+    row = sl.run_once(now_utc=_TUE_RTH_UTC)
+
+    assert row["status"] == "yielded", "the model must never be called on a yielded fire"
+    assert order == ["drain_inbox", "score_testing_cards"], (
+        "scoring needs no model -- it must run right after the inbox drain on every fire, "
+        "yielded or not")
+
+
+def test_score_testing_cards_flips_status_to_supported_once_n_post_meets_min_n(tmp_path):
+    board_path = tmp_path / "ideas-board.json"
+    autopsy_dir = tmp_path / "autopsies"
+    verdicts_path = tmp_path / "station-verdicts.jsonl"
+    settled_path = tmp_path / "hypotheses-settled.json"
+    autopsy_dir.mkdir()
+
+    card = {"id": "c1", "ts_et": "2026-09-01 12:00:00 ET", "status": "testing",
+            "title": "cap size", "test_spec": {"type": "size_cap", "params": {"cap": 3}}}
+    board_path.write_text(json.dumps([card]), encoding="utf-8")
+
+    rows = (
+        [{"date": "2026-08-25", "qty": 5, "actual_pnl": -100.0}] * 2       # pre-registration, ignored
+        + [{"date": "2026-09-05", "qty": 5, "actual_pnl": -100.0}] * 3     # post: cap=3 helps every row
+    )
+    (autopsy_dir / "all.jsonl").write_text("\n".join(json.dumps(r) for r in rows), encoding="utf-8")
+
+    summary = sb.score_testing_cards(board_path, autopsy_dir=autopsy_dir, verdicts_path=verdicts_path,
+                                     settled_path=settled_path, min_n=3,
+                                     now_et=datetime(2026, 9, 10))
+
+    assert summary["scored"] == 1
+    assert summary["supported"] == 1
+    new_board = json.loads(board_path.read_text(encoding="utf-8"))
+    assert new_board[0]["status"] == "supported"
+    assert new_board[0]["verdict"] == "supported"
+    assert new_board[0]["verdict_n_pre"] == 2
+    assert new_board[0]["verdict_n_post"] == 3
+    ledger_lines = verdicts_path.read_text(encoding="utf-8").strip().splitlines()
+    assert len(ledger_lines) == 1
+    assert json.loads(ledger_lines[0])["card_id"] == "c1"
+
+
+def test_score_testing_cards_stays_testing_below_min_n(tmp_path):
+    board_path = tmp_path / "ideas-board.json"
+    autopsy_dir = tmp_path / "autopsies"
+    autopsy_dir.mkdir()
+
+    card = {"id": "c1", "ts_et": "2026-09-01 12:00:00 ET", "status": "testing",
+            "title": "cap size", "test_spec": {"type": "size_cap", "params": {"cap": 3}}}
+    board_path.write_text(json.dumps([card]), encoding="utf-8")
+    rows = [{"date": "2026-09-05", "qty": 5, "actual_pnl": -100.0}] * 2  # only 2 post rows
+    (autopsy_dir / "all.jsonl").write_text("\n".join(json.dumps(r) for r in rows), encoding="utf-8")
+
+    summary = sb.score_testing_cards(board_path, autopsy_dir=autopsy_dir,
+                                     verdicts_path=tmp_path / "v.jsonl",
+                                     settled_path=tmp_path / "s.json", min_n=3,
+                                     now_et=datetime(2026, 9, 10))
+
+    assert summary["pending"] == 1
+    new_board = json.loads(board_path.read_text(encoding="utf-8"))
+    assert new_board[0]["status"] == "testing", "must not flip status below min_n"
+    assert new_board[0]["verdict"] == "pending"
+
+
+def test_score_testing_cards_is_a_cheap_noop_with_no_testing_cards(tmp_path):
+    board_path = tmp_path / "ideas-board.json"
+    board_path.write_text(json.dumps([{"id": "c1", "status": "proposed", "title": "x"}]), encoding="utf-8")
+    verdicts_path = tmp_path / "station-verdicts.jsonl"
+
+    summary = sb.score_testing_cards(board_path, autopsy_dir=tmp_path / "nonexistent",
+                                     verdicts_path=verdicts_path, settled_path=tmp_path / "s.json")
+
+    assert summary["testing_cards"] == 0
+    assert not verdicts_path.exists(), "no testing cards -> zero writes, not even an empty ledger file"
 
 
 # ============================================================================
@@ -436,3 +661,226 @@ def test_gather_account_breaker_missing_file_is_unavailable_not_zero(tmp_path):
     fact = sf.gather_account_breaker(tmp_path / "does-not-exist.json", "safe")
     assert fact["available"] is False
     assert "equity" not in fact  # never fabricates a 0 in place of a real reading
+
+
+# ============================================================================
+# decide_action -- station_mode_fn (GOAL-GAMMA-STATION-2026-09-13 item 6):
+# "gaming"/"off" yield, "work" passes, all injected -- no real mode.json read.
+# ============================================================================
+
+def test_decide_action_yields_for_gaming_mode():
+    status, reason = sl.decide_action(_TUE_AFTERHOURS_UTC, _cfg(), gpu_util_fn=lambda: 0,
+                                      process_table_fn=lambda: {}, ollama_reachable_fn=lambda u: True,
+                                      station_mode_fn=lambda: "gaming")
+    assert status == "yielded"
+    assert "gaming" in reason.lower()
+
+
+def test_decide_action_yields_for_off_mode():
+    status, reason = sl.decide_action(_TUE_AFTERHOURS_UTC, _cfg(), gpu_util_fn=lambda: 0,
+                                      process_table_fn=lambda: {}, ollama_reachable_fn=lambda u: True,
+                                      station_mode_fn=lambda: "off")
+    assert status == "yielded"
+    assert "off" in reason.lower()
+
+
+def test_decide_action_ok_for_work_mode():
+    status, reason = sl.decide_action(_TUE_AFTERHOURS_UTC, _cfg(), gpu_util_fn=lambda: 0,
+                                      process_table_fn=lambda: {}, ollama_reachable_fn=lambda u: True,
+                                      station_mode_fn=lambda: "work")
+    assert (status, reason) == ("ok", "")
+
+
+def test_decide_action_force_still_bypasses_station_mode():
+    # force=True (a manual run) skips the mode/RTH/GPU/denylist checks entirely --
+    # confirms station_mode_fn is read inside the `if not force:` branch, not before it.
+    status, _ = sl.decide_action(_TUE_RTH_UTC, _cfg(), force=True, gpu_util_fn=lambda: 0,
+                                 process_table_fn=lambda: {}, ollama_reachable_fn=lambda u: True,
+                                 station_mode_fn=lambda: "gaming")
+    assert status == "ok"
+
+
+# ============================================================================
+# station_board -- dashboard-inbox consumption (Test/Kill/Ask interactivity,
+# 2026-09-13 amendment 3): apply_inbox_actions, render_pending_notes_text,
+# read_jsonl/append_jsonl.
+# ============================================================================
+
+def test_apply_inbox_actions_kill_sets_status_no_note():
+    board = [{"id": "c1", "title": "Idea one", "status": "proposed"}]
+    inbox = [{"card_id": "c1", "action": "kill", "note": ""}]
+    new_board, notes = sb.apply_inbox_actions(board, inbox)
+    assert new_board[0]["status"] == "killed"
+    assert notes == []
+
+
+def test_apply_inbox_actions_test_sets_status_and_queues_note():
+    board = [{"id": "c1", "title": "Idea one", "status": "proposed",
+             "proposed_shadow_test": "Replay the trades with a 5min stop."}]
+    inbox = [{"card_id": "c1", "action": "test", "note": "make it fast"}]
+    new_board, notes = sb.apply_inbox_actions(board, inbox)
+    assert new_board[0]["status"] == "testing"
+    assert len(notes) == 1
+    assert notes[0]["action"] == "test"
+    assert notes[0]["proposed_shadow_test"] == "Replay the trades with a 5min stop."
+    assert notes[0]["note"] == "make it fast"
+
+
+def test_apply_inbox_actions_ask_queues_note_no_status_change():
+    board = [{"id": "c1", "title": "Idea one", "status": "proposed"}]
+    inbox = [{"card_id": "c1", "action": "ask", "note": "why does this matter?"}]
+    new_board, notes = sb.apply_inbox_actions(board, inbox)
+    assert new_board[0]["status"] == "proposed"  # unchanged
+    assert len(notes) == 1
+    assert notes[0]["action"] == "ask"
+    assert notes[0]["note"] == "why does this matter?"
+
+
+def test_apply_inbox_actions_unknown_card_id_is_skipped_not_raised():
+    board = [{"id": "c1", "title": "Idea one", "status": "proposed"}]
+    inbox = [{"card_id": "does-not-exist", "action": "kill", "note": ""}]
+    new_board, notes = sb.apply_inbox_actions(board, inbox)
+    assert new_board == board
+    assert notes == []
+
+
+def test_apply_inbox_actions_never_mutates_caller_board_in_place():
+    board = [{"id": "c1", "title": "Idea one", "status": "proposed"}]
+    inbox = [{"card_id": "c1", "action": "kill", "note": ""}]
+    sb.apply_inbox_actions(board, inbox)
+    assert board[0]["status"] == "proposed", "caller's original board/card dict must not be mutated"
+
+
+def test_render_pending_notes_text_empty_list_is_empty_string():
+    assert sb.render_pending_notes_text([]) == ""
+
+
+def test_render_pending_notes_text_includes_test_and_ask_notes():
+    notes = [
+        {"card_id": "c1", "action": "test", "title": "Idea one", "proposed_shadow_test": "Do X", "note": ""},
+        {"card_id": "c2", "action": "ask", "title": "Idea two", "note": "explain the mechanism"},
+    ]
+    text = sb.render_pending_notes_text(notes)
+    assert "Idea one" in text and "Do X" in text
+    assert "Idea two" in text and "explain the mechanism" in text
+
+
+def test_read_jsonl_skips_malformed_lines(tmp_path):
+    p = tmp_path / "inbox.jsonl"
+    p.write_text('{"a": 1}\nNOT JSON\n{"a": 2}\n', encoding="utf-8")
+    rows = sb.read_jsonl(p)
+    assert rows == [{"a": 1}, {"a": 2}]
+
+
+def test_read_jsonl_missing_file_returns_empty_list(tmp_path):
+    assert sb.read_jsonl(tmp_path / "does-not-exist.jsonl") == []
+
+
+def test_append_jsonl_appends_without_clobbering(tmp_path):
+    p = tmp_path / "inbox.jsonl"
+    sb.append_jsonl(p, [{"a": 1}])
+    sb.append_jsonl(p, [{"a": 2}, {"a": 3}])
+    assert sb.read_jsonl(p) == [{"a": 1}, {"a": 2}, {"a": 3}]
+
+
+def test_append_jsonl_empty_list_is_a_no_op(tmp_path):
+    p = tmp_path / "inbox.jsonl"
+    sb.append_jsonl(p, [])
+    assert not p.exists()
+
+
+# ============================================================================
+# station_loop.drain_inbox -- full file-level round trip (own tmp_path paths,
+# never the real repo's automation/state/station/*).
+# ============================================================================
+
+@pytest.fixture()
+def _inbox_paths(tmp_path, monkeypatch):
+    monkeypatch.setattr(sl, "INBOX_PATH", tmp_path / "station-inbox.jsonl")
+    monkeypatch.setattr(sl, "INBOX_PROCESSED_PATH", tmp_path / "station-inbox-processed.jsonl")
+    monkeypatch.setattr(sl, "PENDING_NOTES_PATH", tmp_path / "station-pending-notes.json")
+    return tmp_path
+
+
+def test_drain_inbox_no_file_is_a_no_op(_inbox_paths):
+    assert sl.drain_inbox() == 0
+    assert not sl.IDEAS_BOARD_PATH.exists()
+
+
+def test_drain_inbox_applies_kill_and_archives_row(_inbox_paths):
+    sl.IDEAS_BOARD_PATH.write_text(
+        json.dumps([{"id": "c1", "title": "Idea one", "status": "proposed"}]), encoding="utf-8")
+    sl.INBOX_PATH.write_text(json.dumps({"card_id": "c1", "action": "kill", "note": ""}) + "\n", encoding="utf-8")
+
+    drained = sl.drain_inbox()
+
+    assert drained == 1
+    board = json.loads(sl.IDEAS_BOARD_PATH.read_text(encoding="utf-8"))
+    assert board[0]["status"] == "killed"
+    assert sl.INBOX_PATH.read_text(encoding="utf-8").strip() == "", "inbox must be drained to empty"
+    processed = sb.read_jsonl(sl.INBOX_PROCESSED_PATH)
+    assert len(processed) == 1 and processed[0]["card_id"] == "c1"
+
+
+def test_drain_inbox_ask_action_persists_pending_note_across_fires(_inbox_paths):
+    sl.IDEAS_BOARD_PATH.write_text(
+        json.dumps([{"id": "c1", "title": "Idea one", "status": "proposed"}]), encoding="utf-8")
+    sl.INBOX_PATH.write_text(
+        json.dumps({"card_id": "c1", "action": "ask", "note": "explain this"}) + "\n", encoding="utf-8")
+
+    sl.drain_inbox()
+
+    pending = json.loads(sl.PENDING_NOTES_PATH.read_text(encoding="utf-8"))
+    assert len(pending) == 1
+    assert pending[0]["note"] == "explain this"
+
+    # A second, empty-inbox fire must not lose or duplicate the pending note.
+    drained_again = sl.drain_inbox()
+    assert drained_again == 0
+    pending_after = json.loads(sl.PENDING_NOTES_PATH.read_text(encoding="utf-8"))
+    assert pending_after == pending
+
+
+def test_run_once_folds_pending_notes_into_prompt(monkeypatch, _inbox_paths):
+    """Verifies the FOLD half of the pending-notes contract: a note queued by
+    drain_inbox() (from a dashboard Ask/Test action) reaches the model's
+    prompt text on the next actual model-calling fire.
+
+    NOT asserted here: clearing station-pending-notes.json after a successful
+    fire delivers the note. Reading the current run_once() shows it reads and
+    folds pending notes into facts_text but never clears PENDING_NOTES_PATH
+    afterward -- so today a delivered note is folded into every subsequent
+    fire's prompt too, not just the next one. station_loop.py is outside this
+    session's edit ownership (Fable owns it this build); flagged in the final
+    report rather than fixed here or asserted as correct behavior in this test."""
+    sl.PENDING_NOTES_PATH.write_text(
+        json.dumps([{"card_id": "c1", "action": "ask", "title": "Idea one", "note": "explain this"}]),
+        encoding="utf-8")
+    _stub_ok_decision(monkeypatch)
+    captured = {}
+
+    def _fake_call(model, system_text, user_text, base_url, num_ctx, timeout=300):
+        captured["user_text"] = user_text
+        return _fake_ollama_response(brief="ok")
+
+    monkeypatch.setattr(sl, "call_ollama_chat", _fake_call)
+
+    row = sl.run_once(now_utc=_TUE_AFTERHOURS_UTC)
+
+    assert row["status"] == "ok"
+    assert "explain this" in captured["user_text"]
+    assert "J's direct requests" in captured["user_text"]
+
+
+def test_run_once_keeps_pending_notes_on_model_call_failure(monkeypatch, _inbox_paths):
+    sl.PENDING_NOTES_PATH.write_text(
+        json.dumps([{"card_id": "c1", "action": "ask", "title": "Idea one", "note": "explain this"}]),
+        encoding="utf-8")
+    _stub_ok_decision(monkeypatch)
+    monkeypatch.setattr(sl, "call_ollama_chat", lambda *a, **kw: (_ for _ in ()).throw(RuntimeError("boom")))
+
+    row = sl.run_once(now_utc=_TUE_AFTERHOURS_UTC)
+
+    assert row["status"] == "error"
+    pending_after = json.loads(sl.PENDING_NOTES_PATH.read_text(encoding="utf-8"))
+    assert len(pending_after) == 1, "a failed model call must never lose J's queued note"

@@ -518,6 +518,18 @@ def _brain_local_env() -> tuple:
         sm = REPO / "automation" / "state" / "station" / "mode.json"
         if sm.exists() and _json.loads(sm.read_text(encoding="utf-8-sig")).get("mode") in ("gaming", "off"):
             return None, "haiku"
+        # GPU contention guard (root-caused 2026-09-13: a game on the RTX 5080 drops local prefill to ~25 tok/s
+        # and every local fire times out) -- same threshold as the Station loop; fail-open to local on any error.
+        try:
+            _cfg_path = REPO / "automation" / "state" / "station" / "config.json"
+            _thr = float(_json.loads(_cfg_path.read_text(encoding="utf-8-sig")).get("gpu_util_yield_pct", 50))
+            _smi = subprocess.run(["nvidia-smi", "--query-gpu=utilization.gpu", "--format=csv,noheader,nounits"],
+                                  capture_output=True, text=True, timeout=10,
+                                  creationflags=0x08000000 if sys.platform == "win32" else 0)
+            if _smi.returncode == 0 and _smi.stdout.strip() and float(_smi.stdout.strip().splitlines()[0]) > _thr:
+                return None, "haiku"
+        except Exception:  # noqa: BLE001 -- measurement failure never blocks the local path
+            pass
         port = int(bm.get("proxy_port", 11435))
         oport = int(bm.get("ollama_port", 11434))
         with _socket.socket() as s:

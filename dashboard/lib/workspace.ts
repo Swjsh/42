@@ -38,4 +38,31 @@ export const paths = {
   // --- Vitals tile (unattended-unit traffic lights), 2026-08-09 ---
   unattendedHealth: st("unattended-health.json"),
   unattendedEvents: st("unattended-events.jsonl"),
+
+  // --- Station "/station" face (GOAL-GAMMA-STATION-2026-09-13 item 5 pivot,
+  // 2026-09-13): all under automation/state/station/. The Python side
+  // (setup/scripts/station_loop.py + station_board.py) is the only writer of
+  // ideasBoard/stationBrief/stationLedger/stationConfig/stationMode/
+  // stationPendingNotes/plannerBench; the dashboard writes ONLY stationInbox
+  // (via /api/station/action) and chatLedger (via /api/station/ask). Never the
+  // reverse -- a page read must never become a Python write target. ---
+  stationDir: st("station"),
+  ideasBoard: st("station", "ideas-board.json"),
+  stationBrief: st("station", "station-brief.md"),
+  stationConfig: st("station", "config.json"),
+  stationMode: st("station", "mode.json"),
+  stationLedger: st("station", "loop-ledger.jsonl"),
+  stationInbox: st("station", "station-inbox.jsonl"),
+  stationPendingNotes: st("station", "station-pending-notes.json"),
+  chatLedger: st("station", "chat-ledger.jsonl"),
+  stationPresence: st("station", "presence.json"),
+  plannerBench: st("station", "planner-bench.json"),
+  brainQuiz: st("station", "brain-quiz.json"),
+  stationPromptMd: path.join(WORKSPACE_ROOT, "automation", "prompts", "station.md"),
+  // "Talk to Gamma" chat persona (amendment 5a, 2026-09-13) -- deliberately NOT
+  // stationPromptMd above: station.md is the 30-min loop's JSON-only output-schema
+  // prompt, and using it for chat would make Gamma answer J in raw JSON. Fable
+  // owns both station.md and this identity file; this app only ever reads them.
+  stationIdentityMd: path.join(WORKSPACE_ROOT, "automation", "prompts", "station-identity.md"),
+  stationFactsScript: path.join(WORKSPACE_ROOT, "setup", "scripts", "station_facts.py"),
 };

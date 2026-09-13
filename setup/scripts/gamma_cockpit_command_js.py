@@ -668,6 +668,12 @@ function vCommand(h){
   try{promo.classList.add('gc-span2');}catch(_){}
   row3.appendChild(promo);
   h.appendChild(row3);
+  // Station (GOAL-GAMMA-STATION-2026-09-13 item 5): ideas board + latest brief +
+  // planner status + last 10 loop-ledger rows. Own full-width panel, same
+  // cmdSafe/gcNoData degrade-per-panel contract as everything above it.
+  h.appendChild(cmdSafe(
+    ()=>(typeof stationPanel==='function')?stationPanel(D.station):gcNoData('Station','automation/state/station/*'),
+    gcNoData('Station','automation/state/station/*')));
   h.appendChild(cmdGroup('group-trading','Trading',cmdProducerRows('trading')));
   h.appendChild(cmdGroup('group-research','Research',cmdWrapKitchenAnchor(cmdProducerRows('research'))));
   h.appendChild(cmdGroup('group-rig','Rig',cmdProducerRows('rig')));

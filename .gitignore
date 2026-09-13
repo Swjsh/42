@@ -447,6 +447,7 @@ automation/state/logs/nothink-proxy.log
 automation/state/station/tv.json
 automation/state/station/kiosk-ledger.jsonl
 automation/state/station/presence-ledger.jsonl
+automation/state/station/.presence-internal.json
 automation/state/station/station-inbox.jsonl
 automation/state/station/station-inbox-processed.jsonl
 automation/state/station/chat-ledger.jsonl
@@ -455,3 +456,5 @@ automation/state/station/chat-ledger.jsonl
 # (machineID/userID, approved-key responses, plugin caches, fire transcripts, history). Only settings.json is seed config.
 setup/ollama/cfg/*
 !setup/ollama/cfg/settings.json
+automation/state/station/station-pending-notes.json
+markdown/doctrine/J-PROFILE.md

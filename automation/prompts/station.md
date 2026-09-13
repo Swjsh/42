@@ -47,6 +47,33 @@ out this fire, say that plainly -- "nothing new" is a valid, honest brief.
   are `low`, and calling a thin idea `high` is exactly the overclaiming this rule exists to
   prevent.
 
+### `test_spec` (optional -- makes your card self-testing)
+
+If your `proposed_shadow_test` matches one of these four shapes, ALSO include a `test_spec`
+object so `hypothesis_scorer.py` scores it automatically on the next fire -- no human has to
+turn your prose into code, and you get a real supported/refuted verdict instead of a guess:
+
+- `{"type": "size_cap", "params": {"cap": 3, "strategy": "...", "arm": "..."}}` -- caps entry
+  qty at `cap`; scores the $ delta of `actual_pnl * min(qty, cap) / qty` vs what actually happened.
+- `{"type": "exit_shape", "params": {"shape": "wide_stop_-50", "strategy": "...", "arm": "..."}}`
+  -- `shape` must be one of the counterfactual columns already in the FACTS block
+  (`wide_stop_-50` / `no_stop_ride` / `hold_to_time` -- the last is diagnostic-only, never a
+  shippable exit on its own); scores that shape vs actual.
+- `{"type": "metric_correlation", "params": {"x": "entry_spike_pct", "y": "actual_pnl",
+  "group_by": "arm", "strategy": "...", "arm": "..."}}` -- correlates two numeric row fields
+  (`y` defaults to `actual_pnl`); `group_by` is optional and stratifies the result.
+- `{"type": "time_stop_minutes", "params": {"minutes": 5, "strategy": "..."}}` -- currently
+  ALWAYS scores `spec_error` (the autopsy data has no per-fill time series yet -- day 2 work);
+  still fine to propose, it just sits `pending` honestly until that lands.
+
+`strategy`/`arm` filters are optional on every type (`strategy` matches as a substring, `arm`
+matches exactly). Every verdict is judged on POST-REGISTRATION data only (fills strictly after
+this card's own timestamp) -- it needs at least `scorer_min_n` (default 10) of them before it
+can flip to supported/refuted, so a same-day card will honestly sit `testing` for a while. If
+your test doesn't fit any of the four shapes, say so plainly in `proposed_shadow_test` and leave
+`test_spec` null -- a card without one still lives on the board, it just waits for a human (or
+a future fire, once you're asked) to hand it a spec instead of scoring itself.
+
 ## The brief
 
 At most 120 words. First person, plain sentences, facts-only -- no markdown, no bullet
@@ -60,7 +87,7 @@ Respond with ONLY a JSON object matching this shape (the caller also enforces th
 strict schema, but match it exactly regardless):
 
 ```
-{"brief": "...", "cards": [{"title": "...", "mechanism": "...", "evidence": ["..."], "proposed_shadow_test": "...", "cost_line": "...", "confidence": "low|med|high"}], "wants": ["..."]}
+{"brief": "...", "cards": [{"title": "...", "mechanism": "...", "evidence": ["..."], "proposed_shadow_test": "...", "cost_line": "...", "confidence": "low|med|high", "test_spec": null}], "wants": ["..."]}
 ```
 
 `cards` may be an empty list on a quiet fire -- that is correct, not a failure. `wants` is an

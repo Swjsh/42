@@ -47,6 +47,8 @@ from et_clock import et_now, et_today_str, is_market_hours  # noqa: E402
 import _proc_table  # noqa: E402
 import station_board  # noqa: E402
 import station_facts  # noqa: E402
+import hypothesis_scorer  # noqa: E402 -- GOAL-GAMMA-STATION item 12: KNOWN_SPEC_TYPES for schema validation
+import conductor_outcome  # noqa: E402 -- item 12: every run_once() path records a fire (source="station")
 
 _CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
 
@@ -65,6 +67,12 @@ INBOX_PROCESSED_PATH = STATION_DIR / "station-inbox-processed.jsonl"
 PENDING_NOTES_PATH = STATION_DIR / "station-pending-notes.json"
 STATION_PROMPT_PATH = REPO / "automation" / "prompts" / "station.md"
 LOG_DIR = Path("E:/Gamma/logs")
+# GAMMA-STATION item 12 (2026-09-13): the closed idea loop's own paths. Module-level (not
+# hypothesis_scorer's own defaults) so tests can monkeypatch them exactly like every other
+# Station path above -- see hypothesis_scorer.py for the scoring contract itself.
+AUTOPSY_DIR = REPO / "analysis" / "autopsies"
+VERDICTS_LEDGER_PATH = REPO / "analysis" / "recommendations" / "station-verdicts.jsonl"
+SETTLED_HYP_PATH = REPO / "automation" / "state" / "hypotheses-settled.json"
 
 DEFAULT_CONFIG = {
     "model": "gamma-planner",
@@ -75,12 +83,14 @@ DEFAULT_CONFIG = {
     "yield_processes": [
         "steam.exe", "epicgameslauncher.exe", "riotclientservices.exe",
         "battle.net.exe", "obs64.exe", "eaconnect_microsoft.exe",
+        "r5apex_dx12.exe", "r5apex.exe",  # Apex Legends -- J's game (2026-09-13: 99% GPU, prefill fell to ~25 tok/s)
     ],
     "web_scan": False,
     "web_scan_feeds": [],
     "max_new_cards_per_fire": 2,
     "board_cap": 50,
     "dedupe_similarity_threshold": 0.8,
+    "scorer_min_n": 10,  # GAMMA-STATION item 12: post-registration n before a verdict flips
 }
 
 RESPONSE_SCHEMA = {
@@ -98,6 +108,20 @@ RESPONSE_SCHEMA = {
                     "proposed_shadow_test": {"type": "string"},
                     "cost_line": {"type": "string"},
                     "confidence": {"type": "string", "enum": ["low", "med", "high"]},
+                    # GAMMA-STATION item 12 (2026-09-13): optional, nullable -- lets a card
+                    # self-test on the next fire via hypothesis_scorer.py instead of waiting on
+                    # a human to translate proposed_shadow_test prose into code. Deliberately
+                    # NOT in this item's "required" list below: an older/leaner model, or a
+                    # fire where nothing fits the four spec types, must still be able to
+                    # propose a card with test_spec omitted or null (station.md: "if none fits
+                    # ... leave test_spec null").
+                    "test_spec": {
+                        "type": ["object", "null"],
+                        "properties": {
+                            "type": {"type": "string", "enum": list(hypothesis_scorer.KNOWN_SPEC_TYPES)},
+                            "params": {"type": "object"},
+                        },
+                    },
                 },
                 "required": ["title", "mechanism", "evidence", "proposed_shadow_test", "cost_line", "confidence"],
             },
@@ -201,6 +225,23 @@ def _station_mode() -> str:
         return "work"
 
 
+def _unload_loaded_models() -> list:
+    """J's "or both" (2026-09-13: "an off switch or a gaming mode switch or both so I can use all my
+    GPU"): when the loop yields because a game/launcher is alive, free the VRAM now instead of waiting
+    for Ollama's keep-alive -- `ollama stop` every loaded model, exactly what gamma_mode.ps1 -Mode gaming
+    does. Returns the names unloaded. Fail-open: any error -> []."""
+    try:
+        out = subprocess.run(["ollama", "ps"], capture_output=True, text=True, timeout=30,
+                             creationflags=_CREATE_NO_WINDOW)
+        names = [ln.split()[0] for ln in out.stdout.splitlines()[1:] if ln.strip()]
+        for name in names:
+            subprocess.run(["ollama", "stop", name], capture_output=True, text=True, timeout=60,
+                           creationflags=_CREATE_NO_WINDOW)
+        return names
+    except Exception:  # noqa: BLE001 -- a courtesy unload never breaks the fire
+        return []
+
+
 def decide_action(
     now_utc: datetime,
     config: dict,
@@ -226,14 +267,16 @@ def decide_action(
         if is_market_hours(now_utc=now_utc):
             return "yielded", "rth_window (weekday 09:30-15:55 ET)"
 
+        # Process check FIRST (2026-09-13): a named game/launcher is the reason run_once unloads the
+        # model, so it must win over the generic gpu_util reason when both apply.
+        deny = _denylisted_process(process_table_fn, config.get("yield_processes", []))
+        if deny:
+            return "yielded", f"denylisted_process:{deny}"
+
         threshold = config.get("gpu_util_yield_pct", 50)
         gpu = gpu_util_fn()
         if gpu is not None and gpu > threshold:
             return "yielded", f"gpu_util {gpu:.0f}% > {threshold}%"
-
-        deny = _denylisted_process(process_table_fn, config.get("yield_processes", []))
-        if deny:
-            return "yielded", f"denylisted_process:{deny}"
 
     if not ollama_reachable_fn(config.get("ollama_base_url", DEFAULT_CONFIG["ollama_base_url"])):
         return "error", "ollama_down"
@@ -265,6 +308,25 @@ def call_ollama_chat(model: str, system_text: str, user_text: str, base_url: str
         return json.loads(resp.read().decode("utf-8"))
 
 
+def _validate_test_spec(spec) -> None:
+    """Raises ValueError on a malformed test_spec. None is always fine (no spec offered this
+    fire -- station.md explicitly sanctions this). A present spec must be an object with
+    `type` in hypothesis_scorer.KNOWN_SPEC_TYPES and a dict `params`. Ollama's own `format`
+    schema constrains a compliant model already; this is the defensive second check so a
+    model that ignores/half-follows the schema still gets caught here rather than writing a
+    card hypothesis_scorer.py can never score. Folded into parse_model_output's existing
+    'bad model response -> logged error ledger row, never a crash' handling in run_once()."""
+    if spec is None:
+        return
+    if not isinstance(spec, dict):
+        raise ValueError(f"test_spec must be an object or null, got {type(spec).__name__}")
+    if spec.get("type") not in hypothesis_scorer.KNOWN_SPEC_TYPES:
+        raise ValueError(f"test_spec.type {spec.get('type')!r} is not one of "
+                         f"{sorted(hypothesis_scorer.KNOWN_SPEC_TYPES)}")
+    if not isinstance(spec.get("params"), dict):
+        raise ValueError("test_spec.params must be an object")
+
+
 def parse_model_output(raw_response: dict) -> dict:
     """Raises ValueError/json.JSONDecodeError on any schema violation -- the caller turns
     that into a logged 'error' ledger row rather than a crash or a fabricated board entry."""
@@ -277,6 +339,9 @@ def parse_model_output(raw_response: dict) -> dict:
             raise ValueError(f"model output missing required key '{key}'")
     if not isinstance(data["cards"], list):
         raise ValueError("'cards' is not a list")
+    for card in data["cards"]:
+        if isinstance(card, dict) and "test_spec" in card:
+            _validate_test_spec(card["test_spec"])
     return data
 
 
@@ -325,6 +390,21 @@ def _ledger_row(ts_et: str, model: str, status: str, reason: str, t0: float, *,
     }
 
 
+def _record_conductor_outcome(*, items_added: int, items_drained: int) -> None:
+    """conductor_outcome.record(source='station', ...) at the end of EVERY run_once() path
+    (GOAL-GAMMA-STATION item 12) -- so Station fires count in the same autonomy metric every
+    other autonomous loop feeds, whether the fire yielded, errored, or produced cards.
+    conductor_outcome.record() already never raises on its own (it swallows internally and
+    returns None on failure) -- this wrapper only guards against the import/call itself being
+    unavailable in some unusual environment, so a broken outcome-metric module can never take
+    the Station loop down with it."""
+    try:
+        conductor_outcome.record(task_id="Gamma_Station", items_added=items_added,
+                                 items_drained=items_drained, source="station")
+    except Exception as exc:  # noqa: BLE001 -- must never break the Station loop
+        _log(f"conductor_outcome.record failed (non-fatal): {exc!r}")
+
+
 def run_once(*, force: bool = False, now_utc: Optional[datetime] = None) -> dict:
     t0 = time.time()
     now_utc = now_utc or datetime.now(timezone.utc)
@@ -332,13 +412,30 @@ def run_once(*, force: bool = False, now_utc: Optional[datetime] = None) -> dict
     model = config.get("model", DEFAULT_CONFIG["model"])
     ts_et = et_now(now_utc=now_utc).strftime("%Y-%m-%d %H:%M:%S ET")
 
-    drain_inbox()  # every fire, yielded or not -- see drain_inbox()'s own docstring
+    inbox_rows_drained = drain_inbox()  # every fire, yielded or not -- see drain_inbox()'s own docstring
+
+    # GAMMA-STATION item 12 (2026-09-13): scoring is pure deterministic Python over rows that
+    # already exist -- no LLM -- so it runs on EVERY fire (yielded, error, or ok) right after
+    # the inbox drain, exactly like drain_inbox() itself ("scoring needs no model", approved
+    # plan). score_testing_cards() is a cheap no-op (one read, zero writes) whenever the board
+    # has no 'testing' cards -- the common case -- so this never becomes a real cost on a
+    # yielded fire.
+    score_summary = station_board.score_testing_cards(
+        IDEAS_BOARD_PATH, autopsy_dir=AUTOPSY_DIR, verdicts_path=VERDICTS_LEDGER_PATH,
+        settled_path=SETTLED_HYP_PATH, min_n=config.get("scorer_min_n", DEFAULT_CONFIG["scorer_min_n"]),
+        now_et=et_now(now_utc=now_utc),
+    )
+    if score_summary.get("testing_cards"):
+        _log(f"score_testing_cards: {score_summary}")
 
     status, reason = decide_action(now_utc, config, force=force)
     if status != "ok":
         row = _ledger_row(ts_et, model, status, reason, t0)
+        if reason.startswith("denylisted_process:"):
+            row["unloaded"] = _unload_loaded_models()  # J is gaming: give the VRAM back right now
         append_ledger(LEDGER_PATH, row)
-        _log(f"{status}: {reason}")
+        _log(f"{status}: {reason}" + (f" unloaded={row['unloaded']}" if "unloaded" in row else ""))
+        _record_conductor_outcome(items_added=0, items_drained=inbox_rows_drained)
         return row
 
     facts = station_facts.gather_all_facts(config, now_utc=now_utc)
@@ -362,6 +459,7 @@ def run_once(*, force: bool = False, now_utc: Optional[datetime] = None) -> dict
         row = _ledger_row(ts_et, model, "error", f"model_call_failed: {exc!r}"[:300], t0)
         append_ledger(LEDGER_PATH, row)
         _log(f"error: {row['reason']}")
+        _record_conductor_outcome(items_added=0, items_drained=inbox_rows_drained)
         return row
 
     existing_board = station_board.load_board(IDEAS_BOARD_PATH)
@@ -372,6 +470,13 @@ def run_once(*, force: bool = False, now_utc: Optional[datetime] = None) -> dict
     )
     station_board.write_ideas_board(IDEAS_BOARD_PATH, new_board)
     station_board.write_brief(BRIEF_PATH, ts_et, model, parsed.get("brief", ""), len(new_board))
+    # Pending-notes bug fix (found by builder #2 reading this file, 2026-09-13): notes_text
+    # was folded into every prompt but PENDING_NOTES_PATH was never cleared on success, so
+    # J's Test/Ask notes would be re-sent forever. Cleared ONLY here, on the fire that
+    # actually delivered them to the model -- a failed/yielded fire (any return above this
+    # line) must never lose a note, since it never got read.
+    if pending_notes:
+        station_board.atomic_write_text(PENDING_NOTES_PATH, json.dumps([], ensure_ascii=False))
 
     row = _ledger_row(ts_et, model, "ok", "", t0,
                       prompt_tokens=raw.get("prompt_eval_count"), gen_tokens=raw.get("eval_count"),
@@ -379,6 +484,7 @@ def run_once(*, force: bool = False, now_utc: Optional[datetime] = None) -> dict
     row["board_size"] = len(new_board)
     append_ledger(LEDGER_PATH, row)
     _log(f"ok: cards_added={added} board_size={len(new_board)}")
+    _record_conductor_outcome(items_added=added, items_drained=inbox_rows_drained)
     return row
 
 

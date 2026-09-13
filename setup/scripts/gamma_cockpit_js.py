@@ -66,6 +66,15 @@ except ImportError:
     GLOW_JS = ""
     MISSING_JS.append("gamma_cockpit_glow_js")
 
+# GOAL-GAMMA-STATION-2026-09-13 item (5): the Station panel (ideas board, latest
+# brief, planner status, last 10 loop-ledger rows). Same guarded-import contract as
+# the three above -- an absent module never breaks the page, only shows up here.
+try:
+    from gamma_cockpit_station_js import STATION_JS
+except ImportError:
+    STATION_JS = ""
+    MISSING_JS.append("gamma_cockpit_station_js")
+
 _RUNTIME = r"""
 /* ============================ helpers ============================ */
 const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
@@ -552,5 +561,6 @@ function selfCheck(){
 # reference vCommand, vOverview, tileRow, etc. regardless of textual order.
 JS = _RUNTIME.replace(
     "__VIEWS_SLOT__",
-    TILES_JS + VIEWS_JS + PRODUCERS_JS + SANKEY_JS + COSTPULSE_JS + GLOW_JS + KPI_JS + COMMAND_JS,
+    TILES_JS + VIEWS_JS + PRODUCERS_JS + SANKEY_JS + COSTPULSE_JS + GLOW_JS + KPI_JS
+    + STATION_JS + COMMAND_JS,
 )

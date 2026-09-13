@@ -202,6 +202,12 @@ Payback against the $200/mo being cancelled: Option A in ~6 weeks; a $2K box in 
 
 ## 6. Phases — each with a done-check and a revoke line
 
+> **Execution log:** day-by-day progress against every phase below, with each done-check's
+> actual command output, is tracked in
+> [`GOAL-GAMMA-STATION-2026-09-13.md`](../../automation/state/goals/GOAL-GAMMA-STATION-2026-09-13.md)
+> — **Phase 1 SHIPPED 2026-09-13 on J's own RTX 5080 PC** (Option A: brain on this box; no
+> Raspberry Pi, no new hardware purchase), not the "Box 2" purchase this section was written around.
+
 **Phase 0 — survive Max ending (this week, before the 09-18 renewal). No box needed.**
 1. Inventory every `claude` fire in `SCHEDULED-TASKS.md` (27 registry mentions; conductor family = 93.3% of automation burn). Each one gets a fate: **re-point** to local Ollama on the 5080 (the `setup/launch_claude_local.ps1` pattern — per-fire, never global; qwen3:14b floor until the Station exists), **park**, or **delete**.
 2. Let Max lapse (J's click). No replacement subscription and no API key are required; Pro is a month-at-a-time option for Fable audits.
@@ -230,6 +236,29 @@ Lift-and-shift, same OS: the engine, its scripts and its Task Scheduler entries 
 - **Sentience theater rule stays (08-08).** The face shows real work; the "I want" line is sourced from a real card with a cost; a losing day is a losing day.
 - **Claude Code Channels needs Pro/Max.** With no subscription, the phone path is the rig's own Discord bridge (already built) plus Tailscale + Remote Desktop into the box.
 - **Two boxes for a while.** That is the dead-box protection the 09-04 crash showed was missing (Box 2 watches Box 1). It is a feature of the transition, not a cost.
+- **Security posture (2026-09-13).** Findings from the same-day hardening pass (goal item (10),
+  each verified directly against the tracked source/config this session, not narrative alone):
+  - Dashboard now binds `127.0.0.1` only — `dashboard/package.json`'s start script is
+    `next start -p 3000 -H 127.0.0.1` (was `0.0.0.0`, LAN-reachable, with a Windows Firewall
+    Public-profile Allow rule sitting on top of it).
+  - Ollama (11434), the no-think proxy (11435), and the companion server (4317) are all
+    loopback-only.
+  - The Samsung TV pairing token (`.tv-token`) is gitignored and ACL-locked to the current
+    Windows user (`station_tv.py::_lock_token_acl()`); `--pair` cannot run unattended.
+  - TV facts (IP, MAC, token) live only in the gitignored `automation/state/station/tv.json` —
+    confirmed absent from `git ls-files`, never a tracked file.
+  - The local-brain config directory (`setup/ollama/cfg/`) is untracked — it was briefly
+    committed to this **public** repo (389 runtime files: fire transcripts, history, plugin
+    caches, machine/user ids) before being removed; only `settings.json` is tracked now.
+  - No Station code path reads a broker/API credential file — `station_serve.py` and
+    `station_tv.py` each carry a self-declared docstring guarantee ("NEVER reads or writes
+    .mcp.json, secrets.json, .alpaca-keys...") and the only token either touches is the TV's
+    own device-pairing token, not a trading credential; model output is treated as data and is
+    never executed (same rule the web-scan path already followed).
+  - **J's own steps (not Gamma's to do, still open):** set the LAN adapter's network profile to
+    Private, answer the next Windows Firewall prompt "Private only", turn off SMB/file sharing
+    if unused, and create the healthchecks.io check + paste its ping URL into the gitignored
+    secrets store (goal item (7), still blocked on J).
 
 ---
 

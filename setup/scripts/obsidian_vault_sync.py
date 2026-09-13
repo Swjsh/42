@@ -469,6 +469,81 @@ def render_tickers_lane(state_dir: Path = None) -> list[str]:
     return L
 
 
+def render_sectors_table(repo_root: Path = None) -> list[str]:
+    """'## Sectors' -- ONE per-lane portfolio table (GOAL-GAMMA-STATION-2026-09-13
+    item 13, plan `dapper-cuddling-peacock.md` Slice 3): crypto / futures / non-SPY
+    options / SPY options side by side, so a dark lane (futures RED, multi-symbol
+    killed-but-still-firing, weekly frozen) is visible here instead of hiding in its
+    own directory. J (2026-09-13 step-back): "It's gonna run the different sectors."
+
+    Every row comes from `sector_rows.build_sector_rows()` -- no computation, no new
+    JSON producer, here. This block is a GLANCE view; the tickers/futures/crypto
+    lanes keep their own detailed blocks elsewhere on this page
+    (render_other_lanes, render_tickers_lane, render_crypto_challenger_block) and
+    this table never duplicates their numbers, only points at them via `doc`.
+
+    Doc-link convention mirrors the MAP_SPEC loop above verbatim: a wikilink with a
+    table-escaped pipe (`[[path\\|label]]`) when the doc exists on disk, a plain
+    backtick path + ⛔MISSING otherwise -- so a moved/deleted doc degrades visibly
+    rather than silently 404-ing inside Obsidian.
+
+    FAILS OPEN by construction: sector_rows.build_sector_rows() never raises (its
+    own contract), and the import itself is wrapped here too, so a missing/broken
+    sector_rows.py degrades this ONE section to an 'n/a' line rather than breaking
+    HOME generation (C7)."""
+    root = repo_root or REPO
+    L: list[str] = ["## Sectors", ""]
+
+    try:
+        _here = str(Path(__file__).resolve().parent)
+        if _here not in sys.path:
+            sys.path.insert(0, _here)
+        import sector_rows  # type: ignore  # noqa: PLC0415
+
+        rows = sector_rows.build_sector_rows(root)
+    except Exception:  # noqa: BLE001 -- a sector_rows bug must never break HOME
+        rows = None
+
+    if not rows:
+        L.append("> n/a -- `sector_rows.build_sector_rows()` returned nothing this run "
+                 "(see `python setup/scripts/sector_rows.py --print` directly).")
+        L.append("")
+        L.append("*Rendered by sector_rows.py; RED/zombie/frozen rows are the Station "
+                 "loop's first cards.*")
+        L.append("")
+        return L
+
+    L.append("| Lane | State | Arm/acct | Last evidence (ET) | Evidence | Window P&L | Health | Doc |")
+    L.append("|---|---|---|---|---|---:|---|---|")
+    for r in rows:
+        doc = r.get("doc") or "n/a"
+        if doc and doc != "n/a":
+            exists = (root / doc).exists()
+            note = doc[:-3] if doc.endswith(".md") else doc
+            label = Path(doc).stem
+            doc_cell = f"[[{note}\\|{label}]]" if exists else f"`{doc}`  ⛔MISSING"
+        else:
+            doc_cell = "n/a"
+
+        wp = r.get("window_pnl")
+        wp_cell = money(wp) if isinstance(wp, (int, float)) else str(wp)
+
+        evidence = str(r.get("evidence", "")).replace("|", "\\|")
+        if len(evidence) > 110:
+            evidence = evidence[:107].rstrip() + "..."
+
+        L.append(
+            f"| {r.get('lane', '?')} | {r.get('state', '?')} | "
+            f"{r.get('arm_or_acct_alias', '?')} | {r.get('last_evidence_et', '?')} | "
+            f"{evidence} | {wp_cell} | {r.get('health', '?')} | {doc_cell} |"
+        )
+    L.append("")
+    L.append("*Rendered by sector_rows.py; RED/zombie/frozen rows are the Station "
+             "loop's first cards.*")
+    L.append("")
+    return L
+
+
 CHALLENGER_ARM = "risky-3"
 CONTROL_ARM = "risky-1"
 CHALLENGER_START = "2026-09-14"
@@ -1032,6 +1107,7 @@ def build_home(date: str, stamp: str, market_open: bool, snap: dict) -> str:
     L.append(f"- bias: **{bias.get('bias', 'n/a')}**")
     L.append("")
 
+    L.extend(render_sectors_table())
     L.extend(render_other_lanes())
 
     L.append("## Open loops")

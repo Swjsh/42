@@ -1,6 +1,6 @@
 # 🕰️ Shadow & Prereg Board
 
-> Auto-generated `2026-09-12 17:20:19 Saturday EDT` by obsidian_vault_sync.py. Shadow tallies update nightly; a missing tally means that instrument has not fired yet.
+> Auto-generated `2026-09-13 18:14:10 Sunday EDT` by obsidian_vault_sync.py. Shadow tallies update nightly; a missing tally means that instrument has not fired yet.
 
 ## Live shadow instruments
 
@@ -12,9 +12,9 @@
 - **Direction symmetry** (16:25 fold) — **RED**: 2 asymmetric knobs, 4 gates on stale evidence, 26 phantom documented knobs → [[analysis/deep-research/DIRECTION-SYMMETRY-AUDIT-2026-08-09]]
 - **Trendline shadow** (`Gamma_TrendlineShadow`, 14:22 MT) — latest verdict 2026-09-02: 73 sessions, n=1451, +0.0386 pts/trade, session-clustered 95% CI [-0.0301, 0.1177] (straddles zero), top-3 sessions 105% of profit — NOT a green light; promotion bar: [[analysis/trendlines/shadow-verdict.json]]
 
-## Frozen preregs — auto-discovered (68 non-terminal)
+## Frozen preregs — auto-discovered (67 non-terminal)
 
-_68 non-terminal preregs — grouped by status below; every one is listed, nothing truncated._
+_67 non-terminal preregs — grouped by status below; every one is listed, nothing truncated._
 
 ### `FROZEN_BEFORE_ANY_RESULT` (6)
 
@@ -80,10 +80,6 @@ _68 non-terminal preregs — grouped by status below; every one is listed, nothi
 ### `EXTEND -- mandatory STEP 1 (exit_manager_walk fill-model fix) still...` (1)
 
 - `FILL-MODEL-UNIFICATION-2026-08-13` — [[analysis/recommendations/prereg-fill-model-unification-2026-08-13]] · `EXTEND -- mandatory STEP 1 (exit_manager_walk fill-model fix) still...`
-
-### `EXTEND -- per-arm split already resolved in code; extension still l...` (1)
-
-- `atm-tier-extension-2k10k-prereg-2026-08-03` — [[analysis/recommendations/atm-tier-extension-2k10k-prereg-2026-08-03]] · `EXTEND -- per-arm split already resolved in code; extension still l...`
 
 ### `EXTEND -- shipped 2026-08-02, live in both params files, held past ...` (1)
 
@@ -225,9 +221,9 @@ _68 non-terminal preregs — grouped by status below; every one is listed, nothi
 
 - `STRUCTURE-STOP-ZONE-2026-08-11` — [[analysis/recommendations/prereg-structure-stop-zone-2026-08-11]] · `{"status": "CLOSED by its own G4 -- dead-frequency knob", "run": "2...`
 
-## Frozen preregs — terminal (77, verdict/lifecycle already closed)
+## Frozen preregs — terminal (78, verdict/lifecycle already closed)
 
-- 77 terminal prereg(s) — most recent: `EXIT-POLICY-BEATS-NULL-2026-08-23`, `vwap-family-killcheck-prereg-2026-08-18`, `ENTRY-LOCATION-GATE-2026-08-14`, `TRENDLINE-BREAK-AT-LEVEL-2026-08-13`, `SLIPPAGE-REBASELINE-2026-08-12` _(+72 more)_ (status carries RUN_COMPLETE*/KILLED/SUPERSEDED/RETIRED/etc. -- see `analysis/recommendations/*prereg*.json`)
+- 78 terminal prereg(s) — most recent: `EXIT-POLICY-BEATS-NULL-2026-08-23`, `vwap-family-killcheck-prereg-2026-08-18`, `ENTRY-LOCATION-GATE-2026-08-14`, `TRENDLINE-BREAK-AT-LEVEL-2026-08-13`, `SLIPPAGE-REBASELINE-2026-08-12` _(+73 more)_ (status carries RUN_COMPLETE*/KILLED/SUPERSEDED/RETIRED/etc. -- see `analysis/recommendations/*prereg*.json`)
 
 ## Frozen preregs — curated (richer write-ups)
 

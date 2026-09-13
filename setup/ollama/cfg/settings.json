@@ -1,5 +1,7 @@
 {
   "model": "claude-local",
+  "_mcp_note": "GAMMA-STATION 2026-09-13: local-brain fires load NO project MCP servers. The 17:02 ET spawn dry run spent 6 minutes booting tradingview/alpaca/trader-dev/alpaca_aggressive (TradingView waits on CDP :9222) before its first model call and timed out; ~180 tool schemas would also blow the 32K context. Local fires use Bash/Read/Edit + REST fallbacks. Keep this list in sync with .mcp.json server names.",
+  "disabledMcpjsonServers": ["tradingview", "alpaca", "trader-dev", "alpaca_aggressive"],
   "env": {
     "ANTHROPIC_BASE_URL": "http://localhost:11435",
     "ANTHROPIC_API_KEY": "ollama",

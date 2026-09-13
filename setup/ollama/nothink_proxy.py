@@ -38,6 +38,8 @@ _HERE = os.path.dirname(os.path.abspath(__file__))
 LOG_PATH = os.path.join(_HERE, "..", "..", "automation", "state", "logs", "nothink-proxy.log")
 BRAIN_MODE_PATH = os.path.join(_HERE, "..", "..", "automation", "state", "brain-mode.json")
 DROP_TOP = ("output_config", "fallbacks", "context_management", "metadata", "tool_choice", "betas")
+TOOL_RESULT_CONTINUATION = ("Tool results above. Continue the task from them; when the task is complete, "
+                            "give the final answer.")
 
 
 def _model_map() -> dict:
@@ -111,6 +113,16 @@ def normalize(payload: dict) -> dict:
             if isinstance(m, dict):
                 _strip_cache_control(m.get("content"))
             kept.append(m)
+        # Root-caused 2026-09-13 17:1x ET (weekend conductor + spawn dry run): Ollama's /v1/messages answers
+        # 500 'no user query found in messages' whenever the FINAL user turn is only tool_result blocks --
+        # which is every Claude Code tool-use continuation. Append a short text block so the turn carries a
+        # user query; the tool results stay first and intact.
+        if kept and isinstance(kept[-1], dict) and kept[-1].get("role") == "user":
+            last_content = kept[-1].get("content")
+            if (isinstance(last_content, list) and last_content
+                    and all(isinstance(b, dict) and b.get("type") == "tool_result" for b in last_content)):
+                last_content.append({"type": "text", "text": TOOL_RESULT_CONTINUATION})
+                summary["continuation"] = True
         payload["messages"] = kept
         summary["roles"] = [m.get("role") for m in kept if isinstance(m, dict)]
         # diagnostic: shape of the last two messages (block types + text lengths), never the text itself
@@ -189,7 +201,7 @@ class Handler(BaseHTTPRequestHandler):
 
         status = getattr(upstream, "status", 200) or 200
         if summary is not None:
-            _log(f"POST {self.path} -> {status} model={summary.get('model')} roles={summary['roles']} folded_system={summary['folded_system']} dropped={summary['dropped']} system={summary.get('system')} last2={summary.get('shapes')}")
+            _log(f"POST {self.path} -> {status} model={summary.get('model')} roles={summary['roles']} folded_system={summary['folded_system']} dropped={summary['dropped']} cont={summary.get('continuation', False)} system={summary.get('system')} last2={summary.get('shapes')}")
 
         # Status line + headers (drop framing/encoding headers; HTTP/1.0 close
         # delimits the body, so no Content-Length needed for the stream).

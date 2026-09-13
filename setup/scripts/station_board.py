@@ -115,6 +115,35 @@ def write_brief(path: Path, ts_et: str, model: str, brief_text: str, board_size:
     atomic_write_text(path, header + (brief_text or "").strip() + "\n")
 
 
+# ---- config.json + tv.json merge (security amendment 6, 2026-09-13) ----
+# automation/state/station/config.json is TRACKED in a PUBLIC repo (GitHub Swjsh/42).
+# It must never carry real network facts -- TV IP/MAC, this PC's LAN IPs, or the
+# derived LAN URL of the Station page. Those live ONLY in tv.json (gitignored,
+# Fable's LAN-discovery output) and are overlaid on top of config.json AT RUNTIME,
+# in memory, by this function -- config.json on disk is never rewritten with them.
+
+def load_merged_station_config(config_path: Path, tv_json_path: Path) -> dict:
+    """Loads config_path as the base config, then overlays tv_json_path's
+    tv_host/tv_mac/pc_lan_ips on top (tv.json wins when present). Raises
+    ValueError("tv.json missing") if tv.json does not exist or fails to parse --
+    callers (station_serve.py's bind, station_tv.py's every command) MUST treat
+    that as a hard stop: never bind a wildcard address, never guess a LAN IP or
+    MAC, never fabricate a station_url. A garbled/missing config.json still
+    degrades to {} (config.json's own contract is fail-open; only the tv.json
+    half of this merge is fail-loud, since a missing config.json only loses
+    non-identifying defaults while a missing tv.json would otherwise silently
+    zero out the identifying facts this whole file exists to keep off disk)."""
+    config = read_json_or_none(config_path)
+    merged = dict(config) if isinstance(config, dict) else {}
+    tv = read_json_or_none(tv_json_path)
+    if not isinstance(tv, dict):
+        raise ValueError("tv.json missing")
+    for key in ("tv_host", "tv_mac", "pc_lan_ips"):
+        if tv.get(key) is not None:
+            merged[key] = tv[key]
+    return merged
+
+
 # ---- Dashboard inbox consumption (interactivity amendment, 2026-09-13) ----
 # The Next.js dashboard's /api/station/action route appends {ts_et, card_id, action,
 # note} rows to automation/state/station/station-inbox.jsonl for each Test/Kill/Ask
@@ -181,10 +210,22 @@ def apply_inbox_actions(board: list, inbox_rows: list) -> tuple:
             card["status"] = "killed"
         elif action == "test" and card is not None:
             card["status"] = "testing"
-            pending_notes.append({
-                "card_id": card_id, "action": "test", "title": card.get("title", ""),
-                "proposed_shadow_test": card.get("proposed_shadow_test", ""), "note": note,
-            })
+            # GAMMA-STATION item 12 (2026-09-13): an inbox test row MAY carry an optional
+            # `test_spec` ({type, params}) alongside the base {ts_et, card_id, action, note}
+            # shape -- backward compatible (existing 4-field rows are untouched) and lets a
+            # future dashboard "canned test type" picker (or a manual/ad-hoc verification run)
+            # hand hypothesis_scorer.py a spec immediately instead of waiting on the
+            # pending-notes round trip below. Shape is NOT validated here -- an invalid one is
+            # a harmless, expected `spec_error` the next time hypothesis_scorer.score_card runs
+            # (single source of truth for "what's a valid spec" stays hypothesis_scorer.py).
+            got_spec = isinstance(row.get("test_spec"), dict)
+            if got_spec:
+                card["test_spec"] = row["test_spec"]
+            if not got_spec and not isinstance(card.get("test_spec"), dict):
+                pending_notes.append({
+                    "card_id": card_id, "action": "test", "title": card.get("title", ""),
+                    "proposed_shadow_test": card.get("proposed_shadow_test", ""), "note": note,
+                })
         elif action == "ask":
             pending_notes.append({
                 "card_id": card_id, "action": "ask",
@@ -213,3 +254,35 @@ def render_pending_notes_text(notes: list) -> str:
             line += f" -- J's note: {n['note']}"
         lines.append(line)
     return "\n".join(lines)
+
+
+# ---- Closed idea loop (GAMMA-STATION item 12, 2026-09-13) -----------------------------------
+# graveyard_titles() is a pure helper station_facts.py calls to build the FACTS block's
+# "never re-propose" section. score_testing_cards() is a thin delegation to
+# hypothesis_scorer.rescore_board() (lazy import -- hypothesis_scorer.py imports THIS module
+# at its own top level for read_json_or_none/atomic_write_text/append_jsonl/load_board, so a
+# top-level import here would be circular; station_loop.py calls this function by name per the
+# approved plan, which is why the delegation lives here rather than station_loop.py importing
+# hypothesis_scorer.py directly for it).
+
+def graveyard_titles(board: list) -> list:
+    """Titles of killed/refuted/supported cards -- station.md rule 3 ('never repeat a card')
+    plus the closed-loop verdicts: once a card is settled, the model must never re-propose it
+    under a new title. Cards still 'proposed'/'testing' are NOT graveyard (they're active,
+    not dead) -- see gather_ideas_board_titles for those."""
+    return [c.get("title") for c in board
+            if isinstance(c, dict) and c.get("status") in ("killed", "refuted", "supported")
+            and c.get("title")]
+
+
+def score_testing_cards(board_path, *, autopsy_dir=None, verdicts_path=None,
+                        settled_path=None, min_n: int = 10, now_et=None, dry_run: bool = False) -> dict:
+    """Scores every 'testing'-status card on the board against real analysis/autopsies/*.jsonl
+    rows -- deterministic, no LLM, safe to call on every Station fire (yielded or not). See
+    hypothesis_scorer.rescore_board for the actual scoring contract; this is a thin, named
+    delegation so station_loop.py's call site references the Station's own board module."""
+    import hypothesis_scorer
+    return hypothesis_scorer.rescore_board(
+        board_path=board_path, autopsy_dir=autopsy_dir, verdicts_path=verdicts_path,
+        settled_path=settled_path, min_n=min_n, now_et=now_et, dry_run=dry_run,
+    )

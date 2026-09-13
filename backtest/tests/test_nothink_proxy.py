@@ -88,6 +88,34 @@ def test_normalize_rewrites_model_and_keeps_existing_contract(proxy, monkeypatch
     assert out["system"].endswith("mid-conversation system")
 
 
+def test_tool_result_only_final_turn_gets_a_continuation_text(proxy, monkeypatch):
+    """Ollama 500s 'no user query found in messages' on a final user turn made only of tool_result
+    blocks -- every Claude Code tool-use continuation (root-caused 2026-09-13). The proxy appends one
+    text block after the results and flags it in the summary."""
+    monkeypatch.setattr(proxy, "_model_map", lambda: {})
+    payload = {
+        "model": "gamma-planner-fast",
+        "messages": [
+            {"role": "user", "content": "run the check"},
+            {"role": "assistant", "content": [{"type": "tool_use", "id": "t1", "name": "Bash", "input": {"command": "echo hi"}}]},
+            {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "t1", "content": "hi"}]},
+        ],
+    }
+    out, summary = proxy.normalize(payload)
+    last = out["messages"][-1]["content"]
+    assert last[0]["type"] == "tool_result" and last[-1] == {"type": "text", "text": proxy.TOOL_RESULT_CONTINUATION}
+    assert summary["continuation"] is True
+
+
+def test_final_user_text_turn_is_left_alone(proxy, monkeypatch):
+    monkeypatch.setattr(proxy, "_model_map", lambda: {})
+    payload = {"model": "gamma-planner-fast",
+               "messages": [{"role": "user", "content": [{"type": "text", "text": "hello"}]}]}
+    out, summary = proxy.normalize(payload)
+    assert out["messages"][-1]["content"] == [{"type": "text", "text": "hello"}]
+    assert "continuation" not in summary
+
+
 def test_model_map_reads_brain_mode_json(proxy):
     path = Path(proxy.BRAIN_MODE_PATH)
     if not path.exists():

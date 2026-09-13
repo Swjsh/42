@@ -537,6 +537,9 @@ _CONTRIB_CSS = "\n".join(filter(None, [
     _optional("gamma_cockpit_sankey_js", "SANKEY_CSS"),
     _optional("gamma_cockpit_costpulse_js", "COSTPULSE_CSS"),
     _optional("gamma_cockpit_army_glow_ui", "ARMY_GLOW_CSS"),
+    # GOAL-GAMMA-STATION-2026-09-13 item (5): Station panel layout only (idea-card
+    # list, ledger rows) -- everything else reuses .gc-panel/.gc-row/.gc-chip as-is.
+    _optional("gamma_cockpit_station_js", "STATION_CSS"),
 ]))
 
 # ============================================================================
