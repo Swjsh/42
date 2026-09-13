@@ -863,6 +863,32 @@ def render_gate_block() -> list[str]:
     return L
 
 
+USAGE_LEDGER_JSON = REPO / "analysis" / "usage" / "claude-usage-14d.json"
+
+
+def render_usage_line() -> str:
+    """One line off `setup/scripts/claude_usage_ledger.py`'s output -- Claude API-rate
+    consumption equivalent per day, split by session kind (J's "it's too expensive and not
+    producing enough outcome, but nobody has a number", 2026-09-12). Reads the JSON verbatim;
+    computes nothing. Fails open to 'n/a' if the ledger hasn't been run -- the ledger is run
+    manually (see claude_usage_ledger.py docstring for the runtime measurement that decided
+    this), not wired into this script's own run, so a stale/missing file is expected, not an
+    error (C7)."""
+    ledger = read_json(USAGE_LEDGER_JSON)
+    if not ledger:
+        return "- **Claude consumption 14d:** n/a (ledger not run — `python setup/scripts/claude_usage_ledger.py`)"
+    totals = ledger.get("totals") or {}
+    avg = totals.get("avg_usd_per_day")
+    pct = totals.get("by_kind_pct") or {}
+    if avg is None:
+        return "- **Claude consumption 14d:** n/a (ledger present but unreadable)"
+    interactive = pct.get("interactive", "n/a")
+    scheduled = pct.get("scheduled", "n/a")
+    subagent = pct.get("subagent", "n/a")
+    return (f"- **Claude consumption 14d:** ${avg:.2f} API-equiv/day · "
+            f"interactive {interactive}% · scheduled {scheduled}% · subagents {subagent}%")
+
+
 def build_home(date: str, stamp: str, market_open: bool, snap: dict) -> str:
     levels = read_json(STATE / "key-levels.json") or {}
     bias = read_json(STATE / "today-bias.json") or {}
@@ -883,6 +909,9 @@ def build_home(date: str, stamp: str, market_open: bool, snap: dict) -> str:
     L.extend(render_learned_today())
 
     L.extend(render_gate_block())
+
+    L.append(render_usage_line())
+    L.append("")
 
     L.append("## Today's levels")
     L.append("")
@@ -1803,6 +1832,20 @@ def main(argv: list[str] | None = None) -> int:
     today, stamp, market_open = et_now()
     date = args.date or today
     snap = broker_snapshot()
+
+    # Refresh the Claude usage ledger before the HOME build so render_usage_line() reads a
+    # fresh file. Measured 5.86s on the real ~/.claude/projects tree (2026-09-13) -- under the
+    # 10s budget this call is conditioned on (claude_usage_ledger.py docstring). Fails open:
+    # any error here degrades render_usage_line() to its own 'n/a' branch, never blocks HOME
+    # generation (C7).
+    try:
+        subprocess.run(
+            [sys.executable, str(REPO / "setup" / "scripts" / "claude_usage_ledger.py")],
+            cwd=str(REPO), timeout=30, capture_output=True, check=False,
+            creationflags=_CREATE_NO_WINDOW,
+        )
+    except Exception:  # noqa: BLE001
+        pass
 
     if not args.home_only:
         p = write_daily(date, stamp, snap)

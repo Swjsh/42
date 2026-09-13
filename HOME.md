@@ -1,6 +1,6 @@
 # 🎛️ Gamma — HOME
 
-> Auto-generated `2026-09-12 20:04:32 Saturday EDT` · market **CLOSED** · regenerate: `python setup/scripts/obsidian_vault_sync.py`
+> Auto-generated `2026-09-13 10:15:20 Sunday EDT` · market **CLOSED** · regenerate: `python setup/scripts/obsidian_vault_sync.py`
 > Nothing here is hand-maintained. If a number looks stale, the producer behind it is stale.
 
 ## Position & P&L
@@ -38,28 +38,30 @@
 - **null study:** WHOLE-ENGINE-NULL 2026-09-11: FAIL -- NULL_DOMINATED. engine P1 $+2072.00, N_a p95 2545.5375000000004, N_c $-3674.00.
 - **governing clock:** `2026-10-30`
 
+- **Claude consumption 14d:** $1170.89 API-equiv/day · interactive 62.8% · scheduled 3.8% · subagents 33.4%
+
 ## Today's levels
 
-*as of `2026-09-12T18:00:02-04:00`*
+*as of `2026-09-13T10:15:01-04:00`*
 
-- **748.09** — SHELF_747.29_748.89_2026-09-12
-- **761.32** — SHELF_760.52_762.12_2026-09-12
+- **748.09** — SHELF_747.29_748.89_2026-09-13
+- **761.32** — SHELF_760.52_762.12_2026-09-13
 - **762.65** — MEMORY_SUP_85
-- **763.6** — PRIOR_DAY_LOW_2026-09-12
+- **763.6** — PRIOR_DAY_LOW_2026-09-13
 - **765.46** — MEMORY_RES_213
 - **766.2** — MEMORY_RES_89
-- **766.38** — PRIOR_DAY_HIGH_2026-09-12
+- **766.38** — PRIOR_DAY_HIGH_2026-09-13
 
 ## What the engine sees
 
-> No core decision rows for 2026-09-12 (weekend, holiday, or the engine is dark).
+> No core decision rows for 2026-09-13 (weekend, holiday, or the engine is dark).
 - bias: **no-trade**
 
 ## Other lanes
 
 ### 📈 Futures (MES · two lanes: fillsim = book, tastytrade SANDBOX = real fills)
 
-- **lane health** `RED` (as of `2026-09-12 18:00:01`) — [YELLOW] broker_transport: 4/7 recent probe(s) show transport errors (rate 57%), 3 excluded as session-closed -- newest 2026-09-10T23:05:09 -> PROBE_FAILED; CME session_phase=WEEKEND (open=False, per futures_session/et_clock); broker-transport.jsonl: 253 row(s), 210 transport-error, 5 broker-rejected, 6 NOT-RETRIED-AMBIGUOUS (possible unconfirmed order); newest 2026-09-11T16:01:27 get_account_equity/transport_error -- CME currently CLOSED per et_clock, capped at YELLOW (cannot confirm the transport is broken right now vs. simply idle)
+- **lane health** `RED` (as of `2026-09-13 10:00:00`) — [YELLOW] broker_transport: 3/6 recent probe(s) show transport errors (rate 50%), 4 excluded as session-closed -- newest 2026-09-12T23:29:15 -> SESSION_NOT_ACTIVE (inconclusive -- re-run while CME is open); CME session_phase=WEEKEND (open=False, per futures_session/et_clock); broker-transport.jsonl: 253 row(s), 210 transport-error, 5 broker-rejected, 6 NOT-RETRIED-AMBIGUOUS (possible unconfirmed order); newest 2026-09-11T16:01:27 get_account_equity/transport_error
 - **book lane** (fillsim) `HOLD` — last tick `2026-09-11T16:00:01` · session GLOBEX
 - **broker lane** (tastytrade SANDBOX, REAL fills) `HOLD` — last tick `2026-09-11T16:00:01` · session GLOBEX
 - **sim book** equity $1,595.86 (start $2,000.00) · day $-256.24 · 11 trades
@@ -67,7 +69,7 @@
 - **edge #3** (MES→MNQ divergence) 16/20 round trips · mean $30.00 vs validated $71.46 · **PENDING_MORE_DATA**
 - **SSR shadow** 23 round trips · forward clock running
 - **last review** `2026-09-11` **GREEN** · coverage GREEN (79/78 ticks) · 0 rule break(s)
-- **broker probe** `2026-09-10T23:05:09` → **PROBE_FAILED** (session ?, futures_bp ?)
+- **broker probe** `2026-09-12T23:29:15` → **SESSION_NOT_ACTIVE (inconclusive -- re-run while CME is open)** (session WEEKEND, futures_bp 0.0)
 
 ### 🧪 Crypto (maintenance freeze — regression suite + mechanism twin)
 
@@ -76,7 +78,7 @@
     - ⚠️ `pin-chain-verify` **YELLOW** — rule_version=v15.3, mismatches=1
     - ⚠️ `heartbeat-pulse-check` **NOT_APPLICABLE** — max gap 0.0min
     - ⚠️ `watcher-state-inspector` **YELLOW** — odf_state empty (may be correct if no drive-then-fade pattern) (obs_today=119)
-- **twin** last journal row `2026-09-12T21:59:42.614734+00:00` · 44579 events (24/7 mechanism validator — its P&L is NEVER SPY evidence)
+- **twin** last journal row `2026-09-13T14:14:56.299725+00:00` · 47246 events (24/7 mechanism validator — its P&L is NEVER SPY evidence)
 
 ### 🎯 Tickers (non-SPY 0DTE, 3 paper arms, production scorer)
 

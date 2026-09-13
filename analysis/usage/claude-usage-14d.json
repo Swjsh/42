@@ -1,0 +1,687 @@
+{
+  "generated_at_utc": "2026-09-13T14:15:21.795258+00:00",
+  "window_days": 14,
+  "note": "API-rate equivalent for CONSUMPTION under a subscription plan (Claude Max), NOT a bill -- Max is not billed per token.",
+  "max_plan_per_day_usd": 6.67,
+  "days": {
+    "2026-08-31": {
+      "tokens": {
+        "input": 402171.0,
+        "output": 489511.0,
+        "cache_read": 97433205.0,
+        "cache_write": 7400568.0
+      },
+      "usd_total": 91.2797,
+      "by_kind": {
+        "scheduled": {
+          "usd": 51.7212,
+          "tokens": 88813699.0
+        },
+        "interactive": {
+          "usd": 35.3209,
+          "tokens": 8800634.0
+        },
+        "subagent": {
+          "usd": 4.2375,
+          "tokens": 8111122.0
+        }
+      },
+      "by_kind_pct": {
+        "scheduled": 56.7,
+        "interactive": 38.7,
+        "subagent": 4.6
+      },
+      "by_model": {
+        "claude-sonnet-5": {
+          "usd": 54.7046,
+          "tokens": 91528129.0
+        },
+        "claude-haiku-4-5-20251001": {
+          "usd": 1.2542,
+          "tokens": 5396692.0
+        },
+        "claude-opus-5": {
+          "usd": 35.3209,
+          "tokens": 8800634.0
+        }
+      }
+    },
+    "2026-09-01": {
+      "tokens": {
+        "input": 568020.0,
+        "output": 3862431.0,
+        "cache_read": 854365325.0,
+        "cache_write": 73086594.0
+      },
+      "usd_total": 1441.0788,
+      "by_kind": {
+        "scheduled": {
+          "usd": 50.0948,
+          "tokens": 83686922.0
+        },
+        "interactive": {
+          "usd": 450.0485,
+          "tokens": 145482223.0
+        },
+        "subagent": {
+          "usd": 940.9355,
+          "tokens": 702713225.0
+        }
+      },
+      "by_kind_pct": {
+        "scheduled": 3.5,
+        "interactive": 31.2,
+        "subagent": 65.3
+      },
+      "by_model": {
+        "claude-sonnet-5": {
+          "usd": 375.3545,
+          "tokens": 591110144.0
+        },
+        "claude-haiku-4-5-20251001": {
+          "usd": 0.5448,
+          "tokens": 1770860.0
+        },
+        "claude-fable-5-1": {
+          "usd": 237.5725,
+          "tokens": 60255291.0
+        },
+        "claude-opus-5": {
+          "usd": 827.607,
+          "tokens": 278746075.0
+        },
+        "<synthetic>": {
+          "usd": 0.0,
+          "tokens": 0.0
+        }
+      }
+    },
+    "2026-09-02": {
+      "tokens": {
+        "input": 462716.0,
+        "output": 6720418.0,
+        "cache_read": 2292029020.0,
+        "cache_write": 39402426.0
+      },
+      "usd_total": 3278.5382,
+      "by_kind": {
+        "scheduled": {
+          "usd": 77.1951,
+          "tokens": 168100845.0
+        },
+        "interactive": {
+          "usd": 2959.4198,
+          "tokens": 1599448432.0
+        },
+        "subagent": {
+          "usd": 241.9233,
+          "tokens": 571065303.0
+        }
+      },
+      "by_kind_pct": {
+        "scheduled": 2.4,
+        "interactive": 90.3,
+        "subagent": 7.4
+      },
+      "by_model": {
+        "claude-haiku-4-5-20251001": {
+          "usd": 13.28,
+          "tokens": 54404860.0
+        },
+        "claude-sonnet-4-6": {
+          "usd": 1.3,
+          "tokens": 639861.0
+        },
+        "claude-sonnet-5": {
+          "usd": 304.5384,
+          "tokens": 684121427.0
+        },
+        "claude-fable-5-1": {
+          "usd": 250.795,
+          "tokens": 78595766.0
+        },
+        "claude-opus-5": {
+          "usd": 2708.6249,
+          "tokens": 1520852666.0
+        }
+      }
+    },
+    "2026-09-03": {
+      "tokens": {
+        "input": 773102.0,
+        "output": 13980671.0,
+        "cache_read": 4783821020.0,
+        "cache_write": 135474576.0
+      },
+      "usd_total": 3870.1471,
+      "by_kind": {
+        "interactive": {
+          "usd": 2064.5758,
+          "tokens": 995539437.0
+        },
+        "scheduled": {
+          "usd": 55.9016,
+          "tokens": 135350635.0
+        },
+        "subagent": {
+          "usd": 1749.6697,
+          "tokens": 3803159297.0
+        }
+      },
+      "by_kind_pct": {
+        "interactive": 53.3,
+        "scheduled": 1.4,
+        "subagent": 45.2
+      },
+      "by_model": {
+        "claude-opus-5": {
+          "usd": 248.904,
+          "tokens": 106702090.0
+        },
+        "claude-fable-5-1": {
+          "usd": 1914.0986,
+          "tokens": 913452648.0
+        },
+        "claude-haiku-4-5-20251001": {
+          "usd": 7.7302,
+          "tokens": 36571052.0
+        },
+        "claude-sonnet-5": {
+          "usd": 1699.4143,
+          "tokens": 3877323579.0
+        },
+        "<synthetic>": {
+          "usd": 0.0,
+          "tokens": 0.0
+        }
+      }
+    },
+    "2026-09-04": {
+      "tokens": {
+        "input": 770981.0,
+        "output": 3563572.0,
+        "cache_read": 2294715008.0,
+        "cache_write": 73006471.0
+      },
+      "usd_total": 2255.1344,
+      "by_kind": {
+        "scheduled": {
+          "usd": 43.6988,
+          "tokens": 81531131.0
+        },
+        "interactive": {
+          "usd": 1373.4058,
+          "tokens": 568142752.0
+        },
+        "subagent": {
+          "usd": 838.0298,
+          "tokens": 1722382149.0
+        }
+      },
+      "by_kind_pct": {
+        "scheduled": 1.9,
+        "interactive": 60.9,
+        "subagent": 37.2
+      },
+      "by_model": {
+        "claude-sonnet-5": {
+          "usd": 706.0139,
+          "tokens": 1732444455.0
+        },
+        "claude-haiku-4-5-20251001": {
+          "usd": 0.7562,
+          "tokens": 2625038.0
+        },
+        "claude-opus-5": {
+          "usd": 488.1711,
+          "tokens": 217261970.0
+        },
+        "claude-fable-5-1": {
+          "usd": 1060.1932,
+          "tokens": 419724569.0
+        },
+        "<synthetic>": {
+          "usd": 0.0,
+          "tokens": 0.0
+        }
+      }
+    },
+    "2026-09-05": {
+      "tokens": {
+        "input": 133840.0,
+        "output": 3718763.0,
+        "cache_read": 1967578602.0,
+        "cache_write": 34522641.0
+      },
+      "usd_total": 1488.2617,
+      "by_kind": {
+        "scheduled": {
+          "usd": 72.101,
+          "tokens": 138153427.0
+        },
+        "interactive": {
+          "usd": 890.4316,
+          "tokens": 435637034.0
+        },
+        "subagent": {
+          "usd": 525.7291,
+          "tokens": 1432163385.0
+        }
+      },
+      "by_kind_pct": {
+        "scheduled": 4.8,
+        "interactive": 59.8,
+        "subagent": 35.3
+      },
+      "by_model": {
+        "claude-sonnet-5": {
+          "usd": 575.1666,
+          "tokens": 1537869567.0
+        },
+        "claude-sonnet-4-6": {
+          "usd": 22.6635,
+          "tokens": 32447245.0
+        },
+        "claude-fable-5-1": {
+          "usd": 890.4316,
+          "tokens": 435637034.0
+        }
+      }
+    },
+    "2026-09-06": {
+      "tokens": {
+        "input": 102512.0,
+        "output": 708600.0,
+        "cache_read": 381800196.0,
+        "cache_write": 33488760.0
+      },
+      "usd_total": 1008.0946,
+      "by_kind": {
+        "interactive": {
+          "usd": 106.7913,
+          "tokens": 32157679.0
+        },
+        "scheduled": {
+          "usd": 15.5286,
+          "tokens": 29122834.0
+        },
+        "subagent": {
+          "usd": 885.7747,
+          "tokens": 354819555.0
+        }
+      },
+      "by_kind_pct": {
+        "interactive": 10.6,
+        "scheduled": 1.5,
+        "subagent": 87.9
+      },
+      "by_model": {
+        "claude-fable-5-1": {
+          "usd": 946.2939,
+          "tokens": 286169637.0
+        },
+        "<synthetic>": {
+          "usd": 0.0,
+          "tokens": 0.0
+        },
+        "claude-sonnet-5": {
+          "usd": 61.8007,
+          "tokens": 129930431.0
+        }
+      }
+    },
+    "2026-09-07": {
+      "tokens": {
+        "input": 228049.0,
+        "output": 1218998.0,
+        "cache_read": 294598290.0,
+        "cache_write": 10607286.0
+      },
+      "usd_total": 451.1159,
+      "by_kind": {
+        "interactive": {
+          "usd": 381.0003,
+          "tokens": 169434017.0
+        },
+        "scheduled": {
+          "usd": 48.7379,
+          "tokens": 104133252.0
+        },
+        "subagent": {
+          "usd": 21.3777,
+          "tokens": 33085354.0
+        }
+      },
+      "by_kind_pct": {
+        "interactive": 84.5,
+        "scheduled": 10.8,
+        "subagent": 4.7
+      },
+      "by_model": {
+        "claude-fable-5-1": {
+          "usd": 319.4199,
+          "tokens": 143786794.0
+        },
+        "claude-opus-5": {
+          "usd": 61.5804,
+          "tokens": 25647223.0
+        },
+        "claude-sonnet-5": {
+          "usd": 68.41,
+          "tokens": 135915047.0
+        },
+        "claude-sonnet-4-6": {
+          "usd": 1.3005,
+          "tokens": 650249.0
+        },
+        "claude-haiku-4-5-20251001": {
+          "usd": 0.4051,
+          "tokens": 653310.0
+        }
+      }
+    },
+    "2026-09-08": {
+      "tokens": {
+        "input": 446842.0,
+        "output": 1628339.0,
+        "cache_read": 161062489.0,
+        "cache_write": 15088478.0
+      },
+      "usd_total": 437.4899,
+      "by_kind": {
+        "interactive": {
+          "usd": 387.4136,
+          "tokens": 95422781.0
+        },
+        "scheduled": {
+          "usd": 18.3571,
+          "tokens": 19284703.0
+        },
+        "subagent": {
+          "usd": 31.7192,
+          "tokens": 63518664.0
+        }
+      },
+      "by_kind_pct": {
+        "interactive": 88.6,
+        "scheduled": 4.2,
+        "subagent": 7.3
+      },
+      "by_model": {
+        "claude-fable-5-1": {
+          "usd": 385.0973,
+          "tokens": 94633041.0
+        },
+        "claude-sonnet-5": {
+          "usd": 51.7655,
+          "tokens": 81059669.0
+        },
+        "claude-haiku-4-5-20251001": {
+          "usd": 0.6271,
+          "tokens": 2533438.0
+        }
+      }
+    },
+    "2026-09-09": {
+      "tokens": {
+        "input": 180458.0,
+        "output": 319781.0,
+        "cache_read": 78947316.0,
+        "cache_write": 3225657.0
+      },
+      "usd_total": 54.5247,
+      "by_kind": {
+        "scheduled": {
+          "usd": 37.7669,
+          "tokens": 77565483.0
+        },
+        "interactive": {
+          "usd": 16.7578,
+          "tokens": 5107729.0
+        }
+      },
+      "by_kind_pct": {
+        "scheduled": 69.3,
+        "interactive": 30.7
+      },
+      "by_model": {
+        "claude-sonnet-5": {
+          "usd": 36.9777,
+          "tokens": 77121776.0
+        },
+        "claude-sonnet-4-6": {
+          "usd": 0.7892,
+          "tokens": 443707.0
+        },
+        "claude-fable-5-1": {
+          "usd": 16.7578,
+          "tokens": 5107729.0
+        }
+      }
+    },
+    "2026-09-10": {
+      "tokens": {
+        "input": 360992.0,
+        "output": 3323729.0,
+        "cache_read": 1523729998.0,
+        "cache_write": 28599963.0
+      },
+      "usd_total": 905.4125,
+      "by_kind": {
+        "interactive": {
+          "usd": 751.2217,
+          "tokens": 1211839751.0
+        },
+        "scheduled": {
+          "usd": 57.835,
+          "tokens": 118547567.0
+        },
+        "subagent": {
+          "usd": 96.3558,
+          "tokens": 225627364.0
+        }
+      },
+      "by_kind_pct": {
+        "interactive": 83.0,
+        "scheduled": 6.4,
+        "subagent": 10.6
+      },
+      "by_model": {
+        "claude-fable-5-1": {
+          "usd": 41.4967,
+          "tokens": 13530899.0
+        },
+        "claude-opus-5": {
+          "usd": 325.0576,
+          "tokens": 143043861.0
+        },
+        "claude-sonnet-5": {
+          "usd": 537.2889,
+          "tokens": 1393138290.0
+        },
+        "claude-haiku-4-5-20251001": {
+          "usd": 1.5693,
+          "tokens": 6301632.0
+        }
+      }
+    },
+    "2026-09-11": {
+      "tokens": {
+        "input": 329742.0,
+        "output": 1311255.0,
+        "cache_read": 284819600.0,
+        "cache_write": 10254101.0
+      },
+      "usd_total": 298.7111,
+      "by_kind": {
+        "scheduled": {
+          "usd": 43.2748,
+          "tokens": 82758210.0
+        },
+        "interactive": {
+          "usd": 194.599,
+          "tokens": 84987184.0
+        },
+        "subagent": {
+          "usd": 60.8373,
+          "tokens": 128969304.0
+        }
+      },
+      "by_kind_pct": {
+        "scheduled": 14.5,
+        "interactive": 65.1,
+        "subagent": 20.4
+      },
+      "by_model": {
+        "claude-sonnet-4-6": {
+          "usd": 0.7366,
+          "tokens": 191090.0
+        },
+        "claude-opus-5": {
+          "usd": 194.599,
+          "tokens": 84987184.0
+        },
+        "claude-sonnet-5": {
+          "usd": 102.6131,
+          "tokens": 208507183.0
+        },
+        "claude-haiku-4-5-20251001": {
+          "usd": 0.7624,
+          "tokens": 3029241.0
+        }
+      }
+    },
+    "2026-09-12": {
+      "tokens": {
+        "input": 77844.0,
+        "output": 2721232.0,
+        "cache_read": 416467593.0,
+        "cache_write": 9348354.0
+      },
+      "usd_total": 708.9931,
+      "by_kind": {
+        "scheduled": {
+          "usd": 26.6895,
+          "tokens": 63578101.0
+        },
+        "interactive": {
+          "usd": 634.9306,
+          "tokens": 238408901.0
+        },
+        "subagent": {
+          "usd": 47.373,
+          "tokens": 126628021.0
+        }
+      },
+      "by_kind_pct": {
+        "scheduled": 3.8,
+        "interactive": 89.6,
+        "subagent": 6.7
+      },
+      "by_model": {
+        "claude-sonnet-5": {
+          "usd": 74.0625,
+          "tokens": 190206122.0
+        },
+        "claude-fable-5-1": {
+          "usd": 634.9306,
+          "tokens": 238408901.0
+        }
+      }
+    },
+    "2026-09-13": {
+      "tokens": {
+        "input": 53074.0,
+        "output": 366723.0,
+        "cache_read": 137995205.0,
+        "cache_write": 3540700.0
+      },
+      "usd_total": 103.7135,
+      "by_kind": {
+        "interactive": {
+          "usd": 54.2216,
+          "tokens": 23400866.0
+        },
+        "scheduled": {
+          "usd": 21.7161,
+          "tokens": 47753527.0
+        },
+        "subagent": {
+          "usd": 27.7758,
+          "tokens": 70801309.0
+        }
+      },
+      "by_kind_pct": {
+        "interactive": 52.3,
+        "scheduled": 20.9,
+        "subagent": 26.8
+      },
+      "by_model": {
+        "claude-fable-5-1": {
+          "usd": 54.2216,
+          "tokens": 23400866.0
+        },
+        "claude-sonnet-5": {
+          "usd": 49.4919,
+          "tokens": 118554836.0
+        }
+      }
+    }
+  },
+  "totals": {
+    "usd_total": 16392.4952,
+    "avg_usd_per_day": 1170.8925,
+    "by_kind_pct": {
+      "scheduled": 3.8,
+      "interactive": 62.8,
+      "subagent": 33.4
+    }
+  },
+  "top_5_sessions": [
+    {
+      "file": "C:\\Users\\jackw\\.claude\\projects\\C--Users-jackw-Desktop-42\\e6088fd6-0d56-48d4-979f-e30361876ff5.jsonl",
+      "first_user_msg": "<command-name>/goal</command-name>\n            <command-message>goal</command-message>\n            <",
+      "usd_total": 2716.3438,
+      "tokens_total": 1523427809.0,
+      "day": "2026-09-03"
+    },
+    {
+      "file": "C:\\Users\\jackw\\.claude\\projects\\C--Users-jackw-Desktop-42\\b6eea006-22c7-498b-a0c1-23c79c635f20.jsonl",
+      "first_user_msg": "<command-name>/goal</command-name>\n            <command-message>goal</command-message>\n            <",
+      "usd_total": 1692.9946,
+      "tokens_total": 801782073.0,
+      "day": "2026-09-04"
+    },
+    {
+      "file": "C:\\Users\\jackw\\.claude\\projects\\C--Users-jackw-Desktop-42\\a16e320c-a486-4631-89c2-5204d7f6926c.jsonl",
+      "first_user_msg": "audit everything we did today and lets plan our weekend",
+      "usd_total": 843.6678,
+      "tokens_total": 413912633.0,
+      "day": "2026-09-05"
+    },
+    {
+      "file": "C:\\Users\\jackw\\.claude\\projects\\C--Users-jackw-Desktop-42\\76844c47-d5fb-4082-ae44-601678aca37d.jsonl",
+      "first_user_msg": "@\"C:\\Users\\jackw\\Desktop\\Gmail - Nvidia Buys Hugging Face for $13B, Right after ChatGPT Hacked It.pd",
+      "usd_total": 816.7976,
+      "tokens_total": 345558878.0,
+      "day": "2026-09-04"
+    },
+    {
+      "file": "C:\\Users\\jackw\\.claude\\projects\\C--Users-jackw-Desktop-42\\7bd63545-a7e5-4c04-95a5-8582d51af93b.jsonl",
+      "first_user_msg": "i need automation. we have an entire \"goal\" dashboard and nnothing is driving it because im literall",
+      "usd_total": 625.282,
+      "tokens_total": 291490781.0,
+      "day": "2026-09-04"
+    }
+  ],
+  "conductor_family": {
+    "rows_in_window": 160,
+    "self_reported_usd": 134.97,
+    "corrected_usd": 296.934,
+    "correction_factor": 2.2,
+    "source": "automation\\state\\conductor-outcomes.jsonl"
+  },
+  "unmatched_model_ids": [
+    "<synthetic>"
+  ]
+}

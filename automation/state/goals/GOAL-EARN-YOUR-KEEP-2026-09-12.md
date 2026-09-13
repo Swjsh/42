@@ -300,3 +300,31 @@ learned" on THIS item. Two other sessions completed items 3 and 4 in parallel th
 (see their PROGRESS LOG entries above) -- item 1 was the load-bearing one and is the one that
 did not fully land. UNVERIFIED / needs a human or a follow-up session: which unblock path J
 wants (repoint weekly-1's account_number, or provision a new paper account for risky-3).
+
+- 2026-09-13 10:1x ET (Sonnet, worker-tier, supporting instrumentation for DONE-WHEN (5)):
+  shipped `setup/scripts/claude_usage_ledger.py` -- $0 pure-Python read of every local Claude
+  Code transcript (`~/.claude/projects/**/*.jsonl`, all projects) answering "what did Claude
+  cost per day, by who spent it" (J: "it's too expensive and not producing enough outcome --
+  but nobody has a number"). Kind rule verified against 2,612 real transcript files (not
+  guessed): `isSidechain=True` -> subagent; `isSidechain=False` + `entrypoint="claude-desktop"`
+  -> interactive; `entrypoint` in `{sdk-cli,sdk-ts,cli}` -> scheduled; else `unknown`. Outputs
+  `analysis/usage/claude-usage-14d.{json,md}` -- 14-day API-rate-equivalent $ by day/kind/model
+  (Fable/Opus $15/$75, Sonnet $3/$15, Haiku $1/$5; cache read 10%/write 125% of input rate),
+  top-5 costliest sessions (path + first-100-chars prompt, no full bodies), conductor-family
+  self-reported cost joined (not merged) at its documented x2.2 correction. Real-tree read
+  today: $16,391 over 14 days = **$1,170.79/day API-equivalent** (vs the $6.67/day the $200/mo
+  Max plan actually costs) -- 62.8% interactive / 33.4% subagent / 3.8% scheduled, 0% unknown.
+  This is CONSUMPTION under a flat subscription, explicitly labelled NOT a bill, in both the .md
+  header and the JSON `note` field. Wired ONE line into `obsidian_vault_sync.py::build_home`
+  under the gate block: HOME.md now shows `Claude consumption 14d: $1170.89 API-equiv/day ·
+  interactive 62.8% · scheduled 3.8% · subagents 33.4%` (regenerated, confirmed via
+  `grep -n "Claude consumption" HOME.md`); fails open to `n/a` if the ledger json is missing.
+  Runtime measured on the real tree: 5.86s (`time python setup/scripts/claude_usage_ledger.py`)
+  -- under the 10s budget, so `obsidian_vault_sync.py::main` now shells out to the ledger
+  before the HOME build (subprocess, 30s timeout, fails open, `_CREATE_NO_WINDOW`); full vault
+  sync measured 16.0s end-to-end with the ledger call included. Guard
+  `backtest/tests/test_claude_usage_ledger_2026_09_13.py` (10 tests: exact token sums on a
+  3-message/2-model fixture with one message in a separate subagent-marked file, exact dollar
+  math, kind-classification rules incl. one explicit RED-proof assertion) -- filtered suite
+  (`-k "usage_ledger or obsidian or vault_sync"`) 32 passed, 0 pre-existing REDs named. No
+  trading file, task, or STATUS.md touched.
