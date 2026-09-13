@@ -106,6 +106,8 @@ from et_clock import et_now  # noqa: E402
 import crypto_twin_core as ctc  # noqa: E402
 import crypto_twin_broker as broker  # noqa: E402
 import crypto_twin_scenarios as cts  # noqa: E402
+import crypto_twin_challenger as chal  # noqa: E402  -- H1-crypto ledger overlay (GOAL-EARN-
+# YOUR-KEEP item 7c). See run_tick_with_health's periodic-hook call site.
 import broker_canary as bc  # noqa: E402  -- BROKER-CANARY-SENTINEL-HOOKUP (queue.md 2026-07-11):
 # the one-line piggyback this scheduled tick was built to carry. See main()'s call site.
 
@@ -262,10 +264,16 @@ def summarize_path_coverage(coverage_doc: dict) -> dict:
 # NEITHER adds a network call.
 def _remaining_qty_btc(position: dict, cfg: ctc.TwinConfig) -> Optional[float]:
     """UNIT-LOT MODE (crypto_twin_core.TwinConfig's own docstring): a position's REAL held
-    BTC size is always `remaining_units * cfg.unit_qty_btc` -- the exact conversion
-    manage_positions itself uses for a SELL_PARTIAL (`btc_qty = round(units_sold *
-    cfg.unit_qty_btc, 8)`). `remaining_units` is runner_qty once TP1 has filled (2 of the
-    default 3 units already sold), else the full total_qty."""
+    BTC size is always `remaining_units * unit_qty_btc` -- the exact conversion
+    manage_positions itself uses for a SELL_PARTIAL. `remaining_units` is runner_qty once
+    TP1 has filled (2 of the default 3 units already sold), else the full total_qty.
+
+    CONTROL SIZING (2026-09-13, GOAL-EARN-YOUR-KEEP item 7b): `unit_qty_btc` is read from
+    THIS position's own record first (`position["unit_qty_btc"]`, stamped at entry time by
+    place_entry/_register_passive_position -- an organically-sized entry's real per-unit
+    BTC quantum can differ from cfg.unit_qty_btc), falling back to cfg.unit_qty_btc for
+    records that predate this field -- same fallback manage_positions' SELL_PARTIAL uses,
+    so this glance number always matches what a real partial-exit would actually sell."""
     st = position.get("exit_state") or {}
     total_qty = st.get("total_qty")
     runner_qty = st.get("runner_qty")
@@ -273,8 +281,9 @@ def _remaining_qty_btc(position: dict, cfg: ctc.TwinConfig) -> Optional[float]:
     units = runner_qty if (tp1_filled and runner_qty is not None) else total_qty
     if units is None:
         return None
+    unit_qty_btc = position.get("unit_qty_btc", cfg.unit_qty_btc)
     try:
-        return round(float(units) * cfg.unit_qty_btc, 8)
+        return round(float(units) * float(unit_qty_btc), 8)
     except (TypeError, ValueError):
         return None
 
@@ -612,7 +621,25 @@ def run_tick_with_health(cfg: ctc.TwinConfig = ctc.TwinConfig(), *, live: bool =
     except Exception:  # noqa: BLE001
         soak_row = None
 
-    return {"row": row, "health": health, "soak_row": soak_row, "error": error_str}
+    # H1-CRYPTO CHALLENGER OVERLAY (2026-09-13, GOAL-EARN-YOUR-KEEP item 7c): every 15
+    # ticks (~every 15 min at the 1-min cadence), not every tick -- chal.update_ledger()'s
+    # own cheap watermark pre-check makes the common call near-free, but the module
+    # docstring is explicit that the genuinely-new-data path costs ~2.6s on the real files,
+    # so this is gated to a modest cadence rather than firing on every single tick. Reads
+    # ticks_today straight off THIS tick's own health snapshot (write_twin_health already
+    # computed it -- no second count_ticks_today() call). Fail-open: update_ledger() never
+    # raises on its own, but this call site is wrapped anyway (defense in depth, same
+    # posture as every other periodic hook in this function).
+    challenger_result = None
+    try:
+        ticks_today = (health or {}).get("ticks_today")
+        if isinstance(ticks_today, int) and ticks_today > 0 and ticks_today % 15 == 0:
+            challenger_result = chal.update_ledger(now_utc=now_utc)
+    except Exception as e:  # noqa: BLE001 -- must never break the tick loop
+        challenger_result = {"error": f"{type(e).__name__}: {e}"}
+
+    return {"row": row, "health": health, "soak_row": soak_row, "error": error_str,
+           "challenger": challenger_result}
 
 
 # --- resident loop (GOAL-SILENT-RIG-2026-09-05 R2) -----------------------------------------

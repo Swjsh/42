@@ -1,0 +1,48 @@
+{
+  "generated_at_utc": "2026-09-13T16:30:31.171964+00:00",
+  "h1_refuse_class": "SWING_PIVOT",
+  "h1_forward_start_utc": "2026-09-13T16:25:00+00:00",
+  "kill_n": 6,
+  "ship_n": 20,
+  "windows": {
+    "last_4h": {
+      "control_n": 0,
+      "control_net_usd": 0,
+      "refused_n": 0,
+      "refused_net_usd": 0,
+      "challenger_net_usd": 0
+    },
+    "last_24h": {
+      "control_n": 0,
+      "control_net_usd": 0,
+      "refused_n": 0,
+      "refused_net_usd": 0,
+      "challenger_net_usd": 0
+    },
+    "forward_since_start": {
+      "control_n": 0,
+      "control_net_usd": 0,
+      "refused_n": 0,
+      "refused_net_usd": 0,
+      "challenger_net_usd": 0
+    },
+    "historical_in_sample": {
+      "control_n": 215,
+      "control_net_usd": -23.420799,
+      "refused_n": 78,
+      "refused_net_usd": -21.316456,
+      "challenger_net_usd": -2.104343
+    }
+  },
+  "kill_ship_status": {
+    "status": "RUNNING",
+    "n": 0,
+    "net_usd": 0,
+    "kill_progress": "0/6",
+    "ship_progress": "0/20",
+    "f1_sign_holds": false
+  },
+  "f1_sign": "refused net >= 0 (does not hold)",
+  "tomorrow_change": "none (H1-crypto clock running: 0/6 refused)",
+  "n_ledger_rows": 215
+}
