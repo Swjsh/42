@@ -135,6 +135,30 @@ def test_get_twin_creds_succeeds_when_crypto_active(tmp_path, monkeypatch):
     assert creds["key"] == "K"
 
 
+# --- transient-read vs genuine-not-approved (2026-09-13 root-cause fix) -------------------
+# 11 of 119 decisions.jsonl rows in one 2h window were a transient /v2/account read failure
+# (fleet_broker._request's {"_error": ...} marker) misreported as "crypto not approved" --
+# both took the same `status != "ACTIVE"` branch since a failed read has no crypto_status
+# key either. A failed READ must raise BrokerTransientError, distinct from a successful read
+# that genuinely shows a non-ACTIVE account.
+def test_get_twin_creds_raises_transient_on_account_read_error(tmp_path, monkeypatch):
+    _twin_secrets(tmp_path, monkeypatch)
+    monkeypatch.setattr(ctb, "get_account",
+                        lambda creds: {"_error": "URLError: timed out"})
+    with pytest.raises(ctb.BrokerTransientError, match="timed out"):
+        ctb.get_twin_creds()
+
+
+def test_get_twin_creds_raises_not_approved_not_transient_when_read_succeeds(tmp_path, monkeypatch):
+    """A genuinely successful read with a non-ACTIVE status must still raise
+    CryptoNotApprovedError, never BrokerTransientError -- the two must not collapse into
+    each other in either direction."""
+    _twin_secrets(tmp_path, monkeypatch)
+    monkeypatch.setattr(ctb, "get_account", lambda creds: {"crypto_status": "INACTIVE"})
+    with pytest.raises(ctb.CryptoNotApprovedError):
+        ctb.get_twin_creds()
+
+
 def test_get_twin_creds_skips_network_call_when_verify_disabled(tmp_path, monkeypatch):
     """verify_crypto_status=False must never call get_account -- the escape hatch for
     contexts that cannot make a network call (e.g. a pure unit test elsewhere)."""

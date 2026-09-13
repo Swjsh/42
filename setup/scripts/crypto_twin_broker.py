@@ -106,7 +106,28 @@ class CryptoNotApprovedError(RuntimeError):
     Accounts API; see https://docs.alpaca.markets/us/docs/crypto-trading-1) and a silent
     misclassification would have J hunting the wrong problem after he's already done the
     account-creation step. Never raised for a market-data-only caller (crypto bars/quotes
-    are account-agnostic public feeds -- see _best_effort_market_data_creds)."""
+    are account-agnostic public feeds -- see _best_effort_market_data_creds).
+
+    Only raised when the /v2/account READ ITSELF succeeded (no fleet_broker._request
+    "_error" marker) and the returned payload's crypto_status genuinely isn't "ACTIVE" --
+    see BrokerTransientError for the sibling case where the read failed outright."""
+
+
+class BrokerTransientError(RuntimeError):
+    """The /v2/account read itself failed (network/HTTP error -- fleet_broker._request
+    returns {"_error": ..., ...} on urllib.error.HTTPError/URLError/TimeoutError/
+    ConnectionError, never raises) BEFORE crypto_status could even be inspected.
+
+    Root cause this fixes (2026-09-13): get_twin_creds used to do
+    `status = (acct or {}).get("crypto_status")` unconditionally, so a transient read
+    failure (acct == {"_error": ..., ...}, no "crypto_status" key) produced status=None,
+    which is != "ACTIVE", so it raised CryptoNotApprovedError -- the SAME branch a
+    genuinely non-ACTIVE account takes. 11 of 119 decisions.jsonl rows in one 2h window
+    were transient reads misreported as "crypto not approved", each carrying remediation
+    text telling the operator to submit a crypto agreement that was never the problem.
+    Distinct exception so a caller can fail closed (no entry) WITHOUT being told to redo
+    account approval it already has. Never retried here by design -- the caller's own
+    per-tick cadence is the retry."""
 
 
 def get_twin_creds(*, verify_crypto_status: bool = True) -> dict[str, str]:
@@ -119,11 +140,13 @@ def get_twin_creds(*, verify_crypto_status: bool = True) -> dict[str, str]:
     ACCOUNT calls, which have no safe fallback (T2 is genuinely blocked without it).
 
     verify_crypto_status=True (default) additionally confirms the account's crypto_status
-    is "ACTIVE" via GET /v2/account -- raises CryptoNotApprovedError otherwise. Every one of
-    this project's existing paper accounts already shows crypto_status=ACTIVE (verified live
-    2026-07-10 via the core Safe-2/Bold-2 accounts), so a genuinely fresh account is EXPECTED
-    to inherit the same default; this check exists purely so a rarer INACTIVE account fails
-    LOUD with the exact remediation instead of silently misbehaving on order placement.
+    is "ACTIVE" via GET /v2/account -- raises CryptoNotApprovedError otherwise, or
+    BrokerTransientError if the read itself failed (see that class's docstring -- a failed
+    read is never treated as "not approved", 2026-09-13 fix). Every one of this project's
+    existing paper accounts already shows crypto_status=ACTIVE (verified live 2026-07-10 via
+    the core Safe-2/Bold-2 accounts), so a genuinely fresh account is EXPECTED to inherit the
+    same default; this check exists purely so a rarer INACTIVE account fails LOUD with the
+    exact remediation instead of silently misbehaving on order placement.
     Pass False only from a context that cannot make a network call (e.g. a pure unit test).
     """
     creds = load_creds()
@@ -135,6 +158,11 @@ def get_twin_creds(*, verify_crypto_status: bool = True) -> dict[str, str]:
     twin_creds = creds["twin"]
     if verify_crypto_status:
         acct = get_account(twin_creds)
+        if isinstance(acct, dict) and acct.get("_error"):
+            raise BrokerTransientError(
+                f"crypto_twin_broker: twin account read failed (transient, not a crypto-"
+                f"approval problem): {acct.get('_error')}"
+            )
         status = (acct or {}).get("crypto_status")
         if status != "ACTIVE":
             raise CryptoNotApprovedError(

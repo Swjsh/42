@@ -1092,6 +1092,27 @@ def test_run_tick_distinguishes_crypto_not_approved_from_no_account(tmp_path, mo
     assert "INACTIVE" in row["action"]
 
 
+def test_run_tick_maps_broker_transient_error_distinctly(tmp_path, monkeypatch):
+    """2026-09-13 root-cause fix: a transient /v2/account read failure must map to its OWN
+    action string (BLOCKED_BROKER_TRANSIENT), never BLOCKED_CRYPTO_NOT_APPROVED -- a failed
+    read is not evidence the account lacks crypto approval. Still fail-closed: no entry this
+    tick, same as the CryptoNotApprovedError branch above (creds=None either way)."""
+    cfg = _twin_cfg(tmp_path, notional_usd=200.0)
+    monkeypatch.setattr(
+        ctc.broker, "get_twin_creds",
+        lambda: (_ for _ in ()).throw(ctc.broker.BrokerTransientError("URLError: timed out")),
+    )
+    now = datetime(2026, 7, 10, 12, 0, tzinfo=timezone.utc)
+    bars = [ctc._to_bar(_raw_bar(now - timedelta(minutes=5 * i), 100, 101, 99, 100), 300)
+           for i in range(60, 0, -1)]
+    raw = [{"t": b.open_time.strftime("%Y-%m-%dT%H:%M:%SZ"), "o": b.open, "h": b.high,
+           "l": b.low, "c": b.close, "v": b.volume} for b in bars]
+    row = ctc.run_tick(cfg, live=True, force_entry="bull", now_utc=now, raw_bars=raw)
+    assert row["action"].startswith("BLOCKED_BROKER_TRANSIENT")
+    assert "timed out" in row["action"]
+    assert not row["action"].startswith("BLOCKED_CRYPTO_NOT_APPROVED")
+
+
 # ============================================================================
 # Decision-row schema compatibility with core-decisions.jsonl
 # ============================================================================

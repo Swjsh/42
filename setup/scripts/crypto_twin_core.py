@@ -1375,6 +1375,13 @@ def run_tick(cfg: TwinConfig = TwinConfig(), *, live: bool = False,
     except broker.CryptoNotApprovedError as e:
         creds = None
         account_block_reason = f"BLOCKED_CRYPTO_NOT_APPROVED: {e}"
+    except broker.BrokerTransientError as e:
+        # 2026-09-13 root-cause fix: a failed /v2/account READ used to fall through to
+        # CryptoNotApprovedError (status=None != "ACTIVE") and tell the operator to redo
+        # crypto approval that was never the problem. Same fail-closed shape (creds=None,
+        # no entry this tick) -- only the reported reason changes.
+        creds = None
+        account_block_reason = f"BLOCKED_BROKER_TRANSIENT: {e}"
 
     equity = cfg.starting_equity
     if creds is not None:

@@ -188,7 +188,11 @@ def account_status() -> str:
     when the account exists/authenticates but crypto_status != 'ACTIVE' (mirrors run_tick's
     own creds try/except exactly, including the crypto-approval check added 2026-07-11 after
     confirming via Alpaca's docs + live account reads that crypto shares an account's existing
-    approval state, not a separate account type -- see crypto_twin_broker.CryptoNotApprovedError).
+    approval state, not a separate account type -- see crypto_twin_broker.CryptoNotApprovedError);
+    'BLOCKED_BROKER_TRANSIENT' when the /v2/account READ ITSELF failed (network/HTTP error)
+    before crypto_status could even be inspected -- 2026-09-13 fix, see
+    crypto_twin_broker.BrokerTransientError -- kept distinct from BLOCKED_CRYPTO_NOT_APPROVED
+    so a transient blip is never misreported as an approval problem.
     NOTE: 'LIVE' describes ACCOUNT CONFIGURATION, not order placement -- whether orders
     actually fire additionally depends on the task's own --live flag, which is separate (and
     already on, safely no-op'ing, per the T3 build note)."""
@@ -199,6 +203,8 @@ def account_status() -> str:
         return "BLOCKED_NO_ACCOUNT"
     except broker.CryptoNotApprovedError:
         return "BLOCKED_CRYPTO_NOT_APPROVED"
+    except broker.BrokerTransientError:
+        return "BLOCKED_BROKER_TRANSIENT"
 
 
 def _read_breaker_tripped(cfg: ctc.TwinConfig) -> Optional[bool]:

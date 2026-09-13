@@ -143,6 +143,18 @@ def test_account_status_blocked_when_secrets_exist_but_no_twin_entry(monkeypatch
     assert cth.account_status() == "BLOCKED_NO_ACCOUNT"
 
 
+def test_account_status_blocked_broker_transient_distinct_from_not_approved(monkeypatch, tmp_path):
+    """2026-09-13 root-cause fix: a transient /v2/account read failure (fleet_broker._request's
+    "_error" marker) must surface as its OWN status, never BLOCKED_CRYPTO_NOT_APPROVED -- see
+    crypto_twin_broker.BrokerTransientError."""
+    p = tmp_path / "secrets.json"
+    p.write_text(json.dumps({"accounts": {"twin": {"key": "K", "secret": "S"}}}))
+    monkeypatch.setattr(cth.broker, "TWIN_SECRETS_PATH", p)
+    monkeypatch.setattr(cth.broker, "get_account",
+                        lambda creds: {"_error": "URLError: timed out"})
+    assert cth.account_status() == "BLOCKED_BROKER_TRANSIENT"
+
+
 # ============================================================================
 # write_twin_health -- schema + fail-open
 # ============================================================================
