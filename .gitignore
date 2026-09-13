@@ -432,3 +432,15 @@ analysis/deep-research/*_result.json
 # ever grow forward from a fresh capture, never be restored from history. Losing the file is
 # safe (it rebuilds on the next --capture-registry run); resurrecting a stale one is not.
 automation/state/j-shapes.json
+
+# GAMMA-STATION runtime state (rewritten every fire / by J's switch) -- config.json + planner-bench.json stay tracked
+automation/state/station/loop-ledger.jsonl
+automation/state/station/ideas-board.json
+automation/state/station/station-brief.md
+automation/state/station/mode.json
+automation/state/station/brain-test-prompt.md
+automation/state/station/presence.json
+automation/state/station/kiosk-snapshot.png
+automation/state/station/kiosk.pid
+automation/state/station/.tv-token
+automation/state/logs/nothink-proxy.log

@@ -1,0 +1,22 @@
+{
+  "_doc": "Station loop v1 config (GOAL-GAMMA-STATION-2026-09-13 item 4). Read by setup/scripts/station_loop.py::load_config() every fire -- values here override station_loop.DEFAULT_CONFIG; a missing/garbled file falls back to those defaults (fail-open). Never edited by the loop itself.",
+  "model": "gamma-planner-fast",
+  "ollama_base_url": "http://localhost:11434",
+  "num_ctx": 32768,
+  "model_call_timeout_s": 300,
+  "gpu_util_yield_pct": 50,
+  "yield_processes": [
+    "steam.exe",
+    "epicgameslauncher.exe",
+    "riotclientservices.exe",
+    "battle.net.exe",
+    "obs64.exe",
+    "eaconnect_microsoft.exe"
+  ],
+  "web_scan": false,
+  "web_scan_feeds": [],
+  "max_new_cards_per_fire": 2,
+  "board_cap": 50,
+  "dedupe_similarity_threshold": 0.8,
+  "_model_note": "gamma-planner-fast = unsloth UD-Q3_K_XL fully on the RTX 5080 at num_ctx 32768: 100% GPU, 47-48 tok/s (planner-bench.json record 3). gamma-planner (q4_K_M library tag) spills 35% to CPU at 13-19 tok/s."
+}

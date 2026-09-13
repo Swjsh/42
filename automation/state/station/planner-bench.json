@@ -62,5 +62,113 @@
         "answer_correct": true
       }
     ]
+  },
+  {
+    "ts_et": "2026-09-13 13:59:42 Sunday EDT",
+    "model": "gamma-planner-fast",
+    "gpu": "NVIDIA GeForce RTX 5080, 16303 MiB",
+    "ollama": "ollama version is 0.33.3",
+    "runs": [
+      {
+        "num_ctx": 65536,
+        "prompt_tokens_target": 2000,
+        "prompt_tokens_actual": 2513,
+        "prompt_tok_per_s": 47.1,
+        "gen_tokens": 16,
+        "gen_tok_per_s": 26.3,
+        "load_s": 6.7,
+        "wall_s": 62.7,
+        "processor_split": "9%/91% CPU/GPU",
+        "resident_size": "15 GB",
+        "answer": "Gamma-Safe: \u221230%, Gamma-Bold: \u221250%.",
+        "answer_correct": true
+      },
+      {
+        "num_ctx": 65536,
+        "prompt_tokens_target": 26000,
+        "prompt_tokens_actual": 33357,
+        "prompt_tok_per_s": 1670.1,
+        "gen_tokens": 22,
+        "gen_tok_per_s": 20.2,
+        "load_s": 0.0,
+        "wall_s": 23.3,
+        "processor_split": "9%/91% CPU/GPU",
+        "resident_size": "15 GB",
+        "answer": "Gamma-Safe: \u221230% of start-of-day equity; Gamma-Bold: \u221250%.",
+        "answer_correct": true
+      },
+      {
+        "num_ctx": 65536,
+        "prompt_tokens_target": 50000,
+        "prompt_tokens_actual": 64165,
+        "prompt_tok_per_s": 2461.2,
+        "gen_tokens": 22,
+        "gen_tok_per_s": 14.3,
+        "load_s": 0.0,
+        "wall_s": 29.8,
+        "processor_split": "9%/91% CPU/GPU",
+        "resident_size": "15 GB",
+        "answer": "Gamma-Safe: \u221230% of start-of-day equity; Gamma-Bold: \u221250%.",
+        "answer_correct": true
+      }
+    ]
+  },
+  {
+    "ts_et": "2026-09-13 14:01:00 Sunday EDT",
+    "model": "gamma-planner-fast",
+    "gpu": "NVIDIA GeForce RTX 5080, 16303 MiB",
+    "ollama": "ollama version is 0.33.3",
+    "runs": [
+      {
+        "num_ctx": 32768,
+        "prompt_tokens_target": 2000,
+        "prompt_tokens_actual": 2513,
+        "prompt_tok_per_s": 1668.8,
+        "gen_tokens": 16,
+        "gen_tok_per_s": 48.3,
+        "load_s": 4.4,
+        "wall_s": 8.3,
+        "processor_split": "100% GPU",
+        "resident_size": "13 GB",
+        "answer": "Gamma-Safe: \u221230%, Gamma-Bold: \u221250%.",
+        "answer_correct": true
+      },
+      {
+        "num_ctx": 32768,
+        "prompt_tokens_target": 26000,
+        "prompt_tokens_actual": 16386,
+        "prompt_tok_per_s": 1817.4,
+        "gen_tokens": 16,
+        "gen_tok_per_s": 47.3,
+        "load_s": 0.0,
+        "wall_s": 11.5,
+        "processor_split": "100% GPU",
+        "resident_size": "13 GB",
+        "answer": "Gamma-Safe: \u221230%; Gamma-Bold: \u221250%.",
+        "answer_correct": true
+      }
+    ]
+  },
+  {
+    "ts_et": "2026-09-13 14:06:35 Sunday EDT",
+    "model": "gamma-planner-fast",
+    "gpu": "NVIDIA GeForce RTX 5080, 16303 MiB",
+    "ollama": "ollama version is 0.33.3",
+    "runs": [
+      {
+        "num_ctx": 32768,
+        "prompt_tokens_target": 2000,
+        "prompt_tokens_actual": 2513,
+        "prompt_tok_per_s": 1343.8,
+        "gen_tokens": 16,
+        "gen_tok_per_s": 42.6,
+        "load_s": 7.4,
+        "wall_s": 11.8,
+        "processor_split": "100% GPU",
+        "resident_size": "13 GB",
+        "answer": "Gamma-Safe: \u221230%; Gamma-Bold: \u221250%.",
+        "answer_correct": true
+      }
+    ]
   }
 ]

@@ -29,6 +29,7 @@ $projectRoot = "C:\Users\jackw\Desktop\42"
 Set-Location $projectRoot
 
 . "$PSScriptRoot\_shared.ps1"
+. "$PSScriptRoot\_brain.ps1"   # GAMMA-STATION item 8: per-fire local brain (automation/state/brain-mode.json)
 
 $task = "conductor-weekend"
 $today = (Get-Date).ToString("yyyy-MM-dd")
@@ -274,7 +275,7 @@ try {
         -PromptFile $promptFile `
         -TaskName $task `
         -MaxBudgetUsd 10.00 `
-        -Model "sonnet" `
+        -Model (Resolve-BrainModel "sonnet" -TaskName $task) `
         -Effort "high" `
         -AgentName "gamma" `
         -TimeoutSec 600 `

@@ -12,6 +12,7 @@ Set-Location $projectRoot
 
 # Source _shared.ps1 for Invoke-PythonHidden, Invoke-ClaudeWithRetry, Write-TaskLog
 . "$PSScriptRoot\_shared.ps1"
+. "$PSScriptRoot\_brain.ps1"   # GAMMA-STATION item 8: per-fire local brain (automation/state/brain-mode.json)
 
 $task = "analyst"
 $today = (Get-Date).ToString("yyyy-MM-dd")
@@ -68,7 +69,7 @@ $exitCode = Invoke-ClaudeWithRetry `
     -PromptFile $promptFile `
     -TaskName $task `
     -MaxBudgetUsd 0.60 `
-    -Model "sonnet" `
+    -Model (Resolve-BrainModel "sonnet" -TaskName $task) `
     -Effort "medium" `
     -AgentName "analyst" `
     -MaxRateLimitWaitSec 7200

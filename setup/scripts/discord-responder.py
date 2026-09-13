@@ -503,14 +503,55 @@ def _resolve_claude_exe() -> str:
     return "claude"
 
 
+def _brain_local_env() -> tuple:
+    """GAMMA-STATION item 8 (2026-09-13): honour automation/state/brain-mode.json (mode=local) and J's station
+    switch (automation/state/station/mode.json: gaming/off -> Claude path). Returns (env dict or None, model).
+    Fail-open: any problem -> (None, "haiku") = the pre-Station behaviour."""
+    import json as _json
+    import os as _os
+    import socket as _socket
+    import time as _time
+    try:
+        bm = _json.loads((REPO / "automation" / "state" / "brain-mode.json").read_text(encoding="utf-8-sig"))
+        if bm.get("mode") != "local":
+            return None, "haiku"
+        sm = REPO / "automation" / "state" / "station" / "mode.json"
+        if sm.exists() and _json.loads(sm.read_text(encoding="utf-8-sig")).get("mode") in ("gaming", "off"):
+            return None, "haiku"
+        port = int(bm.get("proxy_port", 11435))
+        oport = int(bm.get("ollama_port", 11434))
+        with _socket.socket() as s:
+            s.settimeout(1.0)
+            if s.connect_ex(("127.0.0.1", port)) != 0:
+                pyw = Path(r"C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe")
+                subprocess.Popen([str(pyw) if pyw.exists() else "pythonw",
+                                  str(REPO / "setup" / "ollama" / "nothink_proxy.py"), str(port), f"http://localhost:{oport}"],
+                                 creationflags=0x08000000 if sys.platform == "win32" else 0)
+                _time.sleep(1.5)
+        model = (bm.get("map") or {}).get("haiku", "qwen3:14b")
+        env = dict(_os.environ)
+        env.update({
+            "CLAUDE_CONFIG_DIR": str(REPO / "setup" / "ollama" / "cfg"),
+            "ANTHROPIC_BASE_URL": f"http://localhost:{port}",
+            "ANTHROPIC_API_KEY": "ollama", "ANTHROPIC_AUTH_TOKEN": "ollama",
+            "ANTHROPIC_MODEL": model, "ANTHROPIC_SMALL_FAST_MODEL": model,
+            "MAX_THINKING_TOKENS": "0", "ANTHROPIC_API_BASE_URL": "", "CLAUDE_AGENT_API_BASE_URL": "",
+            "GAMMA_BRAIN": "local",
+        })
+        return env, model
+    except Exception:  # noqa: BLE001 -- fail-open to the Claude path
+        return None, "haiku"
+
+
 def _invoke_claude(prompt: str) -> str:
-    """Run claude --print on Haiku (cheap). Returns stdout, or an error string."""
+    """Run claude --print on the responder brain: local (brain-mode.json) or Haiku. Returns stdout, or an error string."""
     try:
         _flags = 0x08000000 if sys.platform == "win32" else 0  # CREATE_NO_WINDOW (L41)
+        _env, _model = _brain_local_env()
         result = subprocess.run(
             [
                 _resolve_claude_exe(), "--print",
-                "--model", "haiku",
+                "--model", _model,
                 "--max-budget-usd", "0.15",
                 "--effort", "low",
                 "--output-format", "text",
@@ -520,6 +561,7 @@ def _invoke_claude(prompt: str) -> str:
             capture_output=True, text=True, timeout=180,
             cwd=str(REPO),
             creationflags=_flags,
+            env=_env,
         )
         if result.returncode != 0:
             return f"[claude --print exit {result.returncode}] {result.stderr[:500]}"
