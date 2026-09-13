@@ -222,6 +222,25 @@ if ($Start) {
 
     if (Get-TvHostConfigured) {
         $why = if ($displays.Count -ge 2 -and -not $hdmiEnabled) { "hdmi_kiosk_enabled=false" } else { "fewer than 2 displays" }
+        # Don't re-launch the TV browser while the face is already alive: the kiosk page polls /api/station
+        # every 60 s, so a TV request in the page server's log within the last 3 minutes means the page is up.
+        # Re-sending the launch every 5 min would re-front the Internet app on the TV (2026-09-13).
+        try {
+            $serveLog = Join-Path 'E:\Gamma\logs' ("station-serve-" + (Get-Date).ToString('yyyy-MM-dd') + ".log")
+            $tvIp = $null
+            try { $tvIp = (Get-Content (Join-Path $StationDir 'tv.json') -Raw | ConvertFrom-Json).tv_host } catch {}
+            if ($tvIp -and (Test-Path $serveLog)) {
+                $recent = Get-Content $serveLog -Tail 400 | Where-Object { $_ -match ("client_ip=" + [regex]::Escape($tvIp)) } | Select-Object -Last 1
+                if ($recent -and $recent -match '^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})') {
+                    $age = (Get-Date) - [datetime]::ParseExact($matches[1], 'yyyy-MM-dd HH:mm:ss', $null)
+                    if ($age.TotalMinutes -lt 3) {
+                        Write-KioskLedger @{ event = "tv_face_alive"; last_tv_request_age_s = [int]$age.TotalSeconds }
+                        Write-Output "OK: TV face alive (last TV request $([int]$age.TotalSeconds)s ago) -- not re-launching"
+                        exit 0
+                    }
+                }
+            }
+        } catch {}
         Write-Output "Using the Wi-Fi TV face ($why -- station_tv.py --face)"
         try {
             & $backtestPy $tvScript --face 2>&1 | ForEach-Object { Write-Output $_ }
