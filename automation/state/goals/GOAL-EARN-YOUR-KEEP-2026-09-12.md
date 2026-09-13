@@ -97,6 +97,7 @@ produce evidence that changes what the rig does the next day, on a surface J alr
 - [x] (3) tickers lane on HOME (per-arm per-session table from `automation/state/tickers/*/day-*.json`) + anchor-class read over the tickers ledgers 09-04..09-17. DONE-WHEN: table renders; read prints per-class $ for the lane.
 - [x] (4) challenger LADDER rows (H1 live, H2, H3, H4) with kill/promote criteria + n, appended to the existing prereg doc (`prereg-trigger-anchor-level-class-2026-09-11.md`), not a new file. DONE-WHEN: rows exist; conductor.md STAGE 1 knows to read the top row when H1 terminates.
 - [x] (6) Discord signal hygiene + EOD brief carries the learned-today block: per-signal watcher cards / watcher pings / prospector / level-memory rows stop reaching Discord (own ledgers only, per-source flag = revoke); channel carries briefs + RED Known-broken + J-decisions only; `daily_brief.py --mode eod` appends the HOME learned-today block. DONE-WHEN: outbox rows destined for Discord on the next trading day ≤ 3 excluding RED alarms, 0 @mentions outside a J-decision; EOD brief text contains 'What Gamma learned today'.
+- [~] (7) CRYPTO = the 24/7 proving ground (J 09-13): (a) twin orphan BTC reconciled, adopt-not-prune + sentinel UNTRACKED_EXPOSURE, scenario retry cap [builder running]; (b) control sizing 10% of equity notional per entry (~$900) with a -5%/day equity breaker; (c) H1-crypto challenger as a LEDGER OVERLAY on the control's real fills (refuse `SWING_PIVOT` anchors; challenger P&L = control minus refused, by construction exact, no second account needed -- none exists); (d) HOME crypto block + EOD/morning brief line: control vs H1 last 4h / 24h / since start, refused n/6, refused net $, F1 sign, tomorrow's change. DONE-WHEN: twin flat-reconciled and ticking with 0 403s for 30 min; first organic entry at the new size lands with a real Alpaca fill id; `challenger-h1.jsonl` exists and HOME shows the crypto block; by Monday 09:30 ET the block reports >= 8h of evidence.
 - [ ] (5) 09-18 HONEST STATE verdict with the numbers in DONE-WHEN (5). NOT-BEFORE 2026-09-17 close.
 
 ## J-DECISIONS
@@ -288,6 +289,8 @@ produce evidence that changes what the rig does the next day, on a surface J alr
 
 - 2026-09-13 10:0x ET (Fable): item (6) shipped `a4030f4e` + dedupe `12fd66e0`; 09-11 replay through the bridge filter: 174 rows -> 16 posted (6 briefs + 10 distinct alarms) / 158 held. Bridge restarted twice by hand (allowlist, then dedupe); heartbeat carries `held_today`/`allowlist_off`. Pushed. Tokens today (harness): research 125K + builder 233K + follow-up ~279K cumulative on that agent.
 
+- 2026-09-13 11:4x ET (Fable): J correction -- crypto is the proving ground, never wait for Monday. 4-agent fan-out (root-cause / evidence / venues / crypto_paper audit, ~530K Sonnet tokens): twin holds an ORPHAN 0.115 BTC (~$8.9K) since 09-09 (fill stuck, local state pruned), cash $110 -> 720 403s today, scenario cap counts successes only -> infinite retry; organic twin 215 trips WR 19.5% -$23 at $200 notional, SWING_PIVOT worst class (n=71, WR 8.5%, -$17) = same disease as SPY; standalone crypto_paper line KILLED 07-16 (0/324 FDR); Alpaca crypto paper routes to the live orderbook (real fills), spot-only; OKX demo = leverage venue if J opens an account. Item (7) authored.
+
 ## HONEST STATE
 Opened. The challenger (1) is BLOCKED on activation, not on the mechanism: the gate itself
 (build_shared_signal's `trigger_anchor_label` passthrough + fleet_executor's
@@ -328,3 +331,54 @@ wants (repoint weekly-1's account_number, or provision a new paper account for r
   math, kind-classification rules incl. one explicit RED-proof assertion) -- filtered suite
   (`-k "usage_ledger or obsidian or vault_sync"`) 32 passed, 0 pre-existing REDs named. No
   trading file, task, or STATUS.md touched.
+
+- 2026-09-13 (Sonnet, worker-tier, off-QUEUE parallel fire -- crypto-twin orphan
+  reconciliation, requested directly, not a QUEUE item on this goal but recorded here per
+  the task-id contract): the crypto twin's own dedicated paper account (…TFBT) held an
+  ORPHAN BTC/USD position since 2026-09-09 18:03 UTC (`ENTRY_TP1_TRAIL` scenario FLAT_PRUNED
+  the local record mid-fill-race while the broker still held it) that had starved the
+  account to $110.85 cash, causing 720+ failed 403 entry attempts today. THREE commits:
+  (1) `954a7018` -- closed the orphan via `crypto_twin_broker.market_sell_crypto` (the
+  twin's own broker module, live=True): sold 0.11499935 BTC @ $77,000.30, order
+  `1114c6e7-cd0a-4882-98f5-30aafe3c54a4`; before cash $110.85/equity ~$8969.54, after cash
+  $8946.34/equity $8946.34/long_market_value $0 (7e-9 BTC dust remains, below
+  DUST_EPSILON_BTC); ONE journal.jsonl `ORPHAN_RECONCILED` row + ONE incidents.jsonl row
+  with before/after + 09-09 provenance. (2) `82e660fa` -- fixed the DESYNC CLASS:
+  `crypto_twin_core._reconcile_untracked_exposure` now ADOPTS an untracked broker position
+  (fresh `ExitState.from_entry` off the broker's own `avg_entry_price`, via new
+  `crypto_twin_broker.get_crypto_position()`) instead of only logging it, so the position
+  is managed normally from the next tick; falls back to the old LOG-ONLY behavior when no
+  usable entry price exists. `twin_sentinel.py` gains RULE 7 (`UNTRACKED_EXPOSURE`, RED)
+  reading journal.jsonl for unresolved-vs-adopted rows -- the instrument that did not exist
+  09-09 and would have caught this same-day. (3) `2bb259e6` -- fixed the RETRY CAP:
+  `crypto_twin_scenarios._pick_next_branch` now caps on `attempts_today` (every forced
+  tick, success or failure) instead of `count_today` (only terminal-graded round trips),
+  which is why 720+ retries on one REJECTED branch never tripped the old cap; logs ONE
+  `SCENARIOS_CAPPED_TODAY` journal row per UTC day when the cap is hit. RESTART: killed the
+  stale pid (18064, pre-fix code) before reconciling to cut API contention (confirmed via
+  live order-history read no sell was double-submitted despite two client-side timeouts --
+  Alpaca returned 504s under load, not silent order loss), then killed a SECOND stale pid
+  (21936, launched 09:46:37 -- turned out to predate the step-2/3 commits) and relaunched
+  via the project's own `crypto_twin_keepalive.py::main()` (system pythonw + PYTHONPATH,
+  `--live --loop --duration-sec 86400`, DETACHED_PROCESS|CREATE_NO_WINDOW -- the exact
+  keepalive launch path, not a hand-rolled one) -- new pid 20928, launched_at 09:46:37 MDT,
+  strictly after all three commits. Verified cold 5 min later: `path-coverage.json` shows
+  the new `attempts_today` field (proves the new code is loaded), `ticks_today` advanced
+  705->710 on the 1-min cadence, last 3 decisions.jsonl rows are `MANAGED`/`setup:None`
+  (organic management of the still-open real position from before restart, never
+  `FORCE_ENTRY_TEST_FLAG` -- no new entry was attempted since one was already open), 0
+  `PLACED` rows and 0 403s in journal.jsonl since the restart timestamp. Guards (3 files):
+  `backtest/tests/test_crypto_twin_core.py` (+7 net new/updated tests), `test_twin_sentinel.py`
+  (+4), `test_crypto_twin_scenarios.py` (+2 new, 2 updated) -- all three fixes RED-proofed
+  this session (broke the check, confirmed the guard test failed, restored). Filtered suite
+  `pytest backtest/tests -k "crypto_twin or twin_sentinel or scenario"`: **425 passed, 0
+  pre-existing REDs**; confirmed no twin/scenario/sentinel tests exist under `crypto/`
+  (separate gym-validator harness, unrelated namespace) via `--collect-only`. Pre-commit
+  gate (secret scan + 59-test safety gate) green on all three commits. OPEN RISK (named,
+  not fixed -- out of this fire's scope): the adopt path sizes `ExitState.from_entry` off
+  `cfg.units_per_entry` (the nominal unit count), so a future SELL_PARTIAL (TP1) on an
+  ADOPTED position whose real broker qty diverges far from the nominal
+  `units_per_entry * unit_qty_btc` size could leave dust uncleared (SELL_ALL always sweeps
+  the true broker qty regardless, so this only affects the partial-exit leg's precision, not
+  whether the position ever gets closed). No SPY/fleet/params/STATUS.md/scheduled-task file
+  touched; no BUY placed; no subagents; no full-suite run.
