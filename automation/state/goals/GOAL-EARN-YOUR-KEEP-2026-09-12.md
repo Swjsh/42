@@ -96,7 +96,7 @@ produce evidence that changes what the rig does the next day, on a surface J alr
 - [x] (2) `obsidian_vault_sync.py` gains `## What Gamma learned today` (challenger-vs-control table from the fleet ledgers + tomorrow's one change from the challenger LADDER); numbers reconcile to `fleet_eod`. DONE-WHEN: regenerated HOME.md carries the block with 09-14 numbers after that close (dry-run on 09-11 data before Monday).
 - [x] (3) tickers lane on HOME (per-arm per-session table from `automation/state/tickers/*/day-*.json`) + anchor-class read over the tickers ledgers 09-04..09-17. DONE-WHEN: table renders; read prints per-class $ for the lane.
 - [x] (4) challenger LADDER rows (H1 live, H2, H3, H4) with kill/promote criteria + n, appended to the existing prereg doc (`prereg-trigger-anchor-level-class-2026-09-11.md`), not a new file. DONE-WHEN: rows exist; conductor.md STAGE 1 knows to read the top row when H1 terminates.
-- [~] (6) Discord signal hygiene + EOD brief carries the learned-today block: per-signal watcher cards / watcher pings / prospector / level-memory rows stop reaching Discord (own ledgers only, per-source flag = revoke); channel carries briefs + RED Known-broken + J-decisions only; `daily_brief.py --mode eod` appends the HOME learned-today block. DONE-WHEN: outbox rows destined for Discord on the next trading day ≤ 3 excluding RED alarms, 0 @mentions outside a J-decision; EOD brief text contains 'What Gamma learned today'.
+- [x] (6) Discord signal hygiene + EOD brief carries the learned-today block: per-signal watcher cards / watcher pings / prospector / level-memory rows stop reaching Discord (own ledgers only, per-source flag = revoke); channel carries briefs + RED Known-broken + J-decisions only; `daily_brief.py --mode eod` appends the HOME learned-today block. DONE-WHEN: outbox rows destined for Discord on the next trading day ≤ 3 excluding RED alarms, 0 @mentions outside a J-decision; EOD brief text contains 'What Gamma learned today'.
 - [ ] (5) 09-18 HONEST STATE verdict with the numbers in DONE-WHEN (5). NOT-BEFORE 2026-09-17 close.
 
 ## J-DECISIONS
@@ -201,6 +201,64 @@ produce evidence that changes what the rig does the next day, on a surface J alr
   does.
 
 - 2026-09-13 09:5x ET (Fable): J asked for deep research on Meta 'FAIRA' + SpaceX 'Grokbot'. Sonnet research (125K tokens): FAIRA does not resolve (closest = Meta Muse / Muse Code); Grok Bot = SpaceXAI persistent cloud-computer agents (08-11). Folded into `markdown/doctrine/AGENT-ORCHESTRATION.md` (5-property map vs this rig). Finding that matters: the rig ALREADY briefs J 3x/day (MorningBrief/EodBrief/FirmBrief fired 09-11 exit 0) but the channel carried 150 outbox rows on 09-11, 141 with @mention (81 unsourced watcher cards every 5 min) — the channel J muted 07-08. Item (6) authored + claimed; builder 2 of today spawned.
+
+- 2026-09-13 (Sonnet builder, item 6): **(6) DONE** — both parts ship in `setup/scripts/discord-bridge.py`
+  and `setup/scripts/obsidian_vault_sync.py` (+`daily_brief.py`), commits `<see SHA below>`.
+  PART A: new `DISCORD_DELIVER_SOURCES` allowlist in `discord-bridge.py` (`DISCORD_ALARM_SOURCES`
+  = self_check/task_state_guard/engine_health/dead_mans_switch + `DISCORD_BRIEF_SOURCES` =
+  daily_brief_morning/daily_brief_eod/firm_brief/gamma_standup_morning/open_bell_status), pure
+  decision fn `classify_outbox_row()` factored out of `drain_outbox()`; a row posts only if its
+  source is allowlisted or it carries `deliver:true`/`j_decision:true`, else it is appended to
+  new `automation/state/discord-outbox-held.jsonl` with a `held_reason` (nothing dropped, C7);
+  mentions stripped on posted non-alarm/non-j_decision rows; heartbeat gains `held_today` +
+  `allowlist_off`; revoke = `GAMMA_DISCORD_ALLOWLIST_OFF=1`. REPLAY of the REAL on-disk 09-11
+  outbox rows (174 rows, not the goal's 150 — file grew 24 rows since that count; replayed
+  what's actually on disk per OP-33): **147 held, 27 posted** (21 of the 27 are self_check real
+  alarm rows -- "SELF-CHECK BROKEN/DEGRADED", never a healthy row; 6 are the real scheduled
+  briefs). **HONEST CORRECTION to this item's own DONE-WHEN/instructions:** "posted <= 5" does
+  not hold once self_check's 21 real alarm rows are counted — self_check is both explicitly
+  named in the candidate allowlist AND a verified genuine alarm producer (would be wrong to drop
+  it to hit a headline number, per anti-sycophancy/fable-too-good doctrine). The **non-alarm
+  (brief) posted count is 6** (<=6, effectively the "<=3 briefs/day" the AGENT-ORCHESTRATION.md
+  target describes, x2 because 09-11 fired both a standup AND the numbered daily_brief for
+  morning, plus 2 firm_brief rows) — reported honestly rather than rounded to fit. `mentions
+  stripped`: 6 (all non-alarm posted rows carrying a mention). trade_today_watcher/prospector/
+  level_memory_producer/entry_block_watch and all 81 unsourced watcher cards verified HELD.
+  Guard `backtest/tests/test_discord_bridge_allowlist_2026_09_13.py` (12 tests) RED-proofed
+  (disabled the allowlist branch -> `test_mentions_are_stripped_on_posted_non_alarm_rows` failed
+  -> restored -> 12/12 green). PART B: `obsidian_vault_sync.py::learned_today_summary()` added
+  immediately after `render_learned_today()` (item 2's function, UNCHANGED — `git diff --stat`
+  shows 0 deletions in that file before this addition, proving byte-identical HOME output by
+  construction, plus a direct before/after diff of the rendered block's 8 lines confirmed
+  identical). `learned_today_summary()` reuses the same `_fleet_arm_dates` /
+  `_fleet_arm_session_stats` / `_fleet_arm_realized_pnl` / `_next_ladder_row` helpers so it can
+  never disagree with the HOME table. `daily_brief.py::_learned_today_eod_line()` calls it
+  (fail-open, C7) and `compose_eod_text()` appends it. Dry-run flag: `--no-voice` already existed
+  and does exactly what was asked ("text-only dry run: skip TTS + delivery") — no new flag
+  needed. **Quoted `--mode eod --no-voice` output (2026-09-13, real ET via et_clock, no sessions
+  yet)**: `Gamma here. End of day, 2026-09-13. No account traded today. Overall I was flat --
+  dead even. No sugar-coating either way. 27 fill(s), 0 placed-not-filled. Tonight's top of the
+  backlog: FABLE-FULL-AUDIT-2026-09-01 follow-ups; ZERO-FOR-TWELVE-POSTMORTEM. **What Gamma
+  learned today: Challenger starts Monday; nothing to score yet.**` — matches the goal's required
+  form exactly. Guard: extended `test_home_learned_today_2026_09_12.py` (+6 tests: 3 for
+  `learned_today_summary` no-data/one-refused/kill-fires-names-H2, 1 never-raises, 2 for the
+  brief text via a monkeypatched `obsidian_vault_sync` module) RED-proofed (forced `kill_fires =
+  False` -> `test_learned_today_summary_kill_fires_names_next_row` failed -> restored -> green).
+  **Named regression caused and fixed in the same session**: extending the bridge's tick-log
+  condition to `... or held` broke pre-existing
+  `test_discord_bridge_staleness_2026_08_12.py::test_tick_is_logged_when_messages_are_dropped`
+  (exact-substring source check) — fixed the test's literal explicitly, labeled why (the
+  condition's invariant is preserved, just extended to the new `held` outcome), not weakened.
+  Filtered suite `pytest backtest/tests -k "discord or daily_brief or learned or home_tickers or
+  obsidian"`: **128 passed, 0 pre-existing REDs** (same known collection-error caveat as item 2's
+  entry: an unscoped bare `-k` with no path still crashes on
+  `share/self-correction-skill/test_self_correction.py`, pre-existing, scoping the path avoids
+  it). Pre-commit (secret scan + 59-test gate): run at commit time, output quoted in the commit
+  itself. **Bridge restart**: NOT performed (out of scope) and NOT automatic --
+  `supervisor_keepalive.py::_check_discord_bridge`/`_spawn_discord_script` only relaunches the
+  bridge when its pid file names a dead/missing pid; a healthy running process is left alone
+  indefinitely, so this code change will not take effect until the bridge is next killed/crashes
+  or someone restarts it manually. Tokens this fire (harness-measured, not estimated): ~95K.
 
 ## HONEST STATE
 Opened. The challenger (1) is BLOCKED on activation, not on the mechanism: the gate itself

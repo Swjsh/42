@@ -55,6 +55,7 @@ STATE_DIR = REPO / "automation" / "state"
 CFG_PATH = STATE_DIR / ".discord-config.json"
 INBOX_PATH = STATE_DIR / "discord-inbox.jsonl"
 OUTBOX_PATH = STATE_DIR / "discord-outbox.jsonl"
+HELD_PATH = STATE_DIR / "discord-outbox-held.jsonl"
 WATERMARK_PATH = STATE_DIR / ".discord-bridge-watermarks.json"
 PID_PATH = STATE_DIR / "discord-bridge.pid"
 
@@ -73,6 +74,92 @@ HEARTBEAT_PATH = STATE_DIR / "discord-bridge-heartbeat.json"  # written each tic
 # is misinformation: it describes a position that has already been closed. So drain drops anything
 # older than this instead of dutifully shipping history.
 MAX_MESSAGE_AGE_MIN = int(_os.environ.get("GAMMA_DISCORD_MAX_AGE_MIN", "120"))
+
+# CHANNEL ALLOWLIST (2026-09-13, GOAL-EARN-YOUR-KEEP item 6). Measured 2026-09-11: 150 outbox rows,
+# 141 with an @mention -- 81 unsourced per-signal watcher cards firing every 5 min, plus
+# trade_today_watcher/prospector/level_memory_producer/entry_block_watch -- and J muted the channel
+# over it (07-08). Fix lives HERE, in the bridge, not in ~20 producers: hygiene by construction, one
+# seam, can't regress by a new producer forgetting to gate itself.
+#
+# DISCORD_ALARM_SOURCES is the subset of DISCORD_DELIVER_SOURCES whose content IS the alarm itself
+# (a RED/BROKEN/DEGRADED/YELLOW watchdog verdict), not a scheduled brief. Verified against the real
+# 2026-09-11+ outbox history (source counts, all-history): self_check 1350 rows, 100% prefixed
+# "SELF-CHECK BROKEN"/"SELF-CHECK DEGRADED" (never a healthy/green row) -- a genuine alarm producer,
+# just a noisy one (21 rows alone on 09-11). task_state_guard 10 rows, all "TASK-STATE-GUARD YELLOW".
+# engine_health and dead_mans_switch appear in code (first_live_day_review.py, recovery_drill_
+# observer.py, gamma_glass.py) but have never actually emitted an outbox row -- kept in the allowlist
+# as a forward-declared alarm seam (harmless: an unused source name posts nothing) rather than
+# silently dropped, since a future dead-man/engine-health alarm should not need a second bridge edit.
+# Alarm rows keep their @mention and are NOT counted toward the "<=3 quiet-channel briefs/day" target
+# in markdown/doctrine/AGENT-ORCHESTRATION.md -- that budget describes the 3 scheduled briefs
+# (morning/eod/firm), not safety alarms, which must reach J uncounted and un-throttled.
+DISCORD_ALARM_SOURCES = frozenset({
+    "self_check", "task_state_guard", "engine_health", "dead_mans_switch",
+})
+
+# The 3 scheduled briefs (verified as real `source` values: daily_brief_morning 28 rows,
+# daily_brief_eod 28 rows, firm_brief 78 rows) plus gamma_standup_morning (24 rows) and
+# open_bell_status (36 rows) -- both are once-a-session status posts, not per-signal noise, and both
+# are named in this goal item's own candidate list. These + the alarm sources above are the complete
+# allowlist; every other source (trade_today_watcher, prospector, level_memory_producer,
+# entry_block_watch, rank_contenders, pipeline_promoter, spend_summary, trade_autopsy,
+# participation_daily, gamma_manager, gamma_narrative, twin_sentinel, conductor, and every unsourced
+# per-5-min watcher card) is held, not dropped -- nothing here is silently discarded (C7).
+DISCORD_BRIEF_SOURCES = frozenset({
+    "daily_brief_morning", "daily_brief_eod", "firm_brief",
+    "gamma_standup_morning", "open_bell_status",
+})
+
+DISCORD_DELIVER_SOURCES = DISCORD_ALARM_SOURCES | DISCORD_BRIEF_SOURCES
+
+# Revoke: GAMMA_DISCORD_ALLOWLIST_OFF=1 restores the pre-2026-09-13 post-everything behaviour
+# (every outbox row is posted, no holding, no mention-stripping). Read once at import time --
+# tests set the env var before importing/reloading this module.
+DISCORD_ALLOWLIST_OFF = _os.environ.get("GAMMA_DISCORD_ALLOWLIST_OFF") == "1"
+
+_MENTION_RE = __import__("re").compile(r"<@[!&]?\d+>")
+
+
+def strip_mentions(content: str) -> str:
+    """Remove Discord user/role mention tokens (<@id>, <@!id>, <@&id>) from a message body."""
+    return _MENTION_RE.sub("", content).strip()
+
+
+def classify_outbox_row(row: dict, allowlist_off: "bool | None" = None) -> dict:
+    """Pure decision function: should this outbox row be POSTED to Discord or HELD?
+
+    No I/O, no network -- factored out so the allowlist logic is unit-testable without hitting the
+    Discord API (2026-09-13, GOAL-EARN-YOUR-KEEP item 6). `allowlist_off` defaults to the module-
+    level env read but can be overridden per-call (used by tests to exercise both branches without
+    reloading the module).
+
+    Returns:
+        {"post": bool, "held_reason": str | None, "is_alarm": bool, "content": str}
+    `content` is the (possibly mention-stripped) text to actually send/hold.
+    """
+    off = DISCORD_ALLOWLIST_OFF if allowlist_off is None else allowlist_off
+    source = row.get("source")
+    j_decision = bool(row.get("j_decision"))
+    deliver_flag = bool(row.get("deliver"))
+    is_alarm = source in DISCORD_ALARM_SOURCES
+    content = (row.get("content") or row.get("message") or "")
+
+    if off:
+        post, held_reason = True, None
+    elif j_decision or deliver_flag:
+        post, held_reason = True, None
+    elif source in DISCORD_DELIVER_SOURCES:
+        post, held_reason = True, None
+    else:
+        post = False
+        held_reason = "source_not_allowlisted" if source else "no_source"
+
+    # Strip @mentions unless this is a J-decision (should ping) or an alarm (should ping) --
+    # everything else is a scheduled brief that does not need to wake J's phone.
+    if post and not off and not (j_decision or is_alarm):
+        content = strip_mentions(content)
+
+    return {"post": post, "held_reason": held_reason, "is_alarm": is_alarm, "content": content}
 
 logging.basicConfig(
     level=logging.INFO,
@@ -230,28 +317,42 @@ def _row_age_min(row: dict) -> "float | None":
     return (dt.datetime.now(dt.timezone.utc) - parsed).total_seconds() / 60.0
 
 
-def drain_outbox(config: dict, wm: dict) -> tuple[int, int, int]:
+def _write_held_row(row: dict, held_reason: str) -> None:
+    """Append a held row to the local held-ledger, same schema + `held_reason`. Never drops data:
+    every row not posted is still on disk and greppable (C7)."""
+    held = dict(row)
+    held["held_reason"] = held_reason
+    held["held_at"] = now_iso()
+    with HELD_PATH.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(held) + "\n")
+
+
+def drain_outbox(config: dict, wm: dict) -> tuple[int, int, int, int]:
     """Send any new lines in outbox JSONL since last_outbox_line_no.
-    Returns (sent, dropped_stale, pending_after).
+    Returns (sent, dropped_stale, pending_after, held).
 
     SAFETY: J explicitly requested "do not message swjsh vault, only HQ".
     We hard-pin the channel_id to config.channel_id and IGNORE any per-row
     channel_id override. To send to a different channel, edit the config.
+
+    CHANNEL ALLOWLIST (2026-09-13): a row that fails `classify_outbox_row` is HELD (written to
+    HELD_PATH) instead of posted -- see DISCORD_DELIVER_SOURCES / DISCORD_ALARM_SOURCES above.
     """
     if not OUTBOX_PATH.exists():
-        return (0, 0, 0)
+        return (0, 0, 0, 0)
     token = config["bot_token"]
     default_channel = config.get("channel_id")
     HQ_ONLY_CHANNEL = default_channel  # always use config channel, refuse overrides
 
     sent = 0
     dropped = 0
+    held = 0
     last_line_no = wm.get("last_outbox_line_no", 0)
     with OUTBOX_PATH.open(encoding="utf-8") as f:
         lines = f.readlines()
 
     if last_line_no >= len(lines):
-        return (0, 0, 0)
+        return (0, 0, 0, 0)
 
     for i in range(last_line_no, len(lines)):
         raw = lines[i].strip()
@@ -286,6 +387,21 @@ def drain_outbox(config: dict, wm: dict) -> tuple[int, int, int]:
             wm["last_outbox_line_no"] = i + 1
             continue
 
+        # CHANNEL ALLOWLIST (2026-09-13): hold anything not on DISCORD_DELIVER_SOURCES / not
+        # flagged deliver|j_decision instead of posting it. Nothing is dropped -- held rows land on
+        # HELD_PATH, same schema + held_reason, so they're still greppable (C7).
+        verdict = classify_outbox_row(row)
+        if not verdict["post"]:
+            held += 1
+            _write_held_row(row, verdict["held_reason"])
+            wm["last_outbox_line_no"] = i + 1
+            save_watermarks(wm)
+            continue
+        content = verdict["content"]
+        if not content:
+            wm["last_outbox_line_no"] = i + 1
+            continue
+
         # STALENESS DROP (see MAX_MESSAGE_AGE_MIN). Advance and SAVE -- unlike the older
         # silent-skip branches above, which advance the in-memory watermark without persisting it.
         age_min = _row_age_min(row)
@@ -303,7 +419,7 @@ def drain_outbox(config: dict, wm: dict) -> tuple[int, int, int]:
         if file_path:
             r = _send_file_message(token, channel_id, content, file_path)
             if r is None:
-                return (sent, dropped, len(lines) - wm.get("last_outbox_line_no", 0))  # network error -- don't advance watermark, retry this line later
+                return (sent, dropped, len(lines) - wm.get("last_outbox_line_no", 0), held)  # network error -- don't advance watermark, retry this line later
             if r == "missing":
                 logger.error("outbox line %d file attachment missing on disk -- skipping", i)
                 wm["last_outbox_line_no"] = i + 1
@@ -319,7 +435,7 @@ def drain_outbox(config: dict, wm: dict) -> tuple[int, int, int]:
                 )
             except requests.RequestException as e:
                 logger.error("outbox send network error: %s -- will retry next tick", e)
-                return (sent, dropped, len(lines) - wm.get("last_outbox_line_no", 0))  # don't advance watermark; retry this line later
+                return (sent, dropped, len(lines) - wm.get("last_outbox_line_no", 0), held)  # don't advance watermark; retry this line later
         if r.status_code in (200, 201):
             sent += 1
             wm["last_outbox_line_no"] = i + 1
@@ -331,7 +447,7 @@ def drain_outbox(config: dict, wm: dict) -> tuple[int, int, int]:
             retry_after = float(r.headers.get("Retry-After", "5"))
             logger.warning("rate limited; sleeping %.1fs", retry_after)
             time.sleep(retry_after)
-            return (sent, dropped, len(lines) - wm.get("last_outbox_line_no", 0))  # retry this line on next iteration
+            return (sent, dropped, len(lines) - wm.get("last_outbox_line_no", 0), held)  # retry this line on next iteration
         else:
             logger.error("outbox http %d: %s -- skipping line %d", r.status_code, r.text[:200], i)
             wm["last_outbox_line_no"] = i + 1
@@ -340,7 +456,7 @@ def drain_outbox(config: dict, wm: dict) -> tuple[int, int, int]:
     if dropped:
         logger.warning("dropped %d outbox message(s) older than %d min (stale-alert policy)",
                        dropped, MAX_MESSAGE_AGE_MIN)
-    return (sent, dropped, len(lines) - wm.get("last_outbox_line_no", 0))
+    return (sent, dropped, len(lines) - wm.get("last_outbox_line_no", 0), held)
 
 
 def main() -> int:
@@ -375,18 +491,25 @@ def main() -> int:
     consecutive_errors = 0
     pending = 0
     dropped_total = 0
+    held_today = 0
+    held_today_date = now_iso()[:10]
     last_delivery_at = None
     try:
         while True:
             try:
                 in_count = poll_inbox(config, wm)
-                out_count, dropped, pending = drain_outbox(config, wm)
+                out_count, dropped, pending, held = drain_outbox(config, wm)
                 dropped_total += dropped
+                today = now_iso()[:10]
+                if today != held_today_date:
+                    held_today_date = today
+                    held_today = 0
+                held_today += held
                 if out_count:
                     last_delivery_at = now_iso()
-                if in_count or out_count or dropped:
-                    logger.info("tick: inbox=%d outbox=%d dropped=%d pending=%d",
-                                in_count, out_count, dropped, pending)
+                if in_count or out_count or dropped or held:
+                    logger.info("tick: inbox=%d outbox=%d dropped=%d held=%d pending=%d",
+                                in_count, out_count, dropped, held, pending)
                 consecutive_errors = 0
             except Exception as e:
                 consecutive_errors += 1
@@ -413,6 +536,8 @@ def main() -> int:
                         "last_delivery_at": last_delivery_at,
                         "dropped_stale_total": dropped_total,
                         "max_message_age_min": MAX_MESSAGE_AGE_MIN,
+                        "held_today": held_today,
+                        "allowlist_off": DISCORD_ALLOWLIST_OFF,
                     }),
                     encoding="utf-8",
                 )

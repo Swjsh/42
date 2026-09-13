@@ -512,6 +512,23 @@ def _refusals_eod_line(day: str) -> Optional[str]:
     return line
 
 
+def _learned_today_eod_line(day: str) -> Optional[str]:
+    """"What Gamma learned today" -- plain-language restatement of the HOME.md challenger-vs-
+    control block (GOAL-EARN-YOUR-KEEP-2026-09-12 item 6, part B). Reuses
+    `obsidian_vault_sync.learned_today_summary()`, which shares its data helpers (and therefore
+    its numbers) with `render_learned_today()` -- the function that writes the HOME.md block --
+    so the brief and the vault page never disagree. Fail-open: any import/read problem here
+    must never break the EOD brief (C7, same discipline as `_liveness_alarm`/`_blind_alarm`)."""
+    try:
+        import obsidian_vault_sync as _ovs  # noqa: PLC0415 -- optional dep, fail-open
+        summary = _ovs.learned_today_summary()
+    except Exception:  # noqa: BLE001
+        return None
+    if not summary:
+        return None
+    return f"What Gamma learned today: {summary}"
+
+
 def compose_eod_text(facts: dict) -> str:
     lines = [f"Gamma here. End of day, {facts['day']}."]
     alarm = _liveness_alarm(facts["day"])
@@ -548,6 +565,9 @@ def compose_eod_text(facts: dict) -> str:
     dojo = facts.get("dojo") or {}
     if dojo.get("exists"):
         lines.append(f"Film room is ready -- {dojo.get('n_exhibits', 0)} exhibits queued if you want to walk them.")
+    learned = _learned_today_eod_line(facts["day"])
+    if learned:
+        lines.append(learned)
     return truncate_to_word_cap(" ".join(lines))
 
 

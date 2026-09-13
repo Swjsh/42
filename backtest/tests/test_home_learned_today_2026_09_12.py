@@ -212,3 +212,118 @@ def test_build_home_carries_exactly_one_learned_today_block(tmp_path, monkeypatc
     snap = {"ok": False, "arms": {}, "total_day": 0.0, "error": "offline test"}
     home = m.build_home("2026-09-12", "stamp", False, snap)
     assert home.count("## What Gamma learned today") == 1
+
+
+# ------------------------------------------------------- plain-language brief summary (item 6B)
+#
+# GOAL-EARN-YOUR-KEEP item 6 part B: setup/scripts/daily_brief.py --mode eod appends "What Gamma
+# learned today" via obsidian_vault_sync.learned_today_summary(), which reuses this file's own
+# helpers/constants so it can never disagree with the HOME.md table above.
+
+
+def test_learned_today_summary_no_sessions_yet(tmp_path):
+    m = _module(tmp_path)
+    fleet_dir = tmp_path / "fleet"
+    _write_decisions(fleet_dir, "risky-3", [_row("2026-08-28", "10:00", setup=None)])
+    _write_decisions(fleet_dir, "risky-1", [_row("2026-09-11", "10:00", setup="X")])
+    out = m.learned_today_summary(fleet_dir=fleet_dir, pnl_path=tmp_path / "missing.json",
+                                  prereg_path=tmp_path / "missing.md")
+    assert out == "Challenger starts Monday; nothing to score yet."
+
+
+def test_learned_today_summary_one_refused_signal(tmp_path):
+    m = _module(tmp_path)
+    fleet_dir = tmp_path / "fleet"
+    pnl_path = tmp_path / "pnl-statement.json"
+    date = "2026-09-14"
+    _write_decisions(fleet_dir, "risky-1", [
+        _row(date, "10:00", setup="INTRADAY_SWING_LOW", action="ENTER_BULL",
+             reason="ribbon_ride C (ELITE)"),
+    ])
+    _write_decisions(fleet_dir, "risky-3", [
+        _row(date, "10:00", setup="INTRADAY_SWING_LOW", action="HOLD",
+             reason="gate: anchor_class_denied:INTRADAY_SWING_LOW_2026-09-14"),
+    ])
+    _write_pnl_statement(pnl_path, {date: {
+        "risky-1": {"realized_pnl": -145.0},
+        "risky-3": {"realized_pnl": 0.0},
+    }})
+    out = m.learned_today_summary(fleet_dir=fleet_dir, pnl_path=pnl_path,
+                                  prereg_path=tmp_path / "missing.md")
+    assert out == ("Challenger risky-3 refused 1 swing-pivot signal today that the control lost "
+                   "$145.00 on. H1 clock 1 of 6. Tomorrow: no change.")
+
+
+def test_learned_today_summary_kill_fires_names_next_row(tmp_path):
+    m = _module(tmp_path)
+    fleet_dir = tmp_path / "fleet"
+    pnl_path = tmp_path / "pnl-statement.json"
+    prereg_path = tmp_path / "prereg.md"
+    prereg_path.write_text(PREREG_FIXTURE, encoding="utf-8")
+    dates = [f"2026-09-{14 + i}" for i in range(6)]
+    risky1_rows, risky3_rows, per_day = [], [], {}
+    for d in dates:
+        risky1_rows.append(_row(d, "10:00", setup="INTRADAY_SWING_LOW", action="ENTER_BULL",
+                                reason="ribbon_ride C (ELITE)"))
+        risky3_rows.append(_row(d, "10:00", setup="INTRADAY_SWING_LOW", action="HOLD",
+                                reason=f"gate: anchor_class_denied:INTRADAY_SWING_LOW_{d}"))
+        per_day[d] = {"risky-1": {"realized_pnl": 50.0}, "risky-3": {"realized_pnl": 0.0}}
+    _write_decisions(fleet_dir, "risky-1", risky1_rows)
+    _write_decisions(fleet_dir, "risky-3", risky3_rows)
+    _write_pnl_statement(pnl_path, per_day)
+    out = m.learned_today_summary(fleet_dir=fleet_dir, pnl_path=pnl_path, prereg_path=prereg_path)
+    assert "H1 kill criterion met" in out
+    assert "H2 -- deny MEMORY_* as trigger anchor" in out
+
+
+def test_learned_today_summary_never_raises_on_missing_files(tmp_path):
+    m = _module(tmp_path)
+    out = m.learned_today_summary(
+        fleet_dir=tmp_path / "does-not-exist",
+        pnl_path=tmp_path / "also-missing.json",
+        prereg_path=tmp_path / "missing-prereg.md",
+    )
+    assert out == "Challenger starts Monday; nothing to score yet."
+
+
+def test_eod_brief_learned_today_line_present(monkeypatch, tmp_path):
+    """setup/scripts/daily_brief.py::compose_eod_text must append the plain-language
+    'What Gamma learned today' line, sourced from obsidian_vault_sync.learned_today_summary()."""
+    daily_brief_path = REPO / "setup" / "scripts" / "daily_brief.py"
+    db = _load(daily_brief_path, f"daily_brief_learned_{id(tmp_path)}")
+
+    class _Fake:
+        @staticmethod
+        def learned_today_summary():
+            return ("Challenger risky-3 refused 1 swing-pivot signal today that the control lost "
+                    "$145.00 on. H1 clock 1 of 6. Tomorrow: no change.")
+
+    monkeypatch.setitem(sys.modules, "obsidian_vault_sync", _Fake())
+
+    facts = db.gather_eod_facts(
+        "2026-09-14", pnl={"total_pnl": 0.0, "by_arm": []},
+        trade_today={}, setups=[], queue_titles=[], dojo_info={"exists": False, "n_exhibits": 0},
+    )
+    text = db.compose_eod_text(facts)
+    assert "What Gamma learned today" in text
+    assert "Challenger risky-3 refused 1 swing-pivot signal today" in text
+    assert "H1 clock 1 of 6" in text
+
+
+def test_eod_brief_learned_today_no_sessions_yet(monkeypatch, tmp_path):
+    daily_brief_path = REPO / "setup" / "scripts" / "daily_brief.py"
+    db = _load(daily_brief_path, f"daily_brief_learned_none_{id(tmp_path)}")
+
+    class _Fake:
+        @staticmethod
+        def learned_today_summary():
+            return "Challenger starts Monday; nothing to score yet."
+
+    monkeypatch.setitem(sys.modules, "obsidian_vault_sync", _Fake())
+
+    facts = db.gather_eod_facts(
+        "2026-09-13", pnl={"total_pnl": 0.0, "by_arm": []},
+        trade_today={}, setups=[], queue_titles=[], dojo_info={"exists": False, "n_exhibits": 0},
+    )
+    text = db.compose_eod_text(facts)
+    assert "What Gamma learned today: Challenger starts Monday; nothing to score yet." in text

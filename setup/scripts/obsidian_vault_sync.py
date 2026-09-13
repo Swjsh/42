@@ -697,6 +697,80 @@ def render_learned_today(
     return L
 
 
+def learned_today_summary(
+    fleet_dir: Path = None,
+    pnl_path: Path = None,
+    prereg_path: Path = None,
+) -> str:
+    """Plain-language one/two-sentence version of `render_learned_today()`'s table, for the EOD
+    voice/Discord brief (daily_brief.py --mode eod, GOAL-EARN-YOUR-KEEP item 6 part B). Reuses the
+    SAME helpers (`_fleet_arm_dates`, `_fleet_arm_session_stats`, `_fleet_arm_realized_pnl`,
+    `_next_ladder_row`) and the same constants as `render_learned_today` so the two never drift --
+    this function computes no new numbers, it restates the identical facts in a sentence instead
+    of a markdown table. Does NOT touch `render_learned_today` or its call site in `build_home`,
+    so the HOME.md block is unaffected by this function's existence (byte-identical by
+    construction: nothing here is on that code path).
+
+    Fails open: any missing ledger/prereg row renders a plain 'nothing to score yet' sentence,
+    never an exception (C7, same discipline as render_learned_today)."""
+    fleet_dir = fleet_dir or FLEET_DIR
+    pnl_path = pnl_path or PNL_STATEMENT_PATH
+    prereg_path = prereg_path or PREREG_ANCHOR_CLASS_PATH
+
+    challenger_dates = [d for d in _fleet_arm_dates(fleet_dir, CHALLENGER_ARM)
+                        if d >= CHALLENGER_START]
+    if not challenger_dates:
+        return "Challenger starts Monday; nothing to score yet."
+
+    last_date = challenger_dates[-1]
+    last_stats = _fleet_arm_session_stats(fleet_dir, CHALLENGER_ARM, last_date)
+    n_refused_today = last_stats["refused"]
+
+    cum_refused = 0
+    for date in challenger_dates:
+        cum_refused += _fleet_arm_session_stats(fleet_dir, CHALLENGER_ARM, date)["refused"]
+
+    # Same same-day join `render_learned_today` uses for the control's realized $ on refused days.
+    control_pnl_today = _fleet_arm_realized_pnl(pnl_path, CONTROL_ARM, last_date)
+
+    if n_refused_today == 0:
+        signal_clause = "Challenger risky-3 refused 0 signals today"
+    elif n_refused_today == 1:
+        signal_clause = "Challenger risky-3 refused 1 swing-pivot signal today"
+    else:
+        signal_clause = f"Challenger risky-3 refused {n_refused_today} swing-pivot signals today"
+
+    if n_refused_today > 0 and control_pnl_today is not None:
+        if control_pnl_today < 0:
+            signal_clause += f" that the control lost ${abs(control_pnl_today):,.2f} on"
+        elif control_pnl_today > 0:
+            signal_clause += f" that the control made ${control_pnl_today:,.2f} on"
+        else:
+            signal_clause += " that the control broke even on"
+
+    refused_days = [d for d in challenger_dates
+                    if _fleet_arm_session_stats(fleet_dir, CHALLENGER_ARM, d)["refused"] > 0]
+    refused_net = 0.0
+    for d in refused_days:
+        pnl = _fleet_arm_realized_pnl(pnl_path, CONTROL_ARM, d)
+        if pnl is not None:
+            refused_net += pnl
+    kill_fires = cum_refused >= CHALLENGER_LADDER_N_NEEDED and refused_net >= 0
+
+    if not kill_fires:
+        tomorrow_clause = "Tomorrow: no change."
+    else:
+        next_row = _next_ladder_row(prereg_path)
+        tomorrow_clause = (
+            f"Tomorrow: H1 kill criterion met, moving to the next ladder row ({next_row})."
+            if next_row else
+            "Tomorrow: H1 kill criterion met, but the next ladder row could not be read."
+        )
+
+    return (f"{signal_clause}. H1 clock {cum_refused} of {CHALLENGER_LADDER_N_NEEDED}. "
+            f"{tomorrow_clause}")
+
+
 GATE_JSON = REPO / "analysis" / "go-live-gate.json"
 NULL_STUDY_SUMMARY = REPO / "analysis" / "whole-engine-null" / "summary-line.txt"
 GATE_CLOCK_END = "2026-10-30"

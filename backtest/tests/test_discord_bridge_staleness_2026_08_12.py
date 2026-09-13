@@ -151,10 +151,15 @@ def test_drain_outbox_reports_pending_to_its_caller(bridge):
 
 
 def test_tick_is_logged_when_messages_are_dropped(bridge):
-    """Silent dropping would replace one invisible failure with another."""
+    """Silent dropping would replace one invisible failure with another.
+
+    2026-09-13: the condition grew an ` or held` arm (channel-allowlist item 6 -- held rows are
+    a distinct, expected outcome now, not an error, but they still must not go unlogged the way
+    dropped rows must not) -- this assertion is updated to match, not weakened: it still requires
+    the log line to fire on every one of in_count/out_count/dropped, plus the new held case."""
     src = BRIDGE.read_text(encoding="utf-8")
-    assert "if in_count or out_count or dropped:" in src, (
-        "the tick log no longer fires on drops -- discards would be invisible")
+    assert "if in_count or out_count or dropped or held:" in src, (
+        "the tick log no longer fires on drops/holds -- discards would be invisible")
     assert "dropped %d outbox message(s) older than" in src
 
 
