@@ -340,6 +340,8 @@ class _FakeBroker:
         self.closes = []
         self.position_qty = 0.0
         self.quote = None  # (ask, bid)
+        self.position_avg_entry_price = None  # None => get_crypto_position returns None
+                                              # (no readable avg_entry_price) when position_qty>0
 
     def place_crypto_order(self, creds, *, symbol, side, notional=None, qty=None,
                            order_type="market", limit_price=None, live):
@@ -352,6 +354,12 @@ class _FakeBroker:
 
     def get_crypto_position_qty(self, creds, symbol="BTC/USD"):
         return self.position_qty
+
+    def get_crypto_position(self, creds, symbol="BTC/USD"):
+        if self.position_qty <= 0 or self.position_avg_entry_price is None:
+            return None
+        return {"symbol": symbol.replace("/", ""), "qty": str(self.position_qty),
+               "avg_entry_price": str(self.position_avg_entry_price)}
 
     def get_crypto_quote_hilo(self, symbol="BTC/USD", creds=None):
         return self.quote
@@ -371,6 +379,7 @@ def fake_broker(monkeypatch):
     monkeypatch.setattr(ctc.broker, "place_crypto_order", fb.place_crypto_order)
     monkeypatch.setattr(ctc.broker, "poll_fill", fb.poll_fill)
     monkeypatch.setattr(ctc.broker, "get_crypto_position_qty", fb.get_crypto_position_qty)
+    monkeypatch.setattr(ctc.broker, "get_crypto_position", fb.get_crypto_position)
     monkeypatch.setattr(ctc.broker, "get_crypto_quote_hilo", fb.get_crypto_quote_hilo)
     monkeypatch.setattr(ctc.broker, "market_sell_crypto", fb.market_sell_crypto)
     monkeypatch.setattr(ctc.broker, "close_all_crypto", fb.close_all_crypto)
@@ -697,20 +706,52 @@ def test_manage_positions_no_local_record_dust_is_ignored(tmp_path, fake_broker)
     assert results == []
 
 
-def test_manage_positions_no_local_record_real_qty_is_flagged_loudly(tmp_path, fake_broker):
-    """A genuine untracked position (above the dust floor) must be surfaced -- never
-    silently dropped, never auto-sold (no entry_price/exit_shape exists to manage it)."""
+def test_manage_positions_no_local_record_real_qty_is_adopted_not_pruned(tmp_path, fake_broker):
+    """2026-09-13 GOAL-EARN-YOUR-KEEP fix: a genuine untracked position (above the dust
+    floor) with a readable broker avg_entry_price must be ADOPTED into exit-state.json
+    (a fresh ExitState built off the broker's own entry price), never silently dropped
+    and never auto-sold -- this is the exact class of bug that orphaned 0.114999357 BTC
+    live 2026-09-09 (FLAT_PRUNED_UNEXPECTED deleted the record while the broker still
+    held the position)."""
     cfg = _twin_cfg(tmp_path)
     fake_broker.position_qty = 0.002  # a real unit-sized qty, not noise
+    fake_broker.position_avg_entry_price = 64000.0
+    now = datetime(2026, 9, 5, 12, 0, tzinfo=timezone.utc)
+    results = ctc.manage_positions(cfg, creds=_CREDS, now_utc=now, live=True)
+    assert len(results) == 1
+    assert results[0]["action"] == "POSITION_ADOPTED"
+    assert results[0]["open_qty"] == pytest.approx(0.002)
+    assert results[0]["entry_price"] == pytest.approx(64000.0)
+    assert not fake_broker.sells and not fake_broker.closes  # never auto-trades on adoption
+    journal = [json.loads(l) for l in (cfg.state_dir / "journal.jsonl").read_text().splitlines()]
+    assert journal[0]["event"] == "POSITION_ADOPTED"
+    assert journal[0]["broker_qty"] == pytest.approx(0.002)
+    assert journal[0]["entry_price"] == pytest.approx(64000.0)
+    # the position is now REAL on disk -- the very next tick must find + manage it.
+    positions = json.loads((cfg.state_dir / "exit-state.json").read_text())
+    assert cfg.symbol in positions
+    assert positions[cfg.symbol]["adopted"] is True
+    assert positions[cfg.symbol]["exit_state"]["entry_premium"] == pytest.approx(64000.0)
+
+
+def test_manage_positions_no_local_record_real_qty_no_entry_price_falls_back_to_logging(
+        tmp_path, fake_broker):
+    """When the broker position exists but has no readable avg_entry_price, adoption is
+    unsafe (no price to build an ExitState against) -- falls back to the old LOG-ONLY
+    UNTRACKED_BROKER_EXPOSURE behavior rather than adopting garbage."""
+    cfg = _twin_cfg(tmp_path)
+    fake_broker.position_qty = 0.002
+    fake_broker.position_avg_entry_price = None  # get_crypto_position returns None
     now = datetime(2026, 9, 5, 12, 0, tzinfo=timezone.utc)
     results = ctc.manage_positions(cfg, creds=_CREDS, now_utc=now, live=True)
     assert len(results) == 1
     assert results[0]["action"] == "UNTRACKED_BROKER_EXPOSURE"
-    assert results[0]["open_qty"] == pytest.approx(0.002)
-    assert not fake_broker.sells and not fake_broker.closes  # never auto-trades
+    assert not fake_broker.sells and not fake_broker.closes
     journal = [json.loads(l) for l in (cfg.state_dir / "journal.jsonl").read_text().splitlines()]
     assert journal[0]["event"] == "UNTRACKED_BROKER_EXPOSURE"
-    assert journal[0]["broker_qty"] == pytest.approx(0.002)
+    positions = json.loads((cfg.state_dir / "exit-state.json").read_text()) \
+        if (cfg.state_dir / "exit-state.json").exists() else {}
+    assert cfg.symbol not in positions  # never adopted without a usable entry price
 
 
 def test_manage_positions_no_local_record_broker_error_is_a_quiet_noop(tmp_path, fake_broker, monkeypatch):
@@ -720,7 +761,7 @@ def test_manage_positions_no_local_record_broker_error_is_a_quiet_noop(tmp_path,
 
     def boom(creds, symbol="BTC/USD"):
         raise RuntimeError("network blip")
-    monkeypatch.setattr(ctc.broker, "get_crypto_position_qty", boom)
+    monkeypatch.setattr(ctc.broker, "get_crypto_position", boom)
     now = datetime(2026, 9, 5, 12, 0, tzinfo=timezone.utc)
     results = ctc.manage_positions(cfg, creds=_CREDS, now_utc=now, live=True)
     assert results == []

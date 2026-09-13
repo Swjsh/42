@@ -612,30 +612,96 @@ def _journal_exit_fill(cfg: TwinConfig, *, creds: dict, order_id: Optional[str],
 
 
 def _reconcile_untracked_exposure(cfg: TwinConfig, creds: Optional[dict]) -> list[dict]:
-    """LOG-ONLY reconciliation for the flat-on-disk path (2026-09-05,
-    RESILIENCE-LEDGER-DUST-RECONCILIATION -- see DUST_EPSILON_BTC's docstring for the
-    finding this closes). Previously `manage_positions` returned [] immediately whenever
-    exit-state.json had no record, WITHOUT ever asking the broker whether that was true --
-    a genuine untracked position (any size) was structurally invisible forever. This is
-    intentionally NOT a sell/adopt/auto-heal: with no local entry record there is no
-    entry_price, exit_shape, or scenario to manage it against, so the only safe action is
-    to surface it loudly (C7: silent success is failure) and let a human or a follow-up
-    fix decide. Fail-open: creds=None or any broker-call exception is a quiet no-op, never
-    a crash -- this function must never be the reason a real tick fails."""
+    """ADOPT-NOT-PRUNE reconciliation for the flat-on-disk path (2026-09-13,
+    GOAL-EARN-YOUR-KEEP orphan-position fix; supersedes the 2026-09-05
+    RESILIENCE-LEDGER-DUST-RECONCILIATION LOG-ONLY version below). Previously
+    `manage_positions` returned [] immediately whenever exit-state.json had no record,
+    WITHOUT ever asking the broker whether that was true -- a genuine untracked position
+    (any size) was structurally invisible forever, and a race between place_entry's own
+    broker-qty read and the fill actually settling (get_crypto_position_qty reads 0 right
+    after the buy, manage_positions' own FLAT_PRUNED branch deletes the just-created
+    record) could orphan a REAL position with no local record at all. CONFIRMED LIVE
+    2026-09-09 18:03:45 UTC (incidents.jsonl: ENTRY_TP1_TRAIL "expected stage 'trail',
+    got 'FLAT_PRUNED_UNEXPECTED'") -- 0.114999357 BTC sat unmanaged for 4 days, starving
+    the account's cash and causing 720+ failed 403 entry attempts before a human closed
+    it out-of-band.
+
+    Now: when the broker shows real exposure above the dust floor with no local record,
+    ADOPT it -- build a fresh exit_manager.ExitState.from_entry() off the broker's own
+    avg_entry_price (side="C", cfg.exit_shape -- the SAME construction place_entry uses
+    for an organic entry, since the position's original scenario-scoped shape is gone
+    with the pruned record; entered_at_utc is stamped at ADOPTION time, not the unknown
+    real entry time -- max_hold_hours starts counting from discovery, a conservative
+    choice that can only make the position exit SOONER than its true age would, never
+    later) and PERSIST it via _save_positions, so the very next tick's manage_positions
+    call finds a real record and manages the position exactly like any other -- TP1/
+    trail/structure-stop/max-hold all apply going forward. Never SELLS on adoption (that
+    would be a surprise force-exit at whatever price this tick happens to see); the
+    freshly-adopted ExitState is managed normally starting next tick.
+
+    Fail-open: creds=None, a broker-call exception, or any error while building/adopting
+    the position is a quiet no-op (falls back to the old LOG-ONLY UNTRACKED_BROKER_
+    EXPOSURE journal row) -- this function must never be the reason a real tick fails,
+    and a broken adopt path must never repeatedly try to adopt-and-fail every tick
+    without at least leaving the loud journal trail the old behavior already had."""
     if creds is None:
         return []
     try:
-        qty = broker.get_crypto_position_qty(creds, cfg.symbol)
+        position = broker.get_crypto_position(creds, cfg.symbol)
     except Exception:  # noqa: BLE001 -- reconciliation must never break the real tick
         return []
+    qty = None
+    entry_price = None
+    if position:
+        try:
+            qty = abs(float(position.get("qty", 0)))
+            entry_price = float(position.get("avg_entry_price")) if position.get("avg_entry_price") else None
+        except (TypeError, ValueError):
+            qty = None
+    if qty is None:
+        # get_crypto_position not available/failed to parse -- fall back to the qty-only read.
+        try:
+            qty = broker.get_crypto_position_qty(creds, cfg.symbol)
+        except Exception:  # noqa: BLE001
+            return []
     if qty is None or qty <= DUST_EPSILON_BTC:
         return []
-    _journal(cfg, "UNTRACKED_BROKER_EXPOSURE", symbol=cfg.symbol, broker_qty=qty,
-            dust_epsilon_btc=DUST_EPSILON_BTC,
+    if entry_price is None or entry_price <= 0:
+        # No usable entry price to build an ExitState against -- can't safely adopt.
+        # Fall back to the old loud LOG-ONLY behavior rather than adopt garbage.
+        _journal(cfg, "UNTRACKED_BROKER_EXPOSURE", symbol=cfg.symbol, broker_qty=qty,
+                dust_epsilon_btc=DUST_EPSILON_BTC,
+                note="broker reports a position above the dust floor with no local disk "
+                     "record and no readable avg_entry_price -- cannot safely adopt; "
+                     "needs a human or a follow-up fix.")
+        return [{"symbol": cfg.symbol, "open_qty": qty, "action": "UNTRACKED_BROKER_EXPOSURE"}]
+    try:
+        now = datetime.now(timezone.utc)
+        st = em.ExitState.from_entry(symbol=cfg.symbol, side="C", entry_premium=entry_price,
+                                     qty=cfg.units_per_entry, exit_shape=cfg.exit_shape,
+                                     strategy="crypto_twin_adopted", trigger_level=None,
+                                     structure_stop_enabled=True)
+        positions = _load_positions(cfg)
+        positions[cfg.symbol] = {"exit_state": st.to_dict(), "entered_at_utc": now.isoformat(),
+                                 "side": "bull", "order_id": None, "scenario": None,
+                                 "adopted": True, "adopted_broker_qty": qty,
+                                 "adopted_broker_avg_entry_price": entry_price}
+        _save_positions(cfg, positions)
+    except Exception as e:  # noqa: BLE001 -- adoption must never crash the tick; fall back to logging
+        _journal(cfg, "UNTRACKED_BROKER_EXPOSURE", symbol=cfg.symbol, broker_qty=qty,
+                dust_epsilon_btc=DUST_EPSILON_BTC,
+                note=f"broker reports a position above the dust floor with no local disk "
+                     f"record -- ADOPT FAILED ({type(e).__name__}: {e}); needs a human or "
+                     f"a follow-up fix.")
+        return [{"symbol": cfg.symbol, "open_qty": qty, "action": "UNTRACKED_BROKER_EXPOSURE"}]
+    _journal(cfg, "POSITION_ADOPTED", symbol=cfg.symbol, broker_qty=qty,
+            entry_price=entry_price, dust_epsilon_btc=DUST_EPSILON_BTC,
             note="broker reports a position above the dust floor with no local disk "
-                 "record -- not auto-sold or auto-adopted (no entry_price/exit_shape "
-                 "to manage it against); needs a human or a follow-up fix.")
-    return [{"symbol": cfg.symbol, "open_qty": qty, "action": "UNTRACKED_BROKER_EXPOSURE"}]
+                 "record -- ADOPTED into exit-state.json (fresh ExitState off the "
+                 "broker's own avg_entry_price) instead of being silently pruned; will "
+                 "be managed normally starting the next tick.")
+    return [{"symbol": cfg.symbol, "open_qty": qty, "action": "POSITION_ADOPTED",
+            "entry_price": entry_price}]
 
 
 # --- exit management (T2) -- mirrors fleet's exit_actuator.manage_tick shape -------------

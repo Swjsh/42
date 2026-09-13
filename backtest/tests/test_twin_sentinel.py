@@ -354,6 +354,7 @@ def _isolated_paths(tmp_path):
         health_path=tmp_path / "twin-health.json",
         incidents_path=tmp_path / "incidents.jsonl",
         coverage_path=tmp_path / "path-coverage.json",
+        journal_path=tmp_path / "journal.jsonl",
     )
 
 
@@ -629,6 +630,69 @@ def test_evaluate_no_prior_sentinel_never_flags_regression(tmp_path):
     _write_json(paths["health_path"], {"account_status": "BLOCKED_NO_ACCOUNT", "breaker_tripped": False})
     result = tsm.evaluate(now_utc=now, now_et=now, prior_sentinel=None, **paths)
     assert not any(r.startswith("ACCOUNT_REGRESSION:") for r in result["reasons"])
+
+
+def test_count_untracked_exposure_today_splits_unresolved_and_adopted(tmp_path):
+    rows = [
+        {"ts_utc": "2026-09-13T15:07:55.99+00:00", "event": "UNTRACKED_BROKER_EXPOSURE", "broker_qty": 0.11},
+        {"ts_utc": "2026-09-13T15:08:56.02+00:00", "event": "POSITION_ADOPTED", "broker_qty": 0.002},
+        {"ts_utc": "2026-09-12T15:08:56.02+00:00", "event": "UNTRACKED_BROKER_EXPOSURE"},  # not today
+        {"ts_utc": "2026-09-13T15:09:00.00+00:00", "event": "PLACED"},  # irrelevant event
+    ]
+    unresolved, adopted = tsm.count_untracked_exposure_today(rows, "2026-09-13")
+    assert unresolved == 1
+    assert adopted == 1
+
+
+def test_evaluate_untracked_exposure_unresolved_is_red(tmp_path):
+    """2026-09-13 GOAL-EARN-YOUR-KEEP fix (RULE 7): the twin_sentinel gap named by the
+    09-09 orphan incident -- a broker position with no local record must page RED when
+    the adopt path itself fails (UNTRACKED_BROKER_EXPOSURE), not just sit silently in
+    journal.jsonl forever."""
+    paths = _isolated_paths(tmp_path)
+    now = datetime(2026, 9, 13, 15, 10, tzinfo=UTC)
+    _write_jsonl(paths["decisions_path"], [
+        {"ts_utc": "2026-09-13T15:09:00+00:00", "session_date_utc": "2026-09-13", "action": "HOLD"},
+    ])
+    _write_jsonl(paths["journal_path"], [
+        {"ts_utc": "2026-09-13T15:07:55.99+00:00", "event": "UNTRACKED_BROKER_EXPOSURE",
+         "symbol": "BTC/USD", "broker_qty": 0.114999357},
+    ])
+    result = tsm.evaluate(now_utc=now, now_et=now, **paths)
+    assert result["verdict"] == "RED"
+    assert any(r.startswith("UNTRACKED_EXPOSURE:") for r in result["reasons"])
+    assert result["facts"]["untracked_exposure_unresolved_today"] == 1
+
+
+def test_evaluate_position_adopted_is_a_note_not_red(tmp_path):
+    """A successful adoption (the self-heal working) must NOT page RED -- it's visible
+    in `notes` only, since the position is being managed normally again."""
+    paths = _isolated_paths(tmp_path)
+    now = datetime(2026, 9, 13, 15, 10, tzinfo=UTC)
+    _write_jsonl(paths["decisions_path"], [
+        {"ts_utc": "2026-09-13T15:09:00+00:00", "session_date_utc": "2026-09-13", "action": "HOLD"},
+    ])
+    _write_jsonl(paths["journal_path"], [
+        {"ts_utc": "2026-09-13T15:08:56.02+00:00", "event": "POSITION_ADOPTED",
+         "symbol": "BTC/USD", "broker_qty": 0.002, "entry_price": 64000.0},
+    ])
+    result = tsm.evaluate(now_utc=now, now_et=now, **paths)
+    assert result["verdict"] != "RED"  # adoption alone must never page RED
+    assert not any(r.startswith("UNTRACKED_EXPOSURE:") for r in result["reasons"])
+    assert result["facts"]["untracked_exposure_adopted_today"] == 1
+    assert any("POSITION_ADOPTED" in n for n in result["notes"])
+
+
+def test_evaluate_untracked_exposure_missing_journal_file_never_flags(tmp_path):
+    paths = _isolated_paths(tmp_path)
+    now = datetime(2026, 9, 13, 15, 10, tzinfo=UTC)
+    _write_jsonl(paths["decisions_path"], [
+        {"ts_utc": "2026-09-13T15:09:00+00:00", "session_date_utc": "2026-09-13", "action": "HOLD"},
+    ])
+    # journal_path never written -- must fail open, not manufacture a RED
+    result = tsm.evaluate(now_utc=now, now_et=now, **paths)
+    assert not any(r.startswith("UNTRACKED_EXPOSURE:") for r in result["reasons"])
+    assert result["facts"]["untracked_exposure_unresolved_today"] == 0
 
 
 def test_evaluate_red_wins_over_yellow(tmp_path):

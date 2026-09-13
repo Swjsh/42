@@ -244,6 +244,21 @@ def get_crypto_position_qty(creds: dict[str, str], symbol: str = CRYPTO_SYMBOL_D
     return 0.0
 
 
+def get_crypto_position(creds: dict[str, str],
+                        symbol: str = CRYPTO_SYMBOL_DEFAULT) -> Optional[dict]:
+    """The RAW broker position dict for this crypto symbol (None if flat), e.g. carrying
+    `qty`/`avg_entry_price`/`market_value`/`unrealized_pl`. Added 2026-09-13 (GOAL-EARN-
+    YOUR-KEEP orphan-position fix) so a caller that needs to ADOPT an untracked position
+    (crypto_twin_core._reconcile_untracked_exposure) has the broker's own avg_entry_price
+    to build a real exit_manager.ExitState against, not just the bare qty
+    get_crypto_position_qty returns."""
+    for p in get_positions(creds):
+        sym = str(p.get("symbol", ""))
+        if sym == symbol or sym == symbol.replace("/", ""):
+            return p
+    return None
+
+
 def place_crypto_order(creds: dict[str, str], *, symbol: str = CRYPTO_SYMBOL_DEFAULT,
                        side: str, notional: Optional[float] = None, qty: Optional[float] = None,
                        order_type: str = "market", limit_price: Optional[float] = None,

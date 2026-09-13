@@ -119,6 +119,10 @@ HEALTH_PATH = STATE / "twin-health.json"                 # top-level, per crypto
 SOAK_LOG_PATH = TWIN_DIR / "soak-log.jsonl"               # read by twin_review.py, not evaluate()
 INCIDENTS_PATH = TWIN_DIR / "incidents.jsonl"             # schema undefined upstream (fail-open)
 COVERAGE_PATH = TWIN_DIR / "path-coverage.json"           # schema undefined upstream (fail-open)
+JOURNAL_PATH = TWIN_DIR / "journal.jsonl"                 # 2026-09-13: RULE 7 (UNTRACKED_EXPOSURE)
+                                                           # reads crypto_twin_core._journal's own
+                                                           # UNTRACKED_BROKER_EXPOSURE/POSITION_ADOPTED
+                                                           # rows -- see that function's docstring
 SENTINEL_PATH = STATE / "twin-sentinel.json"
 
 QUEUE_MD = REPO / "automation" / "overnight" / "queue.md"
@@ -155,7 +159,8 @@ LOW_UPTIME_MIN_EXPECTED = 60           # >=1h of expected ticks before judging u
 REVIEW_TRIGGER_HOUR_UTC = 23           # spec-given ("after 23:30 UTC")
 REVIEW_TRIGGER_MINUTE_UTC = 30
 
-RED_CODES = {"TICK_GAP", "INCIDENT_SPIKE", "BREAKER_TRIPPED", "ACCOUNT_REGRESSION"}
+RED_CODES = {"TICK_GAP", "INCIDENT_SPIKE", "BREAKER_TRIPPED", "ACCOUNT_REGRESSION",
+            "UNTRACKED_EXPOSURE"}
 YELLOW_CODES = {"LOW_UPTIME", "COVERAGE_LAG"}
 
 
@@ -332,6 +337,37 @@ def count_incidents_today(rows: list[dict], today_utc_str: str) -> "tuple[int, i
 
 
 # ══════════════════════════════════════════════════════════════════════════════════════
+# RULE 7 data (added 2026-09-13, GOAL-EARN-YOUR-KEEP orphan-position fix): untracked
+# broker exposure today -- reads journal.jsonl for the two events crypto_twin_core.
+# _reconcile_untracked_exposure now writes whenever manage_positions finds broker
+# positions with no local exit-state.json record (see that function's docstring for the
+# 2026-09-09 incident this closes). UNTRACKED_BROKER_EXPOSURE = the ADOPT path itself
+# failed (no usable avg_entry_price, or an exception while building/saving the ExitState)
+# -- a genuine unresolved problem, RED. POSITION_ADOPTED = the self-heal worked -- tallied
+# separately and surfaced only as a `note` (not RED), since the position is now being
+# managed normally; still visible so a human can see reconciliation happened at all.
+# ══════════════════════════════════════════════════════════════════════════════════════
+def count_untracked_exposure_today(rows: list[dict], today_utc_str: str) -> "tuple[int, int]":
+    """Returns (unresolved_today, adopted_today) -- counts of UNTRACKED_BROKER_EXPOSURE
+    and POSITION_ADOPTED rows respectively, dated today (UTC) via each row's own
+    `ts_utc` field (crypto_twin_core._journal's fixed key -- unlike RULE 3's incidents.jsonl,
+    journal.jsonl has a confirmed, stable schema, so this reads `ts_utc`/`event` directly
+    rather than scanning every value)."""
+    unresolved = 0
+    adopted = 0
+    for row in rows:
+        ts = row.get("ts_utc")
+        if not (isinstance(ts, str) and ts[:10] == today_utc_str):
+            continue
+        event = row.get("event")
+        if event == "UNTRACKED_BROKER_EXPOSURE":
+            unresolved += 1
+        elif event == "POSITION_ADOPTED":
+            adopted += 1
+    return unresolved, adopted
+
+
+# ══════════════════════════════════════════════════════════════════════════════════════
 # RULE 4 data: path coverage -- CONFIRMED schema (2026-07-11, B1c ship, verified against
 # the REAL producer -- crypto_twin_scenarios.py's BRANCH_REGISTRY/_mark_exercise_result
 # + crypto_twin_health.py's summarize_path_coverage(), not guessed):
@@ -418,6 +454,7 @@ def evaluate(
     health_path: Path = HEALTH_PATH,
     incidents_path: Path = INCIDENTS_PATH,
     coverage_path: Path = COVERAGE_PATH,
+    journal_path: Path = JOURNAL_PATH,
 ) -> dict:
     now_utc = now_utc or datetime.now(timezone.utc)
     now_et = now_et or et_now()
@@ -518,6 +555,26 @@ def evaluate(
             and current_account_status != "LIVE"):
         reasons.append(f"ACCOUNT_REGRESSION: account_status LIVE -> {current_account_status}")
 
+    # RULE 7: UNTRACKED_EXPOSURE (RED) -- see the "RULE 7 data" section above. Only the
+    # UNRESOLVED case (adoption itself failed) is RED; a successful POSITION_ADOPTED
+    # self-heal is surfaced as a note only (the position is being managed normally again).
+    journal_rows = _read_jsonl(journal_path)
+    untracked_unresolved_today, untracked_adopted_today = count_untracked_exposure_today(
+        journal_rows, today_utc_str)
+    if untracked_unresolved_today > 0:
+        reasons.append(
+            f"UNTRACKED_EXPOSURE: {untracked_unresolved_today} UNTRACKED_BROKER_EXPOSURE "
+            f"row(s) today in {journal_path.name} -- broker shows a position with no "
+            "local exit-state.json record and adoption failed (see journal.jsonl for the "
+            "note field's exact reason)")
+    if untracked_adopted_today > 0:
+        notes.append(
+            f"{untracked_adopted_today} broker position(s) today self-healed via "
+            "POSITION_ADOPTED (no local record found, adopted into exit-state.json -- "
+            "not a RED, being managed normally now)")
+    if not journal_path.exists():
+        notes.append(f"{journal_path.name} not present -- UNTRACKED_EXPOSURE check treated as 0 (fail-open)")
+
     has_red = any(r.split(":", 1)[0] in RED_CODES for r in reasons)
     has_yellow = any(r.split(":", 1)[0] in YELLOW_CODES for r in reasons)
     verdict = "RED" if has_red else ("YELLOW" if has_yellow else "GREEN")
@@ -533,6 +590,8 @@ def evaluate(
         "account_status": current_account_status,
         "last_action": health["last_action"],
         "last_error": health["last_error"],
+        "untracked_exposure_unresolved_today": untracked_unresolved_today,
+        "untracked_exposure_adopted_today": untracked_adopted_today,
     }
 
     return {
@@ -627,6 +686,7 @@ def run_sentinel(
     health_path: Path = HEALTH_PATH,
     incidents_path: Path = INCIDENTS_PATH,
     coverage_path: Path = COVERAGE_PATH,
+    journal_path: Path = JOURNAL_PATH,
 ) -> dict:
     now_utc = now_utc or datetime.now(timezone.utc)
     now_et = now_et or et_now()
@@ -642,6 +702,7 @@ def run_sentinel(
         now_utc=now_utc, now_et=now_et, prior_sentinel=prior,
         decisions_path=decisions_path, health_path=health_path,
         incidents_path=incidents_path, coverage_path=coverage_path,
+        journal_path=journal_path,
     )
 
     if result["verdict"] == "RED":
