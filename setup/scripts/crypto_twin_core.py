@@ -104,6 +104,7 @@ setup/scripts/crypto_twin_friction_calibration.py.
 from __future__ import annotations
 
 import json
+import math
 import re
 import sys
 import time
@@ -175,6 +176,18 @@ class TwinConfig:
                                                     # are intentionally independent: risk_gate's
                                                     # mechanism-fidelity doesn't need to track the
                                                     # unit-lot's exact dollar size.
+                                                    # CONTROL SIZING (2026-09-13, GOAL-EARN-YOUR-
+                                                    # KEEP item 7b): this field is ALSO the literal
+                                                    # rail for FORCED/scenario entries (the path-
+                                                    # coverage battery -- mechanism checks that must
+                                                    # not burn equity) and the FALLBACK rail when a
+                                                    # fresh broker equity read is unavailable. Real
+                                                    # ORGANIC entries no longer use this constant --
+                                                    # see _resolve_entry_sizing()/ORGANIC_SIZING_PCT
+                                                    # (10% of start-of-day equity, cached daily in
+                                                    # sizing.json). REVERT: set ORGANIC_SIZING_PCT's
+                                                    # call site back to a bare entry_qty_btc(cfg) to
+                                                    # restore the flat $200 rail for organic entries.
     max_hold_hours: float = 6.0                   # flatten backstop (EOD-flatten analog)
     # WALL-CLOCK TIME STOP -- DISABLED FOR 24/7 (2026-07-26, TWIN-TIMESTOP).
     # exit_manager defaults time_stop_et to SPY's 15:50 ET EOD flatten and tests it as
@@ -195,7 +208,15 @@ class TwinConfig:
     # risk_gate proxy (see module docstring: "min-qty analog preserved so risk_gate paths execute")
     min_contracts: int = 1
     per_trade_risk_cap_pct: float = 0.30           # mirrors Rule 6 Safe cap
-    daily_loss_kill_switch_pct: float = 0.30       # mirrors Rule 5 Safe cap, UTC-day anchored
+    # BREAKER TIGHTENED 2026-09-13 (GOAL-EARN-YOUR-KEEP item 7b, J directive): was 0.30
+    # (mirrors Rule 5 Safe cap). The twin is now sized at 10% of equity per organic entry
+    # (ORGANIC_SIZING_PCT) instead of a flat ~$200, so a 30%-of-equity daily floor no
+    # longer bounds real loss the way it did at the old fixed dollar size -- 0.05 halts
+    # BOTH organic and scenario entries for the rest of the UTC day once equity is down
+    # 5% from its start-of-day mark (kill_switch_tripped flows into _risk_gate_check's
+    # rg.check_order regardless of scenario_tag -- see run_tick, no scenario-based
+    # exemption exists). REVERT: 0.30.
+    daily_loss_kill_switch_pct: float = 0.05       # UTC-day anchored, see note above
     starting_equity: float = 2000.0                # synthetic/local seed; broker equity preferred once configured (C11)
 
     # UNIT-LOT MODE (B1a, 2026-07-11, markdown/planning/TWIN-PROGRAM.md): every entry buys a
@@ -300,6 +321,145 @@ def entry_qty_btc(cfg: TwinConfig) -> float:
     return round(cfg.units_per_entry * cfg.unit_qty_btc, 8)
 
 
+# --- CONTROL SIZING (2026-09-13, GOAL-EARN-YOUR-KEEP item 7b) --------------------------
+# J directive: the crypto twin is the 24/7 proving ground, so its sizing should scale with
+# the account like a real strategy would, not sit at a flat ~$200/entry forever regardless
+# of equity. ORGANIC entries (a genuine ribbon+level verdict, never `--force-entry` and
+# never scenario-tagged) now size at ORGANIC_SIGNING_PCT of the account's START-OF-DAY
+# equity, refreshed from the broker once per UTC day and cached in sizing.json (mirrors
+# load_breaker's load-or-roll-per-UTC-day idiom one section up). FORCED/scenario entries
+# (crypto_twin_scenarios.py's path-coverage battery -- mechanism checks, not decisions)
+# and the fail-open fallback both keep the OLD entry_qty_btc(cfg) rail (~$200,
+# notional_usd=200.0/units_per_entry=3/unit_qty_btc=0.0008) verbatim -- REVERT for organic
+# sizing specifically is "always return SCENARIO_RAIL sizing from _resolve_entry_sizing".
+#
+# PERFORMANCE NOTE: this reads the broker AT MOST ONCE PER UTC DAY (cached the rest of the
+# day), unlike run_tick's own per-tick `broker.get_account(creds)` call for current equity
+# -- deliberately separate from that read because THIS one must be the immutable
+# start-of-day snapshot (10% of a compounding same-day number would size differently every
+# tick), matching the task's explicit "read equity once per UTC day" requirement.
+ORGANIC_SIZING_PCT = 0.10
+SIZING_MODE_ORGANIC = "organic_10pct"
+SIZING_MODE_SCENARIO = "scenario_rail"
+SIZING_MODE_FALLBACK = "fallback_rail"
+
+
+def _sizing_path(cfg: TwinConfig) -> Path:
+    return cfg.state_dir / "sizing.json"
+
+
+def _scenario_rail_sizing(cfg: TwinConfig, *, mode: str = SIZING_MODE_SCENARIO) -> dict:
+    """The OLD static rail, unchanged: units_per_entry fixed units * unit_qty_btc, at
+    cfg.notional_usd. Used verbatim for scenario/forced entries and as the fail-open
+    fallback for organic entries -- see module note above."""
+    return {"qty_btc": entry_qty_btc(cfg), "unit_qty_btc": cfg.unit_qty_btc,
+            "notional_usd": cfg.notional_usd, "sizing_mode": mode}
+
+
+def _floor_to_precision(x: float, decimals: int = 8) -> float:
+    """Round DOWN (never up) to `decimals` places -- crypto_twin_broker.place_crypto_order's
+    OWN documented precision rule for a sell (`q = math.floor(q * 1e8) / 1e8` -- "FLOOR,
+    never round(): fee-shaved crypto positions carry sub-8dp balances ... round-half-up
+    requests 1e-9 MORE than the broker holds -> Alpaca 403"). No narrower precision rule
+    exists anywhere in crypto_twin_broker.py for a BUY (it uses `round(q, 8)` there, since a
+    marketable buy can't over-request), but flooring a computed BUY qty is the conservative
+    choice here too: it guarantees the notional actually spent is <= the sized notional,
+    never more, which is the property a risk rail must hold."""
+    factor = 10 ** decimals
+    return math.floor(x * factor) / factor
+
+
+def _load_todays_sizing_notional(cfg: TwinConfig, *, creds: Optional[dict],
+                                 now_utc: datetime) -> Optional[float]:
+    """The cached-or-fresh notional_usd for TODAY's organic entries (10% of the broker's
+    start-of-day equity), or None if no cache exists for today AND a fresh broker read is
+    unavailable/fails (caller falls back to the old rail -- see _resolve_entry_sizing).
+
+    Load-or-roll-per-UTC-day, same shape as load_breaker/save_breaker: same-day cache hit
+    needs zero broker calls; a new day (or a missing/corrupt cache) tries ONE fresh
+    broker.get_account() and persists it for the rest of the day on success. A failed read
+    is NOT cached (so the very next attempt -- next entry signal, not next tick -- retries
+    rather than sticking with a stale fallback for the whole day)."""
+    today = now_utc.strftime("%Y-%m-%d")
+    p = _sizing_path(cfg)
+    if p.exists():
+        try:
+            raw = json.loads(p.read_text(encoding="utf-8"))
+            if raw.get("utc_date") == today:
+                notional = raw.get("notional_usd")
+                if notional is not None and float(notional) > 0:
+                    return float(notional)
+        except (OSError, json.JSONDecodeError, TypeError, ValueError):
+            pass  # fall through to a fresh read, same fail-open contract as load_breaker
+    if creds is None:
+        return None
+    try:
+        acct = broker.get_account(creds)
+    except Exception:  # noqa: BLE001 -- broker read must never raise into the entry path
+        return None
+    if not isinstance(acct, dict) or acct.get("_error"):
+        return None
+    try:
+        equity = float(acct.get("equity"))
+    except (TypeError, ValueError):
+        return None
+    if equity <= 0:
+        return None
+    notional = round(equity * ORGANIC_SIZING_PCT, 2)
+    try:
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(json.dumps({
+            "utc_date": today, "start_of_day_equity": equity, "pct": ORGANIC_SIZING_PCT,
+            "notional_usd": notional, "computed_at_utc": now_utc.isoformat(),
+            "_doc": "10% of broker start-of-day equity, refreshed once/UTC-day. "
+                    "GOAL-EARN-YOUR-KEEP item 7b (2026-09-13). Old static rail: "
+                    "notional_usd=200.0 (crypto_twin_core.TwinConfig). "
+                    "REVERT: delete this file and revert _resolve_entry_sizing's organic branch.",
+        }, indent=2), encoding="utf-8")
+    except OSError:
+        pass  # caching is best-effort -- a write failure must not block using the value
+    return notional
+
+
+def _resolve_entry_sizing(cfg: TwinConfig, *, creds: Optional[dict], price: Optional[float],
+                          organic: bool, now_utc: datetime) -> dict:
+    """ONE call, used only by run_tick (the real production entry path): decides the sizing
+    for THIS entry attempt and returns {"qty_btc", "unit_qty_btc", "notional_usd",
+    "sizing_mode"}. `organic` must be `force_entry is None and scenario_tag is None` (a
+    `--force-entry` CLI-flag verdict is NOT a decision either, even though it also carries
+    no scenario_tag -- see crypto_twin_pnl.py's FORCE_MARKER discriminator for the same
+    distinction made from the read side).
+
+    Every entry row this sizing feeds into journal.jsonl carries notional_usd + sizing_mode
+    (organic_10pct | scenario_rail | fallback_rail) -- see place_entry/_register_passive_position.
+    """
+    if not organic:
+        return _scenario_rail_sizing(cfg, mode=SIZING_MODE_SCENARIO)
+    notional_usd = _load_todays_sizing_notional(cfg, creds=creds, now_utc=now_utc)
+    if notional_usd is None:
+        fallback = _scenario_rail_sizing(cfg, mode=SIZING_MODE_FALLBACK)
+        _journal(cfg, "SIZING_FALLBACK", reason="broker start-of-day equity read unavailable "
+                "or failed today -- using the old flat rail",
+                notional_usd=fallback["notional_usd"], sizing_mode=fallback["sizing_mode"])
+        return fallback
+    if not price or price <= 0:
+        fallback = _scenario_rail_sizing(cfg, mode=SIZING_MODE_FALLBACK)
+        _journal(cfg, "SIZING_FALLBACK", reason=f"no usable price ({price!r}) to size against",
+                notional_usd=fallback["notional_usd"], sizing_mode=fallback["sizing_mode"])
+        return fallback
+    unit_qty_btc = _floor_to_precision(notional_usd / cfg.units_per_entry / price, 8)
+    qty_btc = _floor_to_precision(unit_qty_btc * cfg.units_per_entry, 8)
+    if unit_qty_btc <= 0 or qty_btc <= 0:
+        # degenerate -- e.g. an absurd price -- fail open rather than place a 0-qty order
+        fallback = _scenario_rail_sizing(cfg, mode=SIZING_MODE_FALLBACK)
+        _journal(cfg, "SIZING_FALLBACK", reason=f"computed qty floors to 0 at notional="
+                f"{notional_usd} price={price}", notional_usd=fallback["notional_usd"],
+                sizing_mode=fallback["sizing_mode"])
+        return fallback
+    return {"qty_btc": qty_btc, "unit_qty_btc": unit_qty_btc,
+            "notional_usd": notional_usd, "sizing_mode": SIZING_MODE_ORGANIC}
+
+
 def get_open_position(cfg: TwinConfig) -> Optional[dict]:
     """PUBLIC accessor: the persisted position record for cfg.symbol (None if flat).
     Lets a sibling module (crypto_twin_scenarios.py) inspect position/scenario state
@@ -382,6 +542,14 @@ def load_breaker(cfg: TwinConfig, *, now_utc: datetime, current_equity: float) -
     return ks_initial(cfg.account_label, sod, cfg.daily_loss_kill_switch_pct)
 
 
+_BREAKER_DOC = ("threshold_pct lowered 0.30 -> 0.05 on 2026-09-13 (GOAL-EARN-YOUR-KEEP item "
+               "7b): halts ORGANIC and SCENARIO entries alike for the rest of the UTC day once "
+               "current_equity <= start_of_day_equity * (1 - threshold_pct). Existing knob "
+               "(TwinConfig.daily_loss_kill_switch_pct), new value -- this file is REGENERATED "
+               "every tick (see save_breaker), so the authority is the config default, not a "
+               "hand-edit. REVERT: 0.30.")
+
+
 def save_breaker(cfg: TwinConfig, state: KillSwitchState, *, now_utc: datetime, current_equity: float) -> None:
     p = _breaker_path(cfg)
     p.parent.mkdir(parents=True, exist_ok=True)
@@ -390,6 +558,7 @@ def save_breaker(cfg: TwinConfig, state: KillSwitchState, *, now_utc: datetime, 
         "start_of_day_equity": state.start_of_day_equity, "current_equity": current_equity,
         "threshold_pct": state.threshold_pct, "tripped": state.tripped,
         "tripped_at_equity": state.tripped_at_equity, "min_equity_seen": state.min_equity_seen,
+        "_doc": _BREAKER_DOC,
     }, indent=2), encoding="utf-8")
 
 
@@ -821,7 +990,15 @@ def manage_positions(cfg: TwinConfig, *, creds: Optional[dict], now_utc: datetim
             if a.kind in ("SELL_PARTIAL", "SELL_ALL"):
                 if a.kind == "SELL_PARTIAL":
                     units_sold = a.qty
-                    btc_qty = round(units_sold * cfg.unit_qty_btc, 8)  # deterministic unit->BTC
+                    # CONTROL SIZING (2026-09-13): an organically-sized entry's real
+                    # per-unit BTC quantum can differ from cfg.unit_qty_btc (10% of equity
+                    # vs the static default) -- rec["unit_qty_btc"] is the ACTUAL quantum
+                    # this position was bought at (see place_entry/_register_passive_
+                    # position), so TP1's partial-sell math stays exact for it. Falls back
+                    # to cfg.unit_qty_btc for records that predate this field (old
+                    # positions, the adopt-path's ExitState) -- byte-identical to the prior
+                    # behavior for those.
+                    btc_qty = round(units_sold * rec.get("unit_qty_btc", cfg.unit_qty_btc), 8)
                 else:
                     # SELL_ALL: exit_manager's own a.qty always echoes the open_qty
                     # PARAMETER this tick was called with (cfg.units_per_entry, the
@@ -895,7 +1072,8 @@ def manage_positions(cfg: TwinConfig, *, creds: Optional[dict], now_utc: datetim
 def place_entry(cfg: TwinConfig, *, creds: dict, side: str, price: float,
                 trigger_level: Optional[float], live: bool,
                 now_utc: Optional[datetime] = None,
-                scenario_tag: Optional[str] = None) -> dict:
+                scenario_tag: Optional[str] = None,
+                sizing: Optional[dict] = None) -> dict:
     """BUY-only (Alpaca crypto is cash/long-only -- no short leg exists to express a
     "bear" verdict as a position; see run_tick for how ENTER_BEAR is logged-but-skipped).
 
@@ -913,28 +1091,43 @@ def place_entry(cfg: TwinConfig, *, creds: dict, side: str, price: float,
 
     `scenario_tag` (B1b, None for every organic entry) is threaded into the PLACED/FILLED
     journal rows and the persisted position record (position["scenario"]) so the whole
-    lifecycle stays taggable -- see crypto_twin_scenarios.py."""
+    lifecycle stays taggable -- see crypto_twin_scenarios.py.
+
+    `sizing` (2026-09-13, GOAL-EARN-YOUR-KEEP item 7b) is an OPTIONAL override dict --
+    {"qty_btc", "unit_qty_btc", "notional_usd", "sizing_mode"} -- from run_tick's
+    _resolve_entry_sizing(). Default None reproduces the EXACT pre-7b behavior byte for
+    byte (qty_btc=entry_qty_btc(cfg), unit_qty_btc=cfg.unit_qty_btc, notional_usd=
+    cfg.notional_usd, sizing_mode="scenario_rail") -- every direct test/twin_gauntlet
+    caller that doesn't pass `sizing` is therefore unaffected by this change; only
+    run_tick's real organic-entry path resolves and passes dynamic sizing."""
     now = now_utc or datetime.now(timezone.utc)
-    qty_btc = entry_qty_btc(cfg)
+    resolved = sizing or _scenario_rail_sizing(cfg)
+    qty_btc = resolved["qty_btc"]
+    unit_qty_btc = resolved["unit_qty_btc"]
+    notional_usd = resolved["notional_usd"]
+    sizing_mode = resolved["sizing_mode"]
     order = broker.place_crypto_order(creds, symbol=cfg.symbol, side="buy",
                                       qty=qty_btc, order_type="market", live=live)
     _journal(cfg, "PLACED", symbol=cfg.symbol, side=side, units=cfg.units_per_entry,
-            unit_qty_btc=cfg.unit_qty_btc, qty_btc=qty_btc, price=price,
-            trigger_level=trigger_level, scenario=scenario_tag, order=order, live=live)
+            unit_qty_btc=unit_qty_btc, qty_btc=qty_btc, price=price,
+            trigger_level=trigger_level, scenario=scenario_tag, order=order, live=live,
+            notional_usd=notional_usd, sizing_mode=sizing_mode)
     if not live or order.get("_error") or order.get("_refused") or order.get("_skipped"):
         return {"placed": False, "order": order}
     order_id = order.get("id")
     fill = broker.poll_fill(creds, order_id, attempts=4, sleep_sec=1.5) if order_id else \
         {"filled": False, "status": "unknown"}
     _journal(cfg, "FILLED", symbol=cfg.symbol, order_id=order_id, units=cfg.units_per_entry,
-            scenario=scenario_tag, fill=fill)
+            scenario=scenario_tag, fill=fill, notional_usd=notional_usd, sizing_mode=sizing_mode)
     entry_price = fill.get("filled_avg_price") or price
     st = em.ExitState.from_entry(symbol=cfg.symbol, side="C", entry_premium=float(entry_price),
                                  qty=cfg.units_per_entry, exit_shape=cfg.exit_shape, strategy="crypto_twin",
                                  trigger_level=trigger_level, structure_stop_enabled=True)
     positions = _load_positions(cfg)
     positions[cfg.symbol] = {"exit_state": st.to_dict(), "entered_at_utc": now.isoformat(),
-                             "side": side, "order_id": order_id, "scenario": scenario_tag}
+                             "side": side, "order_id": order_id, "scenario": scenario_tag,
+                             "unit_qty_btc": unit_qty_btc, "notional_usd": notional_usd,
+                             "sizing_mode": sizing_mode}
     _save_positions(cfg, positions)
     return {"placed": True, "order": order, "fill": fill, "exit_state": st.to_dict()}
 
@@ -942,13 +1135,23 @@ def place_entry(cfg: TwinConfig, *, creds: dict, side: str, price: float,
 # --- TWIN-B3: A/B entry dispatcher (passive-limit graduation, EDGE-1) ---------------------
 def _register_passive_position(cfg: TwinConfig, *, res: dict, side: str,
                                trigger_level: Optional[float], scenario_tag: Optional[str],
-                               ab_index: Optional[int], now: datetime) -> dict:
+                               ab_index: Optional[int], now: datetime,
+                               sizing: Optional[dict] = None) -> dict:
     """Mirror of place_entry's post-fill tail for a PASSIVE fill: journal FILLED, build
-    the REAL exit_manager.ExitState off the actual fill price, persist the position."""
+    the REAL exit_manager.ExitState off the actual fill price, persist the position.
+
+    `sizing` (2026-09-13, GOAL-EARN-YOUR-KEEP item 7b): same override dict place_entry
+    takes -- default None reproduces the exact pre-7b values (cfg.unit_qty_btc,
+    cfg.notional_usd, sizing_mode="scenario_rail")."""
+    resolved = sizing or _scenario_rail_sizing(cfg)
+    unit_qty_btc = resolved["unit_qty_btc"]
+    notional_usd = resolved["notional_usd"]
+    sizing_mode = resolved["sizing_mode"]
     fill_price = float(res["fill_price"])
     _journal(cfg, "FILLED", symbol=cfg.symbol, order_id=res.get("order_id"),
             units=cfg.units_per_entry, scenario=scenario_tag, fill=res.get("fill"),
-            entry_mode="passive", ab_index=ab_index)
+            entry_mode="passive", ab_index=ab_index, notional_usd=notional_usd,
+            sizing_mode=sizing_mode)
     st = em.ExitState.from_entry(symbol=cfg.symbol, side="C", entry_premium=fill_price,
                                  qty=cfg.units_per_entry, exit_shape=cfg.exit_shape,
                                  strategy="crypto_twin", trigger_level=trigger_level,
@@ -956,7 +1159,9 @@ def _register_passive_position(cfg: TwinConfig, *, res: dict, side: str,
     positions = _load_positions(cfg)
     positions[cfg.symbol] = {"exit_state": st.to_dict(), "entered_at_utc": now.isoformat(),
                              "side": side, "order_id": res.get("order_id"),
-                             "scenario": scenario_tag, "entry_mode": "passive"}
+                             "scenario": scenario_tag, "entry_mode": "passive",
+                             "unit_qty_btc": unit_qty_btc, "notional_usd": notional_usd,
+                             "sizing_mode": sizing_mode}
     _save_positions(cfg, positions)
     return {"placed": True, "order": res.get("order"), "fill": res.get("fill"),
             "exit_state": st.to_dict(), "entry_mode": "passive", "ab_index": ab_index}
@@ -979,7 +1184,8 @@ def place_entry_ab(cfg: TwinConfig, *, creds: dict, side: str, price: float,
                    trigger_level: Optional[float], live: bool,
                    now_utc: Optional[datetime] = None,
                    scenario_tag: Optional[str] = None,
-                   entry_mode_override: Optional[str] = None) -> dict:
+                   entry_mode_override: Optional[str] = None,
+                   sizing: Optional[dict] = None) -> dict:
     """TWIN-B3 (EDGE-1 graduation): the A/B entry dispatcher. Alternates every LIVE entry
     attempt between the legacy MARKETABLE path (place_entry, byte-identical) and the
     PASSIVE-limit path (crypto_twin_entry_quality.place_passive_entry -- entry_manager's
@@ -996,11 +1202,17 @@ def place_entry_ab(cfg: TwinConfig, *, creds: dict, side: str, price: float,
 
     FAIL-OPEN: any unexpected passive-path exception (or an expected fallback: no quote,
     order rejected) falls through to the marketable path so the twin still enters; the
-    fallback is recorded under the passive cohort's `fallbacks` counter."""
+    fallback is recorded under the passive cohort's `fallbacks` counter.
+
+    `sizing` (2026-09-13, GOAL-EARN-YOUR-KEEP item 7b): same override dict place_entry
+    takes, threaded to whichever cohort actually fills -- default None reproduces the
+    exact pre-7b static-rail values for every caller that doesn't pass it (run_tick is
+    the only caller that does, see its own docstring)."""
     now = now_utc or datetime.now(timezone.utc)
+    resolved_sizing = sizing or _scenario_rail_sizing(cfg)
     if not live:
         result = place_entry(cfg, creds=creds, side=side, price=price, trigger_level=trigger_level,
-                             live=live, now_utc=now, scenario_tag=scenario_tag)
+                             live=live, now_utc=now, scenario_tag=scenario_tag, sizing=sizing)
         return {**result, "entry_mode": "marketable", "ab_index": None}
 
     if entry_mode_override in ("passive", "marketable"):
@@ -1012,8 +1224,8 @@ def place_entry_ab(cfg: TwinConfig, *, creds: dict, side: str, price: float,
     if cohort == "passive":
         try:
             res = eq.place_passive_entry(
-                creds=creds, symbol=cfg.symbol, qty_btc=entry_qty_btc(cfg),
-                units=cfg.units_per_entry, unit_qty_btc=cfg.unit_qty_btc, side=side,
+                creds=creds, symbol=cfg.symbol, qty_btc=resolved_sizing["qty_btc"],
+                units=cfg.units_per_entry, unit_qty_btc=resolved_sizing["unit_qty_btc"], side=side,
                 price=price, trigger_level=trigger_level, scenario_tag=scenario_tag,
                 ab_index=ab_index, live=live, patience_polls=cfg.passive_patience_polls,
                 poll_seconds=cfg.passive_poll_seconds, limit_fraction=cfg.passive_limit_fraction,
@@ -1035,7 +1247,8 @@ def place_entry_ab(cfg: TwinConfig, *, creds: dict, side: str, price: float,
                 journal=lambda event, **f: _journal(cfg, event, **f))
             _journal_entry_quality(cfg, attempt)
             return _register_passive_position(cfg, res=res, side=side, trigger_level=trigger_level,
-                                              scenario_tag=scenario_tag, ab_index=ab_index, now=now)
+                                              scenario_tag=scenario_tag, ab_index=ab_index, now=now,
+                                              sizing=resolved_sizing)
         if res["outcome"] == "missed":
             attempt = eq.record_attempt(cfg.state_dir, {
                 **base_attempt, "outcome": "missed",
@@ -1061,8 +1274,12 @@ def place_entry_ab(cfg: TwinConfig, *, creds: dict, side: str, price: float,
     baseline_ask = baseline_quote[0] if baseline_quote else price
     baseline_bid = baseline_quote[1] if baseline_quote else None
     t0 = time.monotonic()
+    # NOTE: passes the ORIGINAL `sizing` param (not resolved_sizing) -- place_entry does the
+    # identical `sizing or _scenario_rail_sizing(cfg)` fallback internally, so the two are
+    # equivalent here; resolved_sizing above exists only for the passive-cohort helpers
+    # (eq.place_passive_entry / _register_passive_position), which have no fallback of their own.
     result = place_entry(cfg, creds=creds, side=side, price=price, trigger_level=trigger_level,
-                         live=live, now_utc=now, scenario_tag=scenario_tag)
+                         live=live, now_utc=now, scenario_tag=scenario_tag, sizing=sizing)
     fill_price = None
     if result.get("placed"):
         try:
@@ -1191,9 +1408,20 @@ def run_tick(cfg: TwinConfig = TwinConfig(), *, live: bool = False,
         elif creds is None:
             action = account_block_reason or "BLOCKED_NO_ACCOUNT"
         else:
+            # CONTROL SIZING (2026-09-13, GOAL-EARN-YOUR-KEEP item 7b): "organic" means a
+            # genuine ribbon+level verdict -- NEITHER the `--force-entry` CLI test flag NOR
+            # a scenario_tag from the path-coverage battery. Both of the latter keep the
+            # static $200 rail (mechanism checks must not burn equity); only a real signal
+            # sizes at 10% of start-of-day equity. Mirrors crypto_twin_pnl.py's own
+            # organic/forced discriminator (scenario_tag alone is not sufficient -- a bare
+            # --force-entry carries no scenario_tag either).
+            is_organic = force_entry is None and scenario_tag is None
+            sizing = _resolve_entry_sizing(cfg, creds=creds, price=price, organic=is_organic,
+                                           now_utc=now)
             result = place_entry_ab(cfg, creds=creds, side=verdict.side, price=price,
                                     trigger_level=verdict.trigger_level_exact, live=live, now_utc=now,
-                                    scenario_tag=scenario_tag, entry_mode_override=entry_mode_override)
+                                    scenario_tag=scenario_tag, entry_mode_override=entry_mode_override,
+                                    sizing=sizing)
             entry_mode = result.get("entry_mode")
             if result.get("placed"):
                 action = "ENTERED"
