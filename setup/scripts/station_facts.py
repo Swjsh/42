@@ -410,6 +410,24 @@ def gather_web_scan(enabled: bool, feeds: Optional[list] = None, *, max_items: i
 # Top-level assembly + rendering
 # --------------------------------------------------------------------------- #
 
+def gather_sector_rows() -> dict:
+    """GAMMA-STATION item 13 (2026-09-13): the same per-lane rows HOME.md's '## Sectors' table renders
+    (setup/scripts/sector_rows.py build_sector_rows) -- so a RED / frozen / zombie lane is in front of the
+    model every fire and becomes a card, and Gamma 'runs the sectors' from one source. Fail-open."""
+    try:
+        try:
+            import sector_rows  # sibling script (station_loop puts this dir on sys.path)
+        except ImportError:
+            import sys as _sys
+            _sys.path.insert(0, str(Path(__file__).resolve().parent))
+            import sector_rows
+        rows = sector_rows.build_sector_rows(REPO)
+        keep = ("lane", "state", "health", "last_evidence_et", "window_pnl", "evidence")
+        return {"available": True, "rows": [{k: r.get(k) for k in keep} for r in rows]}
+    except Exception as exc:  # noqa: BLE001 -- the facts block never dies on one feed
+        return {"available": False, "error": repr(exc)[:200], "rows": []}
+
+
 def gather_all_facts(config: dict, *, now_utc: Optional[datetime] = None) -> dict:
     now = now_utc or datetime.now(timezone.utc)
     return {
@@ -427,6 +445,7 @@ def gather_all_facts(config: dict, *, now_utc: Optional[datetime] = None) -> dic
         "ideas_board_existing": gather_ideas_board_titles(),
         "graveyard": gather_graveyard_titles(),
         "autopsy_aggregates": gather_autopsy_aggregates(gather_autopsy_rows_for_facts()),
+        "sector_rows": gather_sector_rows(),
         "web_scan": gather_web_scan(config.get("web_scan", False), config.get("web_scan_feeds", [])),
     }
 
@@ -546,6 +565,15 @@ def render_facts_text(facts: dict) -> str:
 
     lines.append("")
     lines.extend(_render_autopsy_aggregates(facts.get("autopsy_aggregates", {})))
+
+    sr = facts.get("sector_rows", {})
+    if sr.get("available") and sr["rows"]:
+        lines.append("")
+        lines.append("Sectors (same rows as HOME.md '## Sectors'; a red / frozen / zombie lane is card material):")
+        for r in sr["rows"]:
+            ev = str(r.get("evidence") or "")[:70]
+            lines.append(f"  - {r.get('lane')}: {r.get('state')} / {r.get('health')} / last {r.get('last_evidence_et')} "
+                         f"/ pnl {r.get('window_pnl')} / {ev}")
 
     ws = facts["web_scan"]
     if ws.get("enabled") and ws.get("items"):
