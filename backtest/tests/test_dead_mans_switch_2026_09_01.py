@@ -67,6 +67,7 @@ def fake_env(tmp_path, monkeypatch):
     arms + one fleet arm so a test can control liveness precisely without real ledgers."""
     monkeypatch.setattr(dms, "_REPO", tmp_path)
     monkeypatch.setattr(dms, "CORE_DECISIONS_PATH", tmp_path / "automation" / "state" / "core-decisions.jsonl")
+    monkeypatch.setattr(dms, "TICK_MARKER_PATH", tmp_path / "automation" / "state" / "core-decisions-tick.json")
     monkeypatch.setattr(dms, "FLEET_DIR", tmp_path / "automation" / "state" / "fleet")
     monkeypatch.setattr(dms, "STATE_PATH", tmp_path / "automation" / "state" / "dead-mans-switch.json")
     monkeypatch.setattr(dms, "STATUS_MD", tmp_path / "automation" / "overnight" / "STATUS.md")
@@ -95,6 +96,13 @@ def _write_fleet_row(tmp_path: Path, arm: str, ts_et: str) -> None:
     d.mkdir(parents=True, exist_ok=True)
     with (d / "decisions.jsonl").open("a", encoding="utf-8") as f:
         f.write(json.dumps({"ts_et": ts_et, "arm_id": arm}) + "\n")
+
+
+def _write_tick_marker(tmp_path: Path, ts_et: str) -> None:
+    p = tmp_path / "automation" / "state" / "core-decisions-tick.json"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps({"core_tick_id": ts_et, "ts_et": ts_et,
+                              "accounts": ["bold", "safe"]}), encoding="utf-8")
 
 
 RTH_ET = datetime(2026, 9, 1, 12, 0, 0)  # Tuesday, well inside 09:32-15:58 ET
@@ -193,6 +201,7 @@ def test_live_engine_takes_no_action(fake_env, monkeypatch) -> None:
     _write_core_row(tmp_path, "safe", fresh_ts)
     _write_core_row(tmp_path, "bold", fresh_ts)
     _write_fleet_row(tmp_path, "safe-3", (RTH_ET - timedelta(minutes=2)).isoformat() + "-04:00")
+    _write_tick_marker(tmp_path, fresh_ts)
 
     fb = FakeBroker(positions=[{"symbol": "SPY260901C00760000", "qty": "3"}])
     monkeypatch.setattr(dms, "fleet_broker", fb)
@@ -339,3 +348,158 @@ def test_go_live_gate_no_longer_hardcodes_the_gap() -> None:
         "the old hardcoded dead-man's-switch gap block is back -- it would overwrite the real "
         "GUARD_TESTS result for dead_mans_switch_open_position_on_process_death"
     )
+
+
+# --------------------------------------------------------------------------------------- #
+# 9. TICK DEAD-MAN (GOAL-SUBTRACTION-2026-09-11 item (b)) -- watches the SHARED
+#    core-decisions-tick.json marker on its OWN condition, independent of whether any
+#    arm/position is stale/open. See dead_mans_switch.py module docstring's "TICK DEAD-MAN"
+#    section for the ENGINE-STOPPED-EARLY-2026-09-09 gap this closes.
+# --------------------------------------------------------------------------------------- #
+def _status_with_known_broken(tmp_path: Path) -> Path:
+    """A minimal STATUS.md with a real '## Known broken' section -- status_known_broken.py's
+    upsert() only writes into an EXISTING file (it never creates one from nothing, by
+    design -- see that module's _upsert_impl: a missing file is an OSError, caught, no-op).
+    Production STATUS.md always exists; tests that want to observe an upsert must supply one."""
+    p = tmp_path / "automation" / "overnight" / "STATUS.md"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text("## Known broken\n\n## [2026-09-01] some prior dated entry\nbody\n",
+                 encoding="utf-8")
+    return p
+
+
+def test_is_tick_watch_window_boundaries() -> None:
+    weekend = datetime(2026, 9, 5, 12, 0, 0)  # Saturday
+    assert dms.is_tick_watch_window(weekend) is False
+
+    before = datetime(2026, 9, 1, 9, 34, 59)  # Tuesday, 1s before open
+    assert dms.is_tick_watch_window(before) is False
+
+    at_open = datetime(2026, 9, 1, 9, 35, 0)
+    assert dms.is_tick_watch_window(at_open) is True
+
+    at_close = datetime(2026, 9, 1, 15, 55, 0)
+    assert dms.is_tick_watch_window(at_close) is True
+
+    after = datetime(2026, 9, 1, 15, 55, 1)
+    assert dms.is_tick_watch_window(after) is False
+
+    # inside is_rth's wider 09:32-15:58 band but OUTSIDE the narrower tick-watch band --
+    # the two windows must not be conflated.
+    assert dms.is_rth(datetime(2026, 9, 1, 9, 33, 0)) is True
+    assert dms.is_tick_watch_window(datetime(2026, 9, 1, 9, 33, 0)) is False
+
+
+def test_tick_marker_age_minutes_computes_age(fake_env) -> None:
+    tmp_path = fake_env
+    ts = (RTH_ET - timedelta(minutes=3)).strftime("%Y-%m-%dT%H:%M:%S")
+    _write_tick_marker(tmp_path, ts)
+    age = dms.tick_marker_age_minutes(RTH_ET)
+    assert age is not None
+    assert 2.9 <= age <= 3.1
+
+
+def test_tick_marker_age_minutes_none_when_missing(fake_env) -> None:
+    assert dms.tick_marker_age_minutes(RTH_ET) is None
+
+
+def test_tick_marker_age_minutes_none_when_corrupt(fake_env) -> None:
+    tmp_path = fake_env
+    p = tmp_path / "automation" / "state" / "core-decisions-tick.json"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text("{not json", encoding="utf-8")
+    assert dms.tick_marker_age_minutes(RTH_ET) is None  # never raises, never guesses fresh
+
+
+def test_check_tick_deadman_flags_stale_marker_during_window(fake_env, monkeypatch) -> None:
+    tmp_path = fake_env
+    status_path = _status_with_known_broken(tmp_path)
+    stale_ts = (RTH_ET - timedelta(minutes=6)).strftime("%Y-%m-%dT%H:%M:%S")  # > 5m budget
+    _write_tick_marker(tmp_path, stale_ts)
+    log_path, _ = dms._log_paths()
+
+    result = dms.check_tick_deadman(RTH_ET, log_path)
+    assert result["stale"] is True
+    assert result["action"] == "FLAGGED"
+
+    status_txt = status_path.read_text(encoding="utf-8")
+    assert "TICK-DEADMAN:" in status_txt
+    assert "core-decisions-tick.json is 6.0m old" in status_txt
+
+
+def test_check_tick_deadman_replay_2026_09_09_fires_at_1511(fake_env) -> None:
+    """DONE-WHEN's own re-check: 'Re-check on the 09-09 replay: it would have fired at
+    15:11.' ENGINE-STOPPED-EARLY-2026-09-09 (STATUS.md): both accounts' last tick was
+    15:06:14 ET, 50 minutes dark before the 15:55 close, no alarm raised. Reproduce with
+    the real timestamp and prove the 5-minute budget crosses exactly where the incident
+    report says it should have."""
+    tmp_path = fake_env
+    _status_with_known_broken(tmp_path)
+    _write_tick_marker(tmp_path, "2026-09-09T15:06:14")
+    log_path, _ = dms._log_paths()
+
+    still_ok = dms.check_tick_deadman(datetime(2026, 9, 9, 15, 10, 0), log_path)
+    assert still_ok["stale"] is False, "at 15:10 (3m54s after the last tick) must NOT fire yet"
+
+    fires = dms.check_tick_deadman(datetime(2026, 9, 9, 15, 11, 15), log_path)
+    assert fires["stale"] is True
+    assert fires["action"] == "FLAGGED", "by 15:11:15 (>5m after 15:06:14) it must have fired"
+
+
+def test_check_tick_deadman_clears_when_fresh_again(fake_env) -> None:
+    tmp_path = fake_env
+    status_path = _status_with_known_broken(tmp_path)
+    stale_ts = (RTH_ET - timedelta(minutes=6)).strftime("%Y-%m-%dT%H:%M:%S")
+    _write_tick_marker(tmp_path, stale_ts)
+    log_path, _ = dms._log_paths()
+
+    dms.check_tick_deadman(RTH_ET, log_path)
+    assert "TICK-DEADMAN:" in status_path.read_text(encoding="utf-8")
+
+    fresh_ts = (RTH_ET - timedelta(minutes=1)).strftime("%Y-%m-%dT%H:%M:%S")
+    _write_tick_marker(tmp_path, fresh_ts)
+    result = dms.check_tick_deadman(RTH_ET, log_path)
+    assert result["stale"] is False
+    assert "TICK-DEADMAN:" not in status_path.read_text(encoding="utf-8"), (
+        "a recovered engine must CLEAR the marker, not leave a stale flag outliving the "
+        "condition that caused it"
+    )
+
+
+def test_check_tick_deadman_gated_outside_window_never_writes(fake_env) -> None:
+    tmp_path = fake_env
+    status_path = _status_with_known_broken(tmp_path)
+    _write_tick_marker(tmp_path, "2026-09-01T08:00:00")  # ancient -- would be stale if checked
+    log_path, _ = dms._log_paths()
+
+    before_open = datetime(2026, 9, 1, 9, 0, 0)
+    result = dms.check_tick_deadman(before_open, log_path)
+    assert result["gated"] == "outside_tick_watch_window"
+    assert "TICK-DEADMAN:" not in status_path.read_text(encoding="utf-8")
+
+
+def test_check_tick_deadman_never_raises_on_broken_status_path(fake_env, monkeypatch) -> None:
+    monkeypatch.setattr(dms, "TICK_MARKER_PATH", object())  # .read_text() will AttributeError
+    log_path, _ = dms._log_paths()
+    result = dms.check_tick_deadman(RTH_ET, log_path)  # must not raise
+    assert "error" in result
+
+
+def test_main_wires_tick_deadman_into_the_report(fake_env, monkeypatch) -> None:
+    tmp_path = fake_env
+    _status_with_known_broken(tmp_path)
+    fresh_ts = (RTH_ET - timedelta(minutes=2)).strftime("%Y-%m-%dT%H:%M:%S")
+    _write_core_row(tmp_path, "safe", fresh_ts)
+    _write_core_row(tmp_path, "bold", fresh_ts)
+    stale_tick_ts = (RTH_ET - timedelta(minutes=9)).strftime("%Y-%m-%dT%H:%M:%S")
+    _write_tick_marker(tmp_path, stale_tick_ts)
+
+    fb = FakeBroker(positions=[])
+    monkeypatch.setattr(dms, "fleet_broker", fb)
+    _pin_clock(monkeypatch)
+
+    rc = dms.main()
+    assert rc == 0
+    report = json.loads(dms.STATE_PATH.read_text(encoding="utf-8"))
+    assert report["tick_deadman"]["action"] == "FLAGGED"
+    assert report["tick_deadman"]["stale"] is True

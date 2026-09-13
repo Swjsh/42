@@ -19,6 +19,21 @@ Three existing mechanisms and why none of them close this:
                                10:00 ET leaves an open 0DTE position unmanaged for ~5h50m,
                                not until the scheduled backstop.
 
+TICK DEAD-MAN (GOAL-SUBTRACTION-2026-09-11 item (b), added 2026-09-13): everything above
+watches POSITIONS -- an arm is "stale" only relative to STALE_MIN=10 and only triggers an
+action if the broker also confirms an open position. Nothing watched "HeartbeatCore stopped
+ticking during RTH" as its own condition. ENGINE-STOPPED-EARLY-2026-09-09 (STATUS.md) shows
+why that gap matters even with 0 exposure: both accounts' last tick was 15:06:1x ET (50
+minutes dark before the 15:55 close) with NO alarm raised -- silent by construction, because
+no open position existed to trip the flatten logic above. `check_tick_deadman()` below is a
+second, independent condition: during 09:35-15:55 ET on a trading day, if the SHARED
+`core-decisions-tick.json` marker (written every core tick, both accounts, by
+heartbeat_core.py's `_write_tick_marker`) is older than TICK_DEADMAN_STALE_MIN minutes, it
+raises a de-duplicating STATUS.md '## Known broken' line via `status_known_broken.upsert()`
+-- independent of whether any position is open. Replayed against 09-09's own numbers: last
+tick 15:06:14, +5m budget = would have FIRED at 15:11 ET, 44 minutes before the actual 50m
+gap was ever surfaced anywhere.
+
 THIS SCRIPT is a separate, independent, /2min-scheduled process (setup/scripts/
 install-dead-mans-switch.ps1 registers Gamma_DeadMansSwitch) that:
   1. Only runs RTH weekdays 09:32-15:58 ET (et_clock -- never Bash TZ). Outside that window
@@ -79,6 +94,11 @@ except Exception:
 import fleet_broker  # noqa: E402 (from automation/state/fleet)
 from et_clock import et_now  # noqa: E402 (from setup/scripts)
 
+try:  # pragma: no cover - trivial import shim, mirrors scheduled_task_staleness.py's own
+    import status_known_broken as skb  # noqa: E402
+except Exception:  # noqa: BLE001 -- fail-open: STATUS.md posting is best-effort, never fatal
+    skb = None
+
 import importlib.util as _ilu  # noqa: E402
 
 # Reuse eod_flatten's roster derivation VERBATIM (import, not re-implement) so this
@@ -94,12 +114,23 @@ STALE_MIN = 10  # strictly > heal-engine.ps1's CORE_STALE_MIN=8 + a heal-attempt
 RTH_START = (9, 32)
 RTH_END = (15, 58)
 
+# Tick dead-man (GOAL-SUBTRACTION item (b)) -- narrower than the arm-check RTH window above
+# by design: 09:35 is the engine's own entry gate (entry_no_trade_window_et), 15:55 is the
+# flatten backstop's own trigger time, so a "stopped ticking" alarm outside that band would
+# be reporting on a window the engine isn't even supposed to be trading in.
+TICK_DEADMAN_STALE_MIN = 5
+TICK_WATCH_START = (9, 35)
+TICK_WATCH_END = (15, 55)
+TICK_DEADMAN_MARKER = "TICK-DEADMAN:"  # status_known_broken dedup-marker prefix (not a typo:
+# "MARKER" suffix names the constant's role -- see status_known_broken.py's own `marker` arg)
+
 # Core arms log to the SHARED core-decisions.jsonl under a generic 'safe'/'bold' account
 # label (heartbeat_core covers both accounts in one process). Any active arm NOT in this map
 # is treated as a fleet arm reading its own per-arm automation/state/fleet/<arm>/decisions.jsonl.
 CORE_ARM_ACCOUNT = {"safe-2": "safe", "bold-2": "bold"}
 
 CORE_DECISIONS_PATH = _REPO / "automation" / "state" / "core-decisions.jsonl"
+TICK_MARKER_PATH = _REPO / "automation" / "state" / "core-decisions-tick.json"
 FLEET_DIR = _REPO / "automation" / "state" / "fleet"
 STATE_PATH = _REPO / "automation" / "state" / "dead-mans-switch.json"
 STATUS_MD = _REPO / "automation" / "overnight" / "STATUS.md"
@@ -170,6 +201,18 @@ def is_rth(et: datetime) -> bool:
         return False
     start = et.replace(hour=RTH_START[0], minute=RTH_START[1], second=0, microsecond=0)
     end = et.replace(hour=RTH_END[0], minute=RTH_END[1], second=0, microsecond=0)
+    return start <= et <= end
+
+
+def is_tick_watch_window(et: datetime) -> bool:
+    """Weekday + 09:35-15:55 ET inclusive -- see the TICK_WATCH_START/_END docstring above
+    for why this is narrower than `is_rth`."""
+    if et.weekday() >= 5:
+        return False
+    start = et.replace(hour=TICK_WATCH_START[0], minute=TICK_WATCH_START[1], second=0,
+                        microsecond=0)
+    end = et.replace(hour=TICK_WATCH_END[0], minute=TICK_WATCH_END[1], second=0,
+                      microsecond=0)
     return start <= et <= end
 
 
@@ -244,6 +287,76 @@ def _utc_now() -> datetime:
     'now' consistently with a mocked `et_now()` (both must describe the SAME instant, or the
     core-ledger age and the fleet-ledger age would be computed against two different clocks)."""
     return datetime.now(timezone.utc)
+
+
+def tick_marker_age_minutes(et_now_naive: datetime) -> "float | None":
+    """Minutes since core-decisions-tick.json's own `ts_et` (NAIVE ET wall-clock, the same
+    convention heartbeat_core._write_tick_marker uses for every other timestamp in this
+    file). Returns None if the marker is missing/unparseable -- callers must treat None as
+    maximally stale (total silence), never as fresh, matching core_liveness_minutes' contract
+    above."""
+    try:
+        raw = TICK_MARKER_PATH.read_text(encoding="utf-8")
+    except OSError:
+        return None
+    try:
+        row = json.loads(raw)
+    except (json.JSONDecodeError, ValueError):
+        return None
+    ts_raw = row.get("ts_et")
+    if not ts_raw:
+        return None
+    try:
+        ts = datetime.strptime(str(ts_raw)[:19], "%Y-%m-%dT%H:%M:%S")
+    except ValueError:
+        return None
+    return (et_now_naive - ts).total_seconds() / 60.0
+
+
+def check_tick_deadman(et: datetime, log_path: Path) -> dict:
+    """Never raises (OP-25). During 09:35-15:55 ET on a weekday, raises a de-duplicating
+    STATUS.md '## Known broken' line the moment core-decisions-tick.json goes stale beyond
+    TICK_DEADMAN_STALE_MIN -- independent of whether any position is open (see module
+    docstring's TICK DEAD-MAN section for why the position-gated checks above cannot catch
+    this). Outside the window, or once a fresh tick is seen, the marker is CLEARED so a
+    transient stale read never outlives the condition that caused it."""
+    result: dict = {"check": "tick_deadman", "ts": _et_ts()}
+    try:
+        if not is_tick_watch_window(et):
+            result["gated"] = "outside_tick_watch_window"
+            if skb is not None:
+                skb.upsert(TICK_DEADMAN_MARKER, None, status_path=STATUS_MD)
+            return result
+
+        age = tick_marker_age_minutes(et)
+        stale = age is None or age > TICK_DEADMAN_STALE_MIN
+        result["age_min"] = age
+        result["stale"] = stale
+
+        if not stale:
+            result["action"] = "TICK_LIVE"
+            if skb is not None:
+                skb.upsert(TICK_DEADMAN_MARKER, None, status_path=STATUS_MD)
+            return result
+
+        age_desc = "missing/unparseable" if age is None else f"{age:.1f}m"
+        msg = (f"- [{et.strftime('%Y-%m-%dT%H:%M:%S')} ET] {TICK_DEADMAN_MARKER} "
+               f"core-decisions-tick.json is {age_desc} old (> {TICK_DEADMAN_STALE_MIN}m "
+               f"budget) during 09:35-15:55 ET -- HeartbeatCore appears to have stopped "
+               f"ticking. Check core-decisions.jsonl's last row + heal-engine.ps1's log; "
+               f"Gamma_DeadMansSwitch's own per-arm checks only act if a position is open.")
+        _log(log_path, f"TICK_DEADMAN_FIRED age={age_desc}")
+        result["action"] = "FLAGGED"
+        if skb is not None:
+            skb.upsert(TICK_DEADMAN_MARKER, msg, status_path=STATUS_MD)
+        return result
+    except Exception as exc:  # noqa: BLE001 -- OP-25: this check must never crash the fire
+        result["error"] = f"{type(exc).__name__}: {exc}"
+        try:
+            _log(log_path, f"TICK_DEADMAN_ERROR {result['error']}")
+        except Exception:
+            pass
+        return result
 
 
 # ---- STATUS.md / state surfaces ---------------------------------------------------------- #
@@ -400,6 +513,13 @@ def _main_inner() -> int:
 
     log_path, jsonl_path = _log_paths()
 
+    # Tick dead-man runs on EVERY fire, independent of the arm/position checks below and
+    # independent of the is_rth/DRY gating that follows -- it has its own narrower window
+    # (09:35-15:55 ET) and gates/clears itself. This is deliberately unconditional so a
+    # marker raised inside the window is reliably cleared once the engine recovers, rather
+    # than lingering until the next RTH fire happens to run the arm-check branch.
+    tick_result = check_tick_deadman(et, log_path)
+
     if not is_rth(et) and not DRY:
         # OUT OF HOURS. There is genuinely nothing to protect outside 09:32-15:58 ET, but
         # returning silently made a gated no-op byte-identical to "the task never fired" and
@@ -412,6 +532,7 @@ def _main_inner() -> int:
             "note": ("no arms checked -- outside the 09:32-15:58 ET weekday window. This "
                      "row exists so a gated fire is distinguishable from a dead task."),
             "per_arm": {},
+            "tick_deadman": tick_result,
         })
         return 0
 
@@ -447,6 +568,7 @@ def _main_inner() -> int:
         "dry": DRY,
         "stale_min_threshold": STALE_MIN,
         "per_arm": {r["arm"]: r for r in results},
+        "tick_deadman": tick_result,
     }
     _write_state_snapshot(report)
     _log(log_path, f"DMS_COMPLETE outcomes={[r.get('action') for r in results]}")
