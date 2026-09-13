@@ -469,6 +469,234 @@ def render_tickers_lane(state_dir: Path = None) -> list[str]:
     return L
 
 
+CHALLENGER_ARM = "risky-3"
+CONTROL_ARM = "risky-1"
+CHALLENGER_START = "2026-09-14"
+CHALLENGER_LADDER_N_NEEDED = 6
+PREREG_ANCHOR_CLASS_PATH = (
+    REPO / "analysis" / "recommendations" / "prereg-trigger-anchor-level-class-2026-09-11.md"
+)
+PNL_STATEMENT_PATH = STATE / "pnl-statement.json"
+
+
+def _fleet_arm_dates(fleet_dir: Path, arm: str) -> list[str]:
+    """Sorted distinct ET dates (YYYY-MM-DD) present in an arm's decisions.jsonl.
+    Fails open to [] on a missing/unreadable ledger -- see module docstring's FAILS OPEN."""
+    dates: set[str] = set()
+    path = fleet_dir / arm / "decisions.jsonl"
+    try:
+        for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                row = json.loads(line)
+            except Exception:  # noqa: BLE001
+                continue
+            ts = str(row.get("ts_et") or "")
+            if len(ts) >= 10:
+                dates.add(ts[:10])
+    except Exception:  # noqa: BLE001
+        pass
+    return sorted(dates)
+
+
+def _fleet_arm_session_stats(fleet_dir: Path, arm: str, date: str) -> dict:
+    """signals seen / refused (anchor_class_denied) / legs (ENTER_*) for one arm+date,
+    read straight off the SAME per-arm ledger `fleet_live.py::_log` writes
+    (`automation/state/fleet/<arm>/decisions.jsonl`) that item (1)'s `_gate_check` denial
+    lands in -- field `reason`, prefix `"gate: anchor_class_denied:<label>"` (see
+    fleet_executor.py::_gate_check). A "signal" is any tick where a strategy actually
+    fired (`setup_name` is not null); "no qualifying setup (no strategy fired)" ticks are
+    not signals. Fails open to a zeroed dict -- a missing/unreadable ledger must render
+    as no-data, never raise (C7)."""
+    out = {"signals": 0, "refused": 0, "legs": 0}
+    path = fleet_dir / arm / "decisions.jsonl"
+    try:
+        for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+            line = line.strip()
+            if not line or date not in line:
+                continue
+            try:
+                row = json.loads(line)
+            except Exception:  # noqa: BLE001
+                continue
+            if not str(row.get("ts_et", "")).startswith(date):
+                continue
+            if row.get("setup_name"):
+                out["signals"] += 1
+            if str(row.get("reason") or "").startswith("gate: anchor_class_denied"):
+                out["refused"] += 1
+            if str(row.get("action") or "").startswith("ENTER"):
+                out["legs"] += 1
+    except Exception:  # noqa: BLE001
+        pass
+    return out
+
+
+def _fleet_arm_realized_pnl(pnl_path: Path, arm: str, date: str) -> float | None:
+    """Realized $ for one arm+date, from the broker-truth `pnl-statement.json` per_day
+    block -- the SAME source `fleet_journal_bridge.py` cites in journal/trades.csv notes
+    ("Source: pnl-statement.json (T1 broker-truth round_trips)"), so this reconciles to
+    the journal by construction rather than by coincidence. Returns None (not 0.0) when
+    the day/arm has no row, so callers can render "n/a" instead of a false zero."""
+    data = read_json(pnl_path)
+    if not isinstance(data, dict):
+        return None
+    day = (data.get("per_day") or {}).get(date) or {}
+    arm_row = day.get(arm) if isinstance(day, dict) else None
+    if not isinstance(arm_row, dict):
+        return None
+    pnl = arm_row.get("realized_pnl")
+    return float(pnl) if isinstance(pnl, (int, float)) else None
+
+
+def _next_ladder_row(prereg_path: Path) -> str | None:
+    """First `[ ]` row in the prereg's §8 Challenger LADDER table -- the next hypothesis
+    the conductor moves onto the challenger arm when the live row terminates. Reads the
+    prereg fresh rather than hardcoding a hypothesis's text so a doc edit is always truth
+    (GOAL-EARN-YOUR-KEEP item 2 spec: "read it; do not hardcode H2's text"). None if the
+    file is unreadable or no `[ ]` row exists -- fail-open, caller renders 'n/a'."""
+    try:
+        text = prereg_path.read_text(encoding="utf-8", errors="replace")
+    except Exception:  # noqa: BLE001
+        return None
+    for line in text.splitlines():
+        line = line.strip()
+        if not line.startswith("|"):
+            continue
+        cells = [c.strip() for c in line.strip("|").split("|")]
+        if len(cells) < 3:
+            continue
+        if re.match(r"^H\d+$", cells[0]) and "[ ]" in cells[1]:
+            return f"{cells[0]} -- {cells[2]}"
+    return None
+
+
+def render_learned_today(
+    fleet_dir: Path = None,
+    pnl_path: Path = None,
+    prereg_path: Path = None,
+) -> list[str]:
+    """'## What Gamma learned today' -- H1 challenger (risky-3) vs control (risky-1)
+    since the 2026-09-14 clean window (GOAL-EARN-YOUR-KEEP-2026-09-12 item 2).
+
+    Every number here is a read/join over ledgers OTHER code already writes: the
+    per-arm decision ledger item (1)'s `_gate_check` denies into
+    (`automation/state/fleet/<arm>/decisions.jsonl`), and `pnl-statement.json`'s
+    per_day block (the same broker-truth source journal/trades.csv notes cite). This
+    function computes no P&L and places no orders -- tally + join only.
+
+    Fails open at every read: a missing ledger/day/prereg row renders 'n/a: <reason>' or
+    the "no sessions yet" form, never an exception -- a reporting block must never be
+    able to break HOME generation (C7, module docstring FAILS OPEN)."""
+    fleet_dir = fleet_dir or FLEET_DIR
+    pnl_path = pnl_path or PNL_STATEMENT_PATH
+    prereg_path = prereg_path or PREREG_ANCHOR_CLASS_PATH
+
+    L: list[str] = ["## What Gamma learned today", ""]
+    L.append(
+        f"*H1: {CHALLENGER_ARM} (challenger) vs {CONTROL_ARM} (control) -- "
+        f'`gate_override.anchor_class_denylist=["INTRADAY_SWING_"]`, clean window from '
+        f"`{CHALLENGER_START}`. P&L source: `pnl-statement.json` per_day "
+        f"(T1 broker-truth round trips).*"
+    )
+    L.append("")
+
+    challenger_dates = [d for d in _fleet_arm_dates(fleet_dir, CHALLENGER_ARM)
+                        if d >= CHALLENGER_START]
+
+    if not challenger_dates:
+        L.append(f"> no sessions yet (first {CHALLENGER_START})")
+        L.append("")
+        L.append(f"**Tomorrow's change:** none (H1 clock running: 0/"
+                 f"{CHALLENGER_LADDER_N_NEEDED} refused)")
+        L.append("")
+        return L
+
+    last_date = challenger_dates[-1]
+    rows = ((CONTROL_ARM, f"{CONTROL_ARM} (control)"),
+            (CHALLENGER_ARM, f"{CHALLENGER_ARM} (H1: deny INTRADAY_SWING_ anchors)"))
+
+    L.append("| Session | Arm | Signals | Refused (anchor_class_denied) | Legs | Realized $ |")
+    L.append("|---|---|---:|---:|---:|---:|")
+    for arm, label in rows:
+        stats = _fleet_arm_session_stats(fleet_dir, arm, last_date)
+        pnl = _fleet_arm_realized_pnl(pnl_path, arm, last_date)
+        pnl_s = money(pnl) if pnl is not None else "n/a: no pnl-statement row"
+        L.append(f"| {last_date} (last) | {label} | {stats['signals']} | "
+                 f"{stats['refused']} | {stats['legs']} | {pnl_s} |")
+
+    cum = {arm: {"signals": 0, "refused": 0, "legs": 0, "pnl": 0.0, "pnl_days": 0}
+           for arm, _ in rows}
+    for date in challenger_dates:
+        for arm, _ in rows:
+            stats = _fleet_arm_session_stats(fleet_dir, arm, date)
+            pnl = _fleet_arm_realized_pnl(pnl_path, arm, date)
+            cum[arm]["signals"] += stats["signals"]
+            cum[arm]["refused"] += stats["refused"]
+            cum[arm]["legs"] += stats["legs"]
+            if pnl is not None:
+                cum[arm]["pnl"] += pnl
+                cum[arm]["pnl_days"] += 1
+
+    for arm, label in rows:
+        c = cum[arm]
+        if c["pnl_days"] == 0:
+            pnl_s = "n/a: no pnl-statement rows"
+        elif c["pnl_days"] < len(challenger_dates):
+            pnl_s = f"{money(c['pnl'])} ({c['pnl_days']}/{len(challenger_dates)} sessions priced)"
+        else:
+            pnl_s = money(c["pnl"])
+        L.append(f"| cumulative since {CHALLENGER_START} | {label} | {c['signals']} | "
+                 f"{c['refused']} | {c['legs']} | {pnl_s} |")
+    L.append("")
+
+    # --- H1 forward-gate tally (prereg §4/§5) ----------------------------------
+    n_refused = cum[CHALLENGER_ARM]["refused"]
+    # F1 join: the control's realized $ on days risky-3 logged >=1 refusal. Per-arm P&L
+    # here is a DAILY figure (pnl-statement.json has no per-signal breakdown), so a
+    # signal-timestamp +/-3min join degrades to same-day -- documented, not hidden.
+    refused_days = [d for d in challenger_dates
+                    if _fleet_arm_session_stats(fleet_dir, CHALLENGER_ARM, d)["refused"] > 0]
+    refused_net = 0.0
+    refused_priced_days = 0
+    for d in refused_days:
+        pnl = _fleet_arm_realized_pnl(pnl_path, CONTROL_ARM, d)
+        if pnl is not None:
+            refused_net += pnl
+            refused_priced_days += 1
+
+    if n_refused == 0:
+        f1_line = "n/a (0 refused signals so far)"
+    else:
+        f1_sign = "< 0 (holding)" if refused_net < 0 else ">= 0 (kill-side)"
+        f1_line = f"{money(refused_net)} over {refused_priced_days} refusal-day(s) -- {f1_sign}"
+
+    L.append(f"**H1 forward-gate tally** (prereg §4/§5): refused signals "
+             f"**{n_refused}/{CHALLENGER_LADDER_N_NEEDED}** needed · refused net $ "
+             f"(control's realized outcome on the days risky-3 refused, same-day join) "
+             f"= {f1_line}")
+    L.append("")
+
+    # --- tomorrow's change (prereg §5 kill criterion) --------------------------
+    kill_fires = n_refused >= CHALLENGER_LADDER_N_NEEDED and refused_net >= 0
+    if not kill_fires:
+        L.append(f"**Tomorrow's change:** none (H1 clock running: {n_refused}/"
+                 f"{CHALLENGER_LADDER_N_NEEDED} refused)")
+    else:
+        next_row = _next_ladder_row(prereg_path)
+        if next_row:
+            L.append(f"**Tomorrow's change:** H1 KILL criterion met ({n_refused} refused, "
+                     f"net {money(refused_net)} >= 0) -- next LADDER row: {next_row}")
+        else:
+            L.append(f"**Tomorrow's change:** H1 KILL criterion met ({n_refused} refused, "
+                     f"net {money(refused_net)} >= 0) -- n/a: could not read next LADDER "
+                     f"row from `{prereg_path.name}`")
+    L.append("")
+    return L
+
+
 GATE_JSON = REPO / "analysis" / "go-live-gate.json"
 NULL_STUDY_SUMMARY = REPO / "analysis" / "whole-engine-null" / "summary-line.txt"
 GATE_CLOCK_END = "2026-10-30"
@@ -577,6 +805,8 @@ def build_home(date: str, stamp: str, market_open: bool, snap: dict) -> str:
     L.append("## Position & P&L")
     L.append("")
     L.extend(render_positions_table(snap))
+
+    L.extend(render_learned_today())
 
     L.extend(render_gate_block())
 

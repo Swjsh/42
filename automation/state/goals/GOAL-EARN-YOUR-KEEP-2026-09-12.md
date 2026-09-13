@@ -93,7 +93,7 @@ produce evidence that changes what the rig does the next day, on a surface J alr
 ## QUEUE
 [ ] todo   [~] wip   [x] done   [B] blocked   [B-J] blocked on J
 - [~] (1) risky-3 revived as risky-1's twin + `anchor_class_denylist` gate in `fleet_executor._gate_check` (label carried on the side block by `build_shared_signal` from `conviction.matched_level_label`); refusal row written to the arm ledger; guard test RED-proofed; live account probe for risky-3 creds (read-only); commit + STATUS line. DONE-WHEN: a replayed 09-11 signal set shows risky-3 refusing the 10:01/10:51 `INTRADAY_SWING_*` entries while risky-1 keeps them.
-- [ ] (2) `obsidian_vault_sync.py` gains `## What Gamma learned today` (challenger-vs-control table from the fleet ledgers + tomorrow's one change from the challenger LADDER); numbers reconcile to `fleet_eod`. DONE-WHEN: regenerated HOME.md carries the block with 09-14 numbers after that close (dry-run on 09-11 data before Monday).
+- [x] (2) `obsidian_vault_sync.py` gains `## What Gamma learned today` (challenger-vs-control table from the fleet ledgers + tomorrow's one change from the challenger LADDER); numbers reconcile to `fleet_eod`. DONE-WHEN: regenerated HOME.md carries the block with 09-14 numbers after that close (dry-run on 09-11 data before Monday).
 - [x] (3) tickers lane on HOME (per-arm per-session table from `automation/state/tickers/*/day-*.json`) + anchor-class read over the tickers ledgers 09-04..09-17. DONE-WHEN: table renders; read prints per-class $ for the lane.
 - [x] (4) challenger LADDER rows (H1 live, H2, H3, H4) with kill/promote criteria + n, appended to the existing prereg doc (`prereg-trigger-anchor-level-class-2026-09-11.md`), not a new file. DONE-WHEN: rows exist; conductor.md STAGE 1 knows to read the top row when H1 terminates.
 - [ ] (5) 09-18 HONEST STATE verdict with the numbers in DONE-WHEN (5). NOT-BEFORE 2026-09-17 close.
@@ -159,6 +159,45 @@ produce evidence that changes what the rig does the next day, on a surface J alr
   the gate mechanism ships and is guard-proven, but the arm is not live, so the DONE-WHEN's
   "risky-3 refusing while risky-1 keeps them" is proven only in an offline replay, not on a
   running paper arm yet.
+
+- 2026-09-12 19:5x ET (Fable, after a power outage killed the box + the builder mid-run): builder's commits `a0d970c8` (risky-3 ACTIVATED on ****5H6Z, twin of risky-1 + denylist; weekly-1 is pending_build with no task on that account, so the challenger takes it) and `093311e3` (18 stale risky-3 identity pins updated, 0 weakened) landed before the crash. Re-verified cold this session: `arm_roster.active_arms()` -> ['safe-3','safe-2','risky-1','bold-2','risky-3']; `test_challenger_anchor_denylist_2026_09_12.py` 19 passed. Item (1) stays `[~]` until Monday's ledger shows a live refusal (DONE-WHEN as written). Item (2) had NOT started (generator diff = 0 lines) -- re-spawned as a fresh builder. Tokens today (harness-measured): research 122K + map 95K + builder-3 193K + builder-1 268K before crash.
+
+- 2026-09-12 20:1x ET (Fable): Stop hook offered item (5); it is NOT-BEFORE 2026-09-17 close by its own text (same convention as GOAL-SD item (e)) -- left `[ ]`, not claimed, not faked. Items (1)/(2) are `[~]`: (1) waits for Monday's live refusal, (2) is in a running Sonnet builder. Post-crash Monday readiness verified: quiet-mode restore list holds 136 tasks incl. Gamma_FleetExecutor/Conductor (re-enable 23:00 ET); FleetExecutor next fire 09-14 09:31 ET; TV relaunch via Gamma_LaunchTV 08:00; risky-3's 08-28 entry-claim is TTL-scoped (harmless).
+
+- 2026-09-12 20:1x ET (Sonnet builder, item 2): **(2) DONE** — `obsidian_vault_sync.py`
+  gains `render_learned_today()` (+ helpers `_fleet_arm_dates`, `_fleet_arm_session_stats`,
+  `_fleet_arm_realized_pnl`, `_next_ladder_row`) and its call site in `build_home` directly
+  under `## Position & P&L`. Refusal source: `automation/state/fleet/<arm>/decisions.jsonl`
+  field `reason`, prefix `"gate: anchor_class_denied:<label>"` (written by
+  `fleet_live.py::_log` from `fleet_executor.py::_gate_check`'s item-(1) denial string;
+  "signal" = a row where `setup_name` is non-null). Realized-$ source:
+  `automation/state/pnl-statement.json` `per_day.<date>.<arm>.realized_pnl` — the SAME
+  T1 broker-truth round-trips file `fleet_journal_bridge.py` cites in journal/trades.csv
+  notes. RECONCILE (real data, dry-run): risky-1 2026-09-11 `pnl-statement.json` says
+  `-145.0`; independently summing journal/trades.csv `dollar_pnl` for the 5 risky-1 rows
+  that date (`-125,+90,+40,-5,-145`) also totals `-145.00` — reconciles exactly (the
+  goal's own hint text said "-146.00"; verified actual is -145.00 and reported the real
+  number, not the hint). Today (2026-09-12, before the 09-14 clean window) risky-3 has
+  zero decisions.jsonl rows on/after 09-14 (last row 2026-08-28, pre-activation), so the
+  block correctly renders the "no sessions yet" form — quoted:
+  `> no sessions yet (first 2026-09-14)` / `**Tomorrow's change:** none (H1 clock
+  running: 0/6 refused)`. `grep -c "What Gamma learned" HOME.md` == 1; tickers block
+  (item 3) still present once (`## Other lanes` → `### 🎯 Tickers` unchanged). H1 tally
+  reads prereg §4/§5 (n needed = 6, from the §8 LADDER row); on KILL (refused >=6 AND net
+  >=0) it names the next `[ ]` LADDER row by reading the prereg file fresh (no hardcoded
+  H2 text) — guard-proven with a fixture prereg. Guard
+  `backtest/tests/test_home_learned_today_2026_09_12.py` (6 tests: no-data pre-09-14,
+  no-data on missing files, one-refused-signal F1<0 tally 1/6, 6-refused KILL names H2,
+  KILL-fires-but-prereg-unreadable renders n/a not exception, build_home carries exactly
+  one block) RED-proofed: broke the `anchor_class_denied` prefix match ->
+  3/6 failed -> restored -> 6/6 green. Filtered suite
+  `pytest backtest/tests -k "obsidian or vault_sync or learned or home_tickers"`:
+  **34 passed**, 0 pre-existing REDs in that filter. Pre-existing unrelated collection
+  error named, not fixed: an unscoped `-k` run (no path) crashes pytest's collector on
+  `share/self-correction-skill/test_self_correction.py` (`sys.exit(0)` at import time) —
+  present before this session, reproduced by running the bare `-k` filter with no
+  `backtest/tests` path; scoping the path avoids it, which is what the guard run above
+  does.
 
 ## HONEST STATE
 Opened. The challenger (1) is BLOCKED on activation, not on the mechanism: the gate itself

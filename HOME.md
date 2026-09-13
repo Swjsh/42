@@ -1,6 +1,6 @@
 # 🎛️ Gamma — HOME
 
-> Auto-generated `2026-09-12 17:20:19 Saturday EDT` · market **CLOSED** · regenerate: `python setup/scripts/obsidian_vault_sync.py`
+> Auto-generated `2026-09-12 20:04:32 Saturday EDT` · market **CLOSED** · regenerate: `python setup/scripts/obsidian_vault_sync.py`
 > Nothing here is hand-maintained. If a number looks stale, the producer behind it is stale.
 
 ## Position & P&L
@@ -13,6 +13,14 @@
 | risky-1 | 5,991.38 | **+0.00** | flat |
 | risky-3 | 4,282.65 | **+0.00** | flat |
 | **BOOK** | | **-0.07** | |
+
+## What Gamma learned today
+
+*H1: risky-3 (challenger) vs risky-1 (control) -- `gate_override.anchor_class_denylist=["INTRADAY_SWING_"]`, clean window from `2026-09-14`. P&L source: `pnl-statement.json` per_day (T1 broker-truth round trips).*
+
+> no sessions yet (first 2026-09-14)
+
+**Tomorrow's change:** none (H1 clock running: 0/6 refused)
 
 ## The gate
 
@@ -32,7 +40,7 @@
 
 ## Today's levels
 
-*as of `2026-09-12T17:15:02-04:00`*
+*as of `2026-09-12T18:00:02-04:00`*
 
 - **748.09** — SHELF_747.29_748.89_2026-09-12
 - **761.32** — SHELF_760.52_762.12_2026-09-12
@@ -51,7 +59,7 @@
 
 ### 📈 Futures (MES · two lanes: fillsim = book, tastytrade SANDBOX = real fills)
 
-- **lane health** `RED` (as of `2026-09-12 17:00:01`) — [YELLOW] broker_transport: 4/7 recent probe(s) show transport errors (rate 57%), 3 excluded as session-closed -- newest 2026-09-10T23:05:09 -> PROBE_FAILED; CME session_phase=WEEKEND (open=False, per futures_session/et_clock); broker-transport.jsonl: 253 row(s), 210 transport-error, 5 broker-rejected, 6 NOT-RETRIED-AMBIGUOUS (possible unconfirmed order); newest 2026-09-11T16:01:27 get_account_equity/transport_error -- CME currently CLOSED per et_clock, capped at YELLOW (cannot confirm the transport is broken right now vs. simply idle)
+- **lane health** `RED` (as of `2026-09-12 18:00:01`) — [YELLOW] broker_transport: 4/7 recent probe(s) show transport errors (rate 57%), 3 excluded as session-closed -- newest 2026-09-10T23:05:09 -> PROBE_FAILED; CME session_phase=WEEKEND (open=False, per futures_session/et_clock); broker-transport.jsonl: 253 row(s), 210 transport-error, 5 broker-rejected, 6 NOT-RETRIED-AMBIGUOUS (possible unconfirmed order); newest 2026-09-11T16:01:27 get_account_equity/transport_error -- CME currently CLOSED per et_clock, capped at YELLOW (cannot confirm the transport is broken right now vs. simply idle)
 - **book lane** (fillsim) `HOLD` — last tick `2026-09-11T16:00:01` · session GLOBEX
 - **broker lane** (tastytrade SANDBOX, REAL fills) `HOLD` — last tick `2026-09-11T16:00:01` · session GLOBEX
 - **sim book** equity $1,595.86 (start $2,000.00) · day $-256.24 · 11 trades
@@ -68,7 +76,7 @@
     - ⚠️ `pin-chain-verify` **YELLOW** — rule_version=v15.3, mismatches=1
     - ⚠️ `heartbeat-pulse-check` **NOT_APPLICABLE** — max gap 0.0min
     - ⚠️ `watcher-state-inspector` **YELLOW** — odf_state empty (may be correct if no drive-then-fade pattern) (obs_today=119)
-- **twin** last journal row `2026-09-12T21:19:42.678808+00:00` · 44419 events (24/7 mechanism validator — its P&L is NEVER SPY evidence)
+- **twin** last journal row `2026-09-12T21:59:42.614734+00:00` · 44579 events (24/7 mechanism validator — its P&L is NEVER SPY evidence)
 
 ### 🎯 Tickers (non-SPY 0DTE, 3 paper arms, production scorer)
 
