@@ -67,7 +67,7 @@ Falsifiable, each checked by a command or ledger row quoted in the PROGRESS LOG:
 ## QUEUE
 - [x] (a) dry-run the registration map: table of every Disabled `Gamma_*` task with held-since, restore-list membership, install script → commit `analysis/audits/task-registrations-2026-09-1x.md`; then unregister the eligible set; run the registry test; STATUS line.
 - [x] (b) tick dead-man inside `dead_mans_switch.py` + RED-proofed test + 09-09 replay check.
-- [ ] (c) Misses block: find the producer (`journal` EOD writer), fix the sign handling, guard test, regenerate 09-10.
+- [x] (c) Misses block: find the producer (`journal` EOD writer), fix the sign handling, guard test, regenerate 09-10.
 - [ ] (d) `_shared.ps1` kill logging (image + cmdline per pid), then the keep/retire decision after ≥ 2 sessions of kill logs.
 - [ ] (e) bias + key-levels archive lines inside an existing daily fire; re-check after 3 sessions.
 
@@ -111,3 +111,30 @@ Falsifiable, each checked by a command or ledger row quoted in the PROGRESS LOG:
   `git revert 4a5484b9` (b); this entry is the REVOKE report (c).
   **Note for item (e)/(c)/(d):** still open, not picked up this fire (scope discipline --
   one bounded item per conductor fire).
+
+- 2026-09-13 08:5x ET (conductor AFTERHOURS, continuation -- Stop hook rejected an open-ended
+  "next fire" ending, correctly: not a genuine fork, OP-0 says act): **(c) DONE.**
+  `missed_setups_section.py::render_section` computed its headline from the scanner's raw
+  NET sum (winners + losers), so a day with 51 losers and 3 winners printed e.g. "-$839 paper
+  P&L left on the table" -- a net LOSS framed as forgone profit. Fix: headline now sums ONLY
+  winning rows; if that sum is <=0 it prints "no positive missed edge" (net figure still
+  shown as CONTEXT, never framed as "left on the table"); if >0 it shows the winners-only
+  figure with a "(before N would-be loser(s) worth $X)" note. `total_pnl` /
+  `edge_capture_pct` (JSON fields) unchanged -- formatter-only fix.
+  **Regenerated 09-10:** `analysis/eod-deep-2026-09-10.json`'s archived
+  `research_handoffs.missed_setups_scan` (the ORIGINAL 54-setup/-$838.52 scan, not a re-scan
+  against today's drifted key-levels.json) re-rendered through the fixed formatter and
+  spliced into `journal/2026-09-10.md` in place of the old section -- new headline:
+  "54 missed setups, +$548 of positive P&L left on the table (before 34 would-be loser(s)
+  worth $1,386)". journal/*.md is untracked by git (state, not source) -- no commit needed
+  for that half.
+  **RED-proofed live:** forced the `positive_pnl<=0` branch unreachable -- 1 of 6 new tests
+  failed exactly as expected, reverted, 6/6 green.
+  **Verified, quoted:** `pytest backtest/tests/test_missed_setups_section_sign_fix_2026_09_13.py -q`
+  -> 6 passed. Filtered sweep `-k "missed_setups or eod_quant_guard or eod_deep"` -> 31
+  passed, 0 regressions. `doctrine.frozen_path_hit()` -> None on both touched files (no
+  override needed). Commit `58d8821a` (2 files, +186/-6).
+  **Rail:** guard = 6 new RED-proofed tests + 31/31 filtered sweep (a); revert =
+  `git revert 58d8821a` (the journal file itself is untracked state, so a code revert alone
+  leaves that day's corrected text in place -- acceptable, it is a factual correction not a
+  behavior change) (b); this entry is the REVOKE report (c). Items (d)/(e) still open.
