@@ -44,7 +44,8 @@ export const paths = {
   // (setup/scripts/station_loop.py + station_board.py) is the only writer of
   // ideasBoard/stationBrief/stationLedger/stationConfig/stationMode/
   // stationPendingNotes/plannerBench; the dashboard writes ONLY stationInbox
-  // (via /api/station/action) and chatLedger (via /api/station/ask). Never the
+  // (via /api/station/action), chatLedger (via /api/station/ask) and tvCapability
+  // (via GET /api/station/tv-probe -- the TV reporting its own WebGL/fps). Never the
   // reverse -- a page read must never become a Python write target. ---
   stationDir: st("station"),
   ideasBoard: st("station", "ideas-board.json"),
@@ -56,9 +57,26 @@ export const paths = {
   stationPendingNotes: st("station", "station-pending-notes.json"),
   chatLedger: st("station", "chat-ledger.jsonl"),
   stationPresence: st("station", "presence.json"),
+  // TV browser self-report (GET /api/station/tv-probe, 2026-09-13): WebGL1/2 + fps + UA,
+  // overwritten once per LAN kiosk page load. Decides 3D-vs-2D for the TV face.
+  tvCapability: st("station", "tv-capability.json"),
+  // Which path the TV should be showing ({"tv_path": "/station" | "/hq"}); the LAN kiosk
+  // page follows it, so the face flips without anyone typing on the TV remote.
+  stationFace: st("station", "face.json"),
+  // The bundle id this server process was started on (dashboard/.next/BUILD_ID); the
+  // kiosk page reloads itself when it changes, so a rebuild lands on the TV unattended.
+  dashboardBuildId: path.join(WORKSPACE_ROOT, "dashboard", ".next", "BUILD_ID"),
   plannerBench: st("station", "planner-bench.json"),
   brainQuiz: st("station", "brain-quiz.json"),
   stationPromptMd: path.join(WORKSPACE_ROOT, "automation", "prompts", "station.md"),
+
+  // --- Gamma HQ "/hq" three.js face (2026-09-13): sectors.rows shells the
+  // Python reader below (fixed argv, no user input); the other three are
+  // plain-file reads. All four are read-only from this app's side -- nothing
+  // under automation/state/ is ever written by /api/hq. ---
+  sectorRowsScript: path.join(WORKSPACE_ROOT, "setup", "scripts", "sector_rows.py"),
+  futuresHealth: st("futures", "health.json"),
+  cryptoTwinDecisions: st("crypto-twin", "decisions.jsonl"),
   // "Talk to Gamma" chat persona (amendment 5a, 2026-09-13) -- deliberately NOT
   // stationPromptMd above: station.md is the 30-min loop's JSON-only output-schema
   // prompt, and using it for chat would make Gamma answer J in raw JSON. Fable

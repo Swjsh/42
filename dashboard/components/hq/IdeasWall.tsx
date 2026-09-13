@@ -1,0 +1,53 @@
+"use client";
+
+import { Html } from "@react-three/drei";
+import type { StationIdeaCard } from "@/lib/station";
+import { ideaStatusColor, PALETTE } from "./palette";
+
+interface IdeasWallProps {
+  cards: StationIdeaCard[];
+  position: [number, number, number];
+  dimFactor: number;
+}
+
+/**
+ * A holographic panel near the hub listing the newest <=6 idea cards. The
+ * "panel" is a single translucent plane (1 draw call); every bit of text is
+ * DOM via <Html> (never drei <Text>, which fetches a font -- forbidden at
+ * runtime on the TV).
+ */
+export default function IdeasWall({ cards, position, dimFactor }: IdeasWallProps) {
+  const newest = [...cards].reverse().slice(0, 6);
+
+  return (
+    <group position={position}>
+      <mesh>
+        <planeGeometry args={[2.6, 2.0]} />
+        <meshBasicMaterial color={PALETTE.hubRing} transparent opacity={0.06 * dimFactor} toneMapped={false} />
+      </mesh>
+      <Html position={[0, 0, 0.02]} center distanceFactor={9} style={{ pointerEvents: "none" }}>
+        <div
+          style={{
+            width: 260, fontFamily: "system-ui, sans-serif", color: "#dff3ff",
+            background: "rgba(3,4,10,0.55)", border: "1px solid rgba(122,217,255,0.3)",
+            borderRadius: 8, padding: "8px 12px", opacity: dimFactor,
+          }}
+        >
+          <div style={{ fontSize: 12, color: "#7f93b0", marginBottom: 4, letterSpacing: 1 }}>IDEAS BOARD</div>
+          {newest.length === 0 ? (
+            <div style={{ fontSize: 12, color: "#7f93b0" }}>NO DATA -- board is empty</div>
+          ) : (
+            newest.map((c) => (
+              <div key={c.id} style={{ fontSize: 12, marginBottom: 3, display: "flex", gap: 6, alignItems: "baseline" }}>
+                <span style={{ width: 7, height: 7, borderRadius: 999, background: ideaStatusColor(c.status), flexShrink: 0 }} />
+                <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {c.title.length > 44 ? c.title.slice(0, 41) + "..." : c.title}
+                </span>
+              </div>
+            ))
+          )}
+        </div>
+      </Html>
+    </group>
+  );
+}

@@ -647,10 +647,18 @@ def main(argv: "list[str] | None" = None) -> int:
                      "non-SPY options / SPY options)."
     )
     parser.add_argument("--print", dest="do_print", action="store_true",
-                        help="print the sector table to stdout (the only thing this "
-                             "CLI does; also the default with no flags)")
-    parser.parse_args(argv)
-    _print_table(build_sector_rows())
+                        help="print the sector table to stdout (the default with no "
+                             "flags)")
+    parser.add_argument("--json", dest="do_json", action="store_true",
+                        help="print build_sector_rows() as a single JSON array to "
+                             "stdout instead of the text table (additive, 2026-09-13 "
+                             "GAMMA-HQ-VISUALS: dashboard/lib/hq.ts shells this)")
+    args = parser.parse_args(argv)
+    rows = build_sector_rows()
+    if args.do_json:
+        print(json.dumps(rows, default=str))
+        return 0
+    _print_table(rows)
     return 0
 
 

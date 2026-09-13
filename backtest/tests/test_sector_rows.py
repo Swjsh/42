@@ -309,6 +309,24 @@ def test_cli_print_runs_and_prints_header(tmp_path, capsys):
         assert lane in out
 
 
+def test_cli_json_flag_parses_and_matches_row_count(tmp_path, capsys):
+    """GAMMA-HQ-VISUALS (2026-09-13): dashboard/lib/hq.ts shells `--json` and
+    JSON.parses stdout directly -- this pins that the flag emits ONE valid JSON
+    array (no table noise mixed in) with exactly one row per lane, matching
+    build_sector_rows() called the same way (no repo_root override, i.e. the
+    real repo)."""
+    m = _sr(tmp_path)
+    rc = m.main(["--json"])
+    out = capsys.readouterr().out
+    assert rc == 0
+    parsed = json.loads(out)
+    assert isinstance(parsed, list)
+    assert len(parsed) == len(m.build_sector_rows()) == len(LANE_NAMES)
+    for row in parsed:
+        assert row["state"] in m.STATE_VALUES
+        assert row["health"] in m.HEALTH_VALUES
+
+
 # ------------------------------------------------- obsidian_vault_sync wiring
 
 
