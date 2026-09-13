@@ -4,15 +4,16 @@
 > **Revoke:** delete this doc (`git revert`); no code, task, or config changed by writing it.
 > **Folds:** brain tiers stay in [`BRAIN-SOVEREIGNTY.md`](BRAIN-SOVEREIGNTY.md); presence lineage stays in [`GAMMA-WORKER.md`](GAMMA-WORKER.md); the Muse/Grok Bot reference stays in [`AGENT-ORCHESTRATION.md`](../doctrine/AGENT-ORCHESTRATION.md). This doc owns **where Gamma lives, what it costs, and the order of the move.**
 > **Update 2026-09-13 12:45 ET (J):** **Windows, not Linux** ("easy for me to use"); **$0 per month after the purchase** is the target ("who knows if they will increase LLM costs and price people out — I want to build my own"); candidate box = Minisforum N5 MAX AI NAS 128GB ($3,599 on sale). J also asked for the mechanism: *how do people get models to be always on and go do stuff on their own* — §11. Sections 0, 2, 3b, 4, 4b, 5, 6, 7, 9 updated; any Linux reference left in §3 is landscape, not plan.
+> **Update 2026-09-13 12:59 ET (J):** *"I want to run smart models, not crappy ones. Do more research on the models. I'm fine not getting the server — I just need like the GTR9 but also 196GB maybe."* NAS dropped. The 192GB Windows box exists (Minisforum MS-S1 MAX-P495, Ryzen AI Max+ Pro 495). §3b and §4b rewritten from a fresh model/hardware pass; the planner is now **Qwen3.8-27B**, not gpt-oss-120b.
 
 ---
 
 ## 0. Verdict
 
 - **Give Gamma its own always-on Windows 11 Pro box on the TV. Keep the Claude Code harness as the runtime; run every brain locally on the box ($0 per month); keep the deterministic engine where it is through the freeze.** The new box is the **mind + face + off-box watchdog first**, the **hands after 10-30**.
-- **Monthly: $200 → $0 + power (~$5–10).** Every tier runs on a 128GB unified-memory box; nothing in the always-on path bills per token. The only optional line is a single $20 Claude Pro month whenever J wants a Fable audit. **Capex once: $1,985** (Beelink GTR9 Pro 128GB, Windows 11 Pro pre-installed) **or $3,599** (Minisforum N5 MAX AI NAS 128GB, if J also wants a 10-bay NAS) — §3b. Payback against $200/mo: ~10 months or ~18 months.
+- **Monthly: $200 → $0 + power (~$5–10).** Every tier runs on the box; nothing in the always-on path bills per token. The only optional line is a single $20 Claude Pro month whenever J wants a Fable audit. **Capex once: $1,985** (Beelink GTR9 Pro 128GB, Windows 11 Pro pre-installed) — buy now. The **192GB Windows box J asked about is real** (Minisforum MS-S1 MAX-P495, ~€7,000, first units ~Sept 2026) and buys roughly one model class more (§3b/§4b) — not worth 3.8× the price today. Payback on the GTR9 Pro against $200/mo: ~10 months.
 - **Why this is not the fifth failed "presence" fix.** The four prior fixes (voice briefs 07-22, standups + wants 08-08, Gamma App 08-08, Discord allowlist 09-12) all changed the *message*. This changes three *mechanisms*: (1) the thinking layer stops living inside a session J has to open; (2) the surface becomes ambient and physical (a TV, a voice, a camera) instead of a file or a channel; (3) the loop runs on $0-marginal tokens, so "hungry" stops being a budget decision.
-- **The honest caveat:** a local 120B-class model makes worse calls than Fable on audits, root-cause and design. It does not touch the trading path: arm / kill / go-live are decided by deterministic gates and scorecards, never by the model. The drop lands on quality of *proposals*, and a $20 Pro month buys a Fable pass whenever J wants one. It still gets measured (§4b, §7).
+- **The honest caveat:** the best local planner, Qwen3.8-27B, benchmarks at **Claude Opus 4.6-class on coding and agentic work** (SWE-bench Pro 61.7 vs Opus 4.6 Max 53.4) and **below Fable on hard reasoning** (HLE 30.8 vs 40.0). It does not touch the trading path: arm / kill / go-live are decided by deterministic gates and scorecards, never by the model. The gap lands on the quality of *proposals*, and a $20 Pro month buys a Fable pass whenever J wants one. It still gets measured (§4b, §7).
 
 ---
 
@@ -61,17 +62,18 @@ The plan below addresses each row by mechanism, not by adding a report.
 
 ---
 
-## 3b. Hardware — the N5 MAX J is looking at vs a plain Strix Halo mini PC (verified 2026-09-13)
+## 3b. Hardware — the memory ladder, and the 192GB box J means (verified 2026-09-13)
 
-| | Minisforum **N5 MAX AI NAS** 128GB | Beelink **GTR9 Pro** 128GB | GMKtec **EVO-X2** 128GB |
-|---|---|---|---|
-| Chip / memory | Ryzen AI Max+ 395, 128GB LPDDR5X — **identical** | identical | identical |
-| Price | **$3,599** (20% off $4,499; ships with a 128GB OS drive, bays empty) | **$1,985** (2TB SSD) | ~$1,999–2,199 street (2TB; $3,499 at launch) |
-| What the premium buys | 5 HDD + 5 NVMe bays (up to 200TB), dual 10GbE, USB4 v2, MinisCloud NAS OS | dual 10GbE, 140W, ~32 dB, vapor chamber | Wi-Fi 7, quad display |
-| Windows | Windows 11 Pro supported (ServeTheHome review); installing it replaces the NAS OS | Windows 11 Pro pre-installed | Windows 11 Pro pre-installed |
-| Local LLM speed | identical: gpt-oss-120b 34–55 tok/s, 30B-A3B MoE 70–100 tok/s (Windows ~20–30% under Linux) | identical | identical |
+J: *"I'm fine not getting the server, I just need like the GTR9 but also 196GB maybe."* The 192GB Windows box exists. NAS dropped.
 
-**Verdict:** the ~$1,600 premium buys drive bays and a NAS operating system J would wipe for Windows. Buy the N5 MAX only if a 10-bay home NAS is wanted anyway (backtest/OPRA cache, journals, media) — then it is a fair two-in-one. Otherwise the GTR9 Pro does the same brain work for $2K. **64GB variants (N5 MAX 64GB $2,399) are a false economy:** gpt-oss-120b alone needs ~59–63GB, and the whole point is running the biggest open model without a meter. Add a USB webcam (~$50) and, for the N5 MAX, drives.
+| Rung | Box | Memory / bandwidth | Price | OS | What it unlocks (§4b) |
+|---|---|---|---|---|---|
+| **128GB** | **Beelink GTR9 Pro** (Ryzen AI Max+ 395) | 128GB LPDDR5X-8000, ~256 GB/s; ~96–110GB usable for models | **$1,985** | Windows 11 Pro pre-installed | **Qwen3.8-27B (the planner) + Nemotron 3 Super + a coder**, Qwen3.5-122B, Gemma 4 31B, gpt-oss-120b. GLM-5.3-Flash only at 2-bit (109GB) — not recommended. |
+| **192GB** | **Minisforum MS-S1 MAX-P495** (Ryzen AI Max+ Pro 495 "Gorgon Halo", Radeon 8065S 40 CU) | 192GB LPDDR5X-8533, up to 160GB VRAM-allocatable | **~€7,000 (~$7,600)** per press; store says "price reveal coming soon"; sales expected Sept 2026 | Windows 11 Pro | adds **GLM-5.3-Flash at 3-bit** (Q3_K_XL 147.5GB) and **DeepSeek V4 Flash at 3-bit** (~103–131GB; its Q4 at ~175GB does not fit the 160GB window), MiniMax M2.7 at Q4. Two units clustered → Qwen3.5-397B at 16 tok/s (vendor claim). |
+| **512GB** | **Mac Studio M5 Ultra** | up to 512GB unified, **1.2 TB/s** (≈4.5× Strix Halo) | M5 Ultra from $5,499; the 512GB build lands late October, price TBD | macOS | GLM-5.3 (744B) at Q4 (~420GB), DeepSeek V4 Pro and Kimi K2.6 at low bits — the real open-weight top tier, 4–5× faster per token than any Strix Halo. Not Windows; the PowerShell layer would not lift-and-shift. |
+| cluster | 4× MS-S1 or 8× GPUs | — | $30K+ | — | Qwen3.8 Max / Kimi K3 at honest precision. Out of scope. |
+
+**Verdict: buy the GTR9 Pro now.** The 192GB rung is a first-generation product at 3.8× the price for roughly **+2 points** of open-model intelligence (GLM-5.3-Flash 66.0 vs Qwen3.8-27B 64.5 on the BenchLM open-weight index — and the Flash gives some of that back at 3-bit). Revisit when Beelink/GMKtec ship 192GB Gorgon Halo boxes (~$3K expected). The true top tier at home is a Mac Studio M5 Ultra 512GB, not a Windows mini PC — J's call if it ever matters. 64GB stays a false economy.
 
 ---
 
@@ -97,7 +99,7 @@ flowchart LR
   PH <--> GS
   GS --> ST
   CL --> ST
-  GS --> LOCAL[Ollama / LM Studio on Box 2 — gpt-oss-120b · Qwen3-Coder-Next · Qwen3.6-35B-A3B — $0]
+  GS --> LOCAL[Ollama / LM Studio on Box 2 — Qwen3.8-27B · Nemotron 3 Super · Qwen3-Coder-Next — $0]
   CL --> LOCAL
   GS -. optional: one $20 Pro month when J wants a Fable audit .-> ANTH[Claude — J's choice, never a dependency]
 ```
@@ -108,25 +110,50 @@ flowchart LR
 |---|---|---|---|
 | 0 Reflex | deterministic Python (Box 1 now, Box 2 after 10-30) | $0 | engine, risk_gate, exits, beacon, briefs' fact blocks |
 | 1 Instinct | **Box 2 local — Qwen3.6-35B-A3B** (benched on this rig 07-08) | $0 | vetoes, summaries, log triage, voice brain, memory consolidation |
-| 2 Workhorse | **Box 2 local — Qwen3-Coder-Next 80B-A3B / GLM-4.7-Flash** | $0 | builder sessions, doc updates, skill/validator authoring, conductor fires |
-| 3 Judgment | **Box 2 local — gpt-oss-120b (high reasoning)** + the deterministic scorecards that actually decide | $0 | weekly audit drafts, idea ranking, constraint-provenance audits |
+| 2 Workhorse | **Box 2 local — Qwen3-Coder-Next 80B-A3B / Nemotron 3 Super 120B-A12B (1M context)** | $0 | builder sessions, doc updates, skill/validator authoring, conductor fires |
+| 3 Judgment | **Box 2 local — Qwen3.8-27B (Opus 4.6-class on coding/agentic, 262K context)** + the deterministic scorecards that actually decide | $0 | weekly audit drafts, idea ranking, constraint-provenance audits |
 | J | **none required** — a $20 Claude Pro month when J wants a Fable audit | $0–20 | J talks to Fable when he chooses; never routed, never gatewayed |
 
 **Rules carried forward:** J's interactive tools hit Anthropic directly, no shared gateway (twice-scarred; `feedback_interactive_surfaces_never_gatewayed_2026_07_14`). No LLM on the live tick. Briefs narrate deterministic facts only (OP-33a) — but the narrator is now allowed an opinion line ("I want to test X because Y") sourced from the ideas board, which is what a colleague sounds like.
 
-## 4b. What runs on it — the model roster (Windows, 128GB, $0 per token)
+## 4b. What runs on it — the smart tier, not the crappy one (researched 2026-09-13)
 
-**Runtime:** Ollama for Windows — it serves the Anthropic Messages API natively, so the real `claude` binary runs on it with two env vars (verified on this rig 07-08, `setup/launch_claude_local.ps1`) — or LM Studio 0.3.x (Vulkan/ROCm runtimes, OpenAI-compatible server). Windows runs ~20–30% below the Linux path; acceptable, and it is J's call.
+J: *"I want to run smart models, I don't want crappy ones."* The bar used here: top ten on an independent open-weight index, or Claude-class on the benchmarks this rig lives on (agentic coding, tool use, long context).
 
-| Role | Model | Footprint | Speed on Strix Halo | Status |
+**The open-weight top tier, September 2026** (BenchLM open-weight index; cluster-only models marked):
+
+| Rank | Model | Score | Size / license | Fits… |
 |---|---|---|---|---|
-| Planner / audit / judgment | **gpt-oss-120b** (OpenAI, Apache-2.0, 117B-A5B, MXFP4) | ~59–63GB | 34–55 tok/s | to bench, scorecard-gated |
-| Builder / tools / agentic coding | **Qwen3-Coder-Next 80B-A3B** (or GLM-4.7-Flash 30B-A3B) | ~45GB Q4 / ~18GB | 60–100 tok/s | to bench |
-| Fast worker / veto / summaries | **Qwen3.6-35B-A3B** | ~23GB | 70–100 tok/s | benched 07-08 on the 5080: 78 tok/s, veto battery correct both directions |
-| Ears / mouth | Whisper (STT) + Kokoro-82M (TTS) | <2GB | real time | Kokoro already in the rig (`gamma_speak.py`) |
-| Eyes (webcam) | OpenCV face/presence detector — no LLM | ~0 | real time | deterministic; "is J in the room" needs no model |
+| 1 | Qwen3.8 Max | 71.6 | 2.4T-A95B, Apache-2 | cluster only |
+| 2 | GLM-5.3 | 68.4 | 744B-A40B, MIT | 512GB Mac at Q4; cluster |
+| 3 | GLM-5.2 | 68.1 | 744B-A40B, MIT | same |
+| 4 | **GLM-5.3-Flash** | **66.0** | 320B-A18B, MIT, 1M ctx, multimodal | **192GB at 3-bit**, 256GB at 4-bit |
+| 5–7 | Kimi K2.7 Code / K2.6 | 65.5 / 65.4 | 1T-A32B | cluster; 512GB Mac at Q3 |
+| **8** | **Qwen3.8-27B** | **64.5** | **27B dense + vision, Apache-2, 262K ctx (1M extensible)** | **any 128GB box — ~30GB at 8-bit** |
+| 11 | MiniMax M3 | 61.6 | — | — |
+| 21 | Qwen3.8-Flash-Next | 56.8 | — | 256GB Mac (26 tok/s reported) |
+| 22 | Qwen3.5-122B-A10B | 56.4 | 122B-A10B | 128GB at Q4 (~68GB) |
+| — | DeepSeek V4 Flash | (not in that table) | 284B-A13B, MIT; SWE-bench Verified 79.0 | 192GB at 3-bit |
+| — | Nemotron 3 Super | AA index 36 (gpt-oss-120b 33, Qwen3.5-122B 42) | 120.6B-A12.7B, 1M ctx, open data | 128GB at Q4 (~65GB) |
 
-Two resident models (planner + worker) fit in 128GB with context to spare; that bounds the Station to ~2–3 live "employees" at once, more in sequence. Every model enters a role through `shadow_model_eval` (≥85% over ≥15 days) — never vibes. Model names dated 2026-09-13; the roster is re-checked quarterly by the scout ($0).
+**Why Qwen3.8-27B is the planner.** Eighth-best open model in the world and the best by a mile per gigabyte. Its model card puts it at **Claude Opus 4.6-class** on the work this rig needs: SWE-bench Pro **61.7 vs Opus 4.6 Max 53.4**; LiveCodeBench v6 **90.3 vs 88.8**; Terminal-Bench 2.1 **73.0 vs 78.2**; GPQA Diamond 89.2 vs 91.3; HLE 30.8 vs 40.0 (that is the "not Fable" gap); OSWorld-Verified **84.3** — computer use, which matters on a box that drives TradingView on a TV. On a Ryzen AI Max+ 395: **24.5 tok/s** at AMD's day-0 build; **30–36 tok/s** with ROCm FP4 + multi-token-prediction speculation (Linux tuning); Windows LM Studio (Vulkan) lands around the low 20s.
+
+**The roster on the 128GB Windows box (all $0 per token):**
+
+| Role | Model | Memory | Speed on Strix Halo | Why |
+|---|---|---|---|---|
+| Planner / audits / judgment | **Qwen3.8-27B** (8-bit) | ~30GB | 20–36 tok/s | the numbers above |
+| Long-context worker / agentic reasoning | **Nemotron 3 Super 120B-A12B** (Q4) | ~65GB | ~40–60 tok/s (12.7B active) | 1M context; AA 36 vs gpt-oss-120b 33; open training data; on Ollama |
+| Builder / coding tools | **Qwen3-Coder-Next 80B-A3B** (Q4), or the planner itself | ~45GB | 60–100 tok/s | 3B active → fast tool loops |
+| Fast worker / veto / summaries | **Qwen3.6-35B-A3B** or **Gemma 4 26B-A4B** | ~23GB / ~16GB | 70–100 tok/s | benched 07-08 on the 5080: 78 tok/s, veto battery correct both directions |
+| Ears / mouth | Whisper + Kokoro-82M | <2GB | real time | already in the rig (`gamma_speak.py`) |
+| Eyes | OpenCV presence detector | ~0 | real time | no model needed |
+
+Planner + Nemotron + fast worker ≈ 118GB, so the box holds two of the three at once and swaps the third (Ollama unloads idle models). **Demoted from the earlier draft:** gpt-oss-120b (Aug 2025, AA 33) — Qwen3.8-27B is smarter at a quarter of the memory.
+
+**What 192GB would add:** GLM-5.3-Flash at Q3_K_XL (147.5GB) — at full precision Terminal-Bench 2.1 **84.3 vs Opus 4.8 85.0**, DeepSWE 63.4 vs 58.0, AutomationBench 48.8 vs 41.0, HLE-with-tools 55.3 vs 57.9 (3-bit gives some back; today it runs only on Unsloth's llama.cpp fork) — and DeepSeek V4 Flash at 3-bit (SWE-bench Verified 79.0 at full precision). Roughly +2 index points over the 27B planner for ~+€5,000.
+
+**Caveats that stay true:** every model enters a role through `shadow_model_eval` (≥85% over ≥15 days), never vibes; the Claude Code harness's ~44K-token session prompt costs ~1–2 minutes of prompt processing per cold session on this hardware (fine for a background agent; `--bare` for chat); a dense 27B is bandwidth-bound, so the 1.2 TB/s Mac would run the same planner ~4× faster. The roster is re-checked quarterly by the scout ($0).
 
 ---
 
@@ -140,9 +167,9 @@ Two resident models (planner + worker) fit in 128GB with context to spare; that 
 | Electricity, Box 2 | — | **~$5–10** (10–15W idle, ~140W under load) |
 | Already paying, unchanged | TradingView plan, internet | same |
 | **Monthly** | **$200** | **$0 + ~$5–10 power** |
-| Capex, once | — | **$1,985** GTR9 Pro 128GB · or **$3,599** N5 MAX 128GB · + ~$50 webcam · + drives if NAS |
+| Capex, once | — | **$1,985** GTR9 Pro 128GB (+ ~$50 webcam) · 192GB MS-S1 MAX-P495 ~€7,000 when it ships · Mac Studio M5 Ultra 512GB (late Oct, macOS) for the very top tier |
 
-Payback against the $200/mo being cancelled: GTR9 Pro in ~10 months, N5 MAX in ~18. After that the marginal cost of an idea, a backtest, or an overnight research crawl is electricity — which is what makes "hungry" affordable and what a metered brain can never give.
+Payback against the $200/mo being cancelled: GTR9 Pro in ~10 months; the 192GB box in ~3 years. After that the marginal cost of an idea, a backtest, or an overnight research crawl is electricity — which is what makes "hungry" affordable and what a metered brain can never give.
 
 ---
 
@@ -193,7 +220,7 @@ Lift-and-shift, same OS: the engine, its scripts and its Task Scheduler entries 
 
 ## 9. The three forks J owns (OP-0 #4 — no doctrine default; my pick stated on each)
 
-1. **Box.** *Pick: Beelink GTR9 Pro 128GB, $1,985, Windows 11 Pro pre-installed.* Alternative: the Minisforum N5 MAX 128GB at $3,599 **if** J wants the 10-bay NAS as well — same chip, same memory, same speed. Not 64GB, on either. OS is settled: Windows 11 Pro (J).
+1. **Box.** *Pick: Beelink GTR9 Pro 128GB, $1,985, Windows 11 Pro pre-installed — buy now.* The 192GB J asked about exists (Minisforum MS-S1 MAX-P495, Windows 11 Pro, ~€7,000, first units ~Sept 2026): it adds GLM-5.3-Flash at 3-bit and DeepSeek V4 Flash at 3-bit, ~+2 index points over the planner the 128GB box already runs. Revisit when a ~$3K 192GB Gorgon Halo box ships. NAS dropped (J). OS settled: Windows 11 Pro (J). Not 64GB.
 2. **Subscription.** *Settled by J: none.* Max lapses; a $20 Pro month is bought only in a month J wants a Fable audit. Cost of that choice: no Claude Code Channels / Remote Control — the Discord bridge and Tailscale cover the phone.
 3. **Face v1.** *Pick: voice + animated presence + webcam greeting.* Alternative: photoreal talking head from day one (LiveAvatar/MuseTalk class) — GPU-hungry, adds a week, adds nothing to the trading loop.
 
@@ -214,6 +241,8 @@ Everything else in this doc is sanctioned, reversible, paper-only work and ships
 - TradingView on Linux: [TradingView support](https://www.tradingview.com/support/solutions/43000728898-how-to-install-and-update-desktop-app-on-linux/) · [TradingView blog: Debian package](https://www.tradingview.com/blog/en/tradingview-desktop-in-debian-package-for-linux-45244)
 - Face: [LiveKit](https://github.com/livekit/livekit) · [HeyGen LiveAvatar open-source demos](https://www.explainx.ai/blog/heygen-liveavatar-gpt-live-1-open-source-demos-2026) · [ai-avatar-system (MuseTalk)](https://github.com/PunithVT/ai-avatar-system)
 - Hardware, Windows: [ServeTheHome: N5 MAX review](https://www.servethehome.com/minisforum-n5-max-review-with-amd-ryzen-ai-max-395/) · [Minisforum N5 MAX store page](https://store.minisforum.com/products/minisforum-n5-max-ai-nas) · [TechRadar: Beelink GTR9 Pro $1,985](https://www.techradar.com/pro/a-mac-studio-windows-workstation-clone-just-went-on-preorder-with-amds-ai-395-beelink-gtr9-pro-costs-usd1985-has-two-10-gbe-ports-and-128gb-ram) · [Micro Center: GMKtec EVO-X2 128GB](https://www.microcenter.com/product/695875/gmktec-evo-x2-ai-mini-pc) · [Codersera: Strix Halo local LLM setup on Windows](https://codersera.com/blog/amd-strix-halo-ryzen-ai-max-local-llm-setup-2026/) · [gpt-oss-120b on Strix Halo](https://akehir.com/blog/strix-halo-kubernetes-llm-gpt-oss)
+- Models (rev 3): [Qwen3.8-27B model card](https://huggingface.co/Qwen/Qwen3.8-27B) · [BenchLM open-weight leaderboard](https://benchlm.ai/best/open-source) · [GLM-5.3-Flash local guide, Unsloth GGUF sizes](https://atomic.chat/blog/guides/how-to-run-glm-5-3-flash-locally) · [DeepSeek V4 Flash local requirements](https://atomic.chat/blog/guides/how-to-run-deepseek-v4-flash-locally) · [Artificial Analysis: Nemotron 3 Super](https://artificialanalysis.ai/articles/nvidia-nemotron-3-super-the-new-leader-in-open-efficient-intelligence) · [Artificial Analysis: Gemma 4](https://artificialanalysis.ai/articles/gemma-4-everything-you-need-to-know) · [AMD: Qwen 3.8 27B on Ryzen AI Max, day 0](https://www.amd.com/en/blogs/2026/run-qwen-3-8-27b-on-amd-ryzen-ai-max-and-radeon-graphics-cards-day-0.html) · [q38rocm: 30–36 tok/s on Strix Halo](https://github.com/julianmb/q38rocm)
+- Hardware (rev 3): [Minisforum MS-S1 MAX-P495](https://store.minisforum.com/products/minisforum-ms-s1-max-p495-ai-workstation) · [guru3d: 192GB MS-S1](https://www.guru3d.com/story/minisforum-mss1-maxp495-packs-192-gb-unified-memory-into-a-compact-ai-workstation/) · [gagadget: ~€7,000](https://gagadget.com/en/724768-minisforum-ms-s1-max-p495-192gb-of-ram-and-a-eur7000-bet-against-cloud-ai/) · [Apple: Mac Studio M5 Max / M5 Ultra](https://www.apple.com/newsroom/2026/08/apple-introduces-new-mac-studio-with-m5-max-and-m5-ultra/)
 - Funded accounts: [PropFirmPlus: algo rules 2026](https://propfirmplus.com/algo-trading-on-futures-prop-firms-whats-actually-allowed-in-2026/) · [ClearEdge: Topstep vs Apex](https://clearedge.trading/post/topstep-vs-apex-automated-trading-rules-bot-comparison)
 
 ---
@@ -237,3 +266,4 @@ Everything else in this doc is sanctioned, reversible, paper-only work and ships
 
 - 2026-09-13 — created (Fable 5.1, J-directed). Supersedes FUTURE-IMPROVEMENTS #27(b) "Tier-2 pilot needs J wallet action": J's decision to end Max is the wallet action.
 - 2026-09-13 12:45 ET — J: Windows not Linux; $0/month after purchase; N5 MAX candidate; explain the always-on mechanism. §3b, §4b, §11 added; §0/§2/§4/§5/§6/§7/§9 revised (all-local brain, GTR9 Pro vs N5 MAX, Windows lift-and-shift).
+- 2026-09-13 12:59 ET — J: smart models only, NAS dropped, "GTR9 but 192GB". Fresh model pass: planner = Qwen3.8-27B (BenchLM open #8, 64.5; SWE-bench Pro 61.7 vs Opus 4.6 Max 53.4); gpt-oss-120b demoted; 192GB = MS-S1 MAX-P495 (~€7,000) adds GLM-5.3-Flash Q3 / DeepSeek V4 Flash Q3 for ~+2 points → GTR9 Pro now, revisit 192GB at ~$3K; top tier at home = Mac Studio M5 Ultra 512GB (macOS).
