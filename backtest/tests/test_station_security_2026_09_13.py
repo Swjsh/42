@@ -169,7 +169,11 @@ def test_proxy_404s_a_path_outside_the_allowlist():
     inst.send_response.assert_called_once_with(404)
 
 
-@pytest.mark.parametrize("path", ["/station", "/api/station", "/favicon.ico", "/_next/static/x.js"])
+@pytest.mark.parametrize("path", [
+    "/station", "/api/station", "/favicon.ico", "/_next/static/x.js",
+    "/api/station/tv-probe?webgl2=1&fps=58",  # the TV self-report rides a query string on an exact path
+    "/hq", "/api/hq",
+])
 def test_proxy_path_allowlist_accepts_expected_paths_shape(path):
     # Confirms the allowlist LOGIC recognizes each path as allowed (does not
     # 404 it) -- the subsequent upstream fetch will fail in this offline test
@@ -196,3 +200,19 @@ def test_proxy_rejects_other_mutating_methods_with_405(method, fn_name):
     inst = _make_handler_instance({"127.0.0.1"}, "127.0.0.1", "/station", method=method)
     getattr(inst, fn_name)()
     inst.send_response.assert_called_once_with(405)
+
+
+def test_page_server_refuses_a_second_bind_on_the_same_port():
+    # 2026-09-13: SO_REUSEADDR on Windows let seven station_serve.py processes share
+    # port 80, each with the allowlist it was started with (stale 404s for the TV).
+    # The server class must make the SECOND bind fail instead of silently sharing.
+    from setup.scripts import station_serve as ss
+    assert ss.ExclusiveThreadingHTTPServer.allow_reuse_address is False
+    first = ss.ExclusiveThreadingHTTPServer(("127.0.0.1", 0), ss.BaseHTTPRequestHandler)
+    try:
+        port = first.server_address[1]
+        with pytest.raises(OSError):
+            ss.ExclusiveThreadingHTTPServer(("127.0.0.1", port), ss.BaseHTTPRequestHandler)
+    finally:
+        first.server_close()
+

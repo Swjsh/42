@@ -10,6 +10,9 @@ import {
   readBrainQuiz,
   readGpuVitals,
   readOllamaPs,
+  readTvCapability,
+  readFaceConfig,
+  readBuildId,
 } from "@/lib/station";
 
 export const dynamic = "force-dynamic";
@@ -40,6 +43,9 @@ export async function GET() {
     quiz,
     gpu,
     models,
+    tvProbe,
+    face,
+    buildId,
   ] = await Promise.all([
     readIdeasBoard(),
     readStationBrief(),
@@ -51,6 +57,9 @@ export async function GET() {
     readBrainQuiz(),
     readGpuVitals(),
     readOllamaPs(),
+    readTvCapability(),
+    readFaceConfig(),
+    readBuildId(),
   ]);
 
   const lastRow = ledger.length > 0 ? ledger[ledger.length - 1] : null;
@@ -73,6 +82,9 @@ export async function GET() {
         quiz,
       },
       presence,
+      tvProbe,
+      face,
+      build_id: buildId,
     },
     { headers: { "Cache-Control": "no-store, max-age=0" } },
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import useSWR from "swr";
 import Link from "next/link";
@@ -8,7 +8,8 @@ import { Radio, ArrowLeft } from "lucide-react";
 import BrainVitals, { type BrainVitalsData } from "@/components/station/BrainVitals";
 import IdeaCard, { type CardAction } from "@/components/station/IdeaCard";
 import TalkToGamma from "@/components/station/TalkToGamma";
-import type { StationIdeaCard, StationPresence } from "@/lib/station";
+import type { StationFace, StationIdeaCard, StationPresence, TvCapability } from "@/lib/station";
+import { probeWebGl } from "@/lib/webgl-probe";
 
 interface StationApiResponse {
   fetched_at: string;
@@ -16,6 +17,9 @@ interface StationApiResponse {
   brief: { text: string; mtime_ms: number | null };
   brainVitals: BrainVitalsData;
   presence: StationPresence | null;
+  tvProbe: TvCapability | null;
+  face: StationFace | null;
+  build_id: string | null;
 }
 
 const fetcher = (url: string): Promise<StationApiResponse> =>
@@ -44,6 +48,54 @@ function StationView() {
     refreshInterval: refreshMs,
     keepPreviousData: true,
   });
+
+  // The TV answers the WebGL question itself (J 2026-09-13: "typing in the TV is a
+  // pain"): once per LAN page load, probe WebGL1/2 + fps and report it to
+  // /api/station/tv-probe (GET -- the LAN page server forwards GET/HEAD only).
+  useEffect(() => {
+    if (!lanKiosk) return;
+    let cancelled = false;
+    probeWebGl()
+      .then((r) => {
+        if (cancelled) return;
+        const q = new URLSearchParams({
+          webgl1: r.webgl1 ? "1" : "0",
+          webgl2: r.webgl2 ? "1" : "0",
+          fps: String(r.fps),
+          w: String(r.width),
+          h: String(r.height),
+          dpr: String(r.dpr),
+          gl: r.renderer,
+          ua: r.ua,
+        });
+        return fetch(`/api/station/tv-probe?${q.toString()}`, { cache: "no-store" });
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, [lanKiosk]);
+
+  // Follow face.json: when the configured TV path differs from this page, go there.
+  // Lets the face flip (/station -> /hq) with a one-line file edit, no remote typing.
+  useEffect(() => {
+    const target = data?.face?.tv_path;
+    if (!lanKiosk || !target || target === window.location.pathname) return;
+    window.location.assign(target);
+  }, [lanKiosk, data?.face?.tv_path]);
+
+  // A rebuild lands on the TV unattended: reload when the server's build id changes
+  // from the one this page first saw (kiosk only -- never yank a page J is typing in).
+  const firstBuildId = useRef<string | null | undefined>(undefined);
+  useEffect(() => {
+    const id = data?.build_id;
+    if (id === undefined) return;
+    if (firstBuildId.current === undefined) {
+      firstBuildId.current = id;
+      return;
+    }
+    if (kiosk && id && firstBuildId.current && id !== firstBuildId.current) window.location.reload();
+  }, [kiosk, data?.build_id]);
 
   const [actionError, setActionError] = useState<string | null>(null);
 
@@ -91,6 +143,15 @@ function StationView() {
           </span>
         )}
       </div>
+
+      {data?.tvProbe && (
+        <p className="mb-3 text-xs text-muted-foreground">
+          TV browser: WebGL2 {data.tvProbe.webgl2 ? "OK" : "NOT AVAILABLE"} · WebGL1{" "}
+          {data.tvProbe.webgl1 ? "OK" : "NOT AVAILABLE"} · {data.tvProbe.fps} fps · {data.tvProbe.width}x
+          {data.tvProbe.height} @{data.tvProbe.dpr}x · {/tizen/i.test(data.tvProbe.ua) ? "Tizen" : data.tvProbe.ua.slice(0, 40)}
+          {data.tvProbe.renderer ? ` · ${data.tvProbe.renderer.slice(0, 60)}` : ""} · reported {data.tvProbe.ts_et}
+        </p>
+      )}
 
       {data && (
         <div className="flex flex-col gap-5">

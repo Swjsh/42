@@ -80,7 +80,10 @@ DEFAULT_UPSTREAM = "http://127.0.0.1:3000"
 # Fixed, minimal path allowlist -- see the module docstring for why each entry
 # exists. Never grown to a wildcard/passthrough without re-reading that
 # reasoning; a new page needing this proxy is a new named entry, not "allow /".
-ALLOWED_EXACT_PATHS = {"/station", "/api/station", "/favicon.ico", "/webgl-canary.html", "/hq", "/api/hq"}
+ALLOWED_EXACT_PATHS = {
+    "/station", "/api/station", "/api/station/tv-probe",  # tv-probe: GET-only self-report, see the Next route
+    "/favicon.ico", "/webgl-canary.html", "/hq", "/api/hq",
+}
 ALLOWED_PATH_PREFIXES = ("/_next/",)
 
 UPSTREAM_TIMEOUT_S = 10
@@ -234,6 +237,23 @@ def make_handler(allowlist: set, upstream: str):
     return AllowlistProxyHandler
 
 
+class ExclusiveThreadingHTTPServer(ThreadingHTTPServer):
+    """One page server per port, enforced at bind time (2026-09-13). The stdlib
+    default allow_reuse_address=True sets SO_REUSEADDR, which on WINDOWS lets a
+    second process bind the same ip:port successfully -- seven station_serve.py
+    processes were found alive at 19:48 ET, each with whichever allowlist it was
+    started with, and the TV got a 404 from a stale one. SO_EXCLUSIVEADDRUSE makes
+    the second bind fail loudly (WinError 10048) instead."""
+
+    allow_reuse_address = False
+
+    def server_bind(self):
+        exclusive = getattr(socket, "SO_EXCLUSIVEADDRUSE", None)
+        if exclusive is not None:
+            self.socket.setsockopt(socket.SOL_SOCKET, exclusive, 1)
+        super().server_bind()
+
+
 def main(argv=None) -> int:
     argv = sys.argv[1:] if argv is None else argv
     ap = argparse.ArgumentParser(description="Station LAN reverse proxy (read-only, allowlisted).")
@@ -256,7 +276,7 @@ def main(argv=None) -> int:
 
     handler = make_handler(allowlist, upstream)
     try:
-        httpd = ThreadingHTTPServer((bind_ip, port), handler)
+        httpd = ExclusiveThreadingHTTPServer((bind_ip, port), handler)
     except OSError as e:
         _log(f"FAILED to bind {bind_ip}:{port}: {e}")
         print(f"FAILED to bind {bind_ip}:{port}: {e}")

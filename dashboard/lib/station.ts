@@ -334,3 +334,53 @@ export async function readStationPersona(): Promise<string> {
   }
   return "You are Gamma's Station. Cite only the facts you are given. Never invent a number." + "\n" + CHAT_CONTRACT;
 }
+
+/** The TV browser's self-reported rendering capability -- written by GET
+ * /api/station/tv-probe once per page load of the LAN kiosk view (2026-09-13,
+ * J: "typing on the TV is a pain"): the TV answers the WebGL2 question itself.
+ * Null until the TV has loaded the page once since the probe shipped. */
+export interface TvCapability {
+  ts_et: string;
+  webgl1: boolean;
+  webgl2: boolean;
+  fps: number;
+  width: number;
+  height: number;
+  dpr: number;
+  renderer: string;
+  ua: string;
+}
+
+export async function readTvCapability(): Promise<TvCapability | null> {
+  return readJsonFile<TvCapability>(paths.tvCapability);
+}
+
+/** automation/state/station/face.json -- which path the TV should show. The LAN
+ * kiosk page navigates to tv_path when it differs from its own pathname, so the
+ * face flips (/station <-> /hq) by editing one file, never by typing on the TV. */
+export interface StationFace {
+  tv_path: string;
+}
+
+export async function readFaceConfig(): Promise<StationFace | null> {
+  const face = await readJsonFile<StationFace>(paths.stationFace);
+  if (!face || typeof face.tv_path !== "string" || !face.tv_path.startsWith("/")) return null;
+  return { tv_path: face.tv_path };
+}
+
+let cachedBuildId: string | null | undefined;
+
+/** The build id of the bundle THIS server process was started on, read once and
+ * cached for the life of the process -- never re-read, so a `next build` running
+ * beside a live server cannot leak the NEXT id through the OLD server. The kiosk
+ * page reloads itself when the id it first saw changes, which must only happen
+ * after the restart that actually serves the new bundle. */
+export async function readBuildId(): Promise<string | null> {
+  if (cachedBuildId !== undefined) return cachedBuildId;
+  try {
+    cachedBuildId = (await fs.readFile(paths.dashboardBuildId, "utf-8")).trim() || null;
+  } catch {
+    cachedBuildId = null;
+  }
+  return cachedBuildId;
+}

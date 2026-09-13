@@ -1,0 +1,6 @@
+{
+  "tv_path": "/hq",
+  "_doc": "Which path the TV kiosk shows. The LAN /station page navigates here when it differs from its own path (dashboard/app/station/page.tsx). Flip to /hq once tv-capability.json says webgl2=true and the HQ looks right; flip back = edit this file again. No secrets, tracked.",
+  "flipped_et": "2026-09-13 19:53 ET",
+  "revert": "set tv_path back to /station (the /hq page follows this file too when the builder wired it; otherwise one TV refresh)"
+}
