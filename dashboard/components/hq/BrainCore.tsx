@@ -40,23 +40,22 @@ const PULSE_DURATION_MS = 10_000;
  * state.clock.elapsedTime -- cheap scalar math, no throttling needed.
  */
 export default function BrainCore({
-  utilPct, memUsedMib, memTotalMib, modelName, manager, briefMtimeMs, gaming, dimFactor, reducedMotion,
+  // World-2 item 4 (2026-09-14): `reducedMotion` is now unused -- the only
+  // two things it gated (ring-spin speed, the pulse's extra rotation) are
+  // both removed below, and everything left in this component (core-color
+  // flicker, glow-sprite breathing) was never gated by it to begin with.
+  // Renamed with the SAME underscore convention CanvasRoot.tsx already uses
+  // for its own unused `lanKiosk` prop, kept in the signature only because
+  // Scene.tsx's call site (and BrainCoreProps) still pass it.
+  utilPct, memUsedMib, memTotalMib, modelName, manager, briefMtimeMs, gaming, dimFactor, reducedMotion: _reducedMotion,
   ultra = false, coreMeshRef,
 }: BrainCoreProps) {
   const coreMat = useRef<THREE.MeshMatcapMaterial | THREE.MeshPhysicalMaterial>(null);
   const matcap = useMemo(() => makeMatcapTexture(), []);
-  const ringA = useRef<THREE.Mesh>(null);
-  const ringB = useRef<THREE.Mesh>(null);
-  const ringAMat = useRef<THREE.MeshBasicMaterial>(null);
-  const ringBMat = useRef<THREE.MeshBasicMaterial>(null);
   const glowMat = useRef<THREE.SpriteMaterial>(null);
 
   const utilFrac = clamp01((utilPct ?? 0) / 100);
   const memFrac = memUsedMib && memTotalMib ? clamp01(memUsedMib / memTotalMib) : 0;
-  // One accent moment (2026-09-13): when the brain is genuinely busy (GPU
-  // util > 30%), the rings brighten -- Scene.tsx pairs this with faster
-  // corridor pulses from the same utilPct reading.
-  const ringBoost = utilFrac > 0.3 ? 1 + Math.min(1, (utilFrac - 0.3) / 0.7) * 0.7 : 1;
 
   // All-hands pulse (Company Mode step 6, 2026-09-13): fires ~10s of
   // doubled ring speed + a plaque when station-brief.md's mtime
@@ -67,10 +66,6 @@ export default function BrainCore({
   // seed, not a trigger, matching the seen-id-diff rule Courier.tsx and
   // HandoffCourier.tsx already use to avoid animating on initial page load.
   const prevBriefMtime = useRef<number | null | undefined>(undefined);
-  const pulseActive = useRef(false);
-  const pulseEndAtMs = useRef(0);
-  const pulseExtraA = useRef(0);
-  const pulseExtraB = useRef(0);
   const [pulsing, setPulsing] = useState(false);
 
   useEffect(() => {
@@ -81,35 +76,13 @@ export default function BrainCore({
     }
     if (briefMtimeMs === prevBriefMtime.current) return;
     prevBriefMtime.current = briefMtimeMs;
-    pulseActive.current = true;
-    pulseEndAtMs.current = performance.now() + PULSE_DURATION_MS;
     setPulsing(true);
     const timer = window.setTimeout(() => setPulsing(false), PULSE_DURATION_MS);
     return () => window.clearTimeout(timer);
   }, [briefMtimeMs]);
 
-  useFrame((state, delta) => {
+  useFrame((state) => {
     const t = state.clock.elapsedTime;
-    const spin = reducedMotion ? 0 : t;
-
-    // Pulse rotation is ADDITIVE (an extra angle accumulated via delta),
-    // never a multiply on `spin` -- multiplying the elapsed-time-based
-    // formula below would snap the rings to a new angle the instant the
-    // pulse starts or ends. Accumulating keeps both transitions smooth:
-    // "doubled ring speed" becomes base rate + an equal extra rate while
-    // the pulse is active, and holds its position afterward (a harmless
-    // fixed phase offset, not a jump).
-    if (pulseActive.current) {
-      if (!reducedMotion && performance.now() < pulseEndAtMs.current) {
-        pulseExtraA.current += delta * 0.35;
-        pulseExtraB.current += delta * -0.28;
-      } else {
-        pulseActive.current = false;
-      }
-    }
-
-    if (ringA.current) ringA.current.rotation.z = spin * 0.35 + pulseExtraA.current;
-    if (ringB.current) ringB.current.rotation.x = spin * -0.28 + pulseExtraB.current;
 
     const flicker = Math.sin(t * 2.1) * 0.06;
     // World pass A (2026-09-13): floor raised 0.7->1.15 -- "cyan core glow
@@ -122,14 +95,16 @@ export default function BrainCore({
     // still don't -- keeps bloom SELECTIVE, not global.
     const baseGlow = lerp(1.15, 2.6, utilFrac) * dimFactor;
     // meshMatcapMaterial has no emissive/emissiveIntensity (HQ v4 look pass,
-    // 2026-09-13) -- the same "brighter = busier" animation now scales the
-    // material's own `color` instead, the identical THREE.Color.set(hex).
-    // multiplyScalar(factor) pattern already used everywhere else in this
-    // file (ring materials) and in StationModule.tsx's screen/edge tint.
+    // 2026-09-13) -- the same "brighter = busier" animation scales the
+    // material's own `color` instead. World-2 item 4 (2026-09-14, J: "the
+    // spinning color radar looking things can go... they don't really make
+    // a lot of sense, and they're just noisy"): the two counter-rotating
+    // rings this useFrame used to also drive (rotation + a busy-brightening
+    // color multiply) are REMOVED outright -- core sphere + vitals text
+    // stay, and this component now has zero rotation anywhere, only the
+    // brightness flicker/glow-sprite breathing below.
     if (coreMat.current) coreMat.current.color.set(PALETTE.hubCore).multiplyScalar(baseGlow + flicker);
     if (glowMat.current) glowMat.current.opacity = clamp01(0.35 + utilFrac * 0.5) * dimFactor;
-    if (ringAMat.current) ringAMat.current.color.set(PALETTE.hubRing).multiplyScalar(ringBoost * dimFactor);
-    if (ringBMat.current) ringBMat.current.color.set("#7ad9ff").multiplyScalar(ringBoost * dimFactor);
   });
 
   const gaugeColor = memFrac > 0.85 ? "#ff3b3b" : memFrac > 0.6 ? "#ffb020" : "#22ff88";
@@ -174,18 +149,9 @@ export default function BrainCore({
         )}
       </mesh>
 
-      {/* Counter-rotating rings -- thickened (was 0.02-0.025 tube radius,
-          near-invisible/aliased with antialias off) and opaque (no blend
-          cost) per the TV-crispness pass; brighten together as the "one
-          accent moment" when the brain is busy (ringBoost, see above). */}
-      <mesh ref={ringA} rotation={[Math.PI / 2.4, 0, 0]}>
-        <torusGeometry args={[1.55, 0.05, 8, 48]} />
-        <meshBasicMaterial ref={ringAMat} color={PALETTE.hubRing} toneMapped={false} />
-      </mesh>
-      <mesh ref={ringB} rotation={[0, 0, Math.PI / 3]}>
-        <torusGeometry args={[1.95, 0.04, 8, 48]} />
-        <meshBasicMaterial ref={ringBMat} color="#7ad9ff" toneMapped={false} />
-      </mesh>
+      {/* World-2 item 4 (2026-09-14, J: "the spinning color radar looking
+          things can go"): the two counter-rotating rings that used to sit
+          here are REMOVED -- core sphere + vitals text stay, static. */}
 
       {/* Additive glow sprite -- camera-facing, cheap */}
       <sprite scale={[3.6, 3.6, 1]}>

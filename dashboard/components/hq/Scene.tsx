@@ -17,7 +17,6 @@ import HandoffCourier from "./HandoffCourier";
 import Corridor from "./Corridor";
 import IdeasWall from "./IdeasWall";
 import Courier from "./Courier";
-import ServiceDrones from "./ServiceDrones";
 import Starfield from "./Starfield";
 import SkyDome from "./SkyDome";
 import PmremEnvironment from "./PmremEnvironment";
@@ -95,13 +94,24 @@ const _desiredCamPos = new THREE.Vector3();
 // Free-camera tuning (LIVE-1 item 1). minDistance/maxDistance bound how far
 // OrbitControls can zoom; maxPolarAngle keeps the camera from ever dipping
 // below the floor -- derived from camera.y = target.y + distance*cos(phi)
-// with target.y=1.4 (DEFAULT_LOOKAT below): the binding case is the FARTHEST
-// zoom (distance=45), where camera.y hits 0 (the floor) at phi~=91.8deg;
-// 89.5deg leaves a real margin (camera.y~=1.8u at max zoom-out) while still
-// letting the camera get close to eye-level with the station at any closer
-// distance (at distance=6, the same 89.5deg barely changes camera.y at all).
+// with target.y=1.4 (DEFAULT_LOOKAT below): at the FARTHEST zoom, camera.y
+// hits 0 (the floor) at phi~=91.8deg; 89.5deg leaves a real margin while
+// still letting the camera get close to eye-level with the station at any
+// closer distance (at distance=6, the same 89.5deg barely changes camera.y
+// at all).
+// World-2 item 1 (2026-09-14, J: "when I scroll out, a black circle just
+// appears and takes over everything"): 45 -> 36. Root cause was the far
+// clip plane (CanvasRoot.tsx/UltraCanvasRoot.tsx, now far=400), not this
+// value on its own -- but SkyDome.tsx's dome radius is 70, so the OLD
+// 45-unit max zoom could still put the camera up to 45+70=115u from the
+// dome's far wall, needing an implausibly large far plane to cover every
+// case. Tightening the max zoom to 36 (36+70=106, comfortable under the new
+// far=400) also keeps the station itself filling a sane share of the frame
+// at full zoom-out, per this same item's "floor or background" ask -- a
+// station that shrinks to a speck before the dome even clips reads just as
+// broken as the black disc itself.
 const FREE_CAM_MIN_DISTANCE = 6;
-const FREE_CAM_MAX_DISTANCE = 45;
+const FREE_CAM_MAX_DISTANCE = 36;
 const FREE_CAM_MAX_POLAR_ANGLE = (89.5 * Math.PI) / 180;
 const FREE_CAM_FLIGHT_S = 1.2; // keyboard 0-7 fly-to duration
 const FREE_CAM_IDLE_RESUME_S = 45; // auto-orbit resumes this long after the user's last input
@@ -322,6 +332,32 @@ function CameraRig({ reducedMotion, rows, geometry, briefMtimeMs, ultra, cameraP
   useEffect(() => {
     controlsRef.current?.target.set(DEFAULT_LOOKAT.x, DEFAULT_LOOKAT.y, DEFAULT_LOOKAT.z);
   }, []);
+
+  // World-2 item 1 (2026-09-14): `?camdist=NN` (ultra tier only) sets the
+  // INITIAL free-camera distance -- lets a headless capture script (which
+  // cannot drive the mouse) prove the zoomed-out view without real user
+  // input. Read once from the URL at mount, never a reactive searchParams
+  // hook -- this component lives inside <Canvas> and the value never needs
+  // to change after first paint. Parking `mode` in "userFree" with
+  // `idleSince` left null (see the mode state machine's own top-of-file
+  // comment) holds the camera at this exact pose indefinitely -- the SAME
+  // steady state a real mid-drag user already gets -- so a 35s capture
+  // settle window never eases back toward the normal auto-orbit distance
+  // before the screenshot fires.
+  useEffect(() => {
+    if (!ultra) return;
+    const controls = controlsRef.current;
+    if (!controls) return;
+    const raw = new URLSearchParams(window.location.search).get("camdist");
+    const n = raw !== null ? Number(raw) : NaN;
+    if (!Number.isFinite(n)) return;
+    const dist = Math.min(FREE_CAM_MAX_DISTANCE, Math.max(FREE_CAM_MIN_DISTANCE, n));
+    camera.position.set(Math.sin(BASE_AZIMUTH) * dist, CAMERA_HEIGHT_ULTRA, Math.cos(BASE_AZIMUTH) * dist);
+    controls.target.set(DEFAULT_LOOKAT.x, DEFAULT_LOOKAT.y, DEFAULT_LOOKAT.z);
+    camera.lookAt(controls.target);
+    mode.current = "userFree";
+    idleSince.current = null;
+  }, [ultra, camera]);
 
   // Keyboard fly-to: "1".."7" = cameraPresets[0..6] (Scene.tsx's own fixed
   // [Gamma, ...6 personas] order), "0" = the fixed overview pose. A window-
@@ -956,10 +992,11 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
           see SkyDome.tsx's own comment for the root cause this fixes. */}
       <SkyDome dayFactor={nightFactor} />
       <Starfield reducedMotion={reducedMotion} />
-      {/* Item 2e (LIVE-1, 2026-09-14): ambient patrol drones -- see
-          ServiceDrones.tsx's own comment for why this is unconditional on
-          BOTH tiers (one InstancedMesh, one draw call, cheap enough). */}
-      <ServiceDrones reducedMotion={reducedMotion} />
+      {/* World-2 item 4 (2026-09-14, J: "the spinning color radar looking
+          things can go... noisy" + HQ face rule "motion = events with a
+          ticker"): ServiceDrones removed entirely (component file deleted
+          too) -- it had no event source, just a timer-driven orbit, exactly
+          the ungrounded ambient motion the face rule forbids. */}
 
       {/* Kit rebuild (2026-09-13, HQ-SCENE-PLAN.md): the hub's real
           `room-large` shell, ultra tier only -- sits at the scene root (HUB

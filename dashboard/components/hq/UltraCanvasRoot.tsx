@@ -92,7 +92,15 @@ function UltraCanvasRoot({ data, reducedMotion, kiosk }: UltraCanvasRootProps) {
           // more of the 16:9 frame; camera stays the shared position/lookAt
           // logic in Scene.tsx#CameraRig, only this tier's fov differs (TV's
           // CanvasRoot.tsx camera prop is untouched).
-          camera={{ fov: 50, near: 0.5, far: 90 }}
+          // World-2 item 1 (2026-09-14, J: "when I scroll out, a black
+          // circle just appears... when I zoom in, the black circle goes
+          // away"): far 90 -> 400 -- see CanvasRoot.tsx's own comment for
+          // the full mechanism (SkyDome's r=70 BackSide sphere sitting past
+          // the old far plane once camera distance + dome radius exceeded
+          // 90). This tier's free camera can zoom out to
+          // Scene.tsx#FREE_CAM_MAX_DISTANCE (36, also tightened this pass) --
+          // 36+70=106 stays well inside 400.
+          camera={{ fov: 50, near: 0.5, far: 400 }}
           onCreated={(state) => {
             // "Light it like a set: exposure up" -- set directly on the real
             // THREE.WebGLRenderer via onCreated (fires once, not per-frame),

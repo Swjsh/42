@@ -89,7 +89,18 @@ export default function CanvasRoot({ data, reducedMotion, lanKiosk: _lanKiosk, k
         // GPUs) -- the single highest-confidence fix for the "jaggy PS2"
         // tell, verify via tv-perf.jsonl TV rows: fps should barely move.
         gl={{ antialias: true, powerPreference: "low-power", alpha: false }}
-        camera={{ fov: 42, near: 0.5, far: 90 }}
+        // World-2 item 1 (2026-09-14, J: "when I scroll out, a black circle
+        // just appears and takes over everything"): far 90 -> 400. Root
+        // cause -- this fixed TV camera sits sqrt(22^2+7.5^2)~=23.2 units
+        // from the origin (Scene.tsx CAMERA_DIST/CAMERA_HEIGHT) and
+        // SkyDome.tsx's BackSide sphere has radius 70, fog={false} -- the
+        // dome's far wall (up to ~23.2+70=93.2u away) sat PAST the old far=90
+        // clip plane, so the renderer's raw clear color (near-black, no
+        // fog/dome to paint over it) showed through as a disc where the dome
+        // should have been. 400 sits comfortably beyond any real distance in
+        // this scene (dome radius 70 plus the largest possible camera
+        // distance) with headroom for future tuning.
+        camera={{ fov: 42, near: 0.5, far: 400 }}
         onCreated={(state) => {
           const canvas = state.gl.domElement;
           canvas.addEventListener("webglcontextlost", (e) => {

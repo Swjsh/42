@@ -32,6 +32,7 @@ export default function StationModule({
   position, angle, row, behavior, reducedMotion, dimFactor, ultra = false,
 }: StationModuleProps) {
   const beaconRef = useRef<THREE.Mesh>(null);
+  const beaconMat = useRef<THREE.MeshBasicMaterial>(null);
   const screenMat = useRef<THREE.MeshBasicMaterial>(null);
   const edgeMat = useRef<THREE.MeshBasicMaterial>(null);
   const gradientMap = useMemo(() => makeToonGradientTexture(), []);
@@ -54,8 +55,16 @@ export default function StationModule({
     const brightness = Math.max(0.15, (0.85 + flicker) * moduleDim);
     if (screenMat.current) screenMat.current.color.copy(_screenColor.set(color)).multiplyScalar(brightness);
     if (edgeMat.current) edgeMat.current.color.copy(_screenColor.set(color)).multiplyScalar(brightness);
-    if (beaconRef.current && row.health === "red" && !reducedMotion) {
-      beaconRef.current.rotation.y = t * 2.2;
+    // World-2 item 4 (2026-09-14, J: "the spinning color radar looking
+    // things can go... they're just noisy"): the beacon no longer rotates --
+    // a static door light that only BLINKS (opacity pulse, ~1Hz) while this
+    // lane is genuinely red; steady/fully-opaque otherwise, and steady
+    // (never mid-pulse) under reducedMotion too, same "freeze at a
+    // representative state" convention every other reducedMotion branch in
+    // this file uses.
+    if (beaconMat.current) {
+      beaconMat.current.opacity =
+        row.health === "red" && !reducedMotion ? 0.35 + 0.65 * (0.5 + 0.5 * Math.sin(t * Math.PI * 2)) : 1;
     }
   });
 
@@ -156,10 +165,12 @@ export default function StationModule({
       )}
 
       {/* Door beacon -- hub-facing edge; the doorway itself (position
-          matches DepartmentBayShell's gate-door on the ultra tier). */}
+          matches DepartmentBayShell's gate-door on the ultra tier). World-2
+          item 4: static (no rotation) -- see the useFrame above for the
+          blink-when-red opacity mechanism. */}
       <mesh ref={beaconRef} position={[0, 0.9, ultra ? -bayHalfDepth + 0.08 : -1.35]}>
         <sphereGeometry args={[0.11, 10, 8]} />
-        <meshBasicMaterial color={row.health === "red" ? "#ff3b3b" : color} toneMapped={false} />
+        <meshBasicMaterial ref={beaconMat} color={row.health === "red" ? "#ff3b3b" : color} transparent toneMapped={false} />
       </mesh>
 
       {/* Label -- one Html per module (8 total across the scene); the ALERT
