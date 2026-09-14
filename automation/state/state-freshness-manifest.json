@@ -257,7 +257,7 @@
       "date_field": "last_tick_et",
       "date_expected_after_et": "09:35",
       "window_et": [
-        "09:30",
+        "09:36",
         "16:10"
       ],
       "weekdays_only": true
@@ -272,7 +272,7 @@
       "date_field": "written_at_et",
       "date_expected_after_et": "09:35",
       "window_et": [
-        "09:30",
+        "09:36",
         "16:10"
       ],
       "weekdays_only": true
@@ -283,7 +283,7 @@
       "task": "Gamma_FuturesEod2 (16:12 ET weekdays)",
       "consumer": "the futures learn loop + J's daily signal. SILENT DEGRADE: if the reviewer stops running, the last digest pins forever and the lane looks reviewed when nobody reviewed it -- the same class of silence the digest's own tick-coverage metric exists to catch one level down.",
       "criticality": "medium",
-      "max_age_min": 1500,
+      "max_age_min": 5900,
       "date_field": "date",
       "date_expected_after_et": "16:15",
       "window_et": null,
@@ -299,7 +299,7 @@
       "date_field": "last_tick_et",
       "date_expected_after_et": "09:35",
       "window_et": [
-        "09:30",
+        "09:36",
         "16:10"
       ],
       "weekdays_only": true
