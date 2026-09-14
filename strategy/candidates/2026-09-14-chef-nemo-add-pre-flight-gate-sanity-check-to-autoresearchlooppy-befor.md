@@ -1,4 +1,4 @@
-# CANDIDATE: port-the-aggressive-eod-flattenpys-agg-reconcile-fill-append
+# CANDIDATE: add-pre-flight-gate-sanity-check-to-autoresearchlooppy-befor
 
 **Filed:** 2026-09-14
 **Filer:** kitchen-daemon (Stage-1-gated cook, GOAL-KITCHEN-RUNNER-IN-LOOP-2026-09-05)
@@ -6,11 +6,11 @@
 
 ## Hypothesis
 
-Port the aggressive eod-flatten.py's AGG_RECONCILE_FILL_APPENDED step (scanning pnl-statement.json for unrecorded fills) into the core eod-flatten.py so both safe and aggressive flatten jobs behave identically and journal every trade in real time.
+Add pre-flight gate sanity check to autoresearch/loop.py: before launching any parameter sweep, run baseline backtest to compute baseline win rate (WR) and compare against gate WR floor; if gap between baseline WR and gate floor exceeds 20%, abort sweep and alert user to recalibrate gates.
 
 ## Provenance
 
-provenance: C:\Users\jackw\Desktop\42\backtest\.venv\Scripts\python.exe C:\Users\jackw\Desktop\42\setup\scripts\kitchen_stage1_runner.py --combo-json {} --slug port-the-aggressive-eod-flattenpys-agg-reconcile-fill-append --task-id 0399c354-ae1c-4b8e-a2a5-856c74e3955b --timeout-s 480.0 -> RUNNER-FAILED (single_worker_lock_held -- another Stage-1 run is in flight)
+provenance: C:\Users\jackw\Desktop\42\backtest\.venv\Scripts\python.exe C:\Users\jackw\Desktop\42\setup\scripts\kitchen_stage1_runner.py --combo-json {} --slug add-pre-flight-gate-sanity-check-to-autoresearchlooppy-befor --task-id dd349d90-11a1-4599-b2c5-8c2d9cd3ab1e --timeout-s 480.0 -> RUNNER-FAILED (single_worker_lock_held -- another Stage-1 run is in flight)
 status: RUNNER-FAILED (single_worker_lock_held -- another Stage-1 run is in flight)
 engine_note: MECHANISM EVIDENCE ONLY -- BS-synthetic option pricing over historical SPY/VIX bars (backtest.autoresearch.overnight_grinder.evaluate_combo -> lib.pricing.black_scholes). NOT real-fills evidence. Per memory project_free_kitchen_plan_b_hardened.md.
 

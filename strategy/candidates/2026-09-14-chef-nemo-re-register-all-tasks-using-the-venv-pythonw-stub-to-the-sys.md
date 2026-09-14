@@ -1,4 +1,4 @@
-# CANDIDATE: port-the-aggressive-eod-flattenpys-agg-reconcile-fill-append
+# CANDIDATE: re-register-all-tasks-using-the-venv-pythonw-stub-to-the-sys
 
 **Filed:** 2026-09-14
 **Filer:** kitchen-daemon (Stage-1-gated cook, GOAL-KITCHEN-RUNNER-IN-LOOP-2026-09-05)
@@ -6,11 +6,11 @@
 
 ## Hypothesis
 
-Port the aggressive eod-flatten.py's AGG_RECONCILE_FILL_APPENDED step (scanning pnl-statement.json for unrecorded fills) into the core eod-flatten.py so both safe and aggressive flatten jobs behave identically and journal every trade in real time.
+Re-register all tasks using the venv pythonw stub to the system pythonw via run_cmd_hidden.py (as per L316 fix) to eliminate hidden Windows Terminal windows leaking during automation.
 
 ## Provenance
 
-provenance: C:\Users\jackw\Desktop\42\backtest\.venv\Scripts\python.exe C:\Users\jackw\Desktop\42\setup\scripts\kitchen_stage1_runner.py --combo-json {} --slug port-the-aggressive-eod-flattenpys-agg-reconcile-fill-append --task-id 0399c354-ae1c-4b8e-a2a5-856c74e3955b --timeout-s 480.0 -> RUNNER-FAILED (single_worker_lock_held -- another Stage-1 run is in flight)
+provenance: C:\Users\jackw\Desktop\42\backtest\.venv\Scripts\python.exe C:\Users\jackw\Desktop\42\setup\scripts\kitchen_stage1_runner.py --combo-json {} --slug re-register-all-tasks-using-the-venv-pythonw-stub-to-the-sys --task-id 18a32d7f-825d-408c-95a5-a921c2e4d0ca --timeout-s 480.0 -> RUNNER-FAILED (single_worker_lock_held -- another Stage-1 run is in flight)
 status: RUNNER-FAILED (single_worker_lock_held -- another Stage-1 run is in flight)
 engine_note: MECHANISM EVIDENCE ONLY -- BS-synthetic option pricing over historical SPY/VIX bars (backtest.autoresearch.overnight_grinder.evaluate_combo -> lib.pricing.black_scholes). NOT real-fills evidence. Per memory project_free_kitchen_plan_b_hardened.md.
 

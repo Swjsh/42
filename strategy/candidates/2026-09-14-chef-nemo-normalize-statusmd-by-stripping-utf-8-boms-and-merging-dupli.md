@@ -1,4 +1,4 @@
-# CANDIDATE: port-the-aggressive-eod-flattenpys-agg-reconcile-fill-append
+# CANDIDATE: normalize-statusmd-by-stripping-utf-8-boms-and-merging-dupli
 
 **Filed:** 2026-09-14
 **Filer:** kitchen-daemon (Stage-1-gated cook, GOAL-KITCHEN-RUNNER-IN-LOOP-2026-09-05)
@@ -6,11 +6,11 @@
 
 ## Hypothesis
 
-Port the aggressive eod-flatten.py's AGG_RECONCILE_FILL_APPENDED step (scanning pnl-statement.json for unrecorded fills) into the core eod-flatten.py so both safe and aggressive flatten jobs behave identically and journal every trade in real time.
+Normalize STATUS.md by stripping UTF-8 BOMs and merging duplicate '## Known broken' headers, then add a pre-commit hook to detect and reject BOMs in STATUS.md to prevent recurrence (per L317).
 
 ## Provenance
 
-provenance: C:\Users\jackw\Desktop\42\backtest\.venv\Scripts\python.exe C:\Users\jackw\Desktop\42\setup\scripts\kitchen_stage1_runner.py --combo-json {} --slug port-the-aggressive-eod-flattenpys-agg-reconcile-fill-append --task-id 0399c354-ae1c-4b8e-a2a5-856c74e3955b --timeout-s 480.0 -> RUNNER-FAILED (single_worker_lock_held -- another Stage-1 run is in flight)
+provenance: C:\Users\jackw\Desktop\42\backtest\.venv\Scripts\python.exe C:\Users\jackw\Desktop\42\setup\scripts\kitchen_stage1_runner.py --combo-json {} --slug normalize-statusmd-by-stripping-utf-8-boms-and-merging-dupli --task-id 141b08a3-9241-496f-bf75-0bb214729f41 --timeout-s 480.0 -> RUNNER-FAILED (single_worker_lock_held -- another Stage-1 run is in flight)
 status: RUNNER-FAILED (single_worker_lock_held -- another Stage-1 run is in flight)
 engine_note: MECHANISM EVIDENCE ONLY -- BS-synthetic option pricing over historical SPY/VIX bars (backtest.autoresearch.overnight_grinder.evaluate_combo -> lib.pricing.black_scholes). NOT real-fills evidence. Per memory project_free_kitchen_plan_b_hardened.md.
 
