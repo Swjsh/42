@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import { Canvas } from "@react-three/fiber";
+import * as THREE from "three";
 import Scene from "./Scene";
 import StandbyPanel from "./StandbyPanel";
 import type { HqApiResponse } from "./types";
@@ -32,7 +33,10 @@ interface UltraCanvasRootProps {
  * is fine there (a cheap, already-idle mobile GPU) but must NOT be
  * inherited here by accident.
  */
-export default function UltraCanvasRoot({ data, reducedMotion }: UltraCanvasRootProps) {
+/** World pass A: memoized alongside Scene.tsx's own memo (see that file's
+ * comment for the full mechanism) -- defense in depth, one more layer that
+ * skips work when page.tsx's stable `sceneData` hasn't actually changed. */
+function UltraCanvasRoot({ data, reducedMotion }: UltraCanvasRootProps) {
   const gaming = data?.mode === "gaming";
   const [hidden, setHidden] = useState(false);
   const [contextLost, setContextLost] = useState(false);
@@ -62,8 +66,23 @@ export default function UltraCanvasRoot({ data, reducedMotion }: UltraCanvasRoot
           frameloop={frameloop}
           shadows="soft"
           gl={{ antialias: false, powerPreference: "high-performance", alpha: false }}
-          camera={{ fov: 42, near: 0.5, far: 90 }}
+          // World pass A (2026-09-13, first real screenshot): fov 42->50 --
+          // one lever alongside Scene.tsx's own closer/lower camera to fill
+          // more of the 16:9 frame; camera stays the shared position/lookAt
+          // logic in Scene.tsx#CameraRig, only this tier's fov differs (TV's
+          // CanvasRoot.tsx camera prop is untouched).
+          camera={{ fov: 50, near: 0.5, far: 90 }}
           onCreated={(state) => {
+            // "Light it like a set: exposure up" -- set directly on the real
+            // THREE.WebGLRenderer via onCreated (fires once, not per-frame),
+            // rather than relying on unverified `gl` PROP-object semantics
+            // for a property three.js applies post-construction, not at
+            // constructor time. ACESFilmicToneMapping is the standard
+            // "cinematic" curve (rolls off highlights instead of clipping
+            // them white) that exposure/bloom tuning is normally built
+            // around; explicit rather than assumed.
+            state.gl.toneMapping = THREE.ACESFilmicToneMapping;
+            state.gl.toneMappingExposure = 1.35;
             const canvas = state.gl.domElement;
             canvas.addEventListener("webglcontextlost", (e) => {
               e.preventDefault();
@@ -92,3 +111,5 @@ export default function UltraCanvasRoot({ data, reducedMotion }: UltraCanvasRoot
     </div>
   );
 }
+
+export default memo(UltraCanvasRoot);

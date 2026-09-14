@@ -37,7 +37,7 @@ export default function PersonaModule({ position, persona, behavior }: PersonaMo
           }}
         >
           <span key={persona.status} className="hq-shine" />
-          <div style={{ fontSize: 19, fontWeight: 800, lineHeight: 1.2 }}>
+          <div style={{ fontSize: 28, fontWeight: 800, lineHeight: 1.2 }}>
             {persona.emoji} {persona.name}
           </div>
           <div style={{ fontSize: 26, color: "#7f93b0" }}>

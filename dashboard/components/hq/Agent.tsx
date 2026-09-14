@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { useThrottledFrame } from "./useThrottledFrame";
 import { makeMatcapTexture, seededRandom } from "./palette";
@@ -223,44 +223,60 @@ export default function Agent({
 
   return (
     <group ref={group}>
-      {/* Legs/body/arms/backpack -- procedural matcap (HQ v4 look pass,
-          2026-09-13): one texture lookup replaces Lambert's per-fragment
-          N.L at the same cost class, giving these little bots actual
-          dimensional shading instead of flat color blocks. The visor below
-          stays Lambert+emissive unchanged -- it's meant to glow, not be
-          shaded by a matcap. */}
-      <mesh ref={legL} position={[-0.09, 0.18, 0]}>
-        <cylinderGeometry args={[0.045, 0.045, 0.32, 6]} />
-        <meshMatcapMaterial matcap={matcap} color="#1b2436" />
-      </mesh>
-      <mesh ref={legR} position={[0.09, 0.18, 0]}>
-        <cylinderGeometry args={[0.045, 0.045, 0.32, 6]} />
-        <meshMatcapMaterial matcap={matcap} color="#1b2436" />
-      </mesh>
-      {/* Body (capsule) */}
-      <mesh position={[0, 0.5, 0]}>
-        <capsuleGeometry args={[0.14, 0.32, 4, 8]} />
-        <meshMatcapMaterial matcap={matcap} color="#232d44" />
-      </mesh>
-      {/* Arms */}
-      <mesh ref={armL} position={[-0.19, 0.55, 0]}>
-        <cylinderGeometry args={[0.035, 0.035, 0.28, 6]} />
-        <meshMatcapMaterial matcap={matcap} color="#232d44" />
-      </mesh>
-      <mesh ref={armR} position={[0.19, 0.55, 0]}>
-        <cylinderGeometry args={[0.035, 0.035, 0.28, 6]} />
-        <meshMatcapMaterial matcap={matcap} color="#232d44" />
-      </mesh>
-      {/* Backpack */}
-      <mesh position={[0, 0.5, -0.13]}>
-        <boxGeometry args={[0.16, 0.22, 0.08]} />
-        <meshMatcapMaterial matcap={matcap} color="#141b2e" />
-      </mesh>
-      {/* Visor / head-lamp */}
-      <mesh position={[0, 0.78, 0.09]}>
-        <sphereGeometry args={[0.1, 10, 8]} />
-        <meshLambertMaterial ref={visorMat} color={accentColor} emissive={accentColor} emissiveIntensity={1.4} toneMapped={false} />
-      </mesh>
+      {ultra ? (
+        // Kit rebuild bug fix (2026-09-13, world pass A): `ultra`/`animState`
+        // were computed above but NEVER READ here -- this branch never
+        // existed, so every agent rendered the procedural body regardless of
+        // tier. Caught from the first real screenshot, not the build (an
+        // unused local never fails `tsc` with this project's tsconfig).
+        // Suspense-scoped (see BrainCore.tsx's identical fix + comment) so a
+        // still-loading character body never unmounts anything else.
+        <Suspense fallback={null}>
+          <KitAgentBody laneSeed={laneSeed} animState={animState} accentColor={accentColor} patrolDim={patrolDim} frozen={behavior === "frozen"} />
+        </Suspense>
+      ) : (
+        <>
+          {/* Legs/body/arms/backpack -- procedural matcap (HQ v4 look pass,
+              2026-09-13): one texture lookup replaces Lambert's per-fragment
+              N.L at the same cost class, giving these little bots actual
+              dimensional shading instead of flat color blocks. The visor
+              below stays Lambert+emissive unchanged -- it's meant to glow,
+              not be shaded by a matcap. TV tier only (see `ultra` branch
+              above) -- unchanged from every prior pass. */}
+          <mesh ref={legL} position={[-0.09, 0.18, 0]}>
+            <cylinderGeometry args={[0.045, 0.045, 0.32, 6]} />
+            <meshMatcapMaterial matcap={matcap} color="#1b2436" />
+          </mesh>
+          <mesh ref={legR} position={[0.09, 0.18, 0]}>
+            <cylinderGeometry args={[0.045, 0.045, 0.32, 6]} />
+            <meshMatcapMaterial matcap={matcap} color="#1b2436" />
+          </mesh>
+          {/* Body (capsule) */}
+          <mesh position={[0, 0.5, 0]}>
+            <capsuleGeometry args={[0.14, 0.32, 4, 8]} />
+            <meshMatcapMaterial matcap={matcap} color="#232d44" />
+          </mesh>
+          {/* Arms */}
+          <mesh ref={armL} position={[-0.19, 0.55, 0]}>
+            <cylinderGeometry args={[0.035, 0.035, 0.28, 6]} />
+            <meshMatcapMaterial matcap={matcap} color="#232d44" />
+          </mesh>
+          <mesh ref={armR} position={[0.19, 0.55, 0]}>
+            <cylinderGeometry args={[0.035, 0.035, 0.28, 6]} />
+            <meshMatcapMaterial matcap={matcap} color="#232d44" />
+          </mesh>
+          {/* Backpack */}
+          <mesh position={[0, 0.5, -0.13]}>
+            <boxGeometry args={[0.16, 0.22, 0.08]} />
+            <meshMatcapMaterial matcap={matcap} color="#141b2e" />
+          </mesh>
+          {/* Visor / head-lamp */}
+          <mesh position={[0, 0.78, 0.09]}>
+            <sphereGeometry args={[0.1, 10, 8]} />
+            <meshLambertMaterial ref={visorMat} color={accentColor} emissive={accentColor} emissiveIntensity={1.4} toneMapped={false} />
+          </mesh>
+        </>
+      )}
     </group>
   );
 }

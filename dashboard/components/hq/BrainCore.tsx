@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties, RefObject } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
@@ -112,7 +112,15 @@ export default function BrainCore({
     if (ringB.current) ringB.current.rotation.x = spin * -0.28 + pulseExtraB.current;
 
     const flicker = Math.sin(t * 2.1) * 0.06;
-    const baseGlow = lerp(0.7, 2.6, utilFrac) * dimFactor;
+    // World pass A (2026-09-13): floor raised 0.7->1.15 -- "cyan core glow
+    // strong enough to bloom" even at IDLE (util=0), not only when the GPU
+    // is genuinely busy. Paired with EffectsStack.tsx's lowered Bloom
+    // luminanceThreshold (0.92->0.78): a color channel at ~1.15x a hue like
+    // hubCore's blue/cyan (already close to 1.0 in its brightest channel)
+    // now crosses that threshold, while normal lit materials (which stay
+    // under ~0.9 after tone mapping even with the exposure bump below)
+    // still don't -- keeps bloom SELECTIVE, not global.
+    const baseGlow = lerp(1.15, 2.6, utilFrac) * dimFactor;
     // meshMatcapMaterial has no emissive/emissiveIntensity (HQ v4 look pass,
     // 2026-09-13) -- the same "brighter = busier" animation now scales the
     // material's own `color` instead, the identical THREE.Color.set(hex).
@@ -132,8 +140,23 @@ export default function BrainCore({
           reactor built from kit pieces + emissive core" -- 4 pipe/pipe-bend
           props radiating from the EXISTING sphere/rings (kept unchanged,
           they ARE the "glowing core"; this is dressing around it, ultra
-          tier only -- TV tier's draw-call budget doesn't have room). */}
-      {ultra && <ReactorGreeble />}
+          tier only -- TV tier's draw-call budget doesn't have room).
+          World pass A bug fix (2026-09-13, caught from a real console
+          error -- "Cannot read properties of null (reading 'parent')",
+          repeating on every Canvas remount): ReactorGreeble's useGLTF calls
+          suspend, and WITHOUT a local boundary that bubbles up to <Canvas>'s
+          own single built-in Suspense (confirmed by reading r3f's source
+          this session), unmounting THIS ENTIRE <group> -- including
+          `coreMeshRef`'s mesh -- while it loads. EffectsStack's GodRays
+          reads `coreMeshRef.current.parent` every frame; a frame landing
+          during that unmount window crashes. `<Suspense fallback={null}>`
+          scoped to JUST this piece keeps the core sphere/rings mounted and
+          stable regardless of kit-asset load timing. */}
+      {ultra && (
+        <Suspense fallback={null}>
+          <ReactorGreeble />
+        </Suspense>
+      )}
 
       {/* Core sphere -- TV tier: procedural matcap (HQ v4 look pass,
           2026-09-13), one texture lookup replacing Lambert's per-fragment

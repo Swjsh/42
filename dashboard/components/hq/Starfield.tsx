@@ -3,7 +3,7 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { PALETTE } from "./palette";
+import { PALETTE, makeMatcapTexture } from "./palette";
 
 const STAR_COUNT = 900;
 
@@ -16,6 +16,7 @@ const STAR_COUNT = 900;
 export default function Starfield({ reducedMotion }: { reducedMotion: boolean }) {
   const points = useRef<THREE.Points>(null);
   const planetGroup = useRef<THREE.Group>(null);
+  const matcap = useMemo(() => makeMatcapTexture(), []);
 
   const positions = useMemo(() => {
     const arr = new Float32Array(STAR_COUNT * 3);
@@ -48,19 +49,34 @@ export default function Starfield({ reducedMotion }: { reducedMotion: boolean })
         <pointsMaterial color="#bcd7ff" size={0.12} sizeAttenuation transparent opacity={0.75} />
       </points>
 
-      <group ref={planetGroup} position={[-14, 6, -20]}>
+      {/* World pass A (2026-09-13, J's own screenshot complaint: "huge
+          black planet disc"): meshLambertMaterial only shades from the
+          scene's own hemisphere+directional light, so the planet's
+          hub-facing side (which those lights barely reach at this
+          position/angle) read as flat black -- a "black hole", not a lit
+          world. Swapped to the SAME procedural matcap every other hero
+          surface in this scene already uses (BrainCore, characters):
+          camera-facing pseudo-shading that is NEVER fully black on any
+          side, zero new cost (matcap is a cached module-level singleton).
+          Also moved further off-center/back and shrunk (radius 3.2->2.1,
+          position pulled to a screen-corner-ish spot) so it reads as
+          background dressing behind the station, not a dominant disc
+          competing with it -- both purely COSMETIC, unverified beyond this
+          screenshot pass, easy to nudge again. */}
+      <group ref={planetGroup} position={[-26, 13, -34]}>
         <mesh>
-          <sphereGeometry args={[3.2, 18, 14]} />
-          <meshLambertMaterial color={PALETTE.planet} />
+          <sphereGeometry args={[2.1, 24, 18]} />
+          <meshMatcapMaterial matcap={matcap} color={PALETTE.planet} />
         </mesh>
         <mesh>
-          <sphereGeometry args={[3.42, 24, 20]} />
+          <sphereGeometry args={[2.28, 24, 20]} />
           <meshBasicMaterial
             color={PALETTE.planetRim}
             transparent
-            opacity={0.18}
+            opacity={0.32}
             side={THREE.BackSide}
             depthWrite={false}
+            toneMapped={false}
           />
         </mesh>
       </group>

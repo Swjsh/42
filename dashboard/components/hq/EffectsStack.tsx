@@ -1,6 +1,6 @@
 "use client";
 
-import type { RefObject } from "react";
+import { memo, type RefObject } from "react";
 import { EffectComposer, Bloom, SMAA, Vignette, ChromaticAberration, N8AO, DepthOfField, GodRays } from "@react-three/postprocessing";
 import type * as THREE from "three";
 
@@ -26,12 +26,39 @@ interface EffectsStackProps {
  * second GodRays pass on anything else, per the brief's explicit warning
  * that a second pass isn't worth its cost (fake additive cones are the
  * queued alternative for secondary sources, not built this pass).
+ *
+ * World pass A REAL bug fix (2026-09-13, found by reading
+ * @react-three/postprocessing's own GodRays.tsx source, not guessed): its
+ * `useMemo(() => new GodRaysEffect(...), [camera, props])` depends on the
+ * WHOLE props object, which JSX allocates fresh on every render of this
+ * component's PARENT -- Scene.tsx re-renders on every SWR poll (every
+ * 15-60s), and without memoization here, EffectsStack re-rendered right
+ * along with it, so `<GodRays>` got a brand-new `props` reference every
+ * poll and silently rebuilt its entire GodRaysEffect (render targets,
+ * shaders, pass wiring) each time -- a real resource-churn bug, and the
+ * most likely source of the repeating "Cannot read properties of null
+ * (reading 'parent')" console crash (a race during that pass teardown/
+ * rebuild), independent of the separate Suspense-boundary fix in
+ * BrainCore.tsx/Agent.tsx/Scene.tsx/StationModule.tsx. `React.memo` here
+ * means this component's own props (`coreMeshRef`, a `useRef` -- ALWAYS the
+ * same object reference for the component's lifetime, React's own
+ * guarantee) never change, so it renders ONCE and GodRays' internal
+ * `props` reference stays stable for good.
  */
-export default function EffectsStack({ coreMeshRef }: EffectsStackProps) {
+function EffectsStack({ coreMeshRef }: EffectsStackProps) {
   return (
     <EffectComposer enableNormalPass multisampling={0}>
       <N8AO aoRadius={1.5} distanceFalloff={1} intensity={2.5} quality="high" />
-      <Bloom mipmapBlur luminanceThreshold={0.92} luminanceSmoothing={0.2} intensity={0.8} />
+      {/* World pass A (2026-09-13): threshold 0.92->0.78 -- paired with
+          BrainCore.tsx's raised idle-state glow floor so the hub core
+          blooms even when the GPU is idle, not only when genuinely busy
+          ("cyan core glow strong enough to bloom" per the ask). Still
+          selective: normal lit MeshStandard/Physical materials (desks,
+          rooms, characters) stay well under this even with the new 1.35x
+          tone-mapping exposure (UltraCanvasRoot.tsx) -- only
+          toneMapped={false} emissive surfaces (core, rings, beacons, screen
+          insets, edge strips) are authored with color values that exceed 1. */}
+      <Bloom mipmapBlur luminanceThreshold={0.78} luminanceSmoothing={0.25} intensity={0.9} />
       <DepthOfField focusDistance={0.02} focalLength={0.05} bokehScale={2.5} />
       <GodRays sun={coreMeshRef as RefObject<THREE.Mesh>} samples={40} density={0.85} decay={0.92} weight={0.4} exposure={0.3} clampMax={1} blur />
       <ChromaticAberration offset={[0.0005, 0.0005]} />
@@ -40,3 +67,5 @@ export default function EffectsStack({ coreMeshRef }: EffectsStackProps) {
     </EffectComposer>
   );
 }
+
+export default memo(EffectsStack);

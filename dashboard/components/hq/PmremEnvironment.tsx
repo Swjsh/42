@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { Environment } from "@react-three/drei";
 import { KIT_PATHS } from "./SetKit";
 
@@ -20,7 +21,27 @@ import { KIT_PATHS } from "./SetKit";
  * while the 1.7MB file loads -- caught by <Canvas>'s own built-in internal
  * Suspense boundary (confirmed by reading react-three-fiber's shipped
  * source this session, not assumed), so no extra boundary is needed here.
+ *
+ * World pass A REAL bug fix (2026-09-13, root-caused via mechanical
+ * bisection + reading drei's own Environment.js source, not guessed): its
+ * internal `EnvironmentCube`/`EnvironmentMap` components run
+ * `React.useLayoutEffect(() => setEnvProps(...))` with NO DEPENDENCY ARRAY
+ * -- it tears down (`scene.environment = oldenv`) and reapplies on EVERY
+ * single re-render of this component's parent, unconditionally. Scene.tsx
+ * re-renders on every SWR poll (~60s in kiosk mode); without memoization
+ * here, that's a full environment-texture teardown/reapply cycle every
+ * poll, racing the SAME class of "component reads a ref/scene-graph node
+ * mid-teardown" crash this task already found and fixed once in
+ * EffectsStack.tsx (GodRays). Confirmed via mechanical bisection this
+ * session: a clean single-tab load stays crash-free for ~50-60s, then the
+ * "Cannot read properties of null (reading 'parent')" error starts
+ * repeating every frame -- the timing lines up exactly with kiosk mode's
+ * first SWR poll, not with initial asset loading. `React.memo` here is
+ * trivially safe (this component's props -- none, `files`/`background` are
+ * both file-local constants -- never change), and stops the churn outright.
  */
-export default function PmremEnvironment() {
+function PmremEnvironment() {
   return <Environment files={KIT_PATHS.hdri} background={false} />;
 }
+
+export default memo(PmremEnvironment);

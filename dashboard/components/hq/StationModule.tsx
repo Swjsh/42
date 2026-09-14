@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { Suspense, useMemo, useRef } from "react";
 import type { CSSProperties } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
@@ -8,7 +8,7 @@ import * as THREE from "three";
 import type { SectorRow } from "./types";
 import type { AgentBehavior } from "./Agent";
 import { healthColor, isParkedState, makeToonGradientTexture, PALETTE } from "./palette";
-import { ARCHITECTURE_SCALE_BAY, BAY_DESK_OFFSET_Z, DepartmentBayShell, DeskCluster } from "./SetKit";
+import { BAY_CEILING_Y, BAY_DESK_OFFSET_Z, BAY_HALF_DEPTH, DepartmentBayShell, DeskCluster } from "./SetKit";
 
 const _screenColor = new THREE.Color();
 
@@ -64,7 +64,7 @@ export default function StationModule({
   // hub-facing wall sits at -halfDepth (see SetKit.tsx#DepartmentBayShell);
   // the beacon/label (kept -- see the plan doc's "what stays procedural"
   // section) move from the OLD 2.8-deep floor's -1.35/1.15 offsets to match.
-  const bayHalfDepth = (12 * ARCHITECTURE_SCALE_BAY) / 2; // room-small raw depth 12, see SetKit.tsx
+  const bayHalfDepth = BAY_HALF_DEPTH;
 
   return (
     <group position={position} rotation={[0, rotationY, 0]}>
@@ -105,13 +105,41 @@ export default function StationModule({
       ) : (
         <>
           {/* Real CC0 kit geometry replaces the floor/screen-wall/desk
-              primitives above -- see HQ-SCENE-PLAN.md. `screenMat`/`edgeMat`
-              refs stay unused here (the useFrame above already guards every
-              `.current` read, so this is a safe no-op, not a dangling ref). */}
-          <DepartmentBayShell />
-          <group position={[0, 0, BAY_DESK_OFFSET_Z]}>
-            <DeskCluster accentColor={color} />
-          </group>
+              primitives above -- see HQ-SCENE-PLAN.md. Suspense-scoped
+              (world pass A bug fix, see BrainCore.tsx's identical fix) so a
+              still-loading bay never unmounts anything outside itself. */}
+          <Suspense fallback={null}>
+            <DepartmentBayShell />
+            <group position={[0, 0, BAY_DESK_OFFSET_Z]}>
+              <DeskCluster accentColor={color} />
+            </group>
+          </Suspense>
+
+          {/* World pass A (2026-09-13): "each bay interior tinted by its
+              health color from an emissive floor strip + a small colored
+              point light" -- RE-ADDED for ultra (was TV-only; the double-
+              reflection "wedge" that got it pulled from ultra was a
+              MeshReflectorMaterial-floor artifact, and ultra's floor is now
+              real kit geometry, not a reflector, so that artifact no longer
+              applies). Strip sits just inside the real room's hub-facing
+              wall; the point light is a SMALL, falloff-limited warm-tinted
+              health accent, not the room's main light (see HubRoom/bay
+              ceiling pointLights below for that). */}
+          <mesh position={[0, 0.01, -bayHalfDepth + 0.3]} rotation={[-Math.PI / 2, 0, 0]}>
+            <planeGeometry args={[3.6, 0.2]} />
+            <meshBasicMaterial ref={edgeMat} color={color} toneMapped={false} />
+          </mesh>
+          <pointLight
+            position={[0, 1.1, BAY_DESK_OFFSET_Z * 0.4]}
+            color={color}
+            intensity={2.2}
+            distance={4.5}
+            decay={2}
+          />
+          {/* Warm-white ceiling pointLight -- "lit like a set", one per bay
+              (~8 total, well within a 5080's budget). Distance-limited so
+              8 bays' lights never bleed heavily into each other or the hub. */}
+          <pointLight position={[0, BAY_CEILING_Y, BAY_DESK_OFFSET_Z * 0.5]} color="#ffe9c2" intensity={3.5} distance={6} decay={2} />
         </>
       )}
 
@@ -154,9 +182,13 @@ export default function StationModule({
             }}
           >
             <span key={row.health} className="hq-shine" />
-            <div style={{ fontSize: 30, fontWeight: 800, lineHeight: 1.15 }}>{row.lane}</div>
-            <div style={{ fontSize: 26, color: "#7f93b0", marginBottom: 2 }}>{row.arm_or_acct_alias}</div>
-            <div style={{ fontSize: 26, fontWeight: 600 }}>
+            <div style={{ fontSize: ultra ? 38 : 30, fontWeight: 800, lineHeight: 1.15 }}>{row.lane}</div>
+            {/* Ultra tier (world pass A, 2026-09-13): "one line lane name +
+                one status line" -- the arm-alias abbreviation line is
+                dropped here (kept on TV, unchanged) to hit that 2-line
+                spec at a bigger, readable size instead of 3 shrinking lines. */}
+            {!ultra && <div style={{ fontSize: 26, color: "#7f93b0", marginBottom: 2 }}>{row.arm_or_acct_alias}</div>}
+            <div style={{ fontSize: ultra ? 32 : 26, fontWeight: 600 }}>
               <span style={{ color: typeof row.window_pnl === "number" ? (row.window_pnl >= 0 ? "#22ff88" : "#ff3b3b") : "#7f93b0" }}>
                 {typeof row.window_pnl === "number" ? row.window_pnl.toFixed(0) : row.window_pnl}
               </span>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import useSWR from "swr";
 import type { HqApiResponse } from "@/components/hq/types";
@@ -113,18 +113,63 @@ function HqView() {
   // outside the <Canvas>.
   const motionEvents = useMotionEvents(data);
 
+  // World pass A REAL bug fix (2026-09-13): `data` gets a BRAND NEW object
+  // reference every SWR poll (refreshInterval 15-60s) even when nothing the
+  // 3D scene cares about changed -- `fetched_at`/`perf`/`perfOther` carry
+  // their own timestamps that update every poll regardless. A fresh `data`
+  // reference cascades a full re-render of the ENTIRE Scene.tsx tree (every
+  // StationModule/Agent/Corridor/PersonaModule/BrainCore/EffectsStack/
+  // PmremEnvironment/~20 <Html> instances), and this session found TWO
+  // confirmed cases (GodRays inside EffectsStack.tsx, Environment inside
+  // PmremEnvironment.tsx -- both now React.memo'd) where a drei/
+  // postprocessing library component does expensive/stateful work in an
+  // effect with NO dependency array, i.e. on every single render of its
+  // parent, not just when ITS OWN props change. Mechanical bisection this
+  // session confirmed the crash pattern is NOT a Pass-A regression (HEAD,
+  // pre-Pass-A, shows the identical error) and specifically correlates with
+  // the poll boundary, not initial load -- consistent with "re-render
+  // cascade triggers a library-internal bug", not a mount/unmount race.
+  // `sceneData` is a STABLE reference across polls whose payload (limited to
+  // exactly the fields Scene.tsx and its descendants read) is unchanged --
+  // an inclusion list, not an exclusion list, so a new API field Scene
+  // never reads can't accidentally destabilize this by omission. Hud.tsx
+  // keeps reading the RAW `data` (unchanged below) so "Synced HH:MM:SS"
+  // and the perf line stay live -- only the Canvas-tree prop is stabilized.
+  const sceneDataRef = useRef<HqApiResponse | undefined>(undefined);
+  const sceneDataKeyRef = useRef<string>("");
+  const sceneData = useMemo(() => {
+    if (!data) return undefined;
+    const key = JSON.stringify({
+      mode: data.mode,
+      presence: data.presence,
+      brainVitalsUtil: data.brainVitals.gpu.util_pct,
+      brainVitalsMem: [data.brainVitals.gpu.mem_used_mib, data.brainVitals.gpu.mem_total_mib],
+      models: data.brainVitals.models,
+      briefText: data.brief.text,
+      briefMtime: data.brief.mtime_ms,
+      sectors: data.sectors.rows,
+      company: data.company,
+      ideas: data.ideas.cards,
+      blocked: data.blocked,
+    });
+    if (key === sceneDataKeyRef.current && sceneDataRef.current) return sceneDataRef.current;
+    sceneDataKeyRef.current = key;
+    sceneDataRef.current = data;
+    return data;
+  }, [data]);
+
   return (
     <div style={{ position: "fixed", inset: 0, overflow: "hidden", background: "#03040a" }}>
       {webgl2 === false ? (
         <HqFallback data={data} error={error} />
       ) : webgl2 === true && tier === "tv" ? (
         <>
-          <CanvasRoot data={data} reducedMotion={reducedMotion} lanKiosk={lanKiosk} />
+          <CanvasRoot data={sceneData} reducedMotion={reducedMotion} lanKiosk={lanKiosk} />
           <Hud data={data} error={error} kiosk={kiosk} isValidating={isValidating} motionEvents={motionEvents} />
         </>
       ) : webgl2 === true && tier === "ultra" ? (
         <>
-          <UltraCanvasRoot data={data} reducedMotion={reducedMotion} />
+          <UltraCanvasRoot data={sceneData} reducedMotion={reducedMotion} />
           <Hud data={data} error={error} kiosk={kiosk} isValidating={isValidating} motionEvents={motionEvents} />
         </>
       ) : (

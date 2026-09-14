@@ -96,6 +96,17 @@ export const ARCHITECTURE_SCALE_HUB = 0.75;
 // world-space length once scaled for bay-side corridors.
 export const CORRIDOR_SEGMENT_LENGTH = 4 * ARCHITECTURE_SCALE_BAY;
 
+// World-pass A fix (2026-09-13): the wall radii a corridor run must span
+// BETWEEN -- room-large's raw radius is 10 (diameter 20), room-small's raw
+// depth is 12 (half-depth 6). Exported so Scene.tsx can compute each lane's
+// hub-wall-to-bay-wall endpoints along its own angle, INSTEAD OF running a
+// corridor from the hub's/bay's CENTER (a bug caught from the first real
+// screenshot this session -- center-to-center segments clip straight
+// through both rooms' interiors instead of filling only the gap between
+// their walls).
+export const HUB_WALL_RADIUS = 10 * ARCHITECTURE_SCALE_HUB;
+export const BAY_HALF_DEPTH = (12 * ARCHITECTURE_SCALE_BAY) / 2;
+
 const _tintColor = new THREE.Color();
 
 /** Clones every mesh material under `root` (never mutate a shared cached
@@ -195,7 +206,7 @@ export function KitProp({ path, scale = 1, position, rotation, tint, tintStrengt
  * the smaller number an earlier pass of this file used). Neutral (no tint)
  * -- the hub is shared/manager space, no single lane's health color belongs
  * on its walls. Plus 4 ceiling lights (decorative greeble only). */
-const HUB_CEILING_Y = 4.25 * ARCHITECTURE_SCALE_HUB - 0.4; // room-large raw height 4.25
+export const HUB_CEILING_Y = 4.25 * ARCHITECTURE_SCALE_HUB - 0.4; // room-large raw height 4.25
 
 export function HubRoom() {
   const lightRadius = 4;
@@ -204,11 +215,18 @@ export function HubRoom() {
       <KitProp path={KIT_PATHS.architecture.roomLarge} scale={ARCHITECTURE_SCALE_HUB} receiveShadow />
       {[0, 90, 180, 270].map((deg) => {
         const rad = (deg * Math.PI) / 180;
+        const pos: [number, number, number] = [Math.cos(rad) * lightRadius, HUB_CEILING_Y, Math.sin(rad) * lightRadius];
         return (
-          <CeilingLight
-            key={deg}
-            position={[Math.cos(rad) * lightRadius, HUB_CEILING_Y, Math.sin(rad) * lightRadius]}
-          />
+          <group key={deg}>
+            <CeilingLight position={pos} />
+            {/* World pass A: 2 of the 4 hub fixtures are REAL warm-white
+                pointLights (the other 2 stay decorative-only greeble) --
+                part of the "~10-12 total" budget alongside each bay's own
+                single pointLight (StationModule.tsx). */}
+            {(deg === 0 || deg === 180) && (
+              <pointLight position={pos} color="#ffe9c2" intensity={4} distance={9} decay={2} />
+            )}
+          </group>
         );
       })}
     </>
@@ -220,7 +238,7 @@ export function HubRoom() {
  * StationModule.tsx). `room-small.glb` at ARCHITECTURE_SCALE_BAY -> 5.4x5.4.
  * The gate-door sits at local -Z (the hub-facing edge, matching the existing
  * beacon/edge-strip convention already in StationModule.tsx). */
-const BAY_CEILING_Y = 4.25 * ARCHITECTURE_SCALE_BAY - 0.35; // room-small raw height 4.25
+export const BAY_CEILING_Y = 4.25 * ARCHITECTURE_SCALE_BAY - 0.35; // room-small raw height 4.25
 
 export function DepartmentBayShell() {
   const halfDepth = (12 * ARCHITECTURE_SCALE_BAY) / 2; // room-small raw depth 12

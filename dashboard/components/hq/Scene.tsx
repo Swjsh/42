@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { memo, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useThree, useFrame } from "@react-three/fiber";
 import type * as THREE from "three";
 import type { HqApiResponse, SectorRow } from "./types";
@@ -19,7 +19,7 @@ import SkyDome from "./SkyDome";
 import PmremEnvironment from "./PmremEnvironment";
 import EffectsStack from "./EffectsStack";
 import { freshness01, healthColor, isParkedState, localToWorld, minutesSinceEvidence, PALETTE, personaStatusColor } from "./palette";
-import { BAY_DESK_OFFSET_Z, BAY_SEAT_LOCAL, CorridorRun, DeskCluster, HubRoom } from "./SetKit";
+import { BAY_DESK_OFFSET_Z, BAY_HALF_DEPTH, BAY_SEAT_LOCAL, CorridorRun, DeskCluster, HubRoom, HUB_WALL_RADIUS } from "./SetKit";
 
 export type HqTier = "ultra" | "tv";
 
@@ -38,17 +38,25 @@ const HUB: [number, number, number] = [0, 0, 0];
 // real `room-large` shell (SetKit.tsx#HubRoom, radius 7.5) that must clear
 // PERSONA_RING_RADIUS (6.5, below) with margin, plus a ~4-unit corridor gap
 // (2 kit segments) to each bay's own room-small shell (radius 2.7) --
-// 7.5+4+2.7=14.2, rounded down slightly. CAMERA_DIST/CAMERA_HEIGHT are
-// scaled by the SAME ratio the ring grew by (14/9.8~=1.43x) rather than
-// re-derived from scratch, to preserve the already-proven framing angle --
-// this is the single highest-risk UNVERIFIED number in this pass (no
-// screenshot possible while gaming mode blocks the Browser pane/GPU; see
-// HQ-SCENE-PLAN.md).
+// 7.5+4+2.7=14.2, rounded down slightly.
 const RING_RADIUS = 14;
 const WALL_POS: [number, number, number] = [0, 3.4, 0];
 const BASE_AZIMUTH = Math.atan2(16, 20);
-const CAMERA_DIST = 38;
-const CAMERA_HEIGHT = 19;
+// World pass A (2026-09-13, first real screenshot -- gaming mode ended):
+// the proportional 38/19 guess from the kit-rebuild pass under-filled the
+// frame (~55% width, matching J's own "reads small" complaint) -- pulled
+// in and lowered against the ACTUAL station footprint (outer bay edge at
+// RING_RADIUS+BAY_HALF_DEPTH~=16.7): at dist=27/height=11 (distance from
+// origin 29.16, elevation angle atan(11/27)=22.1 deg, a "touch lower" than
+// the old 26.6 deg per the ask), the station's angular half-extent
+// (atan(16.7/29.16)=29.8 deg) fills ~87% of the horizontal half-FOV
+// (atan(tan(21deg)*16:9 aspect)=34.35 deg -- three.js fov is VERTICAL, not
+// horizontal, confirmed from the PerspectiveCamera docs before doing this
+// math) -- verify against the next screenshot, adjust distance first if
+// still off (moving the whole camera, not the FOV, keeps perspective
+// distortion the same as the already-approved 3/4 diorama look).
+const CAMERA_DIST = 27;
+const CAMERA_HEIGHT = 11;
 // Module-level (stable-forever) constants, never inline array literals, for
 // anything fed into a useMemo dependency array below -- an inline `[0, 0,
 // -0.15]` literal is a NEW array every render and would silently defeat the
@@ -132,10 +140,69 @@ function CameraRig({ reducedMotion }: { reducedMotion: boolean }) {
  * angle) is computed here via useMemo/plain calls -- never inside a
  * useFrame -- so a new /api/hq payload only re-renders this tree, it never
  * changes what each child's OWN useFrame throttle is doing mid-animation.
+ *
+ * World pass A REAL bug fix (2026-09-13): `React.memo` here is the piece
+ * that actually MATTERS from page.tsx's `sceneData` stabilization -- making
+ * a PROP VALUE referentially stable does nothing on its own; React still
+ * re-renders a plain (non-memoized) component every time ITS PARENT
+ * re-renders, regardless of whether that specific prop changed. Scene.tsx's
+ * parent (HqView in app/hq/page.tsx) re-renders every SWR poll (`data`/
+ * `isValidating` from useSWR are fresh objects even when nothing scene-
+ * relevant changed) -- without this memo, EVERY StationModule/Agent/
+ * Corridor/PersonaModule/BrainCore/EffectsStack/PmremEnvironment/~20
+ * <Html> instance in this tree still re-rendered on every single poll,
+ * which is what was cascading into the two confirmed drei/postprocessing
+ * library bugs this session found and fixed (GodRays, Environment -- both
+ * run expensive/stateful effects with NO dependency array, i.e. on every
+ * parent render, not just when their own props change). `memo`'s default
+ * shallow comparison is correct here specifically BECAUSE `data` is now the
+ * stable `sceneData` reference from page.tsx -- comparing this component's
+ * OWN three props (`data`, `reducedMotion`, `tier`) by reference is exactly
+ * right once the caller guarantees `data` doesn't change unless its content
+ * does.
  */
-export default function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
+function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
   const ultra = tier === "ultra";
   const coreMeshRef = useRef<THREE.Mesh>(null);
+  // World pass A REAL bug fix #3 (2026-09-13, root-caused via a capture-
+  // phase window 'error' listener injected right after navigation -- the
+  // earlier bubble-phase listener never fired, which is WHY this looked
+  // "unexplained" earlier this session; something upstream (react-three-
+  // fiber's own frameloop error handling) must call stopPropagation/
+  // preventDefault during the bubble phase, so only a capture listener
+  // sees it). Full stack this time (not the truncated CDP one-liner):
+  //   at eo.update (a3cd4a83-...js:227)   <- postprocessing's GodRaysEffect
+  //   at eQ.render (a3cd4a83-...js:401)   <- EffectPass.render()
+  //   at A.render  (a3cd4a83-...js:45)    <- EffectComposer.render()
+  // b79b7286 (r3f) is only the CALLER, exactly as suspected earlier -- the
+  // actual throw is `<something>.parent` inside the `postprocessing` npm
+  // package's GodRaysEffect.update(), which resolves its "sun" object's
+  // world position by walking `.parent`.
+  //
+  // Root cause: <GodRays sun={coreMeshRef}> resolves the ref via
+  // `useMemo(() => new GodRaysEffect(camera, resolveRef(props.sun), props),
+  // [camera, props])` (EffectsStack.tsx). `props` is a fresh object every
+  // render, so this useMemo reconstructs the whole effect on EVERY render
+  // of <GodRays>. On React's very FIRST render of this tree, refs have not
+  // committed yet -- `coreMeshRef.current` is unconditionally null during
+  // that first render, no matter where GodRays sits in the tree -- so the
+  // FIRST GodRaysEffect is always built with a null light source. Before
+  // `memo(EffectsStack)` (this session, earlier fix), the next SWR-poll
+  // re-render reconstructed the effect again and accidentally "healed" it
+  // once `coreMeshRef.current` was populated -- masking this bug as
+  // "sometimes clean for a while." After memoizing EffectsStack (to stop
+  // that same churn from tearing down GodRays' render targets every poll),
+  // nothing ever forces a second render, so the null-sun effect now
+  // crashes on every single postprocessing frame, from frame 1, forever --
+  // exactly what a fresh tab-10 test showed within ~10-20s of load, no
+  // poll needed. Fix: delay EffectsStack's FIRST mount by one render tick
+  // via `coreReady`, flipped true in a useEffect (which only runs AFTER
+  // the first commit has attached coreMeshRef.current to BrainCore's real
+  // mesh) -- so GodRays' actual first-ever render always sees a valid sun.
+  const [coreReady, setCoreReady] = useState(false);
+  useEffect(() => {
+    setCoreReady(true);
+  }, []);
   const rows = data?.sectors.rows ?? [];
   const gaming = (data?.mode ?? "work") === "gaming";
   const dimFactor = gaming ? 0.35 : 1;
@@ -289,16 +356,30 @@ export default function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) 
       />
 
       <CameraRig reducedMotion={reducedMotion} />
-      {ultra && <PmremEnvironment />}
-      {ultra && <EffectsStack coreMeshRef={coreMeshRef} />}
+      {/* Suspense-scoped (world pass A bug fix, see BrainCore.tsx) -- the
+          HDRI load suspends too, and is a SIBLING of BrainCore/EffectsStack
+          here, not a descendant; without its own boundary it would ALSO
+          bubble to <Canvas>'s single built-in one and unmount them. */}
+      {ultra && (
+        <Suspense fallback={null}>
+          <PmremEnvironment />
+        </Suspense>
+      )}
+      {ultra && coreReady && <EffectsStack coreMeshRef={coreMeshRef} />}
       <SkyDome />
       <Starfield reducedMotion={reducedMotion} />
 
       {/* Kit rebuild (2026-09-13, HQ-SCENE-PLAN.md): the hub's real
           `room-large` shell, ultra tier only -- sits at the scene root (HUB
           is the origin) so BrainCore/the persona ring/the ideas wall all
-          land inside it unchanged. */}
-      {ultra && <HubRoom />}
+          land inside it unchanged. Suspense-scoped (world pass A bug fix,
+          see BrainCore.tsx) so a still-loading hub shell never unmounts
+          BrainCore/EffectsStack, which are SIBLINGS here, not descendants. */}
+      {ultra && (
+        <Suspense fallback={null}>
+          <HubRoom />
+        </Suspense>
+      )}
 
       <BrainCore
         utilPct={data?.brainVitals.gpu.util_pct ?? null}
@@ -326,10 +407,25 @@ export default function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) 
               speedBoost={corridorSpeedBoost}
               reducedMotion={reducedMotion}
             />
-            {/* Kit rebuild: real corridor.glb segments along the IDENTICAL
-                line the pulse sprite above travels -- see
-                SetKit.tsx#CorridorRun. Ultra tier only. */}
-            {ultra && <CorridorRun from={slot.position} to={HUB} />}
+            {/* Kit rebuild: real corridor.glb segments -- WALL to WALL
+                (hub's outer wall at HUB_WALL_RADIUS to the bay's near wall
+                at RING_RADIUS-BAY_HALF_DEPTH), both along the SAME angle
+                `slot.position` already sits on. World pass A fix
+                (2026-09-13, caught from the first real screenshot): the
+                original version ran center-to-center (HUB to
+                slot.position), which clips straight through both rooms'
+                interiors instead of filling only the gap between their
+                walls -- the pulse sprite above still travels the full
+                center-to-center line unchanged (Corridor.tsx), only the
+                real kit geometry's span changed. Ultra tier only. */}
+            {ultra && (
+              <Suspense fallback={null}>
+                <CorridorRun
+                  from={[Math.cos(slot.angle) * HUB_WALL_RADIUS, 0, Math.sin(slot.angle) * HUB_WALL_RADIUS]}
+                  to={[Math.cos(slot.angle) * (RING_RADIUS - BAY_HALF_DEPTH), 0, Math.sin(slot.angle) * (RING_RADIUS - BAY_HALF_DEPTH)]}
+                />
+              </Suspense>
+            )}
             <StationModule
               position={slot.position}
               angle={slot.angle}
@@ -389,11 +485,13 @@ export default function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) 
                 for an IDLE persona is honest, matching the lane/agent
                 convention below it. */}
             {ultra && (
-              <group position={slot.position} rotation={[0, slot.rotationY, 0]}>
-                <group position={[0, 0, BAY_DESK_OFFSET_Z]}>
-                  <DeskCluster accentColor={personaStatusColor(persona.status)} />
+              <Suspense fallback={null}>
+                <group position={slot.position} rotation={[0, slot.rotationY, 0]}>
+                  <group position={[0, 0, BAY_DESK_OFFSET_Z]}>
+                    <DeskCluster accentColor={personaStatusColor(persona.status)} />
+                  </group>
                 </group>
-              </group>
+              </Suspense>
             )}
             {showAgent && (
               <Agent
@@ -428,3 +526,5 @@ export default function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) 
     </>
   );
 }
+
+export default memo(Scene);
