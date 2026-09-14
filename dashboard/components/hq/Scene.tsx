@@ -2,7 +2,7 @@
 
 import { memo, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useThree, useFrame } from "@react-three/fiber";
-import type * as THREE from "three";
+import * as THREE from "three";
 import type { HqApiResponse, SectorRow } from "./types";
 import type { PersonaState } from "@/lib/personas";
 import type { AgentBehavior } from "./Agent";
@@ -117,20 +117,113 @@ function derivePersonaBehavior(persona: PersonaState, gaming: boolean): AgentBeh
   return "idle";
 }
 
-/** Fixed 3/4 elevated view sized to fit the whole ring, with a slow +-8deg
- * azimuth drift so the station feels alive. reducedMotion holds the drift at
- * zero (camera stays put) without skipping the positioning itself. */
-function CameraRig({ reducedMotion }: { reducedMotion: boolean }) {
+const DEFAULT_LOOKAT = new THREE.Vector3(0, 1.9, 0);
+const CAMERA_FOCUS_HOLD_S = 8; // event-triggered ease (red flip, all-hands)
+const CAMERA_VIGNETTE_INTERVAL_S = 90; // director vignette cadence (coordinator's own number)
+const CAMERA_VIGNETTE_HOLD_S = 6;
+
+interface CameraRigProps {
+  reducedMotion: boolean;
+  rows: SectorRow[];
+  geometry: Array<{ position: [number, number, number] }>;
+  briefMtimeMs: number | null;
+}
+
+/**
+ * Fixed 3/4 elevated view sized to fit the whole ring, with a slow +-12deg
+ * azimuth drift so the station feels alive (Pass D, 2026-09-13: widened
+ * from +-8deg/period-0.05 -- "cinematic slow orbit" reads as too subtle to
+ * notice at the old amplitude). Camera POSITION always stays on this same
+ * orbit path -- only the LOOKAT point eases toward something, never the
+ * camera's own trajectory, which keeps every focus moment a simple pan/
+ * tilt rather than risking a dolly move landing on a bad angle.
+ *
+ * Two event triggers ease the lookAt toward a real world position for
+ * CAMERA_FOCUS_HOLD_S seconds, then release back to the default hub point:
+ * (1) a lane's health flipping to red (the SAME real signal
+ * useMotionEvents.ts's own ticker line fires off, read independently here
+ * per that file's own documented reasoning for why Scene.tsx/CameraRig and
+ * the HUD ticker are two decoupled readers of one truth, not two sources);
+ * (2) station-brief.md's mtime changing (the same field driving the
+ * all-hands event) -- the camera looks to the core exactly when 6 personas
+ * are converging on it. When neither is active, a deterministic "director
+ * vignette" every CAMERA_VIGNETTE_INTERVAL_S seconds briefly looks at the
+ * next bay in rotation (Math.floor(elapsedTime/interval), NEVER
+ * Math.random per frame -- this file's own standing rule) so a passive
+ * viewer sees different parts of the station over time even with nothing
+ * eventful happening. reducedMotion holds everything at the default lookAt
+ * with zero drift, matching every other reducedMotion branch in this file.
+ */
+function CameraRig({ reducedMotion, rows, geometry, briefMtimeMs }: CameraRigProps) {
   const { camera } = useThree();
+  const lookAtCurrent = useRef(new THREE.Vector3(0, 1.9, 0));
+  const focusGoal = useRef<THREE.Vector3 | null>(null);
+  const focusUntil = useRef(0);
+  const prevRedLanes = useRef<Set<string>>(new Set());
+  const seenBriefMtime = useRef<number | null | undefined>(undefined);
+  const lastVignetteBucket = useRef(-1);
+
   useFrame((state) => {
-    const drift = reducedMotion ? 0 : (Math.PI / 22.5) * Math.sin(state.clock.elapsedTime * 0.05);
+    const t = state.clock.elapsedTime;
+
+    if (!reducedMotion) {
+      // Trigger 1: a lane's health just became red -- look at it.
+      const nowRed = new Set(rows.filter((r) => r.health === "red").map((r) => r.lane));
+      for (const lane of nowRed) {
+        if (!prevRedLanes.current.has(lane)) {
+          const idx = rows.findIndex((r) => r.lane === lane);
+          const pos = geometry[idx]?.position;
+          if (pos) {
+            focusGoal.current = new THREE.Vector3(pos[0], 1.6, pos[2]);
+            focusUntil.current = t + CAMERA_FOCUS_HOLD_S;
+          }
+        }
+      }
+      prevRedLanes.current = nowRed;
+
+      // Trigger 2: a genuinely new station brief -- look at the core
+      // (matches the all-hands congregation Agent.tsx/BrainCore.tsx drive
+      // off the same field). Seeds silently on the first value seen, same
+      // convention as every other event trigger in this codebase.
+      if (briefMtimeMs !== null && briefMtimeMs !== undefined) {
+        if (seenBriefMtime.current === undefined) {
+          seenBriefMtime.current = briefMtimeMs;
+        } else if (briefMtimeMs !== seenBriefMtime.current) {
+          seenBriefMtime.current = briefMtimeMs;
+          focusGoal.current = new THREE.Vector3(0, 2.2, 0);
+          focusUntil.current = t + CAMERA_FOCUS_HOLD_S;
+        }
+      }
+
+      // Director vignette -- only when nothing above has claimed focus.
+      if ((!focusGoal.current || t >= focusUntil.current) && rows.length > 0) {
+        const bucket = Math.floor(t / CAMERA_VIGNETTE_INTERVAL_S);
+        if (bucket !== lastVignetteBucket.current) {
+          lastVignetteBucket.current = bucket;
+          const idx = bucket % rows.length;
+          const pos = geometry[idx]?.position;
+          if (pos) {
+            focusGoal.current = new THREE.Vector3(pos[0], 1.6, pos[2]);
+            focusUntil.current = t + CAMERA_VIGNETTE_HOLD_S;
+          }
+        }
+      }
+
+      if (focusGoal.current && t >= focusUntil.current) focusGoal.current = null;
+    }
+
+    const target = reducedMotion ? DEFAULT_LOOKAT : focusGoal.current ?? DEFAULT_LOOKAT;
+    lookAtCurrent.current.lerp(target, reducedMotion ? 1 : 0.03);
+
+    const drift = reducedMotion ? 0 : (Math.PI / 15) * Math.sin(t * 0.035);
     const azimuth = BASE_AZIMUTH + drift;
     camera.position.set(Math.sin(azimuth) * CAMERA_DIST, CAMERA_HEIGHT, Math.cos(azimuth) * CAMERA_DIST);
     // Look ABOVE the hub's own center (y=0) so the whole station -- hub,
     // modules, and the elevated ideas wall at y=3.4 -- settles into the
     // lower ~80% of frame, leaving the top clear for the HUD (title/mode
-    // badge) instead of the two overlapping.
-    camera.lookAt(0, 1.9, 0);
+    // badge) instead of the two overlapping (unaffected by focus easing --
+    // lookAtCurrent only ever moves a modest distance off this baseline).
+    camera.lookAt(lookAtCurrent.current);
   });
   return null;
 }
@@ -426,7 +519,7 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
         shadow-camera-bottom={-14}
       />
 
-      <CameraRig reducedMotion={reducedMotion} />
+      <CameraRig reducedMotion={reducedMotion} rows={rows} geometry={geometry} briefMtimeMs={data?.brief.mtime_ms ?? null} />
       {/* Suspense-scoped (world pass A bug fix, see BrainCore.tsx) -- the
           HDRI load suspends too, and is a SIBLING of BrainCore/EffectsStack
           here, not a descendant; without its own boundary it would ALSO
