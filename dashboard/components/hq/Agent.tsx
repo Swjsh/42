@@ -1,10 +1,14 @@
 "use client";
 
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import type { CSSProperties } from "react";
 import * as THREE from "three";
+import { useFrame } from "@react-three/fiber";
+import { Html } from "@react-three/drei";
 import { useThrottledFrame } from "./useThrottledFrame";
-import { isRegularTradingHours, makeMatcapTexture, nowEtDayOfWeek, nowEtMinutes, seededRandom } from "./palette";
+import { isRegularTradingHours, makeMatcapTexture, nowEtDayOfWeek, nowEtMinutes, seededRandom, truncateOneLine } from "./palette";
 import { ALERT_PACE_SPEED, CLIP_TABLE, IDLE_VARIANTS, KitAgentBody, NATIVE_WALK_CLIP_MPS, WALK_SPEED, WORKING_VARIANTS, clipCadenceRatio, type KitAnimState } from "./KitAgent";
+import { CHARACTER_SCALE, CHARACTER_TARGET_HEIGHT } from "./SetKit";
 import { recordAgentSample } from "@/lib/hq-motion-diag";
 // MOTION-2 V2 (2026-09-14): type-only -- LAYOUT's own walk-graph contract
 // (see that interface's own doc comment in types.ts). Never a value import
@@ -134,6 +138,35 @@ interface AgentProps {
    * unchanged -- see StationModule.tsx's identical tier-branch reasoning:
    * real GLB meshes would blow the Mali-G31's draw-call budget). */
   ultra?: boolean;
+  /** PEOPLE pass (2026-09-14, J: "little bubbles above their heads of the
+   * action they are doing"): one-line ACTION text (never prefixed with the
+   * name -- this component's own bubble JSX bolds `laneSeed` itself) for
+   * when this agent is NOT mid-walk -- the caller derives this from real
+   * evidence via bubbleText.ts (persona pill / lane state+evidence), the
+   * SAME two sources Hud.tsx's roster panel already reads. Null/undefined
+   * renders no bubble at all (never a fabricated placeholder) -- see
+   * ActivityBubbleLayer.tsx's now-deleted identical convention. */
+  bubbleText?: string | null;
+  /** PEOPLE pass: the reason text for the ROTATIONAL 6-10min "purposeful"
+   * walk (palette.ts#computePurposefulWalk) -- read LIVE at the instant the
+   * walk starts, same snapshot discipline as `purposefulTarget`. Ignored
+   * unless THIS channel (not `eventWalkReason` below) is what actually
+   * queued the walk -- see `eventWalkPending` for the same
+   * target/purpose-selecting split this file already uses. */
+  purposefulReason?: string;
+  /** PEOPLE pass: the reason text for a NAMED eventWalk (the hub-exchange
+   * visitor's own real crew-event line, or one of the 4 other named-event
+   * walks) -- read LIVE at the instant the walk starts, same snapshot
+   * discipline as `eventWalkTarget`. Every OTHER walk kind has one true,
+   * invariant reason this component supplies itself ("arrival" -> "back to
+   * the desk", "allhands" -> "all-hands at the core", "waypoints" -> the
+   * plan's own `purpose` field) and ignores both purpose props entirely. */
+  eventWalkReason?: string;
+  /** PEOPLE pass: company-audit verdict letter chip (personas only) --
+   * mirrors PersonaModule.tsx's now-deleted badge (`audit.verdict[0]`,
+   * PASS/WARN/FAIL colored via auditVerdictColor). Undefined renders no
+   * chip (a lane agent, or a persona /api/hq predates the audit for). */
+  auditVerdict?: string;
 }
 
 const HUB_PAUSE = 1.5;
@@ -190,6 +223,28 @@ const DWELL_NOD_S = 1;
 // MOTION-2 V3: no two agents start a walk within this many seconds of each
 // other -- see `lastGlobalWalkStartT` below for the mechanism.
 const WALK_START_STAGGER_S = 4;
+// PEOPLE pass (P2, 2026-09-14): bubble geometry/behavior constants.
+// ULTRA_HEAD_Y is DERIVED from SetKit.tsx's own exported constants (never a
+// second hardcoded magic number) -- it reproduces KitAgent.tsx's own
+// head-beacon math (`CHARACTER_RAW_HEIGHT[bodyId] * 0.95`, then scaled by
+// `characterScale(bodyId)`) which is body-INDEPENDENT once simplified:
+// `raw * 0.95 * (TARGET*SCALE/raw)` cancels `raw` entirely, leaving
+// `0.95 * TARGET * SCALE` for every one of the 3 bundled bodies. TV_HEAD_Y is
+// a plain tuned constant (the procedural capsule body has no SetKit
+// height/scale system at all -- its visor sits at a hand-placed y=0.78,
+// radius 0.1).
+const ULTRA_HEAD_Y = CHARACTER_TARGET_HEIGHT * CHARACTER_SCALE * 0.95;
+const TV_HEAD_Y = 0.9;
+const BUBBLE_HEAD_GAP = 0.3;
+// Brief's own "max ~36 chars" LITTLE-bubble budget applies to the WHOLE
+// rendered line (bold name + " · " + action) -- this is the action's own
+// share of that budget, sized so even the longest persona name on the
+// roster ("Treasurer", 9 chars) plus the separator still fits comfortably.
+const BUBBLE_ACTION_MAX_CHARS = 26;
+// Beyond this camera distance a bubble fades to opacity 0 (never unmounts --
+// see updateBubbleFade below) so a wide overview never turns into a text
+// cloud, matching the brief's own "nearest bubbles always readable" rule.
+const BUBBLE_FADE_DISTANCE = 42;
 type WalkPhase = "resting" | "toHub" | "atHub" | "toHome" | "arriving";
 type AlertPacePhase = "toDoor" | "atDoor" | "toDesk" | "atDesk";
 
@@ -353,6 +408,7 @@ export default function Agent({
   laneSeed, home, hub, behavior, accentColor, reducedMotion, walkEventKey, walkKind, allHandsEventKey, purposefulWalkEventKey, pointEventKey, purposefulTarget, eventWalkEventKey, eventWalkTarget, walkPlanKey, walkPlan, presenceMode, facingYaw,
   scheduleDim = 1,
   ultra = false,
+  bubbleText, purposefulReason, eventWalkReason, auditVerdict,
 }: AgentProps) {
   const group = useRef<THREE.Group>(null);
   const legL = useRef<THREE.Mesh>(null);
@@ -472,6 +528,26 @@ export default function Agent({
   // not state, since it's read-and-set inside the same per-frame branch that
   // already calls setDwelling -- no separate re-render trigger needed).
   const nodded = useRef(false);
+  // PEOPLE pass (P2): the CURRENT walk's human-readable reason, snapshotted
+  // at walk-start (same instant as activeTarget/activePlan above) and
+  // cleared when the walk ends -- see the walk-start/walk-end branches
+  // below. `useState` (not a ref): this text feeds the Html bubble's own
+  // rendered children, which must re-render when it changes, the same
+  // "state for discrete moments" reason `walking`/`dwelling`/`pointing`
+  // above are all state rather than refs.
+  const [activePurpose, setActivePurpose] = useState<string | null>(null);
+  // PEOPLE pass: DOM ref to the bubble's own wrapper div, so the per-frame
+  // hook can fade it by DIRECT style mutation (never React state -- an
+  // opacity ramp every frame would re-render this component's whole JSX
+  // tree 60x/s for zero visual gain over a plain style write) -- same
+  // "refs for continuous per-frame work" convention as `visorMat` above.
+  const bubbleWrapRef = useRef<HTMLDivElement>(null);
+  // Scratch vector for updateBubbleFade's own camera-distance calc -- one
+  // instance per mounted Agent, reused every frame, zero per-frame
+  // allocation (matches ActivityBubbleLayer.tsx's now-deleted identical
+  // `_camPos`/`_candPos` module-scope scratch-vector convention, just
+  // instance-scoped here since each Agent fades its OWN bubble independently).
+  const bubbleDelta = useMemo(() => new THREE.Vector3(), []);
 
   // Event-triggered walk queue (replaces the old random 20-60s timer, J
   // 2026-09-13). `seenWalkKey` seeds silently on the first value seen after
@@ -588,9 +664,44 @@ export default function Agent({
     group.current?.position.set(...home);
   }, [home]);
 
+  // PEOPLE pass P1 fix (MOTION-3, 2026-09-14, J: "fluid movement" -- the
+  // scanner/orbs asks are Hud.tsx/Corridor.tsx/Courier.tsx, this is the
+  // third leg, "the people" themselves). ROOT CAUSE (confirmed by reading
+  // this hook before touching it): the ENTIRE pose write -- g.position.set,
+  // g.rotation.y, leg-swing rotation.x, the alert-pace sub-phase math --
+  // lived inside `useThrottledFrame(cb, 20)`, i.e. this callback only ran
+  // ~20x/s while UltraCanvasRoot's FrameRateCap renders at 60fps. A walker's
+  // mesh therefore held ONE position for ~3 consecutive rendered frames, then
+  // jumped ~0.035 world units (WALK_SPEED*1/20s) on the 4th -- stepped
+  // motion, especially visible against the continuously-orbiting camera.
+  // Verified this is NOT a fixed-dt-accumulator bug (the kind this file's
+  // own task brief warned to watch for): every formula below --
+  // easedWalkProgress, resolvePathPose, every Math.sin/atan2 leg/bob/visor
+  // term -- is a pure function of the ABSOLUTE clock time `t` (or a
+  // `t - phaseStart.current` delta recomputed FRESH each call), never an
+  // accumulated per-tick step. That means the fix is purely a SAMPLING-RATE
+  // change: split this one callback into (1) a plain per-frame `useFrame`
+  // below that owns every continuous pose write (position/rotation/leg-swing/
+  // visor-pulse/bubble-fade), evaluated with 60fps's own real elapsedTime
+  // every rendered frame, and (2) this throttled 20Hz hook, kept for exactly
+  // the discrete/rare work the task brief named: seated-variant picks, the
+  // "point" pose timer, and the handful of React setState calls
+  // (setWalking/setDwelling/setPointing/setAlertPaused/setVariantIdx) a
+  // continuous 60Hz loop should not be tripping every frame. Every
+  // transition check below is the SAME absolute-time comparison the original
+  // single callback used (`elapsed >= walkLegDuration.current` is exactly
+  // `easedWalkProgress(...) >= 1`, per that function's own early-return) --
+  // this hook only decides WHEN a phase boundary was crossed; the per-frame
+  // hook below independently (and redundantly, on purpose) computes the same
+  // boundary every frame to draw the continuous position, so a transition
+  // landing up to one throttled tick (<=50ms) after the character visually
+  // reaches it is invisible -- CLIP_TABLE/animState don't visibly desync at
+  // that latency. recordAgentSample deliberately moved OUT of this hook (see
+  // the per-frame hook's own comment) -- proving frame-to-frame distinctness
+  // needs a sample taken every RENDERED frame, which a 20Hz hook cannot
+  // produce by construction.
   useThrottledFrame((t) => {
     if (!group.current) return;
-    const g = group.current;
 
     if (behavior === "frozen") return; // hold whatever pose it already had (a queued walk waits)
 
@@ -624,67 +735,28 @@ export default function Agent({
     }
 
     if (behavior === "alert") {
-      // World-2 item 5 (2026-09-14, J: "it's just running in place, which is
-      // weird"): a real PACE between the desk and the hub-facing door,
-      // replacing the old sub-1-unit local-X sway. Reuses `home`/`hub`
-      // (already passed in, no new prop needed) -- walking along that same
-      // line by a clamped distance approximates "to the door and back" for
-      // both ring families this component serves: a lane bay's door sits on
-      // the hub-facing wall exactly along this radial line (see
-      // SetKit.tsx's BAY_HALF_DEPTH/gate-door placement -- home is near the
-      // module's own local origin, the door ~2.7u toward the hub), and a
-      // tighter persona desk gets a proportionally shorter pace (the *0.4
-      // clamp) so it never reaches into BrainCore's own ring geometry.
+      // Continuous position/rotation/leg-swing for this branch now lives in
+      // the per-frame hook below -- this half only detects the two pace-leg
+      // boundaries (toDoor/toDesk, each `paceDuration` long) and the two
+      // pause boundaries (atDoor/atDesk, each ALERT_PACE_PAUSE_S long) to
+      // flip `alertPhase.current`/fire `setAlertPaused`. Distance/pace-
+      // duration formulas duplicated from the per-frame hook ON PURPOSE
+      // (see this hook's own class comment) -- cheap trig, executed 20x/s.
       const homeToHubDist = Math.hypot(hub[0] - home[0], hub[2] - home[2]) || 0.001;
       const paceDist = Math.min(3.4, homeToHubDist * 0.4);
-      const dirX = (hub[0] - home[0]) / homeToHubDist;
-      const dirZ = (hub[2] - home[2]) / homeToHubDist;
-      const doorPos: [number, number, number] = [home[0] + dirX * paceDist, home[1], home[2] + dirZ * paceDist];
-      // World-2 MOTION-FIX: ALERT_PACE_SPEED now a real <=1.0 u/s brisk-walk
-      // pace (imported from KitAgent.tsx, was a local 2.0 u/s jog) -- the
-      // Math.max(0.6, ...) floor is defensive only, for a very tight persona
-      // desk's clamped paceDist.
       const paceDuration = Math.max(0.6, paceDist / ALERT_PACE_SPEED);
-
       if (alertPhaseStart.current < 0) alertPhaseStart.current = t;
       const elapsed = t - alertPhaseStart.current;
-      const facingHub = Math.atan2(dirX, dirZ);
-
-      if (alertPhase.current === "toDoor") {
-        const p = easedWalkProgress(elapsed, paceDuration, WALK_EASE_S);
-        g.position.set(home[0] + (doorPos[0] - home[0]) * p, home[1], home[2] + (doorPos[2] - home[2]) * p);
-        g.rotation.y = facingHub;
-        if (p >= 1) { alertPhase.current = "atDoor"; alertPhaseStart.current = t; setAlertPaused(true); }
-      } else if (alertPhase.current === "atDoor") {
-        g.position.set(doorPos[0], doorPos[1], doorPos[2]);
-        g.rotation.y = facingHub; // "looking toward the hub" -- doorPos sits ON the home->hub line
-        if (elapsed >= ALERT_PACE_PAUSE_S) { alertPhase.current = "toDesk"; alertPhaseStart.current = t; setAlertPaused(false); }
-      } else if (alertPhase.current === "toDesk") {
-        const p = easedWalkProgress(elapsed, paceDuration, WALK_EASE_S);
-        g.position.set(doorPos[0] + (home[0] - doorPos[0]) * p, home[1], doorPos[2] + (home[2] - doorPos[2]) * p);
-        g.rotation.y = facingHub + Math.PI; // facing the direction of travel (away from hub, back toward the desk)
-        if (p >= 1) { alertPhase.current = "atDesk"; alertPhaseStart.current = t; setAlertPaused(true); }
-      } else {
-        g.position.set(home[0], home[1], home[2]);
-        g.rotation.y = facingHub; // pause at the desk end, turned back to look toward the hub
-        if (elapsed >= ALERT_PACE_PAUSE_S) { alertPhase.current = "toDoor"; alertPhaseStart.current = t; setAlertPaused(false); }
+      if (alertPhase.current === "toDoor" && elapsed >= paceDuration) {
+        alertPhase.current = "atDoor"; alertPhaseStart.current = t; setAlertPaused(true);
+      } else if (alertPhase.current === "atDoor" && elapsed >= ALERT_PACE_PAUSE_S) {
+        alertPhase.current = "toDesk"; alertPhaseStart.current = t; setAlertPaused(false);
+      } else if (alertPhase.current === "toDesk" && elapsed >= paceDuration) {
+        alertPhase.current = "atDesk"; alertPhaseStart.current = t; setAlertPaused(true);
+      } else if (alertPhase.current === "atDesk" && elapsed >= ALERT_PACE_PAUSE_S) {
+        alertPhase.current = "toDoor"; alertPhaseStart.current = t; setAlertPaused(false);
       }
-
-      const moving = alertPhase.current === "toDoor" || alertPhase.current === "toDesk";
-      // MOTION-2: unified onto the same NATIVE_SWING_HZ*clipCadenceRatio
-      // formula the main walk swing uses below (was a separate hand-picked
-      // "9 scaled linearly by 0.9/2.0" estimate against ALERT_PACE_SPEED's
-      // OLD 0.9 u/s value -- two ad-hoc mental models for the same "how fast
-      // should the legs swing" question, now one).
-      const swing = moving ? Math.sin(t * NATIVE_SWING_HZ * clipCadenceRatio(ALERT_PACE_SPEED, NATIVE_WALK_CLIP_MPS)) * 0.5 : 0;
-      if (legL.current) legL.current.rotation.x = swing;
-      if (legR.current) legR.current.rotation.x = -swing;
-      // World-2 MOTION-FIX diag (?diag=1 only -- no-ops otherwise, see
-      // hq-motion-diag.ts's own header): alert pacing returns early, so it
-      // needs its own record call rather than falling through to the shared
-      // one below.
-      recordAgentSample({ id: laneSeed, x: g.position.x, y: g.position.y, z: g.position.z, clipSpeed: CLIP_TABLE.alert.speed });
-      return;
+      return; // alert has no walk-queue/phase-machine business below
     }
 
     // Consume a queued walk (see the effect above) -- the ONLY way `phase`
@@ -732,6 +804,24 @@ export default function Agent({
         // MOTION-2 V2: snapshot the WalkPlan the SAME way (live prop read,
         // not the effect-time value -- see the prop's own comment).
         activePlan.current = pendingWalk.current === "waypoints" ? (walkPlan ?? null) : null;
+        // PEOPLE pass (P2/P4): snapshot the human-readable REASON this walk
+        // is happening, same live-read-at-start discipline as activeTarget/
+        // activePlan above -- and the SAME eventWalkPending-vs-rotational
+        // split activeTarget already uses, since both "purposeful" triggers
+        // share this one walk kind. "arrival"/"allhands" carry one true,
+        // invariant meaning per AgentWalkKind's own doc comment, so they
+        // need no external prop; "waypoints" reads the plan's own real
+        // `purpose`. When neither purpose prop is wired yet (Scene.tsx's
+        // own wiring lands in a follow-up commit) this is honestly null,
+        // never a fabricated reason.
+        setActivePurpose(
+          pendingWalk.current === "waypoints" ? (activePlan.current?.purpose ?? null)
+          : pendingWalk.current === "arrival" ? "back to the desk"
+          : pendingWalk.current === "allhands" ? "all-hands at the core"
+          : pendingWalk.current === "purposeful"
+            ? (eventWalkPending.current ? (eventWalkReason ?? null) : (purposefulReason ?? null))
+          : null,
+        );
         eventWalkPending.current = false;
         const startPhase = pendingWalk.current === "arrival" ? "arriving" : "toHub";
         phase.current = startPhase;
@@ -774,27 +864,19 @@ export default function Agent({
       }
     }
 
+    // Phase-BOUNDARY transitions only from here down -- the per-frame hook
+    // below independently recomputes the SAME `elapsed`/pause-vs-threshold
+    // comparisons every rendered frame to draw the continuous position; this
+    // throttled (20Hz) half exists only to catch the moment a boundary is
+    // crossed and flip `phase.current`/fire the rare setState calls. See
+    // this hook's own opening comment for why a transition landing up to one
+    // throttled tick late is invisible.
     if (phase.current === "arriving") {
-      // One-way hub -> home (a persona that just fired, walking in from the
-      // manager and sitting down to work) -- ends in "resting", never
-      // returns to the hub the way a roundtrip does.
-      const p = easedWalkProgress(t - phaseStart.current, walkLegDuration.current, WALK_EASE_S);
-      g.rotation.y = walkFacing.current; // "turn before moving" -- see the ref's own comment
-      g.position.set(
-        hub[0] + (home[0] - hub[0]) * p,
-        home[1],
-        hub[2] + (home[2] - hub[2]) * p,
-      );
-      if (p >= 1) { phase.current = "resting"; setWalking(false); }
+      if (t - phaseStart.current >= walkLegDuration.current) {
+        phase.current = "resting"; setWalking(false); setActivePurpose(null);
+      }
     } else if (phase.current === "toHub") {
-      // MOTION-2 V2: resolvePathPose walks the (possibly multi-leg) outbound
-      // path -- see that function's own comment; reduces to exactly today's
-      // single-leg lerp+fixed-facing for every existing 2-point kind.
-      const p = easedWalkProgress(t - phaseStart.current, walkLegDuration.current, WALK_EASE_S);
-      const pose = resolvePathPose(outboundPath.current, p, WALK_SPEED);
-      g.rotation.y = pose.facing;
-      g.position.set(...pose.position);
-      if (p >= 1) {
+      if (t - phaseStart.current >= walkLegDuration.current) {
         phase.current = "atHub";
         phaseStart.current = t;
         // All-hands stand / waypoints dwell: "idle clip" per the spec --
@@ -806,32 +888,12 @@ export default function Agent({
         }
       }
     } else if (phase.current === "atHub") {
-      const pathEnd = outboundPath.current[outboundPath.current.length - 1] ?? approach;
-      g.position.set(...pathEnd);
-      // All-hands stand: face the core precisely (spec: "facing core") --
-      // roundtrip's brief 1.5s touch never bothered with facing, but a
-      // 60s stand reads wrong looking anywhere else. Same atan2(dx,dz)
-      // convention as `greeterFacingYaw` above. A "purposeful" stop (item
-      // 2b) faces its own destination point the SAME way -- reading a card
-      // wall or filing at the core looks wrong facing some other direction.
-      if (activeWalkKind.current === "allhands") {
-        g.rotation.y = Math.atan2(hub[0] - approach[0], hub[2] - approach[2]);
-      } else if (activeWalkKind.current === "purposeful") {
-        g.rotation.y = Math.atan2(hub[0] - pathEnd[0], hub[2] - pathEnd[2]);
-      } else if (activeWalkKind.current === "waypoints" && activePlan.current) {
-        // MOTION-2 V2: face the plan's own faceYaw if given, else the
-        // heading the agent arrived WITH (resolvePathPose at pathT=1 is
-        // exactly the final leg's own heading) -- never the "purposeful"
-        // convention of facing back toward the hub, since a waypoint walk's
-        // destination usually isn't the hub at all.
-        g.rotation.y = activePlan.current.faceYaw ?? resolvePathPose(outboundPath.current, 1, WALK_SPEED).facing;
+      if (activeWalkKind.current === "waypoints" && activePlan.current) {
         // MOTION-2 V3 (J: "the dwell must read as doing something"): a small
         // head nod in the LAST DWELL_NOD_S seconds -- a clear "wrapped up,
         // about to leave" tell. `nodded` guards this to a single setState
-        // call per dwell (the throttled callback would otherwise re-fire it
-        // every 50ms for the rest of the window, harmless but wasteful).
-        // Math.max(0, ...) so a dwellS shorter than DWELL_NOD_S still nods
-        // immediately rather than never nodding at all.
+        // call per dwell. Math.max(0, ...) so a dwellS shorter than
+        // DWELL_NOD_S still nods immediately rather than never nodding.
         const dwellS = activePlan.current.dwellS;
         if (!nodded.current && t - phaseStart.current >= Math.max(0, dwellS - DWELL_NOD_S)) {
           nodded.current = true;
@@ -854,32 +916,127 @@ export default function Agent({
         if (activeWalkKind.current === "waypoints") setDwelling(null);
       }
     } else if (phase.current === "toHome") {
+      if (t - phaseStart.current >= walkLegDuration.current) {
+        phase.current = "resting";
+        activeTarget.current = null;
+        activePlan.current = null;
+        setActivePurpose(null);
+      }
+    }
+  }, 20);
+
+  // PEOPLE pass P1 fix: CONTINUOUS pose integration -- position, rotation/
+  // facing, leg swing, the visor pulse, and the bubble's own camera-distance
+  // fade -- runs here, every rendered frame, via a plain useFrame (no
+  // throttle). Every formula below is copied VERBATIM from the throttled
+  // callback above (see its own comment for the split rationale and the
+  // proof this is a pure sampling-rate change, not a behavior change): same
+  // easedWalkProgress/resolvePathPose calls, same Math.sin/atan2 terms, same
+  // refs. `state.clock.elapsedTime` is r3f's own real per-frame clock (never
+  // `Date.now()`), so every walker in the room reads the identical `t` a
+  // rendered frame actually happened at.
+  useFrame((state) => {
+    if (!group.current) return;
+    const g = group.current;
+    if (behavior === "frozen") return;
+    const t = state.clock.elapsedTime;
+
+    if (behavior === "alert") {
+      const homeToHubDist = Math.hypot(hub[0] - home[0], hub[2] - home[2]) || 0.001;
+      const paceDist = Math.min(3.4, homeToHubDist * 0.4);
+      const dirX = (hub[0] - home[0]) / homeToHubDist;
+      const dirZ = (hub[2] - home[2]) / homeToHubDist;
+      const doorPos: [number, number, number] = [home[0] + dirX * paceDist, home[1], home[2] + dirZ * paceDist];
+      const paceDuration = Math.max(0.6, paceDist / ALERT_PACE_SPEED);
+      // alertPhaseStart.current is seeded by the throttled hook above on the
+      // FIRST tick this agent ever goes alert (its own -1 sentinel); a
+      // not-yet-seeded read here (the handful of frames before that first
+      // throttled tick fires) falls back to elapsed=0 rather than a bogus
+      // negative-infinity gap.
+      const elapsed = alertPhaseStart.current < 0 ? 0 : t - alertPhaseStart.current;
+      const facingHub = Math.atan2(dirX, dirZ);
+
+      if (alertPhase.current === "toDoor") {
+        const p = easedWalkProgress(elapsed, paceDuration, WALK_EASE_S);
+        g.position.set(home[0] + (doorPos[0] - home[0]) * p, home[1], home[2] + (doorPos[2] - home[2]) * p);
+        g.rotation.y = facingHub;
+      } else if (alertPhase.current === "atDoor") {
+        g.position.set(doorPos[0], doorPos[1], doorPos[2]);
+        g.rotation.y = facingHub; // "looking toward the hub" -- doorPos sits ON the home->hub line
+      } else if (alertPhase.current === "toDesk") {
+        const p = easedWalkProgress(elapsed, paceDuration, WALK_EASE_S);
+        g.position.set(doorPos[0] + (home[0] - doorPos[0]) * p, home[1], doorPos[2] + (home[2] - doorPos[2]) * p);
+        g.rotation.y = facingHub + Math.PI; // facing the direction of travel (away from hub, back toward the desk)
+      } else {
+        g.position.set(home[0], home[1], home[2]);
+        g.rotation.y = facingHub; // pause at the desk end, turned back to look toward the hub
+      }
+
+      const moving = alertPhase.current === "toDoor" || alertPhase.current === "toDesk";
+      const swing = moving ? Math.sin(t * NATIVE_SWING_HZ * clipCadenceRatio(ALERT_PACE_SPEED, NATIVE_WALK_CLIP_MPS)) * 0.5 : 0;
+      if (legL.current) legL.current.rotation.x = swing;
+      if (legR.current) legR.current.rotation.x = -swing;
+      recordAgentSample({ id: laneSeed, x: g.position.x, y: g.position.y, z: g.position.z, clipSpeed: CLIP_TABLE.alert.speed });
+      const patrolDimAlert = Math.min(presenceMode === "patrol" ? 0.35 : 1, scheduleDim);
+      if (visorMat.current) visorMat.current.emissiveIntensity = (1.4 + Math.sin(t * 3) * 0.2) * patrolDimAlert;
+      updateBubbleFade(g, state.camera);
+      return;
+    }
+
+    if (phase.current === "arriving") {
+      // One-way hub -> home (a persona that just fired, walking in from the
+      // manager and sitting down to work) -- ends in "resting", never
+      // returns to the hub the way a roundtrip does.
+      const p = easedWalkProgress(t - phaseStart.current, walkLegDuration.current, WALK_EASE_S);
+      g.rotation.y = walkFacing.current; // "turn before moving" -- see the ref's own comment
+      g.position.set(
+        hub[0] + (home[0] - hub[0]) * p,
+        home[1],
+        hub[2] + (home[2] - hub[2]) * p,
+      );
+    } else if (phase.current === "toHub") {
+      // MOTION-2 V2: resolvePathPose walks the (possibly multi-leg) outbound
+      // path -- see that function's own comment; reduces to exactly today's
+      // single-leg lerp+fixed-facing for every existing 2-point kind.
+      const p = easedWalkProgress(t - phaseStart.current, walkLegDuration.current, WALK_EASE_S);
+      const pose = resolvePathPose(outboundPath.current, p, WALK_SPEED);
+      g.rotation.y = pose.facing;
+      g.position.set(...pose.position);
+    } else if (phase.current === "atHub") {
+      const pathEnd = outboundPath.current[outboundPath.current.length - 1] ?? approach;
+      g.position.set(...pathEnd);
+      // All-hands stand: face the core precisely (spec: "facing core") --
+      // roundtrip's brief 1.5s touch never bothered with facing, but a
+      // 60s stand reads wrong looking anywhere else. Same atan2(dx,dz)
+      // convention as `greeterFacingYaw` above. A "purposeful" stop (item
+      // 2b) faces its own destination point the SAME way -- reading a card
+      // wall or filing at the core looks wrong facing some other direction.
+      if (activeWalkKind.current === "allhands") {
+        g.rotation.y = Math.atan2(hub[0] - approach[0], hub[2] - approach[2]);
+      } else if (activeWalkKind.current === "purposeful") {
+        g.rotation.y = Math.atan2(hub[0] - pathEnd[0], hub[2] - pathEnd[2]);
+      } else if (activeWalkKind.current === "waypoints" && activePlan.current) {
+        // MOTION-2 V2: face the plan's own faceYaw if given, else the
+        // heading the agent arrived WITH (resolvePathPose at pathT=1 is
+        // exactly the final leg's own heading) -- never the "purposeful"
+        // convention of facing back toward the hub, since a waypoint walk's
+        // destination usually isn't the hub at all.
+        g.rotation.y = activePlan.current.faceYaw ?? resolvePathPose(outboundPath.current, 1, WALK_SPEED).facing;
+      }
+    } else if (phase.current === "toHome") {
       const p = easedWalkProgress(t - phaseStart.current, walkLegDuration.current, WALK_EASE_S);
       const pose = resolvePathPose(returnPath.current, p, WALK_SPEED);
       g.rotation.y = pose.facing;
       g.position.set(...pose.position);
-      if (p >= 1) { phase.current = "resting"; activeTarget.current = null; activePlan.current = null; }
     } else {
       // resting -- bob (working = brisker, idle = slower/shallower)
       const bobAmp = behavior === "working" ? 0.05 : 0.025;
       const bobSpeed = behavior === "working" ? 4 : 1.4;
       g.position.set(home[0], home[1] + Math.sin(t * bobSpeed) * bobAmp, home[2]);
       // World-4 fix (P6, 2026-09-14, J: "the bottom bays show characters not
-      // facing their desks"): this branch used to leave `g.rotation.y`
-      // whatever the LAST walk phase set it to -- for "working"
-      // specifically, that meant NO assignment here at all, so it kept
-      // `walkFacing` (set during "arriving"/"toHome", `atan2(home-hub)`,
-      // the WALKING direction hub->home) forever. That value is off by
-      // exactly Math.PI from "face away from hub, toward the desk", the
-      // established convention this file's own alert-phase pacing already
-      // uses two branches up (`facingHub + Math.PI`) and GammaCharacter.tsx
-      // uses too (`rotationY + Math.PI`) -- confirmed by the formulas
-      // themselves, not just a look: `walkFacing = atan2(home-hub)` and
-      // `facingHub = atan2(hub-home)` are exact opposites, so
-      // `facingHub + PI` (the correct desk-facing value) equals
-      // `atan2(home-hub)` PLUS Math.PI, i.e. `walkFacing + Math.PI` -- the
-      // one term this branch never added. A seated/idle character now gets
-      // a real, per-frame desk-facing base instead of an unset leftover.
+      // facing their desks"): see the original fix's own comment (git
+      // history) -- desk-facing is `atan2(hub-home) + PI`, never a leftover
+      // walk heading.
       const deskFacing = Math.atan2(hub[0] - home[0], hub[2] - home[2]) + Math.PI;
       if (behavior === "working") {
         if (armL.current) armL.current.rotation.x = Math.sin(t * 10) * 0.35;
@@ -888,27 +1045,16 @@ export default function Agent({
       } else if (presenceMode === "greet") {
         // J 2026-09-13: "nearest agent turns to the viewer" on presence ==
         // here -- holds a fixed facing instead of the idle look-around.
-        // Scene.tsx picks exactly one static agent for this; everyone else
-        // never receives `presenceMode` and is unaffected.
         g.rotation.y = facingYaw ?? 0;
       } else {
-        // Slow "look around", now centered on `deskFacing` (was centered on
-        // world-absolute 0 -- wrong for every bay/persona whose own
-        // rotationY isn't 0, the SAME class of bug as the "working" case
-        // above) instead of swaying around a fixed world direction that
-        // ignores which way this character's own desk actually faces.
-        // MOTION-2 (J: "a little bit of LOGIC to their movement"): frequency
-        // 0.3 -> 0.15 and amplitude 0.5 -> 0.3 -- lowering the frequency of a
-        // periodic sway is simultaneously "slower" (lower angular rate) AND
-        // "rarer" (period = 2*PI/frequency, so a full look-cycle recurs half
-        // as often); the smaller amplitude makes each look-around read as a
-        // subtler glance instead of a wide, attention-grabbing swing.
+        // Slow "look around", centered on `deskFacing` (this character's own
+        // desk direction, not world-absolute 0).
         g.rotation.y = deskFacing + Math.sin(t * 0.15) * 0.3;
       }
     }
 
-    const walking = phase.current === "toHub" || phase.current === "toHome" || phase.current === "arriving";
-    if (walking) {
+    const walkingNow = phase.current === "toHub" || phase.current === "toHome" || phase.current === "arriving";
+    if (walkingNow) {
       // MOTION-2: NATIVE_SWING_HZ*clipCadenceRatio(WALK_SPEED, ...) replaces
       // the old bare "8" (tuned at the pre-halving 1.4 u/s WALK_SPEED) --
       // see NATIVE_SWING_HZ's own comment for the slow-motion-legs mechanism
@@ -922,11 +1068,12 @@ export default function Agent({
     }
 
     // World-2 MOTION-FIX diag (?diag=1 only -- no-ops otherwise, see
-    // hq-motion-diag.ts's own header): every agent's world position + the
-    // clip speed KitAgent.tsx would be playing for its current animState,
-    // once per throttled tick (20Hz) -- position.set above already
-    // finalized this frame's value by this point regardless of which phase
-    // branch ran.
+    // hq-motion-diag.ts's own header), relocated from the throttled hook to
+    // HERE (P1 fix, 2026-09-14): proving "consecutive rendered frames show
+    // distinct positions" needs a sample taken every rendered frame -- a
+    // 20Hz-throttled sample can only ever show distinctness between
+    // throttled ticks, which was never the bug (position obviously differs
+    // 50ms apart; the bug was 3 RENDERED frames in between holding still).
     recordAgentSample({ id: laneSeed, x: g.position.x, y: g.position.y, z: g.position.z, clipSpeed: CLIP_TABLE[animState].speed });
 
     // "Night patrol" dim (J 2026-09-13: presence == away) + Pass C schedule
@@ -936,7 +1083,31 @@ export default function Agent({
     // reason is stronger wins (Math.min), never double-dimmed.
     const patrolDim = Math.min(presenceMode === "patrol" ? 0.35 : 1, scheduleDim);
     if (visorMat.current) visorMat.current.emissiveIntensity = (1.4 + Math.sin(t * 3) * 0.2) * patrolDim;
-  }, 20);
+
+    updateBubbleFade(g, state.camera);
+  });
+
+  /** PEOPLE pass (P2): opacity-only camera-distance fade for this agent's
+   * own bubble -- direct DOM style mutation (never React state/props), same
+   * "refs for continuous per-frame work, state for discrete moments"
+   * convention as `visorMat` above. A no-op before the bubble's first
+   * render (`bubbleWrapRef.current` null pre-mount, or when there's no text
+   * to show at all -- see the JSX below). */
+  function updateBubbleFade(g: THREE.Group, camera: THREE.Camera): void {
+    const el = bubbleWrapRef.current;
+    if (!el) return;
+    bubbleDelta.set(g.position.x - camera.position.x, g.position.y - camera.position.y, g.position.z - camera.position.z);
+    el.style.opacity = bubbleDelta.length() > BUBBLE_FADE_DISTANCE ? "0" : "1";
+  }
+
+  // PEOPLE pass (P2): while a walk carries its own real reason, that reason
+  // IS the bubble (P4 -- "every existing walk must carry a human-readable
+  // purpose in its bubble"); otherwise fall back to the caller's own
+  // evidence-backed `bubbleText`. Null when NEITHER has anything real to
+  // say -- the bubble renders nothing rather than inventing copy.
+  const bubbleAction = activePurpose ?? bubbleText ?? null;
+  const bubbleActionTrunc = bubbleAction ? truncateOneLine(bubbleAction, BUBBLE_ACTION_MAX_CHARS) : null;
+  const bubbleY = (ultra ? ULTRA_HEAD_Y : TV_HEAD_Y) + BUBBLE_HEAD_GAP;
 
   return (
     <group ref={group}>
@@ -993,6 +1164,58 @@ export default function Agent({
             <meshLambertMaterial ref={visorMat} color={accentColor} emissive={accentColor} emissiveIntensity={1.4} toneMapped={false} />
           </mesh>
         </>
+      )}
+
+      {/* PEOPLE pass (P2, 2026-09-14, J: "little bubbles above their heads
+          of the action they are doing") -- ONE little bubble, attached
+          inside this walker's own moving group so it travels WITH it (never
+          a fixed world point -- see ActivityBubbleLayer.tsx's now-deleted
+          layer, which drew bubbles at a snapshot position instead). `center`
+          + `distanceFactor` match every other in-scene Html label in this
+          tree (PersonaModule/GammaCharacter, both now this style too).
+          `.hq-beam` is the shared static 1px accent ring (Hud.tsx's own
+          style block -- no animation, per J's scanner-removal ask). Renders
+          nothing at all when there's no real text (`bubbleActionTrunc`
+          null) -- never a fabricated line, never an empty bubble. */}
+      {bubbleActionTrunc && (
+        <Html position={[0, bubbleY, 0]} center distanceFactor={9} style={{ pointerEvents: "none" }}>
+          <div ref={bubbleWrapRef} style={{ position: "relative" }}>
+            <div className="hq-beam" style={{ "--beam-color": accentColor, borderRadius: 6 } as CSSProperties}>
+              <div
+                style={{
+                  position: "relative", overflow: "hidden",
+                  fontFamily: "system-ui, sans-serif", color: "#dff3ff", fontSize: 17,
+                  background: "rgba(3,4,10,0.78)", padding: "3px 10px", borderRadius: 5,
+                  whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: 5,
+                }}
+              >
+                <span key={bubbleActionTrunc} className="hq-shine" />
+                <b style={{ fontWeight: 800 }}>{laneSeed}</b>
+                <span style={{ color: "#7f93b0" }}>·</span>
+                <span>{bubbleActionTrunc}</span>
+                {auditVerdict && (
+                  <span style={{ fontSize: 11, fontWeight: 800, color: "#03040a", background: accentColor, borderRadius: 3, padding: "0 4px" }}>
+                    {auditVerdict[0]}
+                  </span>
+                )}
+              </div>
+            </div>
+            {/* Speech-bubble tail: an 8x8 square rotated 45deg, positioned so
+                only its bottom-left corner peeks below the bubble box --
+                same bg + a matching two-edge accent border so it reads as
+                one continuous shape pointing down at the head. Plain inline
+                style (no new global CSS/keyframe needed -- this shape never
+                animates). */}
+            <div
+              style={{
+                position: "absolute", left: "50%", bottom: -4, width: 8, height: 8,
+                transform: "translateX(-50%) rotate(45deg)",
+                background: "rgba(3,4,10,0.78)",
+                borderRight: `1px solid ${accentColor}`, borderBottom: `1px solid ${accentColor}`,
+              }}
+            />
+          </div>
+        </Html>
       )}
     </group>
   );
