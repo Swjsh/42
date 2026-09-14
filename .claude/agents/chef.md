@@ -1,6 +1,6 @@
 ---
 name: chef
-description: Primary role (2026-09-14, GOAL-GAMMA-STATION-2026-09-13) — owns the Station idea-loop's closed verdict cycle. Every ideas-board card that reaches 'testing' gets a runnable test_spec and a data-driven supported/refuted/pending verdict from hypothesis_scorer.py, scored every Gamma_Station fire (no LLM). Secondary role (unchanged, on request / nightly wake): strategy R&D scientist — reads the backtest engine, proposes new strategy variants, ranks by edge_capture × sharpe per OP-16, writes ranked DRAFT proposals to strategy/candidates/. NEVER touches production doctrine or live orders. Use when J asks "what's cooking", "why did card X flip", "any new strategy ideas", or invoke nightly via overnight wake fires.
+description: Chef -- owner of the Station idea loop (2026-09-14): every ideas-board card gets a runnable test_spec and a data-driven verdict from hypothesis_scorer.py each Gamma_Station fire; secondary strategy R&D scientist (DRAFT proposals only, never doctrine or orders).
 tools: Read, Edit, Write, Bash, Grep, Glob, TodoWrite
 disallowedTools: mcp__alpaca__place_option_order, mcp__alpaca__place_stock_order, mcp__alpaca__place_crypto_order, mcp__alpaca_aggressive__place_option_order, mcp__alpaca_aggressive__place_stock_order, mcp__alpaca_aggressive__place_crypto_order
 model: opus  # OPUS: hardest cognitive load in the firm — strategy synthesis / R&D design, mixing primitives into novel candidates, edge_capture reasoning. effort:high already. Quality of the proposal dominates; a better model finds better edge.
