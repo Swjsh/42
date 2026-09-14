@@ -97,6 +97,12 @@ function etStamp(): string {
 interface SmartBoardProps {
   cards: StationIdeaCard[];
   dimFactor: number;
+  /** Yaw (radians) applied to the WHOLE board group -- layout.ts's own
+   * BRAIN_WALL_MOUNT.yaw (already corrected there for this file's own
+   * local-+Z-is-front convention, see that constant's header comment).
+   * Defaults to 0 (faces local +Z with no extra rotation) so this stays a
+   * safe no-op for any future caller that doesn't pass one. */
+  rotationY?: number;
 }
 
 /**
@@ -112,7 +118,7 @@ interface SmartBoardProps {
  * (DeskScreen.tsx's own established mechanism, duplicated per-file by
  * design -- see that file's own comment).
  */
-export default function SmartBoard({ cards, dimFactor }: SmartBoardProps) {
+export default function SmartBoard({ cards, dimFactor, rotationY = 0 }: SmartBoardProps) {
   const { scene } = useGLTF(MODEL_PATH, false);
   const cloned = useMemo(() => scene.clone(true), [scene]);
   const { canvas, texture } = useMemo(() => createBoardCanvas(), []);
@@ -164,7 +170,7 @@ export default function SmartBoard({ cards, dimFactor }: SmartBoardProps) {
   const ledColor = newest[0] ? ideaStatusColor(newest[0].status) : "#3a4a63";
 
   return (
-    <group scale={BOARD_SCALE}>
+    <group rotation={[0, rotationY, 0]} scale={BOARD_SCALE}>
       {/* Bezel/stand body -- the found CC0 piece, used as-authored (no
           rotation -- see FRONT_Z's own comment on the backwards-fix path). */}
       <primitive object={cloned} castShadow receiveShadow />

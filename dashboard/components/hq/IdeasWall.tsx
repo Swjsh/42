@@ -1,6 +1,7 @@
 "use client";
 
 import type { StationIdeaCard } from "@/lib/station";
+import { BRAIN_WALL_MOUNT } from "./layout";
 import SmartBoard from "./SmartBoard";
 
 interface IdeasWallProps {
@@ -19,45 +20,39 @@ interface IdeasWallProps {
 // screen-space DOM overlay -- constant apparent size regardless of world
 // distance, exactly what reads as "hovering" -- structurally cannot be. ────
 
-/** Local offset, relative to Scene.tsx's own WALL_POS prop (today [0,3.4,0]
- * -- NOT changed here, per this task's own instruction to use today's
- * position and leave a clear constant for the LAYOUT builder to re-point
- * once a real hub-wall mount point is exported from Scene.tsx/layout.ts).
- *
- * WALL_POS itself turns out to be unusable AS-IS for a real mesh: it sits at
- * world Y=3.4, above HUB_CEILING_Y (SetKit.tsx, ~2.79 -- itself already a
- * 0.4 margin below the room-large.glb shell's own true ceiling, raw height
- * 4.25 * ARCHITECTURE_SCALE_HUB 0.75 = 3.19) -- a solid board there would
- * poke through the hub's own ceiling mesh. Its X/Z (0,0) is hub-CENTER,
- * directly through BrainCore's own core sphere/glow sprite (~2.1 world-unit
- * reach) if lowered to a sane mounting height instead.
- *
- * This offset relocates the board to world [0, 0.5, -6.9]: radius 6.9 from
- * hub center (inside HUB_WALL_RADIUS=7.5, ~0.6 clear of the wall for the
- * mount arms), straight back along -Z (angle 270 deg) -- inside the ~130deg
- * arc Scene.tsx's own ARC_CENTER/ARC_SPAN(230deg)/PERSONA_RING_RADIUS(6.5)
- * geometry leaves genuinely empty (no persona desk, no lane corridor: both
- * rings are confined to the SAME 230deg front arc, read directly from
- * Scene.tsx this session, not guessed), and well outside the all-hands
- * ring-around-the-core radius (3.2). Bottom-anchored at world Y=0.5 (the
- * model's own local origin sits at its base, per every other kit piece's
- * convention) puts the top at ~2.68 -- clear of HUB_CEILING_Y with margin.
- *
- * TODO(LAYOUT): once a real "brain wall" position/angle is exported from
- * Scene.tsx or layout.ts, either re-point WALL_POS itself to sit flush
- * against it (and zero this offset out), or ping MODELS with the new
- * constant name -- this number was derived from today's geometry, not
- * hardcoded blind. Exported so Courier.tsx (the small bot that visibly
- * "carries" a card from the hub up to the wall on every new/changed idea
- * card) can fly to the board's REAL position instead of the old bare
- * WALL_POS -- see that file's own import of this constant. */
-export const SMART_BOARD_LOCAL_OFFSET: [number, number, number] = [0, -2.9, -6.9];
+// Scene.tsx's own WALL_POS value ([0,3.4,0], unchanged by this pass) -- a
+// duplicated literal, not an import, because Scene.tsx imports THIS module
+// (IdeasWall -> SmartBoard is one leg of its render tree) and WALL_POS is a
+// module-scope `const` there, not exported; importing it back would risk a
+// cycle. Same "tiny local duplication over a cross-file dependency"
+// convention this file tree already uses elsewhere (BrainCore.tsx's own
+// GammaLoopRow/shortReason, etc.) -- if Scene.tsx's WALL_POS value ever
+// changes, this needs a matching update (Courier.tsx's own `wall` prop
+// already carries the REAL current value at runtime, so only this literal,
+// used purely to compute a group offset below, needs re-syncing by hand).
+const WALL_POS_SCENE_VALUE: [number, number, number] = [0, 3.4, 0];
+
+/** Local offset, relative to Scene.tsx's own WALL_POS prop -- the board's
+ * REAL mount point is layout.ts#BRAIN_WALL_MOUNT (added 2026-09-14,
+ * coordinator-authorized edit, once LAYOUT's campus-cross rebuild made the
+ * OLD interim position -- world [0,0.5,-6.9], this session's own earlier
+ * empty-arc derivation -- obsolete: that arc no longer exists in the new
+ * layout). BRAIN_WALL_MOUNT already accounts for the hub's real ceiling
+ * height and BrainCore's core/glow reach (see its own header comment in
+ * layout.ts) -- this file only computes the OFFSET from WALL_POS needed to
+ * land there, since Scene.tsx's `<IdeasWall position={WALL_POS}>` call
+ * still wraps this component's whole output in that anchor. */
+export const SMART_BOARD_LOCAL_OFFSET: [number, number, number] = [
+  BRAIN_WALL_MOUNT.position[0] - WALL_POS_SCENE_VALUE[0],
+  BRAIN_WALL_MOUNT.position[1] - WALL_POS_SCENE_VALUE[1],
+  BRAIN_WALL_MOUNT.position[2] - WALL_POS_SCENE_VALUE[2],
+];
 
 export default function IdeasWall({ cards, position, dimFactor }: IdeasWallProps) {
   return (
     <group position={position}>
       <group position={SMART_BOARD_LOCAL_OFFSET}>
-        <SmartBoard cards={cards} dimFactor={dimFactor} />
+        <SmartBoard cards={cards} dimFactor={dimFactor} rotationY={BRAIN_WALL_MOUNT.yaw} />
       </group>
     </group>
   );

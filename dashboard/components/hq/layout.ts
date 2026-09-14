@@ -253,6 +253,78 @@ export function minClearRadius(azimuth: number, margin: number): number {
 export const PERSONA_WALL_RADIUS = 6.5; // unchanged from the old PERSONA_RING_RADIUS
 const WALL_SEGMENT_SPREAD = (18 * Math.PI) / 180; // +-18deg off a segment's own center -- clear of both flanking doorways (each segment spans 90deg)
 
+// ─── Brain wall mount (2026-09-14, MODELS builder, coordinator-authorized
+// edit -- LAYOUT's ownership of this file is released) ─────────────────────
+// The smart board (SmartBoard.tsx, IdeasWall.tsx) mounts here: dead-center
+// of the reserved "brain wall" segment -- the SAME segment
+// computePersonaWallSlots leaves free of persona desks (Scene.tsx's own
+// BRAIN_WALL_ARM_INDEX picks it, closest segment center to ARC_CENTER,
+// today's value 0 -> segment 0deg..90deg, center 45deg -- Gamma's own desk,
+// at ARC_CENTER~61.34deg/radius 3.4, sits inside this same segment, unmoved
+// by this edit). Radius HUB_WALL_RADIUS-0.7 (near the wall, clears the
+// board's own backing plate -- see computeBrainWallMount's own comment for
+// the exact margin math); y=0.5 bottom-anchored
+// (every kit piece's own local origin sits at its base -- see
+// SmartBoard.tsx's own comment) puts the ~2.2u-tall board's top comfortably
+// under the room's true ceiling (raw 4.25 * ARCHITECTURE_SCALE_HUB, ~3.19),
+// clear of BrainCore's own core/glow reach (~2.1) since this sits far off
+// -center, not stacked above it like the OLD WALL_POS=[0,3.4,0] did.
+//
+// `yaw`: rotationYFacing computes the angle that points a kit piece's own
+// LOCAL -Z toward the target (every room/door/corridor piece's shared
+// "front" convention) -- SmartBoard.tsx's content plane faces LOCAL +Z
+// instead (its own choice, documented there), so this adds PI to correct
+// for that rather than reusing rotationYFacing's raw output unmodified.
+//
+// A FUNCTION (not just a bare const) because `armIndex` is genuinely a
+// Scene.tsx-computed value (BRAIN_WALL_ARM_INDEX, derived from ARC_CENTER)
+// this file must never import (layout.ts is upstream of Scene.tsx, never
+// the reverse -- see this file's own header) -- same "receives the
+// arm/segment index as a parameter" convention computePersonaWallSlots
+// already established just above. `BRAIN_WALL_MOUNT` below is the
+// convenience const for callers that don't need a different segment,
+// pinned to armIndex=0 -- MUST stay in sync with Scene.tsx's own
+// BRAIN_WALL_ARM_INDEX (today both 0); if a future ARC_CENTER/
+// ARC_CENTER_NUDGE change ever moves that constant, re-derive this one to
+// match rather than leaving it silently stale.
+export interface WallMount {
+  position: [number, number, number];
+  yaw: number;
+  width: number;
+}
+
+export function computeBrainWallMount(armIndex: number): WallMount {
+  const segCenterAngle = armAngle(armIndex) + Math.PI / 4;
+  // RADIUS, second derivation (2026-09-14, real-capture-driven fix): a
+  // first pass used HUB_WALL_RADIUS-0.7=6.8 (flush against the wall,
+  // clearing only the board's own backing-plate depth). A real capture at
+  // that radius (models-final-preset0-2148.png) showed NO board visible at
+  // all. Root cause, computed (not guessed): the brain-wall segment sits
+  // very close to the DEFAULT camera's own azimuth (Scene.tsx's
+  // BASE_AZIMUTH, ~38.7deg, vs. this segment's 45deg center -- both derive
+  // from/track ARC_CENTER) -- i.e. it is the hub's NEAR wall from that
+  // camera's viewpoint. room-large.glb's walls run the full room height
+  // (~3.19, ARCHITECTURE_SCALE_HUB * raw 4.25); a target close to that near
+  // wall sits almost entirely in its shadow from a ~35deg-elevation camera
+  // -- verified with the actual camera/wall/target geometry: line-of-sight
+  // height AT the wall's own radius, for a target at radius 6.8, computes
+  // to ~3.3 (barely above the 3.19 wall height, and BELOW it for anything
+  // under the target's own mid-height) -- explains the miss exactly. A more
+  // central target gets more clearance (the SAME math for Gamma's own desk,
+  // radius 3.4, gives ~4.9) -- reads as "floating further into the room on
+  // an extended mount," which is arguably a BETTER match for J's own
+  // "FLOATING smart board" framing than flush-on-the-wall anyway.
+  // HUB_WALL_RADIUS is kept as the reference point in this comment (not the
+  // formula below) so a future reader can still find the wall's own radius.
+  const radius = 4.9;
+  const position: [number, number, number] = [Math.cos(segCenterAngle) * radius, 0.5, Math.sin(segCenterAngle) * radius];
+  return { position, yaw: rotationYFacing(position, HUB) + Math.PI, width: 3.3 };
+}
+
+/** armIndex=0 -- today's BRAIN_WALL_ARM_INDEX (Scene.tsx). See this
+ * section's own header for the sync contract. */
+export const BRAIN_WALL_MOUNT: WallMount = computeBrainWallMount(0);
+
 export interface PersonaWallSlot {
   position: [number, number, number];
   rotationY: number; // faces the hub center, same -Z-front convention as every other kit placement

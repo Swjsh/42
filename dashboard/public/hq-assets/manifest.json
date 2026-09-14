@@ -305,7 +305,8 @@
     {
       "file": "kenney-space-station-kit/display-wall.glb",
       "category": "screen",
-      "sizeBytes": 8776
+      "sizeBytes": 8776,
+      "note": "S2 hub-interior pass (2026-09-14, MODELS builder): now wired in TWICE as two independent HubInterior.tsx instances -- VitalsPanel (real GPU/model vitals) and SectorsTradingPanel (real sectors+trading data, the brief's originally-specced second board). First actual consumer of this path since it was downloaded 2026-09-13."
     },
     {
       "file": "kenney-modular-space-kit/corridor.glb",

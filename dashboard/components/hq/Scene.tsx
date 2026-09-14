@@ -255,8 +255,14 @@ const GAMMA_CREW_ACK: Record<string, string> = {
 // BrainCore's center. "core"/"lounge" are distinct hub-interior points, clear
 // of BrainCore's ring geometry (~2.58 world radius) and Gamma's own desk
 // (radius 3.4, angle ARC_CENTER).
+// "ideas-wall" (2026-09-14, MODELS builder, coordinator-authorized edit):
+// re-pointed from the old ring layout's near-center approximation to ~1u in
+// front of the smart board's REAL position (layout.ts#BRAIN_WALL_MOUNT,
+// radius HUB_WALL_RADIUS-0.7=6.8 at the brain-wall segment's own center
+// angle 45deg -- [cos45,0,sin45]*5.8, one unit closer to hub-center along
+// the same radial line the board itself sits on).
 const PURPOSEFUL_TARGETS: Record<"ideas-wall" | "core" | "lounge", [number, number, number]> = {
-  "ideas-wall": [1.1, 0, -0.7],
+  "ideas-wall": [4.10, 0, 4.10],
   core: [-1.2, 0, -1.6],
   lounge: [-2.2, 0, 1.7],
 };
@@ -1567,6 +1573,16 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
         reducedMotion={reducedMotion}
         ultra={ultra}
         coreMeshRef={coreMeshRef}
+        // MODELS builder S2 pass (2026-09-14, coordinator-authorized edit):
+        // real data for HubInterior.tsx's sectors+trading wall panel --
+        // BrainCore.tsx forwards both straight through, no re-derivation
+        // here. sectorsSnapshot is genuinely null before CREW-RIG's first
+        // Station fire (lib/hq.ts#readSectorsSnapshot's own fail-open
+        // contract); `data.trading` is the existing item-5 strip payload,
+        // non-optional on HqApiResponse but `data` itself can be undefined
+        // during initial load.
+        sectorsSnapshot={data?.sectorsSnapshot ?? null}
+        trading={data?.trading ?? null}
       />
 
       {/* Gamma's own character + desk + speech bubble (Pass B, 2026-09-13)

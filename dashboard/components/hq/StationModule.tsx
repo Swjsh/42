@@ -10,6 +10,7 @@ import type { AgentBehavior } from "./Agent";
 import { healthColor, isParkedState, lerp, localToWorld, makeToonGradientTexture, PALETTE, truncateOneLine, type ScreenLine } from "./palette";
 import { BAY_CEILING_Y, BAY_DESK_OFFSET_Z, BAY_HALF_DEPTH, DepartmentBayShell, DeskCluster } from "./SetKit";
 import BaySign from "./BaySign";
+import BayInterior from "./BayInterior";
 
 const _screenColor = new THREE.Color();
 
@@ -163,6 +164,14 @@ export default function StationModule({
             <group position={[0, 0, BAY_DESK_OFFSET_Z]}>
               <DeskCluster accentColor={color} screenTitle={row.lane} screenLines={screenLines} />
             </group>
+            {/* S3 bay-interiors pass (2026-09-14, MODELS builder): 2nd
+                chair+screen, container corner, interior lane sign, floor mat
+                -- see BayInterior.tsx's own header for the draw-call budget
+                and why the sign is a plane pair, not a GLB. Same Suspense
+                boundary as the shell/desk above (own useGLTF calls, same
+                world-pass-A "never let a still-loading piece unmount a
+                sibling" reasoning). */}
+            <BayInterior accentColor={color} laneName={row.lane} row={row} />
           </Suspense>
 
           {/* World pass A (2026-09-13): "each bay interior tinted by its

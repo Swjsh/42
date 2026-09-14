@@ -6,8 +6,10 @@ import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import * as THREE from "three";
 import type { PersonaState } from "@/lib/personas";
+import type { SectorsSnapshot, TradingStatus } from "@/lib/hq";
 import { clamp01, lerp, makeMatcapTexture, PALETTE, personaStatusColor } from "./palette";
 import { ReactorGreeble } from "./SetKit";
+import HubInterior from "./HubInterior";
 
 /** Mirrors GammaCharacter.tsx's own local `GammaLoopRow` shape (that file's
  * own comment: "the SAME loop-ledger row the crew panel's own pill
@@ -48,6 +50,17 @@ interface BrainCoreProps {
    * isn't mounted (tv tier). */
   ultra?: boolean;
   coreMeshRef?: RefObject<THREE.Mesh | null>;
+  /** S2 hub-interior pass (2026-09-14, MODELS builder): the originally-
+   * specced "sectors summary + trading strip" second wall panel needs this
+   * real data -- neither was threaded here before today (coordinator,
+   * 2026-09-14 ~17:22 ET: "sectorsSnapshot" lands on /api/hq via commit
+   * b149fd00; "trading" is the existing strip payload; LAYOUT threads both
+   * from Scene.tsx in its next slice"). Optional + nullable so THIS
+   * component and HubInterior.tsx keep compiling/rendering (with an honest
+   * "waiting for first fire" placeholder, never fabricated numbers) against
+   * Scene.tsx's CURRENT call site, which doesn't pass these yet. */
+  sectorsSnapshot?: SectorsSnapshot | null;
+  trading?: TradingStatus | null;
 }
 
 const GAUGE_WIDTH = 1.8;
@@ -117,14 +130,15 @@ export default function BrainCore({
   // Renamed with the SAME underscore convention CanvasRoot.tsx already uses
   // for its own unused `lanKiosk` prop, kept in the signature only because
   // Scene.tsx's call site (and BrainCoreProps) still pass it.
-  // World-4 fix (P3): `modelName` is now unused here -- the wall's own line
-  // is `wallStatusLine` (derived below from `lastRow`/`nextLine`/
-  // `briefMtimeMs` instead), never a model-loaded check. Renamed with the
-  // SAME underscore convention this file already uses for `reducedMotion`
-  // just below, kept in the signature only because Scene.tsx's call site
-  // (and BrainCoreProps) still pass it.
-  utilPct, memUsedMib, memTotalMib, modelName: _modelName, manager, briefMtimeMs, lastRow, nextLine, gaming, dimFactor, reducedMotion: _reducedMotion,
-  ultra = false, coreMeshRef,
+  // World-4 fix (P3): the WALL's own status line (`wallStatusLine` below)
+  // stopped reading `modelName` -- derived from `lastRow`/`nextLine`/
+  // `briefMtimeMs` instead, never a model-loaded check. `modelName` itself
+  // is back in use as of the S2 hub-interior pass (2026-09-14, MODELS
+  // builder): HubInterior's own second wall panel (VitalsPanel) shows it --
+  // real data this component already receives, reused rather than
+  // threading a new prop through Scene.tsx for it.
+  utilPct, memUsedMib, memTotalMib, modelName, manager, briefMtimeMs, lastRow, nextLine, gaming, dimFactor, reducedMotion: _reducedMotion,
+  ultra = false, coreMeshRef, sectorsSnapshot = null, trading = null,
 }: BrainCoreProps) {
   const coreMat = useRef<THREE.MeshMatcapMaterial | THREE.MeshPhysicalMaterial>(null);
   const matcap = useMemo(() => makeMatcapTexture(), []);
@@ -209,6 +223,26 @@ export default function BrainCore({
       {ultra && (
         <Suspense fallback={null}>
           <ReactorGreeble />
+        </Suspense>
+      )}
+
+      {/* S2 hub-interior pass (2026-09-14, MODELS builder): round table +
+          chairs, second (vitals) wall panel, cable greeble, gathering-ring
+          floor marking -- see HubInterior.tsx's own header comment for why
+          this mounts here (not Scene.tsx) and for its outer counter-scale
+          (cancels this group's own scale={1.15} above so its position
+          constants stay genuine world-space units). Ultra tier only, same
+          real-kit-geometry budget reasoning as ReactorGreeble just above. */}
+      {ultra && (
+        <Suspense fallback={null}>
+          <HubInterior
+            utilPct={utilPct}
+            memUsedMib={memUsedMib}
+            memTotalMib={memTotalMib}
+            modelName={modelName}
+            sectorsSnapshot={sectorsSnapshot}
+            trading={trading}
+          />
         </Suspense>
       )}
 
