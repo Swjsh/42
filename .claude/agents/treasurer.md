@@ -98,7 +98,7 @@ For each account (Safe + Bold), check:
 - Did the account REGRESS below a threshold? Should sizing reduce?
 
 **F. Live readiness threshold per account:**
-- Per CLAUDE.md account context: live threshold = ≥20 trades, WR ≥45%, positive expectancy, ≤2 rule breaks
+- Per CLAUDE.md account context (reworded 2026-08-29): live threshold = go-live gate GREEN, measured ONLY by `setup/scripts/go_live_gate.py` -- day-level bootstrap PF CI-lower(2.5%) > 1.0 on as-traded AND ex-best-day AND cost-adjusted over >=20 scored trading days, plus operational guards green, reconciliation green, 0 rule breaks in window, prod-shadow green net of costs. WR is a diagnostic, NOT a bar (the old WR>=45% bar measured a strategy shape this project killed; the 2026-09-14 report still used it -- do not).
 - For both Safe + Bold: status toward this threshold
 
 ### 4. Compute equity arc + drawdown
@@ -166,7 +166,7 @@ Write `analysis/treasury/{YYYY-MM-DD}.md`:
 
 ## Live readiness
 
-- Safe: M/4 conditions for live promotion (≥20 trades, WR ≥45%, positive expectancy, ≤2 rule breaks)
+- Safe: go-live gate verdict from `go_live_gate.py` (GREEN/RED, and which of the three PF CI-lower variants pass); WR quoted as a diagnostic only, never as a promotion condition
 - Bold: M/4 conditions
 
 ## DRAFT parameter changes proposed (NONE if no action needed)
