@@ -6,7 +6,7 @@ import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import { useThrottledFrame } from "./useThrottledFrame";
-import { isRegularTradingHours, makeMatcapTexture, nowEtDayOfWeek, nowEtMinutes, seededRandom, truncateOneLine } from "./palette";
+import { auditVerdictColor, isRegularTradingHours, makeMatcapTexture, nowEtDayOfWeek, nowEtMinutes, seededRandom, truncateOneLine } from "./palette";
 import { ALERT_PACE_SPEED, CLIP_TABLE, IDLE_VARIANTS, KitAgentBody, NATIVE_WALK_CLIP_MPS, WALK_SPEED, WORKING_VARIANTS, clipCadenceRatio, type KitAnimState } from "./KitAgent";
 import { CHARACTER_SCALE, CHARACTER_TARGET_HEIGHT } from "./SetKit";
 import { recordAgentSample } from "@/lib/hq-motion-diag";
@@ -1194,7 +1194,15 @@ export default function Agent({
                 <span style={{ color: "#7f93b0" }}>·</span>
                 <span>{bubbleActionTrunc}</span>
                 {auditVerdict && (
-                  <span style={{ fontSize: 11, fontWeight: 800, color: "#03040a", background: accentColor, borderRadius: 3, padding: "0 4px" }}>
+                  // PersonaModule's now-deleted badge colored this chip by
+                  // VERDICT (auditVerdictColor: PASS green/WARN amber/FAIL
+                  // red), independent of the character's own status color --
+                  // that's the whole point of a second, separate signal ("is
+                  // the work real" vs "is it currently firing," which can
+                  // disagree). Reusing `accentColor` here would silently
+                  // erase that distinction whenever a persona's status and
+                  // its audit verdict happen to share a hue.
+                  <span style={{ fontSize: 11, fontWeight: 800, color: "#03040a", background: auditVerdictColor(auditVerdict), borderRadius: 3, padding: "0 4px" }}>
                     {auditVerdict[0]}
                   </span>
                 )}
