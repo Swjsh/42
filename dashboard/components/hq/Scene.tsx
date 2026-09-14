@@ -879,6 +879,14 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
   // as the lane ring above.
   const personaSeatLocal = ultra ? BAY_SEAT_LOCAL : TV_PERSONA_SEAT_LOCAL;
   const allPersonas = data?.company?.personas ?? [];
+  // World-4 fix (P3, 2026-09-14): hoisted so BrainCore's wall line and
+  // GammaCharacter's speech bubble read the IDENTICAL "next:" value (both
+  // used to call crewNextLine independently -- harmless in practice since
+  // it's a pure function of `nowMs`, but a single shared value is strictly
+  // safer and is what "derive from the same source" (P3) actually asks
+  // for). `Date.now()` read once here, same as this file's pre-existing
+  // per-render (never per-frame) clock-read convention.
+  const managerNextLine = allPersonas[0] ? crewNextLine(allPersonas[0], Date.now()) : null;
   const innerPersonas = allPersonas.slice(1);
   const personaSlotCount = Math.max(innerPersonas.length, 1);
   const personaGeometry = useMemo(
@@ -1307,6 +1315,13 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
         modelName={data?.brainVitals.models[0]?.name ?? null}
         manager={allPersonas[0] ?? null}
         briefMtimeMs={data?.brief.mtime_ms ?? null}
+        // World-4 fix (P3, 2026-09-14): the SAME loop-ledger row + "next:"
+        // line GammaCharacter's own bubble reads below (`managerNextLine`,
+        // hoisted so both consumers see the identical value) -- see
+        // BrainCore.tsx's own wallStatusLine comment for why this replaces
+        // the old modelName-presence "BRAIN IDLE" fallback.
+        lastRow={data?.brainVitals.lastRow ?? null}
+        nextLine={managerNextLine}
         gaming={gaming}
         dimFactor={dimFactor}
         reducedMotion={reducedMotion}
@@ -1336,7 +1351,7 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
           rotationY={gammaRotationY}
           accentColor={allPersonas[0]?.color ?? PALETTE.hubCore}
           lastRow={data?.brainVitals.lastRow ?? null}
-          nextLine={allPersonas[0] ? crewNextLine(allPersonas[0], Date.now()) : null}
+          nextLine={managerNextLine}
           suppressBubble={isGammaExchangeActive}
           briefText={data?.brief.text ?? ""}
           briefMtimeMs={data?.brief.mtime_ms ?? null}

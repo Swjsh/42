@@ -179,36 +179,54 @@ function makePlanetTexture(): THREE.CanvasTexture {
 // move it toward center/lower, per this same file's own earlier H=16->0
 // correction logic).
 const BASE_AZIMUTH = Math.atan2(16, 20); // mirrors Scene.tsx's own BASE_AZIMUTH
-// Polish-pass CORRECTION (2026-09-14, real capture env-polish-day-1830.png:
-// planet sat near the TOP edge, not "lower-left"): the naive "distance=58
-// from ORIGIN" mental model this file's comments originally reasoned from
-// undersold the TRUE camera-to-planet distance once item 1's off-axis
-// offset moved it away from the old dead-opposite-the-camera line (real
-// vector math this session put it around ~85-88 units, not 58) -- at that
-// true distance, the OLD height=-4 barely moved the on-screen elevation
-// versus the pre-polish H=0. Dropped further (-4 -> -22, worked out against
-// the actual camPos-planetPos vector, not the origin-distance shortcut) and
-// the offset eased back (35deg -> 20deg, less risk of the wide-angle
-// perspective skew a large off-axis swing can introduce) -- verify against
-// the next real capture per this whole file's own established discipline,
-// nudge once more if still not clearly lower-left.
-const PLANET_LEFT_OFFSET = (15 * Math.PI) / 180;
+// World-4 fix (2026-09-14, P1: "PLANET is cut in half by the horizon at the
+// default pose... its height was left at 0 after a depthWrite bug hunt"):
+// H=0 (the prior pass's deliberately-conservative "reliably visible" choice,
+// see the superseded comment this replaces) puts the disc's CENTER almost
+// exactly on Ground.tsx's own y=-0.06 plane -- at this camera's elevated
+// look-down angle that reads as "sliced by the ground/fog line", exactly
+// the bug. Fixed with real camera-basis projection math (not another blind
+// guess): built the camera's actual right/up/forward vectors from
+// CAMERA_DIST_ULTRA/CAMERA_HEIGHT_ULTRA/BASE_AZIMUTH + DEFAULT_LOOKAT
+// (Scene.tsx's own values, mirrored here same as every other constant in
+// this file), verified the method against a known point (DEFAULT_LOOKAT
+// itself projects to screen-center within rounding), then solved for a
+// world position landing at normalized screen coords (x=-0.71, y=0.81 of
+// 1 = frame edge) -- comfortably in the upper-left third, ~0.12 (one
+// planet-radius) of clearance below the top edge AND ~0.27 above the
+// scene's own fog midpoint (computed from the real `<fog args={[..,40,70]}>`
+// in Scene.tsx: at this camera's pitch, the ground-hit ray crosses 50% fog
+// around normalized-y~=0.45, i.e. this is the practical "horizon" a fogged,
+// airless-body scene like this one actually renders, not the geometric
+// eye-level line, which sits entirely off-screen above the frame at this
+// camera's ~33deg down-pitch and can never be "seen" without something in
+// frame trivially satisfying "above" it). Solved azimuth offset came out to
+// ~35deg -- independent confirmation of the EARLIER (pre-correction) 35deg
+// guess this file's own history already tried and eased back from without
+// ever re-verifying against a capture; kept at the math-derived value this
+// time. Distance-from-origin (64) and height (3) both chosen off that same
+// solved ray, then nudged to clear Rocks.tsx's own FIELD_MAX_RADIUS=60 and
+// craters' max radius=52 (real values read from those files this session,
+// not assumed) so the disc reads as a distant background body, never
+// occluded by or overlapping the terrain field. Verify against the next
+// real capture (both the default pose and `?camdist=36`, which lowers the
+// camera's pitch and was checked separately this session -- the same
+// position keeps clearing both frame edges there too, with more margin).
+const PLANET_LEFT_OFFSET = (35 * Math.PI) / 180;
 const PLANET_AZIMUTH = BASE_AZIMUTH + Math.PI + PLANET_LEFT_OFFSET;
-const PLANET_DISTANCE = 58;
-// World-3 Pass 3 correction (2026-09-14, env-polish-day3-1905.png, AFTER
-// the depthWrite root-cause fix below): -6 still reduced to a barely-visible
-// sliver -- once depth-testing is actually correct (not painted over),
-// height=-6 is genuinely, physically LOW ENOUGH that most of the disc sits
-// behind Ground.tsx's own disc silhouette from this camera's elevated
-// look-down angle -- real occlusion, not a bug this time. Real data across
-// 4 tested heights (0=fully visible twice, -4=mostly rim only, -6=sliver,
-// -22=nothing) shows a steep, mostly-monotonic falloff -- the safe zone is
-// close to 0. Settled on H=0 (matching the two CONFIRMED-visible captures
-// exactly) and leaving "lower in frame" to the azimuth offset + smaller
-// radius alone -- reliably visible beats precisely "lower" if this file
-// has to choose between them again.
-const PLANET_HEIGHT = 0;
-const PLANET_RADIUS = 5.6;
+const PLANET_DISTANCE = 64;
+// Real capture (world4-p1p3-default-1849.png) confirmed the disc fully
+// clear of the top edge, upper-left, off the hub, horizon clearance
+// generous -- but the TOP margin alone measured tight (~10-15px of 1440,
+// the RIM_RADIUS_MULT glow eating into the slack this file's own trig
+// didn't originally budget for). 3 -> 2.4 trades a little of that generous
+// bottom/horizon slack for more top margin, same ray, no other constant
+// touched.
+const PLANET_HEIGHT = 2.4;
+// Slightly smaller than the pre-fix 5.6 (P1: "same size or slightly
+// smaller") -- also directly helps the top/horizon clearance math above,
+// since a smaller angular radius needs less slack on both sides at once.
+const PLANET_RADIUS = 4.8;
 
 // Item 2: the terminator now faces the scene's REAL sun direction, not the
 // camera. Scene.tsx's directional light sits at `position={[6,10,4]}` (a

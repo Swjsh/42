@@ -9,6 +9,19 @@ import type { PersonaState } from "@/lib/personas";
 import { clamp01, lerp, makeMatcapTexture, PALETTE, personaStatusColor } from "./palette";
 import { ReactorGreeble } from "./SetKit";
 
+/** Mirrors GammaCharacter.tsx's own local `GammaLoopRow` shape (that file's
+ * own comment: "the SAME loop-ledger row the crew panel's own pill
+ * ultimately traces back to"). Duplicated here rather than imported --
+ * both are small "use client" leaf components and this codebase's own
+ * convention (see lib/crew.ts's etHHMM vs GammaCharacter.tsx's hhmmEt) is a
+ * tiny local type/helper over a new cross-file dependency for a 3-field
+ * shape. */
+interface GammaLoopRow {
+  ts_et: string;
+  status: string;
+  reason: string;
+}
+
 interface BrainCoreProps {
   utilPct: number | null;
   memUsedMib: number | null;
@@ -16,6 +29,14 @@ interface BrainCoreProps {
   modelName: string | null;
   manager: PersonaState | null;
   briefMtimeMs: number | null;
+  /** World-4 fix (2026-09-14, P3: "the wall's status line derive from the
+   * same source" as the crew panel's pill and Gamma's own speech bubble).
+   * The SAME `data.brainVitals.lastRow` / `crewNextLine(...)` values
+   * Scene.tsx already threads into GammaCharacter -- passed in from the
+   * SAME call site (never re-derived) so the wall can never read a
+   * different truth than the bubble two meters away from it. */
+  lastRow: GammaLoopRow | null;
+  nextLine: string | null;
   gaming: boolean;
   dimFactor: number;
   reducedMotion: boolean;
@@ -31,6 +52,55 @@ interface BrainCoreProps {
 
 const GAUGE_WIDTH = 1.8;
 const PULSE_DURATION_MS = 10_000;
+// Same threshold + gate GammaCharacter.tsx uses for its own "thinking"
+// bubble -- see that file's own comment on why BOTH a busy GPU and the
+// ledger's `status==="ok"` are required (a util spike alone, during a
+// yielded/RTH window, must never read as "thinking").
+const THINKING_UTIL_THRESHOLD = 30;
+
+/** First token of a loop-ledger `reason`, e.g. "rth_window" from
+ * "rth_window (weekday 09:30-15:55 ET)" -- byte-identical helper to
+ * GammaCharacter.tsx's own `shortReason` (duplicated, not imported, same
+ * "tiny local helper over a cross-file dependency" convention noted on
+ * `GammaLoopRow` above). */
+function shortReason(reason: string): string {
+  const m = /^[^\s(]+/.exec(reason.trim());
+  return m ? m[0] : reason;
+}
+
+/** "rth_window" -> "RTH" for the wall's own compact style; any OTHER real
+ * yield reason this ledger might ever carry is shown verbatim (uppercased)
+ * rather than guessing a second abbreviation -- never invent a label for a
+ * reason this file hasn't actually seen. */
+function reasonAbbrev(reason: string): string {
+  const short = shortReason(reason);
+  return short === "rth_window" ? "RTH" : short.toUpperCase();
+}
+
+function hhmmEt(ms: number): string {
+  return new Date(ms).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "America/New_York" });
+}
+
+/** P3 fix (2026-09-14, "BRAIN IDLE" contradicting the crew panel's YIELDING
+ * and Gamma's own bubble -- three surfaces disagreeing, one of them false):
+ * the wall's own status line, gated in the SAME order as GammaCharacter.tsx's
+ * bubbleText (yielded -> error -> thinking -> wrote-brief -> quiet), off the
+ * SAME `lastRow`/`nextLine`/`utilPct`/`briefMtimeMs` fields -- never the
+ * `modelName`-presence heuristic the old "BRAIN IDLE" fallback used, which
+ * conflated "no model currently loaded" with "the manager is doing nothing"
+ * (false during a deliberately-scheduled RTH yield). Bubble-cycling "read a
+ * brief sentence" text is deliberately dropped here -- that's chat filler
+ * appropriate to a speech bubble, not a status wall. */
+function brainWallStatusLine(lastRow: GammaLoopRow | null, nextLine: string | null, thinking: boolean, briefMtimeMs: number | null): string {
+  if (lastRow?.status === "yielded") {
+    const next = nextLine ? (nextLine.endsWith(" ET") ? nextLine.slice(0, -3) : nextLine) : null;
+    return `BRAIN · yielding (${reasonAbbrev(lastRow.reason)})${next ? ` · next ${next}` : ""}`;
+  }
+  if (lastRow?.status === "error") return "BRAIN · error";
+  if (thinking) return "BRAIN · thinking…";
+  if (briefMtimeMs) return `BRAIN · wrote brief ${hhmmEt(briefMtimeMs)}`;
+  return "BRAIN · quiet";
+}
 
 /**
  * Central hub -- Gamma's "brain core". Sphere + two counter-rotating rings +
@@ -47,7 +117,13 @@ export default function BrainCore({
   // Renamed with the SAME underscore convention CanvasRoot.tsx already uses
   // for its own unused `lanKiosk` prop, kept in the signature only because
   // Scene.tsx's call site (and BrainCoreProps) still pass it.
-  utilPct, memUsedMib, memTotalMib, modelName, manager, briefMtimeMs, gaming, dimFactor, reducedMotion: _reducedMotion,
+  // World-4 fix (P3): `modelName` is now unused here -- the wall's own line
+  // is `wallStatusLine` (derived below from `lastRow`/`nextLine`/
+  // `briefMtimeMs` instead), never a model-loaded check. Renamed with the
+  // SAME underscore convention this file already uses for `reducedMotion`
+  // just below, kept in the signature only because Scene.tsx's call site
+  // (and BrainCoreProps) still pass it.
+  utilPct, memUsedMib, memTotalMib, modelName: _modelName, manager, briefMtimeMs, lastRow, nextLine, gaming, dimFactor, reducedMotion: _reducedMotion,
   ultra = false, coreMeshRef,
 }: BrainCoreProps) {
   const coreMat = useRef<THREE.MeshMatcapMaterial | THREE.MeshPhysicalMaterial>(null);
@@ -56,6 +132,9 @@ export default function BrainCore({
 
   const utilFrac = clamp01((utilPct ?? 0) / 100);
   const memFrac = memUsedMib && memTotalMib ? clamp01(memUsedMib / memTotalMib) : 0;
+  // Same gate as GammaCharacter.tsx's own `thinking` -- see THINKING_UTIL_THRESHOLD's comment.
+  const thinking = lastRow?.status === "ok" && (utilPct ?? 0) > THINKING_UTIL_THRESHOLD;
+  const wallStatusLine = brainWallStatusLine(lastRow, nextLine, thinking, briefMtimeMs);
 
   // All-hands pulse (Company Mode step 6, 2026-09-13): fires ~10s of
   // doubled ring speed + a plaque when station-brief.md's mtime
@@ -188,7 +267,13 @@ export default function BrainCore({
               whiteSpace: "nowrap", textAlign: "center",
             }}
           >
-            <div>{modelName || "BRAIN IDLE"}</div>
+            {/* World-4 fix (P3): was `{modelName || "BRAIN IDLE"}` -- a
+                model-loaded check, not a manager-activity one, so it read
+                "IDLE" during a deliberate RTH yield. `wallStatusLine` above
+                derives from the identical loop-ledger row the crew panel's
+                pill and Gamma's own bubble already read, so this can no
+                longer disagree with either. */}
+            <div>{wallStatusLine}</div>
             {/* Manager caption (Company Mode item 9, 2026-09-13): one added
                 line naming the hub as the "Gamma (Manager)" persona, with
                 its own live status color -- no 8th desk, the hub itself is
