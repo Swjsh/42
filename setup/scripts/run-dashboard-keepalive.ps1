@@ -26,6 +26,20 @@ try {
     $conn = Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue | Select-Object -First 1
     if ($conn) { $existingPid = [int]$conn.OwningProcess }
 } catch {}
+# NON-LOOPBACK-LISTENER GUARD (GAMMA-STATION item 10, 2026-09-14 02:1x ET): twice tonight a second
+# :3000 listener appeared on :: / 0.0.0.0 next to the loopback one -- a plain `next dev` / `next start`
+# from a builder or the Browser pane's launch.json (both bind every interface by default, and Windows
+# lets a dual-stack :: listener coexist with a 127.0.0.1 one). The dashboard is LAN-reachable the
+# whole time that listener lives. This keepalive runs every 5 min: kill it, log it, carry on.
+try {
+    $rogue = Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue |
+        Where-Object { $_.LocalAddress -ne '127.0.0.1' -and $_.LocalAddress -ne '::1' }
+    foreach ($rg in $rogue) {
+        $rp = Get-CimInstance Win32_Process -Filter "ProcessId = $($rg.OwningProcess)" -ErrorAction SilentlyContinue
+        Write-TaskLog -TaskName $task -Message ("ROGUE LISTENER " + $rg.LocalAddress + ":" + $port + " pid=" + $rg.OwningProcess + " (" + $rp.Name + ") -- killing (loopback-only rule)")
+        try { Stop-Process -Id $rg.OwningProcess -Force -ErrorAction Stop } catch { Write-TaskLog -TaskName $task -Message ("  kill failed: " + $_.Exception.Message) }
+    }
+} catch {}
 try {
     $r = Invoke-WebRequest -Uri "http://127.0.0.1:$port/" -TimeoutSec 8 -UseBasicParsing
     if ($r.StatusCode -ge 200 -and $r.StatusCode -lt 400) { $alive = $true }

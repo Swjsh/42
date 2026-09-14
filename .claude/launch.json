@@ -4,49 +4,68 @@
     {
       "name": "dashboard",
       "runtimeExecutable": "npx",
-      "runtimeArgs": ["next", "dev"],
+      "runtimeArgs": [
+        "next",
+        "dev",
+        "-H",
+        "127.0.0.1"
+      ],
       "autoPort": true,
       "cwd": "dashboard"
     },
     {
       "name": "dashboard-prod",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["start"],
+      "runtimeArgs": [
+        "start"
+      ],
       "port": 3000,
       "cwd": "dashboard"
     },
     {
       "name": "companion",
       "runtimeExecutable": "node",
-      "runtimeArgs": ["server.js"],
+      "runtimeArgs": [
+        "server.js"
+      ],
       "port": 4317,
       "cwd": "gamma-companion"
     },
     {
       "name": "companion-debug",
       "runtimeExecutable": "node",
-      "runtimeArgs": ["test-preview.js"],
+      "runtimeArgs": [
+        "test-preview.js"
+      ],
       "port": 4319,
       "cwd": "gamma-companion"
     },
     {
       "name": "cockpit",
       "runtimeExecutable": "node",
-      "runtimeArgs": ["server.js"],
+      "runtimeArgs": [
+        "server.js"
+      ],
       "port": 4500,
       "cwd": "cockpit"
     },
     {
       "name": "gammaface",
       "runtimeExecutable": "node",
-      "runtimeArgs": ["server.js"],
+      "runtimeArgs": [
+        "server.js"
+      ],
       "autoPort": true,
       "cwd": "cockpit"
     },
     {
       "name": "pixtest",
       "runtimeExecutable": "python",
-      "runtimeArgs": ["-m", "http.server", "4710"],
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "4710"
+      ],
       "port": 4710,
       "cwd": "cockpit"
     }
