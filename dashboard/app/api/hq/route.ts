@@ -19,6 +19,7 @@ import {
   readKitchenSummary,
   readLatestHqPerf,
   readBlocked,
+  readCompanyAudit,
 } from "@/lib/hq";
 import { collectCompany, type PersonaState, type Handoff } from "@/lib/personas";
 
@@ -75,6 +76,7 @@ export async function GET() {
     perfResult,
     company,
     blocked,
+    audit,
   ] = await Promise.all([
     readIdeasBoard(),
     readStationBrief(),
@@ -94,6 +96,7 @@ export async function GET() {
     readLatestHqPerf(),
     safeCollectCompany(),
     readBlocked(),
+    readCompanyAudit(),
   ]);
 
   const lastRow = ledger.length > 0 ? ledger[ledger.length - 1] : null;
@@ -131,6 +134,7 @@ export async function GET() {
       perfOther: perfResult.perfOther,
       company,
       blocked,
+      audit,
     },
     { headers: { "Cache-Control": "no-store, max-age=0" } },
   );

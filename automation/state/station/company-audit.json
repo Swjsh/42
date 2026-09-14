@@ -1,0 +1,294 @@
+{
+  "ts_et": "2026-09-14 00:35:05 ET",
+  "last_trading_day": "2026-09-11",
+  "llm_used": true,
+  "llm_model": "gamma-planner-fast",
+  "llm_skip_reason": null,
+  "scheduled_tasks_enumeration_error": null,
+  "runtime_s": 30.4,
+  "personas": [
+    {
+      "name": "Scout",
+      "role_file": ".claude/agents/scout.md",
+      "objective": "Be J's morning eyes on the world. Read the catalyst landscape, summarize it in a structured file, hand off to Premarket — don't trade, don't predict, don't moralize.",
+      "kpi": "scout_output.json posted (status ok/partial) before 08:30 ET Premarket on every trading day; single-fire cost <= $0.30 (cost_overrun flag false).",
+      "cadence": "05:30 ET weekdays via Gamma_ScoutPremarket",
+      "tasks": [
+        "Gamma_ScoutPremarket"
+      ],
+      "deliverable": "automation/scout/state/scout_output.json",
+      "goal_ref": "none",
+      "verdict": "FAIL",
+      "checks": {
+        "works": {
+          "verdict": "PASS",
+          "evidence": "Gamma_ScoutPremarket: state=Ready last_run=2.8d ago (cadence window 2.9d) LastTaskResult=0 | deliverable automation/scout/state/scout_output.json: last advanced 2.8d ago (window 2.9d)"
+        },
+        "has_goal": {
+          "verdict": "PASS",
+          "evidence": "objective verified verbatim in .claude/agents/scout.md; kpi present; goal_ref=none (standing production doctrine, not tied to a dated ladder item)"
+        },
+        "is_smart": {
+          "verdict": "FAIL",
+          "evidence": "scout_output.json for_session_date='2026-09-11' mtime_et=2026-09-11 05:31:17 (last trading day=2026-09-11, deadline 09:30:00 ET) | scout-log row for 2026-09-11: found (cost_usd=0.58) | quiz[scout_speculative_tag]=FAIL: 'TAG: [UNCITED]'"
+        },
+        "autonomous": {
+          "verdict": "PASS",
+          "evidence": "Gamma_ScoutPremarket: LastTaskResult=0 LastRunTime=2026-09-11T03:30:00-06:00 | deliverable mtime is 1 min from Gamma_ScoutPremarket's own LastRunTime -- the scheduler (not a human) produced the most recent deliverable, and the run exited cleanly"
+        }
+      },
+      "quiz": {
+        "asked": true,
+        "id": "scout_speculative_tag",
+        "model": "gamma-planner-fast",
+        "verdict": "FAIL",
+        "answer": "TAG: [UNCITED]",
+        "wall_s": 9.8
+      }
+    },
+    {
+      "name": "Pilot",
+      "role_file": ".claude/agents/pilot.md",
+      "objective": "Be J's hands on the chart during market hours. Read, decide, execute, journal — for 6.5 hours straight, every 3 minutes.",
+      "kpi": "core-decisions.jsonl carries >=10 rows on every trading day (per gamma.md's own daily-loop verification table); 0 rows in automation/state/rule-breaks.jsonl for that date, verified by a rule-break-audit.json run within the last 3 days.",
+      "cadence": "every 1 min, 09:30-15:55 ET weekdays via Gamma_HeartbeatCore (deterministic, $0; legacy Gamma_Heartbeat LLM path RETIRED 2026-06-25 -> DISABLED per SCHEDULED-TASKS.md)",
+      "tasks": [
+        "Gamma_HeartbeatCore"
+      ],
+      "deliverable": "automation/state/core-decisions.jsonl",
+      "goal_ref": "none",
+      "verdict": "PASS",
+      "checks": {
+        "works": {
+          "verdict": "PASS",
+          "evidence": "Gamma_HeartbeatCore: state=Ready last_run=2.4d ago (cadence window 2.9d) LastTaskResult=0 | deliverable automation/state/core-decisions.jsonl: last advanced 2.4d ago (window 2.9d)"
+        },
+        "has_goal": {
+          "verdict": "PASS",
+          "evidence": "objective verified verbatim in .claude/agents/pilot.md; kpi present; goal_ref=none (standing production doctrine, not tied to a dated ladder item)"
+        },
+        "is_smart": {
+          "verdict": "PASS",
+          "evidence": "core-decisions.jsonl: 772 row(s) dated 2026-09-11 (min 10) | rule-breaks.jsonl: 0 break row(s) dated 2026-09-11 | rule-break-audit.json: last ran 2.3d ago | quiz[pilot_rule5_isolation]=PASS: 'VERDICT: YES\\nRule 5 states kill switches are isolated — Safe halting does NOT halt Bold.'"
+        },
+        "autonomous": {
+          "verdict": "PASS",
+          "evidence": "Gamma_HeartbeatCore: LastTaskResult=0 LastRunTime=2026-09-11T13:55:00-06:00 | deliverable mtime is 0 min from Gamma_HeartbeatCore's own LastRunTime -- the scheduler (not a human) produced the most recent deliverable, and the run exited cleanly"
+        }
+      },
+      "quiz": {
+        "asked": true,
+        "id": "pilot_rule5_isolation",
+        "model": "gamma-planner-fast",
+        "verdict": "PASS",
+        "answer": "VERDICT: YES\nRule 5 states kill switches are isolated — Safe halting does NOT halt Bold.",
+        "wall_s": 2.7
+      }
+    },
+    {
+      "name": "Analyst",
+      "role_file": ".claude/agents/analyst.md",
+      "objective": "After every session, audit every decision Pilot made against the 10 rules + v15 doctrine; mine what worked / didn't / why; feed Chef the next research items.",
+      "kpi": "EOD digest analysis/eod/{date}.md published by the 16:45 ET fire; rule breaks target 0; every finding routed to the correct inbox (chef/validator/skill/lesson) per the Skills Pipeline rubric (own file section 6.5).",
+      "cadence": "16:45 ET weekdays via Gamma_AnalystEodReview",
+      "tasks": [
+        "Gamma_AnalystEodReview"
+      ],
+      "deliverable": "analysis/eod/20*.md",
+      "goal_ref": "none",
+      "verdict": "WARN",
+      "checks": {
+        "works": {
+          "verdict": "PASS",
+          "evidence": "Gamma_AnalystEodReview: state=Ready last_run=2.3d ago (cadence window 2.9d) LastTaskResult=0 | deliverable analysis/eod/20*.md: last advanced 2.3d ago (window 2.9d)"
+        },
+        "has_goal": {
+          "verdict": "PASS",
+          "evidence": "objective verified verbatim in .claude/agents/analyst.md; kpi present; goal_ref=none (standing production doctrine, not tied to a dated ladder item)"
+        },
+        "is_smart": {
+          "verdict": "WARN",
+          "evidence": "analysis/eod/2026-09-11.md QUANT TOTAL accepted=13 vs journal/trades.csv 13 distinct entry_order_id (16 raw rows) on 2026-09-11 | _analyst-log.jsonl row for 2026-09-11: NOT FOUND -- own fire-log gap | quiz[analyst_lookahead_bug]=PASS: 'BUG: The slice `bars[i - 20:i + 1]` includes the current bar `i`, causing look-ahead bias by comparing the close against a high that may be from the same bar.\\nF'"
+        },
+        "autonomous": {
+          "verdict": "PASS",
+          "evidence": "Gamma_AnalystEodReview: LastTaskResult=0 LastRunTime=2026-09-11T14:45:00-06:00 | deliverable mtime is 1 min from Gamma_AnalystEodReview's own LastRunTime -- the scheduler (not a human) produced the most recent deliverable, and the run exited cleanly"
+        }
+      },
+      "quiz": {
+        "asked": true,
+        "id": "analyst_lookahead_bug",
+        "model": "gamma-planner-fast",
+        "verdict": "PASS",
+        "answer": "BUG: The slice `bars[i - 20:i + 1]` includes the current bar `i`, causing look-ahead bias by comparing the close against a high that may be from the same bar.\nFIX: bars[i - 20:i]",
+        "wall_s": 3.3
+      }
+    },
+    {
+      "name": "Chef",
+      "role_file": ".claude/agents/chef.md",
+      "objective": "Always be cooking the next strategy candidate. Use the backtest engine. Rank by J's edge metrics. Propose, never deploy.",
+      "kpi": "candidates must clear edge_capture >= 771 (50% of the OP-16 max 1542) to avoid rejection at intake; pre-merge gate crypto/validators/runner.py must show all stages PASS before AND after any change.",
+      "cadence": "event-driven: overnight wake fires on @chef-tagged queue items + /chef manual — NO fixed Task Scheduler cron of its own; invoked via the Gamma_Conductor fan-out (opus judgment picks Chef as the single highest-value task for a fire).",
+      "tasks": [
+        "Gamma_Conductor"
+      ],
+      "deliverable": "strategy/candidates/_LEADERBOARD.md",
+      "goal_ref": "none",
+      "verdict": "FAIL",
+      "checks": {
+        "works": {
+          "verdict": "WARN",
+          "evidence": "Gamma_Conductor: state=Ready last_run=25m ago (cadence window 24.0h) LastTaskResult=0 | NOTE: no dedicated Task Scheduler entry owned by this persona -- cadence cannot be independently verified from the scheduler alone; capped at WARN even if the umbrella task above is healthy | deliverable strategy/candidates/_LEADERBOARD.md: last advanced 8.9d ago (window 24.0h)"
+        },
+        "has_goal": {
+          "verdict": "PASS",
+          "evidence": "objective verified verbatim in .claude/agents/chef.md; kpi present; goal_ref=none (standing production doctrine, not tied to a dated ladder item)"
+        },
+        "is_smart": {
+          "verdict": "FAIL",
+          "evidence": "_LEADERBOARD.md age=8.9d | newest non-archived candidate file age=7m | _chef-log.jsonl (Chef's own fire log) age=22.8d (window 14d) -- files changed recently but Chef's OWN fire log did not; the recent change was likely written by a different process (e.g. a goal-adjudication pass), not a genuine Chef research fire | quiz[chef_canonical_battery]=FAIL: 'statistical significance, out-of-sample robustness, drawdown limits'"
+        },
+        "autonomous": {
+          "verdict": "WARN",
+          "evidence": "Gamma_Conductor: LastTaskResult=0 LastRunTime=2026-09-13T22:10:01-06:00 | deliverable mtime is 12844 min from Gamma_Conductor's own LastRunTime -- deliverable's timestamp is far from any registered run; may have been produced by a manual/interactive invocation instead of the scheduler"
+        }
+      },
+      "quiz": {
+        "asked": true,
+        "id": "chef_canonical_battery",
+        "model": "gamma-planner-fast",
+        "verdict": "FAIL",
+        "answer": "statistical significance, out-of-sample robustness, drawdown limits",
+        "wall_s": 2.5
+      }
+    },
+    {
+      "name": "Coach",
+      "role_file": ".claude/agents/coach.md",
+      "objective": "Verify the gym is training the right muscles, the equipment is humming, and the routine stays fresh.",
+      "kpi": "python crypto/validators/runner.py 30/30 PASS expected; drift tracker GREEN; 0 scheduled-task audit FLAGS from audit_scheduled_tasks.py.",
+      "cadence": "06:00 ET daily via Gamma_CryptoDaily (+ every 30 min Gamma_CryptoRegression, every 5 min Gamma_CryptoGrinderKeepalive, 17:30 ET daily Gamma_SelfAudit)",
+      "tasks": [
+        "Gamma_CryptoDaily",
+        "Gamma_CryptoRegression",
+        "Gamma_CryptoGrinderKeepalive",
+        "Gamma_SelfAudit"
+      ],
+      "deliverable": "crypto/data/scorecards/drift_report.json",
+      "goal_ref": "none",
+      "verdict": "FAIL",
+      "checks": {
+        "works": {
+          "verdict": "FAIL",
+          "evidence": "Gamma_CryptoDaily: state=Ready last_run=42.6h ago (cadence window 2.9d) LastTaskResult=0 | Gamma_CryptoRegression: state=Ready last_run=8m ago (cadence window 1.5h) LastTaskResult=0 | Gamma_CryptoGrinderKeepalive: state=Disabled | Gamma_SelfAudit: state=Ready last_run=7.1h ago (cadence window 2.9d) LastTaskResult=0 | deliverable crypto/data/scorecards/drift_report.json: last advanced 8m ago (window 2.9d)"
+        },
+        "has_goal": {
+          "verdict": "PASS",
+          "evidence": "objective verified verbatim in .claude/agents/coach.md; kpi present; goal_ref=none (standing production doctrine, not tied to a dated ladder item)"
+        },
+        "is_smart": {
+          "verdict": "FAIL",
+          "evidence": "drift_report.json overall_health='GREEN' age=8m (window 30.0h) | coach-log.jsonl (Coach's own snapshot log) age=64.6d (window 3d) -- the deterministic gym/drift pipeline is fresh, but Coach's OWN fire log has not been appended in-window; the persona's own accountability trail is dead even though the underlying automation is alive | quiz[coach_red_priority]=FAIL: 'I must write to `incident_log.md`.'"
+        },
+        "autonomous": {
+          "verdict": "PASS",
+          "evidence": "Gamma_CryptoDaily: LastTaskResult=0 LastRunTime=2026-09-12T04:00:01-06:00 | Gamma_CryptoRegression: LastTaskResult=0 LastRunTime=2026-09-13T22:27:00-06:00 | Gamma_CryptoGrinderKeepalive: LastTaskResult=0 LastRunTime=2026-09-05T06:01:00-06:00 | Gamma_SelfAudit: LastTaskResult=0 LastRunTime=2026-09-13T15:30:01-06:00 | deliverable mtime is 0 min from Gamma_CryptoRegression's own LastRunTime -- the scheduler (not a human) produced the most recent deliverable, and the run exited cleanly"
+        }
+      },
+      "quiz": {
+        "asked": true,
+        "id": "coach_red_priority",
+        "model": "gamma-planner-fast",
+        "verdict": "FAIL",
+        "answer": "I must write to `incident_log.md`.",
+        "wall_s": 2.5
+      }
+    },
+    {
+      "name": "Treasurer",
+      "role_file": ".claude/agents/treasurer.md",
+      "objective": "Make sure the firm's MONEY MATH is right — sizing tiers, kill switches, account-tier transitions — and flag (DRAFT only) when a knob needs J's attention.",
+      "kpi": "weekly audit analysis/treasury/{date}.md + the draft-params-changes.md accumulator published within 8 days of the last Sunday 16:00 ET Gamma_TreasurerWeekly fire; NEVER edits params*.json directly.",
+      "cadence": "Sun 16:00 ET via Gamma_TreasurerWeekly",
+      "tasks": [
+        "Gamma_TreasurerWeekly"
+      ],
+      "deliverable": "analysis/treasury/20*.md",
+      "goal_ref": "none",
+      "verdict": "FAIL",
+      "checks": {
+        "works": {
+          "verdict": "FAIL",
+          "evidence": "Gamma_TreasurerWeekly: state=Ready last_run=8.6h ago (cadence window 8.0d) LastTaskResult=0 | deliverable MISSING: analysis/treasury/20*.md"
+        },
+        "has_goal": {
+          "verdict": "PASS",
+          "evidence": "objective verified verbatim in .claude/agents/treasurer.md; kpi present; goal_ref=none (standing production doctrine, not tied to a dated ladder item)"
+        },
+        "is_smart": {
+          "verdict": "FAIL",
+          "evidence": "analysis/treasury/*.md newest=None age=? (window 8d) | _treasurer-log.jsonl exists=False | draft-params-changes.md exists=False -- Treasurer has never produced a dated report in this repo | quiz[treasurer_sizing_math]=PASS: '$5,266.38 \\\\times 0.30 / (2.10 \\\\times 100) = 7.49 \\\\rightarrow 7$\\n\\nANSWER: 7'"
+        },
+        "autonomous": {
+          "verdict": "WARN",
+          "evidence": "Gamma_TreasurerWeekly: LastTaskResult=0 LastRunTime=2026-09-13T14:00:00-06:00 -- deliverable missing, cannot correlate its timestamp to the scheduled run"
+        }
+      },
+      "quiz": {
+        "asked": true,
+        "id": "treasurer_sizing_math",
+        "model": "gamma-planner-fast",
+        "verdict": "PASS",
+        "answer": "$5,266.38 \\times 0.30 / (2.10 \\times 100) = 7.49 \\rightarrow 7$\n\nANSWER: 7",
+        "wall_s": 3.1
+      }
+    },
+    {
+      "name": "Gamma (Manager)",
+      "role_file": ".claude/agents/gamma.md",
+      "objective": "the autonomous 0DTE SPY options trader + research operator of Project Gamma. This is the IDENTITY: a disciplined professional who USES the tools (TradingView read, Alpaca execution, the backtest engine, the watcher fleet, the gym), TRADES the strategy under the 10 rules + risk_gate, and IMPROVES the engine through the conductor loop + the learn loop.",
+      "kpi": "every fire ships work OR a flagged failure to STATUS.md (silent failure is the only true failure); ONE bounded task per fire, never a runaway loop.",
+      "cadence": "every 30 min, 24/7 via Gamma_Station (local Ollama, $0) + 3x daily 20:30/01:00/05:30 ET via Gamma_Conductor (opus judgment, after-hours only)",
+      "tasks": [
+        "Gamma_Station",
+        "Gamma_Conductor"
+      ],
+      "deliverable": "automation/state/station/loop-ledger.jsonl",
+      "goal_ref": "GOAL-GAMMA-STATION-2026-09-13",
+      "verdict": "WARN",
+      "checks": {
+        "works": {
+          "verdict": "PASS",
+          "evidence": "Gamma_Station: state=Ready last_run=14m ago (cadence window 1.5h) LastTaskResult=0 | Gamma_Conductor: state=Ready last_run=25m ago (cadence window 24.0h) LastTaskResult=0 | deliverable automation/state/station/loop-ledger.jsonl: last advanced 14m ago (window 24.0h)"
+        },
+        "has_goal": {
+          "verdict": "PASS",
+          "evidence": "objective verified verbatim in .claude/agents/gamma.md; kpi present; goal_ref=GOAL-GAMMA-STATION-2026-09-13 -> file exists"
+        },
+        "is_smart": {
+          "verdict": "WARN",
+          "evidence": "loop-ledger.jsonl: 19 status=ok row(s) in the last 24.0h | station-brief.md cites 2 numeric token(s) (string-match heuristic, min 3 digits), 0 also appear in the latest autopsy/trades.csv -- brief cites no number traceable to real ledgers (may be generic prose) | quiz[manager_never_orders]=PASS: 'orders'"
+        },
+        "autonomous": {
+          "verdict": "PASS",
+          "evidence": "Gamma_Station: LastTaskResult=0 LastRunTime=2026-09-13T22:21:00-06:00 | Gamma_Conductor: LastTaskResult=0 LastRunTime=2026-09-13T22:10:01-06:00 | deliverable mtime is 0 min from Gamma_Station's own LastRunTime -- the scheduler (not a human) produced the most recent deliverable, and the run exited cleanly"
+        }
+      },
+      "quiz": {
+        "asked": true,
+        "id": "manager_never_orders",
+        "model": "gamma-planner-fast",
+        "verdict": "PASS",
+        "answer": "orders",
+        "wall_s": 2.3
+      }
+    }
+  ],
+  "summary": {
+    "pass": 1,
+    "warn": 2,
+    "fail": 4,
+    "total": 7
+  }
+}

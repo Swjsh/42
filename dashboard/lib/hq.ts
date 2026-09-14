@@ -415,6 +415,76 @@ async function readGoalBlocked(): Promise<BlockedItem[]> {
   return items;
 }
 
+// ─── Company audit (GOAL-GAMMA-STATION-2026-09-13 item 22): setup/scripts/
+//     company_audit.py's output -- per-persona works/has_goal/is_smart/
+//     autonomous verdicts with quoted evidence, for the HQ roster's employee
+//     badges. Read-only mirror of that script's JSON shape; this file never
+//     runs the script itself (it is a scheduled/manual producer, same
+//     pattern as sector_rows.py's own shell-out vs this reader split). ──────
+
+export interface CompanyAuditCheck {
+  verdict: "PASS" | "WARN" | "FAIL" | string;
+  evidence: string;
+}
+
+export interface CompanyAuditQuiz {
+  asked: boolean;
+  id?: string;
+  model?: string;
+  verdict?: "PASS" | "FAIL" | string;
+  answer?: string;
+  wall_s?: number;
+  note?: string;
+}
+
+export interface CompanyAuditPersona {
+  name: string;
+  role_file: string;
+  objective: string;
+  kpi: string;
+  cadence: string;
+  tasks: string[];
+  deliverable: string;
+  goal_ref: string;
+  verdict: "PASS" | "WARN" | "FAIL" | string;
+  checks: {
+    works: CompanyAuditCheck;
+    has_goal: CompanyAuditCheck;
+    is_smart: CompanyAuditCheck;
+    autonomous: CompanyAuditCheck;
+  };
+  quiz: CompanyAuditQuiz | null;
+}
+
+export interface CompanyAudit {
+  ts_et: string;
+  last_trading_day: string;
+  llm_used: boolean;
+  llm_model: string | null;
+  llm_skip_reason: string | null;
+  runtime_s: number;
+  personas: CompanyAuditPersona[];
+  summary: { pass: number; warn: number; fail: number; total: number };
+}
+
+/** automation/state/station/company-audit.json -- fail-open: a missing file (the
+ * script hasn't run yet) or a garbled one (mid-write) reads as null, never a throw --
+ * /api/hq's Promise.all must never reject over this one optional section. Path is
+ * built from the already-imported WORKSPACE_ROOT rather than adding a `paths` entry,
+ * since this reader is the only caller. */
+export async function readCompanyAudit(): Promise<CompanyAudit | null> {
+  try {
+    const text = await fs.readFile(
+      path.join(WORKSPACE_ROOT, "automation", "state", "station", "company-audit.json"),
+      "utf-8",
+    );
+    const data = JSON.parse(text) as CompanyAudit;
+    return data && Array.isArray(data.personas) ? data : null;
+  } catch {
+    return null;
+  }
+}
+
 /** Merges all four sources, dedupes by exact text (keeping the first/
  * newest occurrence), sorts newest-first (rows with a ts sort before rows
  * without one), caps at 8. Each per-source reader is independently

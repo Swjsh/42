@@ -1,0 +1,186 @@
+{
+  "schema_version": 1,
+  "_doc": "Curated config for setup/scripts/company_audit.py (GOAL-GAMMA-STATION-2026-09-13 item 22). One entry per persona. `objective` is a LITERAL substring of `role_file` -- company_audit.py's has_goal check asserts this mechanically, so an edit here that drifts from the source file fails loudly instead of silently going stale. `kpi` is authored (a measurable line, not required to be verbatim). `ground_truth.kind` dispatches to one function in company_audit.py -- see GROUND_TRUTH_CHECKS there. `quiz.checks` are ALL-must-pass {type: substring|regex, value} pairs graded against the local brain's answer, same spirit as station_brain_quiz.py's string-graded questions (kept independent of that module: this file is committed config, not a runtime import of it). Hand-edit only to fix a stale path/cadence; a persona's whole shape should not need to change often.",
+  "personas": [
+    {
+      "name": "Scout",
+      "role_file": ".claude/agents/scout.md",
+      "objective": "Be J's morning eyes on the world. Read the catalyst landscape, summarize it in a structured file, hand off to Premarket — don't trade, don't predict, don't moralize.",
+      "kpi": "scout_output.json posted (status ok/partial) before 08:30 ET Premarket on every trading day; single-fire cost <= $0.30 (cost_overrun flag false).",
+      "cadence": "05:30 ET weekdays via Gamma_ScoutPremarket",
+      "tasks": ["Gamma_ScoutPremarket"],
+      "dedicated_task": true,
+      "deliverable": {"path": "automation/scout/state/scout_output.json", "glob": null},
+      "goal_ref": "none",
+      "ground_truth": {
+        "kind": "scout_before_open",
+        "output_path": "automation/scout/state/scout_output.json",
+        "log_path": "automation/scout/state/scout-log.jsonl",
+        "deadline_et": "09:30:00"
+      },
+      "quiz": {
+        "id": "scout_speculative_tag",
+        "prompt": "You are Scout, Project Gamma's pre-market macro intelligence officer. Your own persona file's 'Hard rule: separation of concerns' section, and project rule OP-2, both require you to mark any claim you cannot cite a credible source for. QUESTION: what exact bracketed tag must you append to an uncited claim? Reply in the form 'TAG: <the exact tag>'.",
+        "checks": [
+          {"type": "regex", "value": "speculative"},
+          {"type": "regex", "value": "evidence"}
+        ]
+      }
+    },
+    {
+      "name": "Pilot",
+      "role_file": ".claude/agents/pilot.md",
+      "objective": "Be J's hands on the chart during market hours. Read, decide, execute, journal — for 6.5 hours straight, every 3 minutes.",
+      "kpi": "core-decisions.jsonl carries >=10 rows on every trading day (per gamma.md's own daily-loop verification table); 0 rows in automation/state/rule-breaks.jsonl for that date, verified by a rule-break-audit.json run within the last 3 days.",
+      "cadence": "every 1 min, 09:30-15:55 ET weekdays via Gamma_HeartbeatCore (deterministic, $0; legacy Gamma_Heartbeat LLM path RETIRED 2026-06-25 -> DISABLED per SCHEDULED-TASKS.md)",
+      "tasks": ["Gamma_HeartbeatCore"],
+      "dedicated_task": true,
+      "deliverable": {"path": "automation/state/core-decisions.jsonl", "glob": null},
+      "goal_ref": "none",
+      "ground_truth": {
+        "kind": "pilot_decisions_and_rule_breaks",
+        "decisions_path": "automation/state/core-decisions.jsonl",
+        "rule_breaks_path": "automation/state/rule-breaks.jsonl",
+        "rule_break_audit_path": "automation/state/rule-break-audit.json",
+        "min_rows": 10,
+        "audit_freshness_days": 3
+      },
+      "quiz": {
+        "id": "pilot_rule5_isolation",
+        "prompt": "Project Gamma Rule 5: 'Daily loss kill switch — per account: Gamma-Safe: -30% of start-of-day equity. Gamma-Bold: -50%. Kill switches are isolated — Safe halting does NOT halt Bold.' Rule 6: 'Per-trade risk cap — per account: Gamma-Safe: 30% of account equity. Gamma-Bold: 50%.' QUESTION: if Gamma-Safe hits its Rule 5 kill switch at 10:15 ET, can Gamma-Bold still open a new trade at 10:20 ET? Reply exactly as 'VERDICT: YES' or 'VERDICT: NO', then name the isolation rule in one clause.",
+        "checks": [
+          {"type": "regex", "value": "VERDICT:\\s*\\**\\s*YES"},
+          {"type": "regex", "value": "isolat"}
+        ]
+      }
+    },
+    {
+      "name": "Analyst",
+      "role_file": ".claude/agents/analyst.md",
+      "objective": "After every session, audit every decision Pilot made against the 10 rules + v15 doctrine; mine what worked / didn't / why; feed Chef the next research items.",
+      "kpi": "EOD digest analysis/eod/{date}.md published by the 16:45 ET fire; rule breaks target 0; every finding routed to the correct inbox (chef/validator/skill/lesson) per the Skills Pipeline rubric (own file section 6.5).",
+      "cadence": "16:45 ET weekdays via Gamma_AnalystEodReview",
+      "tasks": ["Gamma_AnalystEodReview"],
+      "dedicated_task": true,
+      "deliverable": {"path": "analysis/eod", "glob": "20*.md"},
+      "goal_ref": "none",
+      "ground_truth": {
+        "kind": "analyst_trade_count_reconcile",
+        "eod_dir": "analysis/eod",
+        "trades_csv": "journal/trades.csv",
+        "log_path": "analysis/eod/_analyst-log.jsonl"
+      },
+      "quiz": {
+        "id": "analyst_lookahead_bug",
+        "prompt": "You are Analyst, auditing Pilot's use of closed-bar values (per OP-25/L34, the look-ahead class of bug). Find the bug in this Python helper and fix it.\n\n```python\ndef breakout_at(bars, i):\n    \"\"\"True when bar i CLOSES above the highest HIGH of the 20 bars before it (no look-ahead).\"\"\"\n    window = bars[i - 20:i + 1]\n    prior_high = max(b[\"high\"] for b in window)\n    return bars[i][\"close\"] > prior_high\n```\n\nReply as two lines: 'BUG: <one sentence>' and 'FIX: <the corrected slice expression>'.",
+        "checks": [
+          {"type": "regex", "value": "20\\s*\\)?\\s*:\\s*i\\s*\\]"}
+        ]
+      }
+    },
+    {
+      "name": "Chef",
+      "role_file": ".claude/agents/chef.md",
+      "objective": "Always be cooking the next strategy candidate. Use the backtest engine. Rank by J's edge metrics. Propose, never deploy.",
+      "kpi": "candidates must clear edge_capture >= 771 (50% of the OP-16 max 1542) to avoid rejection at intake; pre-merge gate crypto/validators/runner.py must show all stages PASS before AND after any change.",
+      "cadence": "event-driven: overnight wake fires on @chef-tagged queue items + /chef manual — NO fixed Task Scheduler cron of its own; invoked via the Gamma_Conductor fan-out (opus judgment picks Chef as the single highest-value task for a fire).",
+      "tasks": ["Gamma_Conductor"],
+      "dedicated_task": false,
+      "deliverable": {"path": "strategy/candidates/_LEADERBOARD.md", "glob": null},
+      "goal_ref": "none",
+      "ground_truth": {
+        "kind": "chef_candidates_change",
+        "leaderboard_path": "strategy/candidates/_LEADERBOARD.md",
+        "log_path": "strategy/candidates/_chef-log.jsonl",
+        "candidates_dir": "strategy/candidates",
+        "within_days": 14
+      },
+      "quiz": {
+        "id": "chef_canonical_battery",
+        "prompt": "Project Gamma OP-32 requires every strategy claim to clear a 'canonical battery' before promotion, not just win rate (OP-16's goal function is edge_capture x aggregate_sharpe). QUESTION: name the THREE things a canonical validation battery must check beyond raw win rate. Reply as a short comma-separated list.",
+        "checks": [
+          {"type": "regex", "value": "expectanc"},
+          {"type": "regex", "value": "(oos|out.of.sample)"},
+          {"type": "regex", "value": "regime"}
+        ]
+      }
+    },
+    {
+      "name": "Coach",
+      "role_file": ".claude/agents/coach.md",
+      "objective": "Verify the gym is training the right muscles, the equipment is humming, and the routine stays fresh.",
+      "kpi": "python crypto/validators/runner.py 30/30 PASS expected; drift tracker GREEN; 0 scheduled-task audit FLAGS from audit_scheduled_tasks.py.",
+      "cadence": "06:00 ET daily via Gamma_CryptoDaily (+ every 30 min Gamma_CryptoRegression, every 5 min Gamma_CryptoGrinderKeepalive, 17:30 ET daily Gamma_SelfAudit)",
+      "tasks": ["Gamma_CryptoDaily", "Gamma_CryptoRegression", "Gamma_CryptoGrinderKeepalive", "Gamma_SelfAudit"],
+      "dedicated_task": true,
+      "deliverable": {"path": "crypto/data/scorecards/drift_report.json", "glob": null},
+      "goal_ref": "none",
+      "ground_truth": {
+        "kind": "coach_drift_within_cadence",
+        "drift_path": "crypto/data/scorecards/drift_report.json",
+        "log_path": "crypto/data/scorecards/coach-log.jsonl",
+        "within_hours": 30,
+        "log_within_days": 3
+      },
+      "quiz": {
+        "id": "coach_red_priority",
+        "prompt": "You are Coach. Per your own persona file's routine step 2 ('Diagnose any RED flag'), if crypto/validators/runner.py or track_drift.py comes back RED, what is your TOP PRIORITY before doing anything else? Answer in one sentence naming the file you must write to.",
+        "checks": [
+          {"type": "regex", "value": "root cause"},
+          {"type": "regex", "value": "STATUS\\.md"}
+        ]
+      }
+    },
+    {
+      "name": "Treasurer",
+      "role_file": ".claude/agents/treasurer.md",
+      "objective": "Make sure the firm's MONEY MATH is right — sizing tiers, kill switches, account-tier transitions — and flag (DRAFT only) when a knob needs J's attention.",
+      "kpi": "weekly audit analysis/treasury/{date}.md + the draft-params-changes.md accumulator published within 8 days of the last Sunday 16:00 ET Gamma_TreasurerWeekly fire; NEVER edits params*.json directly.",
+      "cadence": "Sun 16:00 ET via Gamma_TreasurerWeekly",
+      "tasks": ["Gamma_TreasurerWeekly"],
+      "dedicated_task": true,
+      "deliverable": {"path": "analysis/treasury", "glob": "20*.md"},
+      "goal_ref": "none",
+      "ground_truth": {
+        "kind": "treasurer_weekly_review",
+        "treasury_dir": "analysis/treasury",
+        "log_path": "analysis/treasury/_treasurer-log.jsonl",
+        "draft_path": "analysis/treasury/draft-params-changes.md",
+        "within_days": 8
+      },
+      "quiz": {
+        "id": "treasurer_sizing_math",
+        "prompt": "Gamma-Safe equity is $5,266.38. Rule 6 caps per-trade risk at 30% of account equity. An at-the-money SPY 0DTE call is quoted at $2.10 per share (one contract = 100 shares). What is the maximum WHOLE number of contracts Gamma-Safe may buy under this cap? Show the one-line math, then finish with 'ANSWER: <integer>'.",
+        "checks": [
+          {"type": "regex", "value": "ANSWER:\\s*\\**\\s*7\\b"}
+        ]
+      }
+    },
+    {
+      "name": "Gamma (Manager)",
+      "role_file": ".claude/agents/gamma.md",
+      "objective": "the autonomous 0DTE SPY options trader + research operator of Project Gamma. This is the IDENTITY: a disciplined professional who USES the tools (TradingView read, Alpaca execution, the backtest engine, the watcher fleet, the gym), TRADES the strategy under the 10 rules + risk_gate, and IMPROVES the engine through the conductor loop + the learn loop.",
+      "kpi": "every fire ships work OR a flagged failure to STATUS.md (silent failure is the only true failure); ONE bounded task per fire, never a runaway loop.",
+      "cadence": "every 30 min, 24/7 via Gamma_Station (local Ollama, $0) + 3x daily 20:30/01:00/05:30 ET via Gamma_Conductor (opus judgment, after-hours only)",
+      "tasks": ["Gamma_Station", "Gamma_Conductor"],
+      "dedicated_task": true,
+      "deliverable": {"path": "automation/state/station/loop-ledger.jsonl", "glob": null},
+      "goal_ref": "GOAL-GAMMA-STATION-2026-09-13",
+      "ground_truth": {
+        "kind": "manager_loop_ledger_cites_number",
+        "ledger_path": "automation/state/station/loop-ledger.jsonl",
+        "brief_path": "automation/state/station/station-brief.md",
+        "autopsy_dir": "analysis/autopsies",
+        "trades_csv": "journal/trades.csv",
+        "within_hours": 24
+      },
+      "quiz": {
+        "id": "manager_never_orders",
+        "prompt": "Per the Station's own operating rules (GOAL-GAMMA-STATION-2026-09-13): 'No LLM on the live tick; paper only; no live keys on the Station side. The loop reads ledgers and writes automation/state/station/* and docs — never orders.' QUESTION: name the ONE broker action the Station loop must NEVER take, in one word.",
+        "checks": [
+          {"type": "regex", "value": "orders?"}
+        ]
+      }
+    }
+  ]
+}
