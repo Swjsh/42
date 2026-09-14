@@ -287,14 +287,16 @@ const PURPOSEFUL_WALK_PERIOD_MAX_MS = 10 * 60_000;
 // for ALL of ideas-wall/core/lounge, near-origin targets at ~radius
 // distance regardless of angle, AND neighbor, adjacent personas on a
 // 6-persona ring being one 60-degree chord = the radius, a geometric
-// coincidence not an approximation for this fixed 6-persona design). Round
-// trip at WALK_SPEED (1.4 u/s, corrected this session from an earlier ~1.8
-// u/s -- see KitAgent.tsx's own self-correction comment) is
-// ~2*(6.5/1.4)+PURPOSEFUL_PAUSE(4) = ~13.3s -- bumped 14_000 -> 15_000 so
-// the margin (1.7s) comfortably exceeds what the old fixed-4.5s-per-leg
-// scheme had (1s, 13s used of 14s), rather than shrinking it (0.7s at the
-// old 14_000 against this corrected, slower pace).
-const PURPOSEFUL_WALK_ACTIVE_MS = 15_000;
+// coincidence not an approximation for this fixed 6-persona design).
+// MOTION-2 (2026-09-14): WALK_SPEED halved again (1.4 -> 0.7 u/s, J: "cut it
+// in half speed-wise" -- see KitAgent.tsx#HQ_PACE_FACTOR) -- re-verified a
+// SECOND time rather than left stale. Round trip at 0.7 u/s is
+// ~2*(6.5/0.7)+PURPOSEFUL_PAUSE(4) = ~22.6s -- bumped 15_000 -> 25_000 so the
+// bubble (gated on `active`, see computePurposefulWalk below) stays visible
+// for the walker's ENTIRE physical round trip instead of vanishing ~7.5s
+// before the agent actually gets home, with a comparable (~2.4s) margin to
+// the previous pass's own 1.7s.
+const PURPOSEFUL_WALK_ACTIVE_MS = 25_000;
 
 export function computePurposefulWalk(
   personaName: string, nowMs: number, ideasCount: number, ownLastFireISO: string | null, neighborName: string | null,

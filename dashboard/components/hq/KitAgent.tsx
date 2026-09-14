@@ -74,12 +74,22 @@ export type KitAnimState =
 // import -- Agent.tsx already imports FROM this file, never the reverse.
 const REAL_HUMAN_WALK_MPS = 1.4;
 const REAL_HUMAN_HEIGHT_M = 1.8; // CHARACTER_TARGET_HEIGHT's own real-world reference
-export const WALK_SPEED = (REAL_HUMAN_WALK_MPS * CHARACTER_TARGET_HEIGHT) / REAL_HUMAN_HEIGHT_M; // u/s -- 1.4 exactly while CHARACTER_TARGET_HEIGHT stays 1.8
+// MOTION-2 (2026-09-14, J 16:50 ET: "they're still moving a little fast...
+// cut it in half speed-wise"): a deliberate STYLISTIC slowdown from the real-
+// world-derived pace above, kept as its OWN named multiplier rather than
+// folded into REAL_HUMAN_WALK_MPS -- that constant stays an honest "average
+// adult walks 1.4 m/s" fact (re-usable as-is if anything else ever needs the
+// true figure); HQ_PACE_FACTOR is the one place J's "too fast for this many
+// agents on one small floor" judgment call lives.
+const HQ_PACE_FACTOR = 0.5;
+export const WALK_SPEED = (REAL_HUMAN_WALK_MPS * CHARACTER_TARGET_HEIGHT * HQ_PACE_FACTOR) / REAL_HUMAN_HEIGHT_M; // u/s -- 0.7 exactly while CHARACTER_TARGET_HEIGHT stays 1.8
 
-// World-2 item 5's alert pace, now a real BRISK WALK (was 2.0 u/s -- a jog):
-// comfortably under WALK_SPEED so "hurrying to the door" still reads as
-// urgent walking, never running.
-export const ALERT_PACE_SPEED = 0.9; // u/s
+// World-2 item 5's alert pace, a real BRISK WALK -- comfortably under
+// WALK_SPEED so "hurrying to the door" still reads as urgent walking, never
+// running. MOTION-2: 0.9 -> 0.5 (same HQ_PACE_FACTOR-driven halving as
+// WALK_SPEED above, applied directly since this was already a bare tuned
+// literal, not a derived formula).
+export const ALERT_PACE_SPEED = 0.5; // u/s
 
 // Kenney Mini Characters' "walk" clip is an in-place loop -- Agent.tsx has
 // always driven translation itself via g.position, independent of the GLTF,
@@ -91,7 +101,35 @@ export const ALERT_PACE_SPEED = 0.9; // u/s
 // convention this file's neighbor ALERT_PACE_SPEED comment used to use.
 // Not measured ground truth -- re-tune here if a future body swap changes
 // the baked clip.
-const NATIVE_WALK_CLIP_MPS = 1.4;
+// Exported (MOTION-2): Agent.tsx's own TV-tier procedural leg-swing needs
+// this SAME reference pace for its own cadence formula (see clipCadenceRatio
+// below) -- one shared baseline instead of two files each hand-tuning
+// against a different assumed "native" speed.
+export const NATIVE_WALK_CLIP_MPS = 1.4;
+
+// MOTION-2 (2026-09-14, J: "cut it in half speed-wise... a little bit of
+// LOGIC to their movement"): halving WALK_SPEED/ALERT_PACE_SPEED above and
+// naively keeping clip speed = translationSpeed/NATIVE_WALK_CLIP_MPS (pure
+// linear, the ORIGINAL World-2 MOTION-FIX formula) would ALSO halve the walk
+// clip's own leg-cadence -- which reads as the exact SAME full-length stride
+// played back in slow motion, not a genuinely slower/shorter-strided walk. A
+// real human walking slower shortens STRIDE more than it slows leg-swing
+// TEMPO (gait research's "dynamic similarity" finding: cadence scales
+// roughly with sqrt(speed), stride length absorbs most of the rest). This
+// rig has no root motion/foot IK to get a literal ground-truth stride from
+// (Agent.tsx drives translation externally, independent of the baked clip --
+// see this file's own top-of-file comment), so sqrt is the honest, general
+// fix: it keeps cadence closer to natural at low translation speeds instead
+// of collapsing 1:1 with it, while still returning EXACTLY 1.0 (today's
+// already-tuned native pace, zero change) when translationSpeed equals
+// nativeClipMps. Exported so Agent.tsx's procedural TV-tier leg-swing uses
+// the identical formula (see its own NATIVE_SWING_HZ comment) -- one
+// consistent mental model for "how fast should limbs move at this
+// translation speed" across both tiers, never two independently-tuned ones.
+export function clipCadenceRatio(translationSpeed: number, nativeClipMps: number): number {
+  return Math.sqrt(translationSpeed / nativeClipMps);
+}
+
 export const CLIP_TABLE: Record<KitAnimState, { clip: string; speed: number }> = {
   "resting-idle": { clip: "sit", speed: 0.7 },
   "resting-idle-look": { clip: "emote-no", speed: 0.8 },
@@ -99,12 +137,14 @@ export const CLIP_TABLE: Record<KitAnimState, { clip: string; speed: number }> =
   "resting-working": { clip: "sit", speed: 1.15 },
   "resting-working-type": { clip: "interact-right", speed: 1.0 },
   "resting-working-type-alt": { clip: "interact-left", speed: 1.0 },
-  // World-2 MOTION-FIX: playback speed DERIVED from WALK_SPEED/ALERT_PACE_SPEED
-  // above (never a hardcoded multiplier) so the clip's foot-cycle rate always
-  // tracks however fast Agent.tsx is actually translating the body -- the
-  // mechanism that keeps feet from sliding when either speed constant changes.
-  walking: { clip: "walk", speed: WALK_SPEED / NATIVE_WALK_CLIP_MPS },
-  alert: { clip: "walk", speed: ALERT_PACE_SPEED / NATIVE_WALK_CLIP_MPS },
+  // MOTION-2: clipCadenceRatio (sqrt-based, see its own comment above)
+  // replaces the ORIGINAL World-2 MOTION-FIX's pure-linear
+  // speed/nativeClipMps ratio -- still derived from WALK_SPEED/
+  // ALERT_PACE_SPEED (never a hardcoded multiplier), just no longer
+  // proportional 1:1, so a slow walk reads as an unhurried walk instead of
+  // the native-pace clip in slow motion.
+  walking: { clip: "walk", speed: clipCadenceRatio(WALK_SPEED, NATIVE_WALK_CLIP_MPS) },
+  alert: { clip: "walk", speed: clipCadenceRatio(ALERT_PACE_SPEED, NATIVE_WALK_CLIP_MPS) },
   // World-2 item 5 (2026-09-14): the alert pace's pause at each end
   // (Agent.tsx's own "atDoor"/"atDesk" sub-phases) needs a genuinely
   // STANDING pose, not the walk clip held mid-stride -- "idle" (verified

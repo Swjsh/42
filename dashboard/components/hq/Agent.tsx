@@ -4,7 +4,7 @@ import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { useThrottledFrame } from "./useThrottledFrame";
 import { makeMatcapTexture, seededRandom } from "./palette";
-import { ALERT_PACE_SPEED, CLIP_TABLE, IDLE_VARIANTS, KitAgentBody, WALK_SPEED, WORKING_VARIANTS, type KitAnimState } from "./KitAgent";
+import { ALERT_PACE_SPEED, CLIP_TABLE, IDLE_VARIANTS, KitAgentBody, NATIVE_WALK_CLIP_MPS, WALK_SPEED, WORKING_VARIANTS, clipCadenceRatio, type KitAnimState } from "./KitAgent";
 import { recordAgentSample } from "@/lib/hq-motion-diag";
 
 export type AgentBehavior = "working" | "idle" | "alert" | "frozen";
@@ -135,7 +135,21 @@ const PURPOSEFUL_PAUSE = 4; // item 2b (LIVE-1): dwell at the destination -- lon
 // window regardless of total leg duration, so a short errand's ease never
 // swallows its whole walk.
 const MIN_WALK_LEG_S = 0.8;
-const WALK_EASE_S = 0.3;
+// MOTION-2 (2026-09-14, J: "cut it in half speed-wise"): 0.3 -> 0.4 -- a
+// slower cruise speed (see KitAgent.tsx#WALK_SPEED) reads best with a
+// proportionally slightly longer ease window at each end, so leaving/
+// arriving at rest never feels like it snaps into the (now slower) cruise
+// speed instantly.
+const WALK_EASE_S = 0.4;
+// MOTION-2: TV-tier procedural capsule-body leg-swing base rate, tuned at
+// NATIVE_WALK_CLIP_MPS (1.4 u/s, KitAgent.tsx's own reference pace) --
+// scaled by the SAME clipCadenceRatio formula that file's CLIP_TABLE uses
+// for the rigged ultra-tier clips (see that function's own comment): a pure
+// linear scale-down with WALK_SPEED/ALERT_PACE_SPEED would read as this
+// body's legs swinging in slow motion at the new slower speeds, the exact
+// bug clipCadenceRatio exists to avoid -- one shared mental model for "how
+// fast should limbs move at this translation speed" across both tiers.
+const NATIVE_SWING_HZ = 8;
 // World-2 item 5 (2026-09-14, J: "futures is running because it's on alert...
 // it's just running in place, which is weird"): a real pace between the desk
 // and the hub-facing door -- see the `behavior === "alert"` branch's own
@@ -459,13 +473,12 @@ export default function Agent({
       }
 
       const moving = alertPhase.current === "toDoor" || alertPhase.current === "toDesk";
-      // World-2 MOTION-FIX: leg-swing frequency scaled down proportionally
-      // to ALERT_PACE_SPEED's own 2.0->0.9 u/s reduction (0.9/2.0 = 0.45,
-      // 9*0.45~=4) so the TV tier's procedural stride cadence still roughly
-      // matches how fast the body is actually translating -- an estimate,
-      // same honesty convention as this file's other tuned constants, not a
-      // measured gait-cycle rate.
-      const swing = moving ? Math.sin(t * 4) * 0.5 : 0;
+      // MOTION-2: unified onto the same NATIVE_SWING_HZ*clipCadenceRatio
+      // formula the main walk swing uses below (was a separate hand-picked
+      // "9 scaled linearly by 0.9/2.0" estimate against ALERT_PACE_SPEED's
+      // OLD 0.9 u/s value -- two ad-hoc mental models for the same "how fast
+      // should the legs swing" question, now one).
+      const swing = moving ? Math.sin(t * NATIVE_SWING_HZ * clipCadenceRatio(ALERT_PACE_SPEED, NATIVE_WALK_CLIP_MPS)) * 0.5 : 0;
       if (legL.current) legL.current.rotation.x = swing;
       if (legR.current) legR.current.rotation.x = -swing;
       // World-2 MOTION-FIX diag (?diag=1 only -- no-ops otherwise, see
@@ -616,13 +629,23 @@ export default function Agent({
         // rotationY isn't 0, the SAME class of bug as the "working" case
         // above) instead of swaying around a fixed world direction that
         // ignores which way this character's own desk actually faces.
-        g.rotation.y = deskFacing + Math.sin(t * 0.3) * 0.5;
+        // MOTION-2 (J: "a little bit of LOGIC to their movement"): frequency
+        // 0.3 -> 0.15 and amplitude 0.5 -> 0.3 -- lowering the frequency of a
+        // periodic sway is simultaneously "slower" (lower angular rate) AND
+        // "rarer" (period = 2*PI/frequency, so a full look-cycle recurs half
+        // as often); the smaller amplitude makes each look-around read as a
+        // subtler glance instead of a wide, attention-grabbing swing.
+        g.rotation.y = deskFacing + Math.sin(t * 0.15) * 0.3;
       }
     }
 
     const walking = phase.current === "toHub" || phase.current === "toHome" || phase.current === "arriving";
     if (walking) {
-      const swing = Math.sin(t * 8) * 0.5;
+      // MOTION-2: NATIVE_SWING_HZ*clipCadenceRatio(WALK_SPEED, ...) replaces
+      // the old bare "8" (tuned at the pre-halving 1.4 u/s WALK_SPEED) --
+      // see NATIVE_SWING_HZ's own comment for the slow-motion-legs mechanism
+      // this avoids.
+      const swing = Math.sin(t * NATIVE_SWING_HZ * clipCadenceRatio(WALK_SPEED, NATIVE_WALK_CLIP_MPS)) * 0.5;
       if (legL.current) legL.current.rotation.x = swing;
       if (legR.current) legR.current.rotation.x = -swing;
     } else if (legL.current && legR.current) {
