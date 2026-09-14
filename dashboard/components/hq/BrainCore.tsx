@@ -7,6 +7,7 @@ import { Html } from "@react-three/drei";
 import * as THREE from "three";
 import type { PersonaState } from "@/lib/personas";
 import { clamp01, lerp, makeMatcapTexture, PALETTE, personaStatusColor } from "./palette";
+import { ReactorGreeble } from "./SetKit";
 
 interface BrainCoreProps {
   utilPct: number | null;
@@ -127,6 +128,13 @@ export default function BrainCore({
 
   return (
     <group scale={1.15}>
+      {/* Kit rebuild (2026-09-13, HQ-SCENE-PLAN.md): "brain core = a glowing
+          reactor built from kit pieces + emissive core" -- 4 pipe/pipe-bend
+          props radiating from the EXISTING sphere/rings (kept unchanged,
+          they ARE the "glowing core"; this is dressing around it, ultra
+          tier only -- TV tier's draw-call budget doesn't have room). */}
+      {ultra && <ReactorGreeble />}
+
       {/* Core sphere -- TV tier: procedural matcap (HQ v4 look pass,
           2026-09-13), one texture lookup replacing Lambert's per-fragment
           N.L at the same cost class. Ultra tier (HQ-ULTRA-TIER-BRIEF.md):

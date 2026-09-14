@@ -19,6 +19,7 @@ import SkyDome from "./SkyDome";
 import PmremEnvironment from "./PmremEnvironment";
 import EffectsStack from "./EffectsStack";
 import { freshness01, healthColor, isParkedState, localToWorld, minutesSinceEvidence, PALETTE, personaStatusColor } from "./palette";
+import { BAY_DESK_OFFSET_Z, BAY_SEAT_LOCAL, CorridorRun, DeskCluster, HubRoom } from "./SetKit";
 
 export type HqTier = "ultra" | "tv";
 
@@ -33,11 +34,30 @@ interface SceneProps {
 }
 
 const HUB: [number, number, number] = [0, 0, 0];
-const RING_RADIUS = 9.8;
+// Kit rebuild (2026-09-13, HQ-SCENE-PLAN.md): 9.8 -> 14. The hub is now a
+// real `room-large` shell (SetKit.tsx#HubRoom, radius 7.5) that must clear
+// PERSONA_RING_RADIUS (6.5, below) with margin, plus a ~4-unit corridor gap
+// (2 kit segments) to each bay's own room-small shell (radius 2.7) --
+// 7.5+4+2.7=14.2, rounded down slightly. CAMERA_DIST/CAMERA_HEIGHT are
+// scaled by the SAME ratio the ring grew by (14/9.8~=1.43x) rather than
+// re-derived from scratch, to preserve the already-proven framing angle --
+// this is the single highest-risk UNVERIFIED number in this pass (no
+// screenshot possible while gaming mode blocks the Browser pane/GPU; see
+// HQ-SCENE-PLAN.md).
+const RING_RADIUS = 14;
 const WALL_POS: [number, number, number] = [0, 3.4, 0];
 const BASE_AZIMUTH = Math.atan2(16, 20);
-const CAMERA_DIST = 26.5;
-const CAMERA_HEIGHT = 13;
+const CAMERA_DIST = 38;
+const CAMERA_HEIGHT = 19;
+// Module-level (stable-forever) constants, never inline array literals, for
+// anything fed into a useMemo dependency array below -- an inline `[0, 0,
+// -0.15]` literal is a NEW array every render and would silently defeat the
+// "geometry stays referentially stable across polls" guarantee this file's
+// own comments already call out as load-bearing for the TV kiosk (an
+// unstable dependency resets a mid-walk agent back to its desk on every
+// single SWR poll, not just on a real data change).
+const TV_LANE_SEAT_LOCAL: [number, number, number] = [0, 0, -0.15];
+const TV_PERSONA_SEAT_LOCAL: [number, number, number] = [0, 0, -0.1];
 // Composition pass (2026-09-13): modules on a wide ARC facing the camera --
 // not a full 360deg ring, where half of them would sit hidden behind the
 // hub from this fixed 3/4 view. Module position uses cos->x/sin->z while
@@ -128,6 +148,12 @@ export default function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) 
   // them into useMemo/useEffect dependency arrays, and an unstable
   // reference there would reset a mid-walk agent back to its desk on every
   // single poll instead of only reacting to real data changes.
+  // Kit rebuild: the ultra tier's real chair sits at BAY_SEAT_LOCAL (inside
+  // a <DeskCluster> offset BAY_DESK_OFFSET_Z back from the module's own
+  // local origin -- see StationModule.tsx), NOT the old -0.15 tuned for the
+  // TV tier's bare procedural desk box. TV tier is unchanged.
+  const seatLocal = ultra ? BAY_SEAT_LOCAL : TV_LANE_SEAT_LOCAL;
+
   const slotCount = Math.max(rows.length, 1);
   const geometry = useMemo(
     () =>
@@ -141,10 +167,10 @@ export default function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) 
         // StationModule's own positioned+rotated <group>) -- see
         // palette.ts#localToWorld's own comment for why nesting it there
         // silently placed every agent ~one ring-radius from its desk.
-        const agentHome = localToWorld(position, rotationY, [0, 0, -0.15]);
-        return { angle, position, agentHome };
+        const agentHome = localToWorld(position, rotationY, seatLocal);
+        return { angle, position, rotationY, agentHome };
       }),
-    [slotCount],
+    [slotCount, seatLocal],
   );
 
   // One accent moment (2026-09-13): when the brain is genuinely busy
@@ -194,6 +220,7 @@ export default function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) 
   // fixed order -- everyone else gets an inner-ring desk. Geometry memoized
   // on COUNT alone (always 6 in practice), same referential-stability reason
   // as the lane ring above.
+  const personaSeatLocal = ultra ? BAY_SEAT_LOCAL : TV_PERSONA_SEAT_LOCAL;
   const allPersonas = data?.company?.personas ?? [];
   const innerPersonas = allPersonas.slice(1);
   const personaSlotCount = Math.max(innerPersonas.length, 1);
@@ -204,10 +231,10 @@ export default function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) 
         const angle = ARC_CENTER - ARC_SPAN / 2 + t * ARC_SPAN;
         const position: [number, number, number] = [Math.cos(angle) * PERSONA_RING_RADIUS, 0, Math.sin(angle) * PERSONA_RING_RADIUS];
         const rotationY = Math.PI / 2 - angle;
-        const agentHome = localToWorld(position, rotationY, [0, 0, -0.1]);
-        return { position, agentHome };
+        const agentHome = localToWorld(position, rotationY, personaSeatLocal);
+        return { position, rotationY, agentHome };
       }),
-    [personaSlotCount],
+    [personaSlotCount, personaSeatLocal],
   );
 
   // Handoff endpoint labels ("🌍 Scout", "Premarket", "_LEADERBOARD", "J
@@ -267,6 +294,12 @@ export default function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) 
       <SkyDome />
       <Starfield reducedMotion={reducedMotion} />
 
+      {/* Kit rebuild (2026-09-13, HQ-SCENE-PLAN.md): the hub's real
+          `room-large` shell, ultra tier only -- sits at the scene root (HUB
+          is the origin) so BrainCore/the persona ring/the ideas wall all
+          land inside it unchanged. */}
+      {ultra && <HubRoom />}
+
       <BrainCore
         utilPct={data?.brainVitals.gpu.util_pct ?? null}
         memUsedMib={data?.brainVitals.gpu.mem_used_mib ?? null}
@@ -293,6 +326,10 @@ export default function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) 
               speedBoost={corridorSpeedBoost}
               reducedMotion={reducedMotion}
             />
+            {/* Kit rebuild: real corridor.glb segments along the IDENTICAL
+                line the pulse sprite above travels -- see
+                SetKit.tsx#CorridorRun. Ultra tier only. */}
+            {ultra && <CorridorRun from={slot.position} to={HUB} />}
             <StationModule
               position={slot.position}
               angle={slot.angle}
@@ -317,6 +354,7 @@ export default function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) 
               reducedMotion={reducedMotion}
               presenceMode={i === nearestLaneIndex ? greeterPresenceMode : undefined}
               facingYaw={i === nearestLaneIndex ? greeterFacingYaw : undefined}
+              ultra={ultra}
             />
           </group>
         );
@@ -344,6 +382,19 @@ export default function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) 
         return (
           <group key={persona.name}>
             <PersonaModule position={slot.position} persona={persona} behavior={behavior} />
+            {/* Kit rebuild: persona desks get the SAME real DeskCluster as
+                the lane bays (SetKit.tsx), offset+rotated identically --
+                ultra tier only, no room shell (personas already sit inside
+                HubRoom). Rendered regardless of `showAgent` -- an empty desk
+                for an IDLE persona is honest, matching the lane/agent
+                convention below it. */}
+            {ultra && (
+              <group position={slot.position} rotation={[0, slot.rotationY, 0]}>
+                <group position={[0, 0, BAY_DESK_OFFSET_Z]}>
+                  <DeskCluster accentColor={personaStatusColor(persona.status)} />
+                </group>
+              </group>
+            )}
             {showAgent && (
               <Agent
                 laneSeed={persona.name}
@@ -359,6 +410,7 @@ export default function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) 
                 // that was already showing a lastFireISO on page load.
                 walkEventKey={persona.lastFireISO}
                 walkKind="arrival"
+                ultra={ultra}
               />
             )}
           </group>

@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { useThrottledFrame } from "./useThrottledFrame";
 import { makeMatcapTexture, seededRandom } from "./palette";
+import { KitAgentBody, type KitAnimState } from "./KitAgent";
 
 export type AgentBehavior = "working" | "idle" | "alert" | "frozen";
 export type AgentWalkKind = "roundtrip" | "arrival";
@@ -35,6 +36,14 @@ interface AgentProps {
    * nearest the fixed camera) -- undefined everywhere else, zero cost. */
   presenceMode?: AgentPresenceMode;
   facingYaw?: number;
+  /** Ultra tier only (HQ kit rebuild, 2026-09-13): renders a real rigged
+   * Kenney Mini Character (KitAgent.tsx) instead of the procedural
+   * capsule/visor body below. Every position/walk-phase computation in this
+   * file is UNCHANGED and tier-agnostic -- only the returned body JSX
+   * branches. Defaults false (TV tier keeps the existing cheap body,
+   * unchanged -- see StationModule.tsx's identical tier-branch reasoning:
+   * real GLB meshes would blow the Mali-G31's draw-call budget). */
+  ultra?: boolean;
 }
 
 const WALK_DURATION = 4.5;
@@ -59,6 +68,7 @@ type WalkPhase = "resting" | "toHub" | "atHub" | "toHome" | "arriving";
  */
 export default function Agent({
   laneSeed, home, hub, behavior, accentColor, reducedMotion, walkEventKey, walkKind, presenceMode, facingYaw,
+  ultra = false,
 }: AgentProps) {
   const group = useRef<THREE.Group>(null);
   const legL = useRef<THREE.Mesh>(null);
@@ -66,6 +76,16 @@ export default function Agent({
   const armL = useRef<THREE.Mesh>(null);
   const armR = useRef<THREE.Mesh>(null);
   const visorMat = useRef<THREE.MeshLambertMaterial>(null);
+
+  // Coarse, DISCRETE walking/resting flag -- a plain useState (not a ref)
+  // because it only needs to change a handful of times per walk (at the
+  // exact phase transitions below), the same "state for discrete moments,
+  // refs for continuous per-frame math" split BrainCore.tsx already uses for
+  // its own `pulsing` flag. Ultra tier only consumes this (see `animState`
+  // below); the TV tier's procedural body ignores it entirely.
+  const [walking, setWalking] = useState(false);
+  const animState: KitAnimState = behavior === "alert" ? "alert" : walking ? "walking" : behavior === "working" ? "resting-working" : "resting-idle";
+  const patrolDim = presenceMode === "patrol" ? 0.35 : 1;
 
   const matcap = useMemo(() => makeMatcapTexture(), []);
   const rng = useMemo(() => seededRandom(laneSeed), [laneSeed]);
@@ -131,6 +151,7 @@ export default function Agent({
         phase.current = pendingWalk.current === "arrival" ? "arriving" : "toHub";
         phaseStart.current = t;
         pendingWalk.current = null;
+        setWalking(true);
       }
     }
 
@@ -144,7 +165,7 @@ export default function Agent({
         home[1],
         hub[2] + (home[2] - hub[2]) * p,
       );
-      if (p >= 1) { phase.current = "resting"; }
+      if (p >= 1) { phase.current = "resting"; setWalking(false); }
     } else if (phase.current === "toHub") {
       const p = Math.min(1, (t - phaseStart.current) / WALK_DURATION);
       g.position.set(
