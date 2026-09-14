@@ -1184,7 +1184,7 @@ export default function Agent({
               <div
                 style={{
                   position: "relative", overflow: "hidden",
-                  fontFamily: "system-ui, sans-serif", color: "#dff3ff", fontSize: 17,
+                  fontFamily: "system-ui, sans-serif", color: "#dff3ff", fontSize: 24,
                   background: "rgba(3,4,10,0.78)", padding: "3px 10px", borderRadius: 5,
                   whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: 5,
                 }}
@@ -1202,7 +1202,7 @@ export default function Agent({
                   // disagree). Reusing `accentColor` here would silently
                   // erase that distinction whenever a persona's status and
                   // its audit verdict happen to share a hue.
-                  <span style={{ fontSize: 11, fontWeight: 800, color: "#03040a", background: auditVerdictColor(auditVerdict), borderRadius: 3, padding: "0 4px" }}>
+                  <span style={{ fontSize: 14, fontWeight: 800, color: "#03040a", background: auditVerdictColor(auditVerdict), borderRadius: 3, padding: "0 4px" }}>
                     {auditVerdict[0]}
                   </span>
                 )}

@@ -202,7 +202,7 @@ export default function GammaCharacter({
               <div
                 style={{
                   position: "relative", overflow: "hidden",
-                  fontFamily: "system-ui, sans-serif", color: "#dff3ff", fontSize: 17,
+                  fontFamily: "system-ui, sans-serif", color: "#dff3ff", fontSize: 24,
                   background: "rgba(3,4,10,0.78)", padding: "3px 10px", borderRadius: 5,
                   whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: 5,
                 }}
