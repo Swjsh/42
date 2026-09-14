@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { getLivePerf, subscribeLivePerf } from "@/lib/hq-live-perf";
 import Link from "next/link";
 import type { HqApiResponse, TradingStatus, CrewEvent, PersonaState } from "./types";
@@ -412,6 +412,68 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
       if (fadeTimer !== null) clearTimeout(fadeTimer);
     };
   }, [tier]);
+
+  // UX-1 U8/U6 (2026-09-14): right panel tabs -- "Crew | Activity" (the
+  // sim-game tab-strip option J offered, chosen over a stacked section: 7
+  // crew cards + up to FEED_MAX_ROWS activity rows stacked would make the
+  // panel very long to scroll through, and J's whole complaint was "too
+  // much on screen" -- a tab keeps ONE focused list visible at a time).
+  const [activePanelTab, setActivePanelTab] = useState<"crew" | "activity">("crew");
+
+  // U6: which persona is currently "focused" (hotkey 1-7, a crew-card
+  // click, or -- once U2 lands -- a world click, ALL of which go through
+  // the SAME synthetic `window` "keydown" event flyToDesk already
+  // dispatches below; this listener is just one more reader of that one
+  // channel, never a second focus mechanism). `id` (not just `index`)
+  // increments on every event so re-focusing the SAME persona twice in a
+  // row still re-triggers the scroll+glow effect below (a plain index
+  // wouldn't change identity on a repeat). Ultra tier only -- hotkeys are
+  // ultra-only (Scene.tsx's `ultra`-gated CameraRig listener).
+  const [focusEvent, setFocusEvent] = useState<{ index: number; id: number } | null>(null);
+  const focusIdRef = useRef(0);
+  useEffect(() => {
+    if (tier !== "ultra") return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key >= "1" && e.key <= "7") {
+        focusIdRef.current += 1;
+        setFocusEvent({ index: Number(e.key) - 1, id: focusIdRef.current });
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [tier]);
+
+  // U6: external-reference convention #3 ("the panel tracks the selection")
+  // -- scroll the focused persona's card to the top of the scroll region
+  // (pinned under the header) and switch to the Crew tab so it's actually
+  // visible. Depends ONLY on `focusEvent` (not `personas`, which is a BRAND
+  // NEW array reference every SWR poll -- see page.tsx's own sceneData
+  // comment on why raw `data` is unstable across polls) so this never
+  // re-fires/re-scrolls on a poll that didn't change the focus, only on a
+  // genuinely new focus event; it reads the latest personas/reducedMotion
+  // via closure when it DOES fire, which is exactly the behavior wanted.
+  const cardRefs = useRef(new Map<string, HTMLDivElement>());
+  useEffect(() => {
+    if (!focusEvent) return;
+    const name = personas[focusEvent.index]?.name;
+    if (!name) return;
+    setActivePanelTab("crew");
+    cardRefs.current.get(name)?.scrollIntoView({ block: "start", behavior: reducedMotion ? "auto" : "smooth" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focusEvent]);
+
+  // U6: "compact card mode (2 lines) when the viewport height < 1000 px" --
+  // a plain resize listener (this is a window-chrome fact, not something
+  // /api/hq ever needs to know), checked at mount so a J session that opens
+  // the browser already short doesn't wait for a resize event to see it.
+  const [compactPanel, setCompactPanel] = useState(false);
+  useEffect(() => {
+    const check = () => setCompactPanel(window.innerHeight < 1000);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
   const mode = data?.mode ?? "unknown";
   const gaming = mode === "gaming";
   const present = data?.presence?.present ?? null;
@@ -534,6 +596,28 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
         .hq-crew-card { transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease; }
         .hq-crew-card:hover { border-color: rgba(122,217,255,0.65); background: rgba(9,13,24,0.97); transform: translateX(-2px); }
         .hq-crew-card:focus-visible { outline: 2px solid #7ad9ff; outline-offset: 2px; }
+
+        /* UX-1 U6 (2026-09-14): thin, momentum-friendly scrollbar for the
+           right panel's scrollable body -- "thin scrollbar, momentum" per
+           the task spec. Chromium/Edge (this dashboard's own stated target)
+           reads the ::-webkit-scrollbar rules; scrollbar-width/-color is the
+           standard-track equivalent, harmless where unsupported. Native
+           wheel/trackpad scrolling already carries momentum in this
+           Chromium target -- no extra CSS needed for that half. */
+        .hq-panel-scroll { scrollbar-width: thin; scrollbar-color: rgba(122,217,255,0.35) transparent; }
+        .hq-panel-scroll::-webkit-scrollbar { width: 8px; }
+        .hq-panel-scroll::-webkit-scrollbar-thumb { background: rgba(122,217,255,0.35); border-radius: 4px; }
+        .hq-panel-scroll::-webkit-scrollbar-track { background: transparent; }
+
+        /* UX-1 U6: 2s focus glow ring on a crew card -- remounted via a
+           changing React key (see the crew-card map's own comment) so a
+           REPEAT focus of the same persona replays this, no JS timer
+           needed. transform/opacity only -- this codebase's own standing
+           TV-compositor rule, even though this class only ever mounts on
+           the ultra tier (see this file's own hq-crew-card comment for why
+           that rule is applied here anyway: consistency, not a hard need). */
+        .hq-focus-glow { position: absolute; inset: -3px; border-radius: 12px; border: 2px solid #7ad9ff; pointer-events: none; animation: hq-focus-glow-fade 2s ease-out forwards; }
+        @keyframes hq-focus-glow-fade { 0% { opacity: 1; } 60% { opacity: 0.9; } 100% { opacity: 0; } }
       `}</style>
 
       {/* Controls legend (UX-1 U1, 2026-09-14, reworked from LIVE-1 item 1's
@@ -663,90 +747,15 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
         </div>
       )}
 
-      {/* Bottom stack: trading strip (LIVE-1 item 5) above the ticker
-          (Pass F). A SINGLE flex-column wrapper anchored at bottom:34
-          (instead of each strip hand-positioned with its own guessed
-          `bottom` pixel offset) -- the ticker's own height is DYNAMIC (1-3
-          lines depending on motionEvents.length, `minHeight:40` was never a
-          cap), so a fixed `bottom:76` on a sibling above it overlapped the
-          ticker's real (often ~100px+) rendered height the first time this
-          shipped, caught on a real capture (hq-live-5.png) with 3 ticker
-          lines showing. Normal (non-reversed) column flow: the FIRST child
-          below renders at the TOP of this auto-height box, the LAST child
-          renders at the BOTTOM (closest to bottom:34) -- so the trading
-          strip (first) always sits directly above the ticker (last)
-          regardless of how many ticker lines are currently showing. */}
-      <div style={{ position: "absolute", left: 0, right: 0, bottom: 34, display: "flex", flexDirection: "column" }}>
-        {/* Trading status strip (LIVE-1 item 5, 2026-09-14, coordinator-
-            directed: "so J never has to ask 'are we ready to trade
-            today?'") -- same full-width banded-strip convention as the
-            ticker below it, one line, colored by buildTradingStrip's own
-            decision tree. */}
-        {(() => {
-          const strip = buildTradingStrip(data?.trading);
-          const c = TRADING_STRIP_COLOR[strip.color];
-          return (
-            <div
-              style={{
-                background: "rgba(3,4,10,0.75)", borderTop: `1px solid ${c}55`, borderBottom: `1px solid ${c}55`,
-                padding: "5px 20px", display: "flex", alignItems: "center", gap: 8, flexShrink: 0,
-              }}
-            >
-              <span style={{ width: 10, height: 10, borderRadius: 999, flexShrink: 0, background: c, boxShadow: `0 0 6px ${c}` }} />
-              <span style={{ color: "#dff3ff", fontSize: 20, fontFamily: HUD_FONT, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                {strip.text}
-              </span>
-            </div>
-          );
-        })()}
-
-        {/* R3 event feed (CREW-2, 2026-09-14, J's verdict: "we still need to
-            see these people interacting and actually working on stuff...
-            right now it's just a bunch of random text"). Replaces the old
-            3-row 25px ticker: up to 12 rows at 15px, each ET-stamped, with
-            the actor's avatar chip when one is known (buildFeedRows() above
-            -- never a guessed chip), consecutive same-actor rows grouped
-            (the chip renders once per run, not per row) so a burst of
-            activity from one persona reads as one block, not noise. Sources
-            merged in buildFeedRows(): crew-events.jsonl (structured, real
-            `who`/`to`) plus the existing motion-diff ticker lines
-            (lib/useMotionEvents.ts). Static, no scroll -- content is always
-            <=FEED_MAX_ROWS by construction. */}
-        <div
-          style={{
-            flexShrink: 0, background: "rgba(3,4,10,0.7)", borderTop: "1px solid rgba(122,217,255,0.18)",
-            borderBottom: "1px solid rgba(122,217,255,0.18)", padding: "6px 20px",
-            display: "flex", flexDirection: "column", gap: 3, fontVariantNumeric: "tabular-nums",
-          }}
-        >
-          {feedRows.length > 0 ? (
-            feedRows.map((row, i) => {
-              const showChip = i === 0 || feedRows[i - 1].actor?.name !== row.actor?.name;
-              return (
-                <div key={row.key} style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                  <span style={{ color: "#4fd6ff", fontSize: 13, flexShrink: 0, width: 38 }}>{row.tsEt}</span>
-                  <span
-                    style={{
-                      width: 18, height: 18, borderRadius: 5, flexShrink: 0, fontSize: 11,
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      visibility: showChip && row.actor ? "visible" : "hidden",
-                      background: row.actor ? `${row.actor.color}33` : "transparent",
-                      border: row.actor ? `1px solid ${row.actor.color}88` : "none",
-                    }}
-                  >
-                    {row.actor?.emoji ?? ""}
-                  </span>
-                  <span style={{ color: "#9fd8ff", fontSize: 15, fontFamily: HUD_FONT, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                    {row.text}
-                  </span>
-                </div>
-              );
-            })
-          ) : (
-            <div style={{ color: "#7f93b0", fontSize: 15, fontFamily: HUD_FONT }}>No events yet this session.</div>
-          )}
-        </div>
-      </div>
+      {/* UX-1 U8 (2026-09-14, coordinator-relayed J verdict: "the giant wall
+          of text eating the bottom third of my screen -- the activity log --
+          I don't want that... keep the main page for the trading area").
+          The trading strip + R3 event feed that used to anchor here both
+          MOVED into the right panel (trading strip docked in its pinned
+          header, activity feed in its own tab) -- see that panel's own
+          comment below. Nothing overlays the world here any more except
+          in-world bubbles/signs (Scene.tsx) and this file's own legend/
+          tooltips, per J's literal ask. */}
 
       {/* Bottom-right corner: perf + synced status. Pass G (2026-09-13,
           coordinator item 4): "on the ultra tier show THIS device's
@@ -794,61 +803,114 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
     </div>
     )}
 
-    {/* Right column (Pass G, 2026-09-13, coordinator item 1): needs-J +
-        roster, solid background, normal document flow (no more per-item
-        absolute positioning -- there's no camera-angle collision to dodge
-        once the canvas physically cannot render under this column). Both
-        moved here verbatim from the left overlay above (needs-J was
-        top-left, roster was top-right -- now stacked together on the
-        right, matching the coordinator's own "Grok-Bot company view"
-        reference). Gated on `hudVisible` (LIVE-1 item 1, 2026-09-14) same
-        as the left column above. */}
+    {/* Right column (Pass G, 2026-09-13; restructured UX-1 U8/U6,
+        2026-09-14). Now TWO stacked flex regions instead of one scrolling
+        blob: a PINNED header (trading strip + NEEDS-J + tab strip, natural
+        height, never scrolls) and a scrollable BODY below it (Crew or
+        Activity, whichever tab is active) -- U6's own "pin the header,
+        scroll the body" ask, and the architecture that makes U8's tab
+        strip possible without the panel growing unboundedly tall. Gated on
+        `hudVisible` (LIVE-1 item 1) same as the left column above. */}
     {hudVisible && (
     <div
       style={{
         position: "fixed", top: 0, right: 0, bottom: 0, width: HUD_RIGHT_COLUMN_WIDTH,
         background: "#03040a", borderLeft: "1px solid rgba(122,217,255,0.15)",
-        overflowY: "auto", zIndex: 10, padding: "20px 20px", pointerEvents: "none",
-        display: "flex", flexDirection: "column", gap: 16,
+        zIndex: 10, display: "flex", flexDirection: "column", overflow: "hidden",
       }}
     >
-      {/* NEEDS-J card (Company Mode step 7, 2026-09-13): read-only amber
-          alert aggregating discord-outbox mentions of J, pending conductor
-          proposals, and FABLE-ESCALATION queue lines -- see
-          lib/hq.ts#readBlocked. Newest 3 of up to 8; hidden entirely when
-          there's nothing blocked so it never occupies space on a clean day. */}
-      {blockedItems.length > 0 && (
-        <div
-          style={{
-            background: "rgba(40,26,0,0.75)", border: "1px solid #ffb020", borderRadius: 8,
-            padding: "8px 14px", flexShrink: 0,
-          }}
-        >
-          <div style={{ color: "#ffb020", fontSize: 18, fontWeight: 800, letterSpacing: 0.5, marginBottom: 4 }}>
-            NEEDS J ({blockedItems.length})
-          </div>
-          {blockedItems.slice(0, 3).map((item, i) => (
-            <div key={`${item.source}-${item.ts ?? i}`} style={{ fontSize: 14, color: "#ffe0a3", marginTop: i === 0 ? 0 : 6, lineHeight: 1.3 }}>
-              <span style={{ color: "#ffb020", fontWeight: 700 }}>[{BLOCKED_SOURCE_LABEL[item.source] ?? item.source}]</span>{" "}
-              {item.text}
-              <span style={{ color: "#c99457" }}> &middot; {item.age}</span>
+      {/* Pinned header: trading strip + NEEDS-J + tab strip. flexShrink:0 --
+          natural content height, never part of the scrolling body below. */}
+      <div style={{ flexShrink: 0, display: "flex", flexDirection: "column", gap: 10, padding: "14px 20px 10px", pointerEvents: "none" }}>
+        {/* UX-1 U8 (2026-09-14): trading status strip, RELOCATED here from
+            the world overlay (was the "giant wall of text... bottom third
+            of my screen" J flagged, alongside the event feed) and shrunk to
+            <=28px tall per the coordinator's own literal cap (was ~34px at
+            fontSize 20/padding "5px 20px" -- too tall for the header budget
+            AND too wide a font for this column's narrower 500px width
+            anyway). Same buildTradingStrip() decision tree, just smaller. */}
+        {(() => {
+          const strip = buildTradingStrip(data?.trading);
+          const c = TRADING_STRIP_COLOR[strip.color];
+          return (
+            <div
+              style={{
+                background: "rgba(3,4,10,0.75)", border: `1px solid ${c}55`, borderRadius: 6,
+                padding: "4px 10px", display: "flex", alignItems: "center", gap: 7, height: 20, boxSizing: "content-box",
+              }}
+            >
+              <span style={{ width: 7, height: 7, borderRadius: 999, flexShrink: 0, background: c, boxShadow: `0 0 5px ${c}` }} />
+              <span style={{ color: "#dff3ff", fontSize: 13, fontFamily: HUD_FONT, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                {strip.text}
+              </span>
             </div>
+          );
+        })()}
+
+        {/* NEEDS-J card (Company Mode step 7, 2026-09-13): read-only amber
+            alert aggregating discord-outbox mentions of J, pending conductor
+            proposals, and FABLE-ESCALATION queue lines -- see
+            lib/hq.ts#readBlocked. Newest 3 of up to 8; hidden entirely when
+            there's nothing blocked so it never occupies space on a clean day.
+            U6: pinned in the header (never scrolls out of view). */}
+        {blockedItems.length > 0 && (
+          <div
+            style={{
+              background: "rgba(40,26,0,0.75)", border: "1px solid #ffb020", borderRadius: 8,
+              padding: "8px 14px", flexShrink: 0,
+            }}
+          >
+            <div style={{ color: "#ffb020", fontSize: 18, fontWeight: 800, letterSpacing: 0.5, marginBottom: 4 }}>
+              NEEDS J ({blockedItems.length})
+            </div>
+            {blockedItems.slice(0, 3).map((item, i) => (
+              <div key={`${item.source}-${item.ts ?? i}`} style={{ fontSize: 14, color: "#ffe0a3", marginTop: i === 0 ? 0 : 6, lineHeight: 1.3 }}>
+                <span style={{ color: "#ffb020", fontWeight: 700 }}>[{BLOCKED_SOURCE_LABEL[item.source] ?? item.source}]</span>{" "}
+                {item.text}
+                <span style={{ color: "#c99457" }}> &middot; {item.age}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* UX-1 U8: "Crew | Activity" tab strip -- the sim-game tab
+            convention J offered as an option (over a stacked section),
+            chosen because the alternative (7 crew cards + up to
+            FEED_MAX_ROWS activity rows stacked) would make the panel very
+            long to scroll, working against J's actual complaint ("too much
+            on screen"). Pinned in the header -- it IS the navigation for
+            the scrollable body below it. */}
+        <div style={{ display: "flex", gap: 4, pointerEvents: "auto" }}>
+          {(["crew", "activity"] as const).map((t) => (
+            <button
+              key={t}
+              type="button"
+              onClick={() => setActivePanelTab(t)}
+              aria-pressed={activePanelTab === t}
+              style={{
+                flex: 1, padding: "6px 0", fontSize: 13, fontWeight: 700, letterSpacing: 0.4,
+                textTransform: "uppercase", fontFamily: HUD_FONT, cursor: "pointer",
+                border: "none", borderRadius: 6,
+                color: activePanelTab === t ? "#03040a" : "#7ad9ff",
+                background: activePanelTab === t ? "#7ad9ff" : "rgba(122,217,255,0.1)",
+              }}
+            >
+              {t === "crew" ? "Crew" : `Activity${feedRows.length > 0 ? ` (${feedRows.length})` : ""}`}
+            </button>
           ))}
         </div>
-      )}
+      </div>
 
-      {/* CREW-2 roster panel (2026-09-14, J's verdict: "that needs a lot of
-          work... right now it's just some very large text" / "why are they
-          on here if they're not doing anything?"). Replaces the old bare
-          emoji+dot+"Xm ago -- text" rows with a real card per persona: an
-          avatar chip, name + short role, a STATUS PILL that always carries
-          a REASON (never a bare dot -- lib/crew.ts#deriveCrewPill reads
-          PersonaState.quietReason, R4), then now:/last:/next: lines. Click
-          (or Enter/Space when focused) flies the camera to that persona's
-          desk -- R2, see this file's own .hq-crew-card style comment.
-          Sizes per spec: names 18-20px, body 14-15px, pills 12px uppercase.
-          GREEN rows still pulse via the pre-existing .hq-pulse class. */}
-      {personas.length > 0 && (
+      {/* Scrollable body -- flex:1 + minHeight:0 is the standard "flex
+          child that actually scrolls instead of stretching its parent"
+          pair; without minHeight:0 a flex item never shrinks below its own
+          content's natural height, which is exactly what made the OLD
+          single-region panel cut the Treasurer card at a 1440px viewport
+          (J's own literal bug report, U6) -- the whole column just grew
+          past the viewport instead of scrolling. Thin/momentum scrollbar
+          via .hq-panel-scroll (defined in the shared <style> block above). */}
+      <div className="hq-panel-scroll" style={{ flex: 1, minHeight: 0, overflowY: "auto", padding: "10px 20px 20px", pointerEvents: "none" }}>
+      {activePanelTab === "crew" && personas.length > 0 && (
         <div style={{ display: "flex", flexDirection: "column", gap: 10, fontVariantNumeric: "tabular-nums" }}>
           {personas.map((p, i) => {
             const color = personaStatusColor(p.status);
@@ -868,9 +930,17 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
             // A synthetic window keydown is the only integration point --
             // Scene.tsx's listener is not edited (not this builder's file).
             const flyToDesk = () => window.dispatchEvent(new KeyboardEvent("keydown", { key: String(i + 1) }));
+            // U6: this card's own glow overlay only mounts while ITS index
+            // is the currently-focused one -- see focusEvent's own effect
+            // comment above for why `id` (not just index) is the key.
+            const glowing = focusEvent?.index === i;
             return (
               <div
                 key={p.name}
+                ref={(el) => {
+                  if (el) cardRefs.current.set(p.name, el);
+                  else cardRefs.current.delete(p.name);
+                }}
                 className={`hq-crew-card${p.status === "GREEN" ? " hq-pulse" : ""}`}
                 role="button"
                 tabIndex={0}
@@ -880,11 +950,21 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
                   if (e.key === "Enter" || e.key === " ") { e.preventDefault(); flyToDesk(); }
                 }}
                 style={{
-                  background: "rgba(3,4,10,0.93)", border: `1px solid ${color}55`,
+                  position: "relative", background: "rgba(3,4,10,0.93)", border: `1px solid ${color}55`,
                   borderRadius: 10, padding: "10px 12px", cursor: "pointer",
                   pointerEvents: "auto", opacity: pill.kind === "GHOST" ? 0.72 : 1,
                 }}
               >
+                {/* U6: 2s focus glow -- `key={focusEvent.id}` remounts (and so
+                    replays) this CSS animation every focus event, including a
+                    re-focus of the SAME persona, without any JS timer (see
+                    the .hq-focus-glow keyframes in the shared <style> block).
+                    reducedMotion: skip the animated ring entirely, a static
+                    border-color bump on the card itself would be the
+                    alternative but isn't worth the extra branch here -- the
+                    scroll-into-view (already instant under reducedMotion)
+                    is the part carrying the real information. */}
+                {glowing && !reducedMotion && <span key={focusEvent.id} className="hq-focus-glow" />}
                 <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
                   {/* UX-1 U1 (2026-09-14): hotkey digit, ultra tier only --
                       the keyboard 1-7 fly-to itself is ultra-only
@@ -932,10 +1012,27 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
                         {audit ? audit.verdict[0] : "?"}
                       </span>
                     </div>
-                    <div style={{ color: "#7f93b0", fontSize: 12.5, lineHeight: 1.3, marginTop: 1 }}>{p.role}</div>
+                    {/* U6: compact mode (viewport height < 1000px) drops
+                        this role sub-line -- the goal is a real "2 lines"
+                        card (name row + one status line), not a slightly
+                        shorter version of the full card. */}
+                    {!compactPanel && <div style={{ color: "#7f93b0", fontSize: 12.5, lineHeight: 1.3, marginTop: 1 }}>{p.role}</div>}
                   </div>
                 </div>
 
+                {compactPanel ? (
+                  // U6 compact mode: ONE combined status line replaces the
+                  // pill+reason row AND the now/last/next block below --
+                  // pill.kind for the at-a-glance color/word, then whichever
+                  // of now/last/next actually has content (in that priority
+                  // order -- "what's happening" beats "what happened" beats
+                  // "what's next"), never all three stacked.
+                  <div style={{ marginTop: 6, fontSize: 13, color: "#9fb3cc", lineHeight: 1.35, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                    <span style={{ fontWeight: 800, color: pillColor }}>{pill.kind}</span>{" "}
+                    {nowLine ?? lastLine ?? nextLine}
+                  </div>
+                ) : (
+                <>
                 <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                   <span
                     style={{
@@ -972,11 +1069,51 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
                 <div style={{ fontSize: 13, color: "#6c81a0", marginTop: 2, lineHeight: 1.35 }}>
                   <span style={{ color: "#5c7aa0", fontWeight: 700 }}>next </span>{nextLine}
                 </div>
+                </>
+                )}
               </div>
             );
           })}
         </div>
       )}
+
+      {/* UX-1 U8: Activity tab -- the SAME merged feed (buildFeedRows above,
+          crew-events.jsonl + the motion-diff ticker, unchanged sources/
+          logic) that used to sit as a fixed block under the world; now a
+          normal scrollable list inside this panel's own scroll region
+          (this div is just a content block, no independent overflow of its
+          own) at 15px rows, per the coordinator's own spec. */}
+      {activePanelTab === "activity" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 3, fontVariantNumeric: "tabular-nums" }}>
+          {feedRows.length > 0 ? (
+            feedRows.map((row, i) => {
+              const showChip = i === 0 || feedRows[i - 1].actor?.name !== row.actor?.name;
+              return (
+                <div key={row.key} style={{ display: "flex", alignItems: "center", gap: 7, padding: "3px 0" }}>
+                  <span style={{ color: "#4fd6ff", fontSize: 12, flexShrink: 0, width: 36 }}>{row.tsEt}</span>
+                  <span
+                    style={{
+                      width: 18, height: 18, borderRadius: 5, flexShrink: 0, fontSize: 11,
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      visibility: showChip && row.actor ? "visible" : "hidden",
+                      background: row.actor ? `${row.actor.color}33` : "transparent",
+                      border: row.actor ? `1px solid ${row.actor.color}88` : "none",
+                    }}
+                  >
+                    {row.actor?.emoji ?? ""}
+                  </span>
+                  <span style={{ color: "#9fd8ff", fontSize: 15, fontFamily: HUD_FONT, lineHeight: 1.35, minWidth: 0, overflowWrap: "break-word" }}>
+                    {row.text}
+                  </span>
+                </div>
+              );
+            })
+          ) : (
+            <div style={{ color: "#7f93b0", fontSize: 15, fontFamily: HUD_FONT }}>No events yet this session.</div>
+          )}
+        </div>
+      )}
+      </div>
     </div>
     )}
     </>
