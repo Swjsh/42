@@ -15,7 +15,12 @@ import json
 
 import pytest
 
-from backtest.tools import gex_archive_health as gh
+import sys as _sys
+from pathlib import Path as _Path
+_REPO_ROOT = _Path(__file__).resolve().parents[2]
+if str(_REPO_ROOT) not in _sys.path:
+    _sys.path.insert(0, str(_REPO_ROOT))  # GuardsFull runs pytest from backtest/, where 'backtest.tools' is not importable
+from backtest.tools import gex_archive_health as gh  # noqa: E402
 
 
 def _d(s: str) -> dt.date:
