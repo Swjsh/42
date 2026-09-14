@@ -1,11 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import Scene from "./Scene";
 import PerfReporter from "./PerfReporter";
 import { HUD_RIGHT_COLUMN_WIDTH } from "./Hud";
 import type { HqApiResponse } from "./types";
+import { exposeSceneForDiag, installEarlyErrorCapture } from "@/lib/hq-motion-diag";
+
+// Item 26 diag: module scope -- runs once at import time, before <Canvas>
+// (and therefore r3f's own frameloop) ever mounts. See the function's own
+// comment in hq-motion-diag.ts for why capture-phase + always-on.
+installEarlyErrorCapture();
 
 interface CanvasRootProps {
   data: HqApiResponse | undefined;
@@ -49,29 +55,87 @@ function computeDpr(): number {
 }
 
 /**
- * TV-budgeted <Canvas> wrapper: drawing-buffer capped at ~1920px wide
- * (dpr<=1, scaled down further on very wide viewports), no antialias, no
- * shadows, powerPreference "low-power", frameloop paused whenever the page
- * is hidden (document.hidden), and a context-lost overlay that reloads the
- * page after 5s. Everything <Scene> needs before it's safe to run on a TV
- * SoC lives here, not scattered across the scene components.
+ * Item 26 ROOT CAUSE (2026-09-14, TV-tier flat-environment investigation --
+ * verified against react-three-fiber's own installed source, not guessed):
+ * `PerfReporter.tsx` (mounted below, unconditionally, on BOTH tiers)
+ * registers three `useFrame` callbacks at explicit non-zero priorities
+ * (-Infinity, 1.5, 2 -- see that file's own Pass F comment: needed for
+ * accurate `gl.info.render.calls/triangles` accounting across a multi-pass
+ * renderer). Reading r3f 9.6.1's own bundled source
+ * (node_modules/@react-three/fiber/dist/events-*.esm.js, function
+ * `update()`): `if (!state.internal.priority && state.gl.render)
+ * state.gl.render(state.scene, state.camera)` -- ANY priority useFrame
+ * registration anywhere in the tree flips `state.internal.priority` truthy
+ * for the WHOLE canvas, which SKIPS r3f's own automatic default render call
+ * on the theory that a priority subscriber has taken over rendering. On the
+ * ultra tier that theory holds: `EffectsStack.tsx` mounts its own priority-1
+ * `useFrame` that renders the scene through its postprocessing composer. TV
+ * tier mounts no composer -- so the moment `<PerfReporter>` mounts, NOTHING
+ * at any priority ever calls `gl.render(scene, camera)` again, forever.
+ * Live proof this pass via a diag-gated `window.__hqScene/__hqCamera/__hqGl`
+ * hook (hq-motion-diag.ts#exposeSceneForDiag): `useFrame` subscribers kept
+ * running fine the whole time (CameraRig moved the camera to the exact
+ * correct TV orbit position every check), `gl.info.render.calls` stayed at
+ * 0 and the canvas read back fully transparent (0,0,0,0) at every sampled
+ * pixel, an always-on capture-phase `window` error listener
+ * (hq-motion-diag.ts#installEarlyErrorCapture, installed before <Canvas>
+ * ever mounts) caught zero errors (this is not a crash, it is r3f
+ * INTENTIONALLY skipping its own render call), and a single MANUAL
+ * `gl.render(scene, camera)` issued from the console succeeded instantly
+ * with 58 draw calls and painted the correct sky/ground/planet gradient --
+ * proving the scene/materials/camera were never broken, only the automatic
+ * render call was silently suppressed. With nothing ever painted, the
+ * canvas stays transparent and the wrapping div's own flat
+ * `background:"#03040a"` (== PALETTE.space, the exact RGB(3,4,10) sampled
+ * in the original capture) shows through naked, indistinguishable from "the
+ * environment is broken". Fix: `<ManualRender>` below is TV tier's
+ * equivalent of ultra's `EffectsStack` -- the ONE priority subscriber that
+ * actually renders the scene, at the SAME priority (1) PerfReporter's own
+ * comments already document as "EffectComposer's own priority-1 render" for
+ * its stat reads at 1.5/2 to key off of; this makes "something renders at
+ * priority 1" a tier-independent invariant instead of an ultra-only one.
+ *
+ * A SEPARATE, secondary bug fixed the same pass while diagnosing this one:
+ * this component used to flip `frameloop` to "never" via a one-shot
+ * `document.hidden` check with no retry (added fe6275fb, the very first HQ
+ * commit, undocumented rationale). Confirmed live: `document.hidden` reads
+ * `true` for the lifetime of an automation-driven Browser-pane session
+ * (already documented by commit b561e458's own PerfReporter investigation,
+ * and by hq_capture.ps1's own header comment, "the Browser pane hides tabs
+ * and pauses the canvas"), which parked `frameloop` at "never" with no
+ * later visibilitychange event ever firing to correct a check that was
+ * wrong from the very first read -- a real, independently fixable footgun
+ * even though it was not what the original flat-color capture showed (that
+ * capture came from a real, visible kiosk window, unaffected by this).
+ * `frameloop` is now pinned to the constant "always" -- TV tier is a
+ * dedicated kiosk/capture target, never a normal multi-tab browsing
+ * session, and the browser's own native backgrounding rAF throttle already
+ * saves cycles on a genuinely backgrounded tab without this fragile,
+ * unrecoverable manual toggle.
+ *
+ * TV-budgeted <Canvas> wrapper otherwise unchanged: drawing-buffer capped
+ * at ~1920px wide (dpr<=1, scaled down further on very wide viewports), no
+ * antialias, no shadows, powerPreference "low-power", and a context-lost
+ * overlay that reloads the page after 5s. Everything <Scene> needs before
+ * it's safe to run on a TV SoC lives here, not scattered across the scene
+ * components.
  */
+function ManualRender() {
+  const { gl, scene, camera } = useThree();
+  useFrame(() => {
+    gl.render(scene, camera);
+  }, 1);
+  return null;
+}
+
 export default function CanvasRoot({ data, reducedMotion, lanKiosk: _lanKiosk, kiosk }: CanvasRootProps) {
   const [dpr, setDpr] = useState(() => (typeof window !== "undefined" ? computeDpr() : 1));
-  const [frameloop, setFrameloop] = useState<"always" | "never">("always");
   const [contextLost, setContextLost] = useState(false);
 
   useEffect(() => {
     const onResize = () => setDpr(computeDpr());
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
-  }, []);
-
-  useEffect(() => {
-    const onVis = () => setFrameloop(document.hidden ? "never" : "always");
-    document.addEventListener("visibilitychange", onVis);
-    onVis();
-    return () => document.removeEventListener("visibilitychange", onVis);
   }, []);
 
   return (
@@ -81,7 +145,7 @@ export default function CanvasRoot({ data, reducedMotion, lanKiosk: _lanKiosk, k
     <div style={{ position: "fixed", top: 0, left: 0, bottom: 0, width: `calc(100% - ${HUD_RIGHT_COLUMN_WIDTH}px)`, background: "#03040a" }}>
       <Canvas
         dpr={dpr}
-        frameloop={frameloop}
+        frameloop="always"
         shadows={false}
         // HQ v4 look pass (2026-09-13): MSAA turned on -- ARM's own docs
         // call 4x MSAA "almost free" on tile-based GPUs like the Mali-G31
@@ -102,6 +166,10 @@ export default function CanvasRoot({ data, reducedMotion, lanKiosk: _lanKiosk, k
         // distance) with headroom for future tuning.
         camera={{ fov: 42, near: 0.5, far: 400 }}
         onCreated={(state) => {
+          // Item 26 diag (2026-09-14, TV-tier flat-environment investigation):
+          // ?diag=1 only -- see hq-motion-diag.ts#exposeSceneForDiag's own
+          // comment. No-ops on a plain kiosk tab (no query param).
+          exposeSceneForDiag(state.scene, state.camera, state.gl);
           const canvas = state.gl.domElement;
           canvas.addEventListener("webglcontextlost", (e) => {
             e.preventDefault();
@@ -111,6 +179,12 @@ export default function CanvasRoot({ data, reducedMotion, lanKiosk: _lanKiosk, k
         }}
       >
         <Scene data={data} reducedMotion={reducedMotion} />
+        {/* Item 26 fix -- see this file's own top-of-file root-cause
+            comment: PerfReporter's priority useFrame hooks silently disable
+            r3f's automatic render call, and TV tier has no EffectComposer
+            (unlike ultra's EffectsStack) to pick up the slack. Mounted
+            unconditionally, same as PerfReporter itself. */}
+        <ManualRender />
         <PerfReporter enabled={kiosk} />
       </Canvas>
 

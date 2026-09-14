@@ -98,6 +98,15 @@ declare global {
   interface Window {
     __hqMotion?: MotionDiagBuffer;
     __hqMotionSummary?: () => MotionDiagSummary | null;
+    // World-4 item 26 diag (2026-09-14, TV-tier flat-environment
+    // investigation): raw r3f scene/camera/renderer handles, so a Browser-
+    // pane javascript_tool call can walk scene.children directly (mesh
+    // presence/visible/material.fog/frustumCulled/renderOrder) instead of
+    // guessing from source alone. Same `?diag=1` gate as __hqMotion above --
+    // see exposeSceneForDiag below.
+    __hqScene?: unknown;
+    __hqCamera?: unknown;
+    __hqGl?: unknown;
   }
 }
 
@@ -112,6 +121,59 @@ export function isMotionDiagEnabled(): boolean {
     cachedEnabled = new URLSearchParams(window.location.search).get("diag") === "1";
   }
   return cachedEnabled;
+}
+
+declare global {
+  interface Window {
+    __hqCaughtErrors?: Array<{ tMs: number; message: string; stack?: string }>;
+  }
+}
+
+let earlyCaptureInstalled = false;
+
+/** World-4 item 26 diag: an ALWAYS-ON (not `?diag=1`-gated -- this is cheap,
+ * bounded, and exists specifically to catch a hard-to-reproduce production
+ * failure a normal console never shows) capture-PHASE `window` error
+ * listener, installed once at module load -- i.e. before `<Canvas>` (and
+ * therefore before r3f's own frameloop) ever mounts. Capture phase is
+ * load-bearing: Scene.tsx's own comment (world pass A, the GodRays/
+ * EffectsStack crash) already root-caused that "something upstream
+ * (react-three-fiber's own frameloop error handling) must call
+ * stopPropagation/preventDefault during the bubble phase" on an error
+ * thrown inside its render loop -- a normal bubble-phase listener (and the
+ * DevTools console itself) never sees it. Bounded to the first 20 entries
+ * so a genuinely error-looping page can't grow this without limit. Call
+ * once, at module scope, from each CanvasRoot's own file (not inside the
+ * component function, which re-runs every render). */
+export function installEarlyErrorCapture(): void {
+  if (typeof window === "undefined" || earlyCaptureInstalled) return;
+  earlyCaptureInstalled = true;
+  window.__hqCaughtErrors = [];
+  window.addEventListener(
+    "error",
+    (e) => {
+      const buf = window.__hqCaughtErrors;
+      if (!buf || buf.length >= 20) return;
+      buf.push({ tMs: performance.now(), message: e.message, stack: e.error && e.error.stack });
+    },
+    true, // capture phase -- see this function's own doc comment
+  );
+}
+
+/** World-4 item 26 diag: exposes the live r3f scene/camera/renderer on
+ * `window.__hqScene`/`__hqCamera`/`__hqGl` behind the SAME `?diag=1` gate as
+ * every other diag hook in this file -- call once from each CanvasRoot's own
+ * `onCreated` (fires once at canvas construction, not per-frame, matching
+ * UltraCanvasRoot.tsx's existing onCreated convention). Untyped (`unknown`)
+ * on purpose: this module stays dependency-free of `three`'s types (every
+ * other export here is plain data), and the only consumer is a Browser-pane
+ * `javascript_tool` call reading `.children`/`.material` etc directly at
+ * runtime, which doesn't need compile-time types either. */
+export function exposeSceneForDiag(scene: unknown, camera: unknown, gl: unknown): void {
+  if (!isMotionDiagEnabled()) return;
+  window.__hqScene = scene;
+  window.__hqCamera = camera;
+  window.__hqGl = gl;
 }
 
 function ensureBuffer(): MotionDiagBuffer | null {
