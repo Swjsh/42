@@ -583,9 +583,27 @@ export default function Agent({
       const bobAmp = behavior === "working" ? 0.05 : 0.025;
       const bobSpeed = behavior === "working" ? 4 : 1.4;
       g.position.set(home[0], home[1] + Math.sin(t * bobSpeed) * bobAmp, home[2]);
+      // World-4 fix (P6, 2026-09-14, J: "the bottom bays show characters not
+      // facing their desks"): this branch used to leave `g.rotation.y`
+      // whatever the LAST walk phase set it to -- for "working"
+      // specifically, that meant NO assignment here at all, so it kept
+      // `walkFacing` (set during "arriving"/"toHome", `atan2(home-hub)`,
+      // the WALKING direction hub->home) forever. That value is off by
+      // exactly Math.PI from "face away from hub, toward the desk", the
+      // established convention this file's own alert-phase pacing already
+      // uses two branches up (`facingHub + Math.PI`) and GammaCharacter.tsx
+      // uses too (`rotationY + Math.PI`) -- confirmed by the formulas
+      // themselves, not just a look: `walkFacing = atan2(home-hub)` and
+      // `facingHub = atan2(hub-home)` are exact opposites, so
+      // `facingHub + PI` (the correct desk-facing value) equals
+      // `atan2(home-hub)` PLUS Math.PI, i.e. `walkFacing + Math.PI` -- the
+      // one term this branch never added. A seated/idle character now gets
+      // a real, per-frame desk-facing base instead of an unset leftover.
+      const deskFacing = Math.atan2(hub[0] - home[0], hub[2] - home[2]) + Math.PI;
       if (behavior === "working") {
         if (armL.current) armL.current.rotation.x = Math.sin(t * 10) * 0.35;
         if (armR.current) armR.current.rotation.x = Math.sin(t * 10 + Math.PI) * 0.35;
+        g.rotation.y = deskFacing;
       } else if (presenceMode === "greet") {
         // J 2026-09-13: "nearest agent turns to the viewer" on presence ==
         // here -- holds a fixed facing instead of the idle look-around.
@@ -593,7 +611,12 @@ export default function Agent({
         // never receives `presenceMode` and is unaffected.
         g.rotation.y = facingYaw ?? 0;
       } else {
-        g.rotation.y = Math.sin(t * 0.3) * 0.5; // slow "look around"
+        // Slow "look around", now centered on `deskFacing` (was centered on
+        // world-absolute 0 -- wrong for every bay/persona whose own
+        // rotationY isn't 0, the SAME class of bug as the "working" case
+        // above) instead of swaying around a fixed world direction that
+        // ignores which way this character's own desk actually faces.
+        g.rotation.y = deskFacing + Math.sin(t * 0.3) * 0.5;
       }
     }
 

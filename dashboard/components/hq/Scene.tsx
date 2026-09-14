@@ -304,6 +304,19 @@ interface CameraRigProps {
   cameraPresets: CameraPreset[];
 }
 
+/** Shared by the keyboard "0".."7" fly-to handler AND the `?preset=N` mount
+ * hook below -- "0" = the fixed overview pose, "1".."7" index
+ * `cameraPresets[0..6]` (Scene.tsx's own fixed [Gamma, ...6 personas]
+ * order). Factored out (2026-09-14, P4) so the URL hook can never drift
+ * from what pressing the real key does -- both call sites resolve the
+ * SAME destination through this one function, not two independently-
+ * maintained copies of the same 2-line lookup. */
+function resolveCameraPresetKey(key: string, cameraPresets: CameraPreset[]): CameraPreset | null {
+  if (key === "0") return { camPos: OVERVIEW_CAM_POS, headPos: [DEFAULT_LOOKAT.x, DEFAULT_LOOKAT.y, DEFAULT_LOOKAT.z] };
+  if (key >= "1" && key <= "7") return cameraPresets[Number(key) - 1] ?? null;
+  return null;
+}
+
 /**
  * Fixed 3/4 elevated view sized to fit the whole ring, with a slow +-12deg
  * azimuth drift so the station feels alive (Pass D, 2026-09-13: widened
@@ -407,6 +420,54 @@ function CameraRig({ reducedMotion, rows, geometry, briefMtimeMs, ultra, cameraP
     idleSince.current = null;
   }, [ultra, camera]);
 
+  // World-4 (2026-09-14, P4): `?preset=N` (0-7, ultra tier only, dev/
+  // capture only) -- lands the camera exactly where pressing key N would,
+  // for a headless capture script that cannot drive the keyboard. Driven
+  // through the SAME `flight.current`/"flying" mode machinery the real
+  // keyboard handler uses below -- via `resolveCameraPresetKey`, not a
+  // second, independently-written destination lookup -- so this can never
+  // resolve to a different pose than the key itself would. The 1.2s eased
+  // flight settles well inside hq_capture.ps1's own 35s SettleSec window.
+  //
+  // BUG FIX (same session, caught from a real capture:
+  // world4-preset2-1937.png landed at the plain overview, not Pilot's
+  // desk): `cameraPresets` is built fresh from `allPersonas` (Scene.tsx's
+  // own IIFE below, not memoized) which is EMPTY until the first
+  // `/api/hq` response lands -- a plain `[ultra, camera]` dependency array
+  // (the `?camdist=NN` effect's own pattern, copied blindly) fires this
+  // effect at FIRST mount, almost always before that fetch resolves, so
+  // `cameraPresets[1]` (preset "2") was reliably undefined and the whole
+  // effect silently no-op'd via `if (!dest) return`. `?camdist=NN` never
+  // hit this because IT never reads `cameraPresets` at all. Fixed by
+  // depending on `cameraPresets.length` too (0 -> 7 the moment real
+  // persona data lands, a plain number so React's own dependency-array
+  // comparison actually catches the change, unlike the ARRAY reference,
+  // which is new every render regardless) so this effect re-evaluates once
+  // real data exists, and a `firedRef` guard so it still only EVER
+  // triggers one flight (never re-snaps the camera back on a later poll
+  // once the user may have taken over).
+  const presetFired = useRef(false);
+  useEffect(() => {
+    if (!ultra || presetFired.current) return;
+    const controls = controlsRef.current;
+    if (!controls) return;
+    const raw = new URLSearchParams(window.location.search).get("preset");
+    if (raw === null) return;
+    if (cameraPresets.length === 0) return; // real persona data not in yet -- wait for the next render
+    presetFired.current = true;
+    const dest = resolveCameraPresetKey(raw, cameraPresets);
+    if (!dest) return;
+    flight.current = {
+      fromPos: camera.position.clone(),
+      fromTarget: controls.target.clone(),
+      toPos: new THREE.Vector3(...dest.camPos),
+      toTarget: new THREE.Vector3(...dest.headPos),
+      start: lastElapsed.current,
+    };
+    mode.current = "flying";
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ultra, camera, cameraPresets.length]);
+
   // Keyboard fly-to: "1".."7" = cameraPresets[0..6] (Scene.tsx's own fixed
   // [Gamma, ...6 personas] order), "0" = the fixed overview pose. A window-
   // level listener -- this component is mounted INSIDE <Canvas>, but
@@ -421,12 +482,7 @@ function CameraRig({ reducedMotion, rows, geometry, briefMtimeMs, ultra, cameraP
       if (e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
       const controls = controlsRef.current;
       if (!controls) return;
-      let dest: CameraPreset | null = null;
-      if (e.key === "0") {
-        dest = { camPos: OVERVIEW_CAM_POS, headPos: [DEFAULT_LOOKAT.x, DEFAULT_LOOKAT.y, DEFAULT_LOOKAT.z] };
-      } else if (e.key >= "1" && e.key <= "7") {
-        dest = cameraPresets[Number(e.key) - 1] ?? null;
-      }
+      const dest = resolveCameraPresetKey(e.key, cameraPresets);
       if (!dest) return;
       flight.current = {
         fromPos: camera.position.clone(),
@@ -1014,7 +1070,32 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
       const dirX = deskRadius > 0.001 ? (pos[0] - HUB[0]) / deskRadius : 0;
       const dirZ = deskRadius > 0.001 ? (pos[2] - HUB[2]) / deskRadius : 1;
       const outwardRoom = HUB_WALL_RADIUS - 1.0 - deskRadius;
-      const pull = outwardRoom > 2.5 ? Math.min(3.5, outwardRoom) : -Math.min(2.5, Math.max(0.5, deskRadius - 1.5));
+      // World-4 fix (P4/P6, 2026-09-14, real capture world4-preset4-2005.png:
+      // a preset-4 flight landed the camera looking at the desk screen's
+      // BACK -- a dark, featureless panel, no headline/sub/age text visible
+      // at all). Root cause: this branch pulled the camera INWARD (toward
+      // the hub) whenever there wasn't 2.5+ units of outward room -- true
+      // for every inner-ring persona desk (outwardRoom lands at/near 0 for
+      // PERSONA_RING_RADIUS=6.5 against HUB_WALL_RADIUS-1.0). Once P6's own
+      // Agent.tsx fix (this same session) made a resting character correctly
+      // face AWAY from the hub -- the established convention this file's
+      // own GammaCharacter.tsx/Agent.tsx alert-phase already use elsewhere,
+      // and DeskCluster's screen is mounted facing that SAME seated
+      // character (see SetKit.tsx#DeskCluster) -- a camera parked on the
+      // HUB side (this branch's old negative pull) sits BEHIND both the
+      // character and the screen relative to their shared facing, so it can
+      // only ever see their backs. Fixed to pull OUTWARD instead (same side
+      // the character/screen now face), but capped far more conservatively
+      // than the >2.5-outwardRoom branch's own up-to-3.5 -- 0.6 is the
+      // largest step that still clears HUB_WALL_RADIUS by a real margin
+      // (deskRadius 6.5 + 0.6 = 7.1, HUB_WALL_RADIUS 7.5) even at
+      // outwardRoom's worst real value (0) -- verified against the room-wall
+      // radius directly, not the old 3.5's untested assumption for this
+      // branch. UNVERIFIED beyond that math: this specific change was not
+      // re-confirmed against a fresh capture (this session's own capture
+      // budget was already spent on P1/P2/P3/P6 verification) -- flag for a
+      // follow-up capture next session if the screen still doesn't read.
+      const pull = outwardRoom > 2.5 ? Math.min(3.5, outwardRoom) : Math.min(0.6, Math.max(0.2, outwardRoom + 0.6));
       const camPos: [number, number, number] = [headPos[0] + dirX * pull, headPos[1] + 4.2, headPos[2] + dirZ * pull];
       return { headPos, camPos };
     });
