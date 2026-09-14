@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { lerp, PALETTE } from "./palette";
@@ -13,56 +13,38 @@ interface CorridorProps {
   reducedMotion: boolean;
 }
 
-const UP = new THREE.Vector3(0, 1, 0);
-
 /**
- * A static tube connecting a module to the hub, carrying one animated pulse
- * sprite whose travel speed is proportional to how fresh that lane's last
- * evidence is (fresh = fast). The tube's orientation quaternion is computed
- * ONCE via useMemo (not per frame); only the pulse's scalar position lerps
- * every tick, no vector allocation in the hot path.
+ * World-2 item 3(c) (2026-09-14, J: "what I think are supposed to be
+ * hallways for the people aren't really connected at all"): the wire tube
+ * that used to run from every module to the hub is REMOVED entirely -- it
+ * was a 0.06-radius cylinder with no width/floor/walls, reading as a cable,
+ * not a hallway, and it duplicated (at the wrong visual weight)
+ * SetKit.tsx#CorridorRun's own real floor-strip + kit-corridor geometry,
+ * which is what now actually connects the hub to each bay (ultra tier).
+ * What stays: the traveling pulse -- a small floor-hugging light (y+0.03,
+ * not the old tube-center height) whose travel speed is still proportional
+ * to how fresh that lane's last evidence is (fresh = fast), unconditional
+ * on both tiers exactly as before (the TV tier's own cheap floor already
+ * gives this a surface to hug -- see StationModule.tsx's TV-tier branch).
  */
 export default function Corridor({ from, to, freshness, speedBoost = 1, reducedMotion }: CorridorProps) {
   const pulse = useRef<THREE.Mesh>(null);
   const speed = lerp(0.04, 0.5, freshness) * speedBoost; // cycles per second
-
-  const { length, midpoint, quaternion } = useMemo(() => {
-    const dx = to[0] - from[0];
-    const dy = to[1] - from[1];
-    const dz = to[2] - from[2];
-    const len = Math.sqrt(dx * dx + dy * dy + dz * dz) || 0.001;
-    const dir = new THREE.Vector3(dx, dy, dz).normalize();
-    const q = new THREE.Quaternion().setFromUnitVectors(UP, dir);
-    return {
-      length: len,
-      midpoint: [(from[0] + to[0]) / 2, (from[1] + to[1]) / 2, (from[2] + to[2]) / 2] as [number, number, number],
-      quaternion: q,
-    };
-  }, [from, to]);
 
   useFrame((state) => {
     if (!pulse.current || reducedMotion) return;
     const frac = (state.clock.elapsedTime * speed) % 1;
     pulse.current.position.set(
       from[0] + (to[0] - from[0]) * frac,
-      from[1] + (to[1] - from[1]) * frac + 0.15,
+      from[1] + 0.03,
       from[2] + (to[2] - from[2]) * frac,
     );
   });
 
   return (
-    <group>
-      {/* Thickened (was 0.035 radius, near-invisible with antialias off) and
-          opaque (was transparent -- cuts blend/overdraw cost across 8 of
-          these on the TV's weak GPU) per the TV-crispness pass. */}
-      <mesh position={midpoint} quaternion={quaternion}>
-        <cylinderGeometry args={[0.06, 0.06, length, 6, 1, true]} />
-        <meshBasicMaterial color={PALETTE.corridor} side={THREE.DoubleSide} toneMapped={false} />
-      </mesh>
-      <mesh ref={pulse} position={from}>
-        <sphereGeometry args={[0.07, 8, 6]} />
-        <meshBasicMaterial color={PALETTE.hubRing} toneMapped={false} />
-      </mesh>
-    </group>
+    <mesh ref={pulse} position={[from[0], from[1] + 0.03, from[2]]}>
+      <sphereGeometry args={[0.09, 8, 6]} />
+      <meshBasicMaterial color={PALETTE.hubRing} toneMapped={false} />
+    </mesh>
   );
 }

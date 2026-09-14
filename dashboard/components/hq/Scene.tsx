@@ -19,12 +19,13 @@ import IdeasWall from "./IdeasWall";
 import Courier from "./Courier";
 import Starfield from "./Starfield";
 import SkyDome from "./SkyDome";
+import Ground from "./Ground";
 import PmremEnvironment from "./PmremEnvironment";
 import EffectsStack from "./EffectsStack";
 import GammaCharacter from "./GammaCharacter";
 import ActivityBubbleLayer, { type ActivityBubbleCandidate } from "./ActivityBubbleLayer";
 import { computePurposefulWalk, dayNightFactor, freshness01, healthColor, hhmmFromEtIso, isParkedState, isRegularTradingHours, lerp, localToWorld, minutesSinceEvidence, nowEtDayOfWeek, nowEtMinutes, PALETTE, personaStatusColor, rosterEvidenceText, scheduleOnShift, truncateOneLine, type ScreenLine } from "./palette";
-import { BAY_DESK_OFFSET_Z, BAY_HALF_DEPTH, BAY_SEAT_LOCAL, CHARACTER_SCALE, CHARACTER_TARGET_HEIGHT, CorridorRun, DeskCluster, HubRoom, HUB_WALL_RADIUS } from "./SetKit";
+import { BAY_DESK_OFFSET_Z, BAY_HALF_DEPTH, BAY_SEAT_LOCAL, CHARACTER_SCALE, CHARACTER_TARGET_HEIGHT, CorridorRun, DeskCluster, HubRoom, HUB_WALL_RADIUS, Plaza } from "./SetKit";
 
 export type HqTier = "ultra" | "tv";
 
@@ -45,6 +46,11 @@ const HUB: [number, number, number] = [0, 0, 0];
 // (2 kit segments) to each bay's own room-small shell (radius 2.7) --
 // 7.5+4+2.7=14.2, rounded down slightly.
 const RING_RADIUS = 14;
+// World-2 item 3(a) (2026-09-14): the plaza floor plate (SetKit.tsx#Plaza)
+// covers the hub + every bay + the corridor gaps between them -- outer bay
+// edge sits at RING_RADIUS+BAY_HALF_DEPTH (~16.7), plus 1.5u of margin so
+// the plate's own edge lip doesn't clip through a bay's outer wall.
+const PLAZA_RADIUS = RING_RADIUS + BAY_HALF_DEPTH + 1.5;
 const WALL_POS: [number, number, number] = [0, 3.4, 0];
 const BASE_AZIMUTH = Math.atan2(16, 20);
 // World pass A (2026-09-13, first real screenshot -- gaming mode ended):
@@ -991,7 +997,13 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
           day/night factor the hemisphere/directional lights already use --
           see SkyDome.tsx's own comment for the root cause this fixes. */}
       <SkyDome dayFactor={nightFactor} />
-      <Starfield reducedMotion={reducedMotion} />
+      <Starfield reducedMotion={reducedMotion} dayFactor={nightFactor} />
+      {/* World-2 item 2 (2026-09-14, J: "there needs to be some sort of
+          floor or background... right now it's just infinite directions"):
+          a large ground disc under the whole scene, both tiers (cheap --
+          one draw call, same cost class as SkyDome/Starfield). Same
+          dayFactor as the sky/lights so the horizon never seams. */}
+      <Ground dayFactor={nightFactor} ultra={ultra} />
       {/* World-2 item 4 (2026-09-14, J: "the spinning color radar looking
           things can go... noisy" + HQ face rule "motion = events with a
           ticker"): ServiceDrones removed entirely (component file deleted
@@ -1004,6 +1016,11 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
           land inside it unchanged. Suspense-scoped (world pass A bug fix,
           see BrainCore.tsx) so a still-loading hub shell never unmounts
           BrainCore/EffectsStack, which are SIBLINGS here, not descendants. */}
+      {/* World-2 item 3(a) (2026-09-14): the plaza floor plate under
+          hub+corridors+bays -- see SetKit.tsx#Plaza's own comment. No
+          Suspense needed (pure procedural geometry, no useGLTF load). */}
+      {ultra && <Plaza radius={PLAZA_RADIUS} dayFactor={nightFactor} />}
+
       {ultra && (
         <Suspense fallback={null}>
           <HubRoom />
@@ -1069,6 +1086,7 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
                 <CorridorRun
                   from={[Math.cos(slot.angle) * HUB_WALL_RADIUS, 0, Math.sin(slot.angle) * HUB_WALL_RADIUS]}
                   to={[Math.cos(slot.angle) * (RING_RADIUS - BAY_HALF_DEPTH), 0, Math.sin(slot.angle) * (RING_RADIUS - BAY_HALF_DEPTH)]}
+                  angle={slot.angle}
                 />
               </Suspense>
             )}

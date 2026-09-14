@@ -34,6 +34,13 @@ export const PALETTE = {
   // sky dome's mid-gradient stop.
   warmAccent: "#ffb020",
   horizonDepth: "#12203a",
+  // World-2 items 2/3 (2026-09-14, additive -- Ground.tsx/SetKit.tsx#Plaza):
+  // lit-daytime tones for the new ground disc / station plaza plate. Night
+  // tones deliberately reuse EXISTING tokens (`floor` for the ground,
+  // `deskDark` for the plaza -- lighter than the ground, per the plaza's own
+  // "lighter tone" spec) rather than adding parallel night keys here.
+  groundDay: "#4a5568",
+  plazaDay: "#5f6f88",
 } as const;
 
 export const HEALTH_COLOR: Record<string, string> = {

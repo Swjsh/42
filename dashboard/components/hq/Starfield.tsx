@@ -6,14 +6,27 @@ import * as THREE from "three";
 
 const STAR_COUNT = 900;
 
+interface StarfieldProps {
+  reducedMotion: boolean;
+  /** World-2 item 2 (2026-09-14, "Ground.tsx" item -- "Starfield stays but
+   * must be night-only if it is not already"): 0 (deepest night) .. 1 (peak
+   * midday), the SAME dayNightFactor() value SkyDome.tsx/Scene.tsx's own
+   * lights already use. Stars fade out by day (a real station plaza under a
+   * bright sky doesn't show stars) and back in at night. Defaults to 1 (day
+   * -- hidden), the same "safer to hide something extra than show something
+   * stuck" default direction SkyDome.tsx's own `dayFactor` prop documents. */
+  dayFactor?: number;
+}
+
 /**
  * Background dressing: one Points cloud (single draw call) drifting slowly.
  * Used to also carry a distant planet sphere -- dropped Pass G-2 (2026-09-13,
  * see the comment at its old JSX site in git history / this file's blame):
  * read as "basically black" at its on-screen size even with matcap shading.
  */
-export default function Starfield({ reducedMotion }: { reducedMotion: boolean }) {
+export default function Starfield({ reducedMotion, dayFactor = 1 }: StarfieldProps) {
   const points = useRef<THREE.Points>(null);
+  const mat = useRef<THREE.PointsMaterial>(null);
 
   const positions = useMemo(() => {
     const arr = new Float32Array(STAR_COUNT * 3);
@@ -31,6 +44,12 @@ export default function Starfield({ reducedMotion }: { reducedMotion: boolean })
   }, []);
 
   useFrame((state) => {
+    // Day/night fade runs every frame regardless of reducedMotion -- that
+    // flag freezes the slow ROTATION drift below, it was never meant to
+    // freeze visibility itself (same split StationModule.tsx's beacon
+    // blink/reducedMotion handling uses: motion stops, the real state cue
+    // doesn't).
+    if (mat.current) mat.current.opacity = (1 - dayFactor) * 0.75;
     if (reducedMotion) return;
     const t = state.clock.elapsedTime;
     if (points.current) points.current.rotation.y = t * 0.006;
@@ -42,7 +61,7 @@ export default function Starfield({ reducedMotion }: { reducedMotion: boolean })
         <bufferGeometry>
           <bufferAttribute attach="attributes-position" args={[positions, 3]} />
         </bufferGeometry>
-        <pointsMaterial color="#bcd7ff" size={0.12} sizeAttenuation transparent opacity={0.75} />
+        <pointsMaterial ref={mat} color="#bcd7ff" size={0.12} sizeAttenuation transparent opacity={0.75} />
       </points>
 
       {/* Pass G-2 (2026-09-13, coordinator: "make the planet not a pure

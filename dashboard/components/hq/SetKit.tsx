@@ -434,46 +434,122 @@ export function DeskCluster({ accentColor, screenTitle, screenLines }: DeskClust
   );
 }
 
-/** Chains N straight `corridor.glb` segments along the line from `from` to
- * `to` (both WORLD-space points) -- same quaternion-from-direction approach
- * already proven in Corridor.tsx's pulse tube, so the corridor's real
- * geometry now runs along the identical path the pulse sprite travels.
- * Segment count is computed from the actual distance, never hardcoded, so
- * this works unchanged for the hub's 8 (differently-spaced) lane corridors. */
-const CORRIDOR_UP = new THREE.Vector3(0, 1, 0);
+// World-2 item 3 (2026-09-14, J: "what I think are supposed to be hallways
+// for the people aren't really connected at all... floating hubs on the
+// outside"): a continuous floor plate under hub+corridors+bays, ultra tier
+// only (mounted from Scene.tsx's own `{ultra && ...}` branch, matching every
+// other real-kit-geometry piece in this file). Sits ~0.02 above Ground.tsx's
+// own outer disc (that one stays mounted on both tiers, y=-0.06) so the
+// station's own footprint reads as a deliberately-built, lighter-toned
+// surface distinct from raw exterior ground -- with a raised edge lip (a
+// flattened torus "curb") so the platform boundary reads as a real edge
+// instead of an invisible blend into Ground beneath it. `radius` is passed
+// in from Scene.tsx (RING_RADIUS + BAY_HALF_DEPTH + 1.5) rather than
+// recomputed here, since RING_RADIUS is Scene.tsx's own constant and this
+// file must never import back from its own caller.
+const PLAZA_Y = -0.04;
+const PLAZA_NIGHT = new THREE.Color(PALETTE.deskDark);
+const PLAZA_DAY = new THREE.Color(PALETTE.plazaDay);
+const _plazaColor = new THREE.Color();
 
-export function CorridorRun({ from, to }: { from: [number, number, number]; to: [number, number, number] }) {
-  const { positions, quaternion } = useMemo(() => {
+export function Plaza({ radius, dayFactor = 1 }: { radius: number; dayFactor?: number }) {
+  const color = useMemo(() => _plazaColor.copy(PLAZA_NIGHT).lerp(PLAZA_DAY, dayFactor).clone(), [dayFactor]);
+  const lipTube = 0.09;
+  return (
+    <group>
+      <mesh position={[0, PLAZA_Y, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+        <circleGeometry args={[radius, 96]} />
+        <meshStandardMaterial color={color} roughness={0.85} metalness={0.05} />
+      </mesh>
+      {/* Edge lip -- a low curb ring at the plaza's own outer radius so the
+          platform boundary reads as a real, deliberately-built edge. */}
+      <mesh position={[0, PLAZA_Y + lipTube * 0.5, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[radius, lipTube, 8, 96]} />
+        <meshStandardMaterial color={color} roughness={0.6} metalness={0.15} />
+      </mesh>
+    </group>
+  );
+}
+
+const CORRIDOR_WIDTH = 2.6;
+const CORRIDOR_RAIL_HEIGHT = 0.3;
+const CORRIDOR_RAIL_THICKNESS = 0.07;
+
+/** Real hallway from the hub's wall to one bay's door: a guaranteed-correct
+ * procedural floor strip + low side rails (Scene.tsx's own `angle`, the
+ * SAME `Math.PI/2 - angle` yaw StationModule.tsx's module group already
+ * uses -- local -Z always faces the hub, matching the bay's own gate-door
+ * placement exactly) PLUS the kit's real corridor.glb segments layered on
+ * top as architectural detail.
+ *
+ * World-2 item 3(b) bug fix (2026-09-14, "check why the existing CorridorRun
+ * does not read as connected... and fix the actual cause"): the OLD version
+ * reused Corridor.tsx's own `quaternion.setFromUnitVectors(UP, dir)` --
+ * correct THERE because that file's pulse tube is a raw CylinderGeometry,
+ * whose long axis really is local Y by default, so tipping "up" over to
+ * point along a horizontal direction is exactly right for a cylinder. This
+ * asset is not a cylinder: parsing corridor.glb's own JSON chunk this
+ * session (`node`, reading the accessor min/max directly, same technique
+ * this file's own HQ-SCENE-PLAN.md verification already used elsewhere)
+ * shows an UPRIGHT piece, Y 0..4.25 (matching room-large's own raw height),
+ * a square 4x4 XZ footprint -- the same "modeled upright, faces -Z by
+ * default" convention every OTHER Modular Space Kit piece in this file
+ * (room-small, room-large, gate-door) already gets with a plain yaw
+ * rotation, never a tip-over quaternion. Rotating "up" onto a near-
+ * horizontal direction instead tipped every corridor segment ~90 degrees
+ * onto its side -- geometry that never read as a flat, walkable hallway no
+ * matter how correctly its segments were positioned along the ray. Fixed by
+ * using the SAME plain-yaw convention as its own sibling kit pieces, which
+ * also makes the kit segments' own facing agree with the procedural strip's
+ * rails below (both share the identical `rotationY`). The procedural strip
+ * is what actually GUARANTEES the continuous, correctly-sized (2.6u) floor
+ * this item's deliverable needs -- the kit segments are detail on top of
+ * it, not the sole source of the connection, so a kit-asset quirk this
+ * session couldn't fully verify without a 3D inspector can never leave a
+ * visible gap in the floor itself. */
+export function CorridorRun({ from, to, angle }: { from: [number, number, number]; to: [number, number, number]; angle: number }) {
+  const rotationY = Math.PI / 2 - angle;
+  const { midpoint, length, segPositions } = useMemo(() => {
     const start = new THREE.Vector3(...from);
     const end = new THREE.Vector3(...to);
-    const dir = new THREE.Vector3().subVectors(end, start);
-    const length = dir.length() || 0.001;
-    dir.normalize();
-    const q = new THREE.Quaternion().setFromUnitVectors(CORRIDOR_UP, dir);
+    const len = start.distanceTo(end) || 0.001;
+    const mid: [number, number, number] = [(from[0] + to[0]) / 2, (from[1] + to[1]) / 2, (from[2] + to[2]) / 2];
     // draw-call sanity: segCount is small on purpose -- ARCHITECTURE_SCALE_BAY's
     // 1.8u segment length vs a ~4-5u hub-to-bay gap means 2-3 segments per
     // corridor, not a dozen, x8 lanes.
-    const segCount = Math.max(1, Math.round(length / CORRIDOR_SEGMENT_LENGTH));
-    const step = length / segCount;
+    const segCount = Math.max(1, Math.round(len / CORRIDOR_SEGMENT_LENGTH));
+    const step = len / segCount;
+    const dirX = (end.x - start.x) / len;
+    const dirZ = (end.z - start.z) / len;
     const segs: [number, number, number][] = [];
     for (let i = 0; i < segCount; i++) {
       const d = step * (i + 0.5);
-      segs.push([start.x + dir.x * d, start.y, start.z + dir.z * d]);
+      segs.push([start.x + dirX * d, start.y, start.z + dirZ * d]);
     }
-    return { positions: segs, quaternion: q };
+    return { midpoint: mid, length: len, segPositions: segs };
   }, [from[0], from[1], from[2], to[0], to[1], to[2]]);
-
-  const euler = useMemo(() => new THREE.Euler().setFromQuaternion(quaternion), [quaternion]);
 
   return (
     <group>
-      {positions.map((pos, i) => (
+      <group position={midpoint} rotation={[0, rotationY, 0]}>
+        <mesh position={[0, -0.01, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+          <planeGeometry args={[CORRIDOR_WIDTH, length]} />
+          <meshStandardMaterial color={PALETTE.floor} roughness={0.85} />
+        </mesh>
+        {[-1, 1].map((side) => (
+          <mesh key={side} position={[(side * (CORRIDOR_WIDTH - CORRIDOR_RAIL_THICKNESS)) / 2, CORRIDOR_RAIL_HEIGHT / 2, 0]} castShadow>
+            <boxGeometry args={[CORRIDOR_RAIL_THICKNESS, CORRIDOR_RAIL_HEIGHT, length]} />
+            <meshStandardMaterial color={PALETTE.deskDark} roughness={0.6} metalness={0.2} />
+          </mesh>
+        ))}
+      </group>
+      {segPositions.map((pos, i) => (
         <KitProp
           key={i}
           path={KIT_PATHS.architecture.corridor}
           scale={ARCHITECTURE_SCALE_BAY}
           position={pos}
-          rotation={[euler.x, euler.y, euler.z]}
+          rotation={[0, rotationY, 0]}
           receiveShadow
         />
       ))}
