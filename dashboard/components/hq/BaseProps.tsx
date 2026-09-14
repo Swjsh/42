@@ -5,19 +5,34 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { PALETTE, lerp } from "./palette";
 import { KIT_PATHS, KitProp } from "./SetKit";
+import { minClearRadius } from "./layout";
 
 // ─── E3, World-3 environment pass (2026-09-14, J: "grey abyss... space theme
 // or a park or something real") ─────────────────────────────────────────────
 // Base props ringing the plaza: dishes, a solar array, a landing pad, a
 // rover, containers/barrels, pipes, perimeter lights, one antenna mast.
-// Every position below sits at radius >=19.5, clearing Scene.tsx's own
-// PLAZA_RADIUS (~18.2) with margin -- structurally outside the hub/bay/
-// corridor footprint (all <=~18.2) regardless of the dynamic per-row bay
-// angles computed in Scene.tsx, so nothing here can block a doorway. Heavy
-// (real-GLB) pieces are ultra-tier only, matching every other real-kit-
-// geometry piece in this tree; the antenna mast + landing pad (both cheap
-// procedural geometry, no GLB) render on BOTH tiers -- "TV tier gets
+// Heavy (real-GLB) pieces are ultra-tier only, matching every other real-
+// kit-geometry piece in this tree; the antenna mast + landing pad (both
+// cheap procedural geometry, no GLB) render on BOTH tiers -- "TV tier gets
 // sky+ground+planet+a few props" per this pass's own brief.
+//
+// LAYOUT builder pass (2026-09-14, campus-cross rebuild): the old flat
+// "radius >= 19.5" clearance rule was correct for the old CIRCULAR plaza
+// (a single radius really was the whole boundary) but is WRONG for the new
+// orthogonal cross -- an arm's own tip needs real clearance while a
+// diagonal gap between two arms needs almost none, so a single number
+// either clips a bay corner or needlessly pushes every diagonal-gap prop
+// far out. `minClearRadius(azimuth, margin)` (layout.ts) computes the
+// TRUE boundary at each prop's own azimuth instead of assuming one radius
+// fits every direction -- verified this session (a standalone arithmetic
+// check mirroring layout.ts's own formula) that 3 of the 9 positions below
+// (rover, containers, all 4 pipes) actually landed INSIDE the new
+// footprint at their old radius (by 3.6-4.3u) even though the other 6
+// (both dishes, solar, landing pad, perimeter, antenna) still cleared with
+// real margin -- exactly the "some directions need much more room than
+// others" case a flat rule can't express. Only the 3 that were actually
+// unsafe were changed (`Math.max(<original literal>, minClearRadius(...))`
+// -- never a blind bump on props that already verifiably cleared).
 
 const PLANET_AZIMUTH = Math.atan2(16, 20) + Math.PI; // mirrors Planet.tsx's own constant -- dishes face this direction
 const _deg = (d: number) => (d * Math.PI) / 180;
@@ -131,11 +146,16 @@ function LandingPad({ dayFactor }: { dayFactor: number }) {
 // ─── Rover -- parked, static (no motion: J's own HQ face rule -- "motion =
 // events with a ticker", this rover has no event source, so it never moves). ─
 function Rover() {
+  // LAYOUT builder pass: 21 alone landed inside the new cross footprint at
+  // this exact azimuth (verified -- see this file's own top comment) --
+  // Math.max keeps the ORIGINAL literal as a floor rather than silently
+  // dropping it, so this only ever moves outward, never in.
+  const radius = Math.max(21, minClearRadius(_deg(150), 1.5));
   return (
     <KitProp
       path={KIT_PATHS.baseProps.rover}
       scale={2.4}
-      position={polar(150, 21)}
+      position={polar(150, radius)}
       rotation={[0, _deg(150 + 90), 0]}
       castShadow
       receiveShadow
@@ -146,7 +166,11 @@ function Rover() {
 // ─── Containers + barrels -- a small cluster, "by a corridor" (the plaza's
 // own outer edge, nearest the lane ring's own corridor gaps). ──────────────
 function ContainersAndBarrels() {
-  const base = polar(60, 21);
+  // LAYOUT builder pass: 21 alone landed inside the new cross footprint at
+  // this exact azimuth (verified -- see this file's own top comment); the
+  // 3 pieces below offset a small ~1.8-2.6u from `base`, well inside the
+  // margin this bump adds, so they clear too, not just the anchor point.
+  const base = polar(60, Math.max(21, minClearRadius(_deg(60), 1.5)));
   return (
     <group>
       <KitProp path={KIT_PATHS.baseProps.container} scale={2.0} position={[base[0], 0, base[2]]} rotation={[0, _deg(40), 0]} castShadow receiveShadow />
@@ -163,16 +187,25 @@ const PIPE_AZIMUTHS = [15, 105, 195, 285];
 function PipesAlongEdge() {
   return (
     <>
-      {PIPE_AZIMUTHS.map((az, i) => (
-        <KitProp
-          key={az}
-          path={i % 2 === 0 ? KIT_PATHS.baseProps.pipeStraight : KIT_PATHS.baseProps.pipeCorner}
-          scale={1.8}
-          position={polar(az, 19.5)}
-          rotation={[0, _deg(az + 90), 0]}
-          castShadow
-        />
-      ))}
+      {PIPE_AZIMUTHS.map((az, i) => {
+        // LAYOUT builder pass: 19.5 alone landed inside the new cross
+        // footprint at all 4 of these azimuths (verified -- see this
+        // file's own top comment) -- these sit closest to an arm's own
+        // tip (15/105/195/285deg are each only 15deg off an arm's own
+        // centerline), so they needed the largest bump of the 3 unsafe
+        // groups.
+        const radius = Math.max(19.5, minClearRadius(_deg(az), 1.5));
+        return (
+          <KitProp
+            key={az}
+            path={i % 2 === 0 ? KIT_PATHS.baseProps.pipeStraight : KIT_PATHS.baseProps.pipeCorner}
+            scale={1.8}
+            position={polar(az, radius)}
+            rotation={[0, _deg(az + 90), 0]}
+            castShadow
+          />
+        );
+      })}
     </>
   );
 }
