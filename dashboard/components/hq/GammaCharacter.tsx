@@ -42,16 +42,25 @@ interface GammaCharacterProps {
    * recomputed here so the bubble's own "next ~HH:MM" is GUARANTEED
    * identical to the panel's, not just independently similar. */
   nextLine: string | null;
-  /** World-2 coordinator review ("de-overlap the hub: at most two bubbles
-   * near Gamma at once -- the exchange pair wins over the status bubble").
-   * True while Scene.tsx's own hub-exchange bubbles (Chef/Coach visiting
-   * Gamma) are active -- this component's own speech bubble renders
-   * nothing then, so the total near Gamma stays at 2 (the exchange pair),
-   * never 3. */
-  suppressBubble: boolean;
+  /** PEOPLE pass (2026-09-14) -- replaces the old `suppressBubble: boolean`
+   * (which HID Gamma's bubble entirely while a hub-exchange visitor was at
+   * her desk, relying on ActivityBubbleLayer's own now-deleted
+   * "hubevent:gamma-ack" floating bubble to show her ack instead -- "nothing
+   * floating at a fixed point in space" is this pass's own explicit rule).
+   * Non-null while Scene.tsx's own Chef/Coach -> Gamma hub exchange is
+   * active: her ONE bubble shows this deterministic ack
+   * (lib/dialogue.ts#GAMMA_CREW_ACK) instead of the normal thinking/brief
+   * cycle below -- still exactly one bubble at her desk, never two. Null the
+   * rest of the time (her own status/brief text shows as before). */
+  ackOverride: string | null;
 }
 
 const THINKING_UTIL_THRESHOLD = 30;
+// PEOPLE pass (P2): same "little bubble" char budget spirit as Agent.tsx's
+// own BUBBLE_ACTION_MAX_CHARS, sized a bit larger since "Gamma" (5 chars) is
+// shorter than this roster's longest name ("Treasurer") -- leaves the same
+// approximate total-line-width the brief's own "max ~36 chars" spec names.
+const GAMMA_BUBBLE_ACTION_MAX_CHARS = 30;
 
 /** First token of a loop-ledger `reason` string, e.g. "rth_window" from
  * "rth_window (weekday 09:30-15:55 ET)" -- the coordinator's own "<reason
@@ -80,7 +89,7 @@ function hhmmEt(ms: number): string {
  */
 export default function GammaCharacter({
   deskCenter, rotationY, accentColor, briefText, briefMtimeMs, utilPct, modelName, gaming,
-  lastRow, nextLine, suppressBubble,
+  lastRow, nextLine, ackOverride,
 }: GammaCharacterProps) {
   // World-2 coordinator review: "thinking" now requires BOTH a genuinely
   // busy GPU AND the ledger's own last row being "ok" -- the old
@@ -114,7 +123,14 @@ export default function GammaCharacter({
   // thinking/brief-cycling behavior (both already true, non-contradictory
   // facts once "yielded"/"error" can no longer leak through as "thinking").
   let bubbleText: string;
-  if (lastRow?.status === "yielded") {
+  if (ackOverride) {
+    // PEOPLE pass: a hub-exchange visitor (Chef/Coach) is AT her desk this
+    // instant -- her own bubble becomes the ack, outranking even a genuine
+    // error/yield state for the ~2min exchange window (Scene.tsx's own
+    // EVENT_BUBBLE_WINDOW_MIN), matching "Gamma's ack stays on Gamma's
+    // bubble" from this pass's own brief.
+    bubbleText = ackOverride;
+  } else if (lastRow?.status === "yielded") {
     bubbleText = `yielding · ${shortReason(lastRow.reason)}${nextLine ? ` · next ~${nextLine}` : ""}`;
   } else if (lastRow?.status === "error") {
     bubbleText = `error: ${truncateOneLine(lastRow.reason, 60)}`;
@@ -163,32 +179,52 @@ export default function GammaCharacter({
         </Suspense>
       </group>
 
-      {/* Speech bubble -- 30px, max 2 lines per the brief's own spec.
-          `key={bubbleText}` replays the shared .hq-shine sweep (Hud.tsx's
-          <style>) whenever the line actually changes, the same "flag a
-          change, don't just silently update" tell every other status
-          plaque in this scene already uses. World-2 coordinator review
-          ("de-overlap the hub"): suppressed entirely while Scene.tsx's own
-          hub-exchange bubbles are active near this same desk -- see this
-          component's own `suppressBubble` prop comment. */}
-      {!suppressBubble && (
-      <Html position={bubbleWorld} center distanceFactor={9} style={{ pointerEvents: "none" }}>
-        <div className="hq-beam" style={{ "--beam-color": accentColor, borderRadius: 10 } as CSSProperties}>
-          <div
-            style={{
-              position: "relative", overflow: "hidden",
-              fontFamily: "system-ui, sans-serif", color: "#dff3ff", fontSize: 30, fontWeight: 600,
-              background: "rgba(3,4,10,0.8)", padding: "8px 18px", borderRadius: 9,
-              maxWidth: 560, textAlign: "center", lineHeight: 1.25,
-              display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflowWrap: "break-word",
-            }}
-          >
-            <span key={bubbleText} className="hq-shine" />
-            {bubbleText}
+      {/* PEOPLE pass (P2, 2026-09-14, J: "little bubbles above their heads
+          of the action they are doing") -- restyled to the SAME little-
+          bubble look every other character's Agent.tsx bubble now uses
+          (17px, one line, dark translucent box, static `.hq-beam` accent
+          ring, a small tail triangle pointing at the head) instead of the
+          old 30px/2-line panel. `bubbleText`'s own derivation above is
+          UNCHANGED (yielding/error/thinking/brief-sentence-cycling) --
+          only the presentation shrank; truncateOneLine keeps a single real
+          sentence's own tail from ever overflowing the little box.
+          `key={bubbleText}` still replays the shared one-shot .hq-shine
+          sweep whenever the line actually changes. World-2/PEOPLE-pass
+          "de-overlap the hub" rule: while a hub-exchange visitor is at her
+          desk this SAME bubble shows the ack instead (see `ackOverride`'s
+          own prop comment) rather than a second floating one. */}
+      {(() => {
+        const line = truncateOneLine(bubbleText, GAMMA_BUBBLE_ACTION_MAX_CHARS);
+        return (
+        <Html position={bubbleWorld} center distanceFactor={9} style={{ pointerEvents: "none" }}>
+          <div style={{ position: "relative" }}>
+            <div className="hq-beam" style={{ "--beam-color": accentColor, borderRadius: 6 } as CSSProperties}>
+              <div
+                style={{
+                  position: "relative", overflow: "hidden",
+                  fontFamily: "system-ui, sans-serif", color: "#dff3ff", fontSize: 17,
+                  background: "rgba(3,4,10,0.78)", padding: "3px 10px", borderRadius: 5,
+                  whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: 5,
+                }}
+              >
+                <span key={line} className="hq-shine" />
+                <b style={{ fontWeight: 800 }}>Gamma</b>
+                <span style={{ color: "#7f93b0" }}>·</span>
+                <span>{line}</span>
+              </div>
+            </div>
+            <div
+              style={{
+                position: "absolute", left: "50%", bottom: -4, width: 8, height: 8,
+                transform: "translateX(-50%) rotate(45deg)",
+                background: "rgba(3,4,10,0.78)",
+                borderRight: `1px solid ${accentColor}`, borderBottom: `1px solid ${accentColor}`,
+              }}
+            />
           </div>
-        </div>
-      </Html>
-      )}
+        </Html>
+        );
+      })()}
     </>
   );
 }

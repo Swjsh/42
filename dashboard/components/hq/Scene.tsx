@@ -13,11 +13,8 @@ import type { AgentBehavior } from "./Agent";
 import Agent from "./Agent";
 import BrainCore from "./BrainCore";
 import StationModule from "./StationModule";
-import PersonaModule from "./PersonaModule";
 import HandoffCourier from "./HandoffCourier";
-import Corridor from "./Corridor";
 import IdeasWall from "./IdeasWall";
-import Courier from "./Courier";
 import Starfield from "./Starfield";
 import SkyDome from "./SkyDome";
 import Planet from "./Planet";
@@ -27,8 +24,8 @@ import BaseProps from "./BaseProps";
 import PmremEnvironment from "./PmremEnvironment";
 import EffectsStack from "./EffectsStack";
 import GammaCharacter from "./GammaCharacter";
-import ActivityBubbleLayer, { type ActivityBubbleCandidate } from "./ActivityBubbleLayer";
-import { computePurposefulWalk, dayNightFactor, freshness01, healthColor, hhmmFromEtIso, isParkedState, isRegularTradingHours, lerp, localToWorld, minutesSinceEvidence, nowEtDayOfWeek, nowEtMinutes, PALETTE, personaStatusColor, rosterEvidenceText, scheduleOnShift, truncateOneLine, type ScreenLine } from "./palette";
+import { laneBubbleAction, personaBubbleAction } from "./bubbleText";
+import { computePurposefulWalk, dayNightFactor, healthColor, hhmmFromEtIso, isParkedState, isRegularTradingHours, lerp, localToWorld, minutesSinceEvidence, nowEtDayOfWeek, nowEtMinutes, PALETTE, personaStatusColor, scheduleOnShift, truncateOneLine, type ScreenLine } from "./palette";
 import { BAY_DESK_OFFSET_Z, BAY_SEAT_LOCAL, CHARACTER_SCALE, CHARACTER_TARGET_HEIGHT, CorridorRun, DeskCluster, HubRoom, HUB_WALL_RADIUS, Plaza, TJunction } from "./SetKit";
 // LAYOUT builder pass (2026-09-14, campus-cross rebuild): pure geometry/math
 // module (no React/Three deps) shared with SetKit.tsx -- see that module's
@@ -952,12 +949,13 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
     [slotCount, seatLocal],
   );
 
-  // One accent moment (2026-09-13): when the brain is genuinely busy
-  // (GPU util > 30%), corridor pulses run faster -- BrainCore does the
-  // matching "brighter rings" half of this internally from the same
-  // utilPct prop it already receives.
+  // One accent moment (2026-09-13): when the brain is genuinely busy (GPU
+  // util > 30%), BrainCore runs its own "brighter rings" pulse faster from
+  // this same value. (PEOPLE pass, 2026-09-14: the matching corridor-pulse
+  // half of this comment -- `corridorSpeedBoost`, fed to the now-deleted
+  // `<Corridor>` -- is gone with Corridor.tsx; `utilPct` itself is still
+  // read below by BrainCore and the alert/thinking derivations.)
   const utilPct = data?.brainVitals.gpu.util_pct ?? null;
-  const corridorSpeedBoost = utilPct !== null && utilPct > 30 ? 1 + Math.min(1, (utilPct - 30) / 70) * 0.9 : 1;
 
   // Presence greeter (J 2026-09-13: "nearest agent turns to the viewer /
   // night-patrol dim"): a STATIC pick (camera never orbits, only drifts
@@ -1310,115 +1308,34 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
   // reference is stable across no-op polls same as everything else here.
   const auditByName = useMemo(() => new Map((data?.audit?.personas ?? []).map((a) => [a.name, a] as const)), [data?.audit]);
 
-  // Activity bubbles (Pass B, "what they are doing," 2026-09-13) -- one
-  // candidate per WORKING lane/persona, text from real evidence only:
-  // lanes get health+state+evidence (RED gets a "!" prefix and `urgent`,
-  // which ActivityBubbleLayer uses to always outrank non-urgent bubbles at
-  // the same camera distance), personas get recentOutput or a
-  // rosterEvidenceText "quiet since..." fallback -- the SAME two text
-  // sources Hud.tsx's roster panel already reads, so the in-scene bubble
-  // and the flat HUD panel never disagree about what a persona is doing.
-  // Parked lanes / IDLE personas are excluded entirely (candidates with no
-  // Agent body shouldn't get a bubble hovering over nothing). Bubble Y is
-  // agentHome's own Y + 2.0 -- above a 1.8-unit-tall character's head,
-  // clear of StationModule's doorway nameplate (y=2.3) and PersonaModule's
-  // nameplate (its own Html, unaffected).
-  const activityCandidates: ActivityBubbleCandidate[] = useMemo(() => {
-    const out: ActivityBubbleCandidate[] = [];
-    rows.forEach((row, i) => {
-      if (isParkedState(row.state, row.health)) return;
-      const slot = geometry[i] ?? geometry[0];
-      const pos: [number, number, number] = [slot.agentHome[0], slot.agentHome[1] + 2.0, slot.agentHome[2]];
-      const text = row.health === "red"
-        ? truncateOneLine(`! ${row.evidence}`, 60)
-        : truncateOneLine(`${row.state} · ${row.evidence}`, 60);
-      out.push({ key: `lane:${row.lane}`, position: pos, text, urgent: row.health === "red" });
-    });
-    innerPersonas.forEach((p, i) => {
-      if (p.status === "IDLE") return;
-      const slot = personaGeometry[i] ?? personaGeometry[0];
-      const pos: [number, number, number] = [slot.agentHome[0], slot.agentHome[1] + 2.0, slot.agentHome[2]];
-      // I3 (INTERACT-2, 2026-09-14): "each person's bubble shows their own
-      // one-line status (recentOutput or their desk headline)" -- desk
-      // headline is a new, more targeted fallback ahead of the generic
-      // "quiet since..." evidence text, since it names the SAME real
-      // source the persona's own desk screen shows.
-      const deskHeadline = data?.desks?.[p.name]?.headline;
-      const text = p.recentOutput
-        ? truncateOneLine(p.recentOutput, 60)
-        : deskHeadline
-          ? truncateOneLine(deskHeadline, 60)
-          : truncateOneLine(rosterEvidenceText(p.lastFireISO), 60);
-      out.push({ key: `persona:${p.name}`, position: pos, text, urgent: p.status === "RED" });
-    });
-    // Item 2b (LIVE-1, 2026-09-14): "each walk gets... a speech bubble with
-    // the reason" -- positioned AT the destination (not tracking the
-    // walker's own mid-flight position, which would need a per-frame
-    // update this poll-driven list doesn't have) so it reads as "<name> is
-    // over there, doing <reason>" for the ~14s the walk is actually active.
-    purposefulWalks.forEach(({ walk, target }, i) => {
-      if (!walk.active) return;
-      const p = innerPersonas[i];
-      const destLabel = walk.destination === "ideas-wall" ? "ideas wall" : walk.destination === "core" ? "core" : walk.destination === "neighbor" ? "neighbor" : "lounge";
-      const pos: [number, number, number] = [target[0], target[1] + 2.0, target[2]];
-      out.push({ key: `walk:${p.name}`, position: pos, text: truncateOneLine(`${p.name} -> ${destLabel}: ${walk.reason}`, 60), urgent: false });
-    });
-    // INTERACT-2 (I2 a/b, 2026-09-14): the Chef/Coach -> Gamma hub exchange
-    // -- two bubbles per active event (the visitor's own real crew-event
-    // line, Gamma's deterministic ack). Active for EVENT_BUBBLE_WINDOW_MIN
-    // minutes after the row's own real ts_et.
-    const hubExchanges: Array<{ persona: string; event: (typeof crewEvents)[number] }> = [];
-    if (latestChefVerdict) hubExchanges.push({ persona: "Chef", event: latestChefVerdict });
-    if (latestCoachSectors) hubExchanges.push({ persona: "Coach", event: latestCoachSectors });
-    hubExchanges.forEach(({ persona: name, event }) => {
-      const ageMin = minutesSinceEvidence(event.ts_et);
-      if (ageMin === null || ageMin >= EVENT_BUBBLE_WINDOW_MIN) return;
-      const visitorPos: [number, number, number] = [gammaHubMeet[0], gammaHubMeet[1] + 2.0, gammaHubMeet[2]];
-      out.push({ key: `hubevent:${name}`, position: visitorPos, text: truncateOneLine(event.line, 60), urgent: false });
-      const ackPos: [number, number, number] = [gammaDeskCenter[0], 2.0, gammaDeskCenter[2]];
-      out.push({ key: "hubevent:gamma-ack", position: ackPos, text: truncateOneLine(GAMMA_CREW_ACK[event.kind] ?? "logged, thanks", 60), urgent: false });
-    });
-    // INTERACT-2 (I2 c-f, 2026-09-14): a matching destination bubble for
-    // each of the remaining four named-event walks -- same
-    // EVENT_BUBBLE_WINDOW_MIN activeness window, each keyed off the SAME
-    // real age signal that gates its own walk trigger above.
-    const namedBubbles: Array<{ key: string; ageMin: number | null; targetPos: [number, number, number] | undefined; text: string }> = [
-      {
-        key: "namedwalk:Analyst",
-        ageMin: data?.desks?.Analyst?.ageMin ?? null,
-        targetPos: findPersonaHome("Chef"),
-        text: `Analyst -> Chef: your queue: ${data?.desks?.Analyst?.headline ?? "new digest"}`,
-      },
-      {
-        key: "namedwalk:Scout",
-        ageMin: innerPersonas.find((p) => p.name === "Scout")?.deliverable.ageMin ?? null,
-        targetPos: findPersonaHome("Pilot"),
-        text: "Scout -> Pilot: fresh catalyst read",
-      },
-      {
-        key: "namedwalk:Treasurer",
-        ageMin: data?.desks?.Treasurer?.ageMin ?? null,
-        targetPos: gammaHubMeet,
-        text: `Treasurer -> Gamma: ${data?.desks?.Treasurer?.headline ?? "new report"}`,
-      },
-      {
-        key: "namedwalk:Pilot",
-        ageMin: latestCoreAny && hhmmFromEtIso(latestCoreAny.tsEt) >= "15:55" ? minutesSinceEvidence(latestCoreAny.tsEt) : null,
-        targetPos: findPersonaHome("Analyst"),
-        text: "Pilot -> Analyst: day's decisions in, handing off",
-      },
-    ];
-    namedBubbles.forEach(({ key, ageMin, targetPos, text }) => {
-      if (ageMin === null || ageMin >= EVENT_BUBBLE_WINDOW_MIN || !targetPos) return;
-      const pos: [number, number, number] = [targetPos[0], targetPos[1] + 2.0, targetPos[2]];
-      out.push({ key, position: pos, text: truncateOneLine(text, 60), urgent: false });
-    });
-    return out;
-  }, [
-    rows, geometry, innerPersonas, personaGeometry, purposefulWalks, crewEvents,
-    latestChefVerdict, latestCoachSectors, gammaHubMeet, gammaDeskCenter, data?.desks,
-    data?.trading?.core?.safe?.tsEt, data?.trading?.core?.bold?.tsEt,
-  ]);
+  // PEOPLE pass (P2/P3, 2026-09-14): the old activityCandidates memo (a
+  // separate ranked/fading bubble LAYER feeding the now-deleted
+  // ActivityBubbleLayer.tsx) is gone -- each bubble now lives INSIDE its own
+  // walker (Agent.tsx/GammaCharacter.tsx's own <Html> child, travels with
+  // the mesh) instead of a fixed-point overlay. What that memo computed is
+  // now computed WHERE it's consumed: `laneBubbleAction`/`personaBubbleAction`
+  // (bubbleText.ts, real evidence only -- same two sources Hud.tsx's roster
+  // panel reads) inline per row/persona below, and this small helper for the
+  // rotational purposeful-walk's destination label (unchanged wording from
+  // the old memo).
+  const purposefulDestLabel = (destination: (typeof purposefulWalks)[number]["walk"]["destination"]): string =>
+    destination === "ideas-wall" ? "ideas wall" : destination === "core" ? "core" : destination === "neighbor" ? "neighbor" : "lounge";
+
+  // INTERACT-2 (I2 c-f)'s 4 named-event-walk reason phrases, by SOURCE
+  // persona name -- unchanged wording from the old memo's `namedBubbles`
+  // array, just re-shaped as "-> destination · reason" (no leading persona
+  // name: Agent.tsx's own bubble JSX already bolds `laneSeed` as that name,
+  // so repeating it here would read "Scout · Scout -> Pilot: ..."). Freshness
+  // gating (the old ageMin >= EVENT_BUBBLE_WINDOW_MIN check) is no longer
+  // needed here -- Agent.tsx snapshots this text ONLY at the instant its own
+  // eventWalkEventKey trigger actually fires (the real gate), not on a
+  // separate re-evaluated timer.
+  const NAMED_WALK_REASON: Record<string, string> = {
+    Scout: "-> Pilot · fresh catalyst read",
+    Analyst: `-> Chef · your queue: ${data?.desks?.Analyst?.headline ?? "new digest"}`,
+    Treasurer: `-> Gamma · ${data?.desks?.Treasurer?.headline ?? "new report"}`,
+    Pilot: "-> Analyst · day's decisions in, handing off",
+  };
 
   const resolveHandoffPosition = (label: string): [number, number, number] => {
     const stripped = label.replace(/^[^\w]+/u, "").trim();
@@ -1618,17 +1535,17 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
           piece in this scene (TV tier keeps BrainCore's plaque-only
           depiction, no draw-call budget for a 15th character body). */}
       {ultra && (() => {
-        // World-2 coordinator review ("de-overlap the hub"): active under
-        // the SAME EVENT_BUBBLE_WINDOW_MIN age check the activityCandidates
-        // memo's own hubExchanges.forEach uses above -- reimplemented here
-        // (not reading the memo's output) since this needs to run OUTSIDE
-        // that memo, off `latestChefVerdict`/`latestCoachSectors` (already
-        // computed once per render above, before the memo).
-        const isGammaExchangeActive = [latestChefVerdict, latestCoachSectors].some((event) => {
+        // PEOPLE pass (P2, 2026-09-14): find WHICH hub-exchange event (if
+        // any) is still fresh (same EVENT_BUBBLE_WINDOW_MIN age check the
+        // old activityCandidates memo's hubExchanges.forEach used) -- not
+        // just a boolean, since GammaCharacter now needs the event's own
+        // `kind` to look up its real ack line (GAMMA_CREW_ACK above) rather
+        // than merely hiding her bubble while one is active.
+        const activeGammaExchange = [latestChefVerdict, latestCoachSectors].find((event) => {
           if (!event) return false;
           const ageMin = minutesSinceEvidence(event.ts_et);
           return ageMin !== null && ageMin < EVENT_BUBBLE_WINDOW_MIN;
-        });
+        }) ?? null;
         return (
         <GammaCharacter
           deskCenter={gammaDeskCenter}
@@ -1636,7 +1553,7 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
           accentColor={allPersonas[0]?.color ?? PALETTE.hubCore}
           lastRow={data?.brainVitals.lastRow ?? null}
           nextLine={managerNextLine}
-          suppressBubble={isGammaExchangeActive}
+          ackOverride={activeGammaExchange ? (GAMMA_CREW_ACK[activeGammaExchange.kind] ?? "logged, thanks") : null}
           briefText={data?.brief.text ?? ""}
           briefMtimeMs={data?.brief.mtime_ms ?? null}
           utilPct={data?.brainVitals.gpu.util_pct ?? null}
@@ -1664,29 +1581,17 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
       {rows.map((row, i) => {
         const slot = geometry[i] ?? geometry[0];
         const behavior = deriveBehavior(row, gaming);
+        // PEOPLE pass (P2/P3): the old ambient-pulse `<Corridor>` (2 hops,
+        // bay -> T-junction -> hub doorway) is REMOVED per J's own "the
+        // traveling orbs can go too" -- Corridor.tsx itself is deleted
+        // below this commit's own file list; this bay's real hallway
+        // GEOMETRY (`<CorridorRun>`, a completely different component --
+        // walls/floor/kit pieces, not a moving pulse) is untouched. A
+        // parked lane gets no bubble at all (matches the old
+        // ActivityBubbleLayer's own isParkedState exclusion).
+        const laneBubble = isParkedState(row.state, row.health) ? null : laneBubbleAction(row);
         return (
           <group key={row.lane}>
-            {/* Ambient data pulse -- 2 hops (bay -> T-junction -> hub
-                doorway) instead of one straight bay -> HUB shot, so it
-                travels the SAME hallway centerline a walker would instead
-                of cutting a diagonal through a wall corner (see
-                Corridor.tsx's own header for why it never draws walls of
-                its own -- only this scene's own call-site geometry decides
-                the path it travels). */}
-            <Corridor
-              from={slot.position}
-              to={slot.tCenter}
-              freshness={freshness01(minutesSinceEvidence(row.last_evidence_et))}
-              speedBoost={corridorSpeedBoost}
-              reducedMotion={reducedMotion}
-            />
-            <Corridor
-              from={slot.tCenter}
-              to={ARMS[slot.armIndex].hubDoorPos}
-              freshness={freshness01(minutesSinceEvidence(row.last_evidence_et))}
-              speedBoost={corridorSpeedBoost}
-              reducedMotion={reducedMotion}
-            />
             {/* Side hallway -- this bay's own T-junction edge to its own
                 door. `doorAtFrom={false}`: a T-junction has no door, only
                 the two real building entrances (hub doorway, bay doorway)
@@ -1708,10 +1613,14 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
             />
             {/* Scene-root sibling, NOT nested inside StationModule -- see the
                 agentHome comment above. Lane agents never walk anymore (no
-                event cleanly attributes a card to one lane -- see
-                Courier.tsx's own comment on why card-status events route
-                there instead); `presenceMode`/`facingYaw` are set on
-                exactly one statically-chosen lane (nearestLaneIndex). */}
+                event cleanly attributes a card to one lane -- see the
+                (deleted) Courier.tsx's own comment on why card-status
+                events route there instead); `presenceMode`/`facingYaw` are
+                set on exactly one statically-chosen lane (nearestLaneIndex).
+                `bubbleText` is this lane's own little head-bubble (P2) --
+                `${state} · ${evidence}`, "!" prefixed when health is red,
+                the SAME wording ActivityBubbleLayer used to show at a fixed
+                floating point -- now it travels with the walker instead. */}
             <Agent
               laneSeed={row.lane}
               home={slot.agentHome}
@@ -1722,6 +1631,7 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
               presenceMode={i === nearestLaneIndex ? greeterPresenceMode : undefined}
               facingYaw={i === nearestLaneIndex ? greeterFacingYaw : undefined}
               ultra={ultra}
+              bubbleText={laneBubble}
             />
           </group>
         );
@@ -1841,9 +1751,26 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
         const namedWalk = NAMED_EVENT_WALKS[persona.name];
         const eventWalkKeyFinal = hubEvent ? hubEvent.ts_et : namedWalk?.target ? namedWalk.key : undefined;
         const eventWalkTargetFinal = hubEvent ? gammaHubMeet : namedWalk?.target;
+        // PEOPLE pass (P2/P4, 2026-09-14): the reason text for whichever
+        // "purposeful"-kind walk this persona might take -- Agent.tsx reads
+        // whichever of these two actually fired (its own eventWalkPending
+        // ref, the SAME split that already picks the TARGET a few lines up).
+        // hubEvent's own real crew-event line becomes the visitor's bubble
+        // while it stands at Gamma's desk (spec: "the visitor's line becomes
+        // that visitor's own walk purpose") -- never a second floating
+        // bubble at a fixed point.
+        const eventWalkReasonFinal = hubEvent
+          ? `-> Gamma · ${hubEvent.line}`
+          : namedWalk?.target
+            ? NAMED_WALK_REASON[persona.name]
+            : undefined;
+        const purposefulReasonFinal = `-> ${purposefulDestLabel(purposeful.walk.destination)} · ${purposeful.walk.reason}`;
+        // Idle/working bubble text -- lib/crew.ts's own evidence-backed pill
+        // (deriveCrewPill), the SAME derivation Hud.tsx's roster panel uses,
+        // so the 3D bubble and the flat panel can never disagree (P2 spec).
+        const personaBubble = personaBubbleAction(persona, nowMsForWalks);
         return (
           <group key={persona.name}>
-            <PersonaModule position={slot.position} persona={persona} behavior={behavior} audit={auditByName.get(persona.name)} />
             {/* Kit rebuild: persona desks get the SAME real DeskCluster as
                 the lane bays (SetKit.tsx), offset+rotated identically --
                 ultra tier only, no room shell (personas already sit inside
@@ -1889,6 +1816,7 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
                 // every 6-10 min" -- see palette.ts#computePurposefulWalk.
                 purposefulWalkEventKey={purposeful.walk.bucketKey}
                 purposefulTarget={purposeful.target}
+                purposefulReason={purposefulReasonFinal}
                 // INTERACT-2 (I2 a-f): Chef/Coach -> Gamma at the hub on a
                 // real crew-event row, OR one of the four other named-event
                 // walks (Scout->Pilot, Analyst->Chef, Treasurer->Gamma,
@@ -1897,6 +1825,7 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
                 // null/undefined guard on this channel).
                 eventWalkEventKey={eventWalkKeyFinal}
                 eventWalkTarget={eventWalkTargetFinal}
+                eventWalkReason={eventWalkReasonFinal}
                 // Item 2c (LIVE-1): Pilot-only "stands and points at the
                 // wall screen" -- a genuine ENTER/EXIT decision (seen-value-
                 // diff on action+timestamp, same convention as every other
@@ -1908,6 +1837,14 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
                 pointEventKey={isPilot && isTradeAction ? `${decisionAction}@${decisionTimeEt}` : undefined}
                 scheduleDim={offSchedule ? 0.35 : 1}
                 ultra={ultra}
+                // PEOPLE pass (P2/P3): this persona's own little head-bubble
+                // (idle/working text) + the audit-verdict letter chip that
+                // used to live on the now-deleted PersonaModule's nameplate
+                // (its own NAME moved into the bubble too -- `laneSeed`
+                // above already IS `persona.name`, so Agent.tsx's bubble
+                // JSX bolds it for free, no separate prop needed).
+                bubbleText={personaBubble}
+                auditVerdict={auditByName.get(persona.name)?.verdict}
               />
             )}
             {/* Item 2c (LIVE-1): Pilot's desk pulse -- RTH-only (CLAUDE.md's
@@ -1947,9 +1884,17 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
       />
 
       <IdeasWall cards={data?.ideas.cards ?? []} position={WALL_POS} dimFactor={dimFactor} />
-      <Courier cards={data?.ideas.cards ?? []} hub={HUB} wall={WALL_POS} reducedMotion={reducedMotion || gaming} />
-
-      {ultra && !gaming && <ActivityBubbleLayer candidates={activityCandidates} />}
+      {/* PEOPLE pass (P3, 2026-09-14, J: "the traveling orbs can go too"):
+          the hub's anonymous courier bot + the card-status "glowing orb up
+          to the smart board" it used to fly are REMOVED -- Courier.tsx
+          itself is deleted (its props kept `void`-only right up to this
+          commit so this exact mount could compile away cleanly). Card
+          events still reach the world through Chef's own bubble (the
+          hub-exchange `eventWalkReason` wiring above) and the smart board's
+          own content -- the event isn't lost, only the orb. ActivityBubbleLayer
+          (the separate floating-bubble LAYER) is gone too -- see every
+          <Agent>/<GammaCharacter> mount above, each now carries its OWN
+          bubble instead. */}
     </>
   );
 }
