@@ -24,7 +24,18 @@ async function readText(p: string, maxBytes = 32 * 1024): Promise<string | null>
   try {
     const buf = await fs.readFile(p);
     if (buf.length <= maxBytes) return buf.toString("utf8");
-    return buf.subarray(buf.length - maxBytes).toString("utf8") + "\n[truncated]";
+    const tail = buf.subarray(buf.length - maxBytes).toString("utf8");
+    // Pass G nit (b) fix, mirrored from lib/personas.ts's copy of this same
+    // function (2026-09-13) -- this route still carries its own duplicate
+    // (see that file's top-of-file comment: it was extracted, not moved)
+    // so the mid-word-start bug lived in both places; see the other copy
+    // for the full mechanism comment.
+    const lookahead = tail.slice(0, 200);
+    const nl = lookahead.indexOf("\n");
+    if (nl !== -1 && nl < tail.length - 1) return tail.slice(nl + 1) + "\n[truncated]";
+    const sp = lookahead.indexOf(" ");
+    if (sp !== -1) return tail.slice(sp + 1) + "\n[truncated]";
+    return tail + "\n[truncated]";
   } catch { return null; }
 }
 

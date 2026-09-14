@@ -85,7 +85,26 @@ const TV_PERSONA_SEAT_LOCAL: [number, number, number] = [0, 0, -0.1];
 // module-space angle that faces the camera most directly is (90deg -
 // BASE_AZIMUTH) -- the arc is centered there, spanning ~230deg so all 8
 // modules stay generally camera-facing and spread across the 16:9 frame.
-const ARC_CENTER = Math.PI / 2 - BASE_AZIMUTH;
+// Pass G nit (a) (2026-09-13, coordinator: "the far-left lane labels are cut
+// by the canvas edge... nudge the camera azimuth or ring"). Decoupled from
+// BASE_AZIMUTH on purpose -- the camera's own orbit position/lookAt/drift
+// stay completely untouched, only the module arc rotates a further N deg
+// around the SAME center. Geometry (camera at BASE_AZIMUTH~=38.7deg,
+// looking at origin) puts the arc's t=1 end (angle ~166deg) very close to
+// the screen's true leftmost bearing (~141deg) and the t=0 end (~-63.7deg)
+// close to the screen's true rightmost bearing (~-38.7deg) -- a positive
+// nudge here pushes BOTH ends away from their respective screen extremes'
+// close side, pulling t=1's clipped label inward; it also pushes t=0
+// slightly closer to the right edge, which the Pass G item-1 layout split
+// already made a clean clip (not a collision) rather than a problem. A 6deg
+// first guess (real capture, hq-world-G-shadowtest.png) visibly revealed
+// one more character of the clipped label ("on-SPY 0DTE)" -> "non-SPY
+// 0DTE)") but wasn't conclusively fully clear -- 10deg here as the one
+// follow-up per this same file's own no-blind-repeated-guessing discipline
+// (ARC_SPAN, Pass F). Verify via the final real capture; if still clipped,
+// document honestly rather than guess a third angle.
+const ARC_CENTER_NUDGE = (10 * Math.PI) / 180;
+const ARC_CENTER = Math.PI / 2 - BASE_AZIMUTH + ARC_CENTER_NUDGE;
 // Pass F (2026-09-13): tried 200 here to pull Crypto twin/Futures (the
 // labels still grazing the roster column after the framing fix alone) back
 // toward center -- REVERTED after a real re-capture showed it made that
@@ -527,6 +546,24 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
           the TV tier's identical light stays shadow-free (shadows={false}
           on CanvasRoot's <Canvas> makes castShadow a no-op there anyway,
           so this prop is harmless to set unconditionally). */}
+      {/* Pass G item 2, RULED OUT (2026-09-13). Tested the coordinator's own
+          shadow hypothesis two ways: (1) source-code check -- meshbasic.
+          glsl.js (three 0.184, this repo's node_modules) shows
+          MeshBasicMaterial's fragment shader includes ZERO shadow chunks,
+          and SkyDome's mesh never sets receiveShadow (Object3D default is
+          false) -- "shadow lands on the sky dome" is structurally
+          impossible here, verified from source, not guessed. (2) real
+          capture with castShadow forced false scene-wide (hq-world-
+          G-shadowtest.png) -- the arch was PIXEL-IDENTICAL in shape/size/
+          position with every shadow in the scene off, ruling out ANY
+          shadow mechanism (not just the sky-dome-specific one), including
+          HubRoom self-shadowing its own concave interior. Combined with
+          Pass G's earlier emissive+rotation null results, three independent
+          real tests now agree: not lighting, not facing, not shadows --
+          left as a likely genuine mesh-silhouette gap, flagged for direct
+          inspection next pass. castShadow restored to `ultra` (real
+          shadows back on for floors/desks -- this toggle was scene-wide and
+          never should ship disabled). */}
       <directionalLight
         position={[6, 10, 4]}
         intensity={0.55 * nightMult * dimFactor}

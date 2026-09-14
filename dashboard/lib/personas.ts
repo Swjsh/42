@@ -27,7 +27,26 @@ async function readText(p: string, maxBytes = 32 * 1024): Promise<string | null>
   try {
     const buf = await fs.readFile(p);
     if (buf.length <= maxBytes) return buf.toString("utf8");
-    return buf.subarray(buf.length - maxBytes).toString("utf8") + "\n[truncated]";
+    const tail = buf.subarray(buf.length - maxBytes).toString("utf8");
+    // Pass G nit (b) (2026-09-13, coordinator: roster snippets start
+    // mid-word, e.g. "ehavior (breakers are the ..."). Root cause: the tail
+    // slice above cuts at a raw BYTE offset with zero regard for line or
+    // word boundaries -- any file over maxBytes had its preview start
+    // wherever that offset happened to land, mid-word as often as not.
+    // Fix: advance past the first line break within a short lookahead so
+    // the preview starts at a real line -- in these markdown digest/
+    // leaderboard files (Chef/Treasurer/Analyst) one line IS one bullet/
+    // sentence, so "start at a line" and "prefer the sentence's start"
+    // are the same fix here, not two. Falls back to the next space if no
+    // newline appears nearby (one very long line), and to the raw tail
+    // only if neither boundary exists in the lookahead -- never returns
+    // empty chasing a boundary that isn't there.
+    const lookahead = tail.slice(0, 200);
+    const nl = lookahead.indexOf("\n");
+    if (nl !== -1 && nl < tail.length - 1) return tail.slice(nl + 1) + "\n[truncated]";
+    const sp = lookahead.indexOf(" ");
+    if (sp !== -1) return tail.slice(sp + 1) + "\n[truncated]";
+    return tail + "\n[truncated]";
   } catch { return null; }
 }
 
