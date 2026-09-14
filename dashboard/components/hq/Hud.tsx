@@ -218,7 +218,7 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents }: 
                     {p.emoji} {p.name}
                   </span>
                 </div>
-                <div style={{ color: "#9fb3cc", fontSize: 22, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginTop: 2 }}>
+                <div style={{ color: "#9fb3cc", fontSize: 24, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginTop: 2 }}>
                   {rosterEvidenceText(p.lastFireISO)} &mdash; {truncateOneLine(p.recentOutput, 60)}
                 </div>
               </div>
