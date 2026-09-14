@@ -1,13 +1,12 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useRef } from "react";
 import type { CSSProperties } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import * as THREE from "three";
 import type { SectorRow } from "./types";
 import type { AgentBehavior } from "./Agent";
-import Agent from "./Agent";
 import { healthColor, isParkedState, PALETTE } from "./palette";
 
 const _screenColor = new THREE.Color();
@@ -19,27 +18,10 @@ interface StationModuleProps {
   behavior: AgentBehavior;
   reducedMotion: boolean;
   dimFactor: number;
-  hubPosition: [number, number, number];
-}
-
-/** Local-space (module "front" = -Z, toward the hub) -> world-space, using
- * the SAME rotation this module's group applies (see rotationY below) --
- * computed with plain trig, not a matrix/quaternion, since it's only ever
- * called at render time for a couple of fixed offsets, never per frame. */
-function localToWorld(
-  center: [number, number, number], rotationY: number, local: [number, number, number],
-): [number, number, number] {
-  const cos = Math.cos(rotationY);
-  const sin = Math.sin(rotationY);
-  return [
-    center[0] + local[0] * cos + local[2] * sin,
-    center[1] + local[1],
-    center[2] - local[0] * sin + local[2] * cos,
-  ];
 }
 
 export default function StationModule({
-  position, angle, row, behavior, reducedMotion, dimFactor, hubPosition,
+  position, angle, row, behavior, reducedMotion, dimFactor,
 }: StationModuleProps) {
   const beaconRef = useRef<THREE.Mesh>(null);
   const screenMat = useRef<THREE.MeshBasicMaterial>(null);
@@ -48,10 +30,6 @@ export default function StationModule({
   const parked = isParkedState(row.state, row.health);
   const color = healthColor(row.health);
   const rotationY = Math.PI / 2 - angle;
-  // Memoized on [position, rotationY] (both stable across polls -- see
-  // Scene.tsx's geometry memo) so Agent's own home-position effect only
-  // fires on a real geometry change, never on every poll's fresh row data.
-  const agentHome = useMemo(() => localToWorld(position, rotationY, [0, 0, -0.15]), [position, rotationY]);
   const moduleDim = (parked ? 0.35 : 1) * dimFactor;
 
   // Health tint is now BAKED INTO brightness (opaque, unlit MeshBasicMaterial
@@ -147,15 +125,6 @@ export default function StationModule({
           </div>
         </div>
       </Html>
-
-      <Agent
-        laneSeed={row.lane}
-        home={agentHome}
-        hub={hubPosition}
-        behavior={behavior}
-        accentColor={color}
-        reducedMotion={reducedMotion}
-      />
     </group>
   );
 }

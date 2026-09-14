@@ -17,20 +17,24 @@ const REST_OFFSET: [number, number, number] = [1.1, 0, -1.1];
 const CARRY_DURATION = 2.4;
 
 /**
- * The one agent that lives at the hub: when a NEW idea-card id appears
- * between polls, it walks toward the core and a small glowing card rises
- * from the core to the Ideas wall. First snapshot on mount seeds `seenIds`
- * without animating (so page load doesn't fire a burst of carries for
- * every pre-existing card) -- only genuinely new cards after that queue a
- * carry. Simplification: the courier itself stays ground-level and the
- * card visually "rises" the rest of the way to the elevated wall, since a
+ * The one agent that lives at the hub: walks toward the core and carries a
+ * small glowing card up to the Ideas wall whenever (a) a NEW idea-card id
+ * appears, or (b) an existing card's STATUS changes (J 2026-09-13: a
+ * Test/Kill/supported/refuted verdict is a real, nameable event -- routed
+ * here rather than to a "lane agent" because StationIdeaCard carries no
+ * lane/arm field to attribute a card to one of the sector-row lanes).
+ * First snapshot on mount seeds `seenCards` without animating (so page load
+ * doesn't fire a burst of carries for every pre-existing card) -- only a
+ * genuinely new id or a genuinely changed status after that queues a carry.
+ * Simplification: the courier itself stays ground-level and the card
+ * visually "rises" the rest of the way to the elevated wall, since a
  * capsule-legged bot climbing there would look wrong.
  */
 export default function Courier({ cards, hub, wall, reducedMotion }: CourierProps) {
   const bodyGroup = useRef<THREE.Group>(null);
   const cardMesh = useRef<THREE.Mesh>(null);
 
-  const seenIds = useRef<Set<string> | null>(null);
+  const seenCards = useRef<Map<string, string> | null>(null);
   const queue = useRef<string[]>([]);
   const carrying = useRef(false);
   const carryStart = useRef(0);
@@ -38,16 +42,16 @@ export default function Courier({ cards, hub, wall, reducedMotion }: CourierProp
   const restWorld: [number, number, number] = [hub[0] + REST_OFFSET[0], hub[1], hub[2] + REST_OFFSET[2]];
 
   useEffect(() => {
-    const ids = cards.map((c) => c.id);
-    const seen = seenIds.current;
+    const seen = seenCards.current;
     if (seen === null) {
-      seenIds.current = new Set(ids);
+      seenCards.current = new Map(cards.map((c) => [c.id, c.status]));
       return;
     }
-    for (const id of ids) {
-      if (!seen.has(id)) {
-        seen.add(id);
-        queue.current.push(id);
+    for (const c of cards) {
+      const prevStatus = seen.get(c.id);
+      if (prevStatus === undefined || prevStatus !== c.status) {
+        seen.set(c.id, c.status);
+        queue.current.push(c.id);
       }
     }
   }, [cards]);

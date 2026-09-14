@@ -31,6 +31,42 @@ export function healthColor(health: string): string {
   return HEALTH_COLOR[health] ?? "#7f93b0";
 }
 
+// Company Mode (2026-09-13): persona status colors are a DELIBERATELY
+// separate map from HEALTH_COLOR above -- lanes (what the firm trades) and
+// personas (who does the work) are orthogonal axes per the research brief's
+// own finding; sharing one color function between them would misstate the
+// system even though both happen to use a conventional green/amber/red
+// scale. Never call healthColor() on a PersonaState.status value or vice
+// versa -- the enums don't even match (green/amber/red/frozen/zombie vs.
+// GREEN/YELLOW/RED/IDLE).
+export const PERSONA_STATUS_COLOR: Record<string, string> = {
+  GREEN: "#22ff88",
+  YELLOW: "#ffb020",
+  RED: "#ff3b3b",
+  IDLE: "#6a86b8",
+};
+
+export function personaStatusColor(status: string): string {
+  return PERSONA_STATUS_COLOR[status] ?? PERSONA_STATUS_COLOR.IDLE;
+}
+
+/** "3m ago" / "2h ago" / "1d ago" -- shared by PersonaModule's nameplate and
+ * Hud.tsx's roster panel so both agree on one wording (moved here 2026-09-13
+ * rather than duplicated, per this file's own "small deterministic helpers"
+ * remit). Not persona-specific despite the callers -- takes any ISO string
+ * or null. */
+export function timeAgoText(iso: string | null): string {
+  if (!iso) return "never fired";
+  const t = Date.parse(iso);
+  if (Number.isNaN(t)) return "never fired";
+  const min = Math.max(0, (Date.now() - t) / 60000);
+  if (min < 1) return "just now";
+  if (min < 60) return `${Math.round(min)}m ago`;
+  const hr = min / 60;
+  if (hr < 48) return `${Math.round(hr)}h ago`;
+  return `${Math.round(hr / 24)}d ago`;
+}
+
 export const IDEA_STATUS_COLOR: Record<string, string> = {
   proposed: "#22d3ee",
   testing: "#ffb020",
@@ -128,4 +164,28 @@ export function clamp01(v: number): number {
 
 export function lerp(a: number, b: number, t: number): number {
   return a + (b - a) * t;
+}
+
+/** Local-space (a module/desk's "front" = -Z, toward the hub) -> TRUE
+ * world-space, using the same rotation a module's own room-geometry group
+ * applies. Bug fix (2026-09-13, HQ v3): this must be called for anything
+ * (like an Agent) that will be mounted as a SCENE-ROOT sibling, never as a
+ * child already nested inside a group transformed by the same
+ * center/rotationY -- doing both compounds the transform twice and lands
+ * the object ~one ring-radius away from where it belongs (confirmed
+ * numerically: an agent meant to sit 0.15 units from its module rendered
+ * ~9.65 units away instead, when Agent was nested inside StationModule's
+ * own positioned+rotated <group>). Scene.tsx now computes this once per
+ * lane/persona and renders <Agent> as a top-level sibling of the room
+ * geometry, not its child. */
+export function localToWorld(
+  center: [number, number, number], rotationY: number, local: [number, number, number],
+): [number, number, number] {
+  const cos = Math.cos(rotationY);
+  const sin = Math.sin(rotationY);
+  return [
+    center[0] + local[0] * cos + local[2] * sin,
+    center[1] + local[1],
+    center[2] - local[0] * sin + local[2] * cos,
+  ];
 }

@@ -173,23 +173,157 @@ export async function appendTvPerfRow(row: TvPerfRow): Promise<void> {
   await fs.rename(tmp, paths.tvPerf);
 }
 
-/** The latest page==="hq" row (or null) -- scanned from the tail backward so
- * a mixed station+hq history still finds the right one. Fail-open: a
- * missing file or one malformed line never throws. */
-export async function readLatestHqPerf(): Promise<TvPerfRow | null> {
+function isTvUa(ua: string | undefined): boolean {
+  return !!ua && (ua.includes("SMART-TV") || ua.includes("Tizen"));
+}
+
+/** The latest page==="hq" rows, split by UA (2026-09-13 bug fix): a PC
+ * browser visit to the LAN URL (fps ~460+, Chrome/Windows) was overwriting
+ * the TV's own number in the HUD, since the original version just took the
+ * newest hq-page line regardless of who sent it. `perf` is now the latest
+ * row whose `ua` contains "SMART-TV" or "Tizen" -- falling back to the
+ * latest row of ANY origin only if no TV row exists yet at all, so the HUD
+ * still shows something rather than nothing on a brand new deploy before
+ * the TV has reported once. `perfOther` is the latest non-TV row (or null),
+ * kept separately rather than dropped so a caller can still show "someone
+ * viewed this from a desktop" without it displacing the TV's number.
+ * Fail-open: a missing file or one malformed line never throws. */
+export async function readLatestHqPerf(): Promise<{ perf: TvPerfRow | null; perfOther: TvPerfRow | null }> {
   try {
     const text = await fs.readFile(paths.tvPerf, "utf-8");
     const lines = text.trim().split("\n").filter(Boolean);
+    let latestAny: TvPerfRow | null = null;
+    let latestTv: TvPerfRow | null = null;
+    let latestOther: TvPerfRow | null = null;
     for (let i = lines.length - 1; i >= 0; i--) {
+      let row: TvPerfRow;
       try {
-        const row = JSON.parse(lines[i]) as TvPerfRow;
-        if (row.page === "hq") return row;
+        row = JSON.parse(lines[i]) as TvPerfRow;
       } catch {
-        // one malformed line never blocks scanning the rest of the tail
+        continue; // one malformed line never blocks scanning the rest of the tail
+      }
+      if (row.page !== "hq") continue;
+      if (!latestAny) latestAny = row;
+      if (isTvUa(row.ua)) {
+        if (!latestTv) latestTv = row;
+      } else if (!latestOther) {
+        latestOther = row;
+      }
+      if (latestTv && latestOther) break;
+    }
+    return { perf: latestTv ?? latestAny, perfOther: latestOther };
+  } catch {
+    return { perf: null, perfOther: null };
+  }
+}
+
+// ─── "NEEDS J" card (HQ v3 Company Mode, 2026-09-13, mechanics brief §10
+//     item 5): a read-only merge of three EXISTING producers, zero new
+//     writers. Fail-open per source -- one missing/garbled file contributes
+//     nothing, never a 500 for the whole card. ─────────────────────────────
+
+export interface BlockedItem {
+  source: "discord" | "conductor_proposal" | "queue_escalation";
+  ts: string | null;
+  text: string;
+}
+
+/** discord-outbox.jsonl has NO delivered/resolved marker anywhere in its
+ * schema (checked directly: 7623 rows, several shapes -- {content,source,
+ * queued_at}, {ts,channel,message,source}, {ts,source,reason,detail,...} --
+ * none carry a status/delivered/resolved field). So "not marked delivered/
+ * resolved" reduces to "recent" here: this reads only the last 300 rows
+ * (not the whole 7623-row history) and treats every one of those that
+ * mentions J as still-relevant, rather than inventing a resolution state
+ * this producer doesn't track. Body text comes from whichever of
+ * content/message/detail is present. */
+async function readDiscordBlocked(): Promise<BlockedItem[]> {
+  try {
+    const text = await fs.readFile(paths.discordOutbox, "utf-8");
+    const lines = text.trim().split("\n").filter(Boolean).slice(-300);
+    const items: BlockedItem[] = [];
+    for (const line of lines) {
+      try {
+        const row = JSON.parse(line) as {
+          content?: string; message?: string; detail?: string;
+          ts?: string; queued_at?: string; ts_utc?: string;
+        };
+        const body = row.content ?? row.message ?? row.detail ?? "";
+        if (!body.includes("<@") && !body.includes("J:")) continue;
+        items.push({ source: "discord", ts: row.ts ?? row.queued_at ?? row.ts_utc ?? null, text: body.slice(0, 140) });
+      } catch {
+        // one malformed line never blocks the rest
       }
     }
-    return null;
+    return items.reverse(); // newest-first within this source
   } catch {
-    return null;
+    return [];
   }
+}
+
+async function readConductorProposalsBlocked(): Promise<BlockedItem[]> {
+  try {
+    const text = await fs.readFile(paths.conductorProposals, "utf-8");
+    const lines = text.trim().split("\n").filter(Boolean);
+    const items: BlockedItem[] = [];
+    for (const line of lines) {
+      try {
+        const row = JSON.parse(line) as { status?: string; created_at?: string; title?: string; apply?: string; proposal_id?: string };
+        if (row.status !== "pending") continue;
+        const label = row.title || row.apply || row.proposal_id || "pending proposal";
+        items.push({ source: "conductor_proposal", ts: row.created_at ?? null, text: label.slice(0, 140) });
+      } catch {
+        // one malformed line never blocks the rest
+      }
+    }
+    return items.reverse();
+  } catch {
+    return [];
+  }
+}
+
+/** "Lines containing FABLE-ESCALATION" per the literal spec -- a simple
+ * substring match, not a tag parser (queue.md mixes "- [ ] FABLE-ESCALATION-
+ * ..." task lines, "## FABLE-ESCALATION: ..." headings, and prose that just
+ * mentions the term; all three match, which can occasionally over-include a
+ * line that only references an escalation rather than declaring one -- an
+ * acceptable trade for a read-only visibility card). No reliable per-line
+ * timestamp field exists in this free-form doc, so "newest first" uses
+ * reverse FILE order (an append-oriented queue file) as the recency proxy;
+ * a "filed YYYY-MM-DD" date embedded in the line's own prose is extracted
+ * as `ts` when present. */
+async function readQueueEscalations(): Promise<BlockedItem[]> {
+  try {
+    const text = await fs.readFile(paths.overnightQueue, "utf-8");
+    const lines = text.split("\n");
+    const items: BlockedItem[] = [];
+    for (const line of lines) {
+      if (!line.includes("FABLE-ESCALATION")) continue;
+      const dateMatch = /filed (\d{4}-\d{2}-\d{2})/.exec(line);
+      items.push({ source: "queue_escalation", ts: dateMatch ? dateMatch[1] : null, text: line.trim().slice(0, 140) });
+    }
+    return items.reverse();
+  } catch {
+    return [];
+  }
+}
+
+/** Merges all three sources, newest-first (rows with a ts sort before rows
+ * without one), capped at 8. Each per-source reader is independently
+ * fail-open, so one bad file degrades to "contributes nothing", never a 500
+ * for the whole card. */
+export async function readBlocked(): Promise<BlockedItem[]> {
+  const [discord, proposals, escalations] = await Promise.all([
+    readDiscordBlocked(),
+    readConductorProposalsBlocked(),
+    readQueueEscalations(),
+  ]);
+  const all = [...discord, ...proposals, ...escalations];
+  all.sort((a, b) => {
+    if (a.ts && b.ts) return b.ts.localeCompare(a.ts);
+    if (a.ts) return -1;
+    if (b.ts) return 1;
+    return 0;
+  });
+  return all.slice(0, 8);
 }

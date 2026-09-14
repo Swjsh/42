@@ -1,23 +1,27 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import * as THREE from "three";
-import { clamp01, lerp, PALETTE } from "./palette";
+import type { PersonaState } from "@/lib/personas";
+import { clamp01, lerp, PALETTE, personaStatusColor } from "./palette";
 
 interface BrainCoreProps {
   utilPct: number | null;
   memUsedMib: number | null;
   memTotalMib: number | null;
   modelName: string | null;
+  manager: PersonaState | null;
+  briefMtimeMs: number | null;
   gaming: boolean;
   dimFactor: number;
   reducedMotion: boolean;
 }
 
 const GAUGE_WIDTH = 1.8;
+const PULSE_DURATION_MS = 10_000;
 
 /**
  * Central hub -- Gamma's "brain core". Sphere + two counter-rotating rings +
@@ -27,7 +31,7 @@ const GAUGE_WIDTH = 1.8;
  * state.clock.elapsedTime -- cheap scalar math, no throttling needed.
  */
 export default function BrainCore({
-  utilPct, memUsedMib, memTotalMib, modelName, gaming, dimFactor, reducedMotion,
+  utilPct, memUsedMib, memTotalMib, modelName, manager, briefMtimeMs, gaming, dimFactor, reducedMotion,
 }: BrainCoreProps) {
   const coreMat = useRef<THREE.MeshStandardMaterial>(null);
   const ringA = useRef<THREE.Mesh>(null);
@@ -43,11 +47,58 @@ export default function BrainCore({
   // corridor pulses from the same utilPct reading.
   const ringBoost = utilFrac > 0.3 ? 1 + Math.min(1, (utilFrac - 0.3) / 0.7) * 0.7 : 1;
 
-  useFrame((state) => {
+  // All-hands pulse (Company Mode step 6, 2026-09-13): fires ~10s of
+  // doubled ring speed + a plaque when station-brief.md's mtime
+  // (data.brief.mtime_ms, already exposed on /api/hq) changes to a
+  // genuinely NEW value -- chosen over analysis/daily-brief/{today}.md
+  // per the coordinator's own instruction to "pick the one the data
+  // already exposes; state which." The first value seen on mount is a
+  // seed, not a trigger, matching the seen-id-diff rule Courier.tsx and
+  // HandoffCourier.tsx already use to avoid animating on initial page load.
+  const prevBriefMtime = useRef<number | null | undefined>(undefined);
+  const pulseActive = useRef(false);
+  const pulseEndAtMs = useRef(0);
+  const pulseExtraA = useRef(0);
+  const pulseExtraB = useRef(0);
+  const [pulsing, setPulsing] = useState(false);
+
+  useEffect(() => {
+    if (briefMtimeMs === null || briefMtimeMs === undefined) return;
+    if (prevBriefMtime.current === undefined) {
+      prevBriefMtime.current = briefMtimeMs;
+      return;
+    }
+    if (briefMtimeMs === prevBriefMtime.current) return;
+    prevBriefMtime.current = briefMtimeMs;
+    pulseActive.current = true;
+    pulseEndAtMs.current = performance.now() + PULSE_DURATION_MS;
+    setPulsing(true);
+    const timer = window.setTimeout(() => setPulsing(false), PULSE_DURATION_MS);
+    return () => window.clearTimeout(timer);
+  }, [briefMtimeMs]);
+
+  useFrame((state, delta) => {
     const t = state.clock.elapsedTime;
     const spin = reducedMotion ? 0 : t;
-    if (ringA.current) ringA.current.rotation.z = spin * 0.35;
-    if (ringB.current) ringB.current.rotation.x = spin * -0.28;
+
+    // Pulse rotation is ADDITIVE (an extra angle accumulated via delta),
+    // never a multiply on `spin` -- multiplying the elapsed-time-based
+    // formula below would snap the rings to a new angle the instant the
+    // pulse starts or ends. Accumulating keeps both transitions smooth:
+    // "doubled ring speed" becomes base rate + an equal extra rate while
+    // the pulse is active, and holds its position afterward (a harmless
+    // fixed phase offset, not a jump).
+    if (pulseActive.current) {
+      if (!reducedMotion && performance.now() < pulseEndAtMs.current) {
+        pulseExtraA.current += delta * 0.35;
+        pulseExtraB.current += delta * -0.28;
+      } else {
+        pulseActive.current = false;
+      }
+    }
+
+    if (ringA.current) ringA.current.rotation.z = spin * 0.35 + pulseExtraA.current;
+    if (ringB.current) ringB.current.rotation.x = spin * -0.28 + pulseExtraB.current;
 
     const flicker = Math.sin(t * 2.1) * 0.06;
     const baseGlow = lerp(0.7, 2.6, utilFrac) * dimFactor;
@@ -120,13 +171,41 @@ export default function BrainCore({
             style={{
               color: "#dff3ff", fontSize: 34, fontWeight: 700, fontFamily: "system-ui, sans-serif",
               background: "rgba(3,4,10,0.7)", padding: "4px 20px", borderRadius: 7,
-              whiteSpace: "nowrap",
+              whiteSpace: "nowrap", textAlign: "center",
             }}
           >
-            {modelName || "BRAIN IDLE"}
+            <div>{modelName || "BRAIN IDLE"}</div>
+            {/* Manager caption (Company Mode item 9, 2026-09-13): one added
+                line naming the hub as the "Gamma (Manager)" persona, with
+                its own live status color -- no 8th desk, the hub itself is
+                persona #7's home. */}
+            {manager && (
+              <div style={{ fontSize: 15, fontWeight: 600, color: personaStatusColor(manager.status), marginTop: 2 }}>
+                {manager.emoji} {manager.name}
+              </div>
+            )}
           </div>
         </div>
       </Html>
+
+      {/* All-hands pulse plaque -- shown for PULSE_DURATION_MS after a new
+          station-brief.md mtime is seen (see the effect above); paired with
+          the additive ring-speed boost in useFrame. */}
+      {pulsing && (
+        <Html position={[0, 2.4, 0]} center distanceFactor={9} style={{ pointerEvents: "none" }}>
+          <div className="hq-beam" style={{ "--beam-color": manager?.color ?? PALETTE.hubRing, borderRadius: 8 } as CSSProperties}>
+            <div
+              style={{
+                color: "#fff2fa", fontSize: 20, fontWeight: 800, fontFamily: "system-ui, sans-serif",
+                background: "rgba(40,10,30,0.78)", padding: "6px 20px", borderRadius: 7,
+                whiteSpace: "nowrap", letterSpacing: 0.5,
+              }}
+            >
+              📋 STATION BRIEF — ALL HANDS
+            </div>
+          </div>
+        </Html>
+      )}
 
       {/* Gaming-mode plaque */}
       {gaming && (

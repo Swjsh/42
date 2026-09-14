@@ -82,6 +82,9 @@ export const paths = {
   // by dashboard/lib/hq.ts's appendTvPerfRow -- see that module). Lives next
   // to tv-capability.json under station/, not directly under state/.
   tvPerf: st("station", "tv-perf.jsonl"),
+  // HQ v3 Company Mode (2026-09-13): the "NEEDS J" card's third read-only
+  // source (discordOutbox and overnightQueue above already exist).
+  conductorProposals: st("conductor-proposals.jsonl"),
   // "Talk to Gamma" chat persona (amendment 5a, 2026-09-13) -- deliberately NOT
   // stationPromptMd above: station.md is the 30-min loop's JSON-only output-schema
   // prompt, and using it for chat would make Gamma answer J in raw JSON. Fable

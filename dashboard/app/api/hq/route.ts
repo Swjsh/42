@@ -18,7 +18,23 @@ import {
   readCryptoTwinTail,
   readKitchenSummary,
   readLatestHqPerf,
+  readBlocked,
 } from "@/lib/hq";
+import { collectCompany, type PersonaState, type Handoff } from "@/lib/personas";
+
+/** Unlike every other reader in this route's Promise.all, collectCompany()
+ * has no internal try/catch (personas/route.ts's OWN top-level GET() is
+ * what originally caught its errors) -- calling it bare here would let one
+ * bad collector reject this route's whole Promise.all and 500 the ENTIRE
+ * /api/hq payload, not just the company section. Wrapped so a company-data
+ * failure degrades to empty arrays instead. */
+async function safeCollectCompany(): Promise<{ personas: PersonaState[]; handoffs: Handoff[] }> {
+  try {
+    return await collectCompany();
+  } catch {
+    return { personas: [], handoffs: [] };
+  }
+}
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -51,7 +67,9 @@ export async function GET() {
     kitchen,
     face,
     buildId,
-    perf,
+    perfResult,
+    company,
+    blocked,
   ] = await Promise.all([
     readIdeasBoard(),
     readStationBrief(),
@@ -69,6 +87,8 @@ export async function GET() {
     readFaceConfig(),
     readBuildId(),
     readLatestHqPerf(),
+    safeCollectCompany(),
+    readBlocked(),
   ]);
 
   const lastRow = ledger.length > 0 ? ledger[ledger.length - 1] : null;
@@ -102,7 +122,10 @@ export async function GET() {
       },
       face,
       build_id: buildId,
-      perf,
+      perf: perfResult.perf,
+      perfOther: perfResult.perfOther,
+      company,
+      blocked,
     },
     { headers: { "Cache-Control": "no-store, max-age=0" } },
   );

@@ -14,6 +14,7 @@ import {
   readFaceConfig,
   readBuildId,
 } from "@/lib/station";
+import { readBlocked } from "@/lib/hq";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -46,6 +47,7 @@ export async function GET() {
     tvProbe,
     face,
     buildId,
+    blocked,
   ] = await Promise.all([
     readIdeasBoard(),
     readStationBrief(),
@@ -60,6 +62,7 @@ export async function GET() {
     readTvCapability(),
     readFaceConfig(),
     readBuildId(),
+    readBlocked(),
   ]);
 
   const lastRow = ledger.length > 0 ? ledger[ledger.length - 1] : null;
@@ -85,6 +88,7 @@ export async function GET() {
       tvProbe,
       face,
       build_id: buildId,
+      blocked,
     },
     { headers: { "Cache-Control": "no-store, max-age=0" } },
   );

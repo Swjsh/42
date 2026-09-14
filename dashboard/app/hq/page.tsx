@@ -7,6 +7,8 @@ import type { HqApiResponse } from "@/components/hq/types";
 import HqFallback from "@/components/hq/HqFallback";
 import Hud from "@/components/hq/Hud";
 import CanvasRoot from "@/components/hq/CanvasRoot";
+import { useKioskWatchdog, kioskErrorRetry } from "@/lib/useKioskWatchdog";
+import { useMotionEvents } from "@/lib/useMotionEvents";
 
 const fetcher = (url: string): Promise<HqApiResponse> =>
   fetch(url, { cache: "no-store" }).then((r) => {
@@ -31,7 +33,16 @@ function HqView() {
   const { data, error, isValidating } = useSWR<HqApiResponse>("/api/hq", fetcher, {
     refreshInterval: refreshMs,
     keepPreviousData: true,
+    onErrorRetry: kioskErrorRetry,
   });
+
+  // Liveness watchdog (kiosk only): a frozen /hq is a frozen board on the
+  // wall forever -- see lib/useKioskWatchdog.ts for the full rationale
+  // (2026-09-13: the TV went silent for an unknown reason, first suspect a
+  // dashboard-restart poll landing during the brief downtime window plus
+  // SWR's own uncapped exponential backoff -- kioskErrorRetry above
+  // addresses that half, this hook is the belt-and-suspenders other half).
+  useKioskWatchdog("/api/hq", kiosk, data?.fetched_at);
 
   // Follow face.json: when the configured TV path differs from this page, go
   // there. Lets the face flip (/hq -> /station) with a one-line file edit.
@@ -75,6 +86,12 @@ function HqView() {
     return () => mq.removeEventListener("change", update);
   }, []);
 
+  // "They need MEANING" (J 2026-09-13): a small log of what real event just
+  // caused an agent to move -- see lib/useMotionEvents.ts. Computed here
+  // (not inside Scene.tsx) because Hud.tsx, the only consumer, lives
+  // outside the <Canvas>.
+  const motionEvents = useMotionEvents(data);
+
   return (
     <div style={{ position: "fixed", inset: 0, overflow: "hidden", background: "#03040a" }}>
       {webgl2 === false ? (
@@ -82,7 +99,7 @@ function HqView() {
       ) : webgl2 === true ? (
         <>
           <CanvasRoot data={data} reducedMotion={reducedMotion} lanKiosk={lanKiosk} />
-          <Hud data={data} error={error} kiosk={kiosk} isValidating={isValidating} />
+          <Hud data={data} error={error} kiosk={kiosk} isValidating={isValidating} motionEvents={motionEvents} />
         </>
       ) : (
         <div style={{ color: "#7f93b0", padding: 24, fontFamily: "system-ui, sans-serif" }}>

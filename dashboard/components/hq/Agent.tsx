@@ -6,6 +6,8 @@ import { useThrottledFrame } from "./useThrottledFrame";
 import { seededRandom } from "./palette";
 
 export type AgentBehavior = "working" | "idle" | "alert" | "frozen";
+export type AgentWalkKind = "roundtrip" | "arrival";
+export type AgentPresenceMode = "greet" | "patrol";
 
 interface AgentProps {
   laneSeed: string;
@@ -14,23 +16,50 @@ interface AgentProps {
   behavior: AgentBehavior;
   accentColor: string;
   reducedMotion: boolean;
+  /** Changing this value queues exactly ONE walk (see WalkKind below). The
+   * first value ever seen (mount) SEEDS silently -- matching the
+   * seen-id-diff convention Courier.tsx/HandoffCourier.tsx already use --
+   * so a page load never fires a burst of walks. Pass the raw data value
+   * that identifies the triggering event (e.g. a persona's own
+   * lastFireISO) -- the parent never needs to hand-roll its own diffing. */
+  walkEventKey?: string | null;
+  /** "roundtrip" = home -> a fixed side-approach point near the hub -> home
+   * (used when a walk is a brief errand); "arrival" = hub -> home, once,
+   * ending in "working" (a persona that just fired walking in from the
+   * manager and sitting down). Default "roundtrip". */
+  walkKind?: AgentWalkKind;
+  /** J 2026-09-13 ("nearest agent turns to the viewer / night-patrol dim"
+   * on presence flipping): "greet" holds the resting-state facing at
+   * `facingYaw` instead of the idle look-around; "patrol" dims the visor.
+   * Only ever set on ONE statically-chosen agent (Scene.tsx picks the lane
+   * nearest the fixed camera) -- undefined everywhere else, zero cost. */
+  presenceMode?: AgentPresenceMode;
+  facingYaw?: number;
 }
 
 const WALK_DURATION = 4.5;
 const HUB_PAUSE = 1.5;
-type WalkPhase = "resting" | "toHub" | "atHub" | "toHome";
+type WalkPhase = "resting" | "toHub" | "atHub" | "toHome" | "arriving";
 
 /**
  * One little procedural bot: capsule body, visor sphere (doubles as the
  * head-lamp -- emissive, no extra mesh needed), backpack box, two swinging
  * leg cylinders. Behavior state machine per the HQ-visuals brief: working
  * (bob + typing arms) / idle (slow breathing) / alert (paces its module, red
- * "!" overhead) / frozen (gaming mode -- no motion at all). Every 20-60s
- * (seeded per lane, picked ONLY at schedule time -- never Math.random inside
- * useFrame) a working/idle agent walks to the hub and back, the "running
- * around" J asked for.
+ * "!" overhead) / frozen (gaming mode -- no motion at all).
+ *
+ * Walks are EVENT-TRIGGERED only (J 2026-09-13: "it still needs a lot of
+ * work to make it look real ... they need MEANING" -- the original design
+ * had a working/idle agent walk to the hub and back on a random 20-60s
+ * timer; deleted entirely). A parent passes `walkEventKey` (some real data
+ * value -- a card id+status, a persona's lastFireISO) and this component
+ * walks exactly once whenever that value genuinely changes after mount.
+ * Breathing/idle look-around are NOT "random wander" in the sense J meant
+ * (no timer, no destination) and stay as-is.
  */
-export default function Agent({ laneSeed, home, hub, behavior, accentColor, reducedMotion }: AgentProps) {
+export default function Agent({
+  laneSeed, home, hub, behavior, accentColor, reducedMotion, walkEventKey, walkKind, presenceMode, facingYaw,
+}: AgentProps) {
   const group = useRef<THREE.Group>(null);
   const legL = useRef<THREE.Mesh>(null);
   const legR = useRef<THREE.Mesh>(null);
@@ -46,13 +75,25 @@ export default function Agent({ laneSeed, home, hub, behavior, accentColor, redu
 
   const phase = useRef<WalkPhase>("resting");
   const phaseStart = useRef(0);
-  // `useMemo` (not `useRef(20 + rng() * 40)` directly) so rng() is called
-  // exactly once: a hook's initial-value ARGUMENT is still evaluated on
-  // every render even when the hook ignores it after mount, which would
-  // otherwise advance the PRNG stream on every poll for no reason.
-  const initialWalkDelay = useMemo(() => 20 + rng() * 40, [rng]);
-  const nextWalkAt = useRef(initialWalkDelay);
   const paceOffset = useRef(0);
+
+  // Event-triggered walk queue (replaces the old random 20-60s timer, J
+  // 2026-09-13). `seenWalkKey` seeds silently on the first value seen after
+  // mount -- same convention as Courier.tsx's `seenIds`/HandoffCourier.tsx's
+  // `seenOk` -- so a page load never fires a walk for state that already
+  // existed. Only a GENUINE change after that queues one.
+  const seenWalkKey = useRef<string | null | undefined>(undefined);
+  const pendingWalk = useRef<AgentWalkKind | null>(null);
+  useEffect(() => {
+    if (walkEventKey === null || walkEventKey === undefined) return;
+    if (seenWalkKey.current === undefined) {
+      seenWalkKey.current = walkEventKey;
+      return;
+    }
+    if (walkEventKey === seenWalkKey.current) return;
+    seenWalkKey.current = walkEventKey;
+    pendingWalk.current = walkKind ?? "roundtrip";
+  }, [walkEventKey, walkKind]);
 
   // Set initial position once -- everything after this is imperative ref
   // mutation, never React state, so an agent's motion never triggers a
@@ -65,7 +106,7 @@ export default function Agent({ laneSeed, home, hub, behavior, accentColor, redu
     if (!group.current) return;
     const g = group.current;
 
-    if (behavior === "frozen") return; // hold whatever pose it already had
+    if (behavior === "frozen") return; // hold whatever pose it already had (a queued walk waits)
 
     if (behavior === "alert") {
       // Pace back and forth across the module -- local X sway, no scheduled
@@ -78,13 +119,32 @@ export default function Agent({ laneSeed, home, hub, behavior, accentColor, redu
       return;
     }
 
-    // working/idle: bob in place, and occasionally walk to the hub and back.
-    if (!reducedMotion && phase.current === "resting" && t >= nextWalkAt.current) {
-      phase.current = "toHub";
-      phaseStart.current = t;
+    // Consume a queued walk (see the effect above) -- the ONLY way `phase`
+    // ever leaves "resting" now. reducedMotion discards it silently rather
+    // than animating (matches Courier.tsx/HandoffCourier.tsx's own
+    // reducedMotion handling).
+    if (pendingWalk.current) {
+      if (reducedMotion) {
+        pendingWalk.current = null;
+      } else if (phase.current === "resting") {
+        phase.current = pendingWalk.current === "arrival" ? "arriving" : "toHub";
+        phaseStart.current = t;
+        pendingWalk.current = null;
+      }
     }
 
-    if (phase.current === "toHub") {
+    if (phase.current === "arriving") {
+      // One-way hub -> home (a persona that just fired, walking in from the
+      // manager and sitting down to work) -- ends in "resting", never
+      // returns to the hub the way a roundtrip does.
+      const p = Math.min(1, (t - phaseStart.current) / WALK_DURATION);
+      g.position.set(
+        hub[0] + (home[0] - hub[0]) * p,
+        home[1],
+        hub[2] + (home[2] - hub[2]) * p,
+      );
+      if (p >= 1) { phase.current = "resting"; }
+    } else if (phase.current === "toHub") {
       const p = Math.min(1, (t - phaseStart.current) / WALK_DURATION);
       g.position.set(
         home[0] + (approach[0] - home[0]) * p,
@@ -102,10 +162,7 @@ export default function Agent({ laneSeed, home, hub, behavior, accentColor, redu
         home[1],
         approach[2] + (home[2] - approach[2]) * p,
       );
-      if (p >= 1) {
-        phase.current = "resting";
-        nextWalkAt.current = t + 20 + rng() * 40;
-      }
+      if (p >= 1) { phase.current = "resting"; }
     } else {
       // resting -- bob (working = brisker, idle = slower/shallower)
       const bobAmp = behavior === "working" ? 0.05 : 0.025;
@@ -114,12 +171,18 @@ export default function Agent({ laneSeed, home, hub, behavior, accentColor, redu
       if (behavior === "working") {
         if (armL.current) armL.current.rotation.x = Math.sin(t * 10) * 0.35;
         if (armR.current) armR.current.rotation.x = Math.sin(t * 10 + Math.PI) * 0.35;
+      } else if (presenceMode === "greet") {
+        // J 2026-09-13: "nearest agent turns to the viewer" on presence ==
+        // here -- holds a fixed facing instead of the idle look-around.
+        // Scene.tsx picks exactly one static agent for this; everyone else
+        // never receives `presenceMode` and is unaffected.
+        g.rotation.y = facingYaw ?? 0;
       } else {
         g.rotation.y = Math.sin(t * 0.3) * 0.5; // slow "look around"
       }
     }
 
-    const walking = phase.current === "toHub" || phase.current === "toHome";
+    const walking = phase.current === "toHub" || phase.current === "toHome" || phase.current === "arriving";
     if (walking) {
       const swing = Math.sin(t * 8) * 0.5;
       if (legL.current) legL.current.rotation.x = swing;
@@ -129,7 +192,11 @@ export default function Agent({ laneSeed, home, hub, behavior, accentColor, redu
       legR.current.rotation.x = 0;
     }
 
-    if (visorMat.current) visorMat.current.emissiveIntensity = 1.4 + Math.sin(t * 3) * 0.2;
+    // "Night patrol" dim (J 2026-09-13: presence == away) -- cuts the
+    // visor's own emissive glow, the cheapest possible "quieter without J
+    // here" tell (no new material, no opacity/blend cost).
+    const patrolDim = presenceMode === "patrol" ? 0.35 : 1;
+    if (visorMat.current) visorMat.current.emissiveIntensity = (1.4 + Math.sin(t * 3) * 0.2) * patrolDim;
   }, 20);
 
   return (

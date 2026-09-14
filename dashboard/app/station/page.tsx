@@ -9,7 +9,19 @@ import BrainVitals, { type BrainVitalsData } from "@/components/station/BrainVit
 import IdeaCard, { type CardAction } from "@/components/station/IdeaCard";
 import TalkToGamma from "@/components/station/TalkToGamma";
 import type { StationFace, StationIdeaCard, StationPresence, TvCapability } from "@/lib/station";
+import type { BlockedItem } from "@/lib/hq";
 import { probeWebGl } from "@/lib/webgl-probe";
+import { useKioskWatchdog, kioskErrorRetry } from "@/lib/useKioskWatchdog";
+// timeAgoText has zero three.js dependency by design (see its own file's
+// header comment: "can be imported from the 2D fallback too") -- reused
+// here rather than re-implementing the same "3m ago" formatter a third time.
+import { timeAgoText } from "@/components/hq/palette";
+
+const BLOCKED_SOURCE_LABEL: Record<string, string> = {
+  discord: "Discord",
+  conductor_proposal: "Proposal",
+  queue_escalation: "Escalation",
+};
 
 interface StationApiResponse {
   fetched_at: string;
@@ -20,6 +32,7 @@ interface StationApiResponse {
   tvProbe: TvCapability | null;
   face: StationFace | null;
   build_id: string | null;
+  blocked: BlockedItem[];
 }
 
 const fetcher = (url: string): Promise<StationApiResponse> =>
@@ -47,7 +60,11 @@ function StationView() {
   const { data, error, isValidating } = useSWR<StationApiResponse>("/api/station", fetcher, {
     refreshInterval: refreshMs,
     keepPreviousData: true,
+    onErrorRetry: kioskErrorRetry,
   });
+
+  // Liveness watchdog (kiosk only) -- see lib/useKioskWatchdog.ts.
+  useKioskWatchdog("/api/station", kiosk, data?.fetched_at);
 
   // The TV answers the WebGL question itself (J 2026-09-13: "typing in the TV is a
   // pain"): once per LAN page load, probe WebGL1/2 + fps and report it to
@@ -163,6 +180,25 @@ function StationView() {
               {data.brief.text || "NO DATA -- no brief written yet"}
             </p>
           </div>
+
+          {/* NEEDS-J card (Company Mode step 7, 2026-09-13) -- the /hq HUD's
+              matching section; hidden entirely when nothing's blocked. Same
+              read-only aggregator (lib/hq.ts#readBlocked) as /api/hq. */}
+          {data.blocked.length > 0 && (
+            <div className="rounded-lg border border-amber-500/30 bg-amber-500/15 p-4">
+              <p className="mb-2 text-sm font-semibold text-amber-400">
+                NEEDS J ({data.blocked.length})
+              </p>
+              <div className="space-y-1.5">
+                {data.blocked.slice(0, 3).map((item, i) => (
+                  <p key={`${item.source}-${item.ts ?? i}`} className="text-xs text-amber-200/90">
+                    <span className="font-semibold text-amber-400">[{BLOCKED_SOURCE_LABEL[item.source] ?? item.source}]</span>{" "}
+                    {item.text} <span className="text-amber-200/60">&middot; {timeAgoText(item.ts)}</span>
+                  </p>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div>
             <p className="mb-2 text-sm font-semibold text-foreground">

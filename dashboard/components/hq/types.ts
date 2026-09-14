@@ -1,7 +1,8 @@
 import type { StationIdeaCard, StationPresence, StationFace } from "@/lib/station";
-import type { SectorRow, TvPerfRow } from "@/lib/hq";
+import type { SectorRow, TvPerfRow, BlockedItem } from "@/lib/hq";
+import type { PersonaState, Handoff } from "@/lib/personas";
 
-export type { SectorRow };
+export type { SectorRow, BlockedItem, PersonaState, Handoff };
 
 export interface HqBrainVitals {
   model: string | null;
@@ -45,6 +46,9 @@ export interface HqApiResponse {
   face: StationFace | null;
   build_id: string | null;
   perf: TvPerfRow | null;
+  perfOther: TvPerfRow | null;
+  company: { personas: PersonaState[]; handoffs: Handoff[] };
+  blocked: BlockedItem[];
 }
 
 /** One module's derived (not server-sent) presentation state -- computed
