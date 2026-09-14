@@ -455,6 +455,34 @@ function CameraRig({ reducedMotion, rows, geometry, briefMtimeMs, ultra, cameraP
     idleSince.current = null;
   }, [ultra, camera]);
 
+  // HALLWAY-FIX builder pass (2026-09-14): `?cam=x,y,z,tx,ty,tz` (ultra tier
+  // only, dev/capture only) -- an arbitrary camera pose for a headless
+  // capture script when no named `?preset=` reaches the shot needed. This
+  // pass needs a T-junction from directly above and from inside the
+  // junction itself, neither of which any existing preset (0-7, bayN,
+  // hallN) frames -- see this task's own "add a dev-only ?cam= override in
+  // CameraRig, minimal edit" allowance. SAME `mode.current = "userFree"` /
+  // `idleSince = null` parking pattern as `?camdist=` directly above (holds
+  // the exact pose indefinitely, never eases back before the capture
+  // script's own settle window fires) -- kept as its own effect rather than
+  // folded into `?camdist=` since it takes 6 raw numbers and fully replaces
+  // both position AND target instead of just scaling one existing distance.
+  useEffect(() => {
+    if (!ultra) return;
+    const controls = controlsRef.current;
+    if (!controls) return;
+    const raw = new URLSearchParams(window.location.search).get("cam");
+    if (raw === null) return;
+    const parts = raw.split(",").map(Number);
+    if (parts.length !== 6 || parts.some((n) => !Number.isFinite(n))) return;
+    const [x, y, z, tx, ty, tz] = parts;
+    camera.position.set(x, y, z);
+    controls.target.set(tx, ty, tz);
+    camera.lookAt(controls.target);
+    mode.current = "userFree";
+    idleSince.current = null;
+  }, [ultra, camera]);
+
   // World-4 (2026-09-14, P4): `?preset=N` (0-7, ultra tier only, dev/
   // capture only) -- lands the camera exactly where pressing key N would,
   // for a headless capture script that cannot drive the keyboard. Driven

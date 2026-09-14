@@ -581,6 +581,40 @@ const CORRIDOR_RAIL_THICKNESS = 0.07;
 const CORRIDOR_WIDE_SEGMENT_LENGTH = 8 * ARCHITECTURE_SCALE_BAY;
 const CORRIDOR_WIDE_WIDTH = CORRIDOR_WIDE_SEGMENT_LENGTH;
 
+// HALLWAY-FIX builder pass (2026-09-14, J: "the walls are the wrong way --
+// how are those going to contain anything?"): measured, not assumed --
+// `node dashboard/scripts/glb_extents.mjs corridor.glb corridor-wide.glb`
+// walks each piece's real node hierarchy and buckets every triangle's face
+// normal by axis. Both corridor.glb and corridor-wide.glb report a SQUARE
+// XZ footprint (4x4 / 8x8, matching this file's own already-correct
+// CORRIDOR_SEGMENT_LENGTH/CORRIDOR_WIDE_SEGMENT_LENGTH), so -- unlike
+// gate-door.glb's obviously-asymmetric 4.2x1.4 box -- the piece's own
+// bounding box can NOT tell you which way it opens (a square footprint has
+// no visually-obvious "front"). The triangle-normal wall-axis measurement
+// can: corridor.glb's wall-like (near-vertical) area facing Z is ~142.4 vs
+// facing X ~27.4 (a 5.2x margin); corridor-wide.glb is ~292.4 vs ~78.2
+// (3.7x) -- BOTH pieces' solid walls run along Z, meaning the piece's real
+// OPEN/walkway axis is local X, not local Z. The old
+// `rotation={[0, rotationY, 0]}` reused on these KitProp segments (below)
+// was copy-pasted from gate-door/room's genuinely-verified "-Z is front"
+// convention without re-measuring it for this different, square-footprint
+// asset -- that put each segment's solid Z-facing wall directly ACROSS the
+// walkway instead of along it, exactly J's "rows of wall slabs standing
+// across the walkway" complaint (real captures: layout-default-1726.png,
+// layout-bay0-1755.png, layout-hall0-1758.png). +90deg re-aligns local X
+// (the piece's real open axis) with `rotationY`'s own direction-of-travel
+// instead of local Z -- a symmetric tunnel piece is visually identical
+// under +90 vs -90 here (no directional asymmetry in the measured
+// geometry), so the sign was picked and then verified against a real
+// capture, not guessed twice. Applies ONLY to the corridor KIT PIECE prop
+// below -- the procedural floor strip/rails (drawn from its own
+// `stripWidth`/`length` against a planeGeometry that every prior real
+// capture already shows correctly shaped) and the gate-door KitProp
+// (verified real -Z-front asymmetric geometry, 4.2 wide x 1.4 deep,
+// unaffected by this bug) both keep using the original, unmodified
+// `rotationY`.
+const CORRIDOR_KIT_YAW_OFFSET = Math.PI / 2;
+
 /** Real hallway between two real building openings (a hub doorway and a
  * T-junction, or a T-junction and a bay door): a guaranteed-correct
  * procedural floor strip + low side rails PLUS the kit's real corridor.glb/
@@ -621,6 +655,11 @@ export function CorridorRun({
   doorAtFrom?: boolean;
 }) {
   const rotationY = Math.atan2(to[0] - from[0], to[2] - from[2]);
+  // See CORRIDOR_KIT_YAW_OFFSET's own header -- the kit piece's real open
+  // axis is local X, not local Z, so its yaw needs the +90deg correction
+  // the procedural strip/rails and the gate-door frame (both verified
+  // correct already) must NOT receive.
+  const corridorKitRotationY = rotationY + CORRIDOR_KIT_YAW_OFFSET;
   const corridorPath = wide ? KIT_PATHS.architecture.corridorWide : KIT_PATHS.architecture.corridor;
   const segmentLength = wide ? CORRIDOR_WIDE_SEGMENT_LENGTH : CORRIDOR_SEGMENT_LENGTH;
   const stripWidth = wide ? CORRIDOR_WIDE_WIDTH : CORRIDOR_WIDTH;
@@ -677,7 +716,7 @@ export function CorridorRun({
           path={corridorPath}
           scale={ARCHITECTURE_SCALE_BAY}
           position={pos}
-          rotation={[0, rotationY, 0]}
+          rotation={[0, corridorKitRotationY, 0]}
           // World-2 coordinator polish: "if the kit's corridor-room pieces
           // are what is making the dark step (their own floor colour), tint
           // them to the plate" -- a strong (0.6, well above the usual
