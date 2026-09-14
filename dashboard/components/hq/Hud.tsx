@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { HqApiResponse, TradingStatus } from "./types";
-import { auditVerdictColor, isRegularTradingHours, minutesSinceEvidence, nowEtDayOfWeek, nowEtMinutes, personaStatusColor, rosterEvidenceText, truncateOneLine } from "./palette";
+import { auditVerdictColor, hhmmFromEtIso, isRegularTradingHours, minutesSinceEvidence, nowEtDayOfWeek, nowEtMinutes, personaStatusColor, rosterEvidenceText, truncateOneLine } from "./palette";
 import type { MotionEvent } from "@/lib/useMotionEvents";
 
 const BLOCKED_SOURCE_LABEL: Record<string, string> = {
@@ -50,17 +50,6 @@ function nextOpenText(etMinutes: number, dayOfWeek: number): string {
     daysAhead++;
   }
   return `${daysAhead === 1 ? "tomorrow" : WEEKDAY_NAMES[d]} 09:30 ET`;
-}
-
-/** "HH:MM" from a core-decisions.jsonl `ts_et` value ("YYYY-MM-DDTHH:MM:SS",
- * no offset -- already ET wall-clock text, confirmed against the live file
- * this session, so this is a plain substring, no timezone math needed at
- * all (unlike an ISO string WITH an offset, which would need real
- * conversion). */
-function hhmmFromEtIso(iso: string | null): string {
-  if (!iso) return "?";
-  const m = /T(\d{2}):(\d{2})/.exec(iso);
-  return m ? `${m[1]}:${m[2]}` : "?";
 }
 
 interface TradingStrip {

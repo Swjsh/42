@@ -6,7 +6,7 @@ import { useThree, useFrame } from "@react-three/fiber";
 import { Html, OrbitControls } from "@react-three/drei";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import * as THREE from "three";
-import type { HqApiResponse, SectorRow } from "./types";
+import type { HqApiResponse, SectorRow, CoreDecisionRow } from "./types";
 import type { PersonaState } from "@/lib/personas";
 import type { AgentBehavior } from "./Agent";
 import Agent from "./Agent";
@@ -24,7 +24,7 @@ import PmremEnvironment from "./PmremEnvironment";
 import EffectsStack from "./EffectsStack";
 import GammaCharacter from "./GammaCharacter";
 import ActivityBubbleLayer, { type ActivityBubbleCandidate } from "./ActivityBubbleLayer";
-import { computePurposefulWalk, dayNightFactor, freshness01, healthColor, isParkedState, isRegularTradingHours, lerp, localToWorld, minutesSinceEvidence, nowEtDayOfWeek, nowEtMinutes, PALETTE, personaStatusColor, rosterEvidenceText, scheduleOnShift, truncateOneLine, type ScreenLine } from "./palette";
+import { computePurposefulWalk, dayNightFactor, freshness01, healthColor, hhmmFromEtIso, isParkedState, isRegularTradingHours, lerp, localToWorld, minutesSinceEvidence, nowEtDayOfWeek, nowEtMinutes, PALETTE, personaStatusColor, rosterEvidenceText, scheduleOnShift, truncateOneLine, type ScreenLine } from "./palette";
 import { BAY_DESK_OFFSET_Z, BAY_HALF_DEPTH, BAY_SEAT_LOCAL, CHARACTER_SCALE, CHARACTER_TARGET_HEIGHT, CorridorRun, DeskCluster, HubRoom, HUB_WALL_RADIUS } from "./SetKit";
 
 export type HqTier = "ultra" | "tv";
@@ -1030,18 +1030,11 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
         // maps BOTH YELLOW and IDLE to the same "idle" Agent animation, and
         // YELLOW ("acknowledging") must keep its body.
         const showAgent = persona.status !== "IDLE";
-        // Pilot's desk screen (Pass B, 2026-09-13): "SPY price + last
-        // decision (or lane row's last_evidence line if no SPY field -- do
-        // NOT add a new data producer)". There is no SPY-specific field
-        // anywhere on HqApiResponse (checked this session) -- Pilot's own
-        // recentOutput already IS "spy=<price> last_bar=<ts>" whenever
-        // Pilot has fired (verified against a live /api/hq response this
-        // session), so reading it directly satisfies the ask with zero new
-        // producers; the "lane row" fallback in the brief doesn't map
-        // cleanly onto a persona (Pilot isn't a sectors.row), so the honest
-        // equivalent fallback is the SAME rosterEvidenceText "quiet
-        // since..." text every other persona's bubble/roster line already
-        // uses when recentOutput is empty.
+        // Pilot's desk screen: see the isPilot block below (item 1
+        // follow-up, 2026-09-14) for the CURRENT mechanism -- superseded
+        // the original Pass B (2026-09-13) recentOutput-based design, then
+        // Item 2c's decisions.jsonl-based design; this comment previously
+        // described both, now stale, removed rather than left misleading.
         // Pass C schedule state (2026-09-13): only dims when BOTH outside
         // this persona's own window AND not genuinely working right now --
         // real activity always wins over a schedule assumption (see
@@ -1050,30 +1043,55 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
         // table (Chef's window IS overnight) -- no separate night branch.
         const offSchedule = !scheduleOnShift(persona.name, etMinutesNow, dayOfWeekNow) && behavior !== "working";
         const isPilot = persona.name === "Pilot";
-        // Item 2c (LIVE-1, 2026-09-14): "the decisions ledger the HQ API
-        // already exposes" -- PersonaState.logTail IS the tail of
-        // automation/state/decisions.jsonl for Pilot specifically
-        // (lib/personas.ts#collectPilot reads exactly that file), already
-        // on the wire via company.personas[].logTail with zero new
-        // producer. Each row's real shape (verified against the live file
-        // this session): action ("ENTER"/"EXIT_ALL"/"EXIT_STOP"/"HOLD"/
-        // "SKIP_*"/"ERROR_*"), reason, time_et. isTradeAction gates the
-        // "stands and points" gesture to genuine ENTER/EXIT rows only --
-        // HOLD/SKIP/ERROR ticks pulse the desk (below) but don't trigger it.
+        // Item 1 follow-up (LIVE-1, coordinator 2026-09-14): Pilot's desk
+        // screen used to read persona.logTail -- the tail of
+        // automation/state/decisions.jsonl, the RETIRED LLM heartbeat's own
+        // ledger (lib/personas.ts#collectPilot), which kept showing a stale
+        // Friday row once the live engine stopped writing that file. The
+        // LIVE engine (heartbeat_core.py) writes automation/state/
+        // core-decisions.jsonl instead -- already on the wire as
+        // data.trading.core.{safe,bold} (lib/hq.ts#readCoreDecisionsLatest,
+        // the SAME byte-seek tail reader item 5's trading strip already
+        // uses -- one row per account, per the coordinator's own "per
+        // account" ask). Per the coordinator's explicit instruction: this
+        // screen and the pulse badge below never read decisions.jsonl
+        // again -- both accounts' rows come exclusively from data.trading.
         // Item 2b (LIVE-1): this persona's own purposeful-walk decision,
         // computed once above alongside every other inner persona's.
         const purposeful = purposefulWalks[i];
-        const lastDecisionRaw = isPilot ? (persona.logTail[persona.logTail.length - 1] as Record<string, unknown> | undefined) : undefined;
-        const decisionAction = typeof lastDecisionRaw?.action === "string" ? lastDecisionRaw.action : null;
-        const decisionReason = typeof lastDecisionRaw?.reason === "string" ? lastDecisionRaw.reason : null;
-        const decisionTimeEt = typeof lastDecisionRaw?.time_et === "string" ? lastDecisionRaw.time_et : null;
-        const decisionText = decisionAction ? `${decisionAction}${decisionTimeEt ? ` @ ${decisionTimeEt}` : ""}${decisionReason ? ` -- ${decisionReason}` : ""}` : null;
-        const isTradeAction = !!decisionAction && /^(ENTER|EXIT)/.test(decisionAction);
+        const safeDecision = isPilot ? (data?.trading?.core.safe ?? null) : null;
+        const boldDecision = isPilot ? (data?.trading?.core.bold ?? null) : null;
+        // "isTradeAction" gates the "stands and points" gesture + the pulse
+        // badge's hotter-red color. A genuine ENTER_BEAR/ENTER_BULL verdict
+        // on EITHER account counts -- verified against the live 42k-row
+        // core-decisions.jsonl this session: HOLD / SKIP_* / ERROR /
+        // ENTER_BEAR / ENTER_BULL is the FULL verdict vocabulary (no EXIT_*
+        // verdict ever appears -- exits are logged by a separate ledger
+        // this screen doesn't read), so the /^(ENTER|EXIT)/ test below
+        // matches real data, not a guessed one.
+        const safeIsTrade = !!safeDecision?.verdict && /^(ENTER|EXIT)/.test(safeDecision.verdict);
+        const boldIsTrade = !!boldDecision?.verdict && /^(ENTER|EXIT)/.test(boldDecision.verdict);
+        const isTradeAction = safeIsTrade || boldIsTrade;
+        // The pulse badge fires off whichever account ticked MOST recently
+        // (tsEt string-sorts correctly -- "YYYY-MM-DDTHH:MM:SS", no offset,
+        // same format readCoreDecisionsLatest already documents), matching
+        // "pulses on every heartbeat minute" from either engine.
+        const latestDecision = ([safeDecision, boldDecision].filter((d): d is CoreDecisionRow => !!d).sort((a, b) => a.tsEt.localeCompare(b.tsEt)).pop()) ?? null;
+        const decisionText = latestDecision ? `${latestDecision.verdict ?? "?"} @ ${hhmmFromEtIso(latestDecision.tsEt)} ET` : null;
+        const decisionTimeEt = latestDecision?.tsEt ?? null;
+        const decisionAction = latestDecision?.verdict ?? null;
+        const accountScreenLine = (label: string, row: CoreDecisionRow | null): ScreenLine => {
+          if (!row) return { text: `${label}: no data`, color: "#5f7a99", size: 14 };
+          const sideTxt = row.side === "C" ? " CALL" : row.side === "P" ? " PUT" : "";
+          const rowIsTrade = !!row.verdict && /^(ENTER|EXIT)/.test(row.verdict);
+          return {
+            text: truncateOneLine(`${label} ${row.verdict ?? "?"}${sideTxt} ${hhmmFromEtIso(row.tsEt)}`, 32),
+            color: rowIsTrade ? "#ffb020" : "#7ad9ff",
+            size: 15,
+          };
+        };
         const pilotScreenLines: ScreenLine[] | undefined = isPilot
-          ? [
-              { text: decisionText ? truncateOneLine(decisionText, 32) : (persona.recentOutput ? truncateOneLine(persona.recentOutput, 32) : "no output yet"), color: isTradeAction ? "#ffb020" : "#7ad9ff", size: 17 },
-              { text: rosterEvidenceText(persona.lastFireISO), size: 14 },
-            ]
+          ? [accountScreenLine("SAFE", safeDecision), accountScreenLine("BOLD", boldDecision)]
           : undefined;
         return (
           <group key={persona.name}>

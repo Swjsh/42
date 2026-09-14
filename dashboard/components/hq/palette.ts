@@ -411,6 +411,20 @@ export function isRegularTradingHours(etMinutes: number, dayOfWeek: number): boo
   return minuteOfDay >= 9 * 60 + 30 && minuteOfDay < 15 * 60 + 55;
 }
 
+/** "HH:MM" from a core-decisions.jsonl `ts_et` value ("YYYY-MM-DDTHH:MM:SS",
+ * no offset -- already ET wall-clock text, confirmed against the live file
+ * this session, so this is a plain substring, no timezone math needed at
+ * all (unlike an ISO string WITH an offset, which would need real
+ * conversion). Moved here from Hud.tsx (LIVE-1 item 1 follow-up,
+ * coordinator 2026-09-14) so Scene.tsx's Pilot desk-screen/pulse fix can
+ * share the EXACT same stamping convention instead of duplicating the
+ * regex -- both now read data.trading.core.{safe,bold}'s `tsEt` field. */
+export function hhmmFromEtIso(iso: string | null): string {
+  if (!iso) return "?";
+  const m = /T(\d{2}):(\d{2})/.exec(iso);
+  return m ? `${m[1]}:${m[2]}` : "?";
+}
+
 export function clamp01(v: number): number {
   return Math.min(1, Math.max(0, v));
 }

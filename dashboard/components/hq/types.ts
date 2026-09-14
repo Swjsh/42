@@ -1,8 +1,8 @@
 import type { StationIdeaCard, StationPresence, StationFace } from "@/lib/station";
-import type { SectorRow, TvPerfRow, BlockedItem, TradingStatus } from "@/lib/hq";
+import type { SectorRow, TvPerfRow, BlockedItem, TradingStatus, CoreDecisionRow } from "@/lib/hq";
 import type { PersonaState, Handoff } from "@/lib/personas";
 
-export type { SectorRow, BlockedItem, PersonaState, Handoff, TradingStatus };
+export type { SectorRow, BlockedItem, PersonaState, Handoff, TradingStatus, CoreDecisionRow };
 
 export interface HqBrainVitals {
   model: string | null;
