@@ -869,6 +869,17 @@ def go_research() -> int:
     # never bring it back: that list is the ONLY record of what quiet mode took down.
     enabled = _set_tasks(light, enable=True)
     held = _set_tasks(heavy_up, enable=False)
+    if heavy_up:
+        # RESEARCH-BAND-STRANDS-HEAVY-TASKS (2026-09-14 00:5x ET): until now the hold above
+        # was never written to the restore list (only go_quiet writes it, and by 18:00 the
+        # heavy set is already Disabled so go_quiet's READY-only snapshot skips it), so
+        # go_loud at 23:00 restored the evening's light set and left every held heavy
+        # task Disabled for good -- GuardsFull / EodDeepDive / EodFullAudit / GymSession /
+        # DressRehearsal dark since the 09-12 08:02 ET hold (heavy_held=5), the crypto
+        # grinder keepalive + EngineStressSwarm since 09-05 (heavy_held=8), while the heavy
+        # catch-up pass failed every 15 min with "The task is disabled". Persist the hold
+        # merged with whatever is already recorded; go_quiet merges on top of this.
+        _save_restore_list(wanted + heavy_up)
     _log(f"RESEARCH BAND: light_up={enabled}/{len(light)} heavy_held={held}")
     caught_up = _catchup_sweep(dt.datetime.now(ET))
     caught_up_light, caught_up_heavy = _log_and_split_catchup(caught_up)
