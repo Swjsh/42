@@ -14,5 +14,13 @@
     "backfill_reason": "same as 2026-07-24 -- CBOE CDN is current-day-only, no historical replay route.",
     "logged_at_et": "2026-08-01T14:52:02",
     "logged_by": "small-fix-bundle-2026-08-01 (WEEKEND-TWELVE Next-Twelve #11)"
+  },
+  "2026-09-09": {
+    "reason": "Host down from ~15:06 ET for the rest of the session: core-decisions.jsonl has 640 rows for 2026-09-09 and the LAST one is 15:06:17 ET (zero rows 15:50-15:56), and run-ps1-hidden-2026-09-09.log records NO scheduled launch of any kind after 15:00 ET (the next launch on the box is 2026-09-10 00:00 local), so Gamma_CboeOiBank (13:55 MT = 15:55 ET) never launched; cboe-oi-bank.stdout.log jumps 09-08 13:55 -> 09-10 13:55 with no OK/SKIP/FAILSAFE line for 09-09. Same signature as 2026-07-30. Incident: the 2026-09-09 display blackout (memory: monitors died, no bugcheck); the missed 15:55 fire was flagged on STATUS.md 2026-09-10 00:35 ET (CBOE-OI-BANK-SILENT-MISSES) but never registered here until 2026-09-14.",
+    "mechanism": "scheduled_task_did_not_fire",
+    "backfillable": false,
+    "backfill_reason": "same as 2026-07-24 -- the CBOE CDN is current-day-only, no historical replay route without a paid vendor.",
+    "logged_at_et": "2026-09-14T10:24:00",
+    "logged_by": "Fable interactive session 2026-09-14 (J: 'this is months old and stale fix it NOW' -- readiness YELLOW chain)"
   }
 }
