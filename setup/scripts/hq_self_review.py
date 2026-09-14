@@ -169,27 +169,72 @@ def _recent_who(crew_rows: list, now_utc: datetime, window: timedelta) -> set:
     return out
 
 
-def _classify_persona(p: dict, recent_who: set) -> "tuple[str, str, Optional[float]]":
-    """Returns (bucket, why, age_min). bucket in {'live', 'stale', 'ghost'}."""
-    name = p.get("name", "?")
-    quiet = p.get("quietReason")
-    status = p.get("status", "?")
+_EXPECTED_TIME_RE = re.compile(r"\bexpected\s+(?:\w+\s+)?(\d{1,2}):(\d{2})\s*ET\b", re.I)
+_STALE_TEXT_RE = re.compile(r"\boverdue\b|\bexpected\b.*\blast\b", re.I | re.S)
+
+
+def _classify_persona(p: dict, recent_who: set, now_utc: datetime) -> "tuple[str, str, Optional[float]]":
+    """Returns (bucket, why, age_min). bucket in {'live', 'stale', 'ghost'}.
+
+    2026-09-14 coordinator correction: DERIVE from the dashboard's own `quietReason`
+    text instead of re-deriving from `status`/`deliverable.exists` independently --
+    those two re-derivations were WRONG twice over on real live data: Gamma (Manager)
+    read status=YELLOW with quietReason 'yields — rth_window (...)' and got called
+    'stale' for deliberately yielding by design; Analyst read deliverable.exists=False
+    (analysis/eod/2026-09-14.md genuinely doesn't exist until its own 16:45 ET fire
+    writes it) and got called a 'ghost' at noon, when its real quietReason already says
+    'expected 16:45 ET weekdays via Gamma_AnalystEodReview, last digest 16:45 ET on a
+    prior day' -- i.e. the dashboard already knows it isn't due yet.
+
+    Prefix/pattern rule (matches dashboard/lib/personas.ts's own documented pill-
+    derivation convention on PersonaState.quietReason: 'no producer for ' -> GHOST,
+    'yields ' -> YIELDING (never a penalty), anything else -> WAITING):
+      - 'no producer for ...'                         -> ghost
+      - 'yields ...'                                   -> live (by design, no penalty)
+      - 'expected HH:MM ET ... weekdays/Sun ...'        -> live BEFORE that time today,
+                                                           stale AFTER it (a once-daily
+                                                           persona's own due time, read
+                                                           straight out of its own text --
+                                                           no separate roster-cadence
+                                                           lookup needed)
+      - 'overdue ...' or another 'expected ... last ...' shape (Coach's continuous-
+        cadence staleness message, e.g. 'expected every 30 min ..., last evidence
+        HH:MM ET') -> stale directly, no due-time gate (a repeating cadence has no
+        single 'not due yet' grace window)
+      - anything else (a 'Gamma_X DISABLED' note, an '<X> is RED' note, or no
+        quietReason at all) -> live -- a dashboard-explained footnote is not
+        automatically a ghost or a stale, per the SAME WAITING-bucket philosophy.
+
+    A persona with a genuine crew-events.jsonl row in the last 2h is promoted to
+    'live' before any of the above -- real recent activity is stronger evidence than
+    any text-derived heuristic."""
+    if p.get("name") in recent_who:
+        return "live", p.get("quietReason") or "recent crew-events activity", (p.get("deliverable") or {}).get("ageMin")
+
     deliverable = p.get("deliverable") or {}
     age_min = deliverable.get("ageMin") if isinstance(deliverable, dict) else None
+    quiet = p.get("quietReason")
+    if not isinstance(quiet, str) or not quiet.strip():
+        return "live", "status ok", age_min
+    q = quiet.strip()
 
-    if isinstance(quiet, str) and quiet.startswith("no producer for"):
-        return "ghost", quiet, age_min
-    if isinstance(deliverable, dict) and deliverable.get("exists") is False:
-        return "ghost", f"deliverable missing: {deliverable.get('path', '?')}", age_min
+    if q.startswith("no producer for"):
+        return "ghost", q, age_min
+    if q.startswith("yields "):
+        return "live", q, age_min
 
-    if name in recent_who:
-        return "live", quiet or "recent crew-events activity", age_min
+    m = _EXPECTED_TIME_RE.search(q)
+    if m:
+        due_h, due_m = int(m.group(1)), int(m.group(2))
+        now_et = et_now(now_utc=now_utc)
+        if (now_et.hour, now_et.minute) < (due_h, due_m):
+            return "live", q, age_min
+        return "stale", q, age_min
 
-    if status == "RED":
-        return "stale", quiet or "status RED", age_min
-    if status == "YELLOW":
-        return "stale", quiet or "status YELLOW", age_min
-    return "live", quiet or f"status {status}", age_min
+    if _STALE_TEXT_RE.search(q):
+        return "stale", q, age_min
+
+    return "live", q, age_min
 
 
 def _desks_stale_list(desks: Any) -> list:
@@ -227,7 +272,7 @@ def grade_hq(payload: dict, crew_rows: list, now_utc: datetime) -> dict:
         ghosts: list = []
         live_count = 0
         for p in personas:
-            bucket, why, age_min = _classify_persona(p, recent_who)
+            bucket, why, age_min = _classify_persona(p, recent_who, now_utc)
             name = p.get("name", "?")
             if bucket == "live":
                 live_count += 1

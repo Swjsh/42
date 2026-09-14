@@ -87,24 +87,42 @@ def test_grade_hq_ghost_prefix_is_a_ghost_not_stale():
     assert review["stale"] == []
 
 
-def test_grade_hq_missing_deliverable_is_a_ghost():
-    payload = _payload(personas=[_persona("Treasurer", exists=False)])
+def test_grade_hq_missing_deliverable_alone_with_no_ghost_signal_is_live():
+    # 2026-09-14 coordinator correction: deliverable.exists=False is no longer an
+    # independent ghost trigger -- ONLY a "no producer for" quietReason is. A persona
+    # whose file simply doesn't exist yet, with no explanatory quietReason at all
+    # (or a benign one), is live, not a ghost.
+    payload = _payload(personas=[_persona("Treasurer", exists=False, quiet_reason=None)])
     review = hsr.grade_hq(payload, [], _NOW)
-    assert len(review["ghosts"]) == 1
-    assert review["ghosts"][0]["name"] == "Treasurer"
-    assert "missing" in review["ghosts"][0]["why"]
+    assert review["ghosts"] == []
+    assert review["crew_live"] == 1
 
 
-def test_grade_hq_yellow_and_red_without_ghost_signal_are_stale():
-    payload = _payload(personas=[_persona("Analyst", status="YELLOW"), _persona("Scout", status="RED")])
+def test_grade_hq_status_alone_no_longer_drives_stale_classification():
+    # 2026-09-14 coordinator correction: `status` (YELLOW/RED) is dashboard-internal and
+    # no longer re-derived here -- ONLY quietReason text patterns do. A RED/YELLOW status
+    # with no quietReason (or a non-matching one) must NOT be called stale.
+    payload = _payload(personas=[_persona("Analyst", status="YELLOW", quiet_reason=None),
+                                 _persona("Scout", status="RED", quiet_reason="Gamma_ScoutPremarket DISABLED")])
     review = hsr.grade_hq(payload, [], _NOW)
-    names = {s["name"] for s in review["stale"]}
-    assert names == {"Analyst", "Scout"}
+    assert review["stale"] == []
+    assert review["ghosts"] == []
+    assert review["crew_live"] == 2
+
+
+def test_grade_hq_overdue_text_is_stale():
+    payload = _payload(personas=[_persona("Coach", status="RED",
+                                          quiet_reason="expected every 30 min via the Station loop, "
+                                                       "last evidence 09:12 ET")])
+    review = hsr.grade_hq(payload, [], _NOW)
+    assert [s["name"] for s in review["stale"]] == ["Coach"]
     assert review["ghosts"] == []
 
 
-def test_grade_hq_recent_crew_event_promotes_a_red_persona_to_live():
-    payload = _payload(personas=[_persona("Chef", status="RED")])
+def test_grade_hq_recent_crew_event_promotes_a_stale_persona_to_live():
+    payload = _payload(personas=[_persona("Chef", status="RED",
+                                          quiet_reason="expected every 30 min via the Station loop, "
+                                                       "last evidence 09:12 ET")])
     recent_row = {"ts_et": hsr.et_now(now_utc=_NOW - timedelta(minutes=30)).strftime("%Y-%m-%d %H:%M:%S ET"),
                  "who": "Chef", "kind": "verdict", "line": "x"}
     review = hsr.grade_hq(payload, [recent_row], _NOW)
@@ -113,7 +131,9 @@ def test_grade_hq_recent_crew_event_promotes_a_red_persona_to_live():
 
 
 def test_grade_hq_crew_event_older_than_2h_does_not_promote():
-    payload = _payload(personas=[_persona("Chef", status="RED")])
+    payload = _payload(personas=[_persona("Chef", status="RED",
+                                          quiet_reason="expected every 30 min via the Station loop, "
+                                                       "last evidence 09:12 ET")])
     old_row = {"ts_et": hsr.et_now(now_utc=_NOW - timedelta(hours=3)).strftime("%Y-%m-%d %H:%M:%S ET"),
               "who": "Chef", "kind": "verdict", "line": "x"}
     review = hsr.grade_hq(payload, [old_row], _NOW)
@@ -123,15 +143,58 @@ def test_grade_hq_crew_event_older_than_2h_does_not_promote():
 
 def test_grade_hq_desks_stale_and_score_formula():
     payload = _payload(
-        personas=[_persona("A"), _persona("B", status="RED"), _persona("Z", exists=False)],
+        personas=[_persona("A"),
+                 _persona("B", status="RED", quiet_reason="overdue: no fire recorded today"),
+                 _persona("Z", exists=False, quiet_reason="no producer for automation/state/z.json yet")],
         desks={"A": {"stale": False}, "B": {"stale": True}, "Z": {"stale": True}},
         trading=False,
     )
     review = hsr.grade_hq(payload, [], _NOW)
     assert review["desks_stale"] == ["B", "Z"]
+    assert [s["name"] for s in review["stale"]] == ["B"]
+    assert [g["name"] for g in review["ghosts"]] == ["Z"]
     # crew_live=1/3 -> base 33.33; 1 ghost -> -10; 2 stale desks -> -10; no trading -> -10
     assert review["score_0_100"] == max(0, round(100 / 3 - 10 - 10 - 10))
     assert any("trading strip missing" in ln for ln in review["lines"])
+
+
+# ============================================================================
+# 2026-09-14 coordinator correction -- the two real-world cases that were wrong live:
+# a once-daily persona before its own due time (Analyst, real quietReason text), and
+# a deliberately-yielding persona (Gamma Manager, real quietReason text). Both copied
+# verbatim from the actual /api/hq payload this session (12:21 ET, market open).
+# ============================================================================
+
+_ANALYST_QUIET = "expected 16:45 ET weekdays via Gamma_AnalystEodReview, last digest 16:45 ET on a prior day"
+_GAMMA_YIELD_QUIET = "yields — rth_window (weekday 09:30-15:55 ET)"
+
+
+def test_analyst_at_noon_before_its_due_time_is_live_not_ghost():
+    noon_et_utc = datetime(2026, 9, 14, 16, 21, tzinfo=timezone.utc)  # 12:21 ET -- real repro instant
+    payload = _payload(personas=[_persona("Analyst", status="IDLE", quiet_reason=_ANALYST_QUIET, exists=False,
+                                          age_min=None)])
+    review = hsr.grade_hq(payload, [], noon_et_utc)
+    assert review["ghosts"] == [], "before 16:45 ET, a missing today-dated digest is WAITING, not a ghost"
+    assert review["stale"] == [], "and not stale either -- it simply isn't due yet"
+    assert review["crew_live"] == 1
+
+
+def test_analyst_after_its_due_time_with_still_no_file_is_stale():
+    evening_et_utc = datetime(2026, 9, 14, 22, 0, tzinfo=timezone.utc)  # 18:00 ET -- past the 16:45 due time
+    payload = _payload(personas=[_persona("Analyst", status="IDLE", quiet_reason=_ANALYST_QUIET, exists=False,
+                                          age_min=None)])
+    review = hsr.grade_hq(payload, [], evening_et_utc)
+    assert review["ghosts"] == []
+    assert [s["name"] for s in review["stale"]] == ["Analyst"], "past its own stated due time, this IS stale"
+
+
+def test_yielding_gamma_manager_is_live_not_stale():
+    payload = _payload(personas=[_persona("Gamma (Manager)", status="YELLOW", quiet_reason=_GAMMA_YIELD_QUIET)])
+    review = hsr.grade_hq(payload, [], _NOW)
+    assert review["stale"] == [], "yielding by design must never count as staleness"
+    assert review["ghosts"] == []
+    assert review["crew_live"] == 1
+    assert review["score_0_100"] == 100, "a yielding-by-design persona must not cost the score anything"
 
 
 def test_grade_hq_malformed_payload_degrades_honestly_never_raises():
@@ -307,8 +370,11 @@ def test_call_vision_model_request_shape_matches_the_verified_smoke_test(monkeyp
 # review_once -- end to end, hermetic (fetch_fn/capture_fn/vision_fn all injected)
 # ============================================================================
 
+_PILOT_OVERDUE_QUIET = "overdue: expected every 1 min 09:30-15:55 ET, last evidence 09:12 ET"
+
+
 def _ok_fetch(url, timeout):
-    return _payload(personas=[_persona("Scout"), _persona("Pilot", status="RED")]), None
+    return _payload(personas=[_persona("Scout"), _persona("Pilot", status="RED", quiet_reason=_PILOT_OVERDUE_QUIET)]), None
 
 
 def test_review_once_writes_the_documented_json_shape():
@@ -338,7 +404,8 @@ def test_review_once_coach_ticker_fires_only_on_a_real_change():
     assert len(rows2) == 1, "an unchanged score/stale-set must not re-emit"
 
     def _changed_fetch(url, timeout):
-        return _payload(personas=[_persona("Scout", status="RED"), _persona("Pilot", status="RED")]), None
+        return _payload(personas=[_persona("Scout", status="RED", quiet_reason=_PILOT_OVERDUE_QUIET),
+                                  _persona("Pilot", status="RED", quiet_reason=_PILOT_OVERDUE_QUIET)]), None
     hsr.review_once("t3", _WEEKEND_UTC, {}, fetch_fn=_changed_fetch)
     rows3 = [r for r in sb.read_jsonl(hsr.CREW_EVENTS_PATH) if r.get("kind") == "hq_review"]
     assert len(rows3) == 2, "a changed stale-set must emit again"

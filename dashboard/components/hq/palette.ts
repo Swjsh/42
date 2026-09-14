@@ -152,16 +152,49 @@ export function auditVerdictColor(verdict: string | undefined): string {
  * that reads as speech. Falls back to a single-element array (the RAW
  * text's first line) if no blank-line separator is found (a format change,
  * or a short/malformed brief) or no sentence-ending punctuation is found at
- * all, so this never throws -- only ever `[]` when `text` itself is empty. */
+ * all, so this never throws -- only ever `[]` when `text` itself is empty.
+ *
+ * Coordinator-directed fix (INTERACT-2, 2026-09-14, J-visible defect:
+ * Gamma's speech bubble showed "19), so no..." mid-sentence). Root cause:
+ * the OLD regex (`/[^.!?]+[.!?]+(?:\s|$)/g`) treated ANY lone "." as a
+ * sentence end, including the one inside a dollar figure like the real
+ * brief's own "...armed (safe-2 $5311.59, bold-2 $5483.19), so no new
+ * fills..." -- that period is followed by a digit/paren/comma, never
+ * whitespace, so the match attempt starting at the sentence's TRUE
+ * beginning failed there; with the `g` flag the engine then advances its
+ * start position one character at a time until SOME position lets the
+ * whole pattern succeed, which landed mid-sentence at "19), so no...".
+ * Splitting on the literal ". " (period-SPACE) or a newline instead
+ * sidesteps this at the root: a dollar figure's internal period is never
+ * followed by a space (only a digit/comma/paren), so it can never be
+ * mistaken for a sentence boundary. Short fragments (<12 chars -- a stray
+ * "Ok." or a mis-split initialism) are dropped rather than shown alone, and
+ * truncation only ever trims a real sentence's own tail at a word boundary
+ * (never mid-parenthesis, never mid-word). Known, accepted trade-off: an
+ * abbreviation written "U.S. Fed" would still false-split -- this
+ * generator's prose is numeric/analytical, not narrative, so that shape
+ * doesn't occur in practice; not defended against further per the fix's own
+ * explicit spec (split on ". " / newline, nothing fancier). */
 export function splitBriefSentences(text: string, maxLen = 96): string[] {
   if (!text) return [];
   const body = text.split(/\r?\n\s*\r?\n/, 2);
   const source = body.length > 1 ? body[1] : text;
   const trimmed = source.trim();
   if (!trimmed) return [];
-  const matches = trimmed.match(/[^.!?]+[.!?]+(?:\s|$)/g);
-  const sentences = matches && matches.length > 0 ? matches.map((s) => s.trim()).filter(Boolean) : [trimmed.split(/\r?\n/)[0]];
-  return sentences.map((s) => (s.length > maxLen ? `${s.slice(0, maxLen - 1)}…` : s));
+  const rawParts = trimmed.split(/(?:\.\s+)|\r?\n+/).map((s) => s.trim()).filter(Boolean);
+  // The split above consumes the ". " delimiter itself (including the
+  // period) for every part except possibly the LAST one -- re-attach a
+  // trailing "." to every part that isn't already the last (which keeps
+  // whatever punctuation it already ended with, e.g. "!"/"?"/no split at all).
+  const withPunctuation = rawParts.map((s, i) => (i < rawParts.length - 1 && !/[.!?]$/.test(s) ? `${s}.` : s));
+  const sentences = withPunctuation.filter((s) => s.length >= 12);
+  if (sentences.length === 0) return [trimmed.slice(0, maxLen)];
+  return sentences.map((s) => {
+    if (s.length <= maxLen) return s;
+    const cut = s.slice(0, maxLen - 1);
+    const lastSpace = cut.lastIndexOf(" ");
+    return `${lastSpace > 0 ? cut.slice(0, lastSpace) : cut}…`;
+  });
 }
 
 /** First sentence only -- a thin wrapper over splitBriefSentences, kept for
