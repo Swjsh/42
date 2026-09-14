@@ -21,6 +21,15 @@ import { isRegularTradingHours, nowEtDayOfWeek, nowEtMinutes } from "@/component
 // use (lib/hq.ts), not a stale loop-state.json side file. See collectPilot()
 // below for the full rationale.
 import { readCoreDecisionsLatest, readCoreDecisionsToday, type CoreDecisionRow } from "@/lib/hq";
+// Coordinator correction (2026-09-14): the pill/next: line must not
+// contradict the RUNS AS row (lib/hq-runtime.ts) -- a persona whose task is
+// confirmed disabled (genuinely, or held by J's evening quiet-mode
+// blackout) must say so from the SAME source hq-runtime.ts's own
+// classifyRole() reads, never a second scheduler query. Relative import
+// (not "@/lib/hq-runtime") -- both files live in lib/, and hq-runtime.ts
+// only ever imports personas.ts as `import type` (fully erased), so there
+// is no real runtime circular dependency, only a type-level one (safe).
+import { taskStateQuietReason } from "./hq-runtime";
 
 const ROOT = path.join(process.cwd(), "..");
 
@@ -240,9 +249,20 @@ export interface PersonaState {
    * GREEN, nothing to explain). Non-null strings follow a prefix convention
    * the HUD's pill derivation (lib/crew.ts) matches on: "no producer for "
    * -> GHOST, "yields " -> YIELDING, anything else (an overdue-vs-cadence
-   * or "Gamma_X DISABLED" message) -> WAITING. Never a bare status dot --
-   * see CLAUDE.md HQ FACE RULES ("needs-J = decisions only" is a different
-   * rule; this is "never show a color with no reason"). */
+   * message) -> WAITING. Never a bare status dot -- see CLAUDE.md HQ FACE
+   * RULES ("needs-J = decisions only" is a different rule; this is "never
+   * show a color with no reason").
+   *
+   * Coordinator correction (2026-09-14): two more WAITING-bucket examples,
+   * both sourced from lib/hq-runtime.ts#taskStateQuietReason (the SAME
+   * truth the RUNS AS row reads, never a second scheduler query) --
+   * "held by quiet mode until <HH:MM> ET (fires <projection>)" when the
+   * persona's task is disabled ONLY because of J's evening blackout
+   * (setup/scripts/quiet_mode.py, temporary, resumes on its own), and
+   * "task <Gamma_X> DISABLED -- no next fire" when it is disabled for any
+   * OTHER reason. Never collapse the first into the second -- a stale
+   * "DISABLED" claim during a normal, by-design quiet-mode hold is exactly
+   * the false alarm this correction exists to prevent. */
   quietReason: string | null;
 }
 
@@ -584,12 +604,19 @@ export async function collectAnalyst(): Promise<PersonaState> {
   const exists = await fileExists(digest);
   const preview = exists ? (await readText(digest, 800))?.split("\n").slice(0, 12).join("\n") || null : null;
   const lastFireISO = (last?.fired_at as string) || mt;
+  // Coordinator correction (2026-09-14): TODAY's digest can still exist and
+  // look "fresh" (exists===true) even while Gamma_AnalystEodReview is
+  // currently disabled -- it already fired successfully before quiet mode
+  // (or a genuine outage) took the task down for the evening. A non-null
+  // taskReason here means "nothing MORE will happen until this is
+  // resolved" and must win over the exists-based freshness check below.
+  const taskReason = await taskStateQuietReason("Analyst", ["Gamma_AnalystEodReview"], lastFireISO, Date.now());
   // R4 quietReason: Analyst is a once-a-weekday fire -- no digest for
   // TODAY just means its 16:45 ET window hasn't produced one yet, not that
   // Analyst has never worked (a prior day's digest, if any, is named).
-  const quietReason: PersonaState["quietReason"] = exists
+  const quietReason: PersonaState["quietReason"] = taskReason ?? (exists
     ? null
-    : `expected 16:45 ET weekdays via Gamma_AnalystEodReview${lastFireISO ? `, last digest ${etHHMM(lastFireISO) ?? "?"} ET on a prior day` : " — no digest on file yet"}`;
+    : `expected 16:45 ET weekdays via Gamma_AnalystEodReview${lastFireISO ? `, last digest ${etHHMM(lastFireISO) ?? "?"} ET on a prior day` : " — no digest on file yet"}`);
   return {
     name: "Analyst",
     emoji: "🔬",
@@ -597,7 +624,7 @@ export async function collectAnalyst(): Promise<PersonaState> {
     role: "post-trade review + Chef inbox feeder",
     soulFile: ".claude/agents/analyst.md",
     schedule: "weekdays 16:45 ET via Gamma_AnalystEodReview",
-    status: exists ? "GREEN" : "IDLE",
+    status: taskReason ? "IDLE" : (exists ? "GREEN" : "IDLE"),
     lastFireISO,
     lastFireResult: last ? `${(last.trades_audited as number) ?? "?"} trades, ${(last.rule_breaks as number) ?? "?"} breaks, ${(last.chef_inbox_added as number) ?? "?"} queued` : "no fires yet",
     deliverable: { path: `analysis/eod/${today}.md`, exists, mtimeISO: mt, ageMin },
@@ -731,15 +758,21 @@ export async function collectTreasurer(): Promise<PersonaState> {
   const logTail = await readJsonlTail<Record<string, unknown>>(log, 3);
   const last = logTail[logTail.length - 1];
   const preview = await readText(drafts, 800);
-  const status: PersonaState["status"] = last ? "GREEN" : "IDLE";
+  const lastFireISO = (last?.fired_at as string) || mt;
+  const greenByEvidence: PersonaState["status"] = last ? "GREEN" : "IDLE";
+  // Coordinator correction (2026-09-14): same fix as collectAnalyst above --
+  // `last` (ANY log row ever, not just a recent one) must not read GREEN
+  // while Gamma_TreasurerWeekly is currently disabled.
+  const taskReason = await taskStateQuietReason("Treasurer", ["Gamma_TreasurerWeekly"], lastFireISO, Date.now());
+  const status: PersonaState["status"] = taskReason ? "IDLE" : greenByEvidence;
   // R4 quietReason: Treasurer's whole job is Sunday-only -- being quiet
   // Mon-Sat is correct scheduled behavior (YIELDING), not a fault; only a
   // missing Sunday review is actually overdue (WAITING).
-  const quietReason: PersonaState["quietReason"] = status === "GREEN"
+  const quietReason: PersonaState["quietReason"] = taskReason ?? (status === "GREEN"
     ? null
     : nowEtDayOfWeek() === 0
       ? "expected Sundays 16:00 ET via Gamma_TreasurerWeekly, no review yet today"
-      : "yields Mon-Sat — weekly review fires Sundays 16:00 ET via Gamma_TreasurerWeekly";
+      : "yields Mon-Sat — weekly review fires Sundays 16:00 ET via Gamma_TreasurerWeekly");
   return {
     name: "Treasurer",
     emoji: "💰",
@@ -748,7 +781,7 @@ export async function collectTreasurer(): Promise<PersonaState> {
     soulFile: ".claude/agents/treasurer.md",
     schedule: "Sundays 16:00 ET via Gamma_TreasurerWeekly",
     status,
-    lastFireISO: (last?.fired_at as string) || mt,
+    lastFireISO,
     lastFireResult: last ? `${(last.verdict as string) || "?"} Safe=$${(last.safe_equity as number) ?? "?"} Bold=$${(last.bold_equity as number) ?? "?"}` : "no fires yet",
     deliverable: { path: "analysis/treasury/draft-params-changes.md", exists: !!preview, mtimeISO: mt, ageMin },
     logTail,

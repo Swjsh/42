@@ -209,6 +209,29 @@ function nextIntervalFireText(lastFireISO: string | null, intervalMin: number, t
  * CLAUDE.md / SCHEDULED-TASKS.md / company-roster.json without one being
  * "the" parser of another). */
 export function crewNextLine(p: PersonaState, nowMs: number): string {
+  // Coordinator correction (2026-09-14): the pill (deriveCrewPill, same
+  // quietReason) and this "next:" line must never disagree with the RUNS AS
+  // row (lib/hq-runtime.ts) -- a bare "tomorrow 16:45" reads as "nothing
+  // going on" while the task producing that fire is actually disabled right
+  // now (held by J's evening quiet mode, or genuinely down). Both prefixes
+  // are written by lib/hq-runtime.ts#taskStateQuietReason (personas.ts's own
+  // collectAnalyst/collectTreasurer) -- see that file's PersonaState.
+  // quietReason doc comment for the two exact prefixes.
+  if (p.quietReason?.startsWith("held by quiet mode")) {
+    // The real next-fire time (embedded in quietReason's own "(fires ...)"
+    // clause, visible in the pill's reason text) is unaffected by tonight's
+    // hold -- this line surfaces the MORE urgent fact instead of repeating
+    // it: when normal operation resumes. Extracted from quietReason's own
+    // "until HH:MM ET" text (written by lib/hq-runtime.ts#readQuietModeInfo
+    // from quiet-mode.json's live window, itself parsed not hardcoded) --
+    // never a literal "23:00" baked in here, which would silently go stale
+    // the day that window changes.
+    const m = /until (\d{2}:\d{2}) ET/.exec(p.quietReason);
+    return m ? `resumes ${m[1]} ET` : "held by quiet mode";
+  }
+  if (p.quietReason?.startsWith("task ") && p.quietReason.includes("DISABLED")) {
+    return "none (task disabled)";
+  }
   switch (p.name) {
     case "Scout":
       return nextDailyFireText(5, 30, false, nowMs);

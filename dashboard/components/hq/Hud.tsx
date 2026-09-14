@@ -1113,6 +1113,29 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
               <> ({processBreakdown(runtime.processes).map((r) => `${r.label} ${r.n}`).join(" · ")})</>
             )}
             {runtime.error && <span style={{ color: "#ffb020" }}> · {runtime.error}</span>}
+            {/* Coordinator correction (2026-09-14): "3 of 7 roles have
+                their task switched off" -- computed live from
+                role.heldByQuietMode (lib/hq-runtime.ts), never a fixed
+                example number. Only rendered when the count is nonzero --
+                a clean evening with nothing held gets no false alarm. */}
+            {(() => {
+              const heldCount = runtime.roles.filter((r) => r.heldByQuietMode).length;
+              if (heldCount === 0) return null;
+              return (
+                <>
+                  <br />
+                  <span style={{ color: "#ffb020", fontWeight: 800 }}>
+                    <NumberTicker value={heldCount} reducedMotion={reducedMotion} />
+                  </span>{" "}
+                  of{" "}
+                  <span style={{ fontWeight: 800 }}>
+                    <NumberTicker value={runtime.roles.length} reducedMotion={reducedMotion} />
+                  </span>{" "}
+                  role{heldCount === 1 ? "" : "s"} held by quiet mode
+                  {runtime.quietModeUntilEt ? ` until ${runtime.quietModeUntilEt} ET` : ""} (J's evening blackout, not a fault)
+                </>
+              );
+            })()}
             <br />
             brain: {runtime.brain.model ?? "no model"} {runtime.brain.gpu ? "local GPU" : "local"} ·{" "}
             <span style={{ color: runtime.brain.state === "running" ? "#22ff88" : runtime.brain.state === "yielding" ? "#ffb020" : "#6a86b8", fontWeight: 700 }}>

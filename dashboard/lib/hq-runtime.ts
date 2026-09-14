@@ -41,13 +41,30 @@
 //   Analyst          -- Gamma_AnalystEodReview: run-analyst-eod.ps1 tries a
 //                        free-tier ladder first, only escalates to a Claude
 //                        fire on total failure, and even that fire is
-//                        brain-routed (dot-sources _brain.ps1) -- but the TASK
-//                        ITSELF is CONFIRMED DISABLED in sectors.json's
-//                        task_health.disabled this session. Nothing runs.
+//                        brain-routed (dot-sources _brain.ps1). THIS PC.
 //   Treasurer        -- Gamma_TreasurerWeekly: run-treasurer-weekly.ps1 DOES
 //                        dot-source _brain.ps1 -- a real claude.exe process,
 //                        brain-routed to local Ollama when brain-mode.json
 //                        says "local" (it does, right now). THIS PC.
+//
+// COORDINATOR CORRECTION (2026-09-14, same evening): this module's first pass
+// saw Gamma_AnalystEodReview / Gamma_TreasurerWeekly / Gamma_Conductor in
+// sectors.json's task_health.disabled and reported "DISABLED -- no next
+// fire" -- true of the TASK STATE but WRONG about the REASON, and alarming
+// where the real story is benign. Verified this session:
+// automation/state/quiet-mode.json (`quiet_active: true`, `total_held_down:
+// 140`) + automation/state/quiet-mode-restore.json's own `restore_to_ready`
+// array (140 entries, Analyst/Treasurer/Conductor all present, Pilot/
+// Station/ScoutPremarket all ABSENT) together prove this is
+// setup/scripts/quiet_mode.py -- J's own after-hours blackout (J directive
+// 2026-08-24, quiet 18:00-23:00 ET every weekday, restores at 23:00) --
+// holding ~140 non-essential tasks down for the evening, not a fault. A task
+// only reads "DISABLED -- no next fire" now when it is Task-Scheduler-
+// disabled AND that is NOT explained by an active quiet-mode hold (see
+// resolveTaskDisposition/readQuietModeInfo below); the quiet-mode-explained
+// case reads "held by quiet mode until HH:MM ET (fires ...)" instead, on
+// every surface this module feeds (RUNS AS row, crew pill via
+// lib/personas.ts#taskStateQuietReason equivalent, crew "next:" line).
 //
 // Independently: a live `tasklist /FO CSV /NH` capture this session (not
 // assumed) found 25 claude.exe, 16 pythonw.exe, 2 python.exe, 1 ollama.exe,
@@ -132,6 +149,13 @@ export interface HqRoleRuntime {
   liveNow: boolean;
   evidence: string;
   nextFire: string;
+  /** True iff EVERY one of this role's own tasks is currently disabled AND
+   * that is fully explained by quiet_mode.py's active hold (see
+   * readQuietModeInfo below) -- a temporary, by-design pause, never "none".
+   * Coordinator-directed (2026-09-14): drives the TRUTH header's own count
+   * (Hud.tsx) and distinguishes this from a genuinely dark role (`host`
+   * reads "none" only when disabled AND NOT explained by quiet mode). */
+  heldByQuietMode: boolean;
 }
 
 export interface HqRuntime {
@@ -141,6 +165,13 @@ export interface HqRuntime {
   error?: string;
   brain: HqBrainInfo;
   roles: HqRoleRuntime[];
+  /** "23:00" (HH:MM) when quiet_mode.py's blackout is currently active and
+   * that time was parseable, else null -- exposed as its OWN top-level
+   * field (not re-parsed out of a role's own nextFire/evidence prose in the
+   * UI) so Hud.tsx's TRUTH header can build "N of 7 roles held by quiet
+   * mode until HH:MM ET" from real, structured data. Coordinator-directed
+   * (2026-09-14). */
+  quietModeUntilEt: string | null;
 }
 
 export interface HqRuntimeInputs {
@@ -288,7 +319,11 @@ function nextIntervalFireText(lastFireISO: string | null, intervalMin: number, n
   return `~${hh}:${mm} ET`;
 }
 
-function nextFireForName(name: string, lastFireISO: string | null, nowMs: number): string {
+/** Exported (coordinator-directed, 2026-09-14) so lib/personas.ts's own
+ * disabled-task quietReason text can reuse the SAME "what would this
+ * persona's next fire normally be" projection for its "(fires ...)"
+ * parenthetical, rather than a 3rd reimplementation of this date math. */
+export function nextFireForName(name: string, lastFireISO: string | null, nowMs: number): string {
   switch (name) {
     case "Pilot": {
       const { minuteOfDay, dayOfWeek } = etParts(nowMs);
@@ -377,7 +412,7 @@ const ROLE_CLASSIFICATION: Record<string, RoleClassificationStatic> = {
     host: "this PC",
   },
   "Gamma (Manager)": {
-    producer: "station_loop.py's own model call inside Gamma_Station -- local Ollama, ENABLED; Gamma_Conductor (opus judgment, Anthropic) is a separate task, confirmed DISABLED",
+    producer: "station_loop.py's own model call inside Gamma_Station -- local Ollama, always-on; Gamma_Conductor (opus judgment, Anthropic) is a separate task, commonly held by the evening quiet-mode blackout -- see evidence/nextFire for its CURRENT state",
     runtime: "local-llm",
     host: "this PC",
   },
@@ -414,15 +449,72 @@ function relevantProcessCount(counts: HqProcessCounts | null, kind: HqRoleRuntim
   }
 }
 
+/** One task-name's full disposition, cross-referencing Task-Scheduler-
+ * disabled state against quiet_mode.py's own currently-held set (see this
+ * file's own COORDINATOR CORRECTION header comment). Pure -- the single
+ * shared source both classifyRole() and lib/personas.ts's disabled-task
+ * quietReason text branch on, so the RUNS AS row and the crew pill/next:
+ * line can never independently drift apart. */
+export interface TaskDisposition {
+  /** Every one of `taskNames` is currently Task-Scheduler-disabled. */
+  allDisabled: boolean;
+  /** `allDisabled` AND every one of those disabled tasks is explained by an
+   * ACTIVE quiet-mode hold (never true while quiet mode is inactive, even
+   * if the same task names happen to still be disabled for some other
+   * reason -- see readQuietModeInfo's own fail-open contract). */
+  allHeldByQuietMode: boolean;
+  disabledHere: string[];
+}
+
+export function resolveTaskDisposition(
+  taskNames: string[],
+  disabledTaskNames: ReadonlySet<string>,
+  quietModeHeldTaskNames: ReadonlySet<string>,
+): TaskDisposition {
+  const disabledHere = taskNames.filter((t) => disabledTaskNames.has(t));
+  const allDisabled = taskNames.length > 0 && disabledHere.length === taskNames.length;
+  const heldHere = disabledHere.filter((t) => quietModeHeldTaskNames.has(t));
+  const allHeldByQuietMode = allDisabled && heldHere.length === disabledHere.length;
+  return { allDisabled, allHeldByQuietMode, disabledHere };
+}
+
+/** The exact quietReason text lib/personas.ts's collectAnalyst/
+ * collectTreasurer must use in place of their own normal "fresh?" check
+ * whenever `resolveTaskDisposition` says the persona's task(s) are fully
+ * disabled (coordinator-directed, 2026-09-14) -- pure, so it is
+ * unit-testable without fs (see dashboard/tests/hq-runtime.test.ts);
+ * taskStateQuietReason below is the thin async fs-reading wrapper personas.ts
+ * actually calls. Returns null when the tasks are NOT fully disabled (the
+ * caller's own normal logic applies unchanged). */
+export function deriveTaskStateReason(
+  personaName: string,
+  taskNames: string[],
+  disabledTaskNames: ReadonlySet<string>,
+  quietModeHeldTaskNames: ReadonlySet<string>,
+  quietModeUntilEt: string | null,
+  lastFireISO: string | null,
+  nowMs: number,
+): string | null {
+  const { allDisabled, allHeldByQuietMode, disabledHere } = resolveTaskDisposition(taskNames, disabledTaskNames, quietModeHeldTaskNames);
+  if (!allDisabled) return null;
+  if (allHeldByQuietMode) {
+    const normalNext = nextFireForName(personaName, lastFireISO, nowMs);
+    return `held by quiet mode${quietModeUntilEt ? ` until ${quietModeUntilEt} ET` : ""} (fires ${normalNext})`;
+  }
+  return `task ${disabledHere.join(", ")} DISABLED -- no next fire`;
+}
+
 /** Pure classifier: static producer/runtime/host facts (ROLE_CLASSIFICATION)
  * crossed with THIS poll's live facts (roster fixture, disabled-task set,
- * the persona's own already-collected evidence, and the process counts) --
- * zero fs/child_process access, so this is the unit-testable half of the
- * module (see dashboard/tests/hq-runtime.test.ts). */
+ * quiet-mode-held set, the persona's own already-collected evidence, and
+ * the process counts) -- zero fs/child_process access, so this is the
+ * unit-testable half of the module (see dashboard/tests/hq-runtime.test.ts). */
 export function classifyRole(
   name: string,
   roster: RosterPersonaFixture | null,
   disabledTaskNames: ReadonlySet<string>,
+  quietModeHeldTaskNames: ReadonlySet<string>,
+  quietModeUntilEt: string | null,
   persona: PersonaState | null,
   processCounts: HqProcessCounts | null,
   nowMs: number,
@@ -433,23 +525,28 @@ export function classifyRole(
     host: "none",
   };
   const tasks = roster?.tasks ?? [];
-  const disabledHere = tasks.filter((t) => disabledTaskNames.has(t));
-  const allDisabled = tasks.length > 0 && disabledHere.length === tasks.length;
+  const { allDisabled, allHeldByQuietMode, disabledHere } = resolveTaskDisposition(tasks, disabledTaskNames, quietModeHeldTaskNames);
   const schedule = roster?.cadence ?? "unknown -- company-roster.json unavailable this poll";
 
   const lastFireISO = persona?.lastFireISO ?? null;
   const ageMin = ageMinutes(lastFireISO, nowMs);
   const firedHHMM = hhmmEt(lastFireISO);
   const procCount = relevantProcessCount(processCounts, stat.runtime);
+  const normalNextFire = nextFireForName(name, lastFireISO, nowMs);
+  const heldSuffix = quietModeUntilEt ? ` until ${quietModeUntilEt} ET` : "";
 
-  const nextFire = allDisabled
-    ? `DISABLED -- ${disabledHere.join(", ")} not scheduled`
-    : nextFireForName(name, lastFireISO, nowMs);
+  const nextFire = !allDisabled
+    ? normalNextFire
+    : allHeldByQuietMode
+      ? `held by quiet mode${heldSuffix} (fires ${normalNextFire})`
+      : `DISABLED -- ${disabledHere.join(", ")} not scheduled`;
 
   const liveNow = !allDisabled && procCount !== null && procCount > 0 && ageMin !== null && ageMin <= LIVE_WINDOW_MIN;
 
   let evidence: string;
-  if (allDisabled) {
+  if (allHeldByQuietMode) {
+    evidence = `${disabledHere.join(", ")} held by quiet mode${heldSuffix} -- last evidence ${firedHHMM ?? "none on file"} ET`;
+  } else if (allDisabled) {
     evidence = `${disabledHere.join(", ")} DISABLED in Task Scheduler -- last evidence ${firedHHMM ?? "none on file"} ET`;
   } else if (processCounts === null) {
     evidence = `process table unavailable this poll -- last evidence ${firedHHMM ?? "?"} ET`;
@@ -467,11 +564,15 @@ export function classifyRole(
     name,
     producer: stat.producer,
     runtime: stat.runtime,
-    host: allDisabled ? "none" : stat.host,
+    // A quiet-mode hold is temporary and by design -- the producer's REAL
+    // host never changes, so only a genuinely (non-quiet-mode) disabled
+    // role downgrades to "none".
+    host: allDisabled && !allHeldByQuietMode ? "none" : stat.host,
     schedule,
     liveNow,
     evidence,
     nextFire,
+    heldByQuietMode: allHeldByQuietMode,
   };
 }
 
@@ -510,7 +611,12 @@ async function readCompanyRoster(): Promise<RosterPersonaFixture[]> {
  * only picks 3 fields) rather than widening that shared reader's contract,
  * since MODELS'/LAYOUT's builders already depend on its exact current
  * shape this same pass. */
-async function readDisabledTaskNames(): Promise<Set<string>> {
+// Exported (coordinator-directed, 2026-09-14) so lib/personas.ts's
+// taskStateQuietReason-equivalent branch reads the EXACT same
+// Task-Scheduler-disabled set this module's own classifyRole() does --
+// "not a second scheduler query", per that directive -- rather than each
+// side maintaining its own copy that could drift.
+export async function readDisabledTaskNames(): Promise<Set<string>> {
   try {
     const text = await fs.readFile(
       path.join(WORKSPACE_ROOT, "automation", "state", "station", "sectors.json"),
@@ -522,6 +628,88 @@ async function readDisabledTaskNames(): Promise<Set<string>> {
   } catch {
     return new Set();
   }
+}
+
+export interface QuietModeInfo {
+  active: boolean;
+  /** "23:00" (HH:MM, no "ET" suffix) parsed from quiet-mode.json's own
+   * `quiet_window_et` prose -- null when unparseable (fail-open: callers
+   * render the hold without a specific end time rather than guessing one). */
+  untilEt: string | null;
+  /** Task names that are BOTH currently disabled AND on quiet-mode's own
+   * restore list -- the intersection, not the raw restore list, so a task
+   * disabled for some unrelated reason is never mislabeled "quiet mode"
+   * just because quiet mode happens to be active right now. */
+  heldTaskNames: Set<string>;
+}
+
+let quietModeCache: { data: QuietModeInfo; at: number } | null = null;
+const QUIET_MODE_CACHE_MS = 30_000;
+
+/** automation/state/quiet-mode.json + automation/state/quiet-mode-restore.json
+ * -- J's after-hours blackout (setup/scripts/quiet_mode.py, J directive
+ * 2026-08-24: "everything needs to be turned off after market hours"), NOT
+ * a fault. See this file's own COORDINATOR CORRECTION header comment for
+ * the verification this session (quiet-mode.json's `total_held_down: 140`;
+ * Analyst/Treasurer/Conductor all present in quiet-mode-restore.json's
+ * `restore_to_ready`; Pilot/Station/ScoutPremarket all absent from it).
+ * Two small JSON reads, 30s-cached alongside the process-count cache
+ * (coordinator-directed) -- no scheduler shell-out here at all (the
+ * PowerShell call that actually queries Task Scheduler lives inside
+ * audit_scheduled_tasks.py, run by the 30-min Station loop, not by this
+ * route). Fail-open: any read/parse failure degrades to "quiet mode
+ * inactive, nothing held" -- never blocks a genuinely-disabled task from
+ * reading as disabled just because this file couldn't be read. */
+async function readQuietModeInfo(disabledTaskNames: ReadonlySet<string>): Promise<QuietModeInfo> {
+  if (quietModeCache && Date.now() - quietModeCache.at < QUIET_MODE_CACHE_MS) return quietModeCache.data;
+  const inactive: QuietModeInfo = { active: false, untilEt: null, heldTaskNames: new Set() };
+  try {
+    const [modeText, restoreText] = await Promise.all([
+      fs.readFile(path.join(WORKSPACE_ROOT, "automation", "state", "quiet-mode.json"), "utf-8"),
+      fs.readFile(path.join(WORKSPACE_ROOT, "automation", "state", "quiet-mode-restore.json"), "utf-8"),
+    ]);
+    const mode = JSON.parse(modeText) as { quiet_active?: unknown; quiet_window_et?: unknown };
+    const active = mode.quiet_active === true;
+    const windowText = typeof mode.quiet_window_et === "string" ? mode.quiet_window_et : "";
+    // quiet-mode.json's own prose shape: "quiet 18:00-23:00 ET every day
+    // (J's evening); LOUD maintenance 23:00-08:00; ..." -- the SECOND
+    // captured time is the restore time this hold ends at.
+    const m = /quiet (\d{2}:\d{2})-(\d{2}:\d{2}) ET/.exec(windowText);
+    const untilEt = m ? m[2] : null;
+    if (!active) {
+      const data: QuietModeInfo = { active: false, untilEt, heldTaskNames: new Set() };
+      quietModeCache = { data, at: Date.now() };
+      return data;
+    }
+    const restore = JSON.parse(restoreText) as { restore_to_ready?: unknown };
+    const restoreList = Array.isArray(restore.restore_to_ready)
+      ? restore.restore_to_ready.filter((t): t is string => typeof t === "string")
+      : [];
+    const restoreSet = new Set(restoreList);
+    const heldTaskNames = new Set([...disabledTaskNames].filter((t) => restoreSet.has(t)));
+    const data: QuietModeInfo = { active: true, untilEt, heldTaskNames };
+    quietModeCache = { data, at: Date.now() };
+    return data;
+  } catch {
+    quietModeCache = { data: inactive, at: Date.now() };
+    return inactive;
+  }
+}
+
+/** Thin async wrapper around deriveTaskStateReason -- the two fs reads
+ * (readDisabledTaskNames, readQuietModeInfo) both cached, so calling this
+ * from BOTH collectAnalyst and collectTreasurer within the same /api/hq
+ * request costs no extra scheduler work, just cheap cache hits after the
+ * first call. lib/personas.ts is the only intended caller. */
+export async function taskStateQuietReason(
+  personaName: string,
+  taskNames: string[],
+  lastFireISO: string | null,
+  nowMs: number,
+): Promise<string | null> {
+  const disabledTaskNames = await readDisabledTaskNames();
+  const quiet = await readQuietModeInfo(disabledTaskNames);
+  return deriveTaskStateReason(personaName, taskNames, disabledTaskNames, quiet.heldTaskNames, quiet.untilEt, lastFireISO, nowMs);
 }
 
 let processCache: { data: HqProcessCounts; at: number } | null = null;
@@ -589,6 +777,10 @@ async function buildHqRuntime(inputs: HqRuntimeInputs): Promise<HqRuntime> {
     readDisabledTaskNames(),
     readProcessCounts(),
   ]);
+  // Depends on disabledTaskNames (the intersection with the restore list),
+  // so sequential after the Promise.all above -- readQuietModeInfo has its
+  // own 30s cache, so this costs a real read only once per cache window.
+  const quiet = await readQuietModeInfo(disabledTaskNames);
   const rosterByName = new Map(roster.map((r) => [r.name, r]));
   const personaByName = new Map(inputs.personas.map((p) => [p.name, p]));
 
@@ -597,6 +789,8 @@ async function buildHqRuntime(inputs: HqRuntimeInputs): Promise<HqRuntime> {
       name,
       rosterByName.get(name) ?? null,
       disabledTaskNames,
+      quiet.heldTaskNames,
+      quiet.untilEt,
       personaByName.get(name) ?? null,
       processResult.counts,
       nowMs,
@@ -610,6 +804,7 @@ async function buildHqRuntime(inputs: HqRuntimeInputs): Promise<HqRuntime> {
     ...(processResult.error ? { error: processResult.error } : {}),
     brain: deriveBrain(personaByName.get("Gamma (Manager)") ?? null, inputs.brainModel, inputs.ollamaModelsLoaded, inputs.gpuOk),
     roles,
+    quietModeUntilEt: quiet.active ? quiet.untilEt : null,
   };
 }
 
@@ -631,6 +826,7 @@ export async function readHqRuntime(inputs: HqRuntimeInputs): Promise<HqRuntime>
       error: `readHqRuntime failed: ${message}`,
       brain: { model: inputs.brainModel ?? null, host: "this PC", gpu: false, state: "idle", reason: null },
       roles: [],
+      quietModeUntilEt: null,
     };
   }
 }

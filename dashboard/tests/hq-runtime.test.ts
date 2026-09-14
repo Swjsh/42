@@ -32,6 +32,8 @@ import {
   parseTasklistCsv,
   countProcessImages,
   classifyRole,
+  resolveTaskDisposition,
+  deriveTaskStateReason,
   type RosterPersonaFixture,
 } from "../lib/hq-runtime.ts";
 import type { PersonaState } from "../lib/personas.ts";
@@ -131,9 +133,11 @@ const pilotRoster: RosterPersonaFixture = {
   tasks: ["Gamma_HeartbeatCore"],
 };
 
+const noHold = new Set<string>(); // empty quietModeHeldTaskNames -- "quiet mode not a factor"
+
 test("classifyRole: fresh evidence + a live process of the right kind -> liveNow true, 'mid-fire' evidence", () => {
   const role = classifyRole(
-    "Pilot", pilotRoster, new Set(),
+    "Pilot", pilotRoster, new Set(), noHold, null,
     persona({ name: "Pilot", lastFireISO: new Date(NOW - 60_000).toISOString() }), // 1 min ago
     { python: 2, pythonw: 3, ollama: 0, ollama_llama_server: 0, claude: 5, node: 2, total: 20 },
     NOW,
@@ -141,12 +145,13 @@ test("classifyRole: fresh evidence + a live process of the right kind -> liveNow
   assert.equal(role.runtime, "python-script");
   assert.equal(role.host, "this PC");
   assert.equal(role.liveNow, true);
+  assert.equal(role.heldByQuietMode, false);
   assert.match(role.evidence, /plausibly mid-fire/);
 });
 
 test("classifyRole: stale evidence -> liveNow false, 'scheduled, last ran' evidence, never claims the process belongs to this role", () => {
   const role = classifyRole(
-    "Pilot", pilotRoster, new Set(),
+    "Pilot", pilotRoster, new Set(), noHold, null,
     persona({ name: "Pilot", lastFireISO: new Date(NOW - 20 * 60_000).toISOString() }), // 20 min ago
     { python: 2, pythonw: 3, ollama: 0, ollama_llama_server: 0, claude: 5, node: 2, total: 20 },
     NOW,
@@ -156,19 +161,67 @@ test("classifyRole: stale evidence -> liveNow false, 'scheduled, last ran' evide
   assert.match(role.evidence, /not attributable to this role alone/);
 });
 
-test("classifyRole: a task confirmed DISABLED reports host 'none' and a DISABLED nextFire, regardless of process counts", () => {
+test("classifyRole: a task disabled with quiet mode NOT a factor reports host 'none' and a DISABLED nextFire, regardless of process counts", () => {
   const role = classifyRole(
     "Analyst",
     { name: "Analyst", cadence: "16:45 ET weekdays via Gamma_AnalystEodReview", tasks: ["Gamma_AnalystEodReview"] },
-    new Set(["Gamma_AnalystEodReview"]),
+    new Set(["Gamma_AnalystEodReview"]), noHold, null,
     persona({ name: "Analyst", lastFireISO: new Date(NOW - 60_000).toISOString() }),
     { python: 0, pythonw: 0, ollama: 0, ollama_llama_server: 0, claude: 25, node: 6, total: 300 },
     NOW,
   );
   assert.equal(role.host, "none");
   assert.equal(role.liveNow, false);
+  assert.equal(role.heldByQuietMode, false);
   assert.match(role.nextFire, /^DISABLED/);
   assert.match(role.evidence, /DISABLED in Task Scheduler/);
+});
+
+// Coordinator correction (2026-09-14): the ORIGINAL "DISABLED -- no next
+// fire" framing was true of the task-scheduler state but wrong about the
+// REASON for Analyst/Treasurer/Conductor specifically -- verified this
+// session that all 3 are on quiet-mode.py's own restore list while
+// quiet_active is true (J's evening blackout, not a fault). This is the
+// case that framing must NOT collapse back into.
+test("classifyRole: a task disabled BECAUSE of an active quiet-mode hold reads 'held by quiet mode', keeps its normal host, never liveNow", () => {
+  const role = classifyRole(
+    "Analyst",
+    { name: "Analyst", cadence: "16:45 ET weekdays via Gamma_AnalystEodReview", tasks: ["Gamma_AnalystEodReview"] },
+    new Set(["Gamma_AnalystEodReview"]),
+    new Set(["Gamma_AnalystEodReview"]), // held by quiet mode
+    "23:00",
+    persona({ name: "Analyst", lastFireISO: new Date(NOW - 60_000).toISOString() }),
+    { python: 0, pythonw: 0, ollama: 0, ollama_llama_server: 0, claude: 25, node: 6, total: 300 },
+    NOW,
+  );
+  assert.equal(role.host, "this PC"); // NOT "none" -- temporary, by design, still real
+  assert.equal(role.liveNow, false);
+  assert.equal(role.heldByQuietMode, true);
+  assert.match(role.nextFire, /^held by quiet mode until 23:00 ET \(fires /);
+  assert.doesNotMatch(role.nextFire, /^DISABLED/);
+  assert.match(role.evidence, /held by quiet mode until 23:00 ET/);
+  assert.doesNotMatch(role.evidence, /DISABLED in Task Scheduler/);
+});
+
+test("classifyRole: disabled AND on the restore list but quiet mode is currently INACTIVE reads genuinely DISABLED, not held", () => {
+  // A task can be on quiet-mode's restore list (it WOULD be held during the
+  // window) yet still show as disabled for some other reason once the
+  // window has passed and quiet mode is no longer active -- readQuietModeInfo
+  // returns an empty heldTaskNames set whenever quiet_active is false, so
+  // this must fall through to the genuine-DISABLED branch, never "held".
+  const role = classifyRole(
+    "Treasurer",
+    { name: "Treasurer", cadence: "Sun 16:00 ET via Gamma_TreasurerWeekly", tasks: ["Gamma_TreasurerWeekly"] },
+    new Set(["Gamma_TreasurerWeekly"]),
+    noHold, // quiet mode inactive -> caller passes an empty held-set regardless of the restore list
+    null,
+    persona({ name: "Treasurer" }),
+    zeroCounts,
+    NOW,
+  );
+  assert.equal(role.heldByQuietMode, false);
+  assert.equal(role.host, "none");
+  assert.match(role.nextFire, /^DISABLED/);
 });
 
 test("classifyRole: a persona with only SOME of its tasks disabled is not treated as fully dark", () => {
@@ -176,6 +229,8 @@ test("classifyRole: a persona with only SOME of its tasks disabled is not treate
     "Gamma (Manager)",
     { name: "Gamma (Manager)", cadence: "every 30 min via Gamma_Station", tasks: ["Gamma_Station", "Gamma_Conductor"] },
     new Set(["Gamma_Conductor"]), // only the Conductor half is disabled
+    new Set(["Gamma_Conductor"]), // even though it IS quiet-mode-held
+    "23:00",
     persona({ name: "Gamma (Manager)", lastFireISO: new Date(NOW - 60_000).toISOString() }),
     { python: 0, pythonw: 0, ollama: 1, ollama_llama_server: 0, claude: 0, node: 0, total: 50 },
     NOW,
@@ -183,12 +238,13 @@ test("classifyRole: a persona with only SOME of its tasks disabled is not treate
   assert.equal(role.host, "this PC");
   assert.equal(role.liveNow, true);
   assert.equal(role.runtime, "local-llm");
+  assert.equal(role.heldByQuietMode, false); // Gamma_Station itself is NOT disabled -- not "fully" held
 });
 
 const zeroCounts = { python: 0, pythonw: 0, ollama: 0, ollama_llama_server: 0, claude: 0, node: 0, total: 0 };
 
 test("classifyRole: missing roster fixture (fs read failed) degrades honestly instead of throwing", () => {
-  const role = classifyRole("Pilot", null, new Set(), null, zeroCounts, NOW);
+  const role = classifyRole("Pilot", null, new Set(), noHold, null, null, zeroCounts, NOW);
   assert.equal(role.name, "Pilot");
   assert.match(role.schedule, /unknown/);
   assert.equal(role.liveNow, false);
@@ -196,12 +252,63 @@ test("classifyRole: missing roster fixture (fs read failed) degrades honestly in
 });
 
 test("classifyRole: a null process table (tasklist spawn failed) is reported as unknown, never silently folded into 'no fire on file'", () => {
-  const role = classifyRole("Pilot", pilotRoster, new Set(), persona({ name: "Pilot" }), null, NOW);
+  const role = classifyRole("Pilot", pilotRoster, new Set(), noHold, null, persona({ name: "Pilot" }), null, NOW);
   assert.equal(role.evidence, "process table unavailable this poll -- last evidence ? ET");
 });
 
 test("classifyRole: an unknown persona name never throws, degrades to runtime 'none'", () => {
-  const role = classifyRole("Nobody", null, new Set(), null, zeroCounts, NOW);
+  const role = classifyRole("Nobody", null, new Set(), noHold, null, null, zeroCounts, NOW);
   assert.equal(role.runtime, "none");
   assert.equal(role.host, "none");
+});
+
+// ─── resolveTaskDisposition / deriveTaskStateReason ────────────────────────
+// The shared truth lib/personas.ts's collectAnalyst/collectTreasurer consume
+// via lib/hq-runtime.ts#taskStateQuietReason (its thin async fs wrapper) --
+// tested here at the pure core so the pill/next: line's own logic is
+// verified independent of any fs mock.
+
+test("resolveTaskDisposition: not disabled at all -> allDisabled false", () => {
+  const d = resolveTaskDisposition(["Gamma_AnalystEodReview"], new Set(), new Set());
+  assert.equal(d.allDisabled, false);
+  assert.equal(d.allHeldByQuietMode, false);
+});
+
+test("resolveTaskDisposition: disabled but NOT on the held set -> allDisabled true, allHeldByQuietMode false", () => {
+  const d = resolveTaskDisposition(["Gamma_AnalystEodReview"], new Set(["Gamma_AnalystEodReview"]), new Set());
+  assert.equal(d.allDisabled, true);
+  assert.equal(d.allHeldByQuietMode, false);
+});
+
+test("resolveTaskDisposition: disabled AND held -> both true", () => {
+  const d = resolveTaskDisposition(
+    ["Gamma_AnalystEodReview"],
+    new Set(["Gamma_AnalystEodReview"]),
+    new Set(["Gamma_AnalystEodReview"]),
+  );
+  assert.equal(d.allDisabled, true);
+  assert.equal(d.allHeldByQuietMode, true);
+});
+
+test("deriveTaskStateReason: not disabled -> null (caller's own normal logic applies)", () => {
+  const reason = deriveTaskStateReason("Analyst", ["Gamma_AnalystEodReview"], new Set(), new Set(), null, null, NOW);
+  assert.equal(reason, null);
+});
+
+test("deriveTaskStateReason: quiet-mode held -> 'held by quiet mode until <ET> (fires <projection>)'", () => {
+  const reason = deriveTaskStateReason(
+    "Analyst", ["Gamma_AnalystEodReview"],
+    new Set(["Gamma_AnalystEodReview"]), new Set(["Gamma_AnalystEodReview"]), "23:00",
+    null, NOW,
+  );
+  assert.match(reason ?? "", /^held by quiet mode until 23:00 ET \(fires /);
+});
+
+test("deriveTaskStateReason: genuinely disabled (quiet mode not the explanation) -> 'task X DISABLED -- no next fire'", () => {
+  const reason = deriveTaskStateReason(
+    "Treasurer", ["Gamma_TreasurerWeekly"],
+    new Set(["Gamma_TreasurerWeekly"]), new Set(), null,
+    null, NOW,
+  );
+  assert.equal(reason, "task Gamma_TreasurerWeekly DISABLED -- no next fire");
 });
