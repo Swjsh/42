@@ -69,8 +69,21 @@ export const CHARACTER_RAW_HEIGHT: Record<CharacterBodyId, number> = {
 
 export const CHARACTER_TARGET_HEIGHT = 1.8;
 
+// LIVE-1 item 1 (2026-09-14, J: "i cant really see"): the closer default
+// camera (Scene.tsx#CAMERA_DIST_ULTRA/CAMERA_HEIGHT_ULTRA) still left
+// characters reading small against the real kit furniture/architecture --
+// 1.25x lands every body at 2.25 world units standing height, legible at the
+// new ~16-unit overview distance without dwarfing the (unchanged) desk/chair
+// furniture scale (FURNITURE_SCALE=2.0 is independent of this). Ultra tier
+// only in EFFECT (characterScale() is the ONLY place either tier computes a
+// character's world scale, and only KitAgent.tsx/GammaCharacter.tsx -- both
+// ultra-only callers, see Agent.tsx's own `ultra` branch -- ever call it; the
+// TV tier's procedural capsule body in Agent.tsx has its own hardcoded
+// geometry args, untouched by this constant).
+export const CHARACTER_SCALE = 1.25;
+
 export function characterScale(bodyId: CharacterBodyId): number {
-  return CHARACTER_TARGET_HEIGHT / CHARACTER_RAW_HEIGHT[bodyId];
+  return (CHARACTER_TARGET_HEIGHT * CHARACTER_SCALE) / CHARACTER_RAW_HEIGHT[bodyId];
 }
 
 /** Deterministic body pick (never Math.random) -- same seeded-hash utility

@@ -2,6 +2,8 @@
 
 import { memo, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useThree, useFrame } from "@react-three/fiber";
+import { OrbitControls } from "@react-three/drei";
+import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import * as THREE from "three";
 import type { HqApiResponse, SectorRow } from "./types";
 import type { PersonaState } from "@/lib/personas";
@@ -21,7 +23,7 @@ import EffectsStack from "./EffectsStack";
 import GammaCharacter from "./GammaCharacter";
 import ActivityBubbleLayer, { type ActivityBubbleCandidate } from "./ActivityBubbleLayer";
 import { dayNightFactor, freshness01, healthColor, isParkedState, lerp, localToWorld, minutesSinceEvidence, nowEtDayOfWeek, nowEtMinutes, PALETTE, personaStatusColor, rosterEvidenceText, scheduleOnShift, truncateOneLine, type ScreenLine } from "./palette";
-import { BAY_DESK_OFFSET_Z, BAY_HALF_DEPTH, BAY_SEAT_LOCAL, CorridorRun, DeskCluster, HubRoom, HUB_WALL_RADIUS } from "./SetKit";
+import { BAY_DESK_OFFSET_Z, BAY_HALF_DEPTH, BAY_SEAT_LOCAL, CHARACTER_SCALE, CHARACTER_TARGET_HEIGHT, CorridorRun, DeskCluster, HubRoom, HUB_WALL_RADIUS } from "./SetKit";
 
 export type HqTier = "ultra" | "tv";
 
@@ -69,6 +71,47 @@ const BASE_AZIMUTH = Math.atan2(16, 20);
 // own capture_hq.ps1 re-check this pass; nudge further if still off.
 const CAMERA_DIST = 22;
 const CAMERA_HEIGHT = 7.5;
+// LIVE-1 item 1 (2026-09-14, J: "i need to be able to move around and see,
+// i cant really see"): ultra tier's OWN closer default -- "the ring should
+// fill ~85% of the canvas height at 1420x1080". TV tier's CAMERA_DIST/
+// CAMERA_HEIGHT above are UNCHANGED (this pass is ultra-tier only, matching
+// every other `ultra` branch in this file) -- the real physical TV's
+// framing was tuned across Pass A/F/G against real captures and this task
+// never asks for it to move. Scaled down from the shared 22/7.5 pair by
+// ~0.73x, holding the SAME depression angle (atan((height-1.4)/dist),
+// ~14-15deg either way) so the established 3/4 elevated "diorama" look
+// carries over unchanged, just closer -- first estimate, verified/adjusted
+// against a real capture per this task's own mandatory verification step.
+const CAMERA_DIST_ULTRA = 16;
+const CAMERA_HEIGHT_ULTRA = 5.5;
+// One reusable scratch vector for CameraRig's per-frame desired-position
+// math (module scope, never per-frame allocation -- same discipline as
+// StationModule.tsx's `_screenColor` / ActivityBubbleLayer.tsx's `_camPos`).
+// Safe as a shared singleton: written and consumed synchronously within one
+// useFrame callback, never held across a frame boundary.
+const _desiredCamPos = new THREE.Vector3();
+// Free-camera tuning (LIVE-1 item 1). minDistance/maxDistance bound how far
+// OrbitControls can zoom; maxPolarAngle keeps the camera from ever dipping
+// below the floor -- derived from camera.y = target.y + distance*cos(phi)
+// with target.y=1.4 (DEFAULT_LOOKAT below): the binding case is the FARTHEST
+// zoom (distance=45), where camera.y hits 0 (the floor) at phi~=91.8deg;
+// 89.5deg leaves a real margin (camera.y~=1.8u at max zoom-out) while still
+// letting the camera get close to eye-level with the station at any closer
+// distance (at distance=6, the same 89.5deg barely changes camera.y at all).
+const FREE_CAM_MIN_DISTANCE = 6;
+const FREE_CAM_MAX_DISTANCE = 45;
+const FREE_CAM_MAX_POLAR_ANGLE = (89.5 * Math.PI) / 180;
+const FREE_CAM_FLIGHT_S = 1.2; // keyboard 0-7 fly-to duration
+const FREE_CAM_IDLE_RESUME_S = 45; // auto-orbit resumes this long after the user's last input
+const FREE_CAM_AUTO_EASE = 0.05; // camera.position/controls.target lerp factor while the cinematic orbit drives -- imperceptible during steady continuous drift, and the SAME mechanism that makes a 45s-idle resume read as an "ease back" rather than a snap
+// "0 = overview" -- a fixed pose (no drift term, i.e. the auto-orbit's own
+// t=0 position) at the new ultra default distance/height, computed once
+// since every input is a compile-time constant.
+const OVERVIEW_CAM_POS: [number, number, number] = [
+  Math.sin(BASE_AZIMUTH) * CAMERA_DIST_ULTRA,
+  CAMERA_HEIGHT_ULTRA,
+  Math.cos(BASE_AZIMUTH) * CAMERA_DIST_ULTRA,
+];
 // Module-level (stable-forever) constants, never inline array literals, for
 // anything fed into a useMemo dependency array below -- an inline `[0, 0,
 // -0.15]` literal is a NEW array every render and would silently defeat the
@@ -162,11 +205,29 @@ const CAMERA_FOCUS_HOLD_S = 8; // event-triggered ease (red flip, all-hands)
 const CAMERA_VIGNETTE_INTERVAL_S = 90; // director vignette cadence (coordinator's own number)
 const CAMERA_VIGNETTE_HOLD_S = 6;
 
+interface CameraPreset {
+  /** World position of the character's own head (top-of-head, body-scale-
+   * independent -- see cameraPresets' own comment in Scene() below). This is
+   * the OrbitControls `target` a keyboard 1-7 fly-to lands on. */
+  headPos: [number, number, number];
+  /** Where the camera itself eases to for that preset. */
+  camPos: [number, number, number];
+}
+
 interface CameraRigProps {
   reducedMotion: boolean;
   rows: SectorRow[];
   geometry: Array<{ position: [number, number, number] }>;
   briefMtimeMs: number | null;
+  /** LIVE-1 item 1 (2026-09-14): free camera is ultra-tier only, same
+   * convention as every other `ultra` branch in this file -- the TV tier
+   * never mounts <OrbitControls> and this component's behavior is BYTE-
+   * IDENTICAL to before this pass when false. */
+  ultra: boolean;
+  /** Keys "1".."7" index into this array (cameraPresets[0] = key "1", per
+   * Scene.tsx's own [Gamma, ...6 personas] fixed order) -- see that
+   * component's own comment for how each entry is derived. */
+  cameraPresets: CameraPreset[];
 }
 
 /**
@@ -194,7 +255,7 @@ interface CameraRigProps {
  * eventful happening. reducedMotion holds everything at the default lookAt
  * with zero drift, matching every other reducedMotion branch in this file.
  */
-function CameraRig({ reducedMotion, rows, geometry, briefMtimeMs }: CameraRigProps) {
+function CameraRig({ reducedMotion, rows, geometry, briefMtimeMs, ultra, cameraPresets }: CameraRigProps) {
   const { camera } = useThree();
   const lookAtCurrent = useRef(new THREE.Vector3(0, 1.4, 0));
   const focusGoal = useRef<THREE.Vector3 | null>(null);
@@ -203,8 +264,109 @@ function CameraRig({ reducedMotion, rows, geometry, briefMtimeMs }: CameraRigPro
   const seenBriefMtime = useRef<number | null | undefined>(undefined);
   const lastVignetteBucket = useRef(-1);
 
+  // ─── LIVE-1 item 1 (2026-09-14, ultra tier only): free camera ───────────
+  // Three modes, a plain ref (never React state -- changes every frame
+  // during a flight/idle-countdown and must never trigger a re-render):
+  //   "auto"     -- the cinematic orbit below drives the camera every frame,
+  //                 BYTE-IDENTICAL mechanism to before this pass.
+  //   "userFree" -- OrbitControls owns the camera outright (the user is
+  //                 dragging/zooming, or within FREE_CAM_IDLE_RESUME_S of
+  //                 their last input) -- this component touches nothing.
+  //   "flying"   -- a FREE_CAM_FLIGHT_S eased hand-authored move to a
+  //                 keyboard-preset desk/overview pose.
+  // drei's <OrbitControls> registers its own `controls.update()` at
+  // useFrame priority -1 (verified from its shipped source this session,
+  // not assumed) -- i.e. it runs BEFORE this component's own (default-
+  // priority) useFrame every single frame. In "auto" mode that ordering
+  // means: OrbitControls recomputes its internal spherical state from
+  // whatever camera.position/controls.target this component set LAST frame
+  // (a true no-op with zero pending user delta -- three.js's OrbitControls
+  // always re-derives spherical FROM the camera's current position each
+  // call, it does not cache a separate authoritative position), and THEN
+  // this component makes the frame's real, authoritative move -- so the
+  // final state each frame is always this component's, with no fighting
+  // and no need to toggle `controls.enabled` (which would also silence the
+  // pointer listeners that must stay live for the user to interrupt the
+  // orbit in the first place).
+  const mode = useRef<"auto" | "userFree" | "flying">("auto");
+  const idleSince = useRef<number | null>(null);
+  const lastElapsed = useRef(0);
+  const controlsRef = useRef<OrbitControlsImpl>(null);
+  const flight = useRef<{
+    fromPos: THREE.Vector3; fromTarget: THREE.Vector3;
+    toPos: THREE.Vector3; toTarget: THREE.Vector3; start: number;
+  } | null>(null);
+
+  // Initial OrbitControls target -- set ONCE imperatively after mount,
+  // never as a `target=` JSX prop: this component re-renders on every
+  // genuine Scene data change (same cadence as every other piece of this
+  // tree), and a JSX `target` prop would silently SNAP the live orbit
+  // target back to the hub on each of those re-renders, fighting every
+  // imperative `.lerp()`/flight mutation this file makes to it below.
+  useEffect(() => {
+    controlsRef.current?.target.set(DEFAULT_LOOKAT.x, DEFAULT_LOOKAT.y, DEFAULT_LOOKAT.z);
+  }, []);
+
+  // Keyboard fly-to: "1".."7" = cameraPresets[0..6] (Scene.tsx's own fixed
+  // [Gamma, ...6 personas] order), "0" = the fixed overview pose. A window-
+  // level listener -- this component is mounted INSIDE <Canvas>, but
+  // `window` is the same real DOM window either way, no special r3f
+  // bridging needed. A missing preset (roster not loaded yet, or fewer
+  // than 7 personas -- a real, common fail-open shape elsewhere in this
+  // file) is silently ignored, never a crash. Modifier-chorded presses
+  // (browser zoom, etc.) are skipped so this never fights a real shortcut.
+  useEffect(() => {
+    if (!ultra) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
+      const controls = controlsRef.current;
+      if (!controls) return;
+      let dest: CameraPreset | null = null;
+      if (e.key === "0") {
+        dest = { camPos: OVERVIEW_CAM_POS, headPos: [DEFAULT_LOOKAT.x, DEFAULT_LOOKAT.y, DEFAULT_LOOKAT.z] };
+      } else if (e.key >= "1" && e.key <= "7") {
+        dest = cameraPresets[Number(e.key) - 1] ?? null;
+      }
+      if (!dest) return;
+      flight.current = {
+        fromPos: camera.position.clone(),
+        fromTarget: controls.target.clone(),
+        toPos: new THREE.Vector3(...dest.camPos),
+        toTarget: new THREE.Vector3(...dest.headPos),
+        start: lastElapsed.current,
+      };
+      mode.current = "flying";
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [ultra, cameraPresets, camera]);
+
   useFrame((state) => {
     const t = state.clock.elapsedTime;
+    lastElapsed.current = t;
+    const controls = controlsRef.current;
+
+    if (ultra && controls) {
+      if (mode.current === "flying" && flight.current) {
+        const f = flight.current;
+        const p = Math.min(1, (t - f.start) / FREE_CAM_FLIGHT_S);
+        const eased = p * p * (3 - 2 * p); // smoothstep
+        camera.position.lerpVectors(f.fromPos, f.toPos, eased);
+        controls.target.lerpVectors(f.fromTarget, f.toTarget, eased);
+        camera.lookAt(controls.target);
+        if (p >= 1) {
+          mode.current = "userFree";
+          idleSince.current = t;
+          flight.current = null;
+        }
+        return;
+      }
+      if (mode.current === "userFree") {
+        const idleForS = idleSince.current === null ? 0 : t - idleSince.current;
+        if (idleSince.current === null || idleForS < FREE_CAM_IDLE_RESUME_S) return; // OrbitControls owns the camera, untouched
+        mode.current = "auto"; // idle timeout elapsed -- fall through and ease back below
+      }
+    }
 
     if (!reducedMotion) {
       // Trigger 1: a lane's health just became red -- look at it.
@@ -257,15 +419,55 @@ function CameraRig({ reducedMotion, rows, geometry, briefMtimeMs }: CameraRigPro
 
     const drift = reducedMotion ? 0 : (Math.PI / 15) * Math.sin(t * 0.035);
     const azimuth = BASE_AZIMUTH + drift;
-    camera.position.set(Math.sin(azimuth) * CAMERA_DIST, CAMERA_HEIGHT, Math.cos(azimuth) * CAMERA_DIST);
+    const dist = ultra ? CAMERA_DIST_ULTRA : CAMERA_DIST;
+    const height = ultra ? CAMERA_HEIGHT_ULTRA : CAMERA_HEIGHT;
+    _desiredCamPos.set(Math.sin(azimuth) * dist, height, Math.cos(azimuth) * dist);
     // Look ABOVE the hub's own center (y=0) so the whole station -- hub,
     // modules, and the elevated ideas wall at y=3.4 -- settles into the
     // lower ~80% of frame, leaving the top clear for the HUD (title/mode
     // badge) instead of the two overlapping (unaffected by focus easing --
     // lookAtCurrent only ever moves a modest distance off this baseline).
-    camera.lookAt(lookAtCurrent.current);
+    if (ultra && controls) {
+      // Eased, never snapped -- see this function's own top-of-file
+      // comment: imperceptible during steady continuous drift (the desired
+      // position barely moves frame to frame), and the SAME mechanism that
+      // makes a 45s-idle resume from an arbitrary OrbitControls-parked
+      // position read as a graceful ease back.
+      camera.position.lerp(_desiredCamPos, FREE_CAM_AUTO_EASE);
+      controls.target.lerp(lookAtCurrent.current, FREE_CAM_AUTO_EASE);
+      camera.lookAt(controls.target);
+    } else {
+      camera.position.copy(_desiredCamPos);
+      camera.lookAt(lookAtCurrent.current);
+    }
   });
-  return null;
+
+  // Ultra tier only -- see this component's own top-of-file comment for the
+  // full hand-off mechanism. `onStart`/`onEnd` fire on drag AND wheel-zoom
+  // (three.js's OrbitControls dispatches both from the same 'start'/'end'
+  // events), matching "pauses the moment the user interacts" for either.
+  // `enableDamping` is the standard smoothing three.js ships with; NOT
+  // toggling `enabled` is deliberate -- see the top-of-file comment on why
+  // that would also silence the pointer listeners that must stay live.
+  if (!ultra) return null;
+  return (
+    <OrbitControls
+      ref={controlsRef}
+      makeDefault
+      enableDamping
+      dampingFactor={0.08}
+      minDistance={FREE_CAM_MIN_DISTANCE}
+      maxDistance={FREE_CAM_MAX_DISTANCE}
+      maxPolarAngle={FREE_CAM_MAX_POLAR_ANGLE}
+      onStart={() => {
+        mode.current = "userFree";
+        idleSince.current = null;
+      }}
+      onEnd={() => {
+        idleSince.current = lastElapsed.current;
+      }}
+    />
+  );
 }
 
 /**
@@ -477,6 +679,52 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
   const gammaDeskCenter: [number, number, number] = [Math.cos(ARC_CENTER) * GAMMA_RADIUS, 0, Math.sin(ARC_CENTER) * GAMMA_RADIUS];
   const gammaRotationY = Math.PI / 2 - ARC_CENTER;
 
+  // LIVE-1 item 1 (2026-09-14): keyboard fly-to targets for keys "1".."7" --
+  // the SAME fixed [Gamma, ...6 personas] order collectCompany() already
+  // guarantees (allPersonas[0] is always Gamma; innerPersonas is everyone
+  // else, both established above). headPos is the character's own top-of-
+  // head world position: agentHome (feet/floor level, same point Agent.tsx
+  // seats a character at) plus a body-INDEPENDENT offset -- KitAgent.tsx's
+  // own head-beacon sits at `CHARACTER_RAW_HEIGHT[bodyId] * 0.95` in LOCAL
+  // space, and characterScale() is exactly
+  // `CHARACTER_TARGET_HEIGHT*CHARACTER_SCALE / CHARACTER_RAW_HEIGHT[bodyId]`
+  // -- the per-body raw height cancels out of (local head Y) * (scale)
+  // algebraically, leaving one constant for every body, not a per-body
+  // lookup (this asset pack's own rig keeps the head near the bbox top
+  // through sit/rest/walk alike, per KitAgent.tsx's own comment, so this is
+  // valid for a SEATED desk character too). camPos is an ADAPTIVE pull-back
+  // rather than a fixed "6 units outward": the persona ring (radius 6.5)
+  // sits only ~1 unit inside the hub's own wall (HUB_WALL_RADIUS 7.5, see
+  // SetKit.tsx#ARCHITECTURE_SCALE_HUB) so a naive outward offset would
+  // clip through it -- pull OUTWARD only when there's real clearance before
+  // that wall (Gamma's close-to-core desk, radius 3.4), INWARD otherwise
+  // (every persona desk), which also keeps the inward case well clear of
+  // BrainCore's own ring geometry (~2.58 world radius) and Gamma's desk
+  // (radius 3.4). Not memoized -- cheap (<=7 iterations of scalar math),
+  // matching this file's own convention of only memoizing what feeds a
+  // CHILD's dependency array where referential stability changes behavior
+  // (gammaDeskCenter itself, two lines up, is likewise a plain per-render
+  // const).
+  const cameraPresets: CameraPreset[] = (() => {
+    const headOffset = CHARACTER_TARGET_HEIGHT * CHARACTER_SCALE * 0.95;
+    const deskPositions: [number, number, number][] = [];
+    if (allPersonas[0]) deskPositions.push(gammaDeskCenter);
+    innerPersonas.forEach((_, i) => {
+      const slot = personaGeometry[i] ?? personaGeometry[0];
+      deskPositions.push(slot.agentHome);
+    });
+    return deskPositions.map((pos): CameraPreset => {
+      const headPos: [number, number, number] = [pos[0], pos[1] + headOffset, pos[2]];
+      const deskRadius = Math.hypot(pos[0] - HUB[0], pos[2] - HUB[2]);
+      const dirX = deskRadius > 0.001 ? (pos[0] - HUB[0]) / deskRadius : 0;
+      const dirZ = deskRadius > 0.001 ? (pos[2] - HUB[2]) / deskRadius : 1;
+      const outwardRoom = HUB_WALL_RADIUS - 1.0 - deskRadius;
+      const pull = outwardRoom > 2.5 ? Math.min(3.5, outwardRoom) : -Math.min(2.5, Math.max(0.5, deskRadius - 1.5));
+      const camPos: [number, number, number] = [headPos[0] + dirX * pull, headPos[1] + 4.2, headPos[2] + dirZ * pull];
+      return { headPos, camPos };
+    });
+  })();
+
   // Company audit (commit 58d0b9c6, coordinator 2026-09-13: "the roster
   // must show ghosts as ghosts") -- matched by name onto PersonaState.
   // `data.audit` is included in page.tsx's sceneData content key, so this
@@ -577,7 +825,14 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
         shadow-camera-bottom={-14}
       />
 
-      <CameraRig reducedMotion={reducedMotion} rows={rows} geometry={geometry} briefMtimeMs={data?.brief.mtime_ms ?? null} />
+      <CameraRig
+        reducedMotion={reducedMotion}
+        rows={rows}
+        geometry={geometry}
+        briefMtimeMs={data?.brief.mtime_ms ?? null}
+        ultra={ultra}
+        cameraPresets={cameraPresets}
+      />
       {/* Suspense-scoped (world pass A bug fix, see BrainCore.tsx) -- the
           HDRI load suspends too, and is a SIBLING of BrainCore/EffectsStack
           here, not a descendant; without its own boundary it would ALSO

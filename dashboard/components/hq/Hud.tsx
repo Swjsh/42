@@ -63,6 +63,24 @@ const HUD_FONT = "system-ui, -apple-system, Segoe UI, Roboto, sans-serif";
  */
 export default function Hud({ data, error, kiosk, isValidating, motionEvents, tier }: HudProps) {
   const etClock = useEtClock();
+  // LIVE-1 item 1 (2026-09-14): "H toggles the HUD" -- ultra tier only,
+  // same scoping as the free camera itself (Scene.tsx's OrbitControls/
+  // keyboard fly-to). A plain top-level toggle, not threaded through
+  // Scene.tsx/Canvas at all -- this component already owns its own full
+  // render tree (both overlay columns), so there is nothing to coordinate
+  // with the 3D scene here. Defaults visible; a page reload always starts
+  // visible again (no persisted preference -- this is a per-session view
+  // toggle, not a setting).
+  const [hudVisible, setHudVisible] = useState(true);
+  useEffect(() => {
+    if (tier !== "ultra") return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
+      if (e.key === "h" || e.key === "H") setHudVisible((v) => !v);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [tier]);
   const mode = data?.mode ?? "unknown";
   const gaming = mode === "gaming";
   const present = data?.presence?.present ?? null;
@@ -82,6 +100,11 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
 
   return (
     <>
+    {/* LIVE-1 item 1 (2026-09-14): "H toggles the HUD" -- both overlay
+        columns below are gated on `hudVisible` (ultra tier only triggers the
+        keydown listener above; TV kiosk always renders, same as before this
+        pass). */}
+    {hudVisible && (
     <div
       style={{
         position: "fixed", top: 0, left: 0, bottom: 0, width: `calc(100% - ${HUD_RIGHT_COLUMN_WIDTH}px)`,
@@ -149,7 +172,37 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
            (bounded at 7 rows max, the fixed roster size). */
         .hq-pulse { animation: hq-pulse-glow 1.8s ease-in-out infinite; }
         @keyframes hq-pulse-glow { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+
+        /* Free-camera hint strip (LIVE-1 item 1, 2026-09-14): visible on
+           mount, holds, then fades -- opacity only. Remounts (via the
+           hudVisible-keyed div below) replay this every time H brings the
+           HUD back, which doubles as a re-teach of the shortcut. */
+        .hq-camera-hint { animation: hq-hint-fade 8s ease-in forwards; }
+        @keyframes hq-hint-fade { 0%, 70% { opacity: 0.85; } 100% { opacity: 0; } }
       `}</style>
+
+      {/* Free-camera hint strip (LIVE-1 item 1, 2026-09-14, ultra tier
+          only -- the TV kiosk has no OrbitControls/keyboard camera to
+          explain, see Scene.tsx's own `ultra`-gated CameraRig). Bottom-left
+          of the CANVAS -- this wrapper div is already width-constrained to
+          the same `calc(100% - HUD_RIGHT_COLUMN_WIDTH)` the canvas itself
+          uses (UltraCanvasRoot.tsx), so `left` here is relative to that same
+          box. Sits just above the bottom ticker strip (which occupies
+          bottom:34..~74) rather than on top of it. `key={hudVisible}`
+          remounts (replaying the fade) whenever H brings the HUD back. */}
+      {tier === "ultra" && (
+        <div
+          key={String(hudVisible)}
+          className="hq-camera-hint"
+          style={{
+            position: "absolute", left: 20, bottom: 84,
+            color: "#9fb3cc", fontSize: 14, fontFamily: HUD_FONT,
+            background: "rgba(3,4,10,0.55)", padding: "4px 12px", borderRadius: 6,
+          }}
+        >
+          drag orbit &middot; wheel zoom &middot; 1-7 desks &middot; 0 overview &middot; H hides HUD
+        </div>
+      )}
 
       {/* Meteors drifting behind the title (decorative only, z-index below
           the text) -- trimmed from 5 to 3 (2026-09-13, Company Mode step 5)
@@ -273,6 +326,7 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
         <span style={{ color: "#4a5a78", fontSize: 11 }}>{syncedText}</span>
       </div>
     </div>
+    )}
 
     {/* Right column (Pass G, 2026-09-13, coordinator item 1): needs-J +
         roster, solid background, normal document flow (no more per-item
@@ -281,7 +335,9 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
         moved here verbatim from the left overlay above (needs-J was
         top-left, roster was top-right -- now stacked together on the
         right, matching the coordinator's own "Grok-Bot company view"
-        reference). */}
+        reference). Gated on `hudVisible` (LIVE-1 item 1, 2026-09-14) same
+        as the left column above. */}
+    {hudVisible && (
     <div
       style={{
         position: "fixed", top: 0, right: 0, bottom: 0, width: HUD_RIGHT_COLUMN_WIDTH,
@@ -366,6 +422,7 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
         </div>
       )}
     </div>
+    )}
     </>
   );
 }
