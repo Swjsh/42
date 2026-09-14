@@ -279,7 +279,16 @@ export interface PurposefulWalk {
 
 const PURPOSEFUL_WALK_PERIOD_MIN_MS = 6 * 60_000;
 const PURPOSEFUL_WALK_PERIOD_MAX_MS = 10 * 60_000;
-const PURPOSEFUL_WALK_ACTIVE_MS = 14_000; // covers a full WALK_DURATION*2+pause round trip (Agent.tsx) with a little margin
+// World-2 MOTION-FIX (2026-09-14): Agent.tsx's old fixed WALK_DURATION is
+// gone (walks are distance/WALK_SPEED now, see KitAgent.tsx's own comment)
+// -- re-verified this budget against the new real pace rather than just
+// updating the reference: PURPOSEFUL_TARGETS/neighbor destinations sit
+// ~6.5u from a persona's home (Scene.tsx's own PERSONA_RING_RADIUS), so a
+// round trip at WALK_SPEED (~1.8 u/s) is ~2*(6.5/1.8)+PURPOSEFUL_PAUSE(4) =
+// ~11.2s -- comfortably inside this 14s window, MORE margin than the old
+// fixed-4.5s-per-leg scheme had (13s used of 14s), so 14_000 stays correct
+// unchanged.
+const PURPOSEFUL_WALK_ACTIVE_MS = 14_000;
 
 export function computePurposefulWalk(
   personaName: string, nowMs: number, ideasCount: number, ownLastFireISO: string | null, neighborName: string | null,

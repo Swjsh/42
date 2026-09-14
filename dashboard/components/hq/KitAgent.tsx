@@ -5,7 +5,7 @@ import { useGLTF, useAnimations } from "@react-three/drei";
 import * as THREE from "three";
 import { clone as cloneSkeleton } from "three/examples/jsm/utils/SkeletonUtils.js";
 import {
-  KIT_PATHS, CHARACTER_BODY_IDS, CHARACTER_RAW_HEIGHT, characterScale,
+  KIT_PATHS, CHARACTER_BODY_IDS, CHARACTER_RAW_HEIGHT, CHARACTER_TARGET_HEIGHT, CHARACTER_SCALE, characterScale,
   pickCharacterBody, tintObjectMaterials, type CharacterBodyId,
 } from "./SetKit";
 
@@ -45,6 +45,42 @@ export type KitAnimState =
  * read as "typing at the console" for the working pool. Agent.tsx cycles
  * IDLE_VARIANTS/WORKING_VARIANTS on its own per-instance 8-20s timer.
  */
+
+// ─── World-2 MOTION-FIX (2026-09-14, J: "the people are running like 100mph"
+// -- Agent.tsx's old WALK_DURATION=4.5s covered EVERY walk regardless of
+// distance; a ~14-unit hub trip at 4.5s is ~3 u/s, roughly 6 body-heights/s
+// for this character's own on-screen height -- a dead sprint, not a walk).
+// Real walking pace, DERIVED from SetKit.tsx's own CHARACTER_TARGET_HEIGHT/
+// CHARACTER_SCALE (never a hand-picked magic number) so a future scale
+// change keeps this correct automatically: an average adult walks ~1.4 m/s
+// at ~1.75m tall (~0.8 body-heights/second), scaled by THIS character's own
+// on-screen height relative to that real-world reference. Single source of
+// truth for BOTH Agent.tsx's translation-duration math AND this file's own
+// CLIP_TABLE walk/alert speeds below -- "the clip speed follows the
+// translation speed, never the other way round" (spec). Exported (not
+// Agent-local) specifically to avoid a circular Agent.tsx<->KitAgent.tsx
+// import -- Agent.tsx already imports FROM this file, never the reverse.
+const REAL_HUMAN_WALK_MPS = 1.4;
+const REAL_HUMAN_HEIGHT_M = 1.75;
+const CHARACTER_HEIGHT_WORLD = CHARACTER_TARGET_HEIGHT * CHARACTER_SCALE;
+export const WALK_SPEED = (REAL_HUMAN_WALK_MPS * CHARACTER_HEIGHT_WORLD) / REAL_HUMAN_HEIGHT_M; // u/s, ~1.8 at the current 1.25 scale
+
+// World-2 item 5's alert pace, now a real BRISK WALK (was 2.0 u/s -- a jog):
+// comfortably under WALK_SPEED so "hurrying to the door" still reads as
+// urgent walking, never running.
+export const ALERT_PACE_SPEED = 0.9; // u/s
+
+// Kenney Mini Characters' "walk" clip is an in-place loop -- Agent.tsx has
+// always driven translation itself via g.position, independent of the GLTF,
+// and manifest.json documents no root-motion translation track on this
+// clip -- so there is no baked stride to measure programmatically. This is
+// a TUNED-AND-VISUALLY-VERIFIED estimate (Browser-pane check against the
+// real WALK_SPEED above, this session) of the pace the "walk" clip's own
+// foot-cycle rate implies at mixer speed 1.0, in the SAME honest-estimate
+// convention this file's neighbor ALERT_PACE_SPEED comment used to use.
+// Not measured ground truth -- re-tune here if a future body swap changes
+// the baked clip.
+const NATIVE_WALK_CLIP_MPS = 1.4;
 export const CLIP_TABLE: Record<KitAnimState, { clip: string; speed: number }> = {
   "resting-idle": { clip: "sit", speed: 0.7 },
   "resting-idle-look": { clip: "emote-no", speed: 0.8 },
@@ -52,9 +88,13 @@ export const CLIP_TABLE: Record<KitAnimState, { clip: string; speed: number }> =
   "resting-working": { clip: "sit", speed: 1.15 },
   "resting-working-type": { clip: "interact-right", speed: 1.0 },
   "resting-working-type-alt": { clip: "interact-left", speed: 1.0 },
-  walking: { clip: "walk", speed: 1.0 },
-  alert: { clip: "walk", speed: 1.6 },
-  // World-2 item 5 (2026-09-14): the alert pace's ~1.5s pause at each end
+  // World-2 MOTION-FIX: playback speed DERIVED from WALK_SPEED/ALERT_PACE_SPEED
+  // above (never a hardcoded multiplier) so the clip's foot-cycle rate always
+  // tracks however fast Agent.tsx is actually translating the body -- the
+  // mechanism that keeps feet from sliding when either speed constant changes.
+  walking: { clip: "walk", speed: WALK_SPEED / NATIVE_WALK_CLIP_MPS },
+  alert: { clip: "walk", speed: ALERT_PACE_SPEED / NATIVE_WALK_CLIP_MPS },
+  // World-2 item 5 (2026-09-14): the alert pace's pause at each end
   // (Agent.tsx's own "atDoor"/"atDesk" sub-phases) needs a genuinely
   // STANDING pose, not the walk clip held mid-stride -- "idle" (verified
   // present on all 3 bodies via manifest.json's own per-character animation

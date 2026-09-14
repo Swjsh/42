@@ -4,7 +4,7 @@ import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { useThrottledFrame } from "./useThrottledFrame";
 import { makeMatcapTexture, seededRandom } from "./palette";
-import { IDLE_VARIANTS, KitAgentBody, WORKING_VARIANTS, type KitAnimState } from "./KitAgent";
+import { ALERT_PACE_SPEED, IDLE_VARIANTS, KitAgentBody, WALK_SPEED, WORKING_VARIANTS, type KitAnimState } from "./KitAgent";
 
 export type AgentBehavior = "working" | "idle" | "alert" | "frozen";
 export type AgentWalkKind = "roundtrip" | "arrival" | "allhands" | "purposeful";
@@ -113,7 +113,6 @@ interface AgentProps {
   ultra?: boolean;
 }
 
-const WALK_DURATION = 4.5;
 const HUB_PAUSE = 1.5;
 // INTERACT-2 (I3, 2026-09-14): 60 -> 25s -- "everyone turns toward the hub
 // wall for ~25s" (spec). BrainCore.tsx's own all-hands pulse window is a
@@ -122,19 +121,51 @@ const HUB_PAUSE = 1.5;
 const ALLHANDS_HUB_PAUSE = 25;
 const POINT_HOLD_S = 7; // item 2c (LIVE-1): how long Pilot holds the "point" gesture after a fresh ENTER/EXIT
 const PURPOSEFUL_PAUSE = 4; // item 2b (LIVE-1): dwell at the destination -- long enough for the reason bubble/ticker line to read
+// World-2 MOTION-FIX (2026-09-14, J: "the people are running like 100mph"):
+// WALK_DURATION (a fixed 4.5s for EVERY walk regardless of distance -- a
+// ~14-unit hub trip at 4.5s is ~3 u/s, a sprint for this character's own
+// on-screen height) is GONE -- replaced by distance/WALK_SPEED (imported
+// from KitAgent.tsx, the single source of truth also driving that file's own
+// ultra-tier clip-speed derivation; see its comment for the real-world-pace
+// math). MIN_WALK_LEG_S is a defensive floor only (a degenerate near-zero
+// distance would otherwise read as a snap) -- real hub/approach distances
+// are always well above it. WALK_EASE_S is the ease-in/ease-out window at
+// each end of a leg (see easedWalkProgress below) -- a FIXED real-time
+// window regardless of total leg duration, so a short errand's ease never
+// swallows its whole walk.
+const MIN_WALK_LEG_S = 0.8;
+const WALK_EASE_S = 0.3;
 // World-2 item 5 (2026-09-14, J: "futures is running because it's on alert...
 // it's just running in place, which is weird"): a real pace between the desk
 // and the hub-facing door -- see the `behavior === "alert"` branch's own
-// comment for the full distance/speed derivation. ALERT_PACE_SPEED is an
-// ESTIMATED brisk walking pace (this scene is roughly 1 world unit = 1m),
-// briskened to match KitAgent.tsx#CLIP_TABLE.alert's 1.6x clip rate --
-// UNVERIFIED against the walk clip's actual root-motion stride (not
-// extractable without a full skeletal-animation parse), stated honestly as
-// an estimate rather than a measured value.
-const ALERT_PACE_SPEED = 2.0; // u/s, estimate
-const ALERT_PACE_PAUSE_S = 1.5;
+// comment for the full distance/speed derivation. ALERT_PACE_SPEED now lives
+// in / derives from KitAgent.tsx (see its own comment) -- imported above,
+// not redefined here, so this file's translation speed and that file's
+// clip-speed multiplier can never drift apart.
+const ALERT_PACE_PAUSE_S = 2.5; // was 1.5 -- a real pause, not a tap-and-go
 type WalkPhase = "resting" | "toHub" | "atHub" | "toHome" | "arriving";
 type AlertPacePhase = "toDoor" | "atDoor" | "toDesk" | "atDesk";
+
+/** Trapezoidal-velocity walk progress: ramps up over `easeS` seconds,
+ * cruises at constant speed, ramps down over `easeS` seconds at the far end
+ * -- a FIXED real-time ease window regardless of total leg duration (unlike
+ * a proportional smoothstep, whose ease would swallow a short leg's entire
+ * duration). Integrated analytically so distance covered still sums to
+ * exactly the full leg in `total` seconds -- WALK_SPEED stays the real
+ * AVERAGE speed of the walk, not just its peak cruise speed. Pure function,
+ * zero allocation, called from the per-frame throttled callback below. */
+function easedWalkProgress(elapsed: number, total: number, easeS: number): number {
+  if (total <= 0 || elapsed >= total) return 1;
+  if (elapsed <= 0) return 0;
+  const e = Math.min(easeS, total / 2); // never let the two ease windows overlap on a very short leg
+  const v = 1 / (total - e); // cruise "speed" in progress-units/second
+  if (elapsed <= e) return (v * elapsed * elapsed) / (2 * e);
+  if (elapsed >= total - e) {
+    const r = total - elapsed;
+    return 1 - (v * r * r) / (2 * e);
+  }
+  return (v * e) / 2 + v * (elapsed - e);
+}
 
 /**
  * One little procedural bot: capsule body, visor sphere (doubles as the
@@ -213,6 +244,20 @@ export default function Agent({
 
   const phase = useRef<WalkPhase>("resting");
   const phaseStart = useRef(0);
+  // World-2 MOTION-FIX: computed ONCE at walk-start (see the pendingWalk
+  // consumption block below) -- toHub and toHome always cover the SAME
+  // straight-line distance (the same two points, reversed), and "arriving"
+  // is a single leg, so one duration value covers whichever leg(s) a given
+  // walk actually plays. walkFacing is recomputed at EACH leg's own start
+  // (toHub/arriving in the consumption block, toHome at the atHub->toHome
+  // transition) since the two legs of a roundtrip face opposite ways --
+  // this is the "turn before moving" lever: rotation snaps to the new
+  // heading the instant a leg starts, and since easedWalkProgress's ramp-up
+  // keeps actual translation near-zero for the first fraction of a second,
+  // the visible result reads as "turns, then departs" without a separate
+  // turn-only sub-phase.
+  const walkLegDuration = useRef(MIN_WALK_LEG_S);
+  const walkFacing = useRef(0);
   // World-2 item 5: independent state machine for the alert pace (door <->
   // desk) -- separate from `phase` above (the roundtrip/arrival/allhands/
   // purposeful machine), never active at the same time since the alert
@@ -382,6 +427,10 @@ export default function Agent({
       const dirX = (hub[0] - home[0]) / homeToHubDist;
       const dirZ = (hub[2] - home[2]) / homeToHubDist;
       const doorPos: [number, number, number] = [home[0] + dirX * paceDist, home[1], home[2] + dirZ * paceDist];
+      // World-2 MOTION-FIX: ALERT_PACE_SPEED now a real <=1.0 u/s brisk-walk
+      // pace (imported from KitAgent.tsx, was a local 2.0 u/s jog) -- the
+      // Math.max(0.6, ...) floor is defensive only, for a very tight persona
+      // desk's clamped paceDist.
       const paceDuration = Math.max(0.6, paceDist / ALERT_PACE_SPEED);
 
       if (alertPhaseStart.current < 0) alertPhaseStart.current = t;
@@ -389,7 +438,7 @@ export default function Agent({
       const facingHub = Math.atan2(dirX, dirZ);
 
       if (alertPhase.current === "toDoor") {
-        const p = Math.min(1, elapsed / paceDuration);
+        const p = easedWalkProgress(elapsed, paceDuration, WALK_EASE_S);
         g.position.set(home[0] + (doorPos[0] - home[0]) * p, home[1], home[2] + (doorPos[2] - home[2]) * p);
         g.rotation.y = facingHub;
         if (p >= 1) { alertPhase.current = "atDoor"; alertPhaseStart.current = t; setAlertPaused(true); }
@@ -398,7 +447,7 @@ export default function Agent({
         g.rotation.y = facingHub; // "looking toward the hub" -- doorPos sits ON the home->hub line
         if (elapsed >= ALERT_PACE_PAUSE_S) { alertPhase.current = "toDesk"; alertPhaseStart.current = t; setAlertPaused(false); }
       } else if (alertPhase.current === "toDesk") {
-        const p = Math.min(1, elapsed / paceDuration);
+        const p = easedWalkProgress(elapsed, paceDuration, WALK_EASE_S);
         g.position.set(doorPos[0] + (home[0] - doorPos[0]) * p, home[1], doorPos[2] + (home[2] - doorPos[2]) * p);
         g.rotation.y = facingHub + Math.PI; // facing the direction of travel (away from hub, back toward the desk)
         if (p >= 1) { alertPhase.current = "atDesk"; alertPhaseStart.current = t; setAlertPaused(true); }
@@ -409,7 +458,13 @@ export default function Agent({
       }
 
       const moving = alertPhase.current === "toDoor" || alertPhase.current === "toDesk";
-      const swing = moving ? Math.sin(t * 9) * 0.5 : 0;
+      // World-2 MOTION-FIX: leg-swing frequency scaled down proportionally
+      // to ALERT_PACE_SPEED's own 2.0->0.9 u/s reduction (0.9/2.0 = 0.45,
+      // 9*0.45~=4) so the TV tier's procedural stride cadence still roughly
+      // matches how fast the body is actually translating -- an estimate,
+      // same honesty convention as this file's other tuned constants, not a
+      // measured gait-cycle rate.
+      const swing = moving ? Math.sin(t * 4) * 0.5 : 0;
       if (legL.current) legL.current.rotation.x = swing;
       if (legR.current) legR.current.rotation.x = -swing;
       return;
@@ -436,10 +491,23 @@ export default function Agent({
           ? (eventWalkPending.current ? (eventWalkTarget ?? approach) : (purposefulTarget ?? approach))
           : null;
         eventWalkPending.current = false;
-        phase.current = pendingWalk.current === "arrival" ? "arriving" : "toHub";
+        const startPhase = pendingWalk.current === "arrival" ? "arriving" : "toHub";
+        phase.current = startPhase;
         phaseStart.current = t;
         pendingWalk.current = null;
         setWalking(true);
+        // World-2 MOTION-FIX: distance-based duration + facing, computed
+        // ONCE here at walk-start (see walkLegDuration/walkFacing's own
+        // comment by their ref declarations above) -- "arriving" is
+        // hub->home; every other kind starts toHub, home->(purposeful
+        // target or approach).
+        const legFrom = startPhase === "arriving" ? hub : home;
+        const legTo = startPhase === "arriving"
+          ? home
+          : (activeWalkKind.current === "purposeful" && activeTarget.current ? activeTarget.current : approach);
+        const dist = Math.hypot(legTo[0] - legFrom[0], legTo[2] - legFrom[2]);
+        walkLegDuration.current = Math.max(MIN_WALK_LEG_S, dist / WALK_SPEED);
+        walkFacing.current = Math.atan2(legTo[0] - legFrom[0], legTo[2] - legFrom[2]);
       }
     }
     const walkTarget = activeWalkKind.current === "purposeful" && activeTarget.current ? activeTarget.current : approach;
@@ -448,7 +516,8 @@ export default function Agent({
       // One-way hub -> home (a persona that just fired, walking in from the
       // manager and sitting down to work) -- ends in "resting", never
       // returns to the hub the way a roundtrip does.
-      const p = Math.min(1, (t - phaseStart.current) / WALK_DURATION);
+      const p = easedWalkProgress(t - phaseStart.current, walkLegDuration.current, WALK_EASE_S);
+      g.rotation.y = walkFacing.current; // "turn before moving" -- see the ref's own comment
       g.position.set(
         hub[0] + (home[0] - hub[0]) * p,
         home[1],
@@ -456,7 +525,8 @@ export default function Agent({
       );
       if (p >= 1) { phase.current = "resting"; setWalking(false); }
     } else if (phase.current === "toHub") {
-      const p = Math.min(1, (t - phaseStart.current) / WALK_DURATION);
+      const p = easedWalkProgress(t - phaseStart.current, walkLegDuration.current, WALK_EASE_S);
+      g.rotation.y = walkFacing.current;
       g.position.set(
         home[0] + (walkTarget[0] - home[0]) * p,
         home[1],
@@ -487,10 +557,15 @@ export default function Agent({
       if (t - phaseStart.current >= pauseSeconds) {
         phase.current = "toHome";
         phaseStart.current = t;
+        // World-2 MOTION-FIX: return leg -- same distance as toHub (computed
+        // once at walk-start above, walkLegDuration is unchanged), reversed
+        // facing ("turn before moving" for the trip home too).
+        walkFacing.current = Math.atan2(home[0] - walkTarget[0], home[2] - walkTarget[2]);
         if (activeWalkKind.current === "allhands") setWalking(true);
       }
     } else if (phase.current === "toHome") {
-      const p = Math.min(1, (t - phaseStart.current) / WALK_DURATION);
+      const p = easedWalkProgress(t - phaseStart.current, walkLegDuration.current, WALK_EASE_S);
+      g.rotation.y = walkFacing.current;
       g.position.set(
         walkTarget[0] + (home[0] - walkTarget[0]) * p,
         home[1],
