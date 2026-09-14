@@ -6,6 +6,19 @@ import * as THREE from "three";
 import type { SectorRow } from "./types";
 import { KIT_PATHS, KitProp, FURNITURE_SCALE, BAY_DESK_OFFSET_Z, BAY_HALF_DEPTH, BAY_SEAT_LOCAL } from "./SetKit";
 
+// W2 (2026-09-14, WORLD-6 builder): plant-small.glb (Kenney Furniture Kit,
+// public/hq-assets/kenney-furniture-kit/) was downloaded for "interior
+// plants" and originally placed one-per-bay here, but REMOVED after a
+// coordinator draw-call-budget flag (2026-09-14 ~19:2x ET, real capture
+// hq-20260914-1725.png: 1093/1100 calls): the raw GLB has 2 primitives
+// (glb_extents.mjs's own JSON-chunk inspection this session), and 8 bays x
+// 2 = 16 draw calls for a plant small enough to be barely visible at any
+// camera preset was the worst value-per-draw-call item in this pass -- cut
+// first. The file stays on disk (manifest.json/LICENSES.md still record
+// it) in case a future pass wants ONE cheap accent placement instead of
+// eight; see HubInterior.tsx's own potted-plant.glb placement for the
+// budget-kept "interior plants" delivery instead.
+
 // ─── S3 bay interiors pass (2026-09-14, MODELS builder) ────────────────────
 // "each lane bay gets a believable workstation": a second chair + second
 // screen (a real P&L bar-gauge, not a line-text repeat of the desk's own
