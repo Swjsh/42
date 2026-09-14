@@ -1,8 +1,9 @@
 "use client";
 
 import { memo, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import type { CSSProperties } from "react";
 import { useThree, useFrame } from "@react-three/fiber";
-import { OrbitControls } from "@react-three/drei";
+import { Html, OrbitControls } from "@react-three/drei";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import * as THREE from "three";
 import type { HqApiResponse, SectorRow } from "./types";
@@ -16,13 +17,14 @@ import HandoffCourier from "./HandoffCourier";
 import Corridor from "./Corridor";
 import IdeasWall from "./IdeasWall";
 import Courier from "./Courier";
+import ServiceDrones from "./ServiceDrones";
 import Starfield from "./Starfield";
 import SkyDome from "./SkyDome";
 import PmremEnvironment from "./PmremEnvironment";
 import EffectsStack from "./EffectsStack";
 import GammaCharacter from "./GammaCharacter";
 import ActivityBubbleLayer, { type ActivityBubbleCandidate } from "./ActivityBubbleLayer";
-import { dayNightFactor, freshness01, healthColor, isParkedState, lerp, localToWorld, minutesSinceEvidence, nowEtDayOfWeek, nowEtMinutes, PALETTE, personaStatusColor, rosterEvidenceText, scheduleOnShift, truncateOneLine, type ScreenLine } from "./palette";
+import { computePurposefulWalk, dayNightFactor, freshness01, healthColor, isParkedState, isRegularTradingHours, lerp, localToWorld, minutesSinceEvidence, nowEtDayOfWeek, nowEtMinutes, PALETTE, personaStatusColor, rosterEvidenceText, scheduleOnShift, truncateOneLine, type ScreenLine } from "./palette";
 import { BAY_DESK_OFFSET_Z, BAY_HALF_DEPTH, BAY_SEAT_LOCAL, CHARACTER_SCALE, CHARACTER_TARGET_HEIGHT, CorridorRun, DeskCluster, HubRoom, HUB_WALL_RADIUS } from "./SetKit";
 
 export type HqTier = "ultra" | "tv";
@@ -174,6 +176,20 @@ const ARC_SPAN = (230 * Math.PI) / 180;
 // it runs" per the original design intent) with real clearance from center.
 const PERSONA_RING_RADIUS = 6.5;
 const COURIER_REST: [number, number, number] = [-1.3, 0, 1.1];
+// Item 2b (LIVE-1, 2026-09-14): fixed ground-level destinations for
+// palette.ts#computePurposefulWalk's non-neighbor destinations. "ideas-wall"
+// targets near the hub's own center (WALL_POS itself is [0,3.4,0] -- the
+// wall is MOUNTED above the hub, not out on the floor, matching Courier.tsx's
+// own hub->wall carry path) rather than literally under WALL_POS, so a
+// persona visiting doesn't stand exactly atop the courier's own rest spot or
+// BrainCore's center. "core"/"lounge" are distinct hub-interior points, clear
+// of BrainCore's ring geometry (~2.58 world radius) and Gamma's own desk
+// (radius 3.4, angle ARC_CENTER).
+const PURPOSEFUL_TARGETS: Record<"ideas-wall" | "core" | "lounge", [number, number, number]> = {
+  "ideas-wall": [1.1, 0, -0.7],
+  core: [-1.2, 0, -1.6],
+  lounge: [-2.2, 0, 1.7],
+};
 
 /** health=red -> alert (overrides evidence recency); a parked lane (killed/
  * dormant/dead state or frozen/zombie health) -> idle, never "working" even
@@ -554,6 +570,10 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
   const dayOfWeekNow = nowEtDayOfWeek();
   const nightFactor = dayNightFactor(etMinutesNow);
   const nightMult = lerp(0.5, 1, nightFactor);
+  // Item 2c (LIVE-1, 2026-09-14): Pilot's desk-pulse/point gesture is
+  // gated to Regular Trading Hours only, same ET clock read as everything
+  // else in this function (never a separate/stale one).
+  const isRth = isRegularTradingHours(etMinutesNow, dayOfWeekNow);
 
   // Geometry (angle/position per ring slot) is memoized on COUNT alone, not
   // on the `rows` array reference -- `rows` is a fresh array every SWR poll
@@ -725,6 +745,28 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
     });
   })();
 
+  // Item 2b (LIVE-1, 2026-09-14): one purposeful-walk decision per inner
+  // persona, computed fresh each render from the SAME pure function
+  // lib/useMotionEvents.ts's ticker line uses (see that function's own
+  // comment for why this must stay a pure, shared, deterministic
+  // calculation rather than local state). `nowMsForWalks` is read ONCE per
+  // render (not per persona) so all 6 personas' bucket math agrees on
+  // "now" even though Scene.tsx isn't inside a useFrame loop here -- fine
+  // precision for a 6-10min cadence. Neighbor = the next persona in the
+  // SAME fixed roster order collectCompany() guarantees, wrapping -- a
+  // stable, deterministic "who's nearby" pick with zero extra data needed.
+  const nowMsForWalks = Date.now();
+  const ideasCount = data?.ideas.cards.length ?? 0;
+  const purposefulWalks = innerPersonas.map((persona, i) => {
+    const neighbor = innerPersonas.length > 1 ? innerPersonas[(i + 1) % innerPersonas.length] : null;
+    const walk = computePurposefulWalk(persona.name, nowMsForWalks, ideasCount, persona.lastFireISO, neighbor?.name ?? null);
+    const target: [number, number, number] =
+      walk.destination === "neighbor" && neighbor
+        ? (personaGeometry[(i + 1) % innerPersonas.length] ?? personaGeometry[0]).agentHome
+        : PURPOSEFUL_TARGETS[walk.destination as "ideas-wall" | "core" | "lounge"] ?? PURPOSEFUL_TARGETS.lounge;
+    return { walk, target };
+  });
+
   // Company audit (commit 58d0b9c6, coordinator 2026-09-13: "the roster
   // must show ghosts as ghosts") -- matched by name onto PersonaState.
   // `data.audit` is included in page.tsx's sceneData content key, so this
@@ -762,8 +804,20 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
       const text = p.recentOutput ? truncateOneLine(p.recentOutput, 60) : truncateOneLine(rosterEvidenceText(p.lastFireISO), 60);
       out.push({ key: `persona:${p.name}`, position: pos, text, urgent: p.status === "RED" });
     });
+    // Item 2b (LIVE-1, 2026-09-14): "each walk gets... a speech bubble with
+    // the reason" -- positioned AT the destination (not tracking the
+    // walker's own mid-flight position, which would need a per-frame
+    // update this poll-driven list doesn't have) so it reads as "<name> is
+    // over there, doing <reason>" for the ~14s the walk is actually active.
+    purposefulWalks.forEach(({ walk, target }, i) => {
+      if (!walk.active) return;
+      const p = innerPersonas[i];
+      const destLabel = walk.destination === "ideas-wall" ? "ideas wall" : walk.destination === "core" ? "core" : walk.destination === "neighbor" ? "neighbor" : "lounge";
+      const pos: [number, number, number] = [target[0], target[1] + 2.0, target[2]];
+      out.push({ key: `walk:${p.name}`, position: pos, text: truncateOneLine(`${p.name} -> ${destLabel}: ${walk.reason}`, 60), urgent: false });
+    });
     return out;
-  }, [rows, geometry, innerPersonas, personaGeometry]);
+  }, [rows, geometry, innerPersonas, personaGeometry, purposefulWalks]);
 
   const resolveHandoffPosition = (label: string): [number, number, number] => {
     const stripped = label.replace(/^[^\w]+/u, "").trim();
@@ -845,6 +899,10 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
       {ultra && coreReady && <EffectsStack coreMeshRef={coreMeshRef} />}
       <SkyDome />
       <Starfield reducedMotion={reducedMotion} />
+      {/* Item 2e (LIVE-1, 2026-09-14): ambient patrol drones -- see
+          ServiceDrones.tsx's own comment for why this is unconditional on
+          BOTH tiers (one InstancedMesh, one draw call, cheap enough). */}
+      <ServiceDrones reducedMotion={reducedMotion} />
 
       {/* Kit rebuild (2026-09-13, HQ-SCENE-PLAN.md): the hub's real
           `room-large` shell, ultra tier only -- sits at the scene root (HUB
@@ -989,9 +1047,28 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
         // table (Chef's window IS overnight) -- no separate night branch.
         const offSchedule = !scheduleOnShift(persona.name, etMinutesNow, dayOfWeekNow) && behavior !== "working";
         const isPilot = persona.name === "Pilot";
+        // Item 2c (LIVE-1, 2026-09-14): "the decisions ledger the HQ API
+        // already exposes" -- PersonaState.logTail IS the tail of
+        // automation/state/decisions.jsonl for Pilot specifically
+        // (lib/personas.ts#collectPilot reads exactly that file), already
+        // on the wire via company.personas[].logTail with zero new
+        // producer. Each row's real shape (verified against the live file
+        // this session): action ("ENTER"/"EXIT_ALL"/"EXIT_STOP"/"HOLD"/
+        // "SKIP_*"/"ERROR_*"), reason, time_et. isTradeAction gates the
+        // "stands and points" gesture to genuine ENTER/EXIT rows only --
+        // HOLD/SKIP/ERROR ticks pulse the desk (below) but don't trigger it.
+        // Item 2b (LIVE-1): this persona's own purposeful-walk decision,
+        // computed once above alongside every other inner persona's.
+        const purposeful = purposefulWalks[i];
+        const lastDecisionRaw = isPilot ? (persona.logTail[persona.logTail.length - 1] as Record<string, unknown> | undefined) : undefined;
+        const decisionAction = typeof lastDecisionRaw?.action === "string" ? lastDecisionRaw.action : null;
+        const decisionReason = typeof lastDecisionRaw?.reason === "string" ? lastDecisionRaw.reason : null;
+        const decisionTimeEt = typeof lastDecisionRaw?.time_et === "string" ? lastDecisionRaw.time_et : null;
+        const decisionText = decisionAction ? `${decisionAction}${decisionTimeEt ? ` @ ${decisionTimeEt}` : ""}${decisionReason ? ` -- ${decisionReason}` : ""}` : null;
+        const isTradeAction = !!decisionAction && /^(ENTER|EXIT)/.test(decisionAction);
         const pilotScreenLines: ScreenLine[] | undefined = isPilot
           ? [
-              { text: persona.recentOutput ? truncateOneLine(persona.recentOutput, 30) : "no output yet", color: "#7ad9ff", size: 18 },
+              { text: decisionText ? truncateOneLine(decisionText, 32) : (persona.recentOutput ? truncateOneLine(persona.recentOutput, 32) : "no output yet"), color: isTradeAction ? "#ffb020" : "#7ad9ff", size: 17 },
               { text: rosterEvidenceText(persona.lastFireISO), size: 14 },
             ]
           : undefined;
@@ -1035,9 +1112,46 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
                 // poll -- independent of each persona's own arrival trigger
                 // above (see Agent.tsx's own comment on the two channels).
                 allHandsEventKey={data?.brief.mtime_ms != null ? String(data.brief.mtime_ms) : null}
+                // Item 2b (LIVE-1): "every persona takes one named walk
+                // every 6-10 min" -- see palette.ts#computePurposefulWalk.
+                purposefulWalkEventKey={purposeful.walk.bucketKey}
+                purposefulTarget={purposeful.target}
+                // Item 2c (LIVE-1): Pilot-only "stands and points at the
+                // wall screen" -- a genuine ENTER/EXIT decision (seen-value-
+                // diff on action+timestamp, same convention as every other
+                // trigger here) holds Agent's animState at "thinking" (the
+                // closest real clip to pointing -- see KitAgent.tsx's own
+                // CLIP_TABLE comment) for a few seconds. Every other
+                // persona (and a non-trade Pilot tick) passes undefined,
+                // zero behavior change.
+                pointEventKey={isPilot && isTradeAction ? `${decisionAction}@${decisionTimeEt}` : undefined}
                 scheduleDim={offSchedule ? 0.35 : 1}
                 ultra={ultra}
               />
+            )}
+            {/* Item 2c (LIVE-1): Pilot's desk pulse -- RTH-only (CLAUDE.md's
+                own 09:30-15:55 ET market-hours window), a rotating .hq-beam
+                (Hud.tsx's shared style) that stays lit the whole session and
+                replays its one-shot .hq-shine sweep (keyed on the decision
+                itself) each time a fresh heartbeat tick lands -- "pulses on
+                every heartbeat minute" per the ask. Amber for a HOLD/SKIP
+                tick, a hotter red for a genuine ENTER/EXIT. */}
+            {isPilot && isRth && decisionText && (
+              <Html position={[slot.position[0], 2.7, slot.position[2]]} center distanceFactor={9} style={{ pointerEvents: "none" }}>
+                <div className="hq-beam" style={{ "--beam-color": isTradeAction ? "#ff3b3b" : "#ffb020" } as CSSProperties}>
+                  <div
+                    style={{
+                      position: "relative", overflow: "hidden",
+                      background: "rgba(3,4,10,0.82)", color: isTradeAction ? "#ffdede" : "#ffe9c2",
+                      fontFamily: "system-ui, sans-serif", fontSize: 16, fontWeight: 700,
+                      padding: "4px 14px", borderRadius: 7, whiteSpace: "nowrap",
+                    }}
+                  >
+                    <span key={decisionText} className="hq-shine" />
+                    PILOT {decisionText}
+                  </div>
+                </div>
+              </Html>
             )}
           </group>
         );

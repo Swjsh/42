@@ -1,11 +1,11 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
 import { Html } from "@react-three/drei";
 import { KitAgentBody, type KitAnimState } from "./KitAgent";
 import { BAY_DESK_OFFSET_Z, BAY_SEAT_LOCAL, CHARACTER_TARGET_HEIGHT, DeskCluster } from "./SetKit";
-import { firstBriefSentence, localToWorld, type ScreenLine } from "./palette";
+import { localToWorld, splitBriefSentences, type ScreenLine } from "./palette";
 
 interface GammaCharacterProps {
   /** Desk-cluster center + facing, in the SAME [position, rotationY] shape
@@ -44,7 +44,25 @@ export default function GammaCharacter({
 }: GammaCharacterProps) {
   const thinking = (utilPct ?? 0) > THINKING_UTIL_THRESHOLD;
   const animState: KitAnimState = thinking ? "thinking" : "resting-working";
-  const bubbleText = thinking ? `thinking... ${modelName ?? "model"}` : firstBriefSentence(briefText, 96) || "quiet -- no brief written yet";
+
+  // Item 2d (LIVE-1, 2026-09-14, J: "it still a 'Dead' world"): cycle EVERY
+  // real sentence of the brief, one every 20s, instead of freezing on the
+  // first one forever. Resets to sentence 0 whenever a genuinely NEW brief
+  // lands (briefMtimeMs changing -- the same field BrainCore's own all-hands
+  // pulse and Scene.tsx's CameraRig focus-trigger already key off) so a
+  // fresh brief always opens at its own beginning rather than wherever the
+  // PREVIOUS brief's rotation happened to be.
+  const sentences = useMemo(() => splitBriefSentences(briefText, 96), [briefText]);
+  const [sentenceIdx, setSentenceIdx] = useState(0);
+  useEffect(() => {
+    setSentenceIdx(0);
+  }, [briefMtimeMs]);
+  useEffect(() => {
+    if (sentences.length <= 1) return;
+    const id = window.setInterval(() => setSentenceIdx((i) => (i + 1) % sentences.length), 20_000);
+    return () => window.clearInterval(id);
+  }, [sentences.length]);
+  const bubbleText = thinking ? `thinking... ${modelName ?? "model"}` : sentences[sentenceIdx % Math.max(1, sentences.length)] || "quiet -- no brief written yet";
 
   const seatWorld = localToWorld(deskCenter, rotationY, BAY_SEAT_LOCAL);
   const bubbleWorld: [number, number, number] = [seatWorld[0], seatWorld[1] + CHARACTER_TARGET_HEIGHT + 0.4, seatWorld[2]];

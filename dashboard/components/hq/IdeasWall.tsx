@@ -35,7 +35,13 @@ export default function IdeasWall({ cards, position, dimFactor }: IdeasWallProps
             <div style={{ fontSize: 12, color: "#7f93b0" }}>NO DATA -- board is empty</div>
           ) : (
             newest.map((c) => (
-              <div key={c.id} style={{ fontSize: 12, marginBottom: 3, display: "flex", gap: 6, alignItems: "baseline" }}>
+              // LIVE-1 item 2d (2026-09-14): "the ideas wall cards flip when
+              // a new card lands" -- `.hq-card-flip` (Hud.tsx's shared
+              // style) replays its mount animation ONLY when this exact
+              // `key` (c.id) is genuinely new to the DOM; an existing card
+              // shifting position in the list re-uses its node (React's own
+              // keyed-list reconciliation) and never replays it.
+              <div key={c.id} className="hq-card-flip" style={{ fontSize: 12, marginBottom: 3, display: "flex", gap: 6, alignItems: "baseline" }}>
                 <span style={{ width: 7, height: 7, borderRadius: 999, background: ideaStatusColor(c.status), flexShrink: 0 }} />
                 <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   {c.title.length > 44 ? c.title.slice(0, 41) + "..." : c.title}

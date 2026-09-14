@@ -173,6 +173,14 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
         .hq-pulse { animation: hq-pulse-glow 1.8s ease-in-out infinite; }
         @keyframes hq-pulse-glow { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
 
+        /* Ideas-wall card flip (LIVE-1 item 2d, 2026-09-14): IdeasWall.tsx
+           applies this to every card row -- a keyed React list only ever
+           MOUNTS (replaying this) a row whose id is genuinely new, an
+           existing card's row is REUSED (no remount, no replay) when the
+           list just shifts around it. transform + opacity only. */
+        .hq-card-flip { animation: hq-card-flip-in 0.5s ease-out; transform-origin: top center; }
+        @keyframes hq-card-flip-in { 0% { transform: rotateX(-85deg); opacity: 0; } 100% { transform: rotateX(0deg); opacity: 1; } }
+
         /* Free-camera hint strip (LIVE-1 item 1, 2026-09-14): visible on
            mount, holds, then fades -- opacity only. Remounts (via the
            hudVisible-keyed div below) replay this every time H brings the

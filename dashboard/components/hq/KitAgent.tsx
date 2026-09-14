@@ -17,7 +17,10 @@ import {
 // which baked clip plays here -- see the CLIP_TABLE export below, which
 // doubles as this file's own documentation of the event->clip mapping.
 
-export type KitAnimState = "resting-idle" | "resting-working" | "walking" | "alert" | "thinking";
+export type KitAnimState =
+  | "resting-idle" | "resting-idle-look" | "resting-idle-nod"
+  | "resting-working" | "resting-working-type" | "resting-working-type-alt"
+  | "walking" | "alert" | "thinking";
 
 /** Event -> clip mapping (also quoted verbatim in the final task report).
  * Every clip name is verified present on all 3 bodies via manifest.json's
@@ -29,14 +32,38 @@ export type KitAnimState = "resting-idle" | "resting-working" | "walking" | "ale
  * "interact" gesture reads as "working at the console" better than
  * `sit`+`resting-working`'s arm-typing loop (which GammaCharacter.tsx
  * doesn't use -- Gamma isn't a Kenney character with typing arms, she gets
- * the pack's own gesture clip instead). */
+ * the pack's own gesture clip instead).
+ *
+ * LIVE-1 item 2a (2026-09-14, J: "it still a 'Dead' world" -- seated
+ * employees must never freeze): the pack's full 31-clip list (manifest.json)
+ * has exactly one literal seated pose ("sit") -- no "type"/"stretch" clip
+ * exists to seat-lock onto, so the -look/-nod/-type/-type-alt variants below
+ * are the closest honest substitutes from the REAL clip set rather than a
+ * fabricated animation name: "emote-no"/"emote-yes" (head shake/nod) read as
+ * "checking something / acknowledging" for the idle pool, "interact-right"/
+ * "interact-left" (the same gesture `thinking` above already uses, mirrored)
+ * read as "typing at the console" for the working pool. Agent.tsx cycles
+ * IDLE_VARIANTS/WORKING_VARIANTS on its own per-instance 8-20s timer.
+ */
 export const CLIP_TABLE: Record<KitAnimState, { clip: string; speed: number }> = {
   "resting-idle": { clip: "sit", speed: 0.7 },
+  "resting-idle-look": { clip: "emote-no", speed: 0.8 },
+  "resting-idle-nod": { clip: "emote-yes", speed: 0.8 },
   "resting-working": { clip: "sit", speed: 1.15 },
+  "resting-working-type": { clip: "interact-right", speed: 1.0 },
+  "resting-working-type-alt": { clip: "interact-left", speed: 1.0 },
   walking: { clip: "walk", speed: 1.0 },
   alert: { clip: "walk", speed: 1.6 },
   thinking: { clip: "interact-right", speed: 0.8 },
 };
+
+/** Cycled by Agent.tsx's own per-instance timer -- see that file's own
+ * comment for why this is a `useState` (not a ref): KitAgentBody's clip
+ * crossfade is driven by `animState` CHANGING as a prop, so the index that
+ * picks among these must trigger a real re-render, not just per-frame ref
+ * bookkeeping. */
+export const IDLE_VARIANTS: KitAnimState[] = ["resting-idle", "resting-idle-look", "resting-idle-nod"];
+export const WORKING_VARIANTS: KitAnimState[] = ["resting-working", "resting-working-type", "resting-working-type-alt"];
 
 interface KitAgentBodyProps {
   /** Any stable per-instance string (lane name, persona name) -- deterministically

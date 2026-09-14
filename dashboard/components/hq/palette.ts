@@ -134,24 +134,33 @@ export function auditVerdictColor(verdict: string | undefined): string {
   return AUDIT_VERDICT_COLOR[verdict ?? ""] ?? "#7f93b0";
 }
 
-/** First real sentence of a station-brief body, for Gamma's speech bubble
- * (Pass B, 2026-09-13). station_brief.md's own generator always opens with
- * one machine header line ("<ts> ET - model <name> - N cards on the
- * board"), then a blank-line separator, then hand-written prose (verified
- * against a real brief this session) -- skipping straight to the header's
- * own first "sentence" would put a timestamp dump in Gamma's mouth, not
- * something that reads as speech. Falls back to the RAW text's first
- * sentence if no blank-line separator is found (a format change, or a
- * short/malformed brief), so this never throws or returns empty on honest
- * input -- only ever "" when `text` itself is empty. */
-export function firstBriefSentence(text: string, maxLen = 90): string {
-  if (!text) return "";
+/** Every real sentence of a station-brief body, for Gamma's speech bubble
+ * (Pass B, 2026-09-13; extended to ALL sentences LIVE-1 item 2d, 2026-09-14
+ * -- "Gamma's thought bubble cycles the brief's sentences... instead of one
+ * static line"). station_brief.md's own generator always opens with one
+ * machine header line ("<ts> ET - model <name> - N cards on the board"),
+ * then a blank-line separator, then hand-written prose (verified against a
+ * real brief this session) -- skipping straight to the header's own first
+ * "sentence" would put a timestamp dump in Gamma's mouth, not something
+ * that reads as speech. Falls back to a single-element array (the RAW
+ * text's first line) if no blank-line separator is found (a format change,
+ * or a short/malformed brief) or no sentence-ending punctuation is found at
+ * all, so this never throws -- only ever `[]` when `text` itself is empty. */
+export function splitBriefSentences(text: string, maxLen = 96): string[] {
+  if (!text) return [];
   const body = text.split(/\r?\n\s*\r?\n/, 2);
   const source = body.length > 1 ? body[1] : text;
   const trimmed = source.trim();
-  const m = /^(.*?[.!?])(\s|$)/.exec(trimmed);
-  const sentence = m ? m[1] : trimmed.split(/\r?\n/)[0];
-  return sentence.length > maxLen ? `${sentence.slice(0, maxLen - 1)}…` : sentence;
+  if (!trimmed) return [];
+  const matches = trimmed.match(/[^.!?]+[.!?]+(?:\s|$)/g);
+  const sentences = matches && matches.length > 0 ? matches.map((s) => s.trim()).filter(Boolean) : [trimmed.split(/\r?\n/)[0]];
+  return sentences.map((s) => (s.length > maxLen ? `${s.slice(0, maxLen - 1)}…` : s));
+}
+
+/** First sentence only -- a thin wrapper over splitBriefSentences, kept for
+ * any caller (or future one) that only wants the opening line. */
+export function firstBriefSentence(text: string, maxLen = 90): string {
+  return splitBriefSentences(text, maxLen)[0] ?? "";
 }
 
 export const IDEA_STATUS_COLOR: Record<string, string> = {
@@ -198,6 +207,71 @@ export function seededRandom(seed: string): () => number {
     h ^= h >>> 16;
     return (h >>> 0) / 4294967296;
   };
+}
+
+// ─── LIVE-1 item 2b (2026-09-14, J: "it still a 'Dead' world"): purposeful
+//     walks on a rotation. A PURE, deterministic function of (persona name,
+//     wall-clock ms, real board/evidence facts) -- called from BOTH
+//     Scene.tsx (inside <Canvas>, to actually queue the walk on Agent.tsx)
+//     AND lib/useMotionEvents.ts (outside <Canvas>, to log the SAME decision
+//     as a ticker line) so the two stay in agreement without sharing React
+//     state across that boundary -- the SAME "two decoupled readers of one
+//     truth" pattern useMotionEvents.ts's own file header already documents
+//     for the red-lane/all-hands camera triggers. Never Math.random -- a
+//     per-persona PERIOD (6-10 min) and PHASE are derived once from
+//     seededRandom(name), so both call sites land on the identical bucket
+//     boundary for the same persona at the same wall-clock time. ───────────
+
+export interface PurposefulWalk {
+  /** True during this persona's own ~14s "walk is happening" window each
+   * period -- Agent.tsx doesn't need this (it queues off `bucketKey`
+   * changing, once per period, regardless), but useMotionEvents.ts uses it
+   * to only log a ticker line, and Scene.tsx uses it to only show the
+   * reason bubble, WHILE the walk is actually in flight. */
+  active: boolean;
+  destination: "ideas-wall" | "core" | "neighbor" | "lounge";
+  reason: string;
+  /** Changes exactly once per period -- feed this straight into Agent.tsx's
+   * `walkEventKey` seen-value-diff (this file's own established queue-a-
+   * walk-on-change convention), no separate timer needed there at all. */
+  bucketKey: string;
+}
+
+const PURPOSEFUL_WALK_PERIOD_MIN_MS = 6 * 60_000;
+const PURPOSEFUL_WALK_PERIOD_MAX_MS = 10 * 60_000;
+const PURPOSEFUL_WALK_ACTIVE_MS = 14_000; // covers a full WALK_DURATION*2+pause round trip (Agent.tsx) with a little margin
+
+export function computePurposefulWalk(
+  personaName: string, nowMs: number, ideasCount: number, ownLastFireISO: string | null, neighborName: string | null,
+): PurposefulWalk {
+  const rng = seededRandom(personaName);
+  const period = PURPOSEFUL_WALK_PERIOD_MIN_MS + rng() * (PURPOSEFUL_WALK_PERIOD_MAX_MS - PURPOSEFUL_WALK_PERIOD_MIN_MS);
+  const phase = rng() * period;
+  const shifted = nowMs + phase;
+  const bucketIndex = Math.floor(shifted / period);
+  const cyclePos = shifted - bucketIndex * period;
+  const active = cyclePos < PURPOSEFUL_WALK_ACTIVE_MS;
+
+  const ownFireMs = ownLastFireISO ? Date.parse(ownLastFireISO) : NaN;
+  const firedWithinOwnPeriod = !Number.isNaN(ownFireMs) && nowMs - ownFireMs >= 0 && nowMs - ownFireMs < period;
+
+  let destination: PurposefulWalk["destination"];
+  let reason: string;
+  if (ideasCount > 0 && bucketIndex % 3 === 0) {
+    destination = "ideas-wall";
+    reason = `reading ${ideasCount} card${ideasCount === 1 ? "" : "s"}`;
+  } else if (firedWithinOwnPeriod) {
+    destination = "core";
+    reason = "filing fresh output";
+  } else if (neighborName && bucketIndex % 3 === 1) {
+    destination = "neighbor";
+    reason = `handoff hop to ${neighborName}`;
+  } else {
+    destination = "lounge";
+    reason = "coffee stop";
+  }
+
+  return { active, destination, reason, bucketKey: `${personaName}:${bucketIndex}` };
 }
 
 /** Parses a "YYYY-MM-DD HH:MM:SS ET" / "YYYY-MM-DDTHH:MM:SS..." string into a
@@ -326,6 +400,17 @@ export function scheduleOnShift(personaName: string, etMinutes: number, dayOfWee
   });
 }
 
+/** Regular Trading Hours -- 09:30-15:55 ET, Mon-Fri, matching CLAUDE.md's
+ * own hard market-hours rule verbatim (Rule 5/Pilot's PERSONA_SCHEDULE
+ * window above uses the identical bounds; this is a standalone export
+ * since LIVE-1 item 2c needs it OUTSIDE the persona-schedule-dim context --
+ * Pilot's desk-pulse/point gesture, not a dim/lit decision). */
+export function isRegularTradingHours(etMinutes: number, dayOfWeek: number): boolean {
+  if (dayOfWeek < 1 || dayOfWeek > 5) return false;
+  const minuteOfDay = etMinutes % (24 * 60);
+  return minuteOfDay >= 9 * 60 + 30 && minuteOfDay < 15 * 60 + 55;
+}
+
 export function clamp01(v: number): number {
   return Math.min(1, Math.max(0, v));
 }
@@ -435,8 +520,17 @@ export function createScreenCanvas(): { canvas: HTMLCanvasElement; texture: THRE
  * real evidence text (row.evidence / persona.recentOutput / idea titles --
  * never placeholder copy), truncated defensively here too since a caller's
  * own truncation budget (tuned for an Html DOM line) doesn't necessarily
- * match this canvas's fixed 256px pixel width. */
-export function drawScreenLines(canvas: HTMLCanvasElement, texture: THREE.CanvasTexture, title: string | null, lines: ScreenLine[]): void {
+ * match this canvas's fixed 256px pixel width.
+ *
+ * `liveStamp` (LIVE-1 item 2a, 2026-09-14, optional): a small dim "synced
+ * HH:MM:SS" readout bottom-right -- DeskScreen.tsx redraws this same
+ * content every 30s regardless of whether title/lines themselves changed,
+ * so a screen showing genuinely unchanged real data still visibly ticks
+ * (a real clock, never fabricated content) instead of reading as a frozen
+ * screenshot. Omitted (every OTHER caller of this shared drawer -- none
+ * currently exist besides DeskScreen.tsx, but the signature stays
+ * backward-compatible) for zero layout change. */
+export function drawScreenLines(canvas: HTMLCanvasElement, texture: THREE.CanvasTexture, title: string | null, lines: ScreenLine[], liveStamp?: string): void {
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
   const w = canvas.width;
@@ -466,6 +560,13 @@ export function drawScreenLines(canvas: HTMLCanvasElement, texture: THREE.Canvas
     const text = line.text.length > maxChars ? `${line.text.slice(0, Math.max(1, maxChars - 1))}…` : line.text;
     ctx.fillText(text, 12, y);
     y += size + 8;
+  }
+  if (liveStamp) {
+    ctx.fillStyle = "#2f3f56";
+    ctx.font = "10px system-ui, sans-serif";
+    ctx.textAlign = "right";
+    ctx.fillText(liveStamp, w - 8, h - 14);
+    ctx.textAlign = "left";
   }
   texture.needsUpdate = true;
 }

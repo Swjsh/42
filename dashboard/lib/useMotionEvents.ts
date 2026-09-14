@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import type { HqApiResponse } from "@/components/hq/types";
+import { computePurposefulWalk } from "@/components/hq/palette";
 
 export interface MotionEvent {
   id: number;
@@ -133,6 +134,13 @@ export function useMotionEvents(data: HqApiResponse | undefined): MotionEvent[] 
   const prevGaming = useRef<boolean | null>(null);
   const prevPresent = useRef<boolean | null>(null);
   const prevBriefMtime = useRef<number | null | undefined>(undefined);
+  // Item 2b (LIVE-1, 2026-09-14): purposeful-walk ticker -- keyed on
+  // palette.ts#computePurposefulWalk's own `bucketKey`, the SAME pure
+  // function Scene.tsx calls to actually queue the walk. Two decoupled
+  // readers of one truth (this hook runs OUTSIDE <Canvas>, in page.tsx;
+  // the walk itself is queued INSIDE it, in Scene.tsx/Agent.tsx) -- see
+  // this file's own header comment for why that split exists at all.
+  const prevWalkBucket = useRef<Map<string, string>>(new Map());
 
   if (!data) return events.current;
 
@@ -162,6 +170,12 @@ export function useMotionEvents(data: HqApiResponse | undefined): MotionEvent[] 
     prevGaming.current = gaming;
     prevPresent.current = present;
     prevBriefMtime.current = data.brief?.mtime_ms ?? null;
+    const innerSeed = personas.slice(1);
+    innerSeed.forEach((p, i) => {
+      const neighbor = innerSeed.length > 1 ? innerSeed[(i + 1) % innerSeed.length] : null;
+      const walk = computePurposefulWalk(p.name, Date.now(), cards.length, p.lastFireISO, neighbor?.name ?? null);
+      prevWalkBucket.current.set(p.name, walk.bucketKey);
+    });
     events.current = buildSeedEvents(data);
     return events.current;
   }
@@ -186,6 +200,24 @@ export function useMotionEvents(data: HqApiResponse | undefined): MotionEvent[] 
     }
     prevPersonaFire.current.set(p.name, p.lastFireISO);
   }
+
+  // (i) item 2b (LIVE-1, 2026-09-14): a purposeful-walk bucket advancing --
+  // the SAME pure decision Scene.tsx independently computes to actually
+  // queue the 3D walk (see this hook's own field comment). Neighbor = the
+  // next persona in the fixed roster order, wrapping -- identical to
+  // Scene.tsx's own convention so the ticker line and the walk it
+  // describes always agree on WHO the "neighbour hop" names.
+  const innerPersonas = personas.slice(1);
+  innerPersonas.forEach((p, i) => {
+    const neighbor = innerPersonas.length > 1 ? innerPersonas[(i + 1) % innerPersonas.length] : null;
+    const walk = computePurposefulWalk(p.name, Date.now(), cards.length, p.lastFireISO, neighbor?.name ?? null);
+    const prevBucket = prevWalkBucket.current.get(p.name);
+    if (prevBucket !== undefined && prevBucket !== walk.bucketKey) {
+      const destLabel = walk.destination === "ideas-wall" ? "ideas wall" : walk.destination === "core" ? "core" : walk.destination === "neighbor" ? "neighbour" : "lounge";
+      push(`${p.emoji} ${p.name} -> ${destLabel}: ${walk.reason}`);
+    }
+    prevWalkBucket.current.set(p.name, walk.bucketKey);
+  });
 
   // (c): a handoff hop flipping to OK with new evidence -> HandoffCourier.
   for (const h of handoffs) {

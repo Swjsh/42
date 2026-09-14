@@ -1,9 +1,19 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import { createScreenCanvas, drawScreenLines, type ScreenLine } from "./palette";
+
+/** "synced HH:MM:SS ET" -- the SAME America/New_York-explicit Intl
+ * pattern Hud.tsx's own useEtClock/nowEtMinutes already use everywhere else
+ * in this scene, never the machine's own local time (this box runs
+ * Mountain time -- see CLAUDE.md's own standing TZ lesson). */
+function etStamp(): string {
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false,
+  }).format(new Date());
+}
 
 interface DeskScreenProps {
   /** The screen GLB's path -- passed in (never imported from SetKit.tsx
@@ -59,9 +69,28 @@ export default function DeskScreen({ path, position, rotation = [0, Math.PI, 0],
 
   const contentKey = `${title ?? ""}::${lines.map((l) => `${l.text}|${l.color ?? ""}|${l.size ?? ""}`).join("~")}`;
   useEffect(() => {
-    drawScreenLines(canvas, texture, title, lines);
+    drawScreenLines(canvas, texture, title, lines, etStamp());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [canvas, texture, contentKey]);
+
+  // Item 2a (LIVE-1, 2026-09-14, J: "it still a 'Dead' world"): redraw every
+  // 30s REGARDLESS of whether title/lines' content changed -- a screen
+  // showing genuinely unchanged real evidence (nothing new happened) still
+  // visibly ticks its own "synced HH:MM:SS ET" corner stamp instead of
+  // reading as a frozen screenshot. Refs (not the contentKey effect's own
+  // closure) so this interval never needs to be torn down/recreated when
+  // title/lines change -- it always redraws whatever is CURRENT at the
+  // moment it fires, a real clock tick, never fabricated content.
+  const latestTitle = useRef(title);
+  const latestLines = useRef(lines);
+  latestTitle.current = title;
+  latestLines.current = lines;
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      drawScreenLines(canvas, texture, latestTitle.current, latestLines.current, etStamp());
+    }, 30_000);
+    return () => window.clearInterval(id);
+  }, [canvas, texture]);
 
   useEffect(() => () => {
     texture.dispose();

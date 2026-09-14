@@ -4,10 +4,10 @@ import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { useThrottledFrame } from "./useThrottledFrame";
 import { makeMatcapTexture, seededRandom } from "./palette";
-import { KitAgentBody, type KitAnimState } from "./KitAgent";
+import { IDLE_VARIANTS, KitAgentBody, WORKING_VARIANTS, type KitAnimState } from "./KitAgent";
 
 export type AgentBehavior = "working" | "idle" | "alert" | "frozen";
-export type AgentWalkKind = "roundtrip" | "arrival" | "allhands";
+export type AgentWalkKind = "roundtrip" | "arrival" | "allhands" | "purposeful";
 export type AgentPresenceMode = "greet" | "patrol";
 
 interface AgentProps {
@@ -42,6 +42,30 @@ interface AgentProps {
    * unaffected). Same seen-value-diff seeding convention as every other
    * event trigger in this file. */
   allHandsEventKey?: string | null;
+  /** Item 2b (LIVE-1, 2026-09-14): pass palette.ts#computePurposefulWalk's
+   * own `bucketKey` here (personas only) -- a THIRD independent seen-value-
+   * diff channel (never confused with `walkEventKey`'s arrival trigger or
+   * `allHandsEventKey`'s company-wide trigger), changing exactly once per
+   * this persona's own 6-10min period. Always queues kind "purposeful"
+   * (see `purposefulTarget` below for the destination). */
+  purposefulWalkEventKey?: string | null;
+  /** Item 2c (LIVE-1, 2026-09-14): Pilot-only "stands and points at the
+   * wall screen" on a genuine ENTER/EXIT decision -- a value change (same
+   * seen-value-diff convention as every other trigger in this file) holds
+   * `animState` at "thinking" (the closest real clip to pointing) for
+   * POINT_HOLD_S seconds, then releases back to the normal behavior-driven
+   * pose automatically. Every caller except Pilot's own persona Agent
+   * omits this, zero behavior change. */
+  pointEventKey?: string | null;
+  /** Item 2b (LIVE-1, 2026-09-14): the real world point a "purposeful"
+   * walk (see palette.ts#computePurposefulWalk) walks to -- ideas wall /
+   * core / a neighbor's desk / a hub lounge spot, all computed by Scene.tsx
+   * from real data. Read ONLY at the instant a queued "purposeful" walk
+   * actually starts (captured into a ref, same as `activeWalkKind` below)
+   * so a mid-walk prop change (the parent recomputing on a later poll)
+   * never yanks the destination out from under an agent already walking
+   * there. Omitted by every non-purposeful caller. */
+  purposefulTarget?: [number, number, number] | null;
   /** J 2026-09-13 ("nearest agent turns to the viewer / night-patrol dim"
    * on presence flipping): "greet" holds the resting-state facing at
    * `facingYaw` instead of the idle look-around; "patrol" dims the visor.
@@ -72,6 +96,8 @@ interface AgentProps {
 const WALK_DURATION = 4.5;
 const HUB_PAUSE = 1.5;
 const ALLHANDS_HUB_PAUSE = 60;
+const POINT_HOLD_S = 7; // item 2c (LIVE-1): how long Pilot holds the "point" gesture after a fresh ENTER/EXIT
+const PURPOSEFUL_PAUSE = 4; // item 2b (LIVE-1): dwell at the destination -- long enough for the reason bubble/ticker line to read
 type WalkPhase = "resting" | "toHub" | "atHub" | "toHome" | "arriving";
 
 /**
@@ -91,7 +117,7 @@ type WalkPhase = "resting" | "toHub" | "atHub" | "toHome" | "arriving";
  * (no timer, no destination) and stay as-is.
  */
 export default function Agent({
-  laneSeed, home, hub, behavior, accentColor, reducedMotion, walkEventKey, walkKind, allHandsEventKey, presenceMode, facingYaw,
+  laneSeed, home, hub, behavior, accentColor, reducedMotion, walkEventKey, walkKind, allHandsEventKey, purposefulWalkEventKey, pointEventKey, purposefulTarget, presenceMode, facingYaw,
   scheduleDim = 1,
   ultra = false,
 }: AgentProps) {
@@ -109,7 +135,19 @@ export default function Agent({
   // its own `pulsing` flag. Ultra tier only consumes this (see `animState`
   // below); the TV tier's procedural body ignores it entirely.
   const [walking, setWalking] = useState(false);
-  const animState: KitAnimState = behavior === "alert" ? "alert" : walking ? "walking" : behavior === "working" ? "resting-working" : "resting-idle";
+  // Item 2a (LIVE-1, 2026-09-14): seated variety -- cycles among
+  // IDLE_VARIANTS/WORKING_VARIANTS on its own per-instance 8-20s timer (see
+  // the throttled callback below), instead of always showing the same "sit"
+  // clip. `useState` (not a ref) because KitAgentBody's own clip crossfade
+  // is driven by `animState` CHANGING as a REACT PROP -- a ref mutation
+  // alone would never re-render KitAgentBody with the new value. Costs one
+  // extra re-render every 8-20s per agent, the same "state for discrete
+  // moments" tradeoff this file already makes for `walking` below.
+  const [variantIdx, setVariantIdx] = useState(0);
+  const nextVariantAt = useRef(0);
+  const [pointing, setPointing] = useState(false);
+  const pool = behavior === "working" ? WORKING_VARIANTS : IDLE_VARIANTS;
+  const animState: KitAnimState = behavior === "alert" ? "alert" : walking ? "walking" : pointing ? "thinking" : pool[variantIdx % pool.length];
   const patrolDim = Math.min(presenceMode === "patrol" ? 0.35 : 1, scheduleDim);
 
   const matcap = useMemo(() => makeMatcapTexture(), []);
@@ -139,6 +177,11 @@ export default function Agent({
   // while an "allhands" walk (a completely separate trigger) is what's
   // actually playing.
   const activeWalkKind = useRef<AgentWalkKind>("roundtrip");
+  // Item 2b (LIVE-1): captured from the `purposefulTarget` PROP at the
+  // instant a "purposeful" walk actually starts -- see that prop's own
+  // comment for why this must be a snapshot, not a live read, of a value
+  // that can change out from under a mid-walk agent otherwise.
+  const activeTarget = useRef<[number, number, number] | null>(null);
 
   // Event-triggered walk queue (replaces the old random 20-60s timer, J
   // 2026-09-13). `seenWalkKey` seeds silently on the first value seen after
@@ -176,6 +219,42 @@ export default function Agent({
     pendingWalk.current = "allhands";
   }, [allHandsEventKey]);
 
+  // Item 2b (LIVE-1, 2026-09-14) -- purposeful-walk trigger, a THIRD
+  // independent seen-value-diff channel (same convention, same low-stakes
+  // shared-`pendingWalk`-slot collision note as the all-hands effect above).
+  const seenPurposefulKey = useRef<string | null | undefined>(undefined);
+  useEffect(() => {
+    if (purposefulWalkEventKey === null || purposefulWalkEventKey === undefined) return;
+    if (seenPurposefulKey.current === undefined) {
+      seenPurposefulKey.current = purposefulWalkEventKey;
+      return;
+    }
+    if (purposefulWalkEventKey === seenPurposefulKey.current) return;
+    seenPurposefulKey.current = purposefulWalkEventKey;
+    pendingWalk.current = "purposeful";
+  }, [purposefulWalkEventKey]);
+
+  // Item 2c (LIVE-1, 2026-09-14) -- Pilot-only "stands and points" trigger,
+  // a THIRD independent seen-value-diff channel (never confused with the
+  // walk-queue triggers above -- this one holds a POSE, it never queues a
+  // walk). `pendingPoint` (a ref, set here) is consumed inside the throttled
+  // frame callback below, the same "effects outside the frame loop can only
+  // set an intent flag; the frame loop itself owns the real THREE clock"
+  // split CameraRig (Scene.tsx) uses for its own OrbitControls hand-off.
+  const seenPointKey = useRef<string | null | undefined>(undefined);
+  const pendingPoint = useRef(false);
+  useEffect(() => {
+    if (pointEventKey === null || pointEventKey === undefined) return;
+    if (seenPointKey.current === undefined) {
+      seenPointKey.current = pointEventKey;
+      return;
+    }
+    if (pointEventKey === seenPointKey.current) return;
+    seenPointKey.current = pointEventKey;
+    pendingPoint.current = true;
+  }, [pointEventKey]);
+  const pointUntil = useRef(0);
+
   // Set initial position once -- everything after this is imperative ref
   // mutation, never React state, so an agent's motion never triggers a
   // React re-render of the tree above it.
@@ -188,6 +267,31 @@ export default function Agent({
     const g = group.current;
 
     if (behavior === "frozen") return; // hold whatever pose it already had (a queued walk waits)
+
+    // Item 2a (LIVE-1): pick a new seated-pose variant every 8-20s (this
+    // agent's own seeded range, so a room full of agents doesn't sync up).
+    // Runs unconditionally (cheap scalar check) -- harmless while walking/
+    // alert, since `animState` above only reads `variantIdx` in the
+    // resting branch; the timer keeps ticking in the background so the
+    // NEXT time this agent sits back down it doesn't always reopen on
+    // variant 0.
+    if (t >= nextVariantAt.current) {
+      nextVariantAt.current = t + 8 + rng() * 12; // 8-20s
+      const poolLen = pool.length;
+      let next = Math.floor(rng() * poolLen);
+      if (poolLen > 1 && next === variantIdx) next = (next + 1) % poolLen;
+      setVariantIdx(next);
+    }
+
+    // Item 2c (LIVE-1): consume a pending "point" trigger -- holds the pose
+    // for POINT_HOLD_S seconds, then releases on its own.
+    if (pendingPoint.current) {
+      pendingPoint.current = false;
+      pointUntil.current = t + POINT_HOLD_S;
+      setPointing(true);
+    } else if (pointing && t >= pointUntil.current) {
+      setPointing(false);
+    }
 
     if (behavior === "alert") {
       // Pace back and forth across the module -- local X sway, no scheduled
@@ -209,12 +313,18 @@ export default function Agent({
         pendingWalk.current = null;
       } else if (phase.current === "resting") {
         activeWalkKind.current = pendingWalk.current;
+        // Item 2b (LIVE-1): snapshot the destination NOW, not a live prop
+        // read later -- falls back to the generic `approach` point if the
+        // parent somehow queued "purposeful" with no target (defensive,
+        // should never happen given Scene.tsx always pairs the two).
+        activeTarget.current = pendingWalk.current === "purposeful" ? (purposefulTarget ?? approach) : null;
         phase.current = pendingWalk.current === "arrival" ? "arriving" : "toHub";
         phaseStart.current = t;
         pendingWalk.current = null;
         setWalking(true);
       }
     }
+    const walkTarget = activeWalkKind.current === "purposeful" && activeTarget.current ? activeTarget.current : approach;
 
     if (phase.current === "arriving") {
       // One-way hub -> home (a persona that just fired, walking in from the
@@ -230,9 +340,9 @@ export default function Agent({
     } else if (phase.current === "toHub") {
       const p = Math.min(1, (t - phaseStart.current) / WALK_DURATION);
       g.position.set(
-        home[0] + (approach[0] - home[0]) * p,
+        home[0] + (walkTarget[0] - home[0]) * p,
         home[1],
-        home[2] + (approach[2] - home[2]) * p,
+        home[2] + (walkTarget[2] - home[2]) * p,
       );
       if (p >= 1) {
         phase.current = "atHub";
@@ -243,15 +353,19 @@ export default function Agent({
         if (activeWalkKind.current === "allhands") setWalking(false);
       }
     } else if (phase.current === "atHub") {
-      g.position.set(...approach);
+      g.position.set(...walkTarget);
       // All-hands stand: face the core precisely (spec: "facing core") --
       // roundtrip's brief 1.5s touch never bothered with facing, but a
       // 60s stand reads wrong looking anywhere else. Same atan2(dx,dz)
-      // convention as `greeterFacingYaw` above.
+      // convention as `greeterFacingYaw` above. A "purposeful" stop (item
+      // 2b) faces its own destination point the SAME way -- reading a card
+      // wall or filing at the core looks wrong facing some other direction.
       if (activeWalkKind.current === "allhands") {
         g.rotation.y = Math.atan2(hub[0] - approach[0], hub[2] - approach[2]);
+      } else if (activeWalkKind.current === "purposeful") {
+        g.rotation.y = Math.atan2(hub[0] - walkTarget[0], hub[2] - walkTarget[2]);
       }
-      const pauseSeconds = activeWalkKind.current === "allhands" ? ALLHANDS_HUB_PAUSE : HUB_PAUSE;
+      const pauseSeconds = activeWalkKind.current === "allhands" ? ALLHANDS_HUB_PAUSE : activeWalkKind.current === "purposeful" ? PURPOSEFUL_PAUSE : HUB_PAUSE;
       if (t - phaseStart.current >= pauseSeconds) {
         phase.current = "toHome";
         phaseStart.current = t;
@@ -260,11 +374,11 @@ export default function Agent({
     } else if (phase.current === "toHome") {
       const p = Math.min(1, (t - phaseStart.current) / WALK_DURATION);
       g.position.set(
-        approach[0] + (home[0] - approach[0]) * p,
+        walkTarget[0] + (home[0] - walkTarget[0]) * p,
         home[1],
-        approach[2] + (home[2] - approach[2]) * p,
+        walkTarget[2] + (home[2] - walkTarget[2]) * p,
       );
-      if (p >= 1) { phase.current = "resting"; }
+      if (p >= 1) { phase.current = "resting"; activeTarget.current = null; }
     } else {
       // resting -- bob (working = brisker, idle = slower/shallower)
       const bobAmp = behavior === "working" ? 0.05 : 0.025;
