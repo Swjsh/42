@@ -5,7 +5,7 @@ import { useGLTF, useAnimations } from "@react-three/drei";
 import * as THREE from "three";
 import { clone as cloneSkeleton } from "three/examples/jsm/utils/SkeletonUtils.js";
 import {
-  KIT_PATHS, CHARACTER_BODY_IDS, CHARACTER_RAW_HEIGHT, CHARACTER_TARGET_HEIGHT, CHARACTER_SCALE, characterScale,
+  KIT_PATHS, CHARACTER_BODY_IDS, CHARACTER_RAW_HEIGHT, CHARACTER_TARGET_HEIGHT, characterScale,
   pickCharacterBody, tintObjectMaterials, type CharacterBodyId,
 } from "./SetKit";
 
@@ -50,20 +50,31 @@ export type KitAnimState =
 // -- Agent.tsx's old WALK_DURATION=4.5s covered EVERY walk regardless of
 // distance; a ~14-unit hub trip at 4.5s is ~3 u/s, roughly 6 body-heights/s
 // for this character's own on-screen height -- a dead sprint, not a walk).
-// Real walking pace, DERIVED from SetKit.tsx's own CHARACTER_TARGET_HEIGHT/
-// CHARACTER_SCALE (never a hand-picked magic number) so a future scale
-// change keeps this correct automatically: an average adult walks ~1.4 m/s
-// at ~1.75m tall (~0.8 body-heights/second), scaled by THIS character's own
-// on-screen height relative to that real-world reference. Single source of
-// truth for BOTH Agent.tsx's translation-duration math AND this file's own
-// CLIP_TABLE walk/alert speeds below -- "the clip speed follows the
+// Real walking pace, DERIVED from SetKit.tsx's own CHARACTER_TARGET_HEIGHT
+// (never a hand-picked magic number) so a future height-target change keeps
+// this correct automatically: an average adult walks ~1.4 m/s. Deliberately
+// NOT also scaled by CHARACTER_SCALE (self-correction, this session -- the
+// first version of this constant did, landing at ~1.8 u/s, over this file's
+// own proof bar): SetKit.tsx's own comment on CHARACTER_SCALE calls it a
+// purely COSMETIC legibility bump ("closer default camera... characters
+// reading small... 1.25x lands every body at 2.25 world units, legible...")
+// -- it does not re-scale the desks/hub/corridors (FURNITURE_SCALE,
+// ARCHITECTURE's 0.45x/0.5x are independent constants), so a character
+// walking FASTER just because it was drawn bigger would cover the
+// FIXED-SCALE room unrealistically fast relative to that room, even while
+// looking "normal" relative to its own inflated body. CHARACTER_TARGET_HEIGHT
+// (1.8, "this task's own spec" per SetKit.tsx) is the character's real,
+// story-accurate height -- an ordinary adult -- so pace is keyed to that,
+// matching the scene's own established "1 world unit ~= 1m" convention
+// (this file's neighbor ALERT_PACE_SPEED comment) directly. Single source
+// of truth for BOTH Agent.tsx's translation-duration math AND this file's
+// own CLIP_TABLE walk/alert speeds below -- "the clip speed follows the
 // translation speed, never the other way round" (spec). Exported (not
 // Agent-local) specifically to avoid a circular Agent.tsx<->KitAgent.tsx
 // import -- Agent.tsx already imports FROM this file, never the reverse.
 const REAL_HUMAN_WALK_MPS = 1.4;
-const REAL_HUMAN_HEIGHT_M = 1.75;
-const CHARACTER_HEIGHT_WORLD = CHARACTER_TARGET_HEIGHT * CHARACTER_SCALE;
-export const WALK_SPEED = (REAL_HUMAN_WALK_MPS * CHARACTER_HEIGHT_WORLD) / REAL_HUMAN_HEIGHT_M; // u/s, ~1.8 at the current 1.25 scale
+const REAL_HUMAN_HEIGHT_M = 1.8; // CHARACTER_TARGET_HEIGHT's own real-world reference
+export const WALK_SPEED = (REAL_HUMAN_WALK_MPS * CHARACTER_TARGET_HEIGHT) / REAL_HUMAN_HEIGHT_M; // u/s -- 1.4 exactly while CHARACTER_TARGET_HEIGHT stays 1.8
 
 // World-2 item 5's alert pace, now a real BRISK WALK (was 2.0 u/s -- a jog):
 // comfortably under WALK_SPEED so "hurrying to the door" still reads as
