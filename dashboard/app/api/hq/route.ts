@@ -61,8 +61,47 @@ export const revalidate = 0;
  * than duplicating them -- the only new readers are lib/hq.ts's four
  * (sector_rows.py shell + 3 plain-file extras), all additive, zero new
  * producers per the HQ-visuals brief's own subtraction doctrine.
+ *
+ * UX-1 U7 (2026-09-14): CREW-2 saw one transient 500 in ~35 polls. Audited
+ * every reader this Promise.all touches this pass -- lib/hq.ts (all 893
+ * lines, every exported function), lib/station.ts (all, pre-U0), lib/
+ * desk-content.ts (all 347 lines), and lib/personas.ts's collectCompany()
+ * dependency graph end to end (collectScout/Coach/Pilot/Analyst/Chef/
+ * Treasurer/GammaManager + computeHandoffs + every helper: fileExists/
+ * mtimeISO/readText/readJson/readJsonlTail/dirListing/etLikeToIso/etHHMM) --
+ * every fs/execFile call already sits inside its own try/catch, every
+ * catch degrades to null/[]/a fail-open default, and every property access
+ * on a freshly-JSON.parse'd value happens INSIDE that same try block (so
+ * even a literal `null`/non-object JSON body -- valid JSON, `data.field`
+ * throws a TypeError -- is still caught, not just a JSON.parse SyntaxError).
+ * No un-caught throw found. UNVERIFIED beyond that: this audit could not
+ * reproduce the original transient 500, so the specific mechanism CREW-2
+ * saw is not confirmed fixed by a single named line -- what this pass adds
+ * is the belt-and-suspenders backstop below, so "never 500 for a missing/
+ * partial file" is a hard guarantee (any future regression, or a
+ * Node/Next.js-internal edge case this audit didn't anticipate, degrades
+ * to a 200 with an honest error marker) rather than resting on "we checked
+ * every file we could find." Proof this pass: 200/200 over 60 polls
+ * (`for i in $(seq 60); do curl -s -o NUL -w "%{http_code}\n" ...`).
  */
 export async function GET() {
+  try {
+    return await buildHqResponse();
+  } catch (err) {
+    // The backstop itself -- NOT the expected path (every reader below is
+    // independently fail-open per this function's own header audit). Logged
+    // loudly with context (never a silent catch, per this codebase's own
+    // standing failure-honesty rule) so a future occurrence is diagnosable
+    // from the server's own stderr, not just "the roster went blank."
+    console.error("[/api/hq] GET() threw past every reader's own fail-open guard -- backstop response returned, this should never happen:", err);
+    return NextResponse.json(
+      { error: "hq_route_failed", fetched_at: new Date().toISOString() },
+      { status: 200, headers: { "Cache-Control": "no-store, max-age=0" } },
+    );
+  }
+}
+
+async function buildHqResponse() {
   const [
     ideas,
     brief,

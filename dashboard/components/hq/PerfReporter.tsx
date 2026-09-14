@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import { setLivePerf } from "@/lib/hq-live-perf";
+import { markFirstFrameRendered } from "@/lib/hq-first-frame";
 
 const LIVE_SAMPLE_WINDOW_MS = 1000;
 
@@ -103,6 +104,16 @@ export default function PerfReporter({ enabled, firstReportMs = FIRST_REPORT_MS,
   // read-callback below at priority 2) so `gl.info` reflects the FULL
   // frame's accumulated calls/triangles here too.
   useFrame(() => {
+    // UX-1 U4 (2026-09-14): "the first frame has rendered" signal for
+    // LoadingOverlay.tsx, published via lib/hq-first-frame.ts -- see that
+    // module's own header for why it needs a cross-Canvas-boundary store at
+    // all. Piggybacks on this ALREADY-always-on (never gated by
+    // `enabled`/kiosk) callback rather than adding a new useFrame: this one
+    // is guaranteed to run on literally every real render this Canvas ever
+    // produces, on both tiers, which is exactly "a frame rendered."
+    // markFirstFrameRendered() is idempotent (a single boolean check after
+    // the first call) -- negligible added cost on this already-running path.
+    markFirstFrameRendered();
     const now = performance.now();
     if (liveWindowStartMs.current === null) liveWindowStartMs.current = now;
     liveFrameCount.current += 1;

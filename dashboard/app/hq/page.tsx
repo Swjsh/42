@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useSearchParams } from "next/navigation";
 import useSWR from "swr";
 import type { HqApiResponse } from "@/components/hq/types";
@@ -8,8 +8,10 @@ import HqFallback from "@/components/hq/HqFallback";
 import Hud from "@/components/hq/Hud";
 import CanvasRoot from "@/components/hq/CanvasRoot";
 import UltraCanvasRoot from "@/components/hq/UltraCanvasRoot";
+import LoadingOverlay from "@/components/hq/LoadingOverlay";
 import { useKioskWatchdog, kioskErrorRetry } from "@/lib/useKioskWatchdog";
 import { useMotionEvents } from "@/lib/useMotionEvents";
+import { getFirstFrameRendered, subscribeFirstFrame } from "@/lib/hq-first-frame";
 
 const fetcher = (url: string): Promise<HqApiResponse> =>
   fetch(url, { cache: "no-store" }).then((r) => {
@@ -113,6 +115,13 @@ function HqView() {
   // outside the <Canvas>.
   const motionEvents = useMotionEvents(data);
 
+  // UX-1 U4 (2026-09-14): cross-Canvas-boundary "did a real frame paint
+  // yet" signal -- see lib/hq-first-frame.ts's own header for why this
+  // can't just be a prop. `() => false` is the correct SSR snapshot (this
+  // store is only ever written from inside a mounted client-side <Canvas>,
+  // same reasoning as the sibling hq-live-perf.ts store already uses).
+  const firstFrameRendered = useSyncExternalStore(subscribeFirstFrame, getFirstFrameRendered, () => false);
+
   // World pass A REAL bug fix (2026-09-13): `data` gets a BRAND NEW object
   // reference every SWR poll (refreshInterval 15-60s) even when nothing the
   // 3D scene cares about changed -- `fetched_at`/`perf`/`perfOther` carry
@@ -167,6 +176,20 @@ function HqView() {
 
   return (
     <div style={{ position: "fixed", inset: 0, overflow: "hidden", background: "#03040a" }}>
+      {/* UX-1 U4 (2026-09-14): always mounted (any webgl2/tier state) so
+          there is never a gap between the plain-text loading fallback below
+          and a styled overlay -- ONE continuous covering layer from first
+          paint until the scene is genuinely ready, "no black flash" in the
+          literal sense of never showing raw unstyled text OR bare bg either.
+          canvasMounted=false (webgl2 unresolved, or the false/fallback
+          branch) just means "nothing to report progress on yet" -- the
+          overlay's own safety timeout still applies once a Canvas DOES
+          mount, see LoadingOverlay.tsx's own header. */}
+      <LoadingOverlay
+        canvasMounted={webgl2 === true && tier !== null}
+        noCanvasComing={webgl2 === false}
+        firstFrameRendered={firstFrameRendered}
+      />
       {webgl2 === false ? (
         <HqFallback data={data} error={error} />
       ) : webgl2 === true && tier === "tv" ? (
@@ -188,9 +211,34 @@ function HqView() {
   );
 }
 
+// UX-1 U4 (2026-09-14): this OUTERMOST Suspense boundary (required by
+// useSearchParams() in the App Router) resolves BEFORE HqView -- and
+// therefore LoadingOverlay -- ever mounts, so it can never show real
+// progress (no component tree, no THREE.DefaultLoadingManager activity
+// yet). Real-capture evidence this pass (ux1-u4-seq-1749.png-01..03) showed
+// this exact fallback holding the screen for several real seconds on a
+// cold kiosk browser start, THEN LoadingOverlay's own styled title+bar
+// taking over -- a visible STYLE swap partway through the load, not a
+// black flash, but not "one continuous experience" either. Reskinned to
+// the same title treatment/background so the two stages read as one
+// sequence, not two different loading screens.
+const OUTER_FALLBACK = (
+  <div
+    style={{
+      position: "fixed", inset: 0, background: "#03040a",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, sans-serif",
+    }}
+  >
+    <div style={{ color: "#dff3ff", fontSize: 40, fontWeight: 800, letterSpacing: 2, textShadow: "0 0 18px rgba(122,217,255,0.55)" }}>
+      GAMMA HQ
+    </div>
+  </div>
+);
+
 export default function HqPage() {
   return (
-    <Suspense fallback={<div style={{ padding: 24, color: "#7f93b0", background: "#03040a" }}>Loading Gamma HQ...</div>}>
+    <Suspense fallback={OUTER_FALLBACK}>
       <HqView />
     </Suspense>
   );
