@@ -182,3 +182,56 @@ directly-viewed render; disclosed rather than presented as a direct look):
    bay sign (lane name + one state word, nothing else) and the ideas-board
    panel (fewer/bigger lines, per P3's own "≤5 lines… ≥28px" spec) rather
    than trying to preserve every old field.
+
+## World-6 pass (2026-09-14, WORLD-6 builder) — the holo chart + reputable assets + atmosphere
+
+J's mandate this pass: "keep going... this automated trading agent world to
+be self learning, improving, and awesome as fuck... even more graphics and
+awesome animations from online sources that are reputable." Delivered:
+
+1. **W1, the signature piece** — `HoloChart.tsx`, a holographic SPY intraday
+   ribbon floating above the hub's round table, real data only (`spy_5m_*.csv`
+   5-min bars — the finest resolution that exists locally, no `spy_1m_*.csv`
+   file exists in this repo — + `key-levels.json` + `journal/trades.csv`'s
+   real fills, never `core-decisions.jsonl`'s verdict-only log, see
+   `lib/hq-chart-data.ts`'s own header for why). Own `/api/hq-chart` route,
+   own 60s SWR poll, zero Scene.tsx/route.ts edits. 3 references looked at
+   before writing a line of scene code (cited in `HoloChart.tsx`'s own header):
+   threejs-journey.com's hologram-shader lesson (the Fresnel-rim idea, reused
+   via Planet.tsx's own proven glow-shell technique rather than a new
+   ShaderMaterial — this codebase has zero custom shaders, grepped this
+   session), a CodePen "Holographic Projection" (the visible-emission-base-
+   plate composition), and a Behance 3D-candlestick-chart gallery (the
+   green/up red/down convention, adapted to this scene's own established
+   HEALTH_COLOR palette rather than the reference's fill/hollow one). Animation
+   is 100% event/data-driven per the HQ face rule: a bar grows in ONLY when a
+   genuinely new one lands, a level plane flashes ONCE only on a real
+   price-touch, nothing loops or spins.
+2. **W2, reputable assets** — 5 new CC0 pieces (poly.pizza's own static CDN
+   mirror of 3 Quaternius uploads: a shuttle for the landing pad, a "Scifi
+   Computer" console + "Pipes Panel" greeble for an exterior server annex;
+   Kenney Furniture Kit's `potted-plant.glb`/`plant-small.glb` for interior
+   plants), every one opened and orbited in poly.pizza's own 3D viewer before
+   picking it (J: "open them up and look at them"), full hunt + rejected
+   candidates in `public/hq-assets/LICENSES.md`'s own "Update 2026-09-14
+   (WORLD-6 builder, W2 asset hunt)" section.
+3. **W3, atmosphere** — 2 techniques, both zero-motion: static additive light
+   cones under the 8 perimeter lamp posts (day/night-aware opacity, not a
+   timer), and flat additive ground-glow discs under the new hero props. A
+   reflective hub floor (the brief's own third option) was evaluated and
+   SKIPPED — `StationModule.tsx`'s own comment documents a real
+   `MeshReflectorMaterial` artifact from an earlier pass ("double-reflection
+   wedge"), and this codebase has zero current `MeshReflectorMaterial` usage
+   to build on; not worth the risk for a "nice to have" given the safer
+   options already covered the brief.
+4. **Draw-call discipline** — a coordinator flag mid-pass (real capture
+   hq-20260914-1725.png: 1093/1100) caught 2 first-draft W2 placements that
+   were real value-per-draw-call outliers: `plant-small.glb` (2 primitives,
+   raw GLB inspection) one-per-bay = 16 calls for a barely-visible desk
+   succulent, cut entirely; a 2nd `scifi-computer.glb` instance (5
+   primitives) for a "server bank" read, cut to 1. Verified own contribution
+   lean via a real capture's own HUD line before/after (1093 -> 1013 calls,
+   full chart + all W2 props present) — later readings in the shared tree
+   climbed again from a different builder's own concurrent `Scene.tsx`
+   change (+398 lines, confirmed via `git diff --stat`, outside this
+   builder's ownership).
