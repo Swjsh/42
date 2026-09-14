@@ -6,6 +6,7 @@ import { useThree, useFrame } from "@react-three/fiber";
 import { Html, OrbitControls } from "@react-three/drei";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import * as THREE from "three";
+import { recordCameraSample } from "@/lib/hq-motion-diag";
 import type { HqApiResponse, SectorRow, CoreDecisionRow } from "./types";
 import type { PersonaState } from "@/lib/personas";
 import type { AgentBehavior } from "./Agent";
@@ -19,7 +20,10 @@ import IdeasWall from "./IdeasWall";
 import Courier from "./Courier";
 import Starfield from "./Starfield";
 import SkyDome from "./SkyDome";
+import Planet from "./Planet";
 import Ground from "./Ground";
+import Rocks from "./Rocks";
+import BaseProps from "./BaseProps";
 import PmremEnvironment from "./PmremEnvironment";
 import EffectsStack from "./EffectsStack";
 import GammaCharacter from "./GammaCharacter";
@@ -437,7 +441,7 @@ function CameraRig({ reducedMotion, rows, geometry, briefMtimeMs, ultra, cameraP
     return () => window.removeEventListener("keydown", onKey);
   }, [ultra, cameraPresets, camera]);
 
-  useFrame((state) => {
+  useFrame((state, delta) => {
     const t = state.clock.elapsedTime;
     lastElapsed.current = t;
     const controls = controlsRef.current;
@@ -535,6 +539,19 @@ function CameraRig({ reducedMotion, rows, geometry, briefMtimeMs, ultra, cameraP
     } else {
       camera.position.copy(_desiredCamPos);
       camera.lookAt(lookAtCurrent.current);
+    }
+
+    // World-2 MOTION-FIX diag (?diag=1 only -- no-ops otherwise, see
+    // hq-motion-diag.ts's own header): camera position/target + r3f's own
+    // reported `delta`, sampled once camera.position/controls.target are
+    // finalized for this frame -- ultra tier only (this is the only branch
+    // with a real user-drivable OrbitControls to diagnose).
+    if (ultra && controls) {
+      recordCameraSample({
+        delta,
+        camX: camera.position.x, camY: camera.position.y, camZ: camera.position.z,
+        targetX: controls.target.x, targetY: controls.target.y, targetZ: controls.target.z,
+      });
     }
   });
 
@@ -744,7 +761,13 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
   // material has no `fog={false}` override, so its color (and its grid
   // texture, per the SAME mechanism) already fades toward THIS color by
   // distance for free once the color itself agrees with the dome.
-  const fogColor = useMemo(() => new THREE.Color(PALETTE.fogColor).lerp(new THREE.Color("#a9c9e3"), nightFactor).getStyle(), [nightFactor]);
+  // World-3 environment pass (2026-09-14, J: "grey abyss"): was lerping to a
+  // pale sky-blue (#a9c9e3) -- root cause #3 of 3 (ENVIRONMENT-PLAN.md) --
+  // by day, everything past the plaza was one flat pale wall with nothing
+  // else in view. Target now matches SkyDome's own new DAY_DEPTH stop (deep
+  // indigo, never pale) so the two still agree at the horizon seam exactly
+  // like before this pass (same mechanism, just a darker target).
+  const fogColor = useMemo(() => new THREE.Color(PALETTE.fogColor).lerp(new THREE.Color("#1c3355"), nightFactor).getStyle(), [nightFactor]);
   // LIVE-1 item 2 follow-up (coordinator 2026-09-14): the SAME nightFactor
   // exposed to EffectsStack.tsx (Bloom threshold) and ExposureSync (tone-
   // mapping exposure) below via a ref, never a reactive prop -- see
@@ -1127,7 +1150,13 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
           now comes from emissive floor-edge strips, not a per-module light;
           see StationModule.tsx). */}
       <color attach="background" args={[PALETTE.space]} />
-      <fog attach="fog" args={[fogColor, 20, 62]} />
+      {/* World-3 environment pass (2026-09-14): near 20->40, far 62->70 --
+          pushed OUT so the new regolith/craters/rocks (Ground.tsx, Rocks.tsx)
+          actually stay visible instead of vanishing right past the plaza
+          edge; far stays aligned to Ground/SkyDome's own shared radius (70,
+          same alignment principle the original 62-vs-70 pairing already
+          used) so the horizon-seam blend this scene depends on still holds. */}
+      <fog attach="fog" args={[fogColor, 40, 70]} />
       {/* Pass C (2026-09-13): ET day/night mood, ambient fill ONLY -- this
           is a space-station interior, not outdoors, so the station's own
           practical lights (ceiling pointLights, beacons, desk screens)
@@ -1167,10 +1196,24 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
         shadow-mapSize={[2048, 2048]}
         shadow-camera-near={1}
         shadow-camera-far={40}
-        shadow-camera-left={-14}
-        shadow-camera-right={14}
-        shadow-camera-top={14}
-        shadow-camera-bottom={-14}
+        // World-3 environment pass (2026-09-14), E4 "shadows from the sun on
+        // rocks and base": -14/14 -> -22/22. The OLD frustum (28x28,
+        // centered on the light's implicit (0,0,0) target) stopped just
+        // short of Scene.tsx's own PLAZA_RADIUS (~18.2) -- nothing past the
+        // plaza edge (craters, boulders, dishes, the rover) could ever
+        // receive a shadow at all, regardless of their own receiveShadow
+        // prop, since the shadow CAMERA never rendered that area into the
+        // depth map in the first place. Widened just enough to cover the
+        // plaza + the nearest ring of new terrain (craters start at
+        // radius=20, Ground.tsx) -- NOT out to the full ~60-radius rock
+        // field, which would spread the same fixed 2048x2048 map thin
+        // enough to visibly blockify the close, load-bearing shadows
+        // (desks/walls/characters) that matter far more than a shadow on a
+        // distant decorative rock.
+        shadow-camera-left={-22}
+        shadow-camera-right={22}
+        shadow-camera-top={22}
+        shadow-camera-bottom={-22}
       />
 
       <CameraRig
@@ -1201,12 +1244,24 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
           see SkyDome.tsx's own comment for the root cause this fixes. */}
       <SkyDome dayFactor={nightFactor} />
       <Starfield reducedMotion={reducedMotion} dayFactor={nightFactor} />
+      {/* World-3 environment pass (2026-09-14): the background planet/moon --
+          see Planet.tsx's own top comment + ENVIRONMENT-PLAN.md. Both tiers
+          (single unlit draw call, same cost class as SkyDome/Starfield). */}
+      <Planet reducedMotion={reducedMotion} />
       {/* World-2 item 2 (2026-09-14, J: "there needs to be some sort of
           floor or background... right now it's just infinite directions"):
           a large ground disc under the whole scene, both tiers (cheap --
           one draw call, same cost class as SkyDome/Starfield). Same
           dayFactor as the sky/lights so the horizon never seams. */}
       <Ground dayFactor={nightFactor} ultra={ultra} />
+      {/* World-3 environment pass (2026-09-14), E2/E3: instanced rock field +
+          boulders (ultra-gated inside Rocks.tsx itself) and the exterior
+          base props ring (dishes/solar/landing-pad/rover/containers/pipes/
+          lights/antenna, tier-split inside BaseProps.tsx itself). Both
+          components own their own `ultra` branching so Scene.tsx doesn't
+          need a second `{ultra && ...}` wrapper here. */}
+      <Rocks ultra={ultra} />
+      <BaseProps ultra={ultra} dayFactor={nightFactor} reducedMotion={reducedMotion} />
       {/* World-2 item 4 (2026-09-14, J: "the spinning color radar looking
           things can go... noisy" + HQ face rule "motion = events with a
           ticker"): ServiceDrones removed entirely (component file deleted
