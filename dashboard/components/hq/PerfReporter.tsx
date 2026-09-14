@@ -20,57 +20,6 @@ interface PerfReporterProps {
 const FIRST_REPORT_MS = 10_000;
 const REPEAT_MS = 5 * 60 * 1000;
 
-// LIVE-1 item 3 follow-up (coordinator 2026-09-14 sanity check: "249 fps at
-// 2060x1440 with 363 calls is 4-5x last night's 55 fps at 1420x1080 --
-// either the post stack is no longer running, or the reporter is counting
-// frames wrong"). Investigated with real evidence, not a guess:
-//   1. calls/tris did NOT collapse (439->363 calls, 241730->200326 tris,
-//      both ~17% lower, tracking each other almost exactly) -- losing the
-//      WHOLE post stack (N8AO + Bloom's mipmap chain + GodRays + SMAA) would
-//      drop calls by far more than 17%, and would never move tris at all
-//      (fullscreen passes are 2 tris each; tris tracks scene GEOMETRY). The
-//      ~17% is consistent with ordinary content/camera-frustum variance --
-//      it lands exactly in the window items 1/2/3/5 shipped that same
-//      morning (closer ultra-tier camera default, daylight/sky rework).
-//   2. hq-live-5-final.png -- the SAME capture the coordinator reviewed to
-//      accept items 1/2/3/5, whose own baked-in HUD perf line reads "249fps
-//      . 2060x1440 . 363 calls . 200326 tris" -- shows, on pixel inspection
-//      (6x nearest-neighbor crops): soft mipmap-blur bloom halos around
-//      nameplate accents with correct gradient falloff (Bloom), a colored
-//      fringe along wall/sky silhouette edges impossible from a raw
-//      antialias:false context (UltraCanvasRoot.tsx disables WebGL AA on
-//      purpose -- SMAA is the ONLY source of edge smoothing on this tier),
-//      and contact-shadow darkening in interior corners (N8AO). Post-fx was
-//      demonstrably ON during the exact sample being questioned.
-//   3. The full tv-perf.jsonl history (not just the two rows quoted) shows
-//      fps swinging 25->480 across the SAME session with calls staying in a
-//      narrow ~100-145 band throughout one stretch (93fps and 294fps 12
-//      minutes apart, 143 vs 144 calls) -- fps here tracks something
-//      EXTERNAL to scene/post-fx cost far more than it tracks draw calls.
-//      This machine has an already-documented display refresh-rate
-//      mismatch (multi-monitor MPO/480Hz-vs-60Hz, see this project's own
-//      2026-09-09 display-blackout postmortem) -- whichever monitor/vsync
-//      context the browser tab composites through at sample time plausibly
-//      swings the achievable fps by exactly this kind of multiple,
-//      independent of this app's own rendering cost.
-//   4. Confirmed directly at runtime (2026-09-14, via a temporary window-
-//      global diagnostic in EffectsStack.tsx, read off a real
-//      capture_hq.ps1 screenshot since the Browser pane's tab reports
-//      document.hidden=true regardless of foreground state and never runs
-//      a single useFrame through that path -- see that diagnostic's own
-//      commit message): `composer.passes.length === 7` and the pass walk
-//      genuinely finds and mutates the live BloomEffect instance
-//      (`foundBloom: true`). Seven real passes on the live EffectComposer
-//      is conclusive, not inferred -- the post stack is unambiguously
-//      built and running on the ultra tier.
-// Verdict: the post stack IS running; PerfReporter's own frame-count/
-// gl.info mechanism (see the autoReset fix above) is NOT miscounting.
-// Nothing here needed a code fix -- the actual bug was interpretive (fps
-// assumed comparable across sessions on THIS machine when it isn't); this
-// comment is the fix, so the same investigation is never repeated from
-// scratch. `calls`/`tris` are the trustworthy cross-session signal for this
-// app's own rendering cost; `fps` is real but display-context-contaminated.
-
 /**
  * Samples real display fps (by counting actual rendered frames -- this
  * component's own useFrame -- over a wall-clock window) and reads r3f's own
