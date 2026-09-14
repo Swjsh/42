@@ -27,7 +27,7 @@
               primary) display, pointed at http://127.0.0.1:3000/station?kiosk=1
               -- LOCAL loopback, since Edge runs on this same PC. Records the PID.
            5. Else if tv.json has a tv_host configured: calls
-              `station_tv.py --face` (Wi-Fi wake + open the LAN-proxied Station
+              (2026-09-13: the keeper NEVER wakes/re-fronts the TV -- it only keeps the page server up; `station_tv.py --face` stays a MANUAL command) formerly: `station_tv.py --face` (Wi-Fi wake + open the LAN-proxied Station
               page on the TV's OWN browser) and logs {"event":"tv_browser_face"}.
            6. Else logs {"event":"no_tv_display"} and exits 0 -- NEVER opens the
               kiosk on J's own main (or, per the safety gate above, secondary)
@@ -244,13 +244,13 @@ if ($Start) {
                 }
             }
         } catch {}
-        Write-Output "Using the Wi-Fi TV face ($why -- station_tv.py --face)"
-        try {
-            & $backtestPy $tvScript --face 2>&1 | ForEach-Object { Write-Output $_ }
-        } catch {
-            Write-Output "station_tv.py --face threw: $($_.Exception.Message)"
-        }
-        Write-KioskLedger @{ event = "tv_browser_face"; reason = $why }
+        # 2026-09-13 21:05 ET, J: "stop turning my tv on lol" -- this branch sent station_tv.py --face
+        # (Wake-on-LAN + browser launch) every 5 min after J switched the TV off (kiosk ledger: five
+        # tv_browser_face events 20:42-21:03 ET). The launch cannot pass a URL on this set anyway; J opens
+        # the browser himself and the page then follows face.json. The keeper NEVER wakes or re-fronts
+        # the TV. The page-server keepalive above is the only thing it keeps alive for the TV.
+        Write-Output "TV face not relaunched by design (never wake the TV; $why)"
+        Write-KioskLedger @{ event = "tv_face_not_relaunched"; reason = $why }
         exit 0
     }
 
