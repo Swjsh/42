@@ -4,7 +4,8 @@ import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { useThrottledFrame } from "./useThrottledFrame";
 import { makeMatcapTexture, seededRandom } from "./palette";
-import { ALERT_PACE_SPEED, IDLE_VARIANTS, KitAgentBody, WALK_SPEED, WORKING_VARIANTS, type KitAnimState } from "./KitAgent";
+import { ALERT_PACE_SPEED, CLIP_TABLE, IDLE_VARIANTS, KitAgentBody, WALK_SPEED, WORKING_VARIANTS, type KitAnimState } from "./KitAgent";
+import { recordAgentSample } from "@/lib/hq-motion-diag";
 
 export type AgentBehavior = "working" | "idle" | "alert" | "frozen";
 export type AgentWalkKind = "roundtrip" | "arrival" | "allhands" | "purposeful";
@@ -467,6 +468,11 @@ export default function Agent({
       const swing = moving ? Math.sin(t * 4) * 0.5 : 0;
       if (legL.current) legL.current.rotation.x = swing;
       if (legR.current) legR.current.rotation.x = -swing;
+      // World-2 MOTION-FIX diag (?diag=1 only -- no-ops otherwise, see
+      // hq-motion-diag.ts's own header): alert pacing returns early, so it
+      // needs its own record call rather than falling through to the shared
+      // one below.
+      recordAgentSample({ id: laneSeed, x: g.position.x, y: g.position.y, z: g.position.z, clipSpeed: CLIP_TABLE.alert.speed });
       return;
     }
 
@@ -600,6 +606,14 @@ export default function Agent({
       legL.current.rotation.x = 0;
       legR.current.rotation.x = 0;
     }
+
+    // World-2 MOTION-FIX diag (?diag=1 only -- no-ops otherwise, see
+    // hq-motion-diag.ts's own header): every agent's world position + the
+    // clip speed KitAgent.tsx would be playing for its current animState,
+    // once per throttled tick (20Hz) -- position.set above already
+    // finalized this frame's value by this point regardless of which phase
+    // branch ran.
+    recordAgentSample({ id: laneSeed, x: g.position.x, y: g.position.y, z: g.position.z, clipSpeed: CLIP_TABLE[animState].speed });
 
     // "Night patrol" dim (J 2026-09-13: presence == away) + Pass C schedule
     // dim (2026-09-13: off-shift persona, only when not genuinely working)

@@ -8,6 +8,7 @@ import StandbyPanel from "./StandbyPanel";
 import PerfReporter from "./PerfReporter";
 import { HUD_RIGHT_COLUMN_WIDTH } from "./Hud";
 import type { HqApiResponse } from "./types";
+import { recordAdvanceCall, recordTick } from "@/lib/hq-motion-diag";
 
 // World-2 item 6 (2026-09-14, coordinator: "J's monitor is 480 Hz, so
 // requestAnimationFrame lets the page render 200+ frames/s and pins the
@@ -32,16 +33,48 @@ const TARGET_FRAME_MS = 1000 / 60;
  * "always" loop would -- every useFrame callback in the tree (BrainCore's
  * pulse, CameraRig's drift, Agent's walk phases, EffectsStack, PerfReporter,
  * EffectComposer's own internal render) still gets called in the same
- * order with a correctly-computed real delta -- just less often, so no
- * existing delta-time-based animation anywhere in this tree needs to
- * change. Accumulates leftover time (never measures "time since last
- * advance" directly) so a slow/late tick can't permanently drift the
- * cadence, and clamps the carried remainder to one frame so a tab
+ * order -- just less often. Accumulates leftover time (never measures "time
+ * since last advance" directly) so a slow/late tick can't permanently drift
+ * the cadence, and clamps the carried remainder to one frame so a tab
  * coming back from a long background stall doesn't queue a burst of
  * catch-up advances -- the coordinator's own "accumulate, don't drift" ask.
  * Never mounted when `?fps=max` lifts the cap (see UltraCanvasRoot below)
  * or while paused (gaming/hidden already use frameloop="never" for a
  * different reason -- no render loop of any kind should run then).
+ *
+ * World-2 MOTION-FIX (2026-09-14, J: "the people are running like 100mph
+ * and it's like jittering the screen back and forth" -- ROOT CAUSE of BOTH,
+ * empirically confirmed this session via hq-motion-diag.ts's
+ * reportedToRealDeltaRatio reading 998-1000 on a live capture, not just
+ * inferred from source): `advance(timestamp)` below was passing the raw
+ * rAF callback timestamp straight through -- a DOMHighResTimeStamp in
+ * MILLISECONDS, per the Web API spec. Reading r3f 9.6.1's own `update()`
+ * (node_modules/@react-three/fiber events-*.esm.js) shows that under
+ * `frameloop==='never'`, it does NOT divide by 1000 the way THREE.Clock's
+ * own `getDelta()` does in "always" mode -- it sets
+ * `state.clock.elapsedTime = timestamp` and `delta = timestamp - <previous
+ * elapsedTime>` VERBATIM, in whatever unit `timestamp` arrived in. Every
+ * useFrame consumer in this tree (Agent.tsx's walk-phase `t`, CameraRig's
+ * `Math.sin(t*0.035)` drift, mixer.timeScale-driven GLTF clips, ...) was
+ * tuned assuming SECONDS (matching frameloop="always"/`?fps=max`, which
+ * both go through THREE.Clock's real divide-by-1000 path) -- so every one
+ * of them ran ~1000x faster than intended: a 4.5s-"duration" walk actually
+ * completed in ~4.5ms (reads as an instant dart, i.e. "running"), and a
+ * ~180s-period camera drift oscillator actually completed a full cycle in
+ * ~180ms (~5-9 visible direction reversals per second, confirmed by this
+ * session's own signFlipsPerSecond reading of ~9.2 -- "jittering back and
+ * forth"). FIX: divide by 1000 at the ONE point this component's own
+ * millisecond-domain rAF timestamp crosses into r3f's API, restoring the
+ * exact time domain "always"/`?fps=max` already use -- every downstream
+ * useFrame callback needed ZERO changes (M1's own Agent.tsx/KitAgent.tsx
+ * speed constants are correct AS WRITTEN; they were simply being evaluated
+ * against a clock racing 1000x real time until this fix landed). Two other
+ * listed suspects were checked and REFUTED by reading the same r3f source:
+ * `invalidate()` (drei OrbitControls' own internal call on 'change') is a
+ * documented no-op whenever `state.frameloop === 'never'` -- it returns
+ * before touching anything, so it schedules nothing under this cap, capped
+ * or not; and `ticks.maxAdvancesInOneTick` in this session's own diag data
+ * never exceeded 1 -- no second, untracked advance() call site exists.
  */
 function FrameRateCap() {
   const advance = useThree((s) => s.advance);
@@ -54,7 +87,20 @@ function FrameRateCap() {
       rafId.current = requestAnimationFrame(tick);
       if (lastTimestampMs.current === null) {
         lastTimestampMs.current = timestamp;
-        advance(timestamp);
+        // World-2 MOTION-FIX: /1000 -- see this component's own doc comment.
+        // timestamp itself STAYS milliseconds everywhere else in this
+        // function (the accumulator/TARGET_FRAME_MS cadence-gating math
+        // below is unrelated -- it only decides WHEN to call advance, using
+        // the OS's own rAF clock; this is the one place that value crosses
+        // into r3f's second-denominated clock).
+        advance(timestamp / 1000);
+        // World-2 MOTION-FIX diag (?diag=1 only, see hq-motion-diag.ts's own
+        // header -- both calls no-op entirely when disabled): a counter of
+        // advance() calls per rAF tick, and the real rAF cadence this
+        // monitor delivers (~480/s on J's) vs how often that actually turns
+        // into a render (should land near the 60fps cap).
+        recordAdvanceCall();
+        recordTick(timestamp, true);
         return;
       }
       accumulatorMs.current += timestamp - lastTimestampMs.current;
@@ -62,7 +108,11 @@ function FrameRateCap() {
       if (accumulatorMs.current >= TARGET_FRAME_MS) {
         accumulatorMs.current -= TARGET_FRAME_MS;
         if (accumulatorMs.current > TARGET_FRAME_MS) accumulatorMs.current = TARGET_FRAME_MS;
-        advance(timestamp);
+        advance(timestamp / 1000); // World-2 MOTION-FIX: same /1000, see above
+        recordAdvanceCall();
+        recordTick(timestamp, true);
+      } else {
+        recordTick(timestamp, false);
       }
     };
     rafId.current = requestAnimationFrame(tick);
