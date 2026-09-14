@@ -1,0 +1,157 @@
+// WORLD-6 (2026-09-14, W1): unit tests for lib/hq-chart-pure.ts -- the pure
+// half of lib/hq-chart-data.ts (the fs-touching getHoloChartData() is
+// exercised live instead, via `curl /api/hq-chart` against the real files --
+// same convention this dashboard's one prior test file (hq-runtime.test.ts)
+// already established, and the same reason: no bundler/mocking layer here,
+// so only the pure half is unit-testable without a live server).
+//
+// Imports from lib/hq-chart-pure.ts directly (NOT lib/hq-chart-data.ts,
+// which imports the real lib/chart-data.ts#getChartData value -- that
+// module's own "./workspace" specifier is extensionless, which Node's
+// native ESM loader cannot resolve without a bundler; see hq-chart-pure.ts's
+// own header for the full reasoning, confirmed by reproducing the
+// ERR_MODULE_NOT_FOUND this split avoids).
+//
+// Run: cd dashboard && node --test tests/hq-chart-data.test.ts
+
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import {
+  chartTimeToEtDateStr,
+  filterToLatestSessionDate,
+  atIsoToChartTime,
+  nearestBarIndex,
+  dedupeTradeMarkers,
+  filterLevelsNearRange,
+  type HoloLevel,
+} from "../lib/hq-chart-pure.ts";
+import type { ChartBar, ChartTradeMarker } from "../lib/chart-data.ts";
+
+function bar(time: number, overrides: Partial<ChartBar> = {}): ChartBar {
+  return { time, open: 760, high: 761, low: 759, close: 760.5, ...overrides };
+}
+
+// ─── chartTimeToEtDateStr ───────────────────────────────────────────────────
+
+test("chartTimeToEtDateStr reads the ET digits encoded as UTC, not a real UTC date", () => {
+  // 2026-09-14 14:00:00 encoded AS UTC (etDigitsToChartTime's own convention).
+  const t = Date.UTC(2026, 8, 14, 14, 0, 0) / 1000;
+  assert.equal(chartTimeToEtDateStr(t), "2026-09-14");
+});
+
+test("chartTimeToEtDateStr handles a late-session bar just before midnight UTC-encoding", () => {
+  const t = Date.UTC(2026, 8, 14, 23, 55, 0) / 1000;
+  assert.equal(chartTimeToEtDateStr(t), "2026-09-14");
+});
+
+// ─── filterToLatestSessionDate ──────────────────────────────────────────────
+
+test("filterToLatestSessionDate keeps only the newest distinct ET date", () => {
+  const bars: ChartBar[] = [
+    bar(Date.UTC(2026, 8, 11, 15, 55, 0) / 1000),
+    bar(Date.UTC(2026, 8, 11, 15, 55, 0) / 1000 + 1), // still 09-11, contrived
+    bar(Date.UTC(2026, 8, 14, 9, 30, 0) / 1000),
+    bar(Date.UTC(2026, 8, 14, 9, 35, 0) / 1000),
+    bar(Date.UTC(2026, 8, 14, 15, 55, 0) / 1000),
+  ];
+  const { date, bars: kept } = filterToLatestSessionDate(bars);
+  assert.equal(date, "2026-09-14");
+  assert.equal(kept.length, 3);
+  assert.ok(kept.every((b) => chartTimeToEtDateStr(b.time) === "2026-09-14"));
+});
+
+test("filterToLatestSessionDate returns null/[] for an empty bar list, never throws", () => {
+  const { date, bars } = filterToLatestSessionDate([]);
+  assert.equal(date, null);
+  assert.deepEqual(bars, []);
+});
+
+// ─── atIsoToChartTime ────────────────────────────────────────────────────────
+
+test("atIsoToChartTime converts a real UTC instant to the ET-digits-as-UTC encoding (EDT, UTC-4)", () => {
+  // journal/trades.csv real row this session: entry 2026-09-14 14:01:06 ET.
+  // parseBareTimestampInZone would produce this true UTC instant for that
+  // wall-clock ET time during EDT (UTC-4): 18:01:06Z.
+  const atIso = new Date(Date.UTC(2026, 8, 14, 18, 1, 6)).toISOString();
+  const chartTime = atIsoToChartTime(atIso);
+  const expected = Date.UTC(2026, 8, 14, 14, 1, 6) / 1000;
+  assert.equal(chartTime, expected);
+});
+
+test("atIsoToChartTime returns null for an unparsable string, never throws", () => {
+  assert.equal(atIsoToChartTime("not a date"), null);
+});
+
+// ─── nearestBarIndex ─────────────────────────────────────────────────────────
+
+test("nearestBarIndex finds the closest bar by |time delta|", () => {
+  const bars: ChartBar[] = [bar(1000), bar(1300), bar(1600), bar(1900)];
+  assert.equal(nearestBarIndex(bars, 1000), 0);
+  assert.equal(nearestBarIndex(bars, 1450), 1); // 150 away from 1300, 150 from 1600 -> first wins (not strictly less)
+  assert.equal(nearestBarIndex(bars, 1620), 2);
+  assert.equal(nearestBarIndex(bars, 5000), 3);
+});
+
+test("nearestBarIndex returns null for an empty bar list", () => {
+  assert.equal(nearestBarIndex([], 1000), null);
+});
+
+// ─── dedupeTradeMarkers ──────────────────────────────────────────────────────
+
+function trade(atIso: string, overrides: Partial<ChartTradeMarker> = {}): ChartTradeMarker {
+  return { atIso, side: "entry", direction: "call", price: 0.39, setup: "ribbon_ride", note: null, pnl: null, ...overrides };
+}
+
+test("dedupeTradeMarkers collapses same-minute/side/direction/price rows into one, counting them", () => {
+  // Real shape this session: 4 fleet-arm fills of the SAME 763C entry within
+  // seconds of each other (14:01:06 / 14:01:08 / 14:01:10).
+  const rows: ChartTradeMarker[] = [
+    trade("2026-09-14T18:01:06.000Z"),
+    trade("2026-09-14T18:01:08.000Z"),
+    trade("2026-09-14T18:01:10.000Z"),
+  ];
+  const out = dedupeTradeMarkers(rows);
+  assert.equal(out.length, 1);
+  assert.equal(out[0].count, 3);
+  assert.equal(out[0].atIso, rows[0].atIso); // first occurrence wins position
+});
+
+test("dedupeTradeMarkers keeps distinct minutes/sides/directions separate", () => {
+  const rows: ChartTradeMarker[] = [
+    trade("2026-09-14T18:01:06.000Z", { side: "entry" }),
+    trade("2026-09-14T18:02:07.000Z", { side: "exit", price: 0.4 }),
+    trade("2026-09-14T14:01:08.000Z", { side: "entry", direction: "put" }),
+  ];
+  const out = dedupeTradeMarkers(rows);
+  assert.equal(out.length, 3);
+  assert.ok(out.every((m) => m.count === 1));
+});
+
+// ─── filterLevelsNearRange ───────────────────────────────────────────────────
+
+function level(price: number, type: HoloLevel["type"] = "support"): HoloLevel {
+  return { price, type, tag: type.toUpperCase(), source: "test" };
+}
+
+test("filterLevelsNearRange excludes a level far outside today's traded range", () => {
+  // Real shape this session: session range ~757-763, levels at 748.09 and
+  // 774.71 sit 9-12 dollars away -- both should be excluded.
+  const levels = [level(748.09), level(757.44), level(761.32), level(774.71, "resistance")];
+  const out = filterLevelsNearRange(levels, 757.77, 762.72);
+  const prices = out.map((l) => l.price).sort((a, b) => a - b);
+  assert.deepEqual(prices, [757.44, 761.32]);
+});
+
+test("filterLevelsNearRange widens the band on a wide-range day (60% of range, floor $2)", () => {
+  const levels = [level(700), level(750), level(800)];
+  // range 750, band = max(2, 0.6*100) = 60 -> [640,860] roughly for a 100-wide range
+  const out = filterLevelsNearRange(levels, 700, 800);
+  assert.equal(out.length, 3); // all within [700-60,800+60]
+});
+
+test("filterLevelsNearRange respects an explicit band override", () => {
+  const levels = [level(757), level(760), level(770)];
+  const out = filterLevelsNearRange(levels, 758, 762, 1);
+  const prices = out.map((l) => l.price).sort((a, b) => a - b);
+  assert.deepEqual(prices, [757, 760]); // 770 is 8 away, band=1 excludes it
+});

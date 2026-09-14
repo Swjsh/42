@@ -242,6 +242,7 @@ export default function BrainCore({
             modelName={modelName}
             sectorsSnapshot={sectorsSnapshot}
             trading={trading}
+            dimFactor={dimFactor}
           />
         </Suspense>
       )}

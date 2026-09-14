@@ -6,6 +6,7 @@ import * as THREE from "three";
 import type { SectorsSnapshot, TradingStatus } from "@/lib/hq";
 import { drawScreenLines, PALETTE, type ScreenLine } from "./palette";
 import { KIT_PATHS, KitProp, FURNITURE_SCALE } from "./SetKit";
+import HoloChart from "./HoloChart";
 
 // ─── S2 hub interior pass (2026-09-14, MODELS builder) ─────────────────────
 // "the hub needs to look real": a central round table + chairs for the
@@ -39,6 +40,12 @@ const TABLE_LARGE_PATH = "/hq-assets/kenney-space-station-kit/table-large.glb";
 const CABLES_PATH = "/hq-assets/kenney-modular-space-kit/cables.glb";
 useGLTF.preload(TABLE_LARGE_PATH, false);
 useGLTF.preload(CABLES_PATH, false);
+
+// W2 (2026-09-14, WORLD-6 builder): "interior plants" -- real CC0 GLB
+// (Kenney Furniture Kit, via kenney.nl's own zip -- see this file's own
+// placement comment on HubPlants below for the radius reasoning).
+const POTTED_PLANT_PATH = "/hq-assets/kenney-furniture-kit/potted-plant.glb";
+useGLTF.preload(POTTED_PLANT_PATH, false);
 
 // All positions below are WORLD-space (1:1 with Scene.tsx's own units) --
 // see BrainCoreVitalsPanel's/HubInterior's own counter-scale wrapper.
@@ -82,6 +89,12 @@ const TABLE_CENTER: [number, number, number] = [
   Math.sin((BRAIN_SEGMENT_CENTER_DEG * Math.PI) / 180) * 2.5,
 ];
 const TABLE_SCALE = FURNITURE_SCALE * 0.85; // slightly under desk-scale so 6 chairs fit comfortably
+
+// WORLD-6 (2026-09-14, W1): table-large.glb raw bbox 1.4w x 0.4h x 0.9d
+// (GLB-parsed via dashboard/scripts/glb_extents.mjs this session) -- top
+// surface at world Y = 0.4 * TABLE_SCALE, the HoloChart's own mount height
+// below.
+const TABLE_TOP_Y = 0.4 * TABLE_SCALE;
 
 /** Cables greeble along the hub's inner wall base -- pulled in to radius 5.5
  * (from 6.7) for the same camera-visibility reason as everything else here;
@@ -274,6 +287,12 @@ interface HubInteriorProps {
   modelName: string | null;
   sectorsSnapshot: SectorsSnapshot | null;
   trading: TradingStatus | null;
+  /** WORLD-6 (2026-09-14, W1): "GPU RESERVED -- J IS GAMING" dim state --
+   * BrainCore.tsx already receives this for its own glow sprite/memory
+   * gauge; threaded one level further here so HoloChart's own materials
+   * dim consistently with every other hub surface instead of staying at
+   * full brightness while the rest of the room dims. */
+  dimFactor: number;
 }
 
 /**
@@ -302,6 +321,37 @@ interface HubInteriorProps {
  * would face world +Z regardless of where around the hub it sits, a real
  * bug caught while re-deriving this section, not by a capture.
  */
+/** One potted plant flanking the round table, on the hub-center side (radius
+ * ~1.75 from hub center, well inside the table's own radius 2.5) -- clear of
+ * Gamma's own desk (radius 3.4, angle ~61.34deg, computed in Scene.tsx, not
+ * this file) and clear of the smart board/wall panels (radius 4.3-4.9), the
+ * two other "don't collide with" zones in this segment. rawBounds (glb_
+ * extents.mjs, this session) 0.212w x 0.654h x 0.241d, floor Y=0 (flush) --
+ * PLANT_SCALE picked to read as a real floor plant (~0.85 world units tall)
+ * next to the table's own 0.68-tall top surface.
+ *
+ * ONE instance, not a flanking pair -- coordinator draw-call-budget flag
+ * (2026-09-14 ~19:2x ET, real capture hq-20260914-1725.png: 1093/1100
+ * calls): potted-plant.glb has 3 primitives (glb_extents.mjs's own
+ * JSON-chunk inspection this session), so a 2nd instance costs 3 more draw
+ * calls for a duplicate decorative object -- cut to 1 alongside this pass's
+ * other budget trims (see BaseProps.tsx/BayInterior.tsx's own notes). */
+const PLANT_SCALE = 1.3;
+const PLANT_INNER_RADIUS = 1.75;
+const PLANT_TANGENT_OFFSET = 0.55;
+
+function HubPlants() {
+  const angleRad = deg(BRAIN_SEGMENT_CENTER_DEG);
+  const radial: [number, number] = [Math.cos(angleRad), Math.sin(angleRad)];
+  const tangent: [number, number] = [-Math.sin(angleRad), Math.cos(angleRad)];
+  const pos: [number, number, number] = [
+    radial[0] * PLANT_INNER_RADIUS + tangent[0] * PLANT_TANGENT_OFFSET,
+    0,
+    radial[1] * PLANT_INNER_RADIUS + tangent[1] * PLANT_TANGENT_OFFSET,
+  ];
+  return <KitProp path={POTTED_PLANT_PATH} scale={PLANT_SCALE} position={pos} rotation={[0, 1.7, 0]} castShadow receiveShadow />;
+}
+
 function facingHubRotationY(position: readonly [number, number, number]): number {
   // Mirrors layout.ts#rotationYFacing(position, HUB) + PI (HUB=[0,0,0], so
   // that reduces to this) -- not imported, since layout.ts is pure
@@ -310,7 +360,7 @@ function facingHubRotationY(position: readonly [number, number, number]): number
   return Math.atan2(position[0], position[2]) + Math.PI;
 }
 
-export default function HubInterior({ utilPct, memUsedMib, memTotalMib, modelName, sectorsSnapshot, trading }: HubInteriorProps) {
+export default function HubInterior({ utilPct, memUsedMib, memTotalMib, modelName, sectorsSnapshot, trading, dimFactor }: HubInteriorProps) {
   return (
     <group scale={1 / 1.15}>
       {/* Round table + chairs */}
@@ -322,6 +372,17 @@ export default function HubInterior({ utilPct, memUsedMib, memTotalMib, modelNam
           return <KitProp key={i} path={KIT_PATHS.furniture.chair} scale={FURNITURE_SCALE} position={pos} rotation={[0, theta, 0]} castShadow />;
         })}
       </group>
+
+      {/* W1 -- the holographic SPY chart, floating above the round table's
+          own top surface (TABLE_TOP_Y). facingYaw mirrors the same
+          facingHubRotationY() the two wall panels below already use, so the
+          ribbon's local +X (time axis) reads left-right from the default/
+          preset-1 camera the same way -- see HoloChart.tsx's own header. */}
+      <HoloChart
+        origin={[TABLE_CENTER[0], TABLE_TOP_Y + 0.03, TABLE_CENTER[2]]}
+        facingYaw={facingHubRotationY(TABLE_CENTER)}
+        dimFactor={dimFactor}
+      />
 
       {/* Sectors + trading -- the brief's ORIGINALLY-specced second board,
           angle 15deg. */}
@@ -355,6 +416,9 @@ export default function HubInterior({ utilPct, memUsedMib, memTotalMib, modelNam
           receiveShadow
         />
       ))}
+
+      {/* W2 (2026-09-14): interior plants flanking the table. */}
+      <HubPlants />
 
       {/* All-hands gathering ring -- floor marking, dim emissive, no light. */}
       <mesh position={[0, 0.006, 0]} rotation={[-Math.PI / 2, 0, 0]}>
