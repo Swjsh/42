@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { getLivePerf, subscribeLivePerf } from "@/lib/hq-live-perf";
 import { getAutoOrbitResumedAtMs, subscribeAutoOrbitResumed } from "@/lib/hq-camera-mode";
+import { setHoveredPersonaIndex } from "@/lib/hq-hover-persona";
 import Link from "next/link";
 import type { HqApiResponse, TradingStatus, CrewEvent, PersonaState } from "./types";
 import { auditVerdictColor, hhmmFromEtIso, isRegularTradingHours, minutesSinceEvidence, nowEtDayOfWeek, nowEtMinutes, personaStatusColor } from "./palette";
@@ -545,13 +546,17 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
            that travels around a card's edge) -- a rotating conic-gradient
            behind a 1px-padded wrapper; the inner panel's own background
            covers everything except that 1px ring. transform:rotate only. */
-        .hq-beam { position: relative; padding: 1px; }
-        .hq-beam::before {
-          content: ""; position: absolute; inset: -100%;
-          background: conic-gradient(from 0deg, transparent 0%, var(--beam-color, #7ad9ff) 6%, transparent 16%);
-          animation: hq-beam-spin 4.5s linear infinite;
-        }
-        @keyframes hq-beam-spin { to { transform: rotate(360deg); } }
+        /* J 2026-09-14 ~18:15 ET: "i asked for the scanner to be removed"
+           -- the rotating conic wedge that used to live here WAS the
+           scanner: inset:-100% with no overflow clip swept a ~58deg
+           status-colored fan, 3x the label's own size, around EVERY plaque
+           (real capture models-FINAL-preset0-2235.png: the green fans under
+           Analyst/Chef/Treasurer/Scout/Coach, the cyan one over the BRAIN
+           plaque, the pink one on the smart board). The 11:00 ET "spinning
+           color radar looking things" pass removed the 3D rings but never
+           this CSS twin. Now a STATIC 1px status-colored ring -- zero
+           animation, same geometry (border replaces the 1px padding). */
+        .hq-beam { position: relative; padding: 0; border: 1px solid var(--beam-color, #7ad9ff); }
 
         /* Shine Border (https://21st.dev/s/border, "Shine Border": a moving
            light effect that travels across the border) -- reimagined as a
@@ -994,6 +999,26 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") { e.preventDefault(); flyToDesk(); }
                 }}
+                // UX-1 U3 (2026-09-14): "hovering a crew card pulses that
+                // persona's own sign in the world" -- see
+                // lib/hq-hover-persona.ts's own header for the store this
+                // publishes to and why (Scene.tsx's own consumption of it,
+                // rendering the actual pulse, is not wired yet -- gated
+                // behind Scene.tsx's current cross-builder freeze this pass;
+                // this trigger half is harmless to ship ahead of it, same
+                // "front the reader/trigger, wire the other side later"
+                // shape as U5's reportAutoOrbitResumed). onMouseLeave (not
+                // onPointerLeave) matches this card's own existing plain DOM
+                // event handlers above (onClick/onKeyDown), not a mixed
+                // event-API card.
+                onMouseEnter={() => setHoveredPersonaIndex(i)}
+                // Unconditional clear (not a "only if it's still me" guard,
+                // unlike focusEvent's index check elsewhere in this file):
+                // these cards are non-overlapping siblings in a plain block
+                // list, so the DOM's own enter/leave ordering guarantees
+                // this card's leave fires before any OTHER card's enter --
+                // there is no race to guard against here.
+                onMouseLeave={() => setHoveredPersonaIndex(null)}
                 style={{
                   position: "relative", background: "rgba(3,4,10,0.93)", border: `1px solid ${color}55`,
                   borderRadius: 10, padding: "10px 12px", cursor: "pointer",
