@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, Fragment } from "react";
 import { getLivePerf, subscribeLivePerf } from "@/lib/hq-live-perf";
 import { getAutoOrbitResumedAtMs, subscribeAutoOrbitResumed } from "@/lib/hq-camera-mode";
 import { setHoveredPersonaIndex } from "@/lib/hq-hover-persona";
 import Link from "next/link";
 import type { HqApiResponse, TradingStatus, CrewEvent, PersonaState } from "./types";
-import { auditVerdictColor, hhmmFromEtIso, isRegularTradingHours, minutesSinceEvidence, nowEtDayOfWeek, nowEtMinutes, personaStatusColor } from "./palette";
+import { auditVerdictColor, hhmmFromEtIso, isRegularTradingHours, minutesSinceEvidence, nowEtDayOfWeek, nowEtMinutes, personaStatusColor, truncateOneLine } from "./palette";
 import type { MotionEvent } from "@/lib/useMotionEvents";
 // CREW-2 (roster, 2026-09-14): the crew panel's pill/now/last/next derivation
 // -- see lib/crew.ts's own header for why this logic lives there (pure,
@@ -334,6 +334,113 @@ const HUD_FONT = "system-ui, -apple-system, Segoe UI, Roboto, sans-serif";
 // UX-1 U1 (2026-09-14): controls legend auto-fade delay, see its own effect's comment.
 const LEGEND_FADE_MS = 8000;
 
+// ─── PANEL-2 (2026-09-14): "is it running on my PC, or is this whole thing
+//     agents running on my PC? Do I really have this many active agents on
+//     my PC?" -- J's verbatim question, routed to lib/hq-runtime.ts's own
+//     standing instrument (data.runtime) rather than answered once and
+//     forgotten. This block is the presentation layer for that field. ──────
+
+/** Genuine UTC ISO -> "HH:MM" in America/New_York. Deliberately NOT
+ * palette.ts's hhmmFromEtIso -- that function REGEX-extracts digits already
+ * embedded as ET wall-clock text (built for core-decisions.jsonl's own
+ * ts_et shape) and would silently read the wrong (UTC) hour off a REAL ISO
+ * string like PersonaState.lastFireISO (verified by reading its own
+ * implementation this session before reusing anything -- exactly the class
+ * of TZ bug CLAUDE.md's standing lesson warns about). Same small
+ * Intl-based helper this codebase already carries independently in
+ * lib/personas.ts / lib/crew.ts / lib/hq.ts. */
+function hhmmEtFromIso(iso: string | null): string | null {
+  if (!iso) return null;
+  const t = Date.parse(iso);
+  if (Number.isNaN(t)) return null;
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York", hour: "2-digit", minute: "2-digit", hour12: false,
+  }).formatToParts(new Date(t));
+  const hh = parts.find((p) => p.type === "hour")?.value;
+  const mm = parts.find((p) => p.type === "minute")?.value;
+  return hh && mm ? `${hh}:${mm}` : null;
+}
+
+/** Number Ticker (https://21st.dev/dillionverma/number-ticker, "Number
+ * Ticker": an animated counter that tweens from its old value to a new one
+ * rather than snapping) -- hand-implemented via requestAnimationFrame over
+ * plain text content (no code copied): cheaper than a CSS-driven approach
+ * and trivially TV-safe (no transform/opacity/compositor layer at all, just
+ * DOM text updates for a bounded ~500ms per change, matching this file's
+ * own "10-foot-readability... no animations" sizing elsewhere). Skips the
+ * tween entirely under reducedMotion, per this task's own instruction to
+ * respect that prop on every new animation. */
+function NumberTicker({ value, reducedMotion }: { value: number; reducedMotion: boolean }) {
+  const [display, setDisplay] = useState(value);
+  const fromRef = useRef(value);
+  useEffect(() => {
+    if (reducedMotion) { setDisplay(value); fromRef.current = value; return; }
+    const from = fromRef.current;
+    if (from === value) return;
+    const start = performance.now();
+    const durationMs = 500;
+    let raf = 0;
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / durationMs);
+      const eased = 1 - (1 - t) * (1 - t); // ease-out
+      setDisplay(Math.round(from + (value - from) * eased));
+      if (t < 1) raf = requestAnimationFrame(tick);
+      else fromRef.current = value;
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value, reducedMotion]);
+  return <>{display}</>;
+}
+
+/** Sum of only the 6 Gamma-relevant process buckets -- deliberately NOT
+ * `processes.total` (that includes hundreds of unrelated system processes:
+ * svchost, conhost, steamwebhelper, Discord, etc -- a live capture this
+ * session found 379 total vs ~50 in these 6 buckets). This is "live
+ * processes" in the sense J asked the question, not "everything running on
+ * the PC". */
+function trackedProcessTotal(p: NonNullable<HqApiResponse["runtime"]>["processes"]): number {
+  if (!p) return 0;
+  return p.python + p.pythonw + p.ollama + p.ollama_llama_server + p.claude + p.node;
+}
+
+/** Nonzero-only breakdown, e.g. "python 2 · pythonw 16 · claude 25" -- never
+ * pads with zero-count categories (nothing to say about them). */
+function processBreakdown(p: NonNullable<HqApiResponse["runtime"]>["processes"]): Array<{ label: string; n: number }> {
+  if (!p) return [];
+  return [
+    { label: "python", n: p.python },
+    { label: "pythonw", n: p.pythonw },
+    { label: "claude", n: p.claude },
+    { label: "node", n: p.node },
+    { label: "ollama", n: p.ollama },
+    { label: "ollama_llama_server", n: p.ollama_llama_server },
+  ].filter((row) => row.n > 0);
+}
+
+const RUNTIME_KIND_LABEL: Record<string, string> = {
+  "python-script": "Python script",
+  "local-llm": "Ollama",
+  "claude-session": "Claude session",
+  "none": "no producer",
+};
+
+/** "RUNS AS" row text for one crew card -- e.g. "Python script · this PC ·
+ * last 18:21 · next ~18:51 ET" / "Ollama gamma-planner-fast · this PC GPU ·
+ * next due now" / "Claude session · none · DISABLED -- ... not scheduled".
+ * Reuses role.nextFire verbatim (server-computed, lib/hq-runtime.ts) rather
+ * than re-deriving cadence text a third time client-side. */
+function buildRunsAsLine(role: HqApiResponse["runtime"]["roles"][number] | undefined, brainModel: string | null, lastFireISO: string | null): string {
+  if (!role) return "runtime unknown";
+  const kindLabel = RUNTIME_KIND_LABEL[role.runtime] ?? role.runtime;
+  const label = role.runtime === "local-llm" && brainModel ? `${kindLabel} ${brainModel}` : kindLabel;
+  const hostLabel = role.runtime === "local-llm" && role.host === "this PC" ? "this PC GPU" : role.host;
+  const lastHHMM = hhmmEtFromIso(lastFireISO);
+  const lastBit = lastHHMM ? `last ${lastHHMM} · ` : "";
+  return `${label} · ${hostLabel} · ${lastBit}next ${role.nextFire}`;
+}
+
 /**
  * Plain HTML overlay (not 3D text -- crisp at any TV viewing distance).
  * Sits in a fixed, full-viewport, pointer-events-none wrapper above the
@@ -519,6 +626,22 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
   // null on an old build or a failed audit run (fail-open) -- every lookup
   // below falls back to "no badge" rather than a fake verdict.
   const auditByName = new Map((data?.audit?.personas ?? []).map((a) => [a.name, a]));
+  // PANEL-2 (2026-09-14): the standing "is it running on my PC" instrument
+  // -- see lib/hq-runtime.ts's own header for the full truth this carries.
+  // `handoffs` was not previously destructured by this file at all (only
+  // `data?.company?.personas` was); needed now for the animated-beam
+  // connector below.
+  const runtime = data?.runtime;
+  const roleByName = new Map((runtime?.roles ?? []).map((r) => [r.name, r]));
+  const handoffs = data?.company?.handoffs ?? [];
+  /** True iff computeHandoffs() (lib/personas.ts) reports a FRESH ("OK")
+   * handoff whose `from`/`to` strings (which carry an emoji prefix, e.g.
+   * "✈️ Pilot") contain the given plain persona names. Used only for the
+   * 2 pairs that are BOTH real handoff entries AND adjacent in the fixed
+   * roster render order (Pilot->Analyst, Analyst->Chef) -- see the crew
+   * card map below. */
+  const handoffFresh = (fromName: string, toName: string): boolean =>
+    handoffs.some((h) => h.status === "OK" && h.from.includes(fromName) && h.to.includes(toName));
 
   return (
     <>
@@ -642,6 +765,43 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
            that rule is applied here anyway: consistency, not a hard need). */
         .hq-focus-glow { position: absolute; inset: -3px; border-radius: 12px; border: 2px solid #7ad9ff; pointer-events: none; animation: hq-focus-glow-fade 2s ease-out forwards; }
         @keyframes hq-focus-glow-fade { 0% { opacity: 1; } 60% { opacity: 0.9; } 100% { opacity: 0; } }
+
+        /* PANEL-2 (2026-09-14) -- 3 concepts taken from 21st.dev, hand-
+           implemented (no code copied), transform/opacity ONLY per this
+           file's own standing TV-compositor rule (see .hq-beam/.hq-shine
+           above). Number Ticker (the 3rd concept) needed no CSS at all --
+           it is a plain requestAnimationFrame text tween, see NumberTicker(). */
+
+        /* Animated List (https://21st.dev/@dillionverma/components/animated-list,
+           "Animated List": items animate in with a slide+fade when a new one
+           is added) -- applied to the Activity tab's feed rows via their
+           existing stable row key (buildFeedRows above), so a genuinely NEW
+           row mounts-and-plays this once; an existing row that merely shifts
+           position on a re-sort is REUSED by React, never replayed -- same
+           "keyed list only replays on genuine mount" contract this file
+           already documents for .hq-card-flip. */
+        .hq-row-in { animation: hq-row-in-slide 0.35s ease-out; }
+        @keyframes hq-row-in-slide { 0% { transform: translateY(-6px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+
+        /* Animated Beam (https://21st.dev/@dillionverma/components/animated-beam,
+           "Animated Beam": a beam of light traveling along a path between two
+           connected elements, showing an active integration) -- scaled down
+           to a short traveling dot in the gap between two ADJACENT crew
+           cards, shown only while lib/personas.ts's computeHandoffs reports
+           that exact handoff status OK (a real, fresh handoff -- see
+           handoffFresh in the component body below), remounted via a
+           changing React key whenever the handoff transitions fresh, same
+           replay-via-key convention as .hq-shine/.hq-focus-glow above.
+           transform:translateY + opacity only. */
+        .hq-handoff-beam { position: relative; height: 12px; width: 2px; margin: 0 auto; background: rgba(122,217,255,0.15); pointer-events: none; }
+        .hq-handoff-beam::after { content: ""; position: absolute; left: -2px; top: 0; width: 6px; height: 6px; border-radius: 999px; background: #7ad9ff; animation: hq-handoff-travel 1.4s ease-in-out infinite; }
+        @keyframes hq-handoff-travel { 0% { transform: translateY(-2px); opacity: 0; } 30% { opacity: 1; } 70% { opacity: 1; } 100% { transform: translateY(10px); opacity: 0; } }
+
+        /* A "live now" dot on the RUNS AS row -- reuses hq-pulse-glow's own
+           opacity-breathing keyframe (already defined above, already
+           TV-safe) rather than a 4th separate credited concept; only ever
+           rendered while role.liveNow is true. */
+        .hq-live-dot { display: inline-block; width: 6px; height: 6px; border-radius: 999px; background: #22ff88; box-shadow: none; animation: hq-pulse-glow 1.1s ease-in-out infinite; }
       `}</style>
 
       {/* Controls legend (UX-1 U1, 2026-09-14, reworked from LIVE-1 item 1's
@@ -923,6 +1083,45 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
           </div>
         )}
 
+        {/* PANEL-2 (2026-09-14): the TRUTH header -- J's verbatim question
+            ("is it running on my pc? do i really have this many active
+            agents on my pc?") answered as DATA, not a sentence: role count
+            and live-process count are two visually distinct numbers (never
+            conflated into one), so "7 roles" reading next to "44
+            processes" is itself the answer to "are those the same thing"
+            -- roles are NOT agents. Both numeric pieces use the Number
+            Ticker treatment (tweens on change instead of snapping); the
+            rest is plain text, server-computed by lib/hq-runtime.ts, never
+            invented here. */}
+        {runtime && (
+          <div
+            style={{
+              fontSize: 12.5, color: "#8296b3", lineHeight: 1.4, fontVariantNumeric: "tabular-nums",
+              background: "rgba(3,4,10,0.55)", border: "1px solid rgba(122,217,255,0.15)", borderRadius: 6,
+              padding: "5px 9px",
+            }}
+          >
+            <span style={{ color: "#dff3ff", fontWeight: 800 }}>
+              <NumberTicker value={runtime.roles.length} reducedMotion={reducedMotion} />
+            </span>{" "}
+            role{runtime.roles.length === 1 ? "" : "s"} (not {runtime.roles.length === 1 ? "an agent" : "agents"}) ·{" "}
+            <span style={{ color: runtime.processes ? "#7ad9ff" : "#ffb020", fontWeight: 800 }}>
+              {runtime.processes ? <NumberTicker value={trackedProcessTotal(runtime.processes)} reducedMotion={reducedMotion} /> : "?"}
+            </span>{" "}
+            live process{trackedProcessTotal(runtime.processes) === 1 ? "" : "es"} on {runtime.hostname}
+            {runtime.processes && processBreakdown(runtime.processes).length > 0 && (
+              <> ({processBreakdown(runtime.processes).map((r) => `${r.label} ${r.n}`).join(" · ")})</>
+            )}
+            {runtime.error && <span style={{ color: "#ffb020" }}> · {runtime.error}</span>}
+            <br />
+            brain: {runtime.brain.model ?? "no model"} {runtime.brain.gpu ? "local GPU" : "local"} ·{" "}
+            <span style={{ color: runtime.brain.state === "running" ? "#22ff88" : runtime.brain.state === "yielding" ? "#ffb020" : "#6a86b8", fontWeight: 700 }}>
+              {runtime.brain.state}
+            </span>
+            {runtime.brain.reason && <span style={{ color: "#5c7aa0" }}> ({truncateOneLine(runtime.brain.reason, 60)})</span>}
+          </div>
+        )}
+
         {/* UX-1 U8: "Crew | Activity" tab strip -- the sim-game tab
             convention J offered as an option (over a stacked section),
             chosen because the alternative (7 crew cards + up to
@@ -974,6 +1173,14 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
             const nowLine = crewNowLine(p);
             const lastLine = crewLastLine(p);
             const nextLine = crewNextLine(p, nowMs);
+            // PANEL-2 (2026-09-14): "RUNS AS" row -- see this file's own
+            // buildRunsAsLine() header comment. `role` is undefined only
+            // when the runtime instrument itself failed this poll
+            // (lib/hq-runtime.ts fails open, never throws) or for a
+            // persona name it doesn't track -- buildRunsAsLine handles
+            // that honestly ("runtime unknown") rather than guessing.
+            const role = roleByName.get(p.name);
+            const runsAsLine = buildRunsAsLine(role, runtime?.brain.model ?? null, p.lastFireISO);
             // R2: keys "1".."7" index cameraPresets[0..6] = [Gamma, ...6
             // personas] in Scene.tsx's own fixed order -- IDENTICAL to this
             // `personas` array's own order (both come from collectCompany()).
@@ -984,9 +1191,19 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
             // is the currently-focused one -- see focusEvent's own effect
             // comment above for why `id` (not just index) is the key.
             const glowing = focusEvent?.index === i;
+            // PANEL-2: Animated Beam connector -- only Pilot->Analyst and
+            // Analyst->Chef are BOTH real computeHandoffs() pairs AND
+            // adjacent in this fixed roster render order (see handoffFresh's
+            // own comment above); every other real handoff involves a
+            // non-card node ("Premarket", "_LEADERBOARD", "J ratification")
+            // that has no card to draw a line to.
+            const beamAfter =
+              p.name === "Pilot" && handoffFresh("Pilot", "Analyst") ? "Pilot-Analyst"
+              : p.name === "Analyst" && handoffFresh("Analyst", "Chef") ? "Analyst-Chef"
+              : null;
             return (
+              <Fragment key={p.name}>
               <div
-                key={p.name}
                 ref={(el) => {
                   if (el) cardRefs.current.set(p.name, el);
                   else cardRefs.current.delete(p.name);
@@ -1139,9 +1356,21 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
                 <div style={{ fontSize: 13, color: "#6c81a0", marginTop: 2, lineHeight: 1.35 }}>
                   <span style={{ color: "#5c7aa0", fontWeight: 700 }}>next </span>{nextLine}
                 </div>
+                {/* PANEL-2 (2026-09-14): "RUNS AS" row -- J's verbatim ask
+                    ("what agent is it? is it running on my pc?") answered
+                    per-card. Live dot (hq-live-dot, only while
+                    role.liveNow) is the ONLY animation on this row --
+                    everything else is plain text, server-computed. */}
+                <div style={{ fontSize: 12.5, color: "#5c86a8", marginTop: 4, lineHeight: 1.35, display: "flex", alignItems: "center", gap: 5 }}>
+                  <span style={{ color: "#46607e", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.4, fontSize: 10.5 }}>runs as</span>
+                  {role?.liveNow && <span className={reducedMotion ? undefined : "hq-live-dot"} style={reducedMotion ? { width: 6, height: 6, borderRadius: 999, background: "#22ff88", display: "inline-block" } : undefined} title="plausibly mid-fire right now" />}
+                  <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={role?.evidence}>{runsAsLine}</span>
+                </div>
                 </>
                 )}
               </div>
+              {beamAfter && !reducedMotion && !gaming && <div className="hq-handoff-beam" key={beamAfter} aria-hidden="true" />}
+              </Fragment>
             );
           })}
         </div>
@@ -1159,7 +1388,12 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
             feedRows.map((row, i) => {
               const showChip = i === 0 || feedRows[i - 1].actor?.name !== row.actor?.name;
               return (
-                <div key={row.key} style={{ display: "flex", alignItems: "center", gap: 7, padding: "3px 0" }}>
+                // PANEL-2 (2026-09-14): Animated List concept (see the
+                // shared <style> block's own .hq-row-in comment) -- plays
+                // ONLY on a genuine new mount of this row's stable
+                // `key={row.key}` (buildFeedRows above), never on a reorder
+                // of an existing row. Skipped entirely under reducedMotion.
+                <div key={row.key} className={reducedMotion ? undefined : "hq-row-in"} style={{ display: "flex", alignItems: "center", gap: 7, padding: "3px 0" }}>
                   <span style={{ color: "#4fd6ff", fontSize: 12, flexShrink: 0, width: 36 }}>{row.tsEt}</span>
                   <span
                     style={{
