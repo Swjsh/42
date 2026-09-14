@@ -5,8 +5,11 @@ import type { PersonaState, Handoff } from "@/lib/personas";
 // lib/desk-content.ts's own module header for why this file must never take
 // a VALUE import from that module (it touches node:fs).
 import type { DeskPersonaName, DeskContent } from "@/lib/desk-content";
+// PANEL-2 (2026-09-14): type-only, see lib/hq-runtime.ts's own module
+// header for the fail-open contract and the truth this type carries.
+import type { HqRuntime } from "@/lib/hq-runtime";
 
-export type { SectorRow, BlockedItem, PersonaState, Handoff, TradingStatus, CoreDecisionRow, CrewEvent, DeskPersonaName, DeskContent, HqBuildStatus, SectorsSnapshot };
+export type { SectorRow, BlockedItem, PersonaState, Handoff, TradingStatus, CoreDecisionRow, CrewEvent, DeskPersonaName, DeskContent, HqBuildStatus, SectorsSnapshot, HqRuntime };
 
 export interface HqBrainVitals {
   model: string | null;
@@ -126,6 +129,10 @@ export interface HqApiResponse {
   // sectors.json file snapshot) -- named differently on purpose so the two
   // never collide. Null until that producer has fired at least once.
   sectorsSnapshot: SectorsSnapshot | null;
+  // PANEL-2 (2026-09-14) -- additive, see lib/hq-runtime.ts. "Is it running
+  // on my PC, or is this whole thing agents running on my PC?" answered from
+  // a measured process table + per-role runtime classification, not prose.
+  runtime: HqRuntime;
 }
 
 /** One module's derived (not server-sent) presentation state -- computed

@@ -29,6 +29,10 @@ import { collectCompany, type PersonaState, type Handoff } from "@/lib/personas"
 // INTERACT-2 (I1, 2026-09-14): per-desk real-work content -- see
 // lib/desk-content.ts's own header for the fail-open contract per source.
 import { readDesksSnapshot } from "@/lib/desk-content";
+// PANEL-2 (2026-09-14): "is it running on my PC, or is this whole thing
+// agents running on my PC?" -- see lib/hq-runtime.ts's own header for the
+// full truth this establishes. Additive only.
+import { readHqRuntime } from "@/lib/hq-runtime";
 
 /** Unlike every other reader in this route's Promise.all, collectCompany()
  * has no internal try/catch (personas/route.ts's OWN top-level GET() is
@@ -170,6 +174,18 @@ async function buildHqResponse() {
 
   const lastRow = ledger.length > 0 ? ledger[ledger.length - 1] : null;
 
+  // PANEL-2 (2026-09-14): sequential, not folded into the Promise.all above --
+  // it depends on company.personas / config.model / models.models / gpu.ok,
+  // all of which must already be resolved. Reuses those four results rather
+  // than re-fetching any of them (see lib/hq-runtime.ts's own HqRuntimeInputs
+  // doc comment); the only NEW read inside is a 30s-cached `tasklist` shell.
+  const runtime = await readHqRuntime({
+    personas: company.personas,
+    brainModel: config.model ?? null,
+    ollamaModelsLoaded: models.models.map((m) => m.name),
+    gpuOk: gpu.ok,
+  });
+
   return NextResponse.json(
     {
       fetched_at: new Date().toISOString(),
@@ -215,6 +231,11 @@ async function buildHqResponse() {
       // lib/hq.ts#readSectorsSnapshot. Null until CREW-RIG's
       // sectors.json producer has fired at least once.
       sectorsSnapshot,
+      // PANEL-2 (2026-09-14) -- additive, see lib/hq-runtime.ts. Answers "is
+      // it running on my PC, or is this whole thing agents running on my
+      // PC?" from measured process counts + per-role runtime classification,
+      // never invented prose.
+      runtime,
       // I3: explicit alias for brief.mtime_ms -- surfaces the SAME real
       // mtime as a readable ISO string so the all-hands trigger has a
       // self-explanatory field name on the wire (brief.mtime_ms already
