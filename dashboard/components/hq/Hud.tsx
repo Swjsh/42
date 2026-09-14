@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { getLivePerf, subscribeLivePerf } from "@/lib/hq-live-perf";
+import { getAutoOrbitResumedAtMs, subscribeAutoOrbitResumed } from "@/lib/hq-camera-mode";
 import Link from "next/link";
 import type { HqApiResponse, TradingStatus, CrewEvent, PersonaState } from "./types";
 import { auditVerdictColor, hhmmFromEtIso, isRegularTradingHours, minutesSinceEvidence, nowEtDayOfWeek, nowEtMinutes, personaStatusColor } from "./palette";
@@ -474,6 +475,24 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
     return () => window.removeEventListener("resize", check);
   }, []);
 
+  // UX-1 U5 (2026-09-14): "when the cinematic orbit resumes after 45s idle,
+  // show a 3s hint" -- lib/hq-camera-mode.ts's own header explains the
+  // cross-Canvas-boundary store this reads. Scene.tsx#CameraRig's own idle-
+  // timeout mode transition (mode.current = "auto") is the ONLY call site
+  // that ever needs to call reportAutoOrbitResumed() -- not yet wired
+  // (Scene.tsx is owned by the LAYOUT builder's in-flight rewrite this
+  // pass; see this pass's own coordinator-directed sequencing note), this
+  // reader half is safe to ship ahead of that one-line call site landing --
+  // it simply never fires until it does.
+  const autoOrbitResumedAtMs = useSyncExternalStore(subscribeAutoOrbitResumed, getAutoOrbitResumedAtMs, () => null);
+  const [showAutoOrbitHint, setShowAutoOrbitHint] = useState(false);
+  useEffect(() => {
+    if (autoOrbitResumedAtMs === null) return;
+    setShowAutoOrbitHint(true);
+    const t = setTimeout(() => setShowAutoOrbitHint(false), 3000);
+    return () => clearTimeout(t);
+  }, [autoOrbitResumedAtMs]);
+
   const mode = data?.mode ?? "unknown";
   const gaming = mode === "gaming";
   const present = data?.presence?.present ?? null;
@@ -668,6 +687,31 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
         </div>
       )}
 
+      {/* UX-1 U5 (2026-09-14): auto-orbit resume hint, 3s -- see
+          autoOrbitResumedAtMs's own effect comment above for the store this
+          reads and why Scene.tsx's one-line call site isn't wired yet.
+          Reuses the legend's exact spot (bottom:210, centered, zIndex:11,
+          same glass-panel styling) rather than a second hand-picked
+          position -- the two are mutually exclusive in practice (auto-orbit
+          only resumes after 45s of total idle, by which point the legend's
+          own 8s-after-first-input fade has long since finished in every
+          realistic session), so there is no real overlap case to design
+          around. */}
+      {tier === "ultra" && showAutoOrbitHint && (
+        <div
+          style={{
+            position: "absolute", left: "50%", bottom: 210, transform: "translateX(-50%)",
+            zIndex: 11,
+            color: "#cfe9ff", fontSize: 14, fontFamily: HUD_FONT, whiteSpace: "nowrap",
+            background: "rgba(3,4,10,0.6)", border: "1px solid rgba(122,217,255,0.28)",
+            padding: "6px 18px", borderRadius: 999,
+            pointerEvents: "none",
+          }}
+        >
+          auto-orbit &middot; move the mouse to take control
+        </div>
+      )}
+
       {/* Meteors drifting behind the title (decorative only, z-index below
           the text) -- trimmed from 5 to 3 (2026-09-13, Company Mode step 5)
           to make room in the animated-DOM-element budget (cap 24) for the
@@ -716,9 +760,10 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
           server-fact contract it renders. */}
       <div
         style={{
-          position: "absolute", top: 56, left: 20,
+          position: "absolute", top: 56, left: 20, maxWidth: 520,
           color: "#5c7aa0", fontSize: 13, fontFamily: HUD_FONT,
           fontVariantNumeric: "tabular-nums", textShadow: "0 1px 4px rgba(0,0,0,0.7)",
+          whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
         }}
       >
         {buildHqBuildLine(data?.build)}
