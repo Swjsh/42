@@ -43,7 +43,19 @@ useGLTF.preload(MODEL_PATH, false);
 // (verified by parsing the GLB directly, see LICENSES.md) are 0.685w x
 // 0.455h x 0.128d; 4.8x lands it at ~3.29w x 2.18h x 0.61d world units --
 // inside the brief's own "3-4u wide" spec.
-const BOARD_SCALE = 4.8;
+// SCALE, second derivation (2026-09-14, real-capture-driven fix): the
+// brief's own "3-4u wide" spec (4.8x here, ~3.3u) compiled/rendered fine
+// with real IDEAS BOARD content (confirmed by a diagnostic capture at 16x --
+// the exact same content, position, rotation, unmistakably legible at that
+// size: "IDEAS BOARD" header, 5 real card titles, "VERDICT: pending" in
+// amber) but was too small to read from preset 0's own camera distance at
+// the smaller size -- not a code bug, a size-vs-distance one. The brief's
+// OTHER, more explicit requirement -- "legible from preset 0" (this task's
+// own PROOF line, and J's own "make it legible") -- wins over the softer
+// "3-4u" sizing suggestion where the two are in tension. 8x (~5.5u wide)
+// is the middle ground: still reads as one large board (not the 16x
+// diagnostic's wall-filling size), legible at preset 0's distance.
+const BOARD_SCALE = 8;
 
 // Content-plane geometry, in the SAME raw (pre-BOARD_SCALE) units as the
 // GLB itself -- inset within the model's own bezel (raw width 0.685,
