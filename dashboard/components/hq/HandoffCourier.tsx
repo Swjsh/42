@@ -1,29 +1,26 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo } from "react";
 import { Html } from "@react-three/drei";
 import * as THREE from "three";
 import type { Handoff } from "@/lib/personas";
-import { useThrottledFrame } from "./useThrottledFrame";
-import { PALETTE } from "./palette";
 
 interface HandoffCourierProps {
   handoffs: Handoff[];
   resolvePosition: (label: string) => [number, number, number];
-  restPosition: [number, number, number];
-  reducedMotion: boolean;
-}
-
-const CARRY_DURATION = 2.2;
-
-function hopKey(h: Handoff): string {
-  return `${h.from}->${h.to}::${h.evidence}`;
+  // Accepted-but-unused (temporary): Scene.tsx (owned by the WORLD builder,
+  // mid-edit as of this commit -- see git status) still calls this component
+  // with its PRE-I4 prop shape. Kept optional here so the shared build stays
+  // green until the coordinated Scene.tsx edit lands (same pass) and drops
+  // these two -- never remove this without also touching that call site.
+  restPosition?: [number, number, number];
+  reducedMotion?: boolean;
 }
 
 /** One STALE/MISSING hop rendered as a dim dashed line + a small red "!"
  * at its midpoint -- always-visible current-state geometry (not
- * diff-triggered like the courier walk below). Only 6 hops exist total, so
- * recomputing this every render is cheap. */
+ * diff-triggered like the courier walk used to be). Only 6 hops exist
+ * total, so recomputing this every render is cheap. */
 function DashedLink({ from, to }: { from: [number, number, number]; to: [number, number, number] }) {
   const mid: [number, number, number] = [(from[0] + to[0]) / 2, 0.3, (from[2] + to[2]) / 2];
 
@@ -56,92 +53,29 @@ function DashedLink({ from, to }: { from: [number, number, number]; to: [number,
 }
 
 /**
- * Handoff walks (Company Mode, 2026-09-13) -- cloned from Courier.tsx's
- * seen-id-diff pattern, pointed at computeHandoffs() instead of idea
- * cards. When a hop flips to OK with a NEW evidence string, one shared
- * courier body walks from that hop's `from` desk to its `to` desk carrying
- * a small glowing folder. STALE/MISSING hops render as a dim dashed link
- * with a red "!" instead (via DashedLink above). First snapshot on mount
- * seeds `seenOk` without animating, matching Courier.tsx's own rule against
- * a burst of walks on page load.
+ * I4 (INTERACT-2, 2026-09-14): the shared anonymous "courier bot" that used
+ * to walk hop-to-hop on every OK handoff is RETIRED -- "people carry their
+ * own work now": the real persona whose real event PRODUCES a handoff (a
+ * fresh scout_output.json, a new EOD digest, a new treasury file, Chef's own
+ * verdict row, Pilot's post-close decision, ...) now walks that same trip
+ * itself, driven by the actual event (see lib/useMotionEvents.ts's (a)-(f)
+ * ticker lines and Scene.tsx/Agent.tsx's eventWalk wiring). A second,
+ * unnamed body making the identical trip on the identical OK-flip would read
+ * as a duplicate signal, not a second one -- exactly the "random text with
+ * cool graphics" complaint this pass exists to fix, just relocated to a
+ * different mover.
+ *
+ * Only the STALE/MISSING half survives: a hop that ISN'T happening has no
+ * persona walk to represent it (nobody carries work that was never done),
+ * so the dashed line + "!" stays the one honest way to show "this handoff is
+ * not confirmed" -- unchanged geometry/logic from before this pass, just no
+ * longer sharing a component with the retired bot.
  */
-export default function HandoffCourier({ handoffs, resolvePosition, restPosition, reducedMotion }: HandoffCourierProps) {
-  const bodyGroup = useRef<THREE.Group>(null);
-  const folderMesh = useRef<THREE.Mesh>(null);
-
-  const seenOk = useRef<Set<string> | null>(null);
-  const queue = useRef<Array<{ from: [number, number, number]; to: [number, number, number] }>>([]);
-  const carrying = useRef(false);
-  const carryStart = useRef(0);
-
-  useEffect(() => {
-    const okKeys = handoffs.filter((h) => h.status === "OK").map(hopKey);
-    const seen = seenOk.current;
-    if (seen === null) {
-      seenOk.current = new Set(okKeys);
-      return;
-    }
-    for (const h of handoffs) {
-      if (h.status !== "OK") continue;
-      const key = hopKey(h);
-      if (!seen.has(key)) {
-        seen.add(key);
-        queue.current.push({ from: resolvePosition(h.from), to: resolvePosition(h.to) });
-      }
-    }
-  }, [handoffs, resolvePosition]);
-
-  useThrottledFrame((t) => {
-    if (!bodyGroup.current) return;
-    if (reducedMotion) {
-      bodyGroup.current.position.set(...restPosition);
-      if (folderMesh.current) folderMesh.current.visible = false;
-      return;
-    }
-
-    if (!carrying.current && queue.current.length > 0) {
-      carrying.current = true;
-      carryStart.current = t;
-    }
-
-    if (carrying.current) {
-      const hop = queue.current[0];
-      const p = Math.min(1, (t - carryStart.current) / CARRY_DURATION);
-      bodyGroup.current.position.set(
-        hop.from[0] + (hop.to[0] - hop.from[0]) * p,
-        0.3 + Math.sin(p * Math.PI) * 0.35,
-        hop.from[2] + (hop.to[2] - hop.from[2]) * p,
-      );
-      if (folderMesh.current) folderMesh.current.visible = true;
-      if (p >= 1) {
-        carrying.current = false;
-        queue.current.shift();
-      }
-    } else {
-      bodyGroup.current.position.set(...restPosition);
-      if (folderMesh.current) folderMesh.current.visible = false;
-    }
-  }, 20);
-
+export default function HandoffCourier({ handoffs, resolvePosition }: HandoffCourierProps) {
   const staleMissing = useMemo(() => handoffs.filter((h) => h.status !== "OK"), [handoffs]);
 
   return (
     <group>
-      <group ref={bodyGroup}>
-        <mesh position={[0, 0.5, 0]}>
-          <capsuleGeometry args={[0.12, 0.28, 4, 8]} />
-          <meshLambertMaterial color="#2a4030" />
-        </mesh>
-        <mesh position={[0, 0.76, 0.08]}>
-          <sphereGeometry args={[0.085, 10, 8]} />
-          <meshLambertMaterial color="#8cffb0" emissive="#8cffb0" emissiveIntensity={1.3} toneMapped={false} />
-        </mesh>
-        <mesh ref={folderMesh} position={[0, 0.55, 0.16]} visible={false}>
-          <boxGeometry args={[0.18, 0.14, 0.02]} />
-          <meshBasicMaterial color={PALETTE.hubRing} toneMapped={false} />
-        </mesh>
-      </group>
-
       {staleMissing.map((h) => (
         <DashedLink key={`${h.from}->${h.to}`} from={resolvePosition(h.from)} to={resolvePosition(h.to)} />
       ))}

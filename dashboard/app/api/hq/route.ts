@@ -24,6 +24,9 @@ import {
   readCrewEvents,
 } from "@/lib/hq";
 import { collectCompany, type PersonaState, type Handoff } from "@/lib/personas";
+// INTERACT-2 (I1, 2026-09-14): per-desk real-work content -- see
+// lib/desk-content.ts's own header for the fail-open contract per source.
+import { readDesksSnapshot } from "@/lib/desk-content";
 
 /** Unlike every other reader in this route's Promise.all, collectCompany()
  * has no internal try/catch (personas/route.ts's OWN top-level GET() is
@@ -81,6 +84,7 @@ export async function GET() {
     audit,
     trading,
     crewEvents,
+    desks,
   ] = await Promise.all([
     readIdeasBoard(),
     readStationBrief(),
@@ -110,6 +114,8 @@ export async function GET() {
     // feed (R3) and (via lib/personas.ts's own separate read) the roster's
     // per-persona "last:" fallback. See lib/hq.ts#readCrewEvents.
     readCrewEvents(),
+    // INTERACT-2 (I1) -- per-desk real-work content, additive.
+    readDesksSnapshot(),
   ]);
 
   const lastRow = ledger.length > 0 ? ledger[ledger.length - 1] : null;
@@ -151,6 +157,13 @@ export async function GET() {
       trading,
       // CREW-2 (roster) -- additive, see lib/hq.ts#readCrewEvents.
       crewEvents,
+      // INTERACT-2 -- additive, see lib/desk-content.ts.
+      desks,
+      // I3: explicit alias for brief.mtime_ms -- surfaces the SAME real
+      // mtime as a readable ISO string so the all-hands trigger has a
+      // self-explanatory field name on the wire (brief.mtime_ms already
+      // drives it; this adds no new read, just a derived rename).
+      briefWrittenAt: brief.mtimeMs !== null ? new Date(brief.mtimeMs).toISOString() : null,
     },
     { headers: { "Cache-Control": "no-store, max-age=0" } },
   );

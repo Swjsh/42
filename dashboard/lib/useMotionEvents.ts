@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import type { HqApiResponse } from "@/components/hq/types";
+import type { HqApiResponse, CoreDecisionRow } from "@/components/hq/types";
 import { computePurposefulWalk } from "@/components/hq/palette";
 
 export interface MotionEvent {
@@ -26,6 +26,39 @@ function truncate(text: string, max: number): string {
 
 function hopKey(from: string, to: string, evidence: string): string {
   return `${from}->${to}::${evidence}`;
+}
+
+/** I2 (INTERACT-2, 2026-09-14): one already-seen key per crew-events.jsonl
+ * row -- ts_et+who+kind is unique per real fire (the producer writes one row
+ * per real unit of work, see the crew-events.jsonl schema in this task's own
+ * brief), so no separate id field is needed. */
+function crewEventKey(row: { ts_et: string; who: string; kind: string }): string {
+  return `${row.ts_et}|${row.who}|${row.kind}`;
+}
+
+/** "HH:MM" out of a ts_et string, tolerant of both the "T"-separated
+ * (core-decisions.jsonl) and " "-separated (crew-events.jsonl / station
+ * loop ledgers) shapes this codebase's various producers use. */
+function hhmmOf(tsEt: string): string {
+  const m = /[T ](\d{2}):(\d{2})/.exec(tsEt);
+  return m ? `${m[1]}:${m[2]}` : "";
+}
+
+/** "YYYY-MM-DD" out of a ts_et string -- used to fire event (f) at most once
+ * per ET calendar day. */
+function etDateOf(tsEt: string): string {
+  return /^(\d{4}-\d{2}-\d{2})/.exec(tsEt)?.[1] ?? tsEt;
+}
+
+/** Whichever of the two live accounts' core-decisions row ticked most
+ * recently -- tsEt string-sorts correctly (no offset, "YYYY-MM-DD[T ]HH:MM:SS"),
+ * same convention Scene.tsx's own `latestDecision` pick already uses. */
+function pickLatestCoreDecision(data: HqApiResponse): CoreDecisionRow | null {
+  const rows = [data.trading?.core?.safe, data.trading?.core?.bold].filter(
+    (r): r is CoreDecisionRow => !!r && !!r.tsEt,
+  );
+  if (rows.length === 0) return null;
+  return rows.sort((a, b) => a.tsEt.localeCompare(b.tsEt)).pop() ?? null;
 }
 
 /** ET string ("2026-09-14 02:21:00 ET" -- station-brief/loop-ledger's own
@@ -141,6 +174,17 @@ export function useMotionEvents(data: HqApiResponse | undefined): MotionEvent[] 
   // the walk itself is queued INSIDE it, in Scene.tsx/Agent.tsx) -- see
   // this file's own header comment for why that split exists at all.
   const prevWalkBucket = useRef<Map<string, string>>(new Map());
+  // I2 (INTERACT-2, 2026-09-14): event kinds (a)-(f) -- each diffs a real
+  // on-disk signal already on the wire (crewEvents rows, a persona's own
+  // deliverable.mtimeISO, a desk's own source `path`, or the day's first
+  // post-close core-decision row). Every ref below seeds silently on the
+  // first poll (same convention as every diff above) so a page load never
+  // fires a burst of "just happened" events for state that already existed.
+  const seenCrewEventKeys = useRef<Set<string> | null>(null);
+  const prevScoutMtime = useRef<string | null | undefined>(undefined);
+  const prevAnalystDeskPath = useRef<string | null | undefined>(undefined);
+  const prevTreasurerDeskPath = useRef<string | null | undefined>(undefined);
+  const seenPostCloseEtDate = useRef<string | null>(null);
 
   if (!data) return events.current;
 
@@ -176,6 +220,21 @@ export function useMotionEvents(data: HqApiResponse | undefined): MotionEvent[] 
       const walk = computePurposefulWalk(p.name, Date.now(), cards.length, p.lastFireISO, neighbor?.name ?? null);
       prevWalkBucket.current.set(p.name, walk.bucketKey);
     });
+    // I2 seeding: crew-events rows already on the board don't replay as
+    // "just happened"; the Scout/Analyst/Treasurer mtime/path trackers start
+    // from whatever is currently on the wire.
+    seenCrewEventKeys.current = new Set((data.crewEvents ?? []).map(crewEventKey));
+    prevScoutMtime.current = personas.find((p) => p.name === "Scout")?.deliverable.mtimeISO ?? null;
+    prevAnalystDeskPath.current = data.desks?.Analyst?.path ?? null;
+    prevTreasurerDeskPath.current = data.desks?.Treasurer?.path ?? null;
+    // (f) seeds "already handled today" from whatever the latest core-
+    // decision row already shows -- a page opened AFTER the day's first
+    // post-close tick must not re-fire for a transition that happened
+    // before this hook ever mounted.
+    const seedLatestCore = pickLatestCoreDecision(data);
+    if (seedLatestCore && hhmmOf(seedLatestCore.tsEt) >= "15:55") {
+      seenPostCloseEtDate.current = etDateOf(seedLatestCore.tsEt);
+    }
     events.current = buildSeedEvents(data);
     return events.current;
   }
@@ -219,6 +278,70 @@ export function useMotionEvents(data: HqApiResponse | undefined): MotionEvent[] 
     prevWalkBucket.current.set(p.name, walk.bucketKey);
   });
 
+  // I2 (a)/(b) (INTERACT-2, 2026-09-14): a real crew-events.jsonl row --
+  // Chef's own station-verdicts.jsonl scoring, or Coach's sectors.json
+  // summary/task-health -- walks that persona to Gamma at the hub (see
+  // Scene.tsx/Agent.tsx's eventWalk wiring for the 3D half of this same
+  // diff). `seenCrewEventKeys` is null only if this hook somehow reached
+  // here before ever seeding (defensive; seeded.current already guards
+  // that in practice).
+  if (seenCrewEventKeys.current) {
+    for (const row of data.crewEvents ?? []) {
+      const key = crewEventKey(row);
+      if (seenCrewEventKeys.current.has(key)) continue;
+      seenCrewEventKeys.current.add(key);
+      const hhmm = hhmmOf(row.ts_et) || etHHMM();
+      if (row.who === "Chef" && row.kind === "verdict") {
+        push(`Chef → Gamma · ${truncate(row.line, 70)} · ${hhmm} ET`);
+      } else if (row.who === "Coach" && (row.kind === "sectors" || row.kind === "task_health")) {
+        push(`Coach → Gamma · ${truncate(row.line, 70)} · ${hhmm} ET`);
+      }
+    }
+  }
+
+  // I2 (d): Scout's own scout_output.json rewritten -> Scout walks to Pilot
+  // with the fresh read. `deliverable.mtimeISO` is the SAME field
+  // lib/personas.ts#collectScout already stamps from that exact file's mtime.
+  const scoutPersona = personas.find((p) => p.name === "Scout");
+  const scoutMtime = scoutPersona?.deliverable.mtimeISO ?? null;
+  if (prevScoutMtime.current !== undefined && scoutMtime && prevScoutMtime.current !== scoutMtime) {
+    push(`Scout → Pilot · fresh catalyst read · ${etHHMM()} ET`);
+  }
+  prevScoutMtime.current = scoutMtime;
+
+  // I2 (c): a new Analyst EOD digest -> Analyst walks to Chef with the
+  // queue. `desks.Analyst.path` (lib/desk-content.ts) changes to a new
+  // dated filename exactly when a new digest lands.
+  const analystDeskPath = data.desks?.Analyst?.path ?? null;
+  if (prevAnalystDeskPath.current !== undefined && analystDeskPath && prevAnalystDeskPath.current !== analystDeskPath) {
+    const firstItem = data.desks?.Analyst?.headline ?? "new digest";
+    push(`Analyst → Chef · your queue: ${truncate(firstItem, 60)} · ${etHHMM()} ET`);
+  }
+  prevAnalystDeskPath.current = analystDeskPath;
+
+  // I2 (e): a new treasury file (dated report or a fresh draft-params-
+  // changes.md) -> Treasurer walks to Gamma. `desks.Treasurer.path` picks
+  // the newest analysis/treasury/*.md by mtime, so either kind of new file
+  // changes it.
+  const treasurerDeskPath = data.desks?.Treasurer?.path ?? null;
+  if (prevTreasurerDeskPath.current !== undefined && treasurerDeskPath && prevTreasurerDeskPath.current !== treasurerDeskPath) {
+    const headline = data.desks?.Treasurer?.headline ?? "new report";
+    push(`Treasurer → Gamma · ${truncate(headline, 60)} · ${etHHMM()} ET`);
+  }
+  prevTreasurerDeskPath.current = treasurerDeskPath;
+
+  // I2 (f): the day's FIRST core-decisions row at/after 15:55 ET -> Pilot
+  // walks to Analyst to hand off. Fires at most once per ET calendar day.
+  const latestCore = pickLatestCoreDecision(data);
+  if (latestCore) {
+    const hh = hhmmOf(latestCore.tsEt);
+    const d = etDateOf(latestCore.tsEt);
+    if (hh >= "15:55" && seenPostCloseEtDate.current !== d) {
+      seenPostCloseEtDate.current = d;
+      push(`Pilot → Analyst · day's decisions in, handing off · ${etHHMM()} ET`);
+    }
+  }
+
   // (c): a handoff hop flipping to OK with new evidence -> HandoffCourier.
   for (const h of handoffs) {
     if (h.status !== "OK") continue;
@@ -261,7 +384,10 @@ export function useMotionEvents(data: HqApiResponse | undefined): MotionEvent[] 
   // matching the brief's own example line.
   const briefMtime = data.brief?.mtime_ms ?? null;
   if (prevBriefMtime.current !== undefined && briefMtime !== null && prevBriefMtime.current !== briefMtime) {
-    push("Station brief -> all hands at the core");
+    // I3 (INTERACT-2, 2026-09-14): reworded to the "who -> action · what ·
+    // HH:MM ET" shape every I2 walk line uses now, so the ticker reads as
+    // one consistent grammar regardless of which event produced the line.
+    push(`Gamma: brief · all-hands ${etHHMM()} ET`);
   }
   prevBriefMtime.current = briefMtime;
 

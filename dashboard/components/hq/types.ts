@@ -1,8 +1,12 @@
 import type { StationIdeaCard, StationPresence, StationFace } from "@/lib/station";
 import type { SectorRow, TvPerfRow, BlockedItem, TradingStatus, CoreDecisionRow, CrewEvent } from "@/lib/hq";
 import type { PersonaState, Handoff } from "@/lib/personas";
+// INTERACT-2 (I1, 2026-09-14): per-desk real-work content -- type-only, see
+// lib/desk-content.ts's own module header for why this file must never take
+// a VALUE import from that module (it touches node:fs).
+import type { DeskPersonaName, DeskContent } from "@/lib/desk-content";
 
-export type { SectorRow, BlockedItem, PersonaState, Handoff, TradingStatus, CoreDecisionRow, CrewEvent };
+export type { SectorRow, BlockedItem, PersonaState, Handoff, TradingStatus, CoreDecisionRow, CrewEvent, DeskPersonaName, DeskContent };
 
 export interface HqBrainVitals {
   model: string | null;
@@ -101,6 +105,13 @@ export interface HqApiResponse {
   // CREW-2 (roster) -- additive field, see lib/hq.ts#readCrewEvents. May be
   // [] before CREW-RIG's crew-events.jsonl producer lands -- never fabricated.
   crewEvents: CrewEvent[];
+  // INTERACT-2 (I1) -- additive field, see lib/desk-content.ts#readDesksSnapshot.
+  // Pilot is deliberately absent (Scene.tsx keeps reading data.trading.core
+  // for Pilot's own desk screen -- see that file's own comment).
+  desks: Record<DeskPersonaName, DeskContent>;
+  // INTERACT-2 (I3) -- explicit alias for brief.mtime_ms as a readable ISO
+  // string; same real mtime, no new read. Null exactly when brief.mtime_ms is.
+  briefWrittenAt: string | null;
 }
 
 /** One module's derived (not server-sent) presentation state -- computed

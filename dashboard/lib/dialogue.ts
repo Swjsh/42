@@ -87,3 +87,24 @@ export async function getLatestSpeech(): Promise<LatestSpeech | null> {
 
   return best;
 }
+
+// INTERACT-2 (2026-09-14): Gamma's deterministic acknowledgement when a crew
+// member walks to the hub to report a real crew-events.jsonl row (Chef's
+// station-verdicts.jsonl scoring, Coach's sectors.json summary/task-health).
+// Fixed per event KIND, never an LLM call on this path -- CLAUDE.md's own
+// "no LLM in the live trade loop" plus this rig's standing HQ face rule ("no
+// ambient timers, no fake dialogue"): the WALK and the row it reports are the
+// real, varying part; the two-word ack is a deterministic UI courtesy, same
+// spirit as a chat client's canned "seen" receipt. Computed server-side only
+// (lib/hq.ts#readCrewEvents decorates each row with `ack` before it reaches
+// the wire) so no client component ever needs to import this table directly.
+export const GAMMA_CREW_ACK: Record<string, string> = {
+  verdict: "logged -- it stays on the board until n_post clears the bar",
+  sectors: "on it -- flagging anything red to the board",
+  task_health: "on it -- disabled/failed tasks go on the board",
+  brief: "filed",
+};
+
+export function gammaCrewAck(kind: string): string {
+  return GAMMA_CREW_ACK[kind] ?? "logged, thanks";
+}
