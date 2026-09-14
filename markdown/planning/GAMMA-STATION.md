@@ -208,6 +208,13 @@ Payback against the $200/mo being cancelled: Option A in ~6 weeks; a $2K box in 
 > — **Phase 1 SHIPPED 2026-09-13 on J's own RTX 5080 PC** (Option A: brain on this box; no
 > Raspberry Pi, no new hardware purchase), not the "Box 2" purchase this section was written around.
 
+> **2026-09-14 (J: "why are Chef and Coach on here if they're not doing anything?"):**
+> `company-roster.json` re-pointed Chef → the closed idea-loop (verdicts in
+> `analysis/recommendations/station-verdicts.jsonl`) and Coach → `sectors.json` + Task
+> Scheduler health, both written every `Gamma_Station` fire (yielded or not) alongside
+> the new `crew-events.jsonl` ticker — `company_audit.py` no longer grades either as a
+> ghost. See `.claude/agents/chef.md` / `coach.md`.
+
 **Phase 0 — survive Max ending (this week, before the 09-18 renewal). No box needed.**
 1. Inventory every `claude` fire in `SCHEDULED-TASKS.md` (27 registry mentions; conductor family = 93.3% of automation burn). Each one gets a fate: **re-point** to local Ollama on the 5080 (the `setup/launch_claude_local.ps1` pattern — per-fire, never global; qwen3:14b floor until the Station exists), **park**, or **delete**.
 2. Let Max lapse (J's click). No replacement subscription and no API key are required; Pro is a month-at-a-time option for Fable audits.

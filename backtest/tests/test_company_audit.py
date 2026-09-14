@@ -201,6 +201,163 @@ def test_synthetic_complete_persona_passes_every_axis(monkeypatch, tmp_path):
 
 
 # ============================================================================
+# 2026-09-14 company-roster re-point (C4): the two new ground_truth kinds,
+# chef_verdict_rows and coach_sectors_fresh, on synthetic tmp_path trees --
+# PASS/WARN/FAIL for each, hermetically (no PowerShell, no network).
+# ============================================================================
+
+def _chef_gt(**overrides) -> dict:
+    gt = {"kind": "chef_verdict_rows",
+          "verdicts_path": "analysis/recommendations/station-verdicts.jsonl",
+          "board_path": "automation/state/station/ideas-board.json", "max_age_min": 60}
+    gt.update(overrides)
+    return gt
+
+
+def test_chef_verdict_rows_fails_when_verdicts_file_missing(monkeypatch, tmp_path):
+    monkeypatch.setattr(ca, "REPO", tmp_path)
+    result = ca._gt_chef_verdict_rows(_chef_gt(), datetime.now(timezone.utc), "2026-09-11")
+    assert result["verdict"] == "FAIL"
+    assert "missing" in result["evidence"].lower()
+
+
+def test_chef_verdict_rows_fails_when_verdicts_file_has_zero_rows(monkeypatch, tmp_path):
+    monkeypatch.setattr(ca, "REPO", tmp_path)
+    p = tmp_path / "analysis" / "recommendations" / "station-verdicts.jsonl"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text("", encoding="utf-8")
+    result = ca._gt_chef_verdict_rows(_chef_gt(), datetime.now(timezone.utc), "2026-09-11")
+    assert result["verdict"] == "FAIL"
+    assert "0 parseable rows" in result["evidence"]
+
+
+def test_chef_verdict_rows_passes_when_fresh_and_every_testing_card_covered(monkeypatch, tmp_path):
+    monkeypatch.setattr(ca, "REPO", tmp_path)
+    now = datetime.now(timezone.utc)
+    fresh_ts = ca.et_now(now_utc=now).strftime("%Y-%m-%d %H:%M:%S ET")
+    vp = tmp_path / "analysis" / "recommendations" / "station-verdicts.jsonl"
+    vp.parent.mkdir(parents=True, exist_ok=True)
+    vp.write_text(json.dumps({"ts_et": fresh_ts, "card_id": "c1",
+                              "spec": {"type": "size_cap", "params": {"cap": 3}},
+                              "result": {"verdict": "pending", "n_pre": 5, "n_post": 0}}) + "\n",
+                 encoding="utf-8")
+    bp = tmp_path / "automation" / "state" / "station" / "ideas-board.json"
+    bp.parent.mkdir(parents=True, exist_ok=True)
+    bp.write_text(json.dumps([{"id": "c1", "status": "testing", "title": "x"},
+                              {"id": "c2", "status": "proposed", "title": "y"}]), encoding="utf-8")
+
+    result = ca._gt_chef_verdict_rows(_chef_gt(), now, "2026-09-11")
+    assert result["verdict"] == "PASS", result
+    assert "0 without a verdict row" in result["evidence"]
+
+
+def test_chef_verdict_rows_warns_when_a_testing_card_has_no_verdict_row(monkeypatch, tmp_path):
+    monkeypatch.setattr(ca, "REPO", tmp_path)
+    now = datetime.now(timezone.utc)
+    fresh_ts = ca.et_now(now_utc=now).strftime("%Y-%m-%d %H:%M:%S ET")
+    vp = tmp_path / "analysis" / "recommendations" / "station-verdicts.jsonl"
+    vp.parent.mkdir(parents=True, exist_ok=True)
+    vp.write_text(json.dumps({"ts_et": fresh_ts, "card_id": "c1", "spec": {}, "result": {}}) + "\n",
+                 encoding="utf-8")
+    bp = tmp_path / "automation" / "state" / "station" / "ideas-board.json"
+    bp.parent.mkdir(parents=True, exist_ok=True)
+    # c2 is 'testing' but never appears in the verdicts ledger -- must be flagged.
+    bp.write_text(json.dumps([{"id": "c1", "status": "testing"}, {"id": "c2", "status": "testing"}]),
+                 encoding="utf-8")
+
+    result = ca._gt_chef_verdict_rows(_chef_gt(), now, "2026-09-11")
+    assert result["verdict"] == "WARN"
+    assert "1 testing card(s) have no verdict row" in result["evidence"]
+
+
+def test_chef_verdict_rows_warns_when_stale(monkeypatch, tmp_path):
+    monkeypatch.setattr(ca, "REPO", tmp_path)
+    now = datetime.now(timezone.utc)
+    stale_ts = ca.et_now(now_utc=now - timedelta(hours=3)).strftime("%Y-%m-%d %H:%M:%S ET")
+    vp = tmp_path / "analysis" / "recommendations" / "station-verdicts.jsonl"
+    vp.parent.mkdir(parents=True, exist_ok=True)
+    vp.write_text(json.dumps({"ts_et": stale_ts, "card_id": "c1", "spec": {}, "result": {}}) + "\n",
+                 encoding="utf-8")
+    bp = tmp_path / "automation" / "state" / "station" / "ideas-board.json"
+    bp.parent.mkdir(parents=True, exist_ok=True)
+    bp.write_text(json.dumps([]), encoding="utf-8")
+
+    result = ca._gt_chef_verdict_rows(_chef_gt(), now, "2026-09-11")
+    assert result["verdict"] == "WARN"
+    assert "stale" in result["evidence"]
+
+
+def _coach_gt(**overrides) -> dict:
+    gt = {"kind": "coach_sectors_fresh", "path": "automation/state/station/sectors.json", "max_age_min": 60}
+    gt.update(overrides)
+    return gt
+
+
+def test_coach_sectors_fresh_fails_when_file_missing(monkeypatch, tmp_path):
+    monkeypatch.setattr(ca, "REPO", tmp_path)
+    result = ca._gt_coach_sectors_fresh(_coach_gt(), datetime.now(timezone.utc), "2026-09-11")
+    assert result["verdict"] == "FAIL"
+    assert "missing" in result["evidence"].lower()
+
+
+def test_coach_sectors_fresh_fails_when_file_unparseable(monkeypatch, tmp_path):
+    monkeypatch.setattr(ca, "REPO", tmp_path)
+    p = tmp_path / "automation" / "state" / "station" / "sectors.json"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text("not json", encoding="utf-8")
+    result = ca._gt_coach_sectors_fresh(_coach_gt(), datetime.now(timezone.utc), "2026-09-11")
+    assert result["verdict"] == "FAIL"
+
+
+def test_coach_sectors_fresh_passes_when_fresh_and_carries_summary_line(monkeypatch, tmp_path):
+    monkeypatch.setattr(ca, "REPO", tmp_path)
+    now = datetime.now(timezone.utc)
+    fresh_ts = ca.et_now(now_utc=now).strftime("%Y-%m-%d %H:%M:%S ET")
+    p = tmp_path / "automation" / "state" / "station" / "sectors.json"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps({"ts_et": fresh_ts, "rows": [],
+                             "summary_line": "8 lanes -- 6 GREEN . 0 RED . 1 frozen",
+                             "task_health": {}}), encoding="utf-8")
+
+    result = ca._gt_coach_sectors_fresh(_coach_gt(), now, "2026-09-11")
+    assert result["verdict"] == "PASS", result
+    assert "8 lanes -- 6 GREEN . 0 RED . 1 frozen" in result["evidence"], (
+        "evidence must carry the file's own summary_line")
+
+
+def test_coach_sectors_fresh_warns_when_stale(monkeypatch, tmp_path):
+    monkeypatch.setattr(ca, "REPO", tmp_path)
+    now = datetime.now(timezone.utc)
+    stale_ts = ca.et_now(now_utc=now - timedelta(hours=3)).strftime("%Y-%m-%d %H:%M:%S ET")
+    p = tmp_path / "automation" / "state" / "station" / "sectors.json"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps({"ts_et": stale_ts, "rows": [], "summary_line": "x", "task_health": {}}),
+                encoding="utf-8")
+
+    result = ca._gt_coach_sectors_fresh(_coach_gt(), now, "2026-09-11")
+    assert result["verdict"] == "WARN"
+    assert "stale" in result["evidence"]
+
+
+def test_coach_sectors_fresh_warns_when_ts_et_missing(monkeypatch, tmp_path):
+    monkeypatch.setattr(ca, "REPO", tmp_path)
+    p = tmp_path / "automation" / "state" / "station" / "sectors.json"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps({"rows": [], "summary_line": "x", "task_health": {}}), encoding="utf-8")
+
+    result = ca._gt_coach_sectors_fresh(_coach_gt(), datetime.now(timezone.utc), "2026-09-11")
+    assert result["verdict"] == "WARN"
+    assert "ts_et" in result["evidence"]
+
+
+def test_chef_and_coach_kinds_registered_in_ground_truth_checks():
+    assert "chef_verdict_rows" in ca.GROUND_TRUTH_CHECKS
+    assert "coach_sectors_fresh" in ca.GROUND_TRUTH_CHECKS
+    assert ca.GROUND_TRUTH_CHECKS["chef_verdict_rows"] is ca._gt_chef_verdict_rows
+    assert ca.GROUND_TRUTH_CHECKS["coach_sectors_fresh"] is ca._gt_coach_sectors_fresh
+
+
+# ============================================================================
 # The documented JSON shape -- one real --no-llm CLI run against the real repo
 # (no network; does enumerate the real Task Scheduler, same as a human's fire)
 # ============================================================================
