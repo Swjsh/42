@@ -98,7 +98,19 @@ const HUB_PAUSE = 1.5;
 const ALLHANDS_HUB_PAUSE = 60;
 const POINT_HOLD_S = 7; // item 2c (LIVE-1): how long Pilot holds the "point" gesture after a fresh ENTER/EXIT
 const PURPOSEFUL_PAUSE = 4; // item 2b (LIVE-1): dwell at the destination -- long enough for the reason bubble/ticker line to read
+// World-2 item 5 (2026-09-14, J: "futures is running because it's on alert...
+// it's just running in place, which is weird"): a real pace between the desk
+// and the hub-facing door -- see the `behavior === "alert"` branch's own
+// comment for the full distance/speed derivation. ALERT_PACE_SPEED is an
+// ESTIMATED brisk walking pace (this scene is roughly 1 world unit = 1m),
+// briskened to match KitAgent.tsx#CLIP_TABLE.alert's 1.6x clip rate --
+// UNVERIFIED against the walk clip's actual root-motion stride (not
+// extractable without a full skeletal-animation parse), stated honestly as
+// an estimate rather than a measured value.
+const ALERT_PACE_SPEED = 2.0; // u/s, estimate
+const ALERT_PACE_PAUSE_S = 1.5;
 type WalkPhase = "resting" | "toHub" | "atHub" | "toHome" | "arriving";
+type AlertPacePhase = "toDoor" | "atDoor" | "toDesk" | "atDesk";
 
 /**
  * One little procedural bot: capsule body, visor sphere (doubles as the
@@ -146,8 +158,16 @@ export default function Agent({
   const [variantIdx, setVariantIdx] = useState(0);
   const nextVariantAt = useRef(0);
   const [pointing, setPointing] = useState(false);
+  // World-2 item 5: mirrors `alertPhase.current`'s pause sub-phases into
+  // React state, the SAME "a ref mutation alone would never re-render
+  // KitAgentBody with the new value" reason `walking`/`variantIdx`/
+  // `pointing` above are all useState rather than refs -- `alertPhase`
+  // itself stays a ref (continuous per-frame position/rotation math), this
+  // is only the discrete "which clip should ultra tier show" signal.
+  const [alertPaused, setAlertPaused] = useState(false);
   const pool = behavior === "working" ? WORKING_VARIANTS : IDLE_VARIANTS;
-  const animState: KitAnimState = behavior === "alert" ? "alert" : walking ? "walking" : pointing ? "thinking" : pool[variantIdx % pool.length];
+  const animState: KitAnimState =
+    behavior === "alert" ? (alertPaused ? "alert-pause" : "alert") : walking ? "walking" : pointing ? "thinking" : pool[variantIdx % pool.length];
   const patrolDim = Math.min(presenceMode === "patrol" ? 0.35 : 1, scheduleDim);
 
   const matcap = useMemo(() => makeMatcapTexture(), []);
@@ -169,7 +189,16 @@ export default function Agent({
 
   const phase = useRef<WalkPhase>("resting");
   const phaseStart = useRef(0);
-  const paceOffset = useRef(0);
+  // World-2 item 5: independent state machine for the alert pace (door <->
+  // desk) -- separate from `phase` above (the roundtrip/arrival/allhands/
+  // purposeful machine), never active at the same time since the alert
+  // branch below returns early before reaching that other logic.
+  // alertPhaseStart starts at -1 (a "never started" sentinel, distinct from
+  // a legitimate elapsedTime of 0) so the FIRST frame this agent ever goes
+  // alert seeds the clock from the current `t` instead of computing a
+  // bogus elapsed time against a stale 0.
+  const alertPhase = useRef<AlertPacePhase>("toDoor");
+  const alertPhaseStart = useRef(-1);
   // Which AgentWalkKind is actually IN PROGRESS (set when a queued walk
   // starts, read by the atHub branch below to pick its pause duration/
   // facing/animState) -- distinct from the `walkKind` PROP, which for
@@ -294,11 +323,50 @@ export default function Agent({
     }
 
     if (behavior === "alert") {
-      // Pace back and forth across the module -- local X sway, no scheduled
-      // hub trip while alert (it's busy).
-      paceOffset.current = Math.sin(t * 0.9) * 0.9;
-      g.position.set(home[0] + paceOffset.current, home[1], home[2]);
-      const swing = Math.sin(t * 9) * 0.5;
+      // World-2 item 5 (2026-09-14, J: "it's just running in place, which is
+      // weird"): a real PACE between the desk and the hub-facing door,
+      // replacing the old sub-1-unit local-X sway. Reuses `home`/`hub`
+      // (already passed in, no new prop needed) -- walking along that same
+      // line by a clamped distance approximates "to the door and back" for
+      // both ring families this component serves: a lane bay's door sits on
+      // the hub-facing wall exactly along this radial line (see
+      // SetKit.tsx's BAY_HALF_DEPTH/gate-door placement -- home is near the
+      // module's own local origin, the door ~2.7u toward the hub), and a
+      // tighter persona desk gets a proportionally shorter pace (the *0.4
+      // clamp) so it never reaches into BrainCore's own ring geometry.
+      const homeToHubDist = Math.hypot(hub[0] - home[0], hub[2] - home[2]) || 0.001;
+      const paceDist = Math.min(3.4, homeToHubDist * 0.4);
+      const dirX = (hub[0] - home[0]) / homeToHubDist;
+      const dirZ = (hub[2] - home[2]) / homeToHubDist;
+      const doorPos: [number, number, number] = [home[0] + dirX * paceDist, home[1], home[2] + dirZ * paceDist];
+      const paceDuration = Math.max(0.6, paceDist / ALERT_PACE_SPEED);
+
+      if (alertPhaseStart.current < 0) alertPhaseStart.current = t;
+      const elapsed = t - alertPhaseStart.current;
+      const facingHub = Math.atan2(dirX, dirZ);
+
+      if (alertPhase.current === "toDoor") {
+        const p = Math.min(1, elapsed / paceDuration);
+        g.position.set(home[0] + (doorPos[0] - home[0]) * p, home[1], home[2] + (doorPos[2] - home[2]) * p);
+        g.rotation.y = facingHub;
+        if (p >= 1) { alertPhase.current = "atDoor"; alertPhaseStart.current = t; setAlertPaused(true); }
+      } else if (alertPhase.current === "atDoor") {
+        g.position.set(doorPos[0], doorPos[1], doorPos[2]);
+        g.rotation.y = facingHub; // "looking toward the hub" -- doorPos sits ON the home->hub line
+        if (elapsed >= ALERT_PACE_PAUSE_S) { alertPhase.current = "toDesk"; alertPhaseStart.current = t; setAlertPaused(false); }
+      } else if (alertPhase.current === "toDesk") {
+        const p = Math.min(1, elapsed / paceDuration);
+        g.position.set(doorPos[0] + (home[0] - doorPos[0]) * p, home[1], doorPos[2] + (home[2] - doorPos[2]) * p);
+        g.rotation.y = facingHub + Math.PI; // facing the direction of travel (away from hub, back toward the desk)
+        if (p >= 1) { alertPhase.current = "atDesk"; alertPhaseStart.current = t; setAlertPaused(true); }
+      } else {
+        g.position.set(home[0], home[1], home[2]);
+        g.rotation.y = facingHub; // pause at the desk end, turned back to look toward the hub
+        if (elapsed >= ALERT_PACE_PAUSE_S) { alertPhase.current = "toDoor"; alertPhaseStart.current = t; setAlertPaused(false); }
+      }
+
+      const moving = alertPhase.current === "toDoor" || alertPhase.current === "toDesk";
+      const swing = moving ? Math.sin(t * 9) * 0.5 : 0;
       if (legL.current) legL.current.rotation.x = swing;
       if (legR.current) legR.current.rotation.x = -swing;
       return;

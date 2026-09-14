@@ -20,7 +20,7 @@ import {
 export type KitAnimState =
   | "resting-idle" | "resting-idle-look" | "resting-idle-nod"
   | "resting-working" | "resting-working-type" | "resting-working-type-alt"
-  | "walking" | "alert" | "thinking";
+  | "walking" | "alert" | "alert-pause" | "thinking";
 
 /** Event -> clip mapping (also quoted verbatim in the final task report).
  * Every clip name is verified present on all 3 bodies via manifest.json's
@@ -54,6 +54,15 @@ export const CLIP_TABLE: Record<KitAnimState, { clip: string; speed: number }> =
   "resting-working-type-alt": { clip: "interact-left", speed: 1.0 },
   walking: { clip: "walk", speed: 1.0 },
   alert: { clip: "walk", speed: 1.6 },
+  // World-2 item 5 (2026-09-14): the alert pace's ~1.5s pause at each end
+  // (Agent.tsx's own "atDoor"/"atDesk" sub-phases) needs a genuinely
+  // STANDING pose, not the walk clip held mid-stride -- "idle" (verified
+  // present on all 3 bodies via manifest.json's own per-character animation
+  // list, already used as KitAgentBody's own actions-lookup fallback below)
+  // is the pack's real standing-idle clip, distinct from "sit" (a SEATED
+  // pose, wrong here -- the agent is standing at a door/desk mid-pace, not
+  // sitting down).
+  "alert-pause": { clip: "idle", speed: 1.0 },
   thinking: { clip: "interact-right", speed: 0.8 },
 };
 
