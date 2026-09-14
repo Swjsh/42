@@ -27,10 +27,21 @@ const RADIUS = 70;
 // whenever it changes (cheap -- one CPU pass over ~3000 vertices, done at
 // most once per Scene re-render, i.e. the same 15-60s poll cadence
 // nightMult itself already updates on, never per-frame).
-const NIGHT_ZENITH = PALETTE.horizonDepth; // "#12203a" -- UNCHANGED from before this pass, so night keeps its exact prior look
-const NIGHT_DEPTH = PALETTE.horizonDepth;
-const DAY_ZENITH = "#4a7fb0";
-const DAY_DEPTH = "#bcd9ee";
+// World-3 environment pass (2026-09-14, J: "it looks like the background is a
+// grey abyss"): root cause #2 of 3 (full analysis: ENVIRONMENT-PLAN.md's own
+// "why abyss" section) -- this dome used to lerp the WHOLE sky from a dark
+// night gradient to a pale daytime blue (#4a7fb0/#bcd9ee), an Earth-
+// atmosphere sky. Every bundled kit/HDRI/palette token in this tree already
+// commits to an AIRLESS body (dikhololo-night HDRI, PALETTE.planet/
+// planetRim's cool tones, the new Planet.tsx) -- an airless sky reads
+// black-to-deep-indigo at ANY time of day (no atmosphere to scatter it
+// blue), so day/night now only lightens the SAME two stops a shade, never
+// toward pale/grey (task spec: "day/night affects sun elevation, light
+// colour/intensity... NOT sky colour to grey").
+const NIGHT_ZENITH = PALETTE.space; // "#03040a" -- near-black
+const NIGHT_DEPTH = PALETTE.horizonDepth; // "#12203a" -- deep indigo, UNCHANGED from before this pass
+const DAY_ZENITH = "#0a1224"; // a shade lighter than night, still near-black
+const DAY_DEPTH = "#1c3355"; // a shade lighter deep-indigo -- NEVER pale/grey
 
 /** Vertex-color sky gradient -- dark-to-bright at both poles depending on
  * `dayFactor` (zenith looking up, nadir looking down), a tinted band right
@@ -75,7 +86,16 @@ function buildSkyGeometry(dayFactor: number): THREE.SphereGeometry {
   const zenith = new THREE.Color(NIGHT_ZENITH).lerp(new THREE.Color(DAY_ZENITH), dayFactor);
   const depth = new THREE.Color(NIGHT_DEPTH).lerp(new THREE.Color(DAY_DEPTH), dayFactor);
   const warm = new THREE.Color(PALETTE.warmAccent);
-  const warmCap = lerpNum(0.4, 0.12, dayFactor);
+  // World-3 environment pass: was lerping 0.4->0.12 (day nearly killed the
+  // band) back when day was a bright pale sky fighting the glow for
+  // attention -- day stays dark now, so the band stays a real, if slightly
+  // subtler, presence at any hour.
+  const warmCap = lerpNum(0.34, 0.2, dayFactor);
+  // Thin cyan "atmosphere" line right at the true horizon (task E1: "thin
+  // atmosphere band at the horizon") -- a much narrower band than the warm
+  // glow (skyT>0.94 vs the warm band's >0.65) and a small fixed mix, so it
+  // reads as a hairline rim, not a second competing glow.
+  const rim = new THREE.Color(PALETTE.planetRim);
   const tmp = new THREE.Color();
   for (let i = 0; i < pos.count; i++) {
     const y = pos.getY(i);
@@ -83,6 +103,8 @@ function buildSkyGeometry(dayFactor: number): THREE.SphereGeometry {
     tmp.copy(zenith).lerp(depth, Math.min(1, skyT * 1.4));
     const horizonBand = Math.max(0, skyT - 0.65) / 0.35; // only the closest 35% to horizon
     tmp.lerp(warm, horizonBand * warmCap); // capped mix -- a glow, not a solid band
+    const rimBand = Math.max(0, skyT - 0.94) / 0.06;
+    tmp.lerp(rim, Math.min(1, rimBand) * 0.18);
     colors[i * 3] = tmp.r;
     colors[i * 3 + 1] = tmp.g;
     colors[i * 3 + 2] = tmp.b;

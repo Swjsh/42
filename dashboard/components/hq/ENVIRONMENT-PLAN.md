@@ -1,0 +1,109 @@
+# HQ Environment Plan — space-base-on-a-planet-surface (2026-09-14)
+
+Trigger: J, 2026-09-14 ~13:10 ET, live on `/hq`: "it looks like the background is a
+grey abyss. why not a space theme or a park or something real lol ... the design
+needs work still." Coordinator decision: SPACE — every bundled kit
+(kenney-space-station-kit, kenney-modular-space-kit, kenney-space-kit, kaykit-
+space-base-bits, polyhaven dikhololo-night HDRI) is already a space-station kit,
+so the fix is not a new theme, it's finishing the one already half-built: the
+station currently floats in a flat fog void with no sky feature, no ground
+feature, and no props beyond its own footprint. This doc is written BEFORE any
+code edit per the standing design rule (external references first, never
+iterate our own output).
+
+## External references consulted (2026-09-14, via WebSearch/WebFetch/browser)
+
+1. **kenney.nl/assets/space-kit** (the exact CC0 pack this task downloads from) —
+   opened the page live and viewed its own hero diorama render directly (not just
+   metadata): a low-poly base sits on a rounded terrain island, dark near-black
+   void above/around it (no sky gradient at all in their marketing shot), warm
+   orange-rust ground with visible darker circular crater depressions and dark
+   grey-brown rock clusters at the terrain edges, white/light-grey structures
+   trimmed in amber/yellow, a satellite dish mounted on a rock outcrop, a rover
+   vehicle, pipe/tube walkways between buildings, small human figures for scale.
+   This is the DIRECT visual language of the asset pack we're pulling pieces
+   from — rock/crater/dish/rover silhouettes all confirmed real, not assumed.
+2. **only-up.itch.io/space-assets-pack (MMSpicyStudios Low Poly Space Asset
+   Pack)** — viewed the pack's own preview render: a Mars rock (reddish-brown/
+   tan, low-poly facets), a rover (Curiosity-style, grey chassis + gold-foil
+   accents), a communications satellite, an asteroid — cross-check for rock/
+   rover/dish silhouette and color range against the Kenney render above.
+3. **ESA "Artist impression of a Moon Base concept" (esa.int, P. Carril, 2019)**
+   — page copy confirms the standard real-world base layout logic this plan
+   reuses: solar arrays as their own zone (not mixed into the habitat cluster),
+   regolith used as physical shielding banked against structures, functional
+   zones kept visually distinct rather than scattered.
+4. **RenderHub "Low Poly Moonbase Concept" (SimonTGriffiths)** — confirmed via
+   its own listing (11 preview angles, game-ready low-poly) that a distinct
+   moon-base genre with this exact silhouette vocabulary (domes/dishes/rover on
+   a cratered grey plain) is an established, recognizable game-art target, not
+   a one-off.
+
+Net read: the Kenney pack's OWN reference render uses warm Mars-orange ground.
+This plan deliberately shifts the ground hue cooler (grey-tan "regolith", not
+Mars-orange) because this project's existing `palette.ts` already commits to a
+cool-toned world (`planet:"#16324a"`, `planetRim:"#4fd6ff"`, hub cyan
+`#7ad9ff`/`#22d3ee`) — a stated adaptation, not a blind copy. The amber/yellow
+accent trim (`PALETTE.warmAccent`, already the scene's own established accent)
+is kept as-is, matching the Kenney render's own white+amber prop language.
+
+## The 6-line design plan
+
+1. **Palette** — regolith (lit) `#8a8175`, crater/night shadow `#332e24`, space
+   sky zenith `#03040a`→horizon-depth `#12203a` (black-to-deep-indigo, unchanged
+   by day/night per the "not sky colour to grey" rule below), planet body lit
+   `#9fb8c9` / dark terminator side `#0d1826`, accent (base lights, dish trim,
+   antenna) `#ffb020` (existing `warmAccent`, reused not reinvented), thin
+   atmosphere/horizon rim `#4fd6ff` (existing `planetRim`, reused).
+2. **Sky/horizon** — sky stays black-to-deep-indigo at BOTH day and night (this
+   is an airless body: no blue-atmosphere lerp, day/night only nudges the
+   zenith/depth a shade lighter, never toward pale/grey); Starfield gets an
+   opacity FLOOR so stars stay faintly visible at noon, not just at night; one
+   large procedural planet disc (gradient + soft crater speckle + a lit/dark
+   terminator line, `Planet.tsx`, no downloads) sits low, behind the hub from
+   the default camera; a thin cyan atmosphere band hugs the true horizon ring.
+3. **Ground** — `Ground.tsx`'s repeating grid-tile texture is replaced with a
+   mottled regolith noise texture (no visible tiling beyond the plaza itself,
+   which keeps its own built-surface look); 6–10 crater rings (dark floor,
+   raised rim) at fixed deterministic radii/angles outside `PLAZA_RADIUS`;
+   150–300 instanced rocks in 2–3 kit variants via a seeded RNG (never inside
+   the plaza); 2–3 oversized boulders as landmarks framing the base.
+4. **Props** — Kenney Space Kit CC0 pieces placed in fixed zones ringing the
+   plaza, all outside `PLAZA_RADIUS`, none blocking a bay door or a camera
+   preset 1–7: 2 satellite dishes angled toward the planet, a solar array field
+   (row-instanced) on one flank, a landing-pad disc with a light ring on
+   another, a rover parked near a bay, containers+barrels+pipes along the
+   plaza's outer edge, 8 perimeter lights (kaykit), one antenna mast with a
+   slow blinking red light (motion budget: lights only, per the HQ face rule —
+   no moving vehicles/drones).
+5. **Lighting** — day: harsh warm-white directional sun (existing light, kept),
+   long shadow map, hemisphere fill lerped sky-indigo/ground-regolith (not
+   sky-blue/ground-brown as today); night: cooler planet-glow-tinted fill +
+   the base's own warm practical lights carry the scene, exactly as `palette.ts
+   #dayNightFactor` already schedules. Day/night changes light COLOUR/INTENSITY
+   and the base's own lights — never the sky hue itself (the literal bug this
+   pass fixes: the old day sky lerped to pale `#a9c9e3`, and fog lerped to the
+   same pale tone starting only 20 units out — that flat nearby pale wall, with
+   nothing else in view, IS the "grey abyss").
+6. **Composition** — from the default overview (key `0`) and `?camdist=36`: the
+   planet reads in the upper third of frame roughly behind the hub, regolith +
+   craters + rocks continue past the plaza to a soft dark haze (no hard grey
+   wall, no visible flat circular cutoff), props frame the base without
+   floating or clipping through a wall, and all 7 numbered camera presets keep
+   clear sightlines to their own bay.
+
+## Root cause of "grey abyss" (confirmed by reading every file in this tree first)
+
+Three compounding bugs, not one:
+- `Starfield.tsx` sets `opacity = (1-dayFactor)*0.75` — literally 0 at any
+  daytime `dayFactor`, so at 13:10 ET (full day) the only background "texture"
+  vanishes entirely.
+- `SkyDome.tsx` lerps the WHOLE sky (not just the horizon glow) from a dark
+  night gradient to a pale daytime blue (`DAY_ZENITH #4a7fb0`/`DAY_DEPTH
+  #bcd9ee`) — an Earth-atmosphere sky on a body this project's own kit/HDRI/
+  palette says is airless.
+- `Scene.tsx`'s fog lerps to the SAME pale tone (`#a9c9e3`) starting at only 20
+  world units (just past the plaza edge) — so by day, everything past the
+  station is one flat pale wall, and (pre-Pass-G-2) there was never a planet or
+  ground feature to look at anyway. Three independent "make it paler/emptier"
+  choices stacked into exactly the flat, featureless wash J flagged.

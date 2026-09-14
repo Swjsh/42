@@ -49,7 +49,13 @@ export default function Starfield({ reducedMotion, dayFactor = 1 }: StarfieldPro
     // freeze visibility itself (same split StationModule.tsx's beacon
     // blink/reducedMotion handling uses: motion stops, the real state cue
     // doesn't).
-    if (mat.current) mat.current.opacity = (1 - dayFactor) * 0.75;
+    // World-3 environment pass (2026-09-14, "visible day AND night (fainter
+    // by day)"): floored at 0.12 instead of hitting exactly 0 -- root cause
+    // #1 of the "grey abyss" report (ENVIRONMENT-PLAN.md) was this literally
+    // going fully invisible at ANY daytime dayFactor, so the one texture
+    // element behind the station vanished for the 12 daytime hours straight.
+    // An airless sky has no atmosphere to wash stars out even at local noon.
+    if (mat.current) mat.current.opacity = 0.12 + (1 - dayFactor) * 0.63;
     if (reducedMotion) return;
     const t = state.clock.elapsedTime;
     if (points.current) points.current.rotation.y = t * 0.006;
