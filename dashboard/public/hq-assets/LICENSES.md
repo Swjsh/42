@@ -11,9 +11,27 @@ public repo. No Mixamo/Synty/Sketchfab-store/NC/ND content is used anywhere belo
 | 1 | Mini Characters (1.0) | Kenney | https://kenney.nl/assets/mini-characters | CC0 1.0 | https://creativecommons.org/publicdomain/zero/1.0/ | 2026-09-13 | `character-male-a.glb`, `character-female-a.glb`, `character-male-b.glb` | "Kenney" / "www.kenney.nl" |
 | 2 | Space Station Kit (1.0) | Kenney | https://kenney.nl/assets/space-station-kit | CC0 1.0 | https://creativecommons.org/publicdomain/zero/1.0/ | 2026-09-13 | `table.glb`, `table-inset.glb`, `table-large.glb`, `chair.glb`, `chair-armrest.glb`, `computer.glb`, `computer-screen.glb`, `pipe.glb`, `pipe-bend.glb`, `door-single.glb`, `door-double.glb`, `container.glb`, `wall-window.glb`, `structure-panel.glb`, `display-wall.glb` | "Kenney" / "www.kenney.nl" |
 | 3 | Modular Space Kit (1.0) | Kenney | https://kenney.nl/assets/modular-space-kit | CC0 1.0 | https://creativecommons.org/publicdomain/zero/1.0/ | 2026-09-13 | `corridor.glb`, `corridor-corner.glb`, `corridor-intersection.glb`, `corridor-wide.glb`, `room-small.glb`, `room-large.glb`, `gate-door.glb`, `cables.glb` | "Kenney" / "www.kenney.nl" |
-| 4 | Space Kit (2.0) | Kenney | https://kenney.nl/assets/space-kit | CC0 1.0 | https://creativecommons.org/publicdomain/zero/1.0/ | 2026-09-13 | `astronautA.glb`, `barrels.glb` | "Kenney" / "www.kenney.nl" |
+| 4 | Space Kit (2.0) | Kenney | https://kenney.nl/assets/space-kit | CC0 1.0 | https://creativecommons.org/publicdomain/zero/1.0/ | 2026-09-13; terrain/prop pieces added 2026-09-14 | `astronautA.glb`, `barrels.glb`, `rock.glb`, `rocks_smallA.glb`, `rock_largeA.glb`, `rock_largeB.glb`, `crater.glb`, `craterLarge.glb`, `satelliteDish.glb`, `satelliteDish_large.glb`, `rover.glb`, `structure.glb`, `supports_high.glb`, `pipe_straight.glb`, `pipe_corner.glb` | "Kenney" / "www.kenney.nl" |
 | 5 | KayKit: Space Base Bits (1.0) | Kay Lousberg | https://github.com/KayKit-Game-Assets/KayKit-Space-Base-Bits-1.0 (official mirror of https://kaylousberg.itch.io/space-base-bits) | CC0 1.0 | https://creativecommons.org/publicdomain/zero/1.0/ | 2026-09-13 | `lights.gltf`, `lights.bin`, `spacebits_texture.png` | "Kay Lousberg" / "www.kaylousberg.com" |
 | 6 | Dikhololo Night (HDRI, 1k) | Poly Haven | https://polyhaven.com/a/dikhololo_night | CC0 1.0 | https://polyhaven.com/license | 2026-09-13 | `dikhololo_night_1k.hdr` | "Poly Haven" (not required) |
+
+## Update 2026-09-14 (World-3 environment pass, ENVIRONMENT builder)
+
+J: "it looks like the background is a grey abyss... why not a space theme...
+the design needs work still" -- coordinator decision: finish the space-base
+theme the bundled kits already implied. Downloaded the SAME already-catalogued
+Kenney Space Kit (2.0) zip directly from the URL above (`kenney_space-kit.zip`,
+6,677,531 bytes, `curl`), extracted to a scratchpad, and confirmed its own
+`license.txt` (root of the zip) states CC0 1.0 verbatim -- same text quoted in
+row 4 above, re-verified from this fresh download rather than assumed from the
+earlier 2026-09-13 pass. All 13 newly-kept `.glb` files were confirmed to
+start with the glTF binary magic (`glTF` at byte 0, checked via `xxd`) before
+copying into `kenney-space-kit/`; none reference an external `.bin`/texture
+file (the zip's GLTF-format export is fully self-contained per-file, verified
+by listing the extraction folder for any loose `.bin`/`.png` -- none found).
+Total added: 148,724 bytes (0.14 MB) -- well under the 15 MB session budget.
+Used by: `Ground.tsx`/`Rocks.tsx` (rocks, craters -- instanced + individual
+boulders), `BaseProps.tsx` (dishes, rover, solar-array supports, pipes).
 
 ## Verification performed this session
 

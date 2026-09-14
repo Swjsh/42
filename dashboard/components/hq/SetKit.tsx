@@ -52,6 +52,34 @@ export const KIT_PATHS = {
   },
   lights: `${KIT_BASE}/kaykit-space-base-bits/lights.gltf`,
   hdri: `${KIT_BASE}/polyhaven-dikhololo-night/dikhololo_night_1k.hdr`,
+  // World-3 environment pass (2026-09-14, J: "grey abyss... space theme or a
+  // park or something real"): kenney-space-kit terrain/prop pieces --
+  // downloaded fresh this pass (LICENSES.md's own "Update 2026-09-14" note),
+  // same CC0 pack the pre-existing astronautA.glb/barrels.glb already come
+  // from. `terrain` feeds Rocks.tsx's instanced rock field + Ground.tsx's
+  // individually-placed craters; `baseProps` feeds BaseProps.tsx.
+  terrain: {
+    rock: `${KIT_BASE}/kenney-space-kit/rock.glb`,
+    rockSmallA: `${KIT_BASE}/kenney-space-kit/rocks_smallA.glb`,
+    rockLargeA: `${KIT_BASE}/kenney-space-kit/rock_largeA.glb`,
+    rockLargeB: `${KIT_BASE}/kenney-space-kit/rock_largeB.glb`,
+    crater: `${KIT_BASE}/kenney-space-kit/crater.glb`,
+    craterLarge: `${KIT_BASE}/kenney-space-kit/craterLarge.glb`,
+  },
+  baseProps: {
+    satelliteDish: `${KIT_BASE}/kenney-space-kit/satelliteDish.glb`,
+    satelliteDishLarge: `${KIT_BASE}/kenney-space-kit/satelliteDish_large.glb`,
+    rover: `${KIT_BASE}/kenney-space-kit/rover.glb`,
+    structure: `${KIT_BASE}/kenney-space-kit/structure.glb`,
+    supportsHigh: `${KIT_BASE}/kenney-space-kit/supports_high.glb`,
+    pipeStraight: `${KIT_BASE}/kenney-space-kit/pipe_straight.glb`,
+    pipeCorner: `${KIT_BASE}/kenney-space-kit/pipe_corner.glb`,
+    // Already downloaded/catalogued (2026-09-13 curation pass, manifest.json)
+    // but never wired into KIT_PATHS until now -- both are real CC0 pieces
+    // already on disk, no new download needed.
+    barrels: `${KIT_BASE}/kenney-space-kit/barrels.glb`,
+    container: `${KIT_BASE}/kenney-space-station-kit/container.glb`,
+  },
 } as const;
 
 export type CharacterBodyId = keyof typeof KIT_PATHS.characters;
@@ -665,3 +693,12 @@ useGLTF.preload(KIT_PATHS.furniture.chair, false);
 useGLTF.preload(KIT_PATHS.furniture.computer, false);
 useGLTF.preload(KIT_PATHS.furniture.computerScreen, false);
 useGLTF.preload(KIT_PATHS.lights, false);
+// World-3 environment pass: terrain/prop pieces, same eager-preload
+// convention as every other always-visible piece above (`false` = no Draco,
+// see KitProp's own comment for why that's explicit here).
+useGLTF.preload(KIT_PATHS.terrain.rock, false);
+useGLTF.preload(KIT_PATHS.terrain.rockSmallA, false);
+useGLTF.preload(KIT_PATHS.terrain.crater, false);
+useGLTF.preload(KIT_PATHS.terrain.craterLarge, false);
+useGLTF.preload(KIT_PATHS.baseProps.satelliteDish, false);
+useGLTF.preload(KIT_PATHS.baseProps.rover, false);

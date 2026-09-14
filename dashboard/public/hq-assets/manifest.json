@@ -1,6 +1,8 @@
 {
   "generated": "2026-09-13",
   "generatedBy": "asset-curator worker session",
+  "updated": "2026-09-14",
+  "updatedBy": "ENVIRONMENT builder (World-3 pass, J: \"grey abyss... space theme or a park or something real\") -- added 13 kenney-space-kit terrain/prop pieces (rocks, craters, dishes, rover, solar-support, pipes) for Ground.tsx/Rocks.tsx/BaseProps.tsx. See LICENSES.md's own updated verification note.",
   "note": "Kept-file manifest for dashboard/public/hq-assets. All packs CC0 1.0 -- see LICENSES.md for full provenance. scaleHint on each character is (0.88 / rawBoundsHeight): 0.88 approximates the current procedural Agent.tsx body height (capsule top + visor) in this scene's own units -- a starting point to eyeball/tune visually, not a verified render.",
   "packs": [
     {
@@ -60,7 +62,20 @@
       "sourceUrl": "https://kenney.nl/assets/space-kit",
       "files": [
         "astronautA.glb",
-        "barrels.glb"
+        "barrels.glb",
+        "rock.glb",
+        "rocks_smallA.glb",
+        "rock_largeA.glb",
+        "rock_largeB.glb",
+        "crater.glb",
+        "craterLarge.glb",
+        "satelliteDish.glb",
+        "satelliteDish_large.glb",
+        "rover.glb",
+        "structure.glb",
+        "supports_high.glb",
+        "pipe_straight.glb",
+        "pipe_corner.glb"
       ]
     },
     {
@@ -336,6 +351,76 @@
       "file": "kenney-space-kit/barrels.glb",
       "category": "crate",
       "sizeBytes": 20808
+    },
+    {
+      "file": "kenney-space-kit/rock.glb",
+      "category": "terrain-rock",
+      "sizeBytes": 13172,
+      "note": "World-3 environment pass (2026-09-14): instanced via Rocks.tsx (THREE.InstancedMesh, geometry/material pulled from this GLB's first mesh) -- see that file for the seeded-placement scheme."
+    },
+    {
+      "file": "kenney-space-kit/rocks_smallA.glb",
+      "category": "terrain-rock",
+      "sizeBytes": 6044,
+      "note": "Second instanced rock variant, same mechanism as rock.glb above."
+    },
+    {
+      "file": "kenney-space-kit/rock_largeA.glb",
+      "category": "terrain-rock",
+      "sizeBytes": 13224,
+      "note": "Hero boulder landmark -- placed individually (KitProp), not instanced."
+    },
+    {
+      "file": "kenney-space-kit/rock_largeB.glb",
+      "category": "terrain-rock",
+      "sizeBytes": 12984,
+      "note": "Hero boulder landmark -- placed individually (KitProp), not instanced."
+    },
+    {
+      "file": "kenney-space-kit/crater.glb",
+      "category": "terrain-crater",
+      "sizeBytes": 5684
+    },
+    {
+      "file": "kenney-space-kit/craterLarge.glb",
+      "category": "terrain-crater",
+      "sizeBytes": 5688
+    },
+    {
+      "file": "kenney-space-kit/satelliteDish.glb",
+      "category": "base-prop",
+      "sizeBytes": 19528
+    },
+    {
+      "file": "kenney-space-kit/satelliteDish_large.glb",
+      "category": "base-prop",
+      "sizeBytes": 13948
+    },
+    {
+      "file": "kenney-space-kit/rover.glb",
+      "category": "base-prop",
+      "sizeBytes": 13384
+    },
+    {
+      "file": "kenney-space-kit/structure.glb",
+      "category": "base-prop",
+      "sizeBytes": 11060,
+      "note": "Solar-array support greeble (BaseProps.tsx) -- the panel surfaces themselves are a procedural plane, this pack has no dedicated solar-panel piece."
+    },
+    {
+      "file": "kenney-space-kit/supports_high.glb",
+      "category": "base-prop",
+      "sizeBytes": 20544
+    },
+    {
+      "file": "kenney-space-kit/pipe_straight.glb",
+      "category": "base-prop",
+      "sizeBytes": 6492
+    },
+    {
+      "file": "kenney-space-kit/pipe_corner.glb",
+      "category": "base-prop",
+      "sizeBytes": 6972
     },
     {
       "file": "kaykit-space-base-bits/lights.gltf",

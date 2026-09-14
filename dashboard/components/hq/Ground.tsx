@@ -2,7 +2,8 @@
 
 import { useMemo } from "react";
 import * as THREE from "three";
-import { PALETTE } from "./palette";
+import { PALETTE, seededRandom } from "./palette";
+import { KIT_PATHS, KitProp } from "./SetKit";
 
 // ─── World-2 item 2 (2026-09-14, J: "when I scroll out, a black circle just
 // appears and takes over everything... there needs to be some sort of floor
@@ -16,28 +17,34 @@ import { PALETTE } from "./palette";
 
 const RADIUS = 70;
 const SEGMENTS = 64;
-// One CanvasTexture tile repeated across the whole disc -- ~4.4 world units
-// per tile at this repeat count, a plausible "plaza paving" scale next to
-// the station's own ~14-unit ring radius.
-const TILE_REPEAT = 32;
+// World-3 environment pass (2026-09-14, J: "grey abyss... regolith ground"):
+// 32 -> 8. The OLD crisp black grid-line tile (below) read as an obvious
+// repeating pattern at almost any repeat count -- a hard straight line is
+// recognizable even tiled sparsely. This new texture is a SOFT mottled
+// blotch pattern instead (no straight edges anywhere in the source tile), so
+// a much lower repeat count both keeps more texel detail near the station
+// AND is far less noticeable as "the same tile again" than the old grid ever
+// was, even before accounting for the softness itself.
+const TILE_REPEAT = 8;
 
 let _groundTexture: THREE.CanvasTexture | null = null;
 
-/** Procedural tile/grid texture -- runtime CanvasTexture, zero bundled
+/** Procedural regolith texture -- runtime CanvasTexture, zero bundled
  * assets, same "cached module-level singleton, built once, never per-frame"
  * convention as palette.ts#makeMatcapTexture/makeToonGradientTexture (see
  * that file's own top-of-file comment for why this pattern lives outside
  * palette.ts here instead: this one is Ground-specific and RepeatWrapping/
  * tiled, unlike the shared matcap/gradient helpers other components also
- * consume). A dark regolith base with faint grid seams -- subtle by design
- * (a strong grid would read as a sci-fi holodeck floor, not a dim exterior
- * plaza/regolith surface at night). */
+ * consume). Replaces the OLD crisp grid-tile look (World-2, 2026-09-14 AM)
+ * with mottled dust/grain blotches -- one of the 3 "grey abyss" root causes
+ * (ENVIRONMENT-PLAN.md): a crisp repeating grid under a flat pale fog read
+ * as an obviously artificial, featureless plain, not a natural surface. */
 function makeGroundTexture(): THREE.CanvasTexture {
   if (typeof document === "undefined") {
     throw new Error("makeGroundTexture() called outside a browser -- never call this during SSR");
   }
   if (_groundTexture) return _groundTexture;
-  const size = 128;
+  const size = 256;
   const canvas = document.createElement("canvas");
   canvas.width = size;
   canvas.height = size;
@@ -46,23 +53,47 @@ function makeGroundTexture(): THREE.CanvasTexture {
 
   // Base fill, plain white so `color`/`map` multiply cleanly -- the material
   // instance owns the actual night/day tint (see Ground() below), this
-  // texture only ever contributes the tile-seam DETAIL.
+  // texture only ever contributes mottled GRAIN detail.
   ctx.fillStyle = "#ffffff";
   ctx.fillRect(0, 0, size, size);
 
-  // Faint seam lines around the tile edge, deterministic (fixed geometry,
-  // not Math.random -- this runs once at texture-build time, not per frame,
-  // but stays deterministic anyway so reloads never reshuffle the look).
-  ctx.strokeStyle = "rgba(0,0,0,0.35)";
-  ctx.lineWidth = 3;
-  ctx.strokeRect(1.5, 1.5, size - 3, size - 3);
-  // A soft darker vignette toward the tile edges so seams read as a subtle
-  // panel gap rather than a hard bright line under strong exposure.
-  const vignette = ctx.createRadialGradient(size / 2, size / 2, size * 0.2, size / 2, size / 2, size * 0.5);
-  vignette.addColorStop(0, "rgba(0,0,0,0)");
-  vignette.addColorStop(1, "rgba(0,0,0,0.18)");
-  ctx.fillStyle = vignette;
-  ctx.fillRect(0, 0, size, size);
+  // Deterministic LCG (fixed seed, never Math.random -- this file's own
+  // standing convention, matches Planet.tsx's identical approach) driving
+  // ~220 soft dark/light blotches of varying size -- a mottled dust look
+  // with no straight edge anywhere, unlike the old grid this replaces.
+  let seed = 918273;
+  const rand = () => {
+    seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+    return seed / 0x7fffffff;
+  };
+  ctx.globalCompositeOperation = "multiply";
+  for (let i = 0; i < 160; i++) {
+    const cx = rand() * size;
+    const cy = rand() * size;
+    const r = 4 + rand() * 14;
+    const shade = 0.72 + rand() * 0.24; // dark blotches only, stays multiply-safe
+    const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+    grad.addColorStop(0, `rgba(0,0,0,${1 - shade})`);
+    grad.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.globalCompositeOperation = "screen";
+  for (let i = 0; i < 60; i++) {
+    const cx = rand() * size;
+    const cy = rand() * size;
+    const r = 2 + rand() * 6;
+    const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+    grad.addColorStop(0, "rgba(255,255,255,0.10)");
+    grad.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.globalCompositeOperation = "source-over";
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.wrapS = THREE.RepeatWrapping;
@@ -73,6 +104,33 @@ function makeGroundTexture(): THREE.CanvasTexture {
   _groundTexture = texture;
   return texture;
 }
+
+// ─── Craters (E2) ───────────────────────────────────────────────────────────
+// 8 fixed, deterministic craters outside the plaza -- real kit GLBs
+// (kenney-space-kit/crater.glb + craterLarge.glb), individually placed
+// (KitProp, matching every other small-count prop-placement convention in
+// this tree -- see SetKit.tsx#HubRoom's 4 ceiling lights) rather than
+// instanced, since 8 is far below where InstancedMesh's setup cost would pay
+// for itself (Rocks.tsx uses real instancing for the 150-300-count rock
+// field, where it matters).
+interface CraterSpec {
+  angle: number;
+  radius: number;
+  large: boolean;
+  scale: number;
+  rotation: number;
+}
+const CRATER_MIN_RADIUS = 20; // clears Scene.tsx's own PLAZA_RADIUS (~18.2)
+const CRATER_MAX_RADIUS = 52; // stays mostly inside the fog-clear band (Scene.tsx fog near=40) with a few reaching into the haze for depth
+const CRATER_COUNT = 8;
+const craterRng = seededRandom("hq-ground-craters-v1");
+const CRATERS: CraterSpec[] = Array.from({ length: CRATER_COUNT }, (_, i) => ({
+  angle: craterRng() * Math.PI * 2,
+  radius: CRATER_MIN_RADIUS + craterRng() * (CRATER_MAX_RADIUS - CRATER_MIN_RADIUS),
+  large: i % 3 === 0,
+  scale: 2.2 + craterRng() * 2.4,
+  rotation: craterRng() * Math.PI * 2,
+}));
 
 interface GroundProps {
   /** Same 0 (night) .. 1 (day) factor SkyDome.tsx/Scene.tsx's hemisphere
@@ -105,9 +163,27 @@ export default function Ground({ dayFactor = 1, ultra = false }: GroundProps) {
   const color = useMemo(() => _groundColor.copy(GROUND_NIGHT).lerp(GROUND_DAY, dayFactor).clone(), [dayFactor]);
 
   return (
-    <mesh position={[0, -0.06, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow={ultra}>
-      <circleGeometry args={[RADIUS, SEGMENTS]} />
-      <meshStandardMaterial map={texture} color={color} roughness={1} metalness={0} />
-    </mesh>
+    <>
+      <mesh position={[0, -0.06, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow={ultra}>
+        <circleGeometry args={[RADIUS, SEGMENTS]} />
+        <meshStandardMaterial map={texture} color={color} roughness={1} metalness={0} />
+      </mesh>
+      {/* World-3 environment pass (E2): craters, both tiers -- cheap (8
+          small GLBs, no instancing needed at this count) and part of "TV
+          tier gets sky+ground+planet+a few props" per this pass's own
+          brief. Sit right at the ground plane (y=-0.03, a hair above the
+          disc itself to avoid z-fighting, matching this file's own -0.06
+          ground-offset convention). */}
+      {CRATERS.map((c, i) => (
+        <KitProp
+          key={i}
+          path={c.large ? KIT_PATHS.terrain.craterLarge : KIT_PATHS.terrain.crater}
+          scale={c.scale}
+          position={[Math.cos(c.angle) * c.radius, -0.03, Math.sin(c.angle) * c.radius]}
+          rotation={[0, c.rotation, 0]}
+          receiveShadow={ultra}
+        />
+      ))}
+    </>
   );
 }
