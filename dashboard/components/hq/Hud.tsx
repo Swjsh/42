@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
+import { getLivePerf, subscribeLivePerf } from "@/lib/hq-live-perf";
 import Link from "next/link";
 import type { HqApiResponse, TradingStatus, CrewEvent, PersonaState } from "./types";
 import { auditVerdictColor, hhmmFromEtIso, isRegularTradingHours, minutesSinceEvidence, nowEtDayOfWeek, nowEtMinutes, personaStatusColor } from "./palette";
@@ -309,6 +310,12 @@ const HUD_FONT = "system-ui, -apple-system, Segoe UI, Roboto, sans-serif";
  */
 export default function Hud({ data, error, kiosk, isValidating, motionEvents, tier }: HudProps) {
   const etClock = useEtClock();
+  // World-2 coordinator review (2026-09-14, W6 mechanism): this page's OWN
+  // live perf sample -- see lib/hq-live-perf.ts's own header and the perf
+  // block below for the full "never read the shared ledger for THIS
+  // device's own number" reasoning. `() => null` is the correct
+  // server-snapshot (this store is never written during SSR).
+  const livePerf = useSyncExternalStore(subscribeLivePerf, getLivePerf, () => null);
   // LIVE-1 item 1 (2026-09-14): "H toggles the HUD" -- ultra tier only,
   // same scoping as the free camera itself (Scene.tsx's OrbitControls/
   // keyboard fly-to). A plain top-level toggle, not threaded through
@@ -633,23 +640,31 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
       </div>
 
       {/* Bottom-right corner: perf + synced status. Pass G (2026-09-13,
-          coordinator item 4: "on the ultra tier show THIS device's
-          numbers; the TV line only on the TV tier (or prefixed 'TV:' as a
-          second line, never alone)") -- this used to ALWAYS read
-          data.perf (the TV-tagged report, matched by UA) regardless of
-          which tier was actually rendering it, so an ultra-tier viewer on
-          J's own monitor saw a stale/unrelated TV number, never their own.
-          Now: ultra tier reads data.perfOther (this session's own report,
-          per PerfReporter.tsx's `enabled={kiosk}` gate) as the primary
-          line, with the TV's own line added below it ONLY if data.perf
-          exists (both labeled, never one bare number with no source). TV
-          tier keeps exactly its old single line. */}
+          coordinator item 4): "on the ultra tier show THIS device's
+          numbers; the TV line only on the TV tier".
+          World-2 coordinator review (2026-09-14, W6 mechanism, verified on
+          a real capture showing "This device: 2 fps · 524x768" on J's own
+          2560x1440 session): `data.perfOther` was the shared ledger's
+          latest NON-TV row -- any OTHER tab (a builder's hidden Browser-
+          pane preview, throttled to ~2fps by the browser while hidden)
+          could out-write it, so "This device" was never actually
+          guaranteed to be this device. Fixed at the source: `livePerf`
+          reads lib/hq-live-perf.ts's own client-side store, published
+          every ~1s directly from PerfReporter.tsx's real gl.info in THIS
+          mounted Canvas -- never the ledger, never another tab's number.
+          The `(capped)` suffix reads PerfReporter's own live `capped` flag
+          (UltraCanvasRoot.tsx#FrameRateCap's state) directly, satisfying
+          the coordinator's own literal "PerfReporter shows the cap" ask.
+          The "TV: ..." line is UNCHANGED -- still `data.perf`, the
+          ledger's own TV-UA-matched row (lib/hq.ts#readLatestHqPerf's
+          existing isTvUa() split), which was never the broken half of
+          this -- a real physical TV has no other tab to be confused with. */}
       <div style={{ position: "absolute", bottom: 8, right: 12, textAlign: "right" }}>
         {tier === "ultra" ? (
           <>
-            {data?.perfOther && (
+            {livePerf && (
               <div style={{ color: "#5c7aa0", fontSize: 12, fontVariantNumeric: "tabular-nums" }}>
-                This device: {data.perfOther.fps} fps · {data.perfOther.w}x{data.perfOther.h} · {data.perfOther.calls} calls · {data.perfOther.tris} tris
+                This device: {livePerf.fps} fps{livePerf.capped ? " (capped)" : ""} · {livePerf.w}x{livePerf.h} · {livePerf.calls} calls · {livePerf.tris} tris
               </div>
             )}
             {data?.perf && (

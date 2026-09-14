@@ -1,13 +1,78 @@
 "use client";
 
-import { memo, useEffect, useState } from "react";
-import { Canvas } from "@react-three/fiber";
+import { memo, useEffect, useRef, useState } from "react";
+import { Canvas, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import Scene from "./Scene";
 import StandbyPanel from "./StandbyPanel";
 import PerfReporter from "./PerfReporter";
 import { HUD_RIGHT_COLUMN_WIDTH } from "./Hud";
 import type { HqApiResponse } from "./types";
+
+// World-2 item 6 (2026-09-14, coordinator: "J's monitor is 480 Hz, so
+// requestAnimationFrame lets the page render 200+ frames/s and pins the
+// RTX 5080 for nothing... an open HQ tab can starve the local brain"). Root
+// cause of the "249fps... too good" perf question: r3f's default
+// frameloop="always" renders on EVERY rAF tick, and rAF fires at the
+// DISPLAY's own refresh rate (480Hz here), not a fixed 60 -- there was
+// never a postprocessing/measurement bug, the render loop was just running
+// 8x more often than any monitor needs to look smooth.
+const TARGET_FRAME_MS = 1000 / 60;
+
+/**
+ * Caps the ultra tier's actual RENDER rate at 60fps while leaving every
+ * existing useFrame callback's own LOGIC completely untouched. Mechanism:
+ * `<Canvas frameloop="never">` (below) disables r3f's OWN internal
+ * rAF-driven loop entirely; this component runs its OWN independent rAF
+ * loop and calls r3f's exported `advance(timestamp)` (verified present in
+ * this project's installed @react-three/fiber -- "Advances the frameloop
+ * and runs render effects, useful for when manually rendering via
+ * frameloop='never'", its own doc comment) only once enough real time has
+ * accumulated. `advance()` runs the IDENTICAL full tick the normal
+ * "always" loop would -- every useFrame callback in the tree (BrainCore's
+ * pulse, CameraRig's drift, Agent's walk phases, EffectsStack, PerfReporter,
+ * EffectComposer's own internal render) still gets called in the same
+ * order with a correctly-computed real delta -- just less often, so no
+ * existing delta-time-based animation anywhere in this tree needs to
+ * change. Accumulates leftover time (never measures "time since last
+ * advance" directly) so a slow/late tick can't permanently drift the
+ * cadence, and clamps the carried remainder to one frame so a tab
+ * coming back from a long background stall doesn't queue a burst of
+ * catch-up advances -- the coordinator's own "accumulate, don't drift" ask.
+ * Never mounted when `?fps=max` lifts the cap (see UltraCanvasRoot below)
+ * or while paused (gaming/hidden already use frameloop="never" for a
+ * different reason -- no render loop of any kind should run then).
+ */
+function FrameRateCap() {
+  const advance = useThree((s) => s.advance);
+  const accumulatorMs = useRef(0);
+  const lastTimestampMs = useRef<number | null>(null);
+  const rafId = useRef<number | null>(null);
+
+  useEffect(() => {
+    const tick = (timestamp: number) => {
+      rafId.current = requestAnimationFrame(tick);
+      if (lastTimestampMs.current === null) {
+        lastTimestampMs.current = timestamp;
+        advance(timestamp);
+        return;
+      }
+      accumulatorMs.current += timestamp - lastTimestampMs.current;
+      lastTimestampMs.current = timestamp;
+      if (accumulatorMs.current >= TARGET_FRAME_MS) {
+        accumulatorMs.current -= TARGET_FRAME_MS;
+        if (accumulatorMs.current > TARGET_FRAME_MS) accumulatorMs.current = TARGET_FRAME_MS;
+        advance(timestamp);
+      }
+    };
+    rafId.current = requestAnimationFrame(tick);
+    return () => {
+      if (rafId.current !== null) cancelAnimationFrame(rafId.current);
+    };
+  }, [advance]);
+
+  return null;
+}
 
 interface UltraCanvasRootProps {
   data: HqApiResponse | undefined;
@@ -49,6 +114,10 @@ function UltraCanvasRoot({ data, reducedMotion, kiosk }: UltraCanvasRootProps) {
   const gaming = data?.mode === "gaming";
   const [hidden, setHidden] = useState(false);
   const [contextLost, setContextLost] = useState(false);
+  // World-2 item 6: `?fps=max` lifts the 60fps cap for measurements --
+  // read once from the URL (client-only, matching Scene.tsx#CameraRig's own
+  // `?camdist=NN` convention), never a reactive searchParams hook here.
+  const [fpsMax] = useState(() => typeof window !== "undefined" && new URLSearchParams(window.location.search).get("fps") === "max");
 
   useEffect(() => {
     const onVis = () => setHidden(document.hidden);
@@ -58,7 +127,15 @@ function UltraCanvasRoot({ data, reducedMotion, kiosk }: UltraCanvasRootProps) {
   }, []);
 
   const paused = gaming || hidden;
-  const frameloop = paused ? "never" : "always";
+  // World-2 item 6: capped mode drives the render loop manually via
+  // <FrameRateCap> below (frameloop="never" disables r3f's own internal
+  // loop so ours is the only one); `?fps=max` or paused both fall back to
+  // r3f's normal behavior (paused already needs frameloop="never" too, for
+  // the pre-existing "fully stop during gaming" reason -- FrameRateCap is
+  // simply never mounted then, so nothing drives the loop at all, matching
+  // the existing paused behavior byte-for-byte).
+  const capped = !fpsMax && !paused;
+  const frameloop = paused || capped ? "never" : "always";
 
   return (
     // Pass G (2026-09-13, coordinator item 1: "the 3D canvas gets the left
@@ -127,11 +204,16 @@ function UltraCanvasRoot({ data, reducedMotion, kiosk }: UltraCanvasRootProps) {
           }}
         >
           <Scene data={data} reducedMotion={reducedMotion} tier="ultra" />
+          {/* World-2 item 6: the only thing driving the render loop while
+              capped -- see its own top-of-file comment for the full
+              mechanism. Absent when `?fps=max`/paused, matching
+              frameloop="always"/"never" (paused) respectively above. */}
+          {capped && <FrameRateCap />}
           {/* firstReportMs 30s (not PerfReporter's own 10s default) -- see
               that component's own comment: ultra tier's async GLTF/Suspense
               loading storm needs longer than 10s to settle before a "steady
               state" sample means anything. */}
-          <PerfReporter enabled={kiosk} firstReportMs={30_000} />
+          <PerfReporter enabled={kiosk} firstReportMs={30_000} capped={capped} />
         </Canvas>
       </div>
 
