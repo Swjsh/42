@@ -1,12 +1,12 @@
 import type { StationIdeaCard, StationPresence, StationFace, HqBuildStatus } from "@/lib/station";
-import type { SectorRow, TvPerfRow, BlockedItem, TradingStatus, CoreDecisionRow, CrewEvent } from "@/lib/hq";
+import type { SectorRow, TvPerfRow, BlockedItem, TradingStatus, CoreDecisionRow, CrewEvent, SectorsSnapshot } from "@/lib/hq";
 import type { PersonaState, Handoff } from "@/lib/personas";
 // INTERACT-2 (I1, 2026-09-14): per-desk real-work content -- type-only, see
 // lib/desk-content.ts's own module header for why this file must never take
 // a VALUE import from that module (it touches node:fs).
 import type { DeskPersonaName, DeskContent } from "@/lib/desk-content";
 
-export type { SectorRow, BlockedItem, PersonaState, Handoff, TradingStatus, CoreDecisionRow, CrewEvent, DeskPersonaName, DeskContent, HqBuildStatus };
+export type { SectorRow, BlockedItem, PersonaState, Handoff, TradingStatus, CoreDecisionRow, CrewEvent, DeskPersonaName, DeskContent, HqBuildStatus, SectorsSnapshot };
 
 export interface HqBrainVitals {
   model: string | null;
@@ -120,6 +120,12 @@ export interface HqApiResponse {
   // "is it working?" instrument: deployed-at/building-now/last-capture, all
   // server-side facts (fs reads only, this route never shells out).
   build: HqBuildStatus;
+  // Coordinator-directed (2026-09-14) -- additive, see
+  // lib/hq.ts#readSectorsSnapshot. NOT the same source as `sectors` above
+  // (that one is sector_rows.py's live shell; this is CREW-RIG's
+  // sectors.json file snapshot) -- named differently on purpose so the two
+  // never collide. Null until that producer has fired at least once.
+  sectorsSnapshot: SectorsSnapshot | null;
 }
 
 /** One module's derived (not server-sent) presentation state -- computed
@@ -132,4 +138,29 @@ export interface ModuleDerived {
   parked: boolean;
   freshnessMinutes: number | null;
   agentBehavior: "working" | "idle" | "alert" | "frozen";
+}
+
+/** LAYOUT builder pass (2026-09-14, campus-cross rebuild): the contract
+ * Agent.tsx's own walk consumer will read once MOTION-2 wires it up there
+ * (this pass does not edit Agent.tsx/KitAgent.tsx -- see layout.ts's own
+ * "Walk graph" section header). `waypoints` is a real path through the walk
+ * graph (layout.ts#findWalkPath) -- hub-center, doorways, T-junctions, bay/
+ * persona desks -- never a single point, so a walker never has to be
+ * trusted to cut a straight line through a wall to reach it. `purpose` is
+ * the same one-line reason text this scene already surfaces in a speech
+ * bubble (see Scene.tsx's own purposeful-walk/eventWalk bubble text);
+ * `dwellS`/`dwellAnim` describe what the walker does once it arrives
+ * (how long, and which of Agent.tsx's existing animation states to hold). */
+export interface WalkPlan {
+  waypoints: [number, number, number][];
+  purpose: string;
+  dwellS: number;
+  dwellAnim: "interact" | "point" | "idle";
+  // MOTION-2 (2026-09-14) -- additive, per that task's own file-ownership
+  // note ("types.ts (additive faceYaw only)"). Optional: when omitted,
+  // Agent.tsx's walk consumer faces the direction implied by the final leg
+  // of `waypoints` (the heading the walker arrives WITH) instead. Lets a
+  // producer request a specific dwell facing (e.g. "face the wall screen",
+  // not just "face whichever way the last corridor leg happened to run").
+  faceYaw?: number;
 }

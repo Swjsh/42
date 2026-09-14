@@ -861,6 +861,73 @@ const CREW_EVENTS_READ_LIMIT = 100;
 /** Last `limit` rows of crew-events.jsonl, newest-last (same tail
  * convention as every other jsonl reader in this codebase, e.g.
  * lib/personas.ts#readJsonlTail) -- the caller reverses/slices as needed. */
+// ─── Coordinator-directed additive item (2026-09-14, 17:2x ET): "add a
+//     `sectors` field... {ts_et, summary_line, rows}... read fail-open from
+//     automation/state/station/sectors.json... keys exactly as in the file"
+//     -- MODELS' hub wall panel and LAYOUT's prop threading depend on it.
+//     Named `sectorsSnapshot` here (not `sectors`) since /api/hq ALREADY
+//     has a `sectors` field (this route's own readSectorRows() above,
+//     `{rows, say}` -- a DIFFERENT producer, sector_rows.py's live shell,
+//     already consumed elsewhere): reusing that name would silently
+//     collide with and break the existing field rather than add a new one.
+//     Real shape confirmed against the live file this session (python -m
+//     json.tool automation/state/station/sectors.json) -- row keys are
+//     lane/state/arm_or_acct_alias/last_evidence_et/evidence/window_pnl/
+//     health/doc, NOT the abbreviated arm/note shorthand a first guess
+//     might reach for. ──────────────────────────────────────────────────
+
+export interface SectorsSnapshotRow {
+  lane: string;
+  state: string;
+  arm_or_acct_alias: string;
+  last_evidence_et: string;
+  evidence: string;
+  window_pnl: number | "n/a";
+  health: string;
+  doc: string;
+}
+
+export interface SectorsSnapshot {
+  ts_et: string;
+  summary_line: string;
+  rows: SectorsSnapshotRow[];
+}
+
+/** automation/state/station/sectors.json -- CREW-RIG's per-Station-fire
+ * snapshot (30-min cadence, 24/7). Fail-open: a missing file (producer
+ * hasn't fired yet) or a garbled one degrades to null, never a throw --
+ * same contract as every other reader in this file (see this route's own
+ * U7 audit comment on GET() for why that matters). */
+export async function readSectorsSnapshot(): Promise<SectorsSnapshot | null> {
+  try {
+    const text = await fs.readFile(
+      path.join(WORKSPACE_ROOT, "automation", "state", "station", "sectors.json"),
+      "utf-8",
+    );
+    const data = JSON.parse(text) as Record<string, unknown>;
+    if (!Array.isArray(data.rows)) return null;
+    const rows: SectorsSnapshotRow[] = data.rows
+      .filter((r): r is Record<string, unknown> => !!r && typeof r === "object")
+      .map((r) => ({
+        lane: typeof r.lane === "string" ? r.lane : "",
+        state: typeof r.state === "string" ? r.state : "unknown",
+        arm_or_acct_alias: typeof r.arm_or_acct_alias === "string" ? r.arm_or_acct_alias : "",
+        last_evidence_et: typeof r.last_evidence_et === "string" ? r.last_evidence_et : "",
+        evidence: typeof r.evidence === "string" ? r.evidence : "",
+        window_pnl: typeof r.window_pnl === "number" ? r.window_pnl : "n/a",
+        health: typeof r.health === "string" ? r.health : "unknown",
+        doc: typeof r.doc === "string" ? r.doc : "",
+      }));
+    return {
+      ts_et: typeof data.ts_et === "string" ? data.ts_et : "",
+      summary_line: typeof data.summary_line === "string" ? data.summary_line : "",
+      rows,
+    };
+  } catch {
+    return null;
+  }
+}
+
 export async function readCrewEvents(limit = CREW_EVENTS_READ_LIMIT): Promise<CrewEvent[]> {
   try {
     const text = await fs.readFile(

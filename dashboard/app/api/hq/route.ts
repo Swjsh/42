@@ -23,6 +23,7 @@ import {
   readCompanyAudit,
   readTradingStatus,
   readCrewEvents,
+  readSectorsSnapshot,
 } from "@/lib/hq";
 import { collectCompany, type PersonaState, type Handoff } from "@/lib/personas";
 // INTERACT-2 (I1, 2026-09-14): per-desk real-work content -- see
@@ -126,6 +127,7 @@ async function buildHqResponse() {
     crewEvents,
     desks,
     build,
+    sectorsSnapshot,
   ] = await Promise.all([
     readIdeasBoard(),
     readStationBrief(),
@@ -159,6 +161,11 @@ async function buildHqResponse() {
     readDesksSnapshot(),
     // UX-1 U0 (2026-09-14) -- "is it working?" build instrument, additive.
     readHqBuildStatus(),
+    // Coordinator-directed (2026-09-14, 17:2x ET) -- MODELS' hub wall panel
+    // + LAYOUT's prop threading, additive. See lib/hq.ts#readSectorsSnapshot
+    // for why this is named `sectorsSnapshot` and not `sectors` (the latter
+    // already exists above, a different producer).
+    readSectorsSnapshot(),
   ]);
 
   const lastRow = ledger.length > 0 ? ledger[ledger.length - 1] : null;
@@ -204,6 +211,10 @@ async function buildHqResponse() {
       desks,
       // UX-1 U0 (2026-09-14) -- additive, see lib/station.ts#readHqBuildStatus.
       build,
+      // Coordinator-directed (2026-09-14) -- additive, see
+      // lib/hq.ts#readSectorsSnapshot. Null until CREW-RIG's
+      // sectors.json producer has fired at least once.
+      sectorsSnapshot,
       // I3: explicit alias for brief.mtime_ms -- surfaces the SAME real
       // mtime as a readable ISO string so the all-hands trigger has a
       // self-explanatory field name on the wire (brief.mtime_ms already
