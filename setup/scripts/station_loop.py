@@ -35,7 +35,7 @@ import subprocess
 import sys
 import time
 import urllib.request
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Callable, Optional
 
@@ -43,12 +43,15 @@ REPO = Path(__file__).resolve().parents[2]
 _HERE = str(Path(__file__).resolve().parent)
 if _HERE not in sys.path:
     sys.path.insert(0, _HERE)
-from et_clock import et_now, et_today_str, is_market_hours  # noqa: E402
+from et_clock import et_now, et_today_str, et_offset_hours, is_market_hours  # noqa: E402
 import _proc_table  # noqa: E402
 import station_board  # noqa: E402
 import station_facts  # noqa: E402
 import hypothesis_scorer  # noqa: E402 -- GOAL-GAMMA-STATION item 12: KNOWN_SPEC_TYPES for schema validation
 import conductor_outcome  # noqa: E402 -- item 12: every run_once() path records a fire (source="station")
+import sector_rows  # noqa: E402 -- 2026-09-14 company-roster re-point: Coach's sectors.json (C2)
+import crew_events  # noqa: E402 -- 2026-09-14 company-roster re-point: the crew ticker (C3)
+import audit_scheduled_tasks as _ast  # noqa: E402 -- reused live task-enumeration helper (C2's task_health)
 
 _CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
 
@@ -73,6 +76,14 @@ LOG_DIR = Path("E:/Gamma/logs")
 AUTOPSY_DIR = REPO / "analysis" / "autopsies"
 VERDICTS_LEDGER_PATH = REPO / "analysis" / "recommendations" / "station-verdicts.jsonl"
 SETTLED_HYP_PATH = REPO / "automation" / "state" / "hypotheses-settled.json"
+# 2026-09-14 company-roster re-point (C1-C3): Chef's verdict-scoring pass and Coach's
+# sectors/rig-health pass already ran every fire -- this file just never wrote down that
+# either of them had done anything. SECTORS_PATH/CREW_EVENTS_PATH are the new outputs;
+# both written on EVERY fire (yielded or not), never inside the LLM branch below -- see
+# _write_sectors_and_crew_events's own docstring.
+SECTORS_PATH = STATION_DIR / "sectors.json"
+CREW_EVENTS_PATH = STATION_DIR / "crew-events.jsonl"
+SECTORS_HEARTBEAT = timedelta(hours=3)  # "every 6th fire" at the 30-min Station cadence
 
 DEFAULT_CONFIG = {
     "model": "gamma-planner",
@@ -381,6 +392,212 @@ def _read_text(path: Path) -> Optional[str]:
         return None
 
 
+# ---- Sectors + crew-events (2026-09-14 company-roster re-point: C1-C3) ------------------
+# Coach's sectors.json (a thin wrapper over sector_rows.build_sector_rows(), owned by a
+# different builder and additive-only here) and the crew-events ticker (Chef's verdict
+# deltas + Coach's sectors/task-health deltas). Every function below is individually
+# fail-open -- see _write_sectors_and_crew_events's own docstring for why.
+
+def _parse_et_stamp(ts: Optional[str]) -> Optional[datetime]:
+    """Parses this module's own 'YYYY-MM-DD HH:MM:SS ET' ts_et convention back into a
+    UTC-aware datetime for an age/heartbeat comparison against now_utc. None on any
+    parse failure -- never a guess. Same DST-safe trick company_audit.py's
+    _gt_manager_loop_ledger_cites_number uses (et_offset_hours at the naive instant)."""
+    if not ts or not isinstance(ts, str):
+        return None
+    try:
+        naive_et = datetime.strptime(ts, "%Y-%m-%d %H:%M:%S ET")
+    except ValueError:
+        return None
+    offset = et_offset_hours(naive_et.replace(tzinfo=timezone.utc))
+    return (naive_et - timedelta(hours=offset)).replace(tzinfo=timezone.utc)
+
+
+def _sectors_summary_line(rows: list) -> str:
+    """'<N> lanes -- <g> GREEN * <r> RED (<lane>: <reason>) * <f> frozen' -- the one-line
+    headline both sectors.json and the Coach crew-events row carry. The parenthetical
+    names the FIRST red lane only (a full list would blow past a ticker-line length; the
+    full picture is always in sectors.json's own `rows`)."""
+    n = len(rows)
+    green = sum(1 for r in rows if r.get("health") == "green")
+    red_rows = [r for r in rows if r.get("health") == "red"]
+    frozen = sum(1 for r in rows if r.get("health") == "frozen")
+    red_part = f" ({red_rows[0].get('lane')}: {str(red_rows[0].get('evidence'))[:80]})" if red_rows else ""
+    return f"{n} lanes — {green} GREEN · {len(red_rows)} RED{red_part} · {frozen} frozen"
+
+
+def _task_health_snapshot(now_utc: datetime, *,
+                          registered_tasks_fn: Optional[Callable[[], list]] = None) -> dict:
+    """{ts_et, disabled: [Gamma_* task names currently State=Disabled], failed_last_run:
+    [], total, source}. Reuses audit_scheduled_tasks._registered_tasks() -- the SAME
+    fixed-argv, CREATE_NO_WINDOW PowerShell helper company_audit.py already calls every
+    run -- rather than a second ad hoc subprocess call (DRY + already-trusted).
+
+    failed_last_run is deliberately always [] here: LastTaskResult reads 0 on this rig
+    even for a real failure (every Gamma_* task launches through a hidden wscript/VBS
+    chain that masks the true exit code -- see CLAUDE.md's debugging-discipline note and
+    company_audit.py's own AUTONOMOUS-axis comment on the same fact) and per-task log
+    parsing across ~190 registered tasks is out of scope for a 30-min ticker fire; the
+    honest empty list + a stated reason in `source` beats a fabricated one.
+
+    Fail-open: any enumeration failure (PowerShell/Task Scheduler unavailable, helper
+    error) degrades to an empty snapshot with the reason in `source`, never an
+    exception."""
+    ts_et = et_now(now_utc=now_utc).strftime("%Y-%m-%d %H:%M:%S ET")
+    registered_tasks_fn = registered_tasks_fn or _ast._registered_tasks
+    try:
+        tasks = registered_tasks_fn()
+        gamma_tasks = [t for t in tasks if isinstance(t, dict) and str(t.get("name", "")).startswith("Gamma_")]
+        disabled = sorted(t["name"] for t in gamma_tasks if t.get("state") == "Disabled")
+        return {
+            "ts_et": ts_et,
+            "disabled": disabled,
+            "failed_last_run": [],
+            "total": len(gamma_tasks),
+            "source": ("audit_scheduled_tasks._registered_tasks() (Get-ScheduledTask via the "
+                      "CREATE_NO_WINDOW _list-gamma-tasks-json.ps1 helper); failed_last_run left "
+                      "empty -- LastTaskResult reads 0 on this rig even for real failures (hidden "
+                      f"VBS launch chain), and per-task log parsing across {len(gamma_tasks)} tasks "
+                      "is out of scope for a 30-min ticker fire"),
+        }
+    except Exception as exc:  # noqa: BLE001 -- fail-open: task_health must never break the Station fire
+        return {
+            "ts_et": ts_et, "disabled": [], "failed_last_run": [], "total": 0,
+            "source": f"unavailable: {type(exc).__name__}: {exc}",
+        }
+
+
+def _format_spec_label(spec: dict) -> str:
+    spec_type = spec.get("type", "?")
+    params = spec.get("params") or {}
+    if spec_type == "size_cap":
+        return f"size_cap({params.get('cap', '?')})"
+    if spec_type == "exit_shape":
+        return f"exit_shape({params.get('shape', '?')})"
+    if spec_type == "metric_correlation":
+        return f"metric_correlation({params.get('x', '?')}~{params.get('y', 'actual_pnl')})"
+    if spec_type == "time_stop_minutes":
+        return f"time_stop_minutes({params.get('minutes', '?')})"
+    return str(spec_type)
+
+
+def _format_effect(v, spec_type: str) -> str:
+    if v is None:
+        return "n/a"
+    if spec_type == "metric_correlation":
+        return f"r={v:+.3f}"
+    return f"{'+' if v >= 0 else ''}${v:,.0f}"
+
+
+def _format_chef_verdict_line(card: dict, spec: dict, result: dict, status: str, min_n: int) -> str:
+    """'Chef: size_cap(3) on BULLISH_RECLAIM_RIDE_THE_RIBBON -- pre +$1,237 (n 148) *
+    post n 0/10 -> testing' -- one ticker line summarizing what a scored card's verdict
+    now says, for the crew-events row's `line` field."""
+    params = spec.get("params") or {}
+    spec_type = spec.get("type", "?")
+    label = _format_spec_label(spec)
+    target = params.get("strategy") or params.get("arm")
+    head = f"{label} on {target}" if target else f"{label} — {card.get('title') or card.get('id', '?')}"
+    pre = f"pre {_format_effect(result.get('effect_pre'), spec_type)} (n {result.get('n_pre', 0)})"
+    post = f"post n {result.get('n_post', 0)}/{min_n}"
+    return f"Chef: {head} — {pre} · {post} → {status}"
+
+
+def _emit_chef_verdict_events(before_board: list, ts_et: str, min_n: int, n_new_rows: int) -> None:
+    """Chef's crew-events row(s): one per card actually scored THIS fire, but only when
+    something changed since the previous row for that card (new n_post, a status flip,
+    or a first verdict) -- hypothesis_scorer.rescore_board() re-scores (and re-appends a
+    verdicts-ledger row for) EVERY 'testing' card on EVERY fire even when the underlying
+    autopsy data hasn't moved (verified live 2026-09-14: card f5deabe978 got three
+    byte-identical n_post=0 verdict rows at 10:21/10:51/11:21 ET), so mirroring the
+    ledger 1:1 into the ticker would spam 'nothing happened' every 30 minutes. Diffs the
+    board snapshot taken BEFORE score_testing_cards() ran against the verdicts-ledger
+    rows it just appended (the last `n_new_rows` lines -- exactly what this fire wrote,
+    per score_testing_cards()'s own `ledger_rows_written` count) and the board AFTER.
+    Fail-open: a formatting/diff bug here must never break the scorer pass itself."""
+    if n_new_rows <= 0:
+        return
+    try:
+        before_by_id = {c.get("id"): c for c in before_board if isinstance(c, dict) and c.get("id")}
+        all_verdict_rows = station_board.read_jsonl(VERDICTS_LEDGER_PATH)
+        new_rows = all_verdict_rows[-n_new_rows:] if all_verdict_rows else []
+        after_board = station_board.load_board(IDEAS_BOARD_PATH)
+        after_by_id = {c.get("id"): c for c in after_board if isinstance(c, dict) and c.get("id")}
+        for row in new_rows:
+            card_id = row.get("card_id")
+            if not card_id:
+                continue
+            before = before_by_id.get(card_id) or {}
+            after = after_by_id.get(card_id) or {}
+            result = row.get("result") or {}
+            is_first = "verdict" not in before
+            changed = (is_first or before.get("verdict_n_post") != result.get("n_post")
+                      or before.get("status") != after.get("status"))
+            if not changed:
+                continue
+            status = after.get("status") or result.get("verdict", "?")
+            line = _format_chef_verdict_line(after or before, row.get("spec") or {}, result, status, min_n)
+            crew_events.append({"ts_et": ts_et, "who": "Chef", "kind": "verdict", "to": "Gamma",
+                                "line": line, "ref": card_id}, path=CREW_EVENTS_PATH)
+    except Exception as exc:  # noqa: BLE001 -- a ticker glitch must never break the scorer pass
+        _log(f"crew_events chef verdict row failed (non-fatal): {exc!r}")
+
+
+def _write_sectors_and_crew_events(ts_et: str, now_utc: datetime, config: dict) -> None:
+    """Coach's sectors.json + the crew-events ticker rows it and Chef's scorer feed --
+    written on EVERY fire (yielded or not), right next to drain_inbox()/
+    score_testing_cards() in run_once(), NEVER inside the LLM branch below it. Fully
+    fail-open at every sub-step (hard rule from the build brief: the Station fire must
+    never die because sectors/crew-events failed) -- one bad lane, a Task Scheduler
+    enumeration failure, or a broken ticker write can each only blank ITS OWN piece,
+    never take the others or the fire down with it."""
+    try:
+        rows = sector_rows.build_sector_rows()
+    except Exception as exc:  # noqa: BLE001
+        _log(f"sector_rows.build_sector_rows failed (non-fatal): {exc!r}")
+        rows = []
+    summary_line = _sectors_summary_line(rows)
+    task_health = _task_health_snapshot(now_utc)
+
+    old_doc = station_board.read_json_or_none(SECTORS_PATH)
+    old_doc = old_doc if isinstance(old_doc, dict) else {}
+
+    doc = {"ts_et": ts_et, "rows": rows, "summary_line": summary_line, "task_health": task_health}
+    try:
+        station_board.atomic_write_text(SECTORS_PATH, json.dumps(doc, indent=2, ensure_ascii=False))
+    except Exception as exc:  # noqa: BLE001
+        _log(f"sectors.json write failed (non-fatal): {exc!r}")
+
+    # Coach: sectors ticker row -- only on a real change, or a ~3h heartbeat (SECTORS_HEARTBEAT
+    # approximates "every 6th fire" at the 30-min Station cadence without a separate counter).
+    try:
+        prev = crew_events.last_row(kind="sectors", who="Coach", path=CREW_EVENTS_PATH)
+        heartbeat_due = True
+        if prev is not None:
+            prev_dt = _parse_et_stamp(prev.get("ts_et"))
+            heartbeat_due = prev_dt is None or (now_utc - prev_dt) >= SECTORS_HEARTBEAT
+        if prev is None or prev.get("line") != summary_line or heartbeat_due:
+            crew_events.append({"ts_et": ts_et, "who": "Coach", "kind": "sectors", "to": "Gamma",
+                                "line": summary_line, "ref": "automation/state/station/sectors.json"},
+                               path=CREW_EVENTS_PATH)
+    except Exception as exc:  # noqa: BLE001
+        _log(f"crew_events sectors row failed (non-fatal): {exc!r}")
+
+    # Coach: task_health delta row(s) -- only when a Gamma_* task's Disabled-ness flipped
+    # since the LAST sectors.json (old_doc, read above before this fire overwrote it).
+    try:
+        old_disabled = set((old_doc.get("task_health") or {}).get("disabled") or [])
+        new_disabled = set(task_health.get("disabled") or [])
+        for name in sorted(new_disabled - old_disabled):
+            crew_events.append({"ts_et": ts_et, "who": "Coach", "kind": "task_health", "to": "Gamma",
+                                "line": f"Coach: {name} went Disabled", "ref": name}, path=CREW_EVENTS_PATH)
+        for name in sorted(old_disabled - new_disabled):
+            crew_events.append({"ts_et": ts_et, "who": "Coach", "kind": "task_health", "to": "Gamma",
+                                "line": f"Coach: {name} came back Ready", "ref": name}, path=CREW_EVENTS_PATH)
+    except Exception as exc:  # noqa: BLE001
+        _log(f"crew_events task_health row failed (non-fatal): {exc!r}")
+
+
 # ---- One fire ----
 
 def _ledger_row(ts_et: str, model: str, status: str, reason: str, t0: float, *,
@@ -423,13 +640,27 @@ def run_once(*, force: bool = False, now_utc: Optional[datetime] = None) -> dict
     # plan). score_testing_cards() is a cheap no-op (one read, zero writes) whenever the board
     # has no 'testing' cards -- the common case -- so this never becomes a real cost on a
     # yielded fire.
+    min_n = config.get("scorer_min_n", DEFAULT_CONFIG["scorer_min_n"])
+    before_board = station_board.load_board(IDEAS_BOARD_PATH)  # snapshot for _emit_chef_verdict_events' diff
     score_summary = station_board.score_testing_cards(
         IDEAS_BOARD_PATH, autopsy_dir=AUTOPSY_DIR, verdicts_path=VERDICTS_LEDGER_PATH,
-        settled_path=SETTLED_HYP_PATH, min_n=config.get("scorer_min_n", DEFAULT_CONFIG["scorer_min_n"]),
+        settled_path=SETTLED_HYP_PATH, min_n=min_n,
         now_et=et_now(now_utc=now_utc),
     )
     if score_summary.get("testing_cards"):
         _log(f"score_testing_cards: {score_summary}")
+    _emit_chef_verdict_events(before_board, ts_et, min_n, score_summary.get("ledger_rows_written", 0))
+
+    # 2026-09-14 company-roster re-point (C1-C3): Coach's sectors.json + the crew-events
+    # ticker, right next to the drain/score calls above -- NEVER inside the LLM branch
+    # below, so this keeps writing on a yielded/error fire too (the common case: RTH
+    # yields 09:30-15:55 ET, but J's "quiet since 09:05" complaint must not recur even
+    # then). Wrapped here too, belt-and-suspenders on top of the function's own internal
+    # fail-open guards (hard rule: sectors/crew-events must never crash a Station fire).
+    try:
+        _write_sectors_and_crew_events(ts_et, now_utc, config)
+    except Exception as exc:  # noqa: BLE001
+        _log(f"_write_sectors_and_crew_events failed (non-fatal): {exc!r}")
 
     status, reason = decide_action(now_utc, config, force=force)
     if status != "ok":
@@ -473,6 +704,15 @@ def run_once(*, force: bool = False, now_utc: Optional[datetime] = None) -> dict
     )
     station_board.write_ideas_board(IDEAS_BOARD_PATH, new_board)
     station_board.write_brief(BRIEF_PATH, ts_et, model, parsed.get("brief", ""), len(new_board))
+    # C3: one crew-events row per brief written -- first line only (the ticker is a
+    # headline surface, not the brief's full text, which stays in BRIEF_PATH itself).
+    try:
+        brief_first_line = next((ln.strip() for ln in (parsed.get("brief", "") or "").splitlines()
+                                 if ln.strip()), "(empty brief)")
+        crew_events.append({"ts_et": ts_et, "who": "Gamma", "kind": "brief",
+                            "line": brief_first_line, "ref": str(BRIEF_PATH)}, path=CREW_EVENTS_PATH)
+    except Exception as exc:  # noqa: BLE001 -- a ticker glitch must never break a successful fire
+        _log(f"crew_events brief row failed (non-fatal): {exc!r}")
     # Pending-notes bug fix (found by builder #2 reading this file, 2026-09-13): notes_text
     # was folded into every prompt but PENDING_NOTES_PATH was never cleared on success, so
     # J's Test/Ask notes would be re-sent forever. Cleared ONLY here, on the fire that

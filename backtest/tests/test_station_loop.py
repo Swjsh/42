@@ -22,7 +22,7 @@ from __future__ import annotations
 
 import json
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
@@ -36,6 +36,11 @@ for _p in ("setup/scripts", ""):
 import station_loop as sl  # noqa: E402
 import station_board as sb  # noqa: E402
 import station_facts as sf  # noqa: E402
+
+# Captured at collection time, BEFORE the autouse fixture below stubs sl._task_health_snapshot
+# on every test -- a few tests want the REAL enumeration logic (with a fake registered_tasks_fn
+# injected) rather than the fast fixed-dict stub every other test gets by default.
+_REAL_TASK_HEALTH_SNAPSHOT = sl._task_health_snapshot
 
 
 # ============================================================================
@@ -62,6 +67,21 @@ def _isolate_station_paths(monkeypatch, tmp_path):
     monkeypatch.setattr(sl, "VERDICTS_LEDGER_PATH", tmp_path / "station-verdicts.jsonl")
     monkeypatch.setattr(sl, "SETTLED_HYP_PATH", tmp_path / "hypotheses-settled.json")
     monkeypatch.setattr(sl.conductor_outcome, "record", lambda **kw: None)
+    # 2026-09-14 company-roster re-point (C1-C3): sectors.json + crew-events.jsonl paths,
+    # isolated exactly like every other Station output above. sector_rows.build_sector_rows
+    # is stubbed to an empty list by default (it is a real, read-only function over live
+    # repo files -- safe to call for real, but this file's own docstring promises "no test
+    # here ever reads... real repo state", so tests that care about sector-row content
+    # override this stub locally). _task_health_snapshot is stubbed to avoid a real
+    # PowerShell/Task Scheduler subprocess call on every one of this suite's ~30 run_once()
+    # calls; tests targeting _task_health_snapshot itself override it back per-test.
+    monkeypatch.setattr(sl, "SECTORS_PATH", tmp_path / "sectors.json")
+    monkeypatch.setattr(sl, "CREW_EVENTS_PATH", tmp_path / "crew-events.jsonl")
+    monkeypatch.setattr(sl.sector_rows, "build_sector_rows", lambda *a, **kw: [])
+    monkeypatch.setattr(sl, "_task_health_snapshot", lambda now_utc, **kw: {
+        "ts_et": "2026-09-14 00:00:00 ET", "disabled": [], "failed_last_run": [],
+        "total": 0, "source": "test-stub (autouse fixture)",
+    })
     yield
 
 
@@ -884,3 +904,207 @@ def test_run_once_keeps_pending_notes_on_model_call_failure(monkeypatch, _inbox_
     assert row["status"] == "error"
     pending_after = json.loads(sl.PENDING_NOTES_PATH.read_text(encoding="utf-8"))
     assert len(pending_after) == 1, "a failed model call must never lose J's queued note"
+
+
+# ============================================================================
+# 2026-09-14 company-roster re-point (C1-C3): sectors.json + crew-events.jsonl.
+# Chef's verdict-scoring pass and Coach's sectors/task-health pass already ran every
+# fire before this build -- nothing wrote down that either had done anything (J's
+# 2026-09-14 verdict: "'quiet since 09:05' for Chef -- okay, why?"). These tests lock
+# in: sectors.json/crew-events.jsonl are written on a YIELDED fire (never gated on the
+# LLM branch); the Chef verdict ticker only fires on a REAL change (hypothesis_scorer
+# re-scores every testing card every fire even when nothing moved -- verified live
+# 2026-09-14 via three byte-identical n_post=0 ledger rows 30 minutes apart); the Coach
+# sectors row respects the change-or-heartbeat rule; task_health deltas fire on a
+# Disabled-state flip; and crew_events/sector_rows failures degrade the Station fire,
+# never crash it.
+# ============================================================================
+
+def test_run_once_writes_sectors_json_on_a_yielded_fire(monkeypatch):
+    monkeypatch.setattr(sl, "decide_action", lambda now_utc, config, **kw: ("yielded", "rth_window (weekday 09:30-15:55 ET)"))
+    monkeypatch.setattr(sl.sector_rows, "build_sector_rows", lambda *a, **kw: [
+        {"lane": "SPY 0DTE core", "state": "armed-paper", "arm_or_acct_alias": "safe-2",
+         "last_evidence_et": "2026-09-14 11:00:00 ET", "evidence": "e", "window_pnl": 1.0,
+         "health": "green", "doc": "CLAUDE.md"},
+    ])
+
+    row = sl.run_once(now_utc=_TUE_RTH_UTC)
+
+    assert row["status"] == "yielded", "the model must never be called on a yielded fire"
+    assert sl.SECTORS_PATH.exists(), "sectors.json must be written even when the fire yields"
+    doc = json.loads(sl.SECTORS_PATH.read_text(encoding="utf-8"))
+    assert doc["rows"][0]["lane"] == "SPY 0DTE core"
+    assert doc["summary_line"].startswith("1 lanes")
+    assert set(doc.keys()) == {"ts_et", "rows", "summary_line", "task_health"}
+    assert set(doc["task_health"].keys()) == {"ts_et", "disabled", "failed_last_run", "total", "source"}
+
+
+def test_run_once_writes_crew_events_on_a_yielded_fire(monkeypatch):
+    monkeypatch.setattr(sl, "decide_action", lambda now_utc, config, **kw: ("yielded", "rth_window (weekday 09:30-15:55 ET)"))
+
+    sl.run_once(now_utc=_TUE_RTH_UTC)
+
+    assert sl.CREW_EVENTS_PATH.exists(), "crew-events.jsonl must be written even when the fire yields"
+    rows = sb.read_jsonl(sl.CREW_EVENTS_PATH)
+    assert any(r.get("who") == "Coach" and r.get("kind") == "sectors" for r in rows)
+
+
+def test_run_once_survives_a_totally_broken_sectors_crew_events_call(monkeypatch):
+    monkeypatch.setattr(sl, "decide_action", lambda now_utc, config, **kw: ("yielded", "rth_window (weekday 09:30-15:55 ET)"))
+    monkeypatch.setattr(sl, "_write_sectors_and_crew_events",
+                        lambda *a, **kw: (_ for _ in ()).throw(RuntimeError("everything is on fire")))
+
+    row = sl.run_once(now_utc=_TUE_RTH_UTC)  # must not raise
+
+    assert row["status"] == "yielded"
+
+
+def test_write_sectors_and_crew_events_fails_open_when_build_sector_rows_raises(monkeypatch):
+    monkeypatch.setattr(sl.sector_rows, "build_sector_rows",
+                        lambda *a, **kw: (_ for _ in ()).throw(RuntimeError("disk on fire")))
+
+    sl._write_sectors_and_crew_events("2026-09-14 12:00:00 ET", _TUE_AFTERHOURS_UTC, dict(sl.DEFAULT_CONFIG))
+
+    doc = json.loads(sl.SECTORS_PATH.read_text(encoding="utf-8"))
+    assert doc["rows"] == []
+    assert doc["summary_line"].startswith("0 lanes")
+
+
+def test_sectors_summary_line_counts_green_red_frozen_and_names_first_red_lane():
+    rows = [
+        {"lane": "A", "health": "green"},
+        {"lane": "B", "health": "red", "evidence": "broker down"},
+        {"lane": "C", "health": "red", "evidence": "also broken"},
+        {"lane": "D", "health": "frozen"},
+        {"lane": "E", "health": "amber"},
+    ]
+    line = sl._sectors_summary_line(rows)
+    assert line.startswith("5 lanes")
+    assert "1 GREEN" in line
+    assert "2 RED" in line
+    assert "B: broker down" in line
+    assert "1 frozen" in line
+
+
+def test_sectors_summary_line_no_red_lanes_has_no_parenthetical():
+    line = sl._sectors_summary_line([{"lane": "A", "health": "green"}])
+    assert "0 RED" in line
+    assert "(" not in line
+
+
+def test_write_sectors_and_crew_events_sectors_row_only_on_change_or_heartbeat(monkeypatch):
+    monkeypatch.setattr(sl.sector_rows, "build_sector_rows", lambda *a, **kw: [{"lane": "A", "health": "green"}])
+    cfg = dict(sl.DEFAULT_CONFIG)
+
+    def _fire(now_utc):
+        sl._write_sectors_and_crew_events(sl.et_now(now_utc=now_utc).strftime("%Y-%m-%d %H:%M:%S ET"), now_utc, cfg)
+
+    _fire(_TUE_AFTERHOURS_UTC)
+    rows1 = [r for r in sb.read_jsonl(sl.CREW_EVENTS_PATH) if r.get("kind") == "sectors"]
+    assert len(rows1) == 1, "the first-ever sectors write has no prior row to compare -- must emit"
+
+    # Same summary line, 5 min later (well inside the 3h heartbeat) -> no new row.
+    _fire(_TUE_AFTERHOURS_UTC + timedelta(minutes=5))
+    rows2 = [r for r in sb.read_jsonl(sl.CREW_EVENTS_PATH) if r.get("kind") == "sectors"]
+    assert len(rows2) == 1, "an unchanged summary inside the heartbeat window must not re-emit"
+
+    # Same summary line, past the 3h heartbeat -> re-emits as a keepalive.
+    _fire(_TUE_AFTERHOURS_UTC + timedelta(hours=3, minutes=5))
+    rows3 = [r for r in sb.read_jsonl(sl.CREW_EVENTS_PATH) if r.get("kind") == "sectors"]
+    assert len(rows3) == 2, "an unchanged summary past the heartbeat window must re-emit (the ~3h keepalive)"
+
+    # A changed summary -> emits regardless of timing.
+    monkeypatch.setattr(sl.sector_rows, "build_sector_rows",
+                        lambda *a, **kw: [{"lane": "A", "health": "red", "evidence": "down"}])
+    _fire(_TUE_AFTERHOURS_UTC + timedelta(hours=3, minutes=6))
+    rows4 = [r for r in sb.read_jsonl(sl.CREW_EVENTS_PATH) if r.get("kind") == "sectors"]
+    assert len(rows4) == 3, "a changed summary must always emit, regardless of timing"
+
+
+def test_write_sectors_and_crew_events_task_health_delta_emits_went_disabled_and_came_back(monkeypatch):
+    calls = {"n": 0}
+
+    def _fake_health(now_utc, **kw):
+        calls["n"] += 1
+        disabled = ["Gamma_Foo"] if calls["n"] == 2 else []
+        return {"ts_et": f"t{calls['n']}", "disabled": disabled, "failed_last_run": [], "total": 2, "source": "fake"}
+
+    monkeypatch.setattr(sl, "_task_health_snapshot", _fake_health)
+    monkeypatch.setattr(sl.sector_rows, "build_sector_rows", lambda *a, **kw: [])
+    cfg = dict(sl.DEFAULT_CONFIG)
+
+    sl._write_sectors_and_crew_events("t1", _TUE_AFTERHOURS_UTC, cfg)                      # baseline: nothing disabled
+    sl._write_sectors_and_crew_events("t2", _TUE_AFTERHOURS_UTC + timedelta(minutes=1), cfg)  # Gamma_Foo flips Disabled
+    sl._write_sectors_and_crew_events("t3", _TUE_AFTERHOURS_UTC + timedelta(minutes=2), cfg)  # Gamma_Foo flips back
+
+    lines = [r["line"] for r in sb.read_jsonl(sl.CREW_EVENTS_PATH) if r.get("kind") == "task_health"]
+    assert "Coach: Gamma_Foo went Disabled" in lines
+    assert "Coach: Gamma_Foo came back Ready" in lines
+
+
+def test_emit_chef_verdict_events_only_fires_on_a_real_change(monkeypatch):
+    monkeypatch.setattr(sl, "decide_action", lambda now_utc, config, **kw: ("yielded", "rth_window (weekday 09:30-15:55 ET)"))
+    monkeypatch.setattr(sl.sector_rows, "build_sector_rows", lambda *a, **kw: [])
+
+    card = {"id": "c1", "ts_et": "2026-09-01 12:00:00 ET", "status": "testing", "title": "cap size",
+            "test_spec": {"type": "size_cap", "params": {"cap": 3, "strategy": "RIDE_THE_RIBBON"}}}
+    sl.IDEAS_BOARD_PATH.write_text(json.dumps([card]), encoding="utf-8")
+    sl.AUTOPSY_DIR.mkdir(parents=True, exist_ok=True)
+    # Both rows pre-date the card's own ts_et -> pre-registration only, n_post stays 0 on
+    # every rescore (identical to the real station-verdicts.jsonl rows this test mirrors).
+    rows = [{"date": "2026-08-25", "qty": 5, "actual_pnl": -100.0}] * 2
+    (sl.AUTOPSY_DIR / "all.jsonl").write_text("\n".join(json.dumps(r) for r in rows), encoding="utf-8")
+
+    sl.run_once(now_utc=_TUE_RTH_UTC)  # fire 1: no prior verdict on the card -> "first verdict" -> must emit
+    events_1 = [r for r in sb.read_jsonl(sl.CREW_EVENTS_PATH) if r.get("kind") == "verdict"]
+    assert len(events_1) == 1
+    assert events_1[0]["who"] == "Chef"
+    assert events_1[0]["ref"] == "c1"
+    assert "size_cap(3)" in events_1[0]["line"]
+    assert "RIDE_THE_RIBBON" in events_1[0]["line"]
+
+    sl.run_once(now_utc=_TUE_RTH_UTC)  # fire 2: identical autopsy data -> n_post/status unchanged
+    events_2 = [r for r in sb.read_jsonl(sl.CREW_EVENTS_PATH) if r.get("kind") == "verdict"]
+    assert len(events_2) == 1, "an unchanged re-score must not spam a duplicate Chef ticker line"
+
+
+def test_format_chef_verdict_line_matches_the_real_bullish_reclaim_shape():
+    spec = {"type": "size_cap", "params": {"cap": 3, "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON"}}
+    result = {"effect_pre": 1236.6, "n_pre": 148, "effect_post": None, "n_post": 0}
+    line = sl._format_chef_verdict_line({"id": "f5deabe978", "title": "x"}, spec, result, "testing", 10)
+    assert line == ("Chef: size_cap(3) on BULLISH_RECLAIM_RIDE_THE_RIBBON — pre +$1,237 (n 148) "
+                    "· post n 0/10 → testing")
+
+
+def test_format_chef_verdict_line_falls_back_to_title_when_no_strategy_or_arm():
+    spec = {"type": "metric_correlation", "params": {"x": "entry_slippage"}}
+    result = {"effect_pre": 0.42, "n_pre": 30, "effect_post": None, "n_post": 12}
+    line = sl._format_chef_verdict_line({"id": "abc", "title": "Slippage vs entry delay"}, spec, result, "supported", 10)
+    assert "metric_correlation(entry_slippage~actual_pnl)" in line
+    assert "Slippage vs entry delay" in line, "no strategy/arm in params -- must fall back to the card title"
+    assert "r=+0.420" in line, "metric_correlation's effect_pre must format as a correlation, not a dollar amount"
+    assert "post n 12/10" in line
+    assert line.endswith("supported")
+
+
+def test_task_health_snapshot_real_logic_lists_disabled_gamma_tasks_only():
+    fake_tasks = [
+        {"name": "Gamma_Foo", "state": "Ready"},
+        {"name": "Gamma_Bar", "state": "Disabled"},
+        {"name": "Gamma_Baz", "state": "Disabled"},
+        {"name": "NotGamma_Qux", "state": "Disabled"},  # excluded -- not a Gamma_* task
+    ]
+    result = _REAL_TASK_HEALTH_SNAPSHOT(_TUE_AFTERHOURS_UTC, registered_tasks_fn=lambda: fake_tasks)
+    assert result["disabled"] == ["Gamma_Bar", "Gamma_Baz"]
+    assert result["total"] == 3
+    assert result["failed_last_run"] == []
+    assert "LastTaskResult" in result["source"]
+
+
+def test_task_health_snapshot_fails_open_on_enumeration_error():
+    def _boom():
+        raise RuntimeError("Get-ScheduledTask unavailable")
+    result = _REAL_TASK_HEALTH_SNAPSHOT(_TUE_AFTERHOURS_UTC, registered_tasks_fn=_boom)
+    assert result["disabled"] == []
+    assert result["total"] == 0
+    assert "unavailable" in result["source"]

@@ -81,19 +81,18 @@
     {
       "name": "Chef",
       "role_file": ".claude/agents/chef.md",
-      "objective": "Always be cooking the next strategy candidate. Use the backtest engine. Rank by J's edge metrics. Propose, never deploy.",
-      "kpi": "candidates must clear edge_capture >= 771 (50% of the OP-16 max 1542) to avoid rejection at intake; pre-merge gate crypto/validators/runner.py must show all stages PASS before AND after any change.",
-      "cadence": "event-driven: overnight wake fires on @chef-tagged queue items + /chef manual — NO fixed Task Scheduler cron of its own; invoked via the Gamma_Conductor fan-out (opus judgment picks Chef as the single highest-value task for a fire).",
-      "tasks": ["Gamma_Conductor"],
+      "objective": "Own the idea loop: every card on the Station ideas board gets a runnable test_spec and a verdict from data — in-sample and post-registration windows; refuted/supported only on post-registration n≥10; the graveyard keeps settled mechanisms from being re-proposed",
+      "kpi": "every `testing` card has a verdict row newer than its last spec change; no killed/refuted title re-proposed",
+      "cadence": "every 30 min inside Gamma_Station (hypothesis_scorer runs even when the LLM yields) + nightly re-score in trade_autopsy.main",
+      "tasks": ["Gamma_Station"],
       "dedicated_task": false,
-      "deliverable": {"path": "strategy/candidates/_LEADERBOARD.md", "glob": null},
-      "goal_ref": "none",
+      "deliverable": {"path": "analysis/recommendations/station-verdicts.jsonl", "glob": null},
+      "goal_ref": "GOAL-GAMMA-STATION-2026-09-13",
       "ground_truth": {
-        "kind": "chef_candidates_change",
-        "leaderboard_path": "strategy/candidates/_LEADERBOARD.md",
-        "log_path": "strategy/candidates/_chef-log.jsonl",
-        "candidates_dir": "strategy/candidates",
-        "within_days": 14
+        "kind": "chef_verdict_rows",
+        "verdicts_path": "analysis/recommendations/station-verdicts.jsonl",
+        "board_path": "automation/state/station/ideas-board.json",
+        "max_age_min": 60
       },
       "quiz": {
         "id": "chef_canonical_battery",
@@ -108,19 +107,17 @@
     {
       "name": "Coach",
       "role_file": ".claude/agents/coach.md",
-      "objective": "Verify the gym is training the right muscles, the equipment is humming, and the routine stays fresh.",
-      "kpi": "python crypto/validators/runner.py 30/30 PASS expected; drift tracker GREEN; 0 scheduled-task audit FLAGS from audit_scheduled_tasks.py.",
-      "cadence": "06:00 ET daily via Gamma_CryptoDaily (+ every 30 min Gamma_CryptoRegression, every 5 min Gamma_CryptoGrinderKeepalive, 17:30 ET daily Gamma_SelfAudit)",
-      "tasks": ["Gamma_CryptoDaily", "Gamma_CryptoRegression", "Gamma_CryptoGrinderKeepalive", "Gamma_SelfAudit"],
-      "dedicated_task": true,
-      "deliverable": {"path": "crypto/data/scorecards/drift_report.json", "glob": null},
-      "goal_ref": "none",
+      "objective": "Run the sectors and the rig's health: one per-lane table with evidence timestamps every fire; RED lanes and dark scheduled tasks become cards; nothing goes quietly dark",
+      "kpi": "sectors.json < 60 min old 24/7; every RED lane is on the board within one fire",
+      "cadence": "every 30 min inside Gamma_Station (sectors + task-health snapshot written on every fire, yielded or not)",
+      "tasks": ["Gamma_Station"],
+      "dedicated_task": false,
+      "deliverable": {"path": "automation/state/station/sectors.json", "glob": null},
+      "goal_ref": "GOAL-GAMMA-STATION-2026-09-13",
       "ground_truth": {
-        "kind": "coach_drift_within_cadence",
-        "drift_path": "crypto/data/scorecards/drift_report.json",
-        "log_path": "crypto/data/scorecards/coach-log.jsonl",
-        "within_hours": 30,
-        "log_within_days": 3
+        "kind": "coach_sectors_fresh",
+        "path": "automation/state/station/sectors.json",
+        "max_age_min": 60
       },
       "quiz": {
         "id": "coach_red_priority",
