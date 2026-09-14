@@ -53,7 +53,6 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents }: 
     : error
       ? `Refresh failed (${error instanceof Error ? error.message : "fetch failed"})`
       : "Loading...";
-  const brief = data?.brief.text || "NO DATA -- no brief written yet";
   const personas = data?.company?.personas ?? [];
   const blockedItems = data?.blocked ?? [];
   // Company audit badge (commit 58d0b9c6, coordinator 2026-09-13: "the
@@ -66,11 +65,6 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents }: 
   return (
     <div style={{ position: "fixed", inset: 0, pointerEvents: "none", fontFamily: HUD_FONT, zIndex: 10 }}>
       <style>{`
-        @keyframes hq-ticker-scroll {
-          from { transform: translateX(100vw); }
-          to { transform: translateX(-100%); }
-        }
-
         /* "Epic animations for the folders" (2026-09-13, J via 21st.dev) --
            hand-implemented (no code copied), concepts credited per rule:
            transform/opacity/background-position ONLY (no filter:blur,
@@ -214,7 +208,16 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents }: 
                 key={p.name}
                 className={p.status === "GREEN" ? "hq-pulse" : undefined}
                 style={{
-                  background: "rgba(3,4,10,0.6)", border: `1px solid ${color}55`,
+                  // Pass F (2026-09-13, coordinator's real-monitor capture,
+                  // item 4 "reserve the right 480px for the roster"):
+                  // opacity 0.6->0.93 -- a 3D-projected lane/persona label
+                  // can land anywhere on screen depending on camera angle
+                  // (they're not screen-space-aware of this HUD column), so
+                  // a near-opaque background is what actually GUARANTEES
+                  // this column reads clean regardless of what's behind it,
+                  // rather than relying on camera angle alone to avoid
+                  // ever placing something back there.
+                  background: "rgba(3,4,10,0.93)", border: `1px solid ${color}55`,
                   borderRadius: 8, padding: "6px 12px",
                 }}
               >
@@ -274,37 +277,36 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents }: 
         </div>
       )}
 
-      {/* Event ticker (J 2026-09-13, "they need MEANING"): the last ~3 real
-          events that caused an agent to move, newest first, each with its
-          ET time -- see lib/useMotionEvents.ts for the exact event->text
-          mapping. Static stack (not scrolling like the brief below it) so
-          all 3 stay readable at once; sits directly above the brief ticker. */}
-      {motionEvents.length > 0 && (
-        <div style={{ position: "absolute", left: 20, bottom: 78, maxWidth: "62vw", display: "flex", flexDirection: "column-reverse", gap: 2 }}>
-          {motionEvents.slice(0, 3).map((ev) => (
-            <div key={ev.id} style={{ color: "#7fd8b0", fontSize: 22, fontFamily: HUD_FONT, textShadow: "0 0 8px rgba(3,4,10,0.9)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-              <span style={{ color: "#4fd6ff", fontVariantNumeric: "tabular-nums" }}>{ev.tsEt}</span> {ev.text}
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Bottom ticker: scrolling brief text -- ~26px per the readability pass */}
+      {/* Bottom ticker (Pass F, 2026-09-13, coordinator's real-monitor
+          capture): the OLD version below this comment -- a 40px scrolling
+          sentence of raw brief.text, cut off at both ends -- is GONE. It
+          directly violated this project's own HQ FACE RULES ("motion =
+          events with a ticker," never raw prose) and was the coordinator's
+          #5 flagged item. This is now the ONE bottom ticker: the same real
+          event lines (lib/useMotionEvents.ts, "they need MEANING") that
+          used to sit in a floating stack above the brief scroll, now
+          resized to the coordinator's 24-26px spec and given a proper
+          bordered strip (matching the removed ticker's own band styling)
+          instead of floating transparently over the 3D scene. Newest-first,
+          each line ET-stamped, 3 max, static (no scroll needed -- 3 short
+          lines already fit one strip width without truncation). */}
       <div
         style={{
-          position: "absolute", left: 0, right: 0, bottom: 34, height: 40,
-          overflow: "hidden", background: "rgba(3,4,10,0.6)", borderTop: "1px solid rgba(122,217,255,0.18)",
-          borderBottom: "1px solid rgba(122,217,255,0.18)",
+          position: "absolute", left: 0, right: 0, bottom: 34, minHeight: 40,
+          overflow: "hidden", background: "rgba(3,4,10,0.7)", borderTop: "1px solid rgba(122,217,255,0.18)",
+          borderBottom: "1px solid rgba(122,217,255,0.18)", padding: "6px 20px",
+          display: "flex", flexDirection: "column-reverse", gap: 2,
         }}
       >
-        <div
-          style={{
-            whiteSpace: "nowrap", color: "#9fd8ff", fontSize: 26, lineHeight: "40px",
-            display: "inline-block", animation: "hq-ticker-scroll 65s linear infinite",
-          }}
-        >
-          {brief}
-        </div>
+        {motionEvents.length > 0 ? (
+          motionEvents.slice(0, 3).map((ev) => (
+            <div key={ev.id} style={{ color: "#9fd8ff", fontSize: 25, fontFamily: HUD_FONT, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+              <span style={{ color: "#4fd6ff", fontVariantNumeric: "tabular-nums" }}>{ev.tsEt}</span> {ev.text}
+            </div>
+          ))
+        ) : (
+          <div style={{ color: "#7f93b0", fontSize: 25, fontFamily: HUD_FONT }}>No events yet this session.</div>
+        )}
       </div>
 
       {/* Bottom-right corner: TV self-reported perf (J must SEE the number) + synced status.

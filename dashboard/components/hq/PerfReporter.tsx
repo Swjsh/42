@@ -11,15 +11,9 @@ interface PerfReporterProps {
    * ZERO GLTF loads -- pure procedural geometry -- and its own historical
    * samples never show this). UltraCanvasRoot passes a longer delay so the
    * FIRST sample reflects steady state, not the loading burst; TV tier
-   * (CanvasRoot.tsx) omits this and keeps the original 10s. NOTE this does
-   * not address a second, separate suspicion: @react-three/postprocessing's
-   * EffectComposer runs multiple internal renderer.render() passes per
-   * frame, and THREE's `info.render.calls/triangles` reset at the start of
-   * each one -- a snapshot taken after the LAST pass (SMAA, a single
-   * fullscreen-quad draw) may read close to 1 regardless of window timing.
-   * Unconfirmed without a source-level trace; flagged here rather than
-   * silently fixed, since a wrong fix would just produce a different wrong
-   * number with more confidence behind it. */
+   * (CanvasRoot.tsx) omits this and keeps the original 10s. The SEPARATE
+   * calls=1/tris=1-under-postprocessing issue flagged in an earlier pass is
+   * now fixed too -- see the `gl.info.autoReset` useFrame below. */
   firstReportMs?: number;
 }
 
@@ -42,6 +36,28 @@ export default function PerfReporter({ enabled, firstReportMs = FIRST_REPORT_MS 
   const frameCount = useRef(0);
   const windowStartMs = useRef<number | null>(null);
   const nextDelayMs = useRef(firstReportMs);
+
+  // Pass F fix (2026-09-13, coordinator's own diagnosis, confirmed by a
+  // real-monitor capture reading calls=1/tris=1 under postprocessing):
+  // THREE.WebGLRenderer.info.autoReset defaults true, which zeroes
+  // info.render.calls/triangles at the START of every renderer.render()
+  // call. @react-three/postprocessing's EffectComposer calls the renderer
+  // multiple times per FRAME (once per pass: N8AO, Bloom, GodRays,
+  // ChromaticAberration, Vignette, SMAA -- confirmed by reading its bundled
+  // source this session, `renderPriority` defaults to 1) -- so by the time
+  // the read-callback below ran, autoReset had already zeroed the counters
+  // down to just the LAST pass's single fullscreen quad. Fix: disable
+  // autoReset and take over resetting it ourselves, exactly once per frame,
+  // at useFrame priority -Infinity -- r3f runs nonzero-priority callbacks
+  // in ascending order, so -Infinity is guaranteed to run before
+  // EffectComposer's own priority-1 render, which is in turn before this
+  // file's OWN read-callback (bumped to priority 2 below) -- giving that
+  // callback the FULL frame's accumulated calls/triangles across every
+  // pass, not a stale snapshot of only the last one.
+  useFrame(() => {
+    gl.info.autoReset = false;
+    gl.info.reset();
+  }, -Infinity);
 
   useFrame(() => {
     if (!enabled) return;
@@ -75,7 +91,7 @@ export default function PerfReporter({ enabled, firstReportMs = FIRST_REPORT_MS 
     frameCount.current = 0;
     windowStartMs.current = now;
     nextDelayMs.current = REPEAT_MS;
-  });
+  }, 2);
 
   return null;
 }

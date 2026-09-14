@@ -32,8 +32,19 @@ export default function PersonaModule({ position, persona, behavior, audit }: Pe
   const color = personaStatusColor(persona.status);
   const auditColor = auditVerdictColor(audit?.verdict);
 
+  // Pass F (2026-09-13, coordinator's real-monitor capture, item 4:
+  // "persona plaques should hang above their bay, lane labels lower"): y
+  // 1.05->1.9 -- was sitting near ground/desk level, close enough to other
+  // near-camera content (lane bay labels, the core's own plaques) to read
+  // as colliding in screen-space from the ring's typical camera angle. 1.9
+  // clears a standing 1.8-unit-tall character's own head, closer to
+  // StationModule's own doorway-nameplate convention (2.3) without
+  // matching it exactly -- personas are the CLOSER inner ring, so a
+  // slightly lower plaque than the outer bay labels still reads as "above
+  // its own desk" while staying visually separated by height from the
+  // outer ring.
   return (
-    <Html position={[position[0], 1.05, position[2]]} center distanceFactor={9} style={{ pointerEvents: "none" }}>
+    <Html position={[position[0], 1.9, position[2]]} center distanceFactor={9} style={{ pointerEvents: "none" }}>
       <div className="hq-beam" style={{ "--beam-color": color, borderRadius: 8 } as CSSProperties}>
         <div
           style={{

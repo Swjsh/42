@@ -4,7 +4,7 @@ import { Suspense, useEffect, useMemo } from "react";
 import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import DeskScreen from "./DeskScreen";
-import type { ScreenLine } from "./palette";
+import { PALETTE, type ScreenLine } from "./palette";
 
 // ─── HQ kit rebuild (2026-09-13, HQ-SCENE-PLAN.md) ──────────────────────────
 // Real CC0 GLB pieces (Kenney Space Station Kit / Modular Space Kit / Space
@@ -124,16 +124,42 @@ const _tintColor = new THREE.Color();
  * every kit piece shares one baked "colormap" atlas texture (verified this
  * session -- see HQ-SCENE-PLAN.md), so a strong tint would flatten it into
  * a solid color block instead of keeping the kit's own shading legible. */
-export function tintObjectMaterials(root: THREE.Object3D, tint: string, tintStrength: number): THREE.Material[] {
+const _emissiveColor = new THREE.Color();
+
+/** Pass F (2026-09-13, coordinator's own real-monitor capture): optional
+ * emissive -- SELF-illuminating, independent of whether the scene's own
+ * hemisphere/directional lights actually reach a given surface. Every
+ * existing caller omits this (default undefined -> zero behavior change,
+ * zero risk to the 10+ kit pieces already using tintObjectMaterials/
+ * useTintedClone) -- added specifically because HubRoom's room-large.glb
+ * shell (a large, doubleSided, externally-lit-only mesh) reads as flat
+ * black in the coordinator's real capture: a big dark dome dominating the
+ * frame, exactly what J flagged as a "black hole" on the STARFIELD planet
+ * earlier this session -- except the planet (Starfield.tsx, radius 2.1 at
+ * [-26,13,-34]) is angularly ~1.9deg from the camera (verified by the
+ * actual CAMERA_DIST/CAMERA_HEIGHT/BASE_AZIMUTH math this session), nowhere
+ * near large enough to fill "the upper half" of a 1080p frame -- the real
+ * culprit is this room shell (world radius 7.5, i.e. HUB_WALL_RADIUS
+ * itself), confirmed by parsing room-large.glb's own JSON chunk (one mesh,
+ * doubleSided=true, Y bounds 0..4.25 raw). */
+export function tintObjectMaterials(
+  root: THREE.Object3D, tint: string, tintStrength: number,
+  emissive?: { color: string; intensity: number },
+): THREE.Material[] {
   _tintColor.set(tint);
+  if (emissive) _emissiveColor.set(emissive.color);
   const clonedMaterials: THREE.Material[] = [];
   root.traverse((obj) => {
     if (!(obj instanceof THREE.Mesh)) return;
     const applyTint = (mat: THREE.Material) => {
       const cloneMat = mat.clone();
       clonedMaterials.push(cloneMat);
-      const colorable = cloneMat as THREE.Material & { color?: THREE.Color };
+      const colorable = cloneMat as THREE.Material & { color?: THREE.Color; emissive?: THREE.Color; emissiveIntensity?: number };
       if (colorable.color) colorable.color.lerp(_tintColor, tintStrength);
+      if (emissive && colorable.emissive) {
+        colorable.emissive.copy(_emissiveColor);
+        colorable.emissiveIntensity = emissive.intensity;
+      }
       return cloneMat;
     };
     obj.material = Array.isArray(obj.material) ? obj.material.map(applyTint) : applyTint(obj.material);
@@ -146,16 +172,19 @@ export function tintObjectMaterials(root: THREE.Object3D, tint: string, tintStre
  * unskinned meshes, so a plain deep `.clone(true)` is correct and cheap;
  * skinned/animated characters use SkeletonUtils.clone instead, see
  * KitAgent.tsx) and optionally tints it via `tintObjectMaterials` above. */
-function useTintedClone(scene: THREE.Object3D, tint: string | undefined, tintStrength: number): THREE.Object3D {
+function useTintedClone(
+  scene: THREE.Object3D, tint: string | undefined, tintStrength: number,
+  emissive?: { color: string; intensity: number },
+): THREE.Object3D {
   const cloned = useMemo(() => scene.clone(true), [scene]);
 
   useEffect(() => {
-    if (!tint) return;
-    const clonedMaterials = tintObjectMaterials(cloned, tint, tintStrength);
+    if (!tint && !emissive) return;
+    const clonedMaterials = tintObjectMaterials(cloned, tint ?? "#000000", tint ? tintStrength : 0, emissive);
     return () => {
       clonedMaterials.forEach((m) => m.dispose());
     };
-  }, [cloned, tint, tintStrength]);
+  }, [cloned, tint, tintStrength, emissive]);
 
   return cloned;
 }
@@ -169,6 +198,12 @@ interface KitPropProps {
    * (see useTintedClone). Omit to keep the kit's native coloring untouched. */
   tint?: string;
   tintStrength?: number;
+  /** Pass F (2026-09-13): self-illuminating glow, independent of scene
+   * lighting reaching this surface -- see tintObjectMaterials' own comment
+   * for why this exists (a large kit shell reading flat black regardless
+   * of ambient/directional light). Omit (every current caller except
+   * HubRoom) for zero behavior change. */
+  emissive?: { color: string; intensity: number };
   castShadow?: boolean;
   receiveShadow?: boolean;
 }
@@ -177,7 +212,7 @@ interface KitPropProps {
  * caches by path, so the 8 bays sharing e.g. `table.glb` parse it ONCE, not
  * 8 times) + a per-instance clone. This is the one building block every
  * component below is made of. */
-export function KitProp({ path, scale = 1, position, rotation, tint, tintStrength = 0.15, castShadow, receiveShadow }: KitPropProps) {
+export function KitProp({ path, scale = 1, position, rotation, tint, tintStrength = 0.15, emissive, castShadow, receiveShadow }: KitPropProps) {
   // useDraco=false EXPLICITLY -- verified this session by reading drei's own
   // useGLTF source (node_modules/@react-three/drei/core/Gltf.js): omitting
   // the arg defaults it to `true`, which points a DRACOLoader at a
@@ -188,7 +223,7 @@ export function KitProp({ path, scale = 1, position, rotation, tint, tintStrengt
   // project's zero-network-requests rule is absolute, so it's set false
   // outright rather than left as an implicit, easy-to-miss assumption.
   const { scene } = useGLTF(path, false);
-  const cloned = useTintedClone(scene, tint, tintStrength);
+  const cloned = useTintedClone(scene, tint, tintStrength, emissive);
 
   useEffect(() => {
     if (!castShadow && !receiveShadow) return;
@@ -214,7 +249,24 @@ export function HubRoom() {
   const lightRadius = 4;
   return (
     <>
-      <KitProp path={KIT_PATHS.architecture.roomLarge} scale={ARCHITECTURE_SCALE_HUB} receiveShadow />
+      {/* Pass F emissive fix (2026-09-13, coordinator's real-monitor
+          capture): this shell was reading flat BLACK -- a dome dominating
+          the frame, exactly the earlier "black hole" complaint, but on the
+          room shell, not the Starfield planet (see tintObjectMaterials' own
+          comment for the angular-size math ruling the planet out). A warm,
+          modest emissive (never fully dark regardless of what light
+          reaches it) plus a slight tint toward the same warm accent this
+          scene already uses at the horizon (PALETTE.warmAccent) -- low
+          intensity (0.4) so it reads as a dimly-lit interior surface, not a
+          glowing lightbulb. */}
+      <KitProp
+        path={KIT_PATHS.architecture.roomLarge}
+        scale={ARCHITECTURE_SCALE_HUB}
+        tint={PALETTE.warmAccent}
+        tintStrength={0.08}
+        emissive={{ color: PALETTE.warmAccent, intensity: 0.4 }}
+        receiveShadow
+      />
       {[0, 90, 180, 270].map((deg) => {
         const rad = (deg * Math.PI) / 180;
         const pos: [number, number, number] = [Math.cos(rad) * lightRadius, HUB_CEILING_Y, Math.sin(rad) * lightRadius];

@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, type RefObject } from "react";
-import { EffectComposer, Bloom, SMAA, Vignette, ChromaticAberration, N8AO, DepthOfField, GodRays } from "@react-three/postprocessing";
+import { EffectComposer, Bloom, SMAA, Vignette, ChromaticAberration, N8AO, GodRays } from "@react-three/postprocessing";
 import type * as THREE from "three";
 
 interface EffectsStackProps {
@@ -21,14 +21,29 @@ interface EffectsStackProps {
  * count": selective Bloom (only emissive/toneMapped-false materials lift
  * out of 0-1 and actually bloom), SMAA instead of hardware MSAA (N8AO does
  * not combine with MSAA per the brief), a faint Vignette, a barely-
- * perceptible ChromaticAberration, moderate N8AO, subtle DepthOfField, and
- * GodRays scoped to the ONE hero light source (brain core) -- never a
+ * perceptible ChromaticAberration, moderate N8AO, and GodRays scoped to
+ * the ONE hero light source (brain core, no DepthOfField -- see that
+ * pass's own removal note below) -- never a
  * second GodRays pass on anything else, per the brief's explicit warning
  * that a second pass isn't worth its cost (fake additive cones are the
  * queued alternative for secondary sources, not built this pass).
  *
  * World pass A REAL bug fix (2026-09-13, found by reading
  * @react-three/postprocessing's own GodRays.tsx source, not guessed): its
+ * DepthOfField REMOVED (Pass F, 2026-09-13, coordinator's real-monitor
+ * capture): `focusDistance={0.02}` put the in-focus plane essentially at
+ * the camera lens, so the entire station -- which sits at a moderate-to-far
+ * distance in every composition this scene actually uses -- rendered
+ * uniformly soft ("PS2 softness," the coordinator's own words). The
+ * coordinator offered "focus the full set (wide focal range) or drop DoF";
+ * dropping it is the lower-risk choice (DoF is hard to tune well for a wide
+ * static diorama shot, not a shallow hero-object shot) and guarantees no
+ * regression risk from a re-tuned focus distance that might still be wrong
+ * for SOME camera angle this scene's event-driven CameraRig can reach
+ * (Pass D's ease-to-event/vignette moves the lookAt around, which would
+ * also move where "in focus" should be -- one static focusDistance can't
+ * track that correctly anyway). Bloom stays selective per the brief.
+ *
  * `useMemo(() => new GodRaysEffect(...), [camera, props])` depends on the
  * WHOLE props object, which JSX allocates fresh on every render of this
  * component's PARENT -- Scene.tsx re-renders on every SWR poll (every
@@ -59,7 +74,6 @@ function EffectsStack({ coreMeshRef }: EffectsStackProps) {
           toneMapped={false} emissive surfaces (core, rings, beacons, screen
           insets, edge strips) are authored with color values that exceed 1. */}
       <Bloom mipmapBlur luminanceThreshold={0.78} luminanceSmoothing={0.25} intensity={0.9} />
-      <DepthOfField focusDistance={0.02} focalLength={0.05} bokehScale={2.5} />
       <GodRays sun={coreMeshRef as RefObject<THREE.Mesh>} samples={40} density={0.85} decay={0.92} weight={0.4} exposure={0.3} clampMax={1} blur />
       <ChromaticAberration offset={[0.0005, 0.0005]} />
       <Vignette />

@@ -57,8 +57,18 @@ const BASE_AZIMUTH = Math.atan2(16, 20);
 // math) -- verify against the next screenshot, adjust distance first if
 // still off (moving the whole camera, not the FOV, keeps perspective
 // distortion the same as the already-approved 3/4 diorama look).
-const CAMERA_DIST = 27;
-const CAMERA_HEIGHT = 11;
+// Pass F (2026-09-13, coordinator's real-monitor capture, 1920x1080): the
+// old 27/11 pair (tuned blind against a 2560x1440 headless emulation, never
+// against the real monitor) left dead sky above the dome and cut the front
+// bays off at the bottom -- a camera 11 units up looking at y=1.9 from 27
+// away sits at an 18.6deg depression angle (atan((11-1.9)/27)), spending
+// the TOP ~6deg of the 50deg vertical FOV on empty sky above the station's
+// own ~3-4-unit height. 22/7.5 (paired with DEFAULT_LOOKAT's y 1.9->1.4
+// below) drops the depression angle to ~13.6deg and moves 5 units closer --
+// a more level, larger-in-frame view. Unverified beyond the coordinator's
+// own capture_hq.ps1 re-check this pass; nudge further if still off.
+const CAMERA_DIST = 22;
+const CAMERA_HEIGHT = 7.5;
 // Module-level (stable-forever) constants, never inline array literals, for
 // anything fed into a useMemo dependency array below -- an inline `[0, 0,
 // -0.15]` literal is a NEW array every render and would silently defeat the
@@ -76,6 +86,17 @@ const TV_PERSONA_SEAT_LOCAL: [number, number, number] = [0, 0, -0.1];
 // BASE_AZIMUTH) -- the arc is centered there, spanning ~230deg so all 8
 // modules stay generally camera-facing and spread across the 16:9 frame.
 const ARC_CENTER = Math.PI / 2 - BASE_AZIMUTH;
+// Pass F (2026-09-13): tried 200 here to pull Crypto twin/Futures (the
+// labels still grazing the roster column after the framing fix alone) back
+// toward center -- REVERTED after a real re-capture showed it made that
+// SAME collision WORSE, not better (both labels landed further into the
+// roster column, not less). The angular-compression reasoning that
+// predicted the opposite was wrong about the actual screen-space direction
+// -- rather than keep guessing blindly against a 43s-per-iteration real
+// capture loop, left at the original 230 and documented as a known
+// remaining issue (see StationModule.tsx's label styling / Hud.tsx's
+// roster opacity for the mitigations that DID verifiably help) rather than
+// risk a third blind swing.
 const ARC_SPAN = (230 * Math.PI) / 180;
 // Company Mode (2026-09-13): a second, smaller, FIXED ring for the 6
 // non-manager personas (item 10 of the spec -- "keep the two rings visually
@@ -117,7 +138,7 @@ function derivePersonaBehavior(persona: PersonaState, gaming: boolean): AgentBeh
   return "idle";
 }
 
-const DEFAULT_LOOKAT = new THREE.Vector3(0, 1.9, 0);
+const DEFAULT_LOOKAT = new THREE.Vector3(0, 1.4, 0);
 const CAMERA_FOCUS_HOLD_S = 8; // event-triggered ease (red flip, all-hands)
 const CAMERA_VIGNETTE_INTERVAL_S = 90; // director vignette cadence (coordinator's own number)
 const CAMERA_VIGNETTE_HOLD_S = 6;
@@ -156,7 +177,7 @@ interface CameraRigProps {
  */
 function CameraRig({ reducedMotion, rows, geometry, briefMtimeMs }: CameraRigProps) {
   const { camera } = useThree();
-  const lookAtCurrent = useRef(new THREE.Vector3(0, 1.9, 0));
+  const lookAtCurrent = useRef(new THREE.Vector3(0, 1.4, 0));
   const focusGoal = useRef<THREE.Vector3 | null>(null);
   const focusUntil = useRef(0);
   const prevRedLanes = useRef<Set<string>>(new Set());
