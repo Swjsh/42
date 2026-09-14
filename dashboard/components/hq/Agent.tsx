@@ -49,6 +49,16 @@ interface AgentProps {
    * nearest the fixed camera) -- undefined everywhere else, zero cost. */
   presenceMode?: AgentPresenceMode;
   facingYaw?: number;
+  /** Pass C schedule state (2026-09-13): 0..1, same visual lever as
+   * presenceMode="patrol"'s 0.35 (head-beacon/visor dim) -- the lower of
+   * the two ever applies (Math.min), so an off-shift AND night-patrolling
+   * agent doesn't double-dim into invisibility. Callers only ever pass a
+   * value below 1 when the persona is BOTH outside its own schedule window
+   * AND not currently showing real activity (behavior !== "working") --
+   * see Scene.tsx's own comment on why real data must never be visually
+   * contradicted by a schedule assumption. Default 1 (every lane Agent
+   * omits this -- schedules are a persona-only concept). */
+  scheduleDim?: number;
   /** Ultra tier only (HQ kit rebuild, 2026-09-13): renders a real rigged
    * Kenney Mini Character (KitAgent.tsx) instead of the procedural
    * capsule/visor body below. Every position/walk-phase computation in this
@@ -82,6 +92,7 @@ type WalkPhase = "resting" | "toHub" | "atHub" | "toHome" | "arriving";
  */
 export default function Agent({
   laneSeed, home, hub, behavior, accentColor, reducedMotion, walkEventKey, walkKind, allHandsEventKey, presenceMode, facingYaw,
+  scheduleDim = 1,
   ultra = false,
 }: AgentProps) {
   const group = useRef<THREE.Group>(null);
@@ -99,7 +110,7 @@ export default function Agent({
   // below); the TV tier's procedural body ignores it entirely.
   const [walking, setWalking] = useState(false);
   const animState: KitAnimState = behavior === "alert" ? "alert" : walking ? "walking" : behavior === "working" ? "resting-working" : "resting-idle";
-  const patrolDim = presenceMode === "patrol" ? 0.35 : 1;
+  const patrolDim = Math.min(presenceMode === "patrol" ? 0.35 : 1, scheduleDim);
 
   const matcap = useMemo(() => makeMatcapTexture(), []);
   const rng = useMemo(() => seededRandom(laneSeed), [laneSeed]);
@@ -283,10 +294,12 @@ export default function Agent({
       legR.current.rotation.x = 0;
     }
 
-    // "Night patrol" dim (J 2026-09-13: presence == away) -- cuts the
-    // visor's own emissive glow, the cheapest possible "quieter without J
-    // here" tell (no new material, no opacity/blend cost).
-    const patrolDim = presenceMode === "patrol" ? 0.35 : 1;
+    // "Night patrol" dim (J 2026-09-13: presence == away) + Pass C schedule
+    // dim (2026-09-13: off-shift persona, only when not genuinely working)
+    // -- cuts the visor's own emissive glow, the cheapest possible "quieter
+    // right now" tell (no new material, no opacity/blend cost). Whichever
+    // reason is stronger wins (Math.min), never double-dimmed.
+    const patrolDim = Math.min(presenceMode === "patrol" ? 0.35 : 1, scheduleDim);
     if (visorMat.current) visorMat.current.emissiveIntensity = (1.4 + Math.sin(t * 3) * 0.2) * patrolDim;
   }, 20);
 

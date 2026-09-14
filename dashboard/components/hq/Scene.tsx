@@ -20,7 +20,7 @@ import PmremEnvironment from "./PmremEnvironment";
 import EffectsStack from "./EffectsStack";
 import GammaCharacter from "./GammaCharacter";
 import ActivityBubbleLayer, { type ActivityBubbleCandidate } from "./ActivityBubbleLayer";
-import { freshness01, healthColor, isParkedState, localToWorld, minutesSinceEvidence, PALETTE, personaStatusColor, rosterEvidenceText, truncateOneLine, type ScreenLine } from "./palette";
+import { dayNightFactor, freshness01, healthColor, isParkedState, lerp, localToWorld, minutesSinceEvidence, nowEtDayOfWeek, nowEtMinutes, PALETTE, personaStatusColor, rosterEvidenceText, scheduleOnShift, truncateOneLine, type ScreenLine } from "./palette";
 import { BAY_DESK_OFFSET_Z, BAY_HALF_DEPTH, BAY_SEAT_LOCAL, CorridorRun, DeskCluster, HubRoom, HUB_WALL_RADIUS } from "./SetKit";
 
 export type HqTier = "ultra" | "tv";
@@ -209,6 +209,17 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
   const gaming = (data?.mode ?? "work") === "gaming";
   const dimFactor = gaming ? 0.35 : 1;
 
+  // Pass C (2026-09-13): ET day/night mood + persona schedule state. Read
+  // fresh on every ACTUAL Scene render (no useMemo) -- Scene is memo()'d
+  // and now only re-renders on a genuine data change (every 15-60s in
+  // kiosk mode thanks to page.tsx's stable sceneData), which is plenty
+  // precise for a mood value that only needs to move gradually over hours;
+  // a fresh clock read every poll beats a stale one cached at mount forever.
+  const etMinutesNow = nowEtMinutes();
+  const dayOfWeekNow = nowEtDayOfWeek();
+  const nightFactor = dayNightFactor(etMinutesNow);
+  const nightMult = lerp(0.5, 1, nightFactor);
+
   // Geometry (angle/position per ring slot) is memoized on COUNT alone, not
   // on the `rows` array reference -- `rows` is a fresh array every SWR poll
   // even when its content is identical, and `sectors.py`'s row order is
@@ -389,7 +400,14 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
           see StationModule.tsx). */}
       <color attach="background" args={[PALETTE.space]} />
       <fog attach="fog" args={[PALETTE.fogColor, 20, 62]} />
-      <hemisphereLight args={["#3a4a7a", "#04040a", 0.55 * dimFactor]} />
+      {/* Pass C (2026-09-13): ET day/night mood, ambient fill ONLY -- this
+          is a space-station interior, not outdoors, so the station's own
+          practical lights (ceiling pointLights, beacons, desk screens)
+          never dim with the clock, exactly as a real installation's
+          artificial lighting wouldn't. nightMult floors at 0.5 (never
+          pitch black -- a mood shift, not a blackout) and only multiplies
+          the SAME two lights the pre-Pass-C perf budget already spent. */}
+      <hemisphereLight args={["#3a4a7a", "#04040a", 0.55 * nightMult * dimFactor]} />
       {/* Ultra tier: this directional light also casts real shadows
           (module/agent meshes opt in via castShadow/receiveShadow below) --
           the TV tier's identical light stays shadow-free (shadows={false}
@@ -397,7 +415,7 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
           so this prop is harmless to set unconditionally). */}
       <directionalLight
         position={[6, 10, 4]}
-        intensity={0.55 * dimFactor}
+        intensity={0.55 * nightMult * dimFactor}
         castShadow={ultra}
         shadow-mapSize={[2048, 2048]}
         shadow-camera-near={1}
@@ -557,6 +575,13 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
         // equivalent fallback is the SAME rosterEvidenceText "quiet
         // since..." text every other persona's bubble/roster line already
         // uses when recentOutput is empty.
+        // Pass C schedule state (2026-09-13): only dims when BOTH outside
+        // this persona's own window AND not genuinely working right now --
+        // real activity always wins over a schedule assumption (see
+        // scheduleOnShift's own comment). "Night shift = Chef lit/busy,
+        // others resting" falls straight out of PERSONA_SCHEDULE's own
+        // table (Chef's window IS overnight) -- no separate night branch.
+        const offSchedule = !scheduleOnShift(persona.name, etMinutesNow, dayOfWeekNow) && behavior !== "working";
         const isPilot = persona.name === "Pilot";
         const pilotScreenLines: ScreenLine[] | undefined = isPilot
           ? [
@@ -604,6 +629,7 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
                 // poll -- independent of each persona's own arrival trigger
                 // above (see Agent.tsx's own comment on the two channels).
                 allHandsEventKey={data?.brief.mtime_ms != null ? String(data.brief.mtime_ms) : null}
+                scheduleDim={offSchedule ? 0.35 : 1}
                 ultra={ultra}
               />
             )}

@@ -228,6 +228,16 @@ export function nowEtMinutes(): number {
   return Date.UTC(get("year"), get("month") - 1, get("day"), hour, get("minute"), get("second")) / 60000;
 }
 
+/** 0=Sunday..6=Saturday in America/New_York -- companion to nowEtMinutes
+ * above, same Intl.DateTimeFormat approach (never a naive `new
+ * Date().getDay()`, which reads the BROWSER's local timezone, not ET --
+ * this box's own local time is NOT ET, see CLAUDE.md's own TZ lesson).
+ * Used by scheduleOnShift's Sunday-only Treasurer window. */
+export function nowEtDayOfWeek(): number {
+  const weekday = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", weekday: "short" }).format(new Date());
+  return ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].indexOf(weekday);
+}
+
 /** Minutes between now (ET) and a sector row's last_evidence_et -- null when
  * either side is unparsable (row says "unknown", or a clock read failed). */
 export function minutesSinceEvidence(lastEvidenceEt: string): number | null {
@@ -243,6 +253,77 @@ export function freshness01(minutesAgo: number | null): number {
   if (minutesAgo === null) return 0;
   const clamped = Math.min(Math.max(minutesAgo, 0), 1440);
   return 1 - clamped / 1440;
+}
+
+/** ET day/night mood factor, 0 (deepest night) .. 1 (peak midday) -- Pass C
+ * (2026-09-13). This is a SPACE-STATION INTERIOR, not an outdoor scene --
+ * there is no literal sun to simulate, and the station's own practical
+ * lights (ceiling pointLights, desk screens, beacons) stay lit 24/7 exactly
+ * as an artificial installation would. What this drives is the scene's
+ * AMBIENT fill only (Scene.tsx's hemisphereLight/directionalLight) -- the
+ * "does the station feel like 3am or 2pm" mood, a smaller, cooler fill at
+ * night vs a fuller, warmer one at midday. Smoothstep-shaped dawn (05:00-
+ * 07:00) and dusk (19:00-21:00) ramps, flat 0 overnight (21:00-05:00) and
+ * flat 1 midday (07:00-19:00) -- matches how an actual sunrise/sunset
+ * transition reads (gradual at the edges, not linear across the whole day). */
+export function dayNightFactor(etMinutes: number): number {
+  const hour = (etMinutes / 60) % 24;
+  const smooth = (t: number) => t * t * (3 - 2 * t); // smoothstep
+  if (hour >= 7 && hour < 19) return 1;
+  if (hour >= 21 || hour < 5) return 0;
+  if (hour >= 5 && hour < 7) return smooth((hour - 5) / 2);
+  return 1 - smooth((hour - 19) / 2); // 19..21 dusk
+}
+
+/** One persona's daily/weekly "on shift" window(s), in ET minutes-since-
+ * midnight -- Pass C (2026-09-13). Grounded in CLAUDE.md's own schedule
+ * table (Gamma_ScoutPremarket 05:30, Gamma_HeartbeatCore 09:30-15:55
+ * weekdays, Gamma_AnalystEodReview 16:45, Gamma_TreasurerWeekly Sun 16:00,
+ * Coach's several cadences spanning the day, Gamma_Station/Conductor
+ * 24/7) -- NOT a literal 1:1 with the coordinator's example phrase
+ * ("Premarket 08:30" names a PROCESS STAGE, not a persona in
+ * company.personas; folded into Scout's own morning window here, stated as
+ * an assumption rather than silently guessed). "Chef overnight" is Chef's
+ * OWN window (event-driven overnight wake fires per CLAUDE.md), not a
+ * separate night-only override elsewhere in this file -- see
+ * scheduleOnShift's own comment for why that's sufficient by itself to
+ * produce "night shift = Chef lit/busy, others resting" with no special
+ * night-specific code path. */
+interface ScheduleWindow {
+  startMin: number;
+  endMin: number;
+  /** 0=Sunday..6=Saturday; omitted = every day. */
+  daysOfWeek?: number[];
+}
+const ALWAYS_ON_SHIFT = new Set(["Gamma (Manager)"]);
+const PERSONA_SCHEDULE: Record<string, ScheduleWindow[]> = {
+  Scout: [{ startMin: 5 * 60, endMin: 7 * 60 }], // 05:00-07:00 (05:30 fire + the premarket handoff window)
+  Coach: [{ startMin: 6 * 60, endMin: 18 * 60 }], // wide daytime gym-check presence (several cadences through the day)
+  Pilot: [{ startMin: 9 * 60 + 30, endMin: 15 * 60 + 55 }], // hard market hours, matches CLAUDE.md's own rule
+  Analyst: [{ startMin: 16 * 60, endMin: 18 * 60 }], // EOD review window around the 16:45 fire
+  Chef: [{ startMin: 20 * 60, endMin: 24 * 60 }, { startMin: 0, endMin: 5 * 60 }], // overnight (wraps midnight)
+  Treasurer: [{ startMin: 15 * 60, endMin: 17 * 60, daysOfWeek: [0] }], // Sunday only, around the 16:00 fire
+};
+
+/** Whether `personaName` is inside one of its own schedule windows right
+ * now. Deliberately does NOT special-case "is it night" anywhere -- Chef's
+ * window IS overnight, everyone else's is some slice of the daytime, so
+ * "everyone but Chef dims at night" falls out of this table on its own,
+ * with no separate day/night branch to keep in sync with dayNightFactor
+ * above. Callers should still let REAL activity (a persona currently
+ * `behavior === "working"`) override this -- see Scene.tsx's own comment
+ * on why a genuine recent fire must never be visually contradicted by a
+ * schedule assumption (the same "ghosts as ghosts, never the reverse"
+ * principle the audit badges exist for). */
+export function scheduleOnShift(personaName: string, etMinutes: number, dayOfWeek: number): boolean {
+  if (ALWAYS_ON_SHIFT.has(personaName)) return true;
+  const windows = PERSONA_SCHEDULE[personaName];
+  if (!windows) return true; // no defined window -- never dim a persona this table doesn't know about
+  const minuteOfDay = etMinutes % (24 * 60);
+  return windows.some((w) => {
+    if (w.daysOfWeek && !w.daysOfWeek.includes(dayOfWeek)) return false;
+    return minuteOfDay >= w.startMin && minuteOfDay < w.endMin;
+  });
 }
 
 export function clamp01(v: number): number {
