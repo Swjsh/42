@@ -11,6 +11,7 @@ import {
   readOllamaPs,
   readFaceConfig,
   readBuildId,
+  readHqBuildStatus,
 } from "@/lib/station";
 import {
   readSectorRows,
@@ -85,6 +86,7 @@ export async function GET() {
     trading,
     crewEvents,
     desks,
+    build,
   ] = await Promise.all([
     readIdeasBoard(),
     readStationBrief(),
@@ -116,6 +118,8 @@ export async function GET() {
     readCrewEvents(),
     // INTERACT-2 (I1) -- per-desk real-work content, additive.
     readDesksSnapshot(),
+    // UX-1 U0 (2026-09-14) -- "is it working?" build instrument, additive.
+    readHqBuildStatus(),
   ]);
 
   const lastRow = ledger.length > 0 ? ledger[ledger.length - 1] : null;
@@ -159,6 +163,8 @@ export async function GET() {
       crewEvents,
       // INTERACT-2 -- additive, see lib/desk-content.ts.
       desks,
+      // UX-1 U0 (2026-09-14) -- additive, see lib/station.ts#readHqBuildStatus.
+      build,
       // I3: explicit alias for brief.mtime_ms -- surfaces the SAME real
       // mtime as a readable ISO string so the all-hands trigger has a
       // self-explanatory field name on the wire (brief.mtime_ms already

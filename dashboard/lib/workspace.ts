@@ -104,4 +104,15 @@ export const paths = {
   // 121MB+ and growing (2026-09-14) -- read via a byte-seek TAIL in
   // lib/hq.ts#readCoreDecisionsLatest, never a full fs.readFile.
   coreDecisions: st("core-decisions.jsonl"),
+
+  // --- UX-1 U0 (2026-09-14): "is it working?" build instrument. Advisory
+  // lock a builder writes/deletes around `npm run build` (never read by
+  // anything but this route); dashboardBuildId's own MTIME (not its
+  // content, already covered by readBuildId) is the "deployed at" signal.
+  // Both under dashboard/, not automation/state/ -- build-local, not
+  // trading state. ---
+  dashboardBuildLock: path.join(WORKSPACE_ROOT, "dashboard", ".build.lock"),
+  // Real screen captures every builder writes proof to -- "last capture"
+  // reads whichever PNG in here has the newest mtime.
+  stationCaptures: st("station", "captures"),
 };

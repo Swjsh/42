@@ -11,6 +11,39 @@ feature, and no props beyond its own footprint. This doc is written BEFORE any
 code edit per the standing design rule (external references first, never
 iterate our own output).
 
+## UX conventions (2026-09-14, UX-1 pass — onboarding hints, click-to-focus,
+hover tooltips, focus-follow panels)
+
+Trigger: J, "this needs to be a smooth intuitive user experience." Design rule
+followed (≤10 min): WebSearched Two Point Hospital / Cities: Skylines / Planet
+Coaster / Prison Architect UI conventions this session, then WebFetched
+prisonarchitect.paradoxwikis.com/Controls and skylines.paradoxwikis.com/Info_views
+directly. Disclosed honestly, matching this doc's own World-4-pass precedent for
+a thin source: the live fetches documented KEYBINDS and info-view CONTENTS, not
+hover/click/focus MECHANICS in enough granular detail to quote verbatim — the 3
+conventions below are the well-established, widely-documented genre pattern this
+class of management-sim is collectively known for (confirmed in part by the
+search results: Prison Architect's left-click-to-select-and-open-panel, Cities:
+Skylines' per-selection info views), not a single verbatim source quote.
+
+1. **A dismissible control legend, not a permanent HUD tax.** Cities: Skylines/
+   Planet Coaster show a control hint on first load that gets out of the way
+   once the player has demonstrably started driving (real input seen), rather
+   than taxing the screen forever. Adopted for U1: the legend now fades 8s
+   after the FIRST real input (not a blind mount timer) and "?" brings it back.
+2. **Hover = name-tag tooltip, click = select-and-focus — never conflated.**
+   Two Point Hospital's hover nameplates (name + status, at the cursor/over the
+   character) are the genre's "what is this" affordance; a CLICK is the
+   heavier "commit to this one" action (Prison Architect: left-click selects
+   an entity and opens its panel). Adopted for U2/U3: hover only ever shows a
+   lightweight tooltip near the cursor (camera never moves on hover); click is
+   the ONLY thing that flies the camera and pins the roster card.
+3. **The panel tracks the selection; the selection never fights the panel.**
+   Management-sim roster/inspector panels keep the current selection visible
+   (scrolled/highlighted into view) rather than leaving the player to hunt for
+   it in a long list. Adopted for U6: focusing a persona (hotkey or world
+   click) scrolls its crew card into view and pins it under the sticky header.
+
 ## External references consulted (2026-09-14, via WebSearch/WebFetch/browser)
 
 1. **kenney.nl/assets/space-kit** (the exact CC0 pack this task downloads from) —

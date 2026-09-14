@@ -51,6 +51,10 @@ Thumbs.db
 **/.next/
 backtest/.venv/
 
+# UX-1 U0 (2026-09-14): advisory build lock -- written/deleted around every
+# `npm run build`, never meant to persist on disk let alone be tracked.
+dashboard/.build.lock
+
 # Large data + 24/7 hoards (kept on disk, excluded from git)
 crypto/data/
 backtest/data/

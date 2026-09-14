@@ -1,4 +1,5 @@
 import { promises as fs } from "node:fs";
+import path from "node:path";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { paths } from "./workspace";
@@ -383,4 +384,110 @@ export async function readBuildId(): Promise<string | null> {
     cachedBuildId = null;
   }
   return cachedBuildId;
+}
+
+// ─── UX-1 U0 (2026-09-14): "is it working?" build instrument -- J keeps
+//     asking "still working right?"; a repeated question is a missing
+//     instrument (CLAUDE.md OP-25). Three independent, fail-open facts, all
+//     fs reads -- this route NEVER shells out (route.ts's own doc comment:
+//     "this route never writes anything... no credential file is read
+//     here"; this reader keeps that contract, no execFile anywhere below). ──
+
+/** "HH:MM ET" from a real Date -- same Intl approach as every other ET
+ * formatter in this codebase (lib/time.ts#formatET), just hour:minute (no
+ * seconds -- this is a slow-changing build/capture timestamp, not a live
+ * clock). Kept local rather than importing lib/time.ts: that module's
+ * formatET returns "HH:MM:SS" with no easy 2-field variant, and this is the
+ * only caller that needs one. */
+function hhmmEt(d: Date): string {
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York", hour: "2-digit", minute: "2-digit", hour12: false,
+  }).format(d) + " ET";
+}
+
+export interface HqBuildStatus {
+  /** mtime of dashboard/.next/BUILD_ID, formatted ET -- when the CURRENTLY
+   * served bundle was produced. Null if the file can't be stat'd (no build
+   * yet, or a race mid-build before the new BUILD_ID lands). */
+  deployedAtEt: string | null;
+  /** Present iff dashboard/.build.lock exists right now -- its content
+   * (trimmed) is the builder name a build script wrote in, per this file's
+   * own advisory-lock convention (write name -> build -> delete). ageMin is
+   * how long the lock has been held, computed against THIS request's own
+   * Date.now() (force-dynamic route, never cached across requests). */
+  buildingNow: { builder: string; ageMin: number } | null;
+  /** ET timestamp of the newest-mtime *.png under automation/state/station/
+   * captures/ -- "last real-screen proof captured", not "last build". */
+  lastCaptureAtEt: string | null;
+}
+
+/** Deployed-at: a fresh fs.stat every call (cheap, single syscall) --
+ * deliberately NOT sharing readBuildId's per-process cache above, since a
+ * cached VALUE (the id string) is safe to freeze for the process lifetime
+ * but this needs the file's live mtime, which is the whole point of the
+ * instrument (a stale process would otherwise report its own long-ago
+ * mtime forever, which happens to be correct anyway since mtime can't
+ * change without a process restart -- but reading fresh costs nothing and
+ * makes that reasoning unnecessary to rely on). */
+async function readDeployedAtEt(): Promise<string | null> {
+  try {
+    const stat = await fs.stat(paths.dashboardBuildId);
+    return hhmmEt(stat.mtime);
+  } catch {
+    return null;
+  }
+}
+
+/** Building-now: the lock file's mtime is its own start time -- age is
+ * always measured against THIS request, never stored/carried across polls
+ * (force-dynamic + revalidate:0, matching the rest of this route). */
+async function readBuildingNow(): Promise<{ builder: string; ageMin: number } | null> {
+  try {
+    const [text, stat] = await Promise.all([
+      fs.readFile(paths.dashboardBuildLock, "utf-8"),
+      fs.stat(paths.dashboardBuildLock),
+    ]);
+    const builder = text.trim();
+    if (!builder) return null;
+    const ageMin = Math.max(0, Math.round((Date.now() - stat.mtimeMs) / 60000));
+    return { builder, ageMin };
+  } catch {
+    return null; // no lock file -- idle, the normal state
+  }
+}
+
+/** Last-capture: newest-mtime *.png under automation/state/station/captures/.
+ * A plain readdir+stat scan (the directory holds real-screen proof PNGs,
+ * bounded by how many a builder leaves behind -- not an unbounded ledger),
+ * mirroring lib/personas.ts#dirListing's own "stat every entry, sort by
+ * mtime" shape rather than trusting filename ordering (this file's own
+ * standing rule: mtime is truth, a filename's embedded HHMM is not). */
+async function readLastCaptureAtEt(): Promise<string | null> {
+  try {
+    const names = await fs.readdir(paths.stationCaptures);
+    const pngs = names.filter((n) => n.toLowerCase().endsWith(".png"));
+    if (pngs.length === 0) return null;
+    const stats = await Promise.all(
+      pngs.map(async (n) => {
+        try {
+          return (await fs.stat(path.join(paths.stationCaptures, n))).mtimeMs;
+        } catch {
+          return 0; // one file disappearing mid-scan never blocks the rest
+        }
+      }),
+    );
+    const newest = Math.max(...stats);
+    return newest > 0 ? hhmmEt(new Date(newest)) : null;
+  } catch {
+    return null; // captures dir doesn't exist yet -- honest, not an error
+  }
+}
+
+export async function readHqBuildStatus(): Promise<HqBuildStatus> {
+  const [deployedAtEt, buildingNow, lastCaptureAtEt] = await Promise.all([
+    readDeployedAtEt(),
+    readBuildingNow(),
+    readLastCaptureAtEt(),
+  ]);
+  return { deployedAtEt, buildingNow, lastCaptureAtEt };
 }

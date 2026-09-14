@@ -172,12 +172,12 @@ function HqView() {
       ) : webgl2 === true && tier === "tv" ? (
         <>
           <CanvasRoot data={sceneData} reducedMotion={reducedMotion} lanKiosk={lanKiosk} kiosk={kiosk} />
-          <Hud data={data} error={error} kiosk={kiosk} isValidating={isValidating} motionEvents={motionEvents} tier="tv" />
+          <Hud data={data} error={error} kiosk={kiosk} isValidating={isValidating} motionEvents={motionEvents} tier="tv" reducedMotion={reducedMotion} />
         </>
       ) : webgl2 === true && tier === "ultra" ? (
         <>
           <UltraCanvasRoot data={sceneData} reducedMotion={reducedMotion} kiosk={kiosk} />
-          <Hud data={data} error={error} kiosk={kiosk} isValidating={isValidating} motionEvents={motionEvents} tier="ultra" />
+          <Hud data={data} error={error} kiosk={kiosk} isValidating={isValidating} motionEvents={motionEvents} tier="ultra" reducedMotion={reducedMotion} />
         </>
       ) : (
         <div style={{ color: "#7f93b0", padding: 24, fontFamily: "system-ui, sans-serif" }}>

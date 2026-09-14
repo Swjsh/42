@@ -114,6 +114,26 @@ function buildTradingStrip(trading: TradingStatus | undefined): TradingStrip {
   return { color, text };
 }
 
+// ─── UX-1 U0 (2026-09-14): "is it working?" instrument -- J keeps asking
+//     "still working right?"; per CLAUDE.md OP-25 a repeated question is a
+//     missing instrument, not a query to keep re-answering. Pure function
+//     off the additive `build` field (lib/station.ts#readHqBuildStatus) --
+//     same "client formats, server only supplies raw facts" split every
+//     other header line in this file already uses (buildTradingStrip above
+//     is the same shape). The first two clauses render byte-for-byte the
+//     task's own example ("HQ build · deployed 16:12 ET · building now: UX-1
+//     (4 min)" / "· idle"); last-capture is appended as a third clause when
+//     known -- an extra truthful fact, never a contradiction of the example. ──
+
+function buildHqBuildLine(build: HqApiResponse["build"] | undefined): string {
+  const deployed = build?.deployedAtEt ? `deployed ${build.deployedAtEt}` : "deployed ?";
+  const building = build?.buildingNow
+    ? `building now: ${build.buildingNow.builder} (${build.buildingNow.ageMin} min)`
+    : "idle";
+  const capture = build?.lastCaptureAtEt ? ` · last capture ${build.lastCaptureAtEt}` : "";
+  return `HQ build · ${deployed} · ${building}${capture}`;
+}
+
 // ─── R3 event feed (CREW-2, 2026-09-14): merges the existing diff-derived
 //     ticker lines (lib/useMotionEvents.ts's MotionEvent[], prose already
 //     formatted for reading) with the new crew-events.jsonl rows (which
@@ -273,6 +293,13 @@ interface HudProps {
    * correctly; Hud.tsx previously always read data.perf regardless of
    * viewer. */
   tier: "ultra" | "tv";
+  /** UX-1 U1 (2026-09-14): page.tsx's own prefers-reduced-motion match --
+   * threaded in so the legend's fade uses a CSS transition only when motion
+   * is allowed (an instant show/hide otherwise), same contract every other
+   * reducedMotion branch in this codebase (Scene.tsx#CameraRig, etc.)
+   * follows. Optional/defaulted false so this is additive, not breaking, for
+   * any other caller of <Hud> that predates this prop. */
+  reducedMotion?: boolean;
 }
 
 /** Pass G (2026-09-13, coordinator item 1: "split layout... world left,
@@ -302,13 +329,15 @@ function useEtClock(): string {
 }
 
 const HUD_FONT = "system-ui, -apple-system, Segoe UI, Roboto, sans-serif";
+// UX-1 U1 (2026-09-14): controls legend auto-fade delay, see its own effect's comment.
+const LEGEND_FADE_MS = 8000;
 
 /**
  * Plain HTML overlay (not 3D text -- crisp at any TV viewing distance).
  * Sits in a fixed, full-viewport, pointer-events-none wrapper above the
  * <Canvas>; individual controls (Home link) re-enable pointer events.
  */
-export default function Hud({ data, error, kiosk, isValidating, motionEvents, tier }: HudProps) {
+export default function Hud({ data, error, kiosk, isValidating, motionEvents, tier, reducedMotion = false }: HudProps) {
   const etClock = useEtClock();
   // World-2 coordinator review (2026-09-14, W6 mechanism): this page's OWN
   // live perf sample -- see lib/hq-live-perf.ts's own header and the perf
@@ -333,6 +362,55 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
+  }, [tier]);
+
+  // UX-1 U1 (2026-09-14, external-reference convention #1 -- see
+  // ENVIRONMENT-PLAN.md's own "UX conventions" header, a dismissible legend
+  // that gets out of the way once the player has demonstrably started
+  // driving): the controls legend fades LEGEND_FADE_MS after the FIRST real
+  // user input (pointerdown/wheel/keydown), not a blind mount timer -- a
+  // viewer who hasn't touched anything yet still needs to see it. "?" is a
+  // manual toggle: showing it again re-arms the same fade-after-8s so it
+  // never stays up forever just because it was recalled. `armed` (a plain
+  // closure variable, not React state) guarantees only the FIRST input ever
+  // starts the clock; every later input before the fade is a no-op, per the
+  // task's own literal "fades 8s after the first user input" spec (not
+  // "resets on every input"). Ultra tier only -- HARD RULES: "TV tier:
+  // legend/tooltips off".
+  const [legendVisible, setLegendVisible] = useState(true);
+  useEffect(() => {
+    if (tier !== "ultra") return;
+    let armed = false;
+    let fadeTimer: ReturnType<typeof setTimeout> | null = null;
+    const startFadeClock = () => {
+      if (fadeTimer !== null) clearTimeout(fadeTimer);
+      fadeTimer = setTimeout(() => setLegendVisible(false), LEGEND_FADE_MS);
+    };
+    const onFirstInput = () => {
+      if (armed) return;
+      armed = true;
+      startFadeClock();
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "?") {
+        setLegendVisible((v) => {
+          const next = !v;
+          if (next) startFadeClock(); // brought back manually -- re-arm the same auto-fade
+          return next;
+        });
+        return;
+      }
+      onFirstInput();
+    };
+    window.addEventListener("pointerdown", onFirstInput);
+    window.addEventListener("wheel", onFirstInput, { passive: true });
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("pointerdown", onFirstInput);
+      window.removeEventListener("wheel", onFirstInput);
+      window.removeEventListener("keydown", onKey);
+      if (fadeTimer !== null) clearTimeout(fadeTimer);
+    };
   }, [tier]);
   const mode = data?.mode ?? "unknown";
   const gaming = mode === "gaming";
@@ -443,13 +521,6 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
         .hq-card-flip { animation: hq-card-flip-in 0.5s ease-out; transform-origin: top center; }
         @keyframes hq-card-flip-in { 0% { transform: rotateX(-85deg); opacity: 0; } 100% { transform: rotateX(0deg); opacity: 1; } }
 
-        /* Free-camera hint strip (LIVE-1 item 1, 2026-09-14): visible on
-           mount, holds, then fades -- opacity only. Remounts (via the
-           hudVisible-keyed div below) replay this every time H brings the
-           HUD back, which doubles as a re-teach of the shortcut. */
-        .hq-camera-hint { animation: hq-hint-fade 8s ease-in forwards; }
-        @keyframes hq-hint-fade { 0%, 70% { opacity: 0.85; } 100% { opacity: 0; } }
-
         /* CREW-2 (roster, 2026-09-14): crew card hover/focus -- NOT bound by
            the "transform/opacity/background-position only" rule the
            continuous @keyframes classes above follow, because this only
@@ -465,31 +536,51 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
         .hq-crew-card:focus-visible { outline: 2px solid #7ad9ff; outline-offset: 2px; }
       `}</style>
 
-      {/* Free-camera hint strip (LIVE-1 item 1, 2026-09-14, ultra tier
-          only -- the TV kiosk has no OrbitControls/keyboard camera to
-          explain, see Scene.tsx's own `ultra`-gated CameraRig). Bottom-left
-          of the CANVAS -- this wrapper div is already width-constrained to
+      {/* Controls legend (UX-1 U1, 2026-09-14, reworked from LIVE-1 item 1's
+          original mount-timer version -- ultra tier only, the TV kiosk has
+          no OrbitControls/keyboard camera to explain, see Scene.tsx's own
+          `ultra`-gated CameraRig). Bottom-CENTRE of the CANVAS area (not the
+          full viewport) -- this wrapper div is already width-constrained to
           the same `calc(100% - HUD_RIGHT_COLUMN_WIDTH)` the canvas itself
-          uses (UltraCanvasRoot.tsx), so `left` here is relative to that same
-          box. Sits above the bottom stack (ticker + item-5 trading strip,
-          now one flex-column wrapper anchored at bottom:34 -- see that
-          wrapper's own comment for why a hand-guessed pixel gap doesn't
-          work here, the ticker's real height varies 1-3 lines). 195
-          clears that wrapper's worst case (a full 3-line ticker + the
-          trading strip) with margin -- verified against a real capture.
-          `key={hudVisible}` remounts (replaying the fade) whenever H
-          brings the HUD back. */}
+          uses (UltraCanvasRoot.tsx), so `left:50%` centers against that same
+          box, matching every other measurement in this wrapper (see the
+          coordinate-system note this file already carries elsewhere).
+          bottom:210 clears the SLIM single-line trading strip U8 (2026-09-14)
+          reduced the bottom stack to (the tall multi-row event feed that used
+          to sit here moved into the right panel's Activity tab -- see U8's
+          own comment on the bottom-stack wrapper below). REAL-CAPTURE BUG
+          FOUND AND FIXED THIS PASS (ux1-u0u1-1642.png, pre-U8): at the OLD
+          bottom:195 with no explicit z-index, this legend is a DOM sibling
+          that paints BEFORE the bottom-stack div in source order, so with no
+          z-index on either side the later (bottom-stack) element wins the
+          paint order wherever the two overlap -- with the event feed able to
+          grow up to FEED_MAX_ROWS(12) rows, 195 was tuned against a
+          long-retired "max 3-line ticker" and the legend was invisible,
+          painted UNDER the feed, in that real capture. `zIndex` below makes
+          this correct regardless of the sibling's height (never rely on DOM
+          order for stacking again). Visibility is state-driven (legendVisible,
+          see its own effect above) instead of a replayed CSS @keyframes
+          animation -- opacity/pointerEvents toggle, with a transition only
+          when motion is allowed (reducedMotion contract, same as every other
+          animated piece of this file). "Glass panel" reading (external-
+          reference convention #1) via a translucent background + a thin
+          border, no blur/backdrop-filter -- this codebase's own standing
+          TV-compositor rule (see the .hq-beam/.hq-shine style block above)
+          applies regardless of tier. */}
       {tier === "ultra" && (
         <div
-          key={String(hudVisible)}
-          className="hq-camera-hint"
           style={{
-            position: "absolute", left: 20, bottom: 195,
-            color: "#9fb3cc", fontSize: 14, fontFamily: HUD_FONT,
-            background: "rgba(3,4,10,0.55)", padding: "4px 12px", borderRadius: 6,
+            position: "absolute", left: "50%", bottom: 210, transform: "translateX(-50%)",
+            zIndex: 11,
+            color: "#cfe9ff", fontSize: 14, fontFamily: HUD_FONT, whiteSpace: "nowrap",
+            background: "rgba(3,4,10,0.6)", border: "1px solid rgba(122,217,255,0.28)",
+            padding: "6px 18px", borderRadius: 999,
+            opacity: legendVisible ? 1 : 0,
+            pointerEvents: "none",
+            transition: reducedMotion ? "none" : "opacity 0.4s ease",
           }}
         >
-          drag orbit &middot; wheel zoom &middot; 1-7 desks &middot; 0 overview &middot; H hides HUD
+          Drag orbit &middot; Wheel zoom &middot; Right-drag pan &middot; 1&ndash;7 desks &middot; 0 overview &middot; H hide HUD &middot; ? help
         </div>
       )}
 
@@ -529,6 +620,24 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
         >
           {gaming ? "GPU RESERVED" : `mode: ${mode}`}
         </span>
+      </div>
+
+      {/* UX-1 U0 (2026-09-14): "is it working?" instrument, directly under
+          the title/clock row (top:14 row measures ~41px tall at its 34px
+          title size -- top:56 clears it with a small margin). Renders on
+          BOTH tiers (HARD RULES: "TV tier: legend/tooltips off, U0 line
+          on") -- this div is NOT inside a `tier === "ultra"` gate, unlike
+          the legend below. Small/muted by design: a status line, not a
+          headline -- see buildHqBuildLine's own header comment for the
+          server-fact contract it renders. */}
+      <div
+        style={{
+          position: "absolute", top: 56, left: 20,
+          color: "#5c7aa0", fontSize: 13, fontFamily: HUD_FONT,
+          fontVariantNumeric: "tabular-nums", textShadow: "0 1px 4px rgba(0,0,0,0.7)",
+        }}
+      >
+        {buildHqBuildLine(data?.build)}
       </div>
 
       {/* Non-kiosk only: Home link, slim */}
@@ -777,6 +886,27 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
                 }}
               >
                 <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+                  {/* UX-1 U1 (2026-09-14): hotkey digit, ultra tier only --
+                      the keyboard 1-7 fly-to itself is ultra-only
+                      (Scene.tsx's `ultra`-gated CameraRig listener), so
+                      showing a digit that does nothing on the TV kiosk would
+                      be a lie, not a hint. Same i+1 the card's own flyToDesk
+                      already dispatches below -- one index, not a second
+                      mapping to drift out of sync. */}
+                  {tier === "ultra" && (
+                    <span
+                      aria-hidden="true"
+                      style={{
+                        width: 18, height: 18, borderRadius: 4, flexShrink: 0, marginTop: 1,
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        fontSize: 11, fontWeight: 700, fontFamily: HUD_FONT,
+                        color: "#7ad9ff", background: "rgba(122,217,255,0.12)",
+                        border: "1px solid rgba(122,217,255,0.4)",
+                      }}
+                    >
+                      {i + 1}
+                    </span>
+                  )}
                   <span
                     style={{
                       width: 32, height: 32, borderRadius: 8, flexShrink: 0,
