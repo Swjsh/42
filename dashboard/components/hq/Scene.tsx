@@ -26,6 +26,13 @@ import GammaCharacter from "./GammaCharacter";
 import ActivityBubbleLayer, { type ActivityBubbleCandidate } from "./ActivityBubbleLayer";
 import { computePurposefulWalk, dayNightFactor, freshness01, healthColor, hhmmFromEtIso, isParkedState, isRegularTradingHours, lerp, localToWorld, minutesSinceEvidence, nowEtDayOfWeek, nowEtMinutes, PALETTE, personaStatusColor, rosterEvidenceText, scheduleOnShift, truncateOneLine, type ScreenLine } from "./palette";
 import { BAY_DESK_OFFSET_Z, BAY_HALF_DEPTH, BAY_SEAT_LOCAL, CHARACTER_SCALE, CHARACTER_TARGET_HEIGHT, CorridorRun, DeskCluster, HubRoom, HUB_WALL_RADIUS, Plaza } from "./SetKit";
+// World-2 coordinator review (2026-09-14, "GAMMA'S BUBBLE... must derive it
+// from the same truth as the panel"): the SAME pure function Hud.tsx's own
+// crew-panel "next:" line already uses for Gamma, reused here (not
+// reimplemented) so GammaCharacter.tsx's bubble text is guaranteed
+// identical, never just independently similar. Zero fs/fetch (this file's
+// own header) -- safe to import client-side same as Hud.tsx already does.
+import { crewNextLine } from "@/lib/crew";
 
 export type HqTier = "ultra" | "tv";
 
@@ -722,6 +729,22 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
   const hemiSkyColor = useMemo(() => new THREE.Color("#3a4a7a").lerp(new THREE.Color("#cfe3ff"), nightFactor).getStyle(), [nightFactor]);
   const hemiGroundColor = useMemo(() => new THREE.Color("#04040a").lerp(new THREE.Color("#8a7a60"), nightFactor).getStyle(), [nightFactor]);
   const sunColor = useMemo(() => new THREE.Color("#dce8ff").lerp(new THREE.Color("#fff4e0"), nightFactor).getStyle(), [nightFactor]);
+  // World-2 coordinator polish (2026-09-14, "HORIZON SEAM... a pale sky
+  // sliver over a near-black far ground, meeting in a hard curved edge --
+  // reads like a planet rim"): root cause -- fog (below) was a FIXED
+  // near-black (`PALETTE.fogColor`, "#050914") regardless of time of day,
+  // so Ground.tsx's disc (fog-affected, unlike SkyDome which explicitly
+  // opts OUT via fog={false}) faded to near-black at its own fog-far
+  // distance while the dome's own unfogged horizon band read much lighter
+  // by day -- a real color mismatch drawn right where the flat ground disc
+  // geometrically intersects the spherical dome (both share ~radius 70),
+  // reading as a hard circular seam. Lerped toward a pale-blue day tone
+  // that matches SkyDome.tsx's own DAY_DEPTH region (that file's
+  // horizon-band color at midday) so the two converge; Ground.tsx's own
+  // material has no `fog={false}` override, so its color (and its grid
+  // texture, per the SAME mechanism) already fades toward THIS color by
+  // distance for free once the color itself agrees with the dome.
+  const fogColor = useMemo(() => new THREE.Color(PALETTE.fogColor).lerp(new THREE.Color("#a9c9e3"), nightFactor).getStyle(), [nightFactor]);
   // LIVE-1 item 2 follow-up (coordinator 2026-09-14): the SAME nightFactor
   // exposed to EffectsStack.tsx (Bloom threshold) and ExposureSync (tone-
   // mapping exposure) below via a ref, never a reactive prop -- see
@@ -1104,7 +1127,7 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
           now comes from emissive floor-edge strips, not a per-module light;
           see StationModule.tsx). */}
       <color attach="background" args={[PALETTE.space]} />
-      <fog attach="fog" args={[PALETTE.fogColor, 20, 62]} />
+      <fog attach="fog" args={[fogColor, 20, 62]} />
       {/* Pass C (2026-09-13): ET day/night mood, ambient fill ONLY -- this
           is a space-station interior, not outdoors, so the station's own
           practical lights (ceiling pointLights, beacons, desk screens)
@@ -1225,18 +1248,34 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
           -- ultra tier only, same reasoning as every other real-kit-geometry
           piece in this scene (TV tier keeps BrainCore's plaque-only
           depiction, no draw-call budget for a 15th character body). */}
-      {ultra && (
+      {ultra && (() => {
+        // World-2 coordinator review ("de-overlap the hub"): active under
+        // the SAME EVENT_BUBBLE_WINDOW_MIN age check the activityCandidates
+        // memo's own hubExchanges.forEach uses above -- reimplemented here
+        // (not reading the memo's output) since this needs to run OUTSIDE
+        // that memo, off `latestChefVerdict`/`latestCoachSectors` (already
+        // computed once per render above, before the memo).
+        const isGammaExchangeActive = [latestChefVerdict, latestCoachSectors].some((event) => {
+          if (!event) return false;
+          const ageMin = minutesSinceEvidence(event.ts_et);
+          return ageMin !== null && ageMin < EVENT_BUBBLE_WINDOW_MIN;
+        });
+        return (
         <GammaCharacter
           deskCenter={gammaDeskCenter}
           rotationY={gammaRotationY}
           accentColor={allPersonas[0]?.color ?? PALETTE.hubCore}
+          lastRow={data?.brainVitals.lastRow ?? null}
+          nextLine={allPersonas[0] ? crewNextLine(allPersonas[0], Date.now()) : null}
+          suppressBubble={isGammaExchangeActive}
           briefText={data?.brief.text ?? ""}
           briefMtimeMs={data?.brief.mtime_ms ?? null}
           utilPct={data?.brainVitals.gpu.util_pct ?? null}
           modelName={data?.brainVitals.models[0]?.name ?? null}
           gaming={gaming}
         />
-      )}
+        );
+      })()}
 
       {rows.map((row, i) => {
         const slot = geometry[i] ?? geometry[0];
@@ -1267,6 +1306,7 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
                   from={[Math.cos(slot.angle) * HUB_WALL_RADIUS, 0, Math.sin(slot.angle) * HUB_WALL_RADIUS]}
                   to={[Math.cos(slot.angle) * (RING_RADIUS - BAY_HALF_DEPTH), 0, Math.sin(slot.angle) * (RING_RADIUS - BAY_HALF_DEPTH)]}
                   angle={slot.angle}
+                  dayFactor={nightFactor}
                 />
               </Suspense>
             )}

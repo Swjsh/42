@@ -528,8 +528,25 @@ const CORRIDOR_RAIL_THICKNESS = 0.07;
  * it, not the sole source of the connection, so a kit-asset quirk this
  * session couldn't fully verify without a 3D inspector can never leave a
  * visible gap in the floor itself. */
-export function CorridorRun({ from, to, angle }: { from: [number, number, number]; to: [number, number, number]; angle: number }) {
+export function CorridorRun({
+  from, to, angle, dayFactor = 1,
+}: {
+  from: [number, number, number]; to: [number, number, number]; angle: number; dayFactor?: number;
+}) {
   const rotationY = Math.PI / 2 - angle;
+  // World-2 coordinator polish (2026-09-14, "HALLWAYS still read as short
+  // dark bridges between pods... make each corridor floor the SAME plate
+  // tone/height as the plaza (continuous, no dark step)"): the strip now
+  // shares Plaza's OWN color pair (was a static PALETTE.floor tone,
+  // visibly darker than Plaza's own lighter tones -- exactly the "dark
+  // step" reported) and near-enough Y (PLAZA_Y+0.002, a hair above Plaza's
+  // own disc which already covers this same footprint underneath, purely
+  // to avoid z-fighting -- not the old -0.01, a real ~0.03u ledge against
+  // Plaza's -0.04). `.getStyle()` (a string) covers both the strip's own
+  // `color` prop and the kit segments' `tint` below, which specifically
+  // needs a string, not a THREE.Color instance.
+  const plateColorStyle = useMemo(() => _plazaColor.copy(PLAZA_NIGHT).lerp(PLAZA_DAY, dayFactor).getStyle(), [dayFactor]);
+  const lampFactor = interiorLampFactor(dayFactor);
   const { midpoint, length, segPositions } = useMemo(() => {
     const start = new THREE.Vector3(...from);
     const end = new THREE.Vector3(...to);
@@ -553,9 +570,9 @@ export function CorridorRun({ from, to, angle }: { from: [number, number, number
   return (
     <group>
       <group position={midpoint} rotation={[0, rotationY, 0]}>
-        <mesh position={[0, -0.01, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+        <mesh position={[0, PLAZA_Y + 0.002, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
           <planeGeometry args={[CORRIDOR_WIDTH, length]} />
-          <meshStandardMaterial color={PALETTE.floor} roughness={0.85} />
+          <meshStandardMaterial color={plateColorStyle} roughness={0.85} metalness={0.05} />
         </mesh>
         {[-1, 1].map((side) => (
           <mesh key={side} position={[(side * (CORRIDOR_WIDTH - CORRIDOR_RAIL_THICKNESS)) / 2, CORRIDOR_RAIL_HEIGHT / 2, 0]} castShadow>
@@ -571,9 +588,33 @@ export function CorridorRun({ from, to, angle }: { from: [number, number, number
           scale={ARCHITECTURE_SCALE_BAY}
           position={pos}
           rotation={[0, rotationY, 0]}
+          // World-2 coordinator polish: "if the kit's corridor-room pieces
+          // are what is making the dark step (their own floor colour), tint
+          // them to the plate" -- a strong (0.6, well above the usual
+          // ~0.12-0.2 subtle-accent range elsewhere in this file) blend
+          // toward the SAME plate color the strip above uses, so the kit
+          // segments' own native tone no longer reads as a different
+          // material than the floor they sit on.
+          tint={plateColorStyle}
+          tintStrength={0.6}
           receiveShadow
         />
       ))}
+      {/* Hub-end door frame + light -- World-2 coordinator polish: "add the
+          low side rails/door frames from the kit at both ends, and a
+          doorway light per bay; the goal is the eye tracing hub -> hallway
+          -> bay without a break." The bay end already has its own gate-door
+          (DepartmentBayShell, mounted from StationModule.tsx); this is the
+          matching piece at the HUB wall, so both ends of the hallway share
+          the same real threshold, not just one. */}
+      <KitProp
+        path={KIT_PATHS.architecture.gateDoor}
+        scale={ARCHITECTURE_SCALE_BAY}
+        position={from}
+        rotation={[0, rotationY, 0]}
+        castShadow
+      />
+      <pointLight position={[from[0], 0.9, from[2]]} color="#ffe9c2" intensity={1.5 * lampFactor} distance={3} decay={2} />
     </group>
   );
 }
