@@ -221,6 +221,7 @@ const GAMMA_CREW_ACK: Record<string, string> = {
   verdict: "logged -- it stays on the board until n_post clears the bar",
   sectors: "on it -- flagging anything red to the board",
   task_health: "on it -- disabled/failed tasks go on the board",
+  hq_review: "noted -- thanks for keeping an eye on us",
 };
 // Item 2b (LIVE-1, 2026-09-14): fixed ground-level destinations for
 // palette.ts#computePurposefulWalk's non-neighbor destinations. "ideas-wall"
@@ -862,13 +863,17 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
   // wall" -- 70% of the way from the hub center to Gamma's own desk, so the
   // visitor stands near her without literally overlapping her chair.
   const gammaHubMeet: [number, number, number] = [gammaDeskCenter[0] * 0.7, 0, gammaDeskCenter[2] * 0.7];
-  // Latest Chef "verdict" / Coach "sectors"|"task_health" row from
-  // crew-events.jsonl (CREW-2's own additive field, newest-last tail order
-  // per lib/hq.ts#readCrewEvents' own doc comment) -- feeds both the
+  // Latest Chef "verdict" / Coach "sectors"|"task_health"|"hq_review" row
+  // from crew-events.jsonl (CREW-2's own additive field, newest-last tail
+  // order per lib/hq.ts#readCrewEvents' own doc comment) -- feeds both the
   // eventWalk trigger below (per persona) and the two-bubble hub exchange.
+  // "hq_review" (observed live 2026-09-14, not in this task's original kind
+  // list) is Coach's own HQ-health self-review, also routed `"to":"Gamma"`
+  // in the real row -- included here rather than left dark, same "every
+  // real row gets a real interaction" intent as the other two kinds.
   const crewEvents = data?.crewEvents ?? [];
   const latestChefVerdict = [...crewEvents].reverse().find((e) => e.who === "Chef" && e.kind === "verdict") ?? null;
-  const latestCoachSectors = [...crewEvents].reverse().find((e) => e.who === "Coach" && (e.kind === "sectors" || e.kind === "task_health")) ?? null;
+  const latestCoachSectors = [...crewEvents].reverse().find((e) => e.who === "Coach" && (e.kind === "sectors" || e.kind === "task_health" || e.kind === "hq_review")) ?? null;
 
   // INTERACT-2 (I2 c-f, 2026-09-14): the remaining four named-event walks
   // -- each a (source persona -> trigger key, target) pair, looked up by

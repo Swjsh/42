@@ -102,6 +102,7 @@ export const GAMMA_CREW_ACK: Record<string, string> = {
   verdict: "logged -- it stays on the board until n_post clears the bar",
   sectors: "on it -- flagging anything red to the board",
   task_health: "on it -- disabled/failed tasks go on the board",
+  hq_review: "noted -- thanks for keeping an eye on us",
   brief: "filed",
 };
 

@@ -293,7 +293,7 @@ export function useMotionEvents(data: HqApiResponse | undefined): MotionEvent[] 
       const hhmm = hhmmOf(row.ts_et) || etHHMM();
       if (row.who === "Chef" && row.kind === "verdict") {
         push(`Chef → Gamma · ${truncate(row.line, 70)} · ${hhmm} ET`);
-      } else if (row.who === "Coach" && (row.kind === "sectors" || row.kind === "task_health")) {
+      } else if (row.who === "Coach" && (row.kind === "sectors" || row.kind === "task_health" || row.kind === "hq_review")) {
         push(`Coach → Gamma · ${truncate(row.line, 70)} · ${hhmm} ET`);
       }
     }
