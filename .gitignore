@@ -460,3 +460,6 @@ setup/ollama/cfg/*
 !setup/ollama/cfg/settings.json
 automation/state/station/station-pending-notes.json
 markdown/doctrine/J-PROFILE.md
+
+# HQ real-screen captures (setup/scripts/hq_capture.ps1) -- proof PNGs, never committed
+automation/state/station/captures/
