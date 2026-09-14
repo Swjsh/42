@@ -7,7 +7,7 @@ import { Html } from "@react-three/drei";
 import * as THREE from "three";
 import type { SectorRow } from "./types";
 import type { AgentBehavior } from "./Agent";
-import { healthColor, isParkedState, makeToonGradientTexture, PALETTE, truncateOneLine, type ScreenLine } from "./palette";
+import { healthColor, isParkedState, lerp, makeToonGradientTexture, PALETTE, truncateOneLine, type ScreenLine } from "./palette";
 import { BAY_CEILING_Y, BAY_DESK_OFFSET_Z, BAY_HALF_DEPTH, DepartmentBayShell, DeskCluster } from "./SetKit";
 
 const _screenColor = new THREE.Color();
@@ -26,11 +26,26 @@ interface StationModuleProps {
    * indexed GLB meshes would blow the Mali-G31's draw-call budget (this
    * task's own explicit TV-tier rule). */
   ultra?: boolean;
+  /** World-2 coordinator review (2026-09-14, DAYTIME BLOWOUT): 0 (night)..1
+   * (day), the SAME dayNightFactor() value every other day/night mechanism
+   * in this tree already uses -- fades this bay's own interior pointLights
+   * toward ~15% by day (SetKit.tsx's own `interiorLampFactor`, HubRoom uses
+   * the identical curve), same "interior lamps off in daylight" reasoning.
+   * Defaults to 1 (day, dimmer) -- a missing prop should never read as a
+   * lamp left blazing at full night brightness. */
+  dayFactor?: number;
 }
 
 export default function StationModule({
-  position, angle, row, behavior, reducedMotion, dimFactor, ultra = false,
+  // World-2 coordinator review (LABEL DIET): `behavior` is now unused --
+  // the label's own "⚠ ALERT" text is gone (the door beacon's blink is the
+  // alert signal now), and nothing else in this component ever read it.
+  // Renamed with the SAME underscore convention CanvasRoot.tsx/BrainCore.tsx
+  // already use for their own unused props, kept in the signature only
+  // because Scene.tsx's call site still passes it.
+  position, angle, row, behavior: _behavior, reducedMotion, dimFactor, ultra = false, dayFactor = 1,
 }: StationModuleProps) {
+  const lampFactor = lerp(1, 0.15, dayFactor);
   const beaconRef = useRef<THREE.Mesh>(null);
   const beaconMat = useRef<THREE.MeshBasicMaterial>(null);
   const screenMat = useRef<THREE.MeshBasicMaterial>(null);
@@ -150,17 +165,24 @@ export default function StationModule({
             <planeGeometry args={[3.6, 0.2]} />
             <meshBasicMaterial ref={edgeMat} color={color} toneMapped={false} />
           </mesh>
+          {/* World-2 coordinator review (2026-09-14, DAYTIME BLOWOUT): both
+              bay pointLights fade toward ~15% by day (`lampFactor`, same
+              curve as SetKit.tsx#HubRoom's identical fix) -- the health-
+              accent light keeps signaling health color at night when it
+              actually needs to stand out; by day the door beacon/floor-edge
+              strip (unfaded, both already health-tinted) carry that same
+              signal against plenty of ambient light instead. */}
           <pointLight
             position={[0, 1.1, BAY_DESK_OFFSET_Z * 0.4]}
             color={color}
-            intensity={2.2}
+            intensity={2.2 * lampFactor}
             distance={4.5}
             decay={2}
           />
           {/* Warm-white ceiling pointLight -- "lit like a set", one per bay
               (~8 total, well within a 5080's budget). Distance-limited so
               8 bays' lights never bleed heavily into each other or the hub. */}
-          <pointLight position={[0, BAY_CEILING_Y, BAY_DESK_OFFSET_Z * 0.5]} color="#ffe9c2" intensity={3.5} distance={6} decay={2} />
+          <pointLight position={[0, BAY_CEILING_Y, BAY_DESK_OFFSET_Z * 0.5]} color="#ffe9c2" intensity={3.5 * lampFactor} distance={6} decay={2} />
         </>
       )}
 
@@ -194,28 +216,26 @@ export default function StationModule({
         distanceFactor={9}
         style={{ pointerEvents: "none" }}
       >
-        {/* Pass G (2026-09-13, coordinator item 5: "parked lanes quiet --
-            currently carry the biggest labels in the frame; parked = dim,
-            small, grey; active/armed lanes keep the weight"): a parked
-            label previously only dropped to 0.6 opacity at the SAME big
-            font size + the same rotating .hq-beam border + the same
-            one-shot .hq-shine sweep on health change -- all three read as
-            "look at me," the opposite of quiet. Parked now skips the beam/
-            shine entirely (a plain, static, small box) and drops font size
-            ~45% + opacity to 0.45 + text color to a flat grey, matching
-            "small and grey" literally rather than just dimmer at full
-            size. Active/armed lanes are BYTE-IDENTICAL to before this
-            edit -- only the parked branch changed. */}
+        {/* World-2 coordinator review (2026-09-14, LABEL DIET: "the frame
+            carries ~20 floating labels... J called it chaotic"): parked =
+            name only at 60% opacity (was name + "{state} · PARKED" at
+            0.45); live = name + state on ONE line (was a 2-3 line stack
+            with P&L, arm alias, and an "ALERT" suffix). The dropped detail
+            (P&L, arm alias, full evidence text) still lives on the bay's
+            own desk screen (`screenLines` above, DeskCluster/DeskScreen) --
+            this floating overhead label is the glanceable-overview surface,
+            the desk screen is the approach-for-detail one. The door
+            beacon's own blink (see the useFrame above) is now the alert
+            signal -- no separate "⚠ ALERT" text needed here too. */}
         {parked ? (
           <div
             style={{
               fontFamily: "system-ui, sans-serif", color: "#5c7aa0",
               background: "rgba(3,4,10,0.6)", padding: "4px 10px", borderRadius: 6,
-              whiteSpace: "nowrap", textAlign: "center", opacity: 0.45,
+              whiteSpace: "nowrap", textAlign: "center", opacity: 0.6,
             }}
           >
             <div style={{ fontSize: ultra ? 20 : 17, fontWeight: 600, lineHeight: 1.15 }}>{row.lane}</div>
-            <div style={{ fontSize: ultra ? 16 : 14 }}>{row.state} · PARKED</div>
           </div>
         ) : (
         <div className="hq-beam" style={{ "--beam-color": color, borderRadius: 8 } as CSSProperties}>
@@ -228,19 +248,9 @@ export default function StationModule({
             }}
           >
             <span key={row.health} className="hq-shine" />
-            <div style={{ fontSize: ultra ? 38 : 30, fontWeight: 800, lineHeight: 1.15 }}>{row.lane}</div>
-            {/* Ultra tier (world pass A, 2026-09-13): "one line lane name +
-                one status line" -- the arm-alias abbreviation line is
-                dropped here (kept on TV, unchanged) to hit that 2-line
-                spec at a bigger, readable size instead of 3 shrinking lines. */}
-            {!ultra && <div style={{ fontSize: 26, color: "#7f93b0", marginBottom: 2 }}>{row.arm_or_acct_alias}</div>}
-            <div style={{ fontSize: ultra ? 32 : 26, fontWeight: 600 }}>
-              <span style={{ color: typeof row.window_pnl === "number" ? (row.window_pnl >= 0 ? "#22ff88" : "#ff3b3b") : "#7f93b0" }}>
-                {typeof row.window_pnl === "number" ? row.window_pnl.toFixed(0) : row.window_pnl}
-              </span>
-              {"  ·  "}
-              {row.state}
-              {behavior === "alert" && <span style={{ color: "#ff3b3b", fontWeight: 800 }}> · ⚠ ALERT</span>}
+            <div style={{ fontSize: ultra ? 32 : 26, fontWeight: 800, lineHeight: 1.15 }}>
+              {row.lane}
+              <span style={{ fontWeight: 600, color: "#7f93b0" }}> · {row.state}</span>
             </div>
           </div>
         </div>

@@ -4,7 +4,7 @@ import { Suspense, useEffect, useMemo } from "react";
 import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import DeskScreen from "./DeskScreen";
-import { PALETTE, type ScreenLine } from "./palette";
+import { lerp, PALETTE, type ScreenLine } from "./palette";
 
 // ─── HQ kit rebuild (2026-09-13, HQ-SCENE-PLAN.md) ──────────────────────────
 // Real CC0 GLB pieces (Kenney Space Station Kit / Modular Space Kit / Space
@@ -258,8 +258,29 @@ export function KitProp({ path, scale = 1, position, rotation, tint, tintStrengt
  * on its walls. Plus 4 ceiling lights (decorative greeble only). */
 export const HUB_CEILING_Y = 4.25 * ARCHITECTURE_SCALE_HUB - 0.4; // room-large raw height 4.25
 
-export function HubRoom() {
+// World-2 coordinator review (2026-09-14, "DAYTIME BLOWOUT... the whole hub
+// is washed-out orange with no wall edges") root cause (a) of 3: these
+// interior fixtures (the room shell's own warm emissive AND every ceiling
+// pointLight below) were tuned for the night look and never faded by day,
+// stacking on top of (now much brighter) day sky/ambient/environment
+// lighting. lerp(1, 0.15, dayFactor) -- "interior lamps off in daylight",
+// never fully to 0 (a lit interior at night still needs SOME practical
+// glow once the sun's gone). Shared by HubRoom and DepartmentBayShell below
+// so both fade identically.
+function interiorLampFactor(dayFactor: number): number {
+  return lerp(1, 0.15, dayFactor);
+}
+
+export function HubRoom({ dayFactor = 1 }: { dayFactor?: number }) {
   const lightRadius = 4;
+  const lampFactor = interiorLampFactor(dayFactor);
+  // Memoized on dayFactor alone (not every render) -- same "rebuild only
+  // when the value the object depends on actually changes" discipline
+  // SkyDome.tsx's own useMemo-on-dayFactor uses; a fresh object literal
+  // every render would re-run KitProp's tint/emissive useEffect (material
+  // clone + dispose, a real GPU op) on every poll instead of only when the
+  // clock genuinely moves.
+  const hubEmissive = useMemo(() => ({ color: PALETTE.warmAccent, intensity: 0.85 * lampFactor }), [lampFactor]);
   return (
     <>
       {/* Pass F emissive fix (2026-09-13, coordinator's real-monitor
@@ -308,10 +329,10 @@ export function HubRoom() {
         scale={ARCHITECTURE_SCALE_HUB}
         tint={PALETTE.warmAccent}
         tintStrength={0.08}
-        emissive={{ color: PALETTE.warmAccent, intensity: 0.85 }}
+        emissive={hubEmissive}
         receiveShadow
       />
-      <pointLight position={[0, HUB_CEILING_Y * 0.7, 0]} color="#ffd9a0" intensity={6} distance={16} decay={1.5} />
+      <pointLight position={[0, HUB_CEILING_Y * 0.7, 0]} color="#ffd9a0" intensity={6 * lampFactor} distance={16} decay={1.5} />
       {[0, 90, 180, 270].map((deg) => {
         const rad = (deg * Math.PI) / 180;
         const pos: [number, number, number] = [Math.cos(rad) * lightRadius, HUB_CEILING_Y, Math.sin(rad) * lightRadius];
@@ -323,7 +344,7 @@ export function HubRoom() {
                 part of the "~10-12 total" budget alongside each bay's own
                 single pointLight (StationModule.tsx). */}
             {(deg === 0 || deg === 180) && (
-              <pointLight position={pos} color="#ffe9c2" intensity={4} distance={9} decay={2} />
+              <pointLight position={pos} color="#ffe9c2" intensity={4 * lampFactor} distance={9} decay={2} />
             )}
           </group>
         );
