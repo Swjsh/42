@@ -1,12 +1,25 @@
 "use client";
 
-import { memo, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { memo, Suspense, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import type { CSSProperties } from "react";
 import { useThree, useFrame } from "@react-three/fiber";
+import type { ThreeEvent } from "@react-three/fiber";
 import { Html, OrbitControls } from "@react-three/drei";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import * as THREE from "three";
 import { recordCameraSample } from "@/lib/hq-motion-diag";
+// UX-1 U5 (2026-09-14): reports the exact frame the cinematic auto-orbit
+// resumes after FREE_CAM_IDLE_RESUME_S of user idle -- Hud.tsx (outside
+// <Canvas>) subscribes to this SAME external store to show a brief "camera
+// is moving again" hint at the moment it actually happens, never a fixed
+// timer independently re-derived on the Hud side (which could drift out of
+// sync with CameraRig's own real idle math below).
+import { reportAutoOrbitResumed } from "@/lib/hq-camera-mode";
+// UX-1 U3 (2026-09-14): the Hud-side half of the crew-card-hover-pulses-the-
+// world-marker mechanism -- see that file's own header for the full
+// mechanism/index-agreement writeup (index 0 = Gamma, 1-6 = innerPersonas
+// 0-5, the SAME fixed order cameraPresets below already uses).
+import { getHoveredPersonaIndex, subscribeHoveredPersonaIndex } from "@/lib/hq-hover-persona";
 import type { HqApiResponse, SectorRow, CoreDecisionRow } from "./types";
 import type { PersonaState } from "@/lib/personas";
 import type { AgentBehavior } from "./Agent";
@@ -41,7 +54,13 @@ import {
 // reimplemented) so GammaCharacter.tsx's bubble text is guaranteed
 // identical, never just independently similar. Zero fs/fetch (this file's
 // own header) -- safe to import client-side same as Hud.tsx already does.
-import { crewNextLine } from "@/lib/crew";
+// UX-1 U3 (2026-09-14): deriveCrewPill/crewNowLine/CREW_PILL_COLOR -- the
+// EXACT SAME evidence-backed derivation Hud.tsx's own crew panel and
+// bubbleText.ts's personaBubbleAction already read, so the world hover
+// tooltip's "name . pill . now-line" can never disagree with the flat
+// panel's own pill for the same persona (the task's own "same persona data
+// the panel uses" requirement).
+import { crewNextLine, deriveCrewPill, crewNowLine, CREW_PILL_COLOR } from "@/lib/crew";
 
 export type HqTier = "ultra" | "tv";
 
@@ -115,25 +134,126 @@ const CAMERA_HEIGHT = 7.5;
 // changing them here satisfies "make key 0 land there" by construction, not
 // a separate edit. Fly-to presets 1-7 (per-desk, computed independently in
 // `cameraPresets` below) are untouched.
-// LAYOUT builder pass (2026-09-14, campus-cross rebuild): the old ring's
-// outer reach was ~16.7-18.2u (RING_RADIUS+BAY_HALF_DEPTH / old
-// PLAZA_RADIUS, both now removed); the new cross's own worst-case reach (a
-// bay's own far corner, ARM_LEN x ARM_HALF_WIDTH) is ~22.8u -- pulled back
-// proportionally (both distance and height scaled by the same ~1.14 ratio,
-// keeping the same ~35deg elevation angle this pose was already tuned to)
-// so the whole cross -- all 4 arms, not just the hub -- still fits in frame
-// at the default overview pose. Stays under FREE_CAM_MAX_DISTANCE (36,
-// UNCHANGED -- this task's own proof command fixes `?camdist=36` as a named
-// checkpoint, so that ceiling must keep meaning the same thing it always
-// has) with real headroom to zoom out further.
-const CAMERA_DIST_ULTRA = 32;
-const CAMERA_HEIGHT_ULTRA = 22;
+// UX-1 (2026-09-14, coordinator: "the default/preset-0 overview crops the
+// two nearest bays... pull back/up so all 8 bays+4 hallways+plaza cross fit
+// with margin"). LAYOUT's own 32/22 pair above (comment preserved in git
+// history) was tuned by proportional scaling (bay reach grew ~1.14x, so
+// distance/height were scaled ~1.14x too) -- a reasonable-sounding heuristic
+// that turns out NOT to be the same thing as verifying the real frustum
+// angle to every worst-case corner, which this pass actually computed
+// (scratchpad camera-frustum-vs-corner-position math, per-corner
+// angle-from-forward-axis test, vfov=50deg, aspect=(2560-500)/1440 -- the
+// canvas minus Hud's own 500px right column, hq_capture.ps1's real
+// 2560x1440 kiosk window): at 32/22, the true worst corner (a bay's own
+// far-far corner, verified via layout.ts's actual computeBaySlot geometry --
+// ARM_LEN=20.1 x ARM_HALF_WIDTH=10.8, radius 22.8) already clips at
+// margin_v=-8.75deg -- confirming the original bug report
+// (layout-default-1726.png) was real and NOT fixed by LAYOUT's own pass.
+// Worse: the task's own "plaza cross" also has to fit, and Plaza's arm
+// rectangles extend PLAZA_APRON (1.5u) past ARM_LEN/ARM_HALF_WIDTH on every
+// side (radius 24.9) -- the proportional-scaling comment never accounted
+// for the apron at all.
+//
+// Fix: solved the SAME frustum math for a distance/height pair that clears
+// every one of the 8 bays' far corners AND all 4 plaza-arm corners with real
+// margin, at the SAME ~34.5deg elevation angle this pose was already tuned
+// to (so the "look" -- how steep the diorama angle reads -- is unchanged,
+// only the pull-back distance grows): 45/31 -> margin_v=+1.75deg,
+// margin_h=+6.34deg (worst case: a plaza-arm corner's own top edge, y=4.25,
+// the room-small/room-large kit's real wall height), elevation 34.6deg (was
+// 34.5deg), 3D orbit-distance ~53.9u.
+//
+// SECOND bug found by the same math, pre-dating this pass: the old 32/22
+// pose's own 3D orbit-distance from OrbitControls' target (0,1.4,0) is
+// sqrt(32^2+20.6^2)~=38.1u -- already PAST the old FREE_CAM_MAX_DISTANCE=36
+// ceiling below. Since OrbitControls.update() (drei, runs at useFrame
+// priority -1, BEFORE this component's own per-frame write -- see CameraRig
+// itself for the verified ordering) unconditionally clamps its internal
+// spherical radius to [minDistance, maxDistance] every single frame, key
+// "0" was ALREADY snapping the camera back to distance 36 the instant a
+// flight finished and mode handed off to "userFree" -- a real, currently-
+// shipping violate of this same task's own U5 "no snap" rule, independent
+// of the framing bug above. FREE_CAM_MAX_DISTANCE raised to 58 (new orbit-
+// distance 53.9u + ~4u of real user zoom-out headroom past the default
+// pose, same proportional relationship the old 32/22-vs-36 pair intended)
+// fixes both at once. No automated check anywhere in the repo pins "36"
+// as a literal value (verified via a repo-wide grep before changing this)
+// -- only this file's own now-superseded comment and two other files'
+// comments referencing `?camdist=36` as a manual proof checkpoint; the
+// checkpoint concept itself (a max-zoom-out visual check) is unaffected by
+// which number the ceiling actually is.
+const CAMERA_DIST_ULTRA = 45;
+const CAMERA_HEIGHT_ULTRA = 31;
 // One reusable scratch vector for CameraRig's per-frame desired-position
 // math (module scope, never per-frame allocation -- same discipline as
 // StationModule.tsx's `_screenColor` / ActivityBubbleLayer.tsx's `_camPos`).
 // Safe as a shared singleton: written and consumed synchronously within one
 // useFrame callback, never held across a frame boundary.
 const _desiredCamPos = new THREE.Vector3();
+// UX-1 U2 (2026-09-14): the established synthetic-KeyboardEvent bridge
+// (Hud.tsx's own flyToDesk uses the identical mechanism to cross the DOM/
+// Canvas boundary) -- CameraRig's own `onKey` listener below is a pure
+// string match via resolveCameraPresetKey with no way to tell a real
+// keypress from a dispatched one, so this reaches the exact same fly-to
+// code path a real "1".."7"/"bay0".."bay7" press would. Module-scope (not a
+// useCallback) -- stateless, referenced fresh from an inline per-row/
+// per-persona onClick below (a per-RENDER closure, not a per-FRAME one --
+// this file's own zero-per-frame-allocation rule targets useFrame, and this
+// only ever runs on a genuine user click).
+function dispatchPresetKey(key: string): void {
+  window.dispatchEvent(new KeyboardEvent("keydown", { key }));
+}
+// UX-1 U2: shared hover-cursor bookkeeping for every clickable group below
+// (bay/persona/hub) -- a module-scope ENTER/LEAVE depth counter rather than
+// each group unconditionally setting cursor="pointer"/"auto" on its own
+// over/out. r3f's per-object pointerover/pointerout firing order across two
+// ADJACENT clickable meshes is not guaranteed (the pointer can be reported
+// entering B before it finishes leaving A) -- a naive per-object reset can
+// stick the cursor on "auto" while the pointer is still visually over a
+// sibling clickable object. A shared depth counter stays correct under
+// either ordering: it only returns to "auto" once EVERY currently-hovered
+// clickable has reported leaving.
+let _hoverDepth = 0;
+function _onClickableEnter(): void {
+  _hoverDepth++;
+  if (typeof document !== "undefined") document.body.style.cursor = "pointer";
+}
+function _onClickableLeave(): void {
+  _hoverDepth = Math.max(0, _hoverDepth - 1);
+  if (_hoverDepth === 0 && typeof document !== "undefined") document.body.style.cursor = "auto";
+}
+interface ClickableGroupHandlers {
+  onClick?: (e: ThreeEvent<MouseEvent>) => void;
+  onPointerOver?: (e: ThreeEvent<PointerEvent>) => void;
+  onPointerOut?: (e: ThreeEvent<PointerEvent>) => void;
+}
+// UX-1 U2/U3: ONE shared factory for the ~15 clickable-group prop sets below
+// (8 bays, 6 personas, Gamma, the hub) instead of near-identical inline
+// object literals repeated at every call site -- returns `{}` (spread to a
+// no-op) on the TV tier, same "render identically, only interactivity
+// differs" convention this file's own `{ultra && ...}` branches already use
+// everywhere else, but as a prop-spread here since StationModule/Agent/
+// DeskCluster/BrainCore themselves must keep rendering on BOTH tiers
+// unchanged -- only whether the WRAPPING group is interactive should differ.
+function clickableGroupProps(ultra: boolean, presetKey: string, onEnter: () => void, onLeave: () => void): ClickableGroupHandlers {
+  if (!ultra) return {};
+  return {
+    onClick: (e) => {
+      e.stopPropagation();
+      dispatchPresetKey(presetKey);
+    },
+    onPointerOver: (e) => {
+      e.stopPropagation();
+      _onClickableEnter();
+      onEnter();
+    },
+    onPointerOut: (e) => {
+      e.stopPropagation();
+      _onClickableLeave();
+      onLeave();
+    },
+  };
+}
 // Free-camera tuning (LIVE-1 item 1). minDistance/maxDistance bound how far
 // OrbitControls can zoom; maxPolarAngle keeps the camera from ever dipping
 // below the floor -- derived from camera.y = target.y + distance*cos(phi)
@@ -153,8 +273,16 @@ const _desiredCamPos = new THREE.Vector3();
 // at full zoom-out, per this same item's "floor or background" ask -- a
 // station that shrinks to a speck before the dome even clips reads just as
 // broken as the black disc itself.
+// UX-1 (2026-09-14): 36 -> 58 -- see CAMERA_DIST_ULTRA/CAMERA_HEIGHT_ULTRA's
+// own comment above for the full derivation (the overview pose's own real
+// 3D orbit-distance from target must stay UNDER this ceiling or
+// OrbitControls' per-frame clamp snaps the camera back the instant a flight
+// to "0" finishes -- true of the OLD 32/22 pose too, sqrt(32^2+20.6^2)~=38.1
+// already past the old 36 ceiling: a real, pre-existing snap bug this same
+// change also fixes). 58+70 (SkyDome's own dome radius, per this comment's
+// own math above) = 128, still comfortably under far=400.
 const FREE_CAM_MIN_DISTANCE = 6;
-const FREE_CAM_MAX_DISTANCE = 36;
+const FREE_CAM_MAX_DISTANCE = 58;
 const FREE_CAM_MAX_POLAR_ANGLE = (89.5 * Math.PI) / 180;
 const FREE_CAM_FLIGHT_S = 1.2; // keyboard 0-7 fly-to duration
 const FREE_CAM_IDLE_RESUME_S = 45; // auto-orbit resumes this long after the user's last input
@@ -546,6 +674,18 @@ function CameraRig({ reducedMotion, rows, geometry, briefMtimeMs, ultra, cameraP
       if (e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
       const controls = controlsRef.current;
       if (!controls) return;
+      // U5 (2026-09-14, coordinator: "Esc stops orbit"): the SAME hand-off
+      // OrbitControls' own onStart already performs on a real drag/wheel
+      // (mode -> userFree, idleSince cleared so FREE_CAM_IDLE_RESUME_S
+      // restarts counting from now) -- a keyboard-only escape hatch for
+      // "stop moving the camera", no drag required. Checked before
+      // resolveCameraPresetKey (Escape never matches a preset anyway, so
+      // this is purely additive, not a priority override of anything real).
+      if (e.key === "Escape") {
+        mode.current = "userFree";
+        idleSince.current = lastElapsed.current;
+        return;
+      }
       const dest = resolveCameraPresetKey(e.key, cameraPresets, bayPresets, hallPresets);
       if (!dest) return;
       flight.current = {
@@ -585,6 +725,12 @@ function CameraRig({ reducedMotion, rows, geometry, briefMtimeMs, ultra, cameraP
         const idleForS = idleSince.current === null ? 0 : t - idleSince.current;
         if (idleSince.current === null || idleForS < FREE_CAM_IDLE_RESUME_S) return; // OrbitControls owns the camera, untouched
         mode.current = "auto"; // idle timeout elapsed -- fall through and ease back below
+        // U5 (2026-09-14): fires the SAME frame the orbit actually resumes --
+        // Hud.tsx reads this transient timestamp via subscribeAutoOrbitResumed
+        // to show a brief hint ("camera moving again") right when it happens,
+        // never a second independently-timed countdown that could drift from
+        // this real one.
+        reportAutoOrbitResumed();
       }
     }
 
@@ -839,6 +985,30 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
   useEffect(() => {
     setCoreReady(true);
   }, []);
+
+  // UX-1 U3 (2026-09-14): which world target (if any) the cursor is
+  // currently hovering -- a plain useState (not a ref), same "state for
+  // discrete moments" convention this whole file already uses (walking/
+  // dwelling/pointing in Agent.tsx, coreReady above): hover start/stop are
+  // discrete pointer events, not continuous per-frame values, and the
+  // tooltip's own rendered children must re-render when this changes.
+  // Discriminated union (never a bare index) so "gamma" doesn't need to
+  // fake a lane/persona index that doesn't apply to her.
+  const [hoveredTarget, setHoveredTarget] = useState<
+    { kind: "bay"; index: number } | { kind: "persona"; index: number } | { kind: "gamma" } | null
+  >(null);
+  // UX-1 U3: the OTHER half of the hover-pulse mechanism -- Hud.tsx's own
+  // crew-card onMouseEnter/onMouseLeave publish here (lib/hq-hover-
+  // persona.ts, already committed); this is the Canvas-side consumer.
+  // useSyncExternalStore (not a plain read) because this store changes from
+  // OUTSIDE React's own render cycle (a DOM event handler in Hud.tsx,
+  // sibling to this whole <Canvas> tree, not a parent/child) -- the same
+  // cross-Canvas-boundary external-store pattern this codebase already uses
+  // for hq-live-perf.ts/hq-first-frame.ts/hq-camera-mode.ts. Index 0 =
+  // Gamma, 1-6 = innerPersonas[0..5] -- see that store's own header for why
+  // this fixed offset needs no separate lookup table.
+  const hudHoveredIndex = useSyncExternalStore(subscribeHoveredPersonaIndex, getHoveredPersonaIndex);
+
   const rows = data?.sectors.rows ?? [];
   const gaming = (data?.mode ?? "work") === "gaming";
   const dimFactor = gaming ? 0.35 : 1;
@@ -1499,6 +1669,14 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
         </Suspense>
       )}
 
+      {/* UX-1 U2 (2026-09-14): "clicking the hub flies to the overview" --
+          BrainCore renders on BOTH tiers (unchanged), so the click/hover
+          wrapper uses the SAME conditional clickableGroupProps(ultra, ...)
+          pattern as the bay/persona groups above, not the Gamma IIFE's
+          unconditional form. Key "0" = the fixed wide overview pose
+          (resolveCameraPresetKey's own literal "0" branch) -- distinct from
+          Gamma's own key "1" above. */}
+      <group {...clickableGroupProps(ultra, "0", () => setHoveredTarget(null), () => setHoveredTarget(null))}>
       <BrainCore
         utilPct={data?.brainVitals.gpu.util_pct ?? null}
         memUsedMib={data?.brainVitals.gpu.mem_used_mib ?? null}
@@ -1529,6 +1707,7 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
         sectorsSnapshot={data?.sectorsSnapshot ?? null}
         trading={data?.trading ?? null}
       />
+      </group>
 
       {/* Gamma's own character + desk + speech bubble (Pass B, 2026-09-13)
           -- ultra tier only, same reasoning as every other real-kit-geometry
@@ -1547,19 +1726,30 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
           return ageMin !== null && ageMin < EVENT_BUBBLE_WINDOW_MIN;
         }) ?? null;
         return (
-        <GammaCharacter
-          deskCenter={gammaDeskCenter}
-          rotationY={gammaRotationY}
-          accentColor={allPersonas[0]?.color ?? PALETTE.hubCore}
-          lastRow={data?.brainVitals.lastRow ?? null}
-          nextLine={managerNextLine}
-          ackOverride={activeGammaExchange ? (GAMMA_CREW_ACK[activeGammaExchange.kind] ?? "logged, thanks") : null}
-          briefText={data?.brief.text ?? ""}
-          briefMtimeMs={data?.brief.mtime_ms ?? null}
-          utilPct={data?.brainVitals.gpu.util_pct ?? null}
-          modelName={data?.brainVitals.models[0]?.name ?? null}
-          gaming={gaming}
-        />
+        // UX-1 U2/U3 (2026-09-14): this whole IIFE is already `{ultra && ...}`-
+        // gated by its own caller, so the handlers below are unconditional
+        // (no clickableGroupProps ternary needed -- this branch never
+        // reaches the TV tier at all). Key "1" = cameraPresets[0] = Gamma's
+        // own preset (she's a persona/character like any other for this
+        // purpose, per the original U2 spec's own "character" wording) --
+        // distinct from key "0" (the wide hub overview, wired on BrainCore
+        // below), matching how clicking any OTHER character flies to THEIR
+        // own preset rather than a generic wide shot.
+        <group {...clickableGroupProps(true, "1", () => setHoveredTarget({ kind: "gamma" }), () => setHoveredTarget((cur) => (cur?.kind === "gamma" ? null : cur)))}>
+          <GammaCharacter
+            deskCenter={gammaDeskCenter}
+            rotationY={gammaRotationY}
+            accentColor={allPersonas[0]?.color ?? PALETTE.hubCore}
+            lastRow={data?.brainVitals.lastRow ?? null}
+            nextLine={managerNextLine}
+            ackOverride={activeGammaExchange ? (GAMMA_CREW_ACK[activeGammaExchange.kind] ?? "logged, thanks") : null}
+            briefText={data?.brief.text ?? ""}
+            briefMtimeMs={data?.brief.mtime_ms ?? null}
+            utilPct={data?.brainVitals.gpu.util_pct ?? null}
+            modelName={data?.brainVitals.models[0]?.name ?? null}
+            gaming={gaming}
+          />
+        </group>
         );
       })()}
 
@@ -1601,38 +1791,61 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
                 <CorridorRun from={slot.hallFrom} to={slot.hallTo} dayFactor={nightFactor} doorAtFrom={false} />
               </Suspense>
             )}
-            <StationModule
-              position={slot.position}
-              angle={slot.stationAngle}
-              row={row}
-              behavior={behavior}
-              reducedMotion={reducedMotion}
-              dimFactor={dimFactor}
-              ultra={ultra}
-              dayFactor={nightFactor}
-            />
-            {/* Scene-root sibling, NOT nested inside StationModule -- see the
-                agentHome comment above. Lane agents never walk anymore (no
-                event cleanly attributes a card to one lane -- see the
-                (deleted) Courier.tsx's own comment on why card-status
-                events route there instead); `presenceMode`/`facingYaw` are
-                set on exactly one statically-chosen lane (nearestLaneIndex).
-                `bubbleText` is this lane's own little head-bubble (P2) --
-                `${state} · ${evidence}`, "!" prefixed when health is red,
-                the SAME wording ActivityBubbleLayer used to show at a fixed
-                floating point -- now it travels with the walker instead. */}
-            <Agent
-              laneSeed={row.lane}
-              home={slot.agentHome}
-              hub={HUB}
-              behavior={behavior}
-              accentColor={healthColor(row.health)}
-              reducedMotion={reducedMotion}
-              presenceMode={i === nearestLaneIndex ? greeterPresenceMode : undefined}
-              facingYaw={i === nearestLaneIndex ? greeterFacingYaw : undefined}
-              ultra={ultra}
-              bubbleText={laneBubble}
-            />
+            {/* UX-1 U2/U3 (2026-09-14): ONE inner group wraps ONLY the
+                clickable content (module+agent), deliberately NOT the outer
+                `<group key={row.lane}>` -- that outer group is also the
+                CorridorRun's own sibling above, and the task's own "clicking
+                empty ground does nothing" rule means the hallway floor must
+                stay non-interactive. Handlers spread conditionally (ultra
+                only, matching every other interactive-only piece in this
+                file -- StationModule/Agent themselves still render
+                unconditionally on both tiers, byte-identical to before this
+                pass, only whether THIS wrapper is clickable changes).
+                onPointerOut's setHoveredTarget only clears when it's still
+                THIS bay showing -- see hoveredTarget's own declaration
+                comment for why an unconditional clear would be a real bug
+                (adjacent clickable siblings, unordered over/out). */}
+            <group
+              {...clickableGroupProps(
+                ultra,
+                `bay${i}`,
+                () => setHoveredTarget({ kind: "bay", index: i }),
+                () => setHoveredTarget((cur) => (cur?.kind === "bay" && cur.index === i ? null : cur)),
+              )}
+            >
+              <StationModule
+                position={slot.position}
+                angle={slot.stationAngle}
+                row={row}
+                behavior={behavior}
+                reducedMotion={reducedMotion}
+                dimFactor={dimFactor}
+                ultra={ultra}
+                dayFactor={nightFactor}
+              />
+              {/* Scene-root sibling, NOT nested inside StationModule -- see the
+                  agentHome comment above. Lane agents never walk anymore (no
+                  event cleanly attributes a card to one lane -- see the
+                  (deleted) Courier.tsx's own comment on why card-status
+                  events route there instead); `presenceMode`/`facingYaw` are
+                  set on exactly one statically-chosen lane (nearestLaneIndex).
+                  `bubbleText` is this lane's own little head-bubble (P2) --
+                  `${state} · ${evidence}`, "!" prefixed when health is red,
+                  the SAME wording ActivityBubbleLayer used to show at a fixed
+                  floating point -- now it travels with the walker instead. */}
+              <Agent
+                laneSeed={row.lane}
+                home={slot.agentHome}
+                hub={HUB}
+                behavior={behavior}
+                accentColor={healthColor(row.health)}
+                reducedMotion={reducedMotion}
+                presenceMode={i === nearestLaneIndex ? greeterPresenceMode : undefined}
+                facingYaw={i === nearestLaneIndex ? greeterFacingYaw : undefined}
+                ultra={ultra}
+                bubbleText={laneBubble}
+              />
+            </group>
           </group>
         );
       })}
@@ -1770,7 +1983,15 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
         // so the 3D bubble and the flat panel can never disagree (P2 spec).
         const personaBubble = personaBubbleAction(persona, nowMsForWalks);
         return (
-          <group key={persona.name}>
+          <group
+            key={persona.name}
+            {...clickableGroupProps(
+              ultra,
+              String(i + 2),
+              () => setHoveredTarget({ kind: "persona", index: i }),
+              () => setHoveredTarget((cur) => (cur?.kind === "persona" && cur.index === i ? null : cur)),
+            )}
+          >
             {/* Kit rebuild: persona desks get the SAME real DeskCluster as
                 the lane bays (SetKit.tsx), offset+rotated identically --
                 ultra tier only, no room shell (personas already sit inside
@@ -1895,6 +2116,121 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
           (the separate floating-bubble LAYER) is gone too -- see every
           <Agent>/<GammaCharacter> mount above, each now carries its OWN
           bubble instead. */}
+
+      {/* UX-1 U3 (2026-09-14, "hovering character/bay shows tooltip
+          (name.pill.now-line) near cursor"): ONE shared tooltip driven by
+          `hoveredTarget` (set by the bay/persona/gamma onPointerOver/Out
+          handlers above) instead of one per clickable group -- cheaper (a
+          single <Html> mount/unmount as the pointer moves between targets,
+          not 15 permanently-mounted ones) and there is only ever one
+          hovered target at a time anyway. `pointerEvents:"none"` (same
+          convention as every other informational Html overlay in this file
+          -- BaySign's close-up label, the Pilot desk-pulse above) so the
+          tooltip itself can never block the hover/click it's describing.
+          Name/pill/now-line come from the SAME lib/crew.ts derivation
+          Hud.tsx's own roster panel reads (deriveCrewPill/crewNowLine) for
+          personas/Gamma, and the identical row fields Hud.tsx's panel shows
+          for a lane -- this can never disagree with the flat panel. */}
+      {ultra && hoveredTarget && (() => {
+        let name: string;
+        let pillLabel: string;
+        let nowLine: string;
+        let color: string;
+        let pos: [number, number, number];
+        if (hoveredTarget.kind === "bay") {
+          const row = rows[hoveredTarget.index];
+          const slot = geometry[hoveredTarget.index] ?? geometry[0];
+          if (!row || !slot) return null;
+          name = row.lane;
+          pillLabel = row.state;
+          nowLine = row.evidence;
+          color = healthColor(row.health);
+          pos = [slot.position[0], 3.0, slot.position[2]];
+        } else {
+          const persona = hoveredTarget.kind === "gamma" ? allPersonas[0] : innerPersonas[hoveredTarget.index];
+          if (!persona) return null;
+          const slotPos = hoveredTarget.kind === "gamma" ? gammaDeskCenter : (personaGeometry[hoveredTarget.index] ?? personaGeometry[0])?.position;
+          if (!slotPos) return null;
+          const pill = deriveCrewPill(persona, nowMsForWalks);
+          name = persona.name;
+          pillLabel = pill.kind;
+          nowLine = crewNowLine(persona) ?? pill.reason;
+          color = CREW_PILL_COLOR[pill.kind];
+          pos = [slotPos[0], 2.3, slotPos[2]];
+        }
+        return (
+          <Html position={pos} center distanceFactor={9} style={{ pointerEvents: "none" }}>
+            <div
+              style={{
+                background: "rgba(3,4,10,0.88)", border: `1px solid ${color}`, borderRadius: 7,
+                padding: "6px 12px", fontFamily: "system-ui, sans-serif", whiteSpace: "nowrap",
+                color: "#dff3ff",
+              }}
+            >
+              <div style={{ fontSize: 14, fontWeight: 700 }}>
+                {name} <span style={{ color, fontWeight: 600 }}>· {pillLabel}</span>
+              </div>
+              <div style={{ fontSize: 12, color: "#9fb8d6", marginTop: 2 }}>{truncateOneLine(nowLine, 42)}</div>
+            </div>
+          </Html>
+        );
+      })()}
+
+      {/* UX-1 U3 ("hovering a crew card pulses that persona's own in-world
+          sign/marker"): consumes hudHoveredIndex (lib/hq-hover-persona.ts,
+          published by Hud.tsx's crew card onMouseEnter/Leave) -- index 0 =
+          Gamma, 1-6 = innerPersonas[0..5], the SAME fixed order Hud.tsx's
+          own crew list (data.company.personas, Gamma included at [0]) and
+          this file's own cameraPresets already agree on. PersonaModule.tsx
+          (which used to render a real nameplate mesh here) is deleted --
+          every persona's only in-world marker today is Agent's own Html
+          bubble, so this renders as an ADDITIONAL small Html glow next to
+          that marker rather than touching Agent.tsx/GammaCharacter.tsx
+          (both outside this task's Scene.tsx-only scope). transform/opacity
+          ONLY in the pulse keyframe below -- this file's own established
+          TV-compositor-safe rule (see the .hq-beam/.hq-shine header
+          comment in Hud.tsx this file already follows for the Pilot desk
+          pulse above) -- reducedMotion swaps the looping pulse for a static
+          ring, same convention as every other reducedMotion branch here. */}
+      {ultra && hudHoveredIndex !== null && (() => {
+        const pos = hudHoveredIndex === 0 ? gammaDeskCenter : (personaGeometry[hudHoveredIndex - 1] ?? personaGeometry[0])?.position;
+        if (!pos) return null;
+        return (
+          // Html PORTALS its children into the real page DOM (verified
+          // established precedent: the Pilot desk-pulse above already
+          // relies on this to reference Hud.tsx's global `.hq-beam`/
+          // `.hq-shine` classes from inside <Canvas>) -- so a plain <style>
+          // tag as a CHILD here works correctly and, unlike a bare <style>
+          // as a direct sibling in Scene()'s own return, is never
+          // misinterpreted by r3f's reconciler as a THREE-namespace lookup
+          // (every lowercase JSX tag OUTSIDE an <Html> boundary within
+          // <Canvas> is one; a bare `<style>` there throws "Style is not
+          // part of the THREE namespace"). Scoped to only mount while
+          // actually hovered (matches this whole block's own conditional)
+          // -- a rare, human-driven event, not a hot path, so the
+          // mount/unmount cost of the stylesheet fragment itself is
+          // negligible. `key={hudHoveredIndex}` remounts (and so replays)
+          // this whole block, animation included, on every index change --
+          // the SAME "replay via a changing React key" mechanism
+          // `.hq-shine` above already uses.
+          <Html key={hudHoveredIndex} position={[pos[0], 2.0, pos[2]]} center distanceFactor={9} style={{ pointerEvents: "none" }}>
+            <style>{`
+              @keyframes hq-hover-pulse-anim {
+                0% { transform: scale(0.6); opacity: 0.9; }
+                100% { transform: scale(1.6); opacity: 0; }
+              }
+            `}</style>
+            <div
+              style={{
+                width: 34, height: 34, borderRadius: "50%",
+                border: "2px solid #7ad9ff",
+                animation: reducedMotion ? undefined : "hq-hover-pulse-anim 1.1s ease-out infinite",
+                opacity: reducedMotion ? 0.7 : undefined,
+              }}
+            />
+          </Html>
+        );
+      })()}
     </>
   );
 }
