@@ -36,6 +36,8 @@ for _p in ("setup/scripts", ""):
 import station_loop as sl  # noqa: E402
 import station_board as sb  # noqa: E402
 import station_facts as sf  # noqa: E402
+import scout_feed  # noqa: E402 -- CREW-RIG R1: isolated in the autouse fixture below
+import coach_notes  # noqa: E402 -- CREW-RIG R2: isolated in the autouse fixture below
 
 # Captured at collection time, BEFORE the autouse fixture below stubs sl._task_health_snapshot
 # on every test -- a few tests want the REAL enumeration logic (with a fake registered_tasks_fn
@@ -89,6 +91,22 @@ def _isolate_station_paths(monkeypatch, tmp_path):
     # or in this case, a real network/subprocess call). Tests targeting hq_self_review
     # itself live in test_hq_self_review.py with their own proper isolation.
     monkeypatch.setattr(sl.hq_self_review, "review_once", lambda *a, **kw: {"stubbed": True})
+    # CREW-RIG R1/R2 (2026-09-14): scout_feed.py's and coach_notes.py's own output paths,
+    # isolated to tmp_path exactly like every other Station output above -- this file's
+    # own docstring promise ("no test here ever reads or writes real repo state") would
+    # otherwise be broken by coach_notes.run_once(), which (unlike scout_feed, whose
+    # empty-feeds default short-circuits before touching any path) always attempts a real
+    # read/write on every run_once() call. Belt-and-suspenders per the build brief: this
+    # bit the rig for real once already (a synthetic-clock test writing live state,
+    # be137985) -- redirect the paths, don't rely on a caller remembering to.
+    monkeypatch.setattr(scout_feed, "SCOUT_FEED_SUMMARY_PATH", tmp_path / "scout-feed-summary.json")
+    monkeypatch.setattr(scout_feed, "SCOUT_FEED_JSONL_PATH", tmp_path / "scout-feed.jsonl")
+    monkeypatch.setattr(coach_notes, "COACH_NOTES_PATH", tmp_path / "coach-notes.json")
+    monkeypatch.setattr(coach_notes, "COACH_TWIN_JOURNAL_PATH", tmp_path / "twin-journal.jsonl")
+    monkeypatch.setattr(coach_notes, "COACH_TWIN_EXIT_STATE_PATH", tmp_path / "twin-exit-state.json")
+    monkeypatch.setattr(coach_notes, "COACH_TWIN_BREAKER_PATH", tmp_path / "twin-breaker.json")
+    monkeypatch.setattr(coach_notes, "COACH_AUTOPSY_DIR", tmp_path / "autopsies-coach")
+    monkeypatch.setattr(coach_notes, "COACH_SECTORS_PATH", tmp_path / "sectors.json")
     yield
 
 

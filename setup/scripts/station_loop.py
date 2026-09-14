@@ -53,6 +53,8 @@ import sector_rows  # noqa: E402 -- 2026-09-14 company-roster re-point: Coach's 
 import crew_events  # noqa: E402 -- 2026-09-14 company-roster re-point: the crew ticker (C3)
 import audit_scheduled_tasks as _ast  # noqa: E402 -- reused live task-enumeration helper (C2's task_health)
 import hq_self_review  # noqa: E402 -- 2026-09-14 coordinator-directed C9/C10: Gamma looks at its own HQ
+import scout_feed  # noqa: E402 -- CREW-RIG R1 (2026-09-14): Scout's continuous feed scan, every fire
+import coach_notes  # noqa: E402 -- CREW-RIG R2 (2026-09-14): Coach's dollar-ranked coaching notes, every fire
 
 _CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
 
@@ -683,6 +685,26 @@ def run_once(*, force: bool = False, now_utc: Optional[datetime] = None) -> dict
         _write_sectors_and_crew_events(ts_et, now_utc, config)
     except Exception as exc:  # noqa: BLE001
         _log(f"_write_sectors_and_crew_events failed (non-fatal): {exc!r}")
+
+    # CREW-RIG R1 (2026-09-14, J's verdict reading the HQ panel: "Scout is done?? Scout
+    # should NEVER be done"): the continuous half of Scout -- a $0 deterministic RSS/Atom
+    # scan of config.json's web_scan_feeds, every fire, yielded or not (pure I/O +
+    # parsing, no LLM). scout_feed.run_scan owns its own <25min rescan-skip gate, so this
+    # call site stays a plain every-fire call like every other producer in this block.
+    try:
+        scout_feed.run_scan(ts_et, now_utc, config.get("web_scan_feeds", []), crew_events_path=CREW_EVENTS_PATH)
+    except Exception as exc:  # noqa: BLE001
+        _log(f"scout_feed.run_scan failed (non-fatal): {exc!r}")
+
+    # CREW-RIG R2 (2026-09-14, same J verdict: "why would Coach be WAITING? There should
+    # be a plethora of things for Coach to coach"): dollar-ranked coaching notes over the
+    # crypto twin + paper-arm autopsies + sectors RED reasons -- deterministic, no LLM.
+    # Runs AFTER _write_sectors_and_crew_events above so it reads THIS fire's fresh
+    # sectors.json, not a stale one.
+    try:
+        coach_notes.run_once(ts_et, now_utc, sectors_path=SECTORS_PATH, crew_events_path=CREW_EVENTS_PATH)
+    except Exception as exc:  # noqa: BLE001
+        _log(f"coach_notes.run_once failed (non-fatal): {exc!r}")
 
     # C9/C10 (2026-09-14, coordinator-directed): Gamma's own HQ self-review -- same
     # every-fire spot, same fail-open contract. hq_self_review.review_once's fast path
