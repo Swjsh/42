@@ -1,0 +1,364 @@
+{
+  "generated": "2026-09-13",
+  "generatedBy": "asset-curator worker session",
+  "note": "Kept-file manifest for dashboard/public/hq-assets. All packs CC0 1.0 -- see LICENSES.md for full provenance. scaleHint on each character is (0.88 / rawBoundsHeight): 0.88 approximates the current procedural Agent.tsx body height (capsule top + visor) in this scene's own units -- a starting point to eyeball/tune visually, not a verified render.",
+  "packs": [
+    {
+      "slug": "kenney-mini-characters",
+      "author": "Kenney",
+      "license": "CC0-1.0",
+      "sourceUrl": "https://kenney.nl/assets/mini-characters",
+      "files": [
+        "character-male-a.glb",
+        "character-female-a.glb",
+        "character-male-b.glb"
+      ]
+    },
+    {
+      "slug": "kenney-space-station-kit",
+      "author": "Kenney",
+      "license": "CC0-1.0",
+      "sourceUrl": "https://kenney.nl/assets/space-station-kit",
+      "files": [
+        "table.glb",
+        "table-inset.glb",
+        "table-large.glb",
+        "chair.glb",
+        "chair-armrest.glb",
+        "computer.glb",
+        "computer-screen.glb",
+        "pipe.glb",
+        "pipe-bend.glb",
+        "door-single.glb",
+        "door-double.glb",
+        "container.glb",
+        "wall-window.glb",
+        "structure-panel.glb",
+        "display-wall.glb"
+      ]
+    },
+    {
+      "slug": "kenney-modular-space-kit",
+      "author": "Kenney",
+      "license": "CC0-1.0",
+      "sourceUrl": "https://kenney.nl/assets/modular-space-kit",
+      "files": [
+        "corridor.glb",
+        "corridor-corner.glb",
+        "corridor-intersection.glb",
+        "corridor-wide.glb",
+        "room-small.glb",
+        "room-large.glb",
+        "gate-door.glb",
+        "cables.glb"
+      ]
+    },
+    {
+      "slug": "kenney-space-kit",
+      "author": "Kenney",
+      "license": "CC0-1.0",
+      "sourceUrl": "https://kenney.nl/assets/space-kit",
+      "files": [
+        "astronautA.glb",
+        "barrels.glb"
+      ]
+    },
+    {
+      "slug": "kaykit-space-base-bits",
+      "author": "Kay Lousberg",
+      "license": "CC0-1.0",
+      "sourceUrl": "https://github.com/KayKit-Game-Assets/KayKit-Space-Base-Bits-1.0",
+      "files": [
+        "lights.gltf",
+        "lights.bin",
+        "spacebits_texture.png"
+      ]
+    },
+    {
+      "slug": "polyhaven-dikhololo-night",
+      "author": "Poly Haven",
+      "license": "CC0-1.0",
+      "sourceUrl": "https://polyhaven.com/a/dikhololo_night",
+      "files": [
+        "dikhololo_night_1k.hdr"
+      ]
+    }
+  ],
+  "characters": [
+    {
+      "file": "kenney-mini-characters/character-male-a.glb",
+      "sizeBytes": 246916,
+      "animations": [
+        "static",
+        "idle",
+        "walk",
+        "sprint",
+        "jump",
+        "fall",
+        "crouch",
+        "sit",
+        "drive",
+        "die",
+        "pick-up",
+        "emote-yes",
+        "emote-no",
+        "holding-right",
+        "holding-left",
+        "holding-both",
+        "holding-right-shoot",
+        "holding-left-shoot",
+        "holding-both-shoot",
+        "attack-melee-right",
+        "attack-melee-left",
+        "attack-kick-right",
+        "attack-kick-left",
+        "interact-right",
+        "interact-left",
+        "wheelchair-sit",
+        "wheelchair-look-left",
+        "wheelchair-look-right",
+        "wheelchair-move-forward",
+        "wheelchair-move-back",
+        "wheelchair-move-left",
+        "wheelchair-move-right"
+      ],
+      "rawBoundsHeight": 0.6713,
+      "scaleHint": 1.311
+    },
+    {
+      "file": "kenney-mini-characters/character-female-a.glb",
+      "sizeBytes": 273448,
+      "animations": [
+        "static",
+        "idle",
+        "walk",
+        "sprint",
+        "jump",
+        "fall",
+        "crouch",
+        "sit",
+        "drive",
+        "die",
+        "pick-up",
+        "emote-yes",
+        "emote-no",
+        "holding-right",
+        "holding-left",
+        "holding-both",
+        "holding-right-shoot",
+        "holding-left-shoot",
+        "holding-both-shoot",
+        "attack-melee-right",
+        "attack-melee-left",
+        "attack-kick-right",
+        "attack-kick-left",
+        "interact-right",
+        "interact-left",
+        "wheelchair-sit",
+        "wheelchair-look-left",
+        "wheelchair-look-right",
+        "wheelchair-move-forward",
+        "wheelchair-move-back",
+        "wheelchair-move-left",
+        "wheelchair-move-right"
+      ],
+      "rawBoundsHeight": 0.7755,
+      "scaleHint": 1.135
+    },
+    {
+      "file": "kenney-mini-characters/character-male-b.glb",
+      "sizeBytes": 247332,
+      "animations": [
+        "static",
+        "idle",
+        "walk",
+        "sprint",
+        "jump",
+        "fall",
+        "crouch",
+        "sit",
+        "drive",
+        "die",
+        "pick-up",
+        "emote-yes",
+        "emote-no",
+        "holding-right",
+        "holding-left",
+        "holding-both",
+        "holding-right-shoot",
+        "holding-left-shoot",
+        "holding-both-shoot",
+        "attack-melee-right",
+        "attack-melee-left",
+        "attack-kick-right",
+        "attack-kick-left",
+        "interact-right",
+        "interact-left",
+        "wheelchair-sit",
+        "wheelchair-look-left",
+        "wheelchair-look-right",
+        "wheelchair-move-forward",
+        "wheelchair-move-back",
+        "wheelchair-move-left",
+        "wheelchair-move-right"
+      ],
+      "rawBoundsHeight": 0.6613,
+      "scaleHint": 1.331
+    }
+  ],
+  "props": [
+    {
+      "file": "kenney-space-station-kit/table.glb",
+      "category": "desk",
+      "sizeBytes": 9808
+    },
+    {
+      "file": "kenney-space-station-kit/table-inset.glb",
+      "category": "desk",
+      "sizeBytes": 12240
+    },
+    {
+      "file": "kenney-space-station-kit/table-large.glb",
+      "category": "desk",
+      "sizeBytes": 9828
+    },
+    {
+      "file": "kenney-space-station-kit/chair.glb",
+      "category": "chair",
+      "sizeBytes": 6952
+    },
+    {
+      "file": "kenney-space-station-kit/chair-armrest.glb",
+      "category": "chair",
+      "sizeBytes": 10304
+    },
+    {
+      "file": "kenney-space-station-kit/computer.glb",
+      "category": "console",
+      "sizeBytes": 13804
+    },
+    {
+      "file": "kenney-space-station-kit/computer-screen.glb",
+      "category": "screen",
+      "sizeBytes": 19584
+    },
+    {
+      "file": "kenney-space-station-kit/pipe.glb",
+      "category": "pipe",
+      "sizeBytes": 3536
+    },
+    {
+      "file": "kenney-space-station-kit/pipe-bend.glb",
+      "category": "pipe",
+      "sizeBytes": 6544
+    },
+    {
+      "file": "kenney-space-station-kit/door-single.glb",
+      "category": "door",
+      "sizeBytes": 5376
+    },
+    {
+      "file": "kenney-space-station-kit/door-double.glb",
+      "category": "door",
+      "sizeBytes": 5376
+    },
+    {
+      "file": "kenney-space-station-kit/container.glb",
+      "category": "crate",
+      "sizeBytes": 9716
+    },
+    {
+      "file": "kenney-space-station-kit/wall-window.glb",
+      "category": "wall",
+      "sizeBytes": 9720
+    },
+    {
+      "file": "kenney-space-station-kit/structure-panel.glb",
+      "category": "wall",
+      "sizeBytes": 12516
+    },
+    {
+      "file": "kenney-space-station-kit/display-wall.glb",
+      "category": "screen",
+      "sizeBytes": 8776
+    },
+    {
+      "file": "kenney-modular-space-kit/corridor.glb",
+      "category": "corridor",
+      "sizeBytes": 75632
+    },
+    {
+      "file": "kenney-modular-space-kit/corridor-corner.glb",
+      "category": "corridor",
+      "sizeBytes": 100020
+    },
+    {
+      "file": "kenney-modular-space-kit/corridor-intersection.glb",
+      "category": "corridor",
+      "sizeBytes": 25556
+    },
+    {
+      "file": "kenney-modular-space-kit/corridor-wide.glb",
+      "category": "corridor",
+      "sizeBytes": 204896
+    },
+    {
+      "file": "kenney-modular-space-kit/room-small.glb",
+      "category": "room",
+      "sizeBytes": 424016
+    },
+    {
+      "file": "kenney-modular-space-kit/room-large.glb",
+      "category": "room",
+      "sizeBytes": 942712
+    },
+    {
+      "file": "kenney-modular-space-kit/gate-door.glb",
+      "category": "door",
+      "sizeBytes": 139124,
+      "animations": [
+        "open",
+        "close",
+        "open-close"
+      ]
+    },
+    {
+      "file": "kenney-modular-space-kit/cables.glb",
+      "category": "greeble",
+      "sizeBytes": 42612
+    },
+    {
+      "file": "kenney-space-kit/astronautA.glb",
+      "category": "decorative",
+      "sizeBytes": 27912
+    },
+    {
+      "file": "kenney-space-kit/barrels.glb",
+      "category": "crate",
+      "sizeBytes": 20808
+    },
+    {
+      "file": "kaykit-space-base-bits/lights.gltf",
+      "category": "light",
+      "sizeBytes": 3064,
+      "dependsOn": [
+        "kaykit-space-base-bits/lights.bin",
+        "kaykit-space-base-bits/spacebits_texture.png"
+      ]
+    }
+  ],
+  "hdri": {
+    "file": "polyhaven-dikhololo-night/dikhololo_night_1k.hdr",
+    "sizeBytes": 1745132,
+    "resolution": "1k",
+    "usage": "drei <Environment files=\"/hq-assets/polyhaven-dikhololo-night/dikhololo_night_1k.hdr\" /> -- local bytes only, never preset= (that fetches from a pmndrs CDN at runtime, which violates the zero-network-requests rule)."
+  },
+  "clipGap": {
+    "missing": [
+      "typing-at-keyboard",
+      "talk/gesture (conversational)",
+      "literal hand-off-object-to-another-agent"
+    ],
+    "fallback": "None of the CC0 packs evaluated ship a dedicated desk-typing or two-agent handoff clip. Recommended fallback (matches the brief section 4/5): play the character's own baked \"sit\" or \"interact-right\"/\"interact-left\" clip (Kenney Mini Characters ships both) as the base pose, then layer the EXISTING procedural forearm-sway from Agent.tsx (armL/armR sine rotation) as an additive rotation on the rig's forearm bone on top of the mixer's pose -- same approach already proven in this repo, now applied to a real bone instead of a primitive mesh. \"emote-yes\"/\"pick-up\"/\"interact-left\" (all present on every kept character) are reasonable stand-ins for a handoff gesture."
+  }
+}
