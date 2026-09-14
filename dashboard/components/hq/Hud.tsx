@@ -2,9 +2,13 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import type { HqApiResponse, TradingStatus } from "./types";
-import { auditVerdictColor, hhmmFromEtIso, isRegularTradingHours, minutesSinceEvidence, nowEtDayOfWeek, nowEtMinutes, personaStatusColor, rosterEvidenceText, truncateOneLine } from "./palette";
+import type { HqApiResponse, TradingStatus, CrewEvent, PersonaState } from "./types";
+import { auditVerdictColor, hhmmFromEtIso, isRegularTradingHours, minutesSinceEvidence, nowEtDayOfWeek, nowEtMinutes, personaStatusColor } from "./palette";
 import type { MotionEvent } from "@/lib/useMotionEvents";
+// CREW-2 (roster, 2026-09-14): the crew panel's pill/now/last/next derivation
+// -- see lib/crew.ts's own header for why this logic lives there (pure,
+// zero fs/fetch, ground truth stays in lib/personas.ts's PersonaState).
+import { crewLastLine, crewNextLine, crewNowLine, deriveCrewPill, CREW_PILL_COLOR } from "@/lib/crew";
 
 const BLOCKED_SOURCE_LABEL: Record<string, string> = {
   discord: "Discord",
@@ -109,6 +113,86 @@ function buildTradingStrip(trading: TradingStatus | undefined): TradingStrip {
   return { color, text };
 }
 
+// ─── R3 event feed (CREW-2, 2026-09-14): merges the existing diff-derived
+//     ticker lines (lib/useMotionEvents.ts's MotionEvent[], prose already
+//     formatted for reading) with the new crew-events.jsonl rows (which
+//     carry a real structured actor -- `who`, optionally `to`) into one
+//     capped, avatar-chipped list. Pure functions, no component state. ────
+
+interface FeedRow {
+  key: string;
+  tsEt: string;
+  actor: { emoji: string; color: string; name: string } | null;
+  text: string;
+}
+
+const FEED_MAX_ROWS = 12;
+
+/** Best-effort actor match for a MotionEvent's already-formatted prose line
+ * -- useMotionEvents.ts pushes lines starting `${p.emoji} ${p.name} ...` for
+ * every persona-attributable event (fires, walks, RED/recovered). A line
+ * with no persona-emoji prefix (a Station-fire summary, an idea-card
+ * update, a GPU/presence toggle) legitimately has no single actor and gets
+ * no chip -- never a guessed/fabricated one. */
+function actorForMotionText(text: string, personas: PersonaState[]): FeedRow["actor"] {
+  for (const p of personas) {
+    if (text.startsWith(p.emoji)) return { emoji: p.emoji, color: p.color, name: p.name };
+  }
+  return null;
+}
+
+/** Builds the merged, capped, newest-first feed. crew-events.jsonl rows
+ * (structured, real `who`/`to`) lead; the existing motion-diff ticker lines
+ * fill the remainder -- both are genuinely "what it reads today," per R3's
+ * own spec, merged rather than either one replacing the other. Every " -> "
+ * separator (both sources use plain ASCII arrows) renders as "→" for
+ * handoff/interaction rows, uniformly. */
+// A crew-events.jsonl row's own `line` sometimes ALREADY embeds the actor
+// ("Coach: Gamma_Funnel_5 went Disabled"), sometimes doesn't ("8 lanes --
+// 4 GREEN..."), and `to` is set on effectively every row (the producer uses
+// it as a "who reads this" routing target, not only genuine handoffs) --
+// verified against the live file this session (both shapes seen from the
+// SAME `who`). Blindly prepending "${who} -> ${to}:" doubled the actor name
+// on the first shape ("Coach -> Gamma: Coach: ... went Disabled"). Fixed by
+// skipping the prefix when `line` already starts with it.
+function formatCrewLine(e: CrewEvent): string {
+  const withPrefix = e.line.startsWith(`${e.who}:`);
+  if (withPrefix) return e.line;
+  if (e.to) return `${e.who} → ${e.to}: ${e.line}`;
+  return `${e.who}: ${e.line}`;
+}
+
+// crew-events.jsonl can carry a same-timestamp BURST (e.g. a one-time
+// backfill of N "task went Disabled" rows) that would otherwise fill the
+// entire row budget with one repeated shape and crowd out every other kind
+// of activity -- the opposite of R3's own goal ("see these people
+// interacting," plural). Capping crew's share below the full budget
+// guarantees the motion-diff ticker (idea cards, handoffs, fires) always
+// gets some room too.
+const CREW_SHARE_MAX = Math.ceil(FEED_MAX_ROWS * 0.6);
+
+function buildFeedRows(motionEvents: MotionEvent[], crewEvents: CrewEvent[], personas: PersonaState[]): FeedRow[] {
+  const personaByName = new Map(personas.map((p) => [p.name, p]));
+  const crewSlice = crewEvents.slice(-CREW_SHARE_MAX).reverse();
+  const crewRows: FeedRow[] = crewSlice.map((e, i) => {
+    const p = personaByName.get(e.who);
+    const hhmm = /(\d{2}):(\d{2})/.exec(e.ts_et);
+    return {
+      key: `crew-${e.ts_et}-${i}`,
+      tsEt: hhmm ? `${hhmm[1]}:${hhmm[2]}` : "--:--",
+      actor: p ? { emoji: p.emoji, color: p.color, name: p.name } : null,
+      text: formatCrewLine(e).replace(/ -> /g, " → "),
+    };
+  });
+  const motionRows: FeedRow[] = motionEvents.map((ev) => ({
+    key: `motion-${ev.id}`,
+    tsEt: ev.tsEt,
+    actor: actorForMotionText(ev.text, personas),
+    text: ev.text.replace(/ -> /g, " → "),
+  }));
+  return [...crewRows, ...motionRows].slice(0, FEED_MAX_ROWS);
+}
+
 interface HudProps {
   data: HqApiResponse | undefined;
   error: unknown;
@@ -187,12 +271,20 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
       : "Loading...";
   const personas = data?.company?.personas ?? [];
   const blockedItems = data?.blocked ?? [];
+  // R3 (CREW-2): merged, capped, newest-first event feed -- see this file's
+  // own buildFeedRows() header comment for the two sources it merges.
+  const feedRows = buildFeedRows(motionEvents, data?.crewEvents ?? [], personas);
   // Company audit badge (commit 58d0b9c6, coordinator 2026-09-13: "the
   // roster must show ghosts as ghosts") -- matched by name, the same string
   // on both sides (PersonaState.name / PersonaAudit.name). `data.audit` is
   // null on an old build or a failed audit run (fail-open) -- every lookup
   // below falls back to "no badge" rather than a fake verdict.
   const auditByName = new Map((data?.audit?.personas ?? []).map((a) => [a.name, a]));
+  // CREW-2 (roster): one "now" reference per render for every card's next:
+  // line (lib/crew.ts#crewNextLine takes explicit time, never Date.now()
+  // buried inside it) -- this component already re-renders ~1x/sec via
+  // useEtClock's own interval, so this stays fresh without a second timer.
+  const nowMs = Date.now();
 
   return (
     <>
@@ -283,6 +375,20 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
            HUD back, which doubles as a re-teach of the shortcut. */
         .hq-camera-hint { animation: hq-hint-fade 8s ease-in forwards; }
         @keyframes hq-hint-fade { 0%, 70% { opacity: 0.85; } 100% { opacity: 0; } }
+
+        /* CREW-2 (roster, 2026-09-14): crew card hover/focus -- NOT bound by
+           the "transform/opacity/background-position only" rule the
+           continuous @keyframes classes above follow, because this only
+           ever runs off a real mouse-hover/keyboard-focus event, which the
+           TV kiosk (no pointer, no keyboard) can never trigger -- there is
+           no always-on TV-compositor cost here to guard against. Cheap
+           properties anyway (border-color/background/transform, no blur or
+           shadow spread). R2: click/Enter/Space flies the camera to that
+           persona's desk (Scene.tsx's own keydown listener, dispatched via
+           a synthetic KeyboardEvent -- never a Scene.tsx edit). */
+        .hq-crew-card { transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease; }
+        .hq-crew-card:hover { border-color: rgba(122,217,255,0.65); background: rgba(9,13,24,0.97); transform: translateX(-2px); }
+        .hq-crew-card:focus-visible { outline: 2px solid #7ad9ff; outline-offset: 2px; }
       `}</style>
 
       {/* Free-camera hint strip (LIVE-1 item 1, 2026-09-14, ultra tier
@@ -411,35 +517,50 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
           );
         })()}
 
-        {/* Bottom ticker (Pass F, 2026-09-13, coordinator's real-monitor
-            capture): the OLD version below this comment -- a 40px scrolling
-            sentence of raw brief.text, cut off at both ends -- is GONE. It
-            directly violated this project's own HQ FACE RULES ("motion =
-            events with a ticker," never raw prose) and was the coordinator's
-            #5 flagged item. This is now the ONE bottom ticker: the same real
-            event lines (lib/useMotionEvents.ts, "they need MEANING") that
-            used to sit in a floating stack above the brief scroll, now
-            resized to the coordinator's 24-26px spec and given a proper
-            bordered strip (matching the removed ticker's own band styling)
-            instead of floating transparently over the 3D scene. Newest-first,
-            each line ET-stamped, 3 max, static (no scroll needed -- 3 short
-            lines already fit one strip width without truncation). */}
+        {/* R3 event feed (CREW-2, 2026-09-14, J's verdict: "we still need to
+            see these people interacting and actually working on stuff...
+            right now it's just a bunch of random text"). Replaces the old
+            3-row 25px ticker: up to 12 rows at 15px, each ET-stamped, with
+            the actor's avatar chip when one is known (buildFeedRows() above
+            -- never a guessed chip), consecutive same-actor rows grouped
+            (the chip renders once per run, not per row) so a burst of
+            activity from one persona reads as one block, not noise. Sources
+            merged in buildFeedRows(): crew-events.jsonl (structured, real
+            `who`/`to`) plus the existing motion-diff ticker lines
+            (lib/useMotionEvents.ts). Static, no scroll -- content is always
+            <=FEED_MAX_ROWS by construction. */}
         <div
           style={{
-            minHeight: 40, flexShrink: 0,
-            overflow: "hidden", background: "rgba(3,4,10,0.7)", borderTop: "1px solid rgba(122,217,255,0.18)",
+            flexShrink: 0, background: "rgba(3,4,10,0.7)", borderTop: "1px solid rgba(122,217,255,0.18)",
             borderBottom: "1px solid rgba(122,217,255,0.18)", padding: "6px 20px",
-            display: "flex", flexDirection: "column-reverse", gap: 2,
+            display: "flex", flexDirection: "column", gap: 3, fontVariantNumeric: "tabular-nums",
           }}
         >
-          {motionEvents.length > 0 ? (
-            motionEvents.slice(0, 3).map((ev) => (
-              <div key={ev.id} style={{ color: "#9fd8ff", fontSize: 25, fontFamily: HUD_FONT, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                <span style={{ color: "#4fd6ff", fontVariantNumeric: "tabular-nums" }}>{ev.tsEt}</span> {ev.text}
-              </div>
-            ))
+          {feedRows.length > 0 ? (
+            feedRows.map((row, i) => {
+              const showChip = i === 0 || feedRows[i - 1].actor?.name !== row.actor?.name;
+              return (
+                <div key={row.key} style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                  <span style={{ color: "#4fd6ff", fontSize: 13, flexShrink: 0, width: 38 }}>{row.tsEt}</span>
+                  <span
+                    style={{
+                      width: 18, height: 18, borderRadius: 5, flexShrink: 0, fontSize: 11,
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      visibility: showChip && row.actor ? "visible" : "hidden",
+                      background: row.actor ? `${row.actor.color}33` : "transparent",
+                      border: row.actor ? `1px solid ${row.actor.color}88` : "none",
+                    }}
+                  >
+                    {row.actor?.emoji ?? ""}
+                  </span>
+                  <span style={{ color: "#9fd8ff", fontSize: 15, fontFamily: HUD_FONT, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                    {row.text}
+                  </span>
+                </div>
+              );
+            })
           ) : (
-            <div style={{ color: "#7f93b0", fontSize: 25, fontFamily: HUD_FONT }}>No events yet this session.</div>
+            <div style={{ color: "#7f93b0", fontSize: 15, fontFamily: HUD_FONT }}>No events yet this session.</div>
           )}
         </div>
       </div>
@@ -525,50 +646,107 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
         </div>
       )}
 
-      {/* Roster HUD (Company Mode step 5, 2026-09-13): emoji/name/status-
-          dot/"Xm ago"/one line of recentOutput (<=60 chars) per persona,
-          22-24px per the 10-foot-readability scale used everywhere else on
-          this HUD. GREEN rows pulse (.hq-pulse, opacity-only); everything
-          else is static text -- no per-row 3D geometry, so this never
-          touches the scene's own budget. Opacity 0.93 (Pass F) kept even
-          though the split-column layout (Pass G) makes it structurally
-          redundant now -- cheap insurance, never hurts. */}
+      {/* CREW-2 roster panel (2026-09-14, J's verdict: "that needs a lot of
+          work... right now it's just some very large text" / "why are they
+          on here if they're not doing anything?"). Replaces the old bare
+          emoji+dot+"Xm ago -- text" rows with a real card per persona: an
+          avatar chip, name + short role, a STATUS PILL that always carries
+          a REASON (never a bare dot -- lib/crew.ts#deriveCrewPill reads
+          PersonaState.quietReason, R4), then now:/last:/next: lines. Click
+          (or Enter/Space when focused) flies the camera to that persona's
+          desk -- R2, see this file's own .hq-crew-card style comment.
+          Sizes per spec: names 18-20px, body 14-15px, pills 12px uppercase.
+          GREEN rows still pulse via the pre-existing .hq-pulse class. */}
       {personas.length > 0 && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          {personas.map((p) => {
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, fontVariantNumeric: "tabular-nums" }}>
+          {personas.map((p, i) => {
             const color = personaStatusColor(p.status);
             const audit = auditByName.get(p.name);
             const auditColor = auditVerdictColor(audit?.verdict);
             const auditTitle = audit
               ? `Audit ${audit.verdict}: ${audit.checks.works.evidence}`
               : "Audit: not yet run for this persona";
+            const pill = deriveCrewPill(p);
+            const pillColor = CREW_PILL_COLOR[pill.kind];
+            const nowLine = crewNowLine(p);
+            const lastLine = crewLastLine(p);
+            const nextLine = crewNextLine(p, nowMs);
+            // R2: keys "1".."7" index cameraPresets[0..6] = [Gamma, ...6
+            // personas] in Scene.tsx's own fixed order -- IDENTICAL to this
+            // `personas` array's own order (both come from collectCompany()).
+            // A synthetic window keydown is the only integration point --
+            // Scene.tsx's listener is not edited (not this builder's file).
+            const flyToDesk = () => window.dispatchEvent(new KeyboardEvent("keydown", { key: String(i + 1) }));
             return (
               <div
                 key={p.name}
-                className={p.status === "GREEN" ? "hq-pulse" : undefined}
+                className={`hq-crew-card${p.status === "GREEN" ? " hq-pulse" : ""}`}
+                role="button"
+                tabIndex={0}
+                aria-label={`Fly to ${p.name}'s desk`}
+                onClick={flyToDesk}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") { e.preventDefault(); flyToDesk(); }
+                }}
                 style={{
                   background: "rgba(3,4,10,0.93)", border: `1px solid ${color}55`,
-                  borderRadius: 8, padding: "6px 12px",
+                  borderRadius: 10, padding: "10px 12px", cursor: "pointer",
+                  pointerEvents: "auto", opacity: pill.kind === "GHOST" ? 0.72 : 1,
                 }}
               >
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <span style={{ width: 10, height: 10, borderRadius: 999, flexShrink: 0, background: color, boxShadow: `0 0 6px ${color}` }} />
-                  <span style={{ color: "#dff3ff", fontSize: 24, fontWeight: 700, whiteSpace: "nowrap" }}>
-                    {p.emoji} {p.name}
-                  </span>
+                <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
                   <span
-                    title={auditTitle}
                     style={{
-                      pointerEvents: "auto", marginLeft: "auto", fontSize: 15, fontWeight: 800,
-                      color: "#03040a", background: auditColor, borderRadius: 4,
-                      padding: "1px 5px", flexShrink: 0, letterSpacing: 0.5,
+                      width: 32, height: 32, borderRadius: 8, flexShrink: 0,
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      fontSize: 17, background: `${p.color}2e`, border: `1px solid ${p.color}99`,
                     }}
                   >
-                    {audit ? audit.verdict[0] : "?"}
+                    {p.emoji}
                   </span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      <span style={{ color: "#dff3ff", fontSize: 19, fontWeight: 800, letterSpacing: 0.2, whiteSpace: "nowrap" }}>
+                        {p.name}
+                      </span>
+                      <span
+                        title={auditTitle}
+                        style={{
+                          pointerEvents: "auto", marginLeft: "auto", fontSize: 13, fontWeight: 800,
+                          color: "#03040a", background: auditColor, borderRadius: 4,
+                          padding: "1px 5px", flexShrink: 0, letterSpacing: 0.5,
+                        }}
+                      >
+                        {audit ? audit.verdict[0] : "?"}
+                      </span>
+                    </div>
+                    <div style={{ color: "#7f93b0", fontSize: 12.5, lineHeight: 1.3, marginTop: 1 }}>{p.role}</div>
+                  </div>
                 </div>
-                <div style={{ color: "#9fb3cc", fontSize: 24, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginTop: 2 }}>
-                  {rosterEvidenceText(p.lastFireISO)} &mdash; {truncateOneLine(p.recentOutput, 60)}
+
+                <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                  <span
+                    style={{
+                      fontSize: 12, fontWeight: 800, textTransform: "uppercase", letterSpacing: 0.9,
+                      padding: "2px 8px", borderRadius: 999, flexShrink: 0,
+                      color: "#03040a", background: pillColor,
+                    }}
+                  >
+                    {pill.kind}
+                  </span>
+                  <span style={{ fontSize: 13.5, color: "#9fb3cc", lineHeight: 1.35 }}>{pill.reason}</span>
+                </div>
+
+                {nowLine && (
+                  <div style={{ fontSize: 14, color: "#cfe9ff", marginTop: 6, lineHeight: 1.35 }}>
+                    <span style={{ color: "#5c7aa0", fontWeight: 700 }}>now </span>{nowLine}
+                  </div>
+                )}
+                <div style={{ fontSize: 13, color: "#8296b3", marginTop: 4, lineHeight: 1.35, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  <span style={{ color: "#5c7aa0", fontWeight: 700 }}>last </span>{lastLine}
+                </div>
+                <div style={{ fontSize: 13, color: "#6c81a0", marginTop: 2, lineHeight: 1.35 }}>
+                  <span style={{ color: "#5c7aa0", fontWeight: 700 }}>next </span>{nextLine}
                 </div>
               </div>
             );
