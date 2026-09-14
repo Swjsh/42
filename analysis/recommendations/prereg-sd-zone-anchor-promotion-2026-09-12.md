@@ -48,3 +48,36 @@ If `out_of_zone` legs perform just as well as `in_zone` legs (G2 fails even thou
 ## 8. Revert / revoke
 
 Before promotion: nothing to revert (paper-shadow only, zero live-path references — pinned by test). If a future 10-30+ session ships SD_ZONE as a live anchor: `git revert <ship sha>`; `sd_zones_producer.py` and its archive keep running unaffected (the revert is behaviour-only in `heartbeat_core.py`/the fleet signal builder, not a data-collection change).
+
+## 9. What-if shadow lane (appended 2026-09-14, DESCRIPTIVE companion, not a promotion gate)
+
+**Why appended:** §1-8 above (frozen 2026-09-12, untouched by this append) only score REAL ENGINE fills against the day's zones — `backtest/tools/trigger_anchor_class_read.py --sd-zone`. On a day the engine takes zero SPY trades, that instrument produces zero evidence. 2026-09-14: SPY bounced clean off the 757.88-758.58 demand zone at ~10:56-11:06 ET and ran to 760.80+; the engine took 0 fills; the §1-8 reader has nothing to say about that day. This section freezes a SECOND, independent instrument — `setup/scripts/sd_zone_whatif.py` (I/O) + `backtest/lib/sd_zone_whatif_sim.py` (pure simulation core) — that PLAYS the zone itself (zone → wait for the return → confirmation → hypothetical entry → walk the real production exit-stack decision core) so evidence accrues even on no-fill days.
+
+**Status: DESCRIPTIVE ONLY.** This section does not add a gate, does not change §3-6's forward-clock eligibility gate or forward gates G1-G6, and cannot by itself promote or kill SD_ZONE. Its ledger (`analysis/sd-zone-whatif/ledger.jsonl`) is a companion curiosity/diagnostic feed for the 2026-10-30 checkpoint, read alongside — never instead of — the §1-8 real-fills read.
+
+### 9.1 Frozen rule set (verbatim, matches `backtest/lib/sd_zone_whatif_sim.py`'s own docstring)
+
+- **Directions:** demand zone → CALL; supply zone → PUT.
+- **Timing:** entry gate 09:35 ET, hard time stop 15:40 ET, single slot per (confirmation, exit_variant, strike_label) cell across the whole day (a second touch cannot enter a cell while that cell's prior leg is still open), no re-entry into the same zone after a stop that day.
+- **Touch:** a 1-min bar's low enters `[zone.low, zone.high]` (demand) / high enters it (supply). Zone knowledge is resolved from the LAST intraday snapshot with `as_of <= touch time` (no look-ahead) — `journal/sd-zones-archive/intraday/{day}/{HHMM}.json`, written by `sd_zones_producer.py` every real 15-min tick (deliverable A of this build). A day with only the single EOD snapshot uses it for the whole day with every row labeled `lookahead_caveat: eod_snapshot_only`.
+- **Confirmations (grid axis 1 of 3):** `touch_close` (first 5-min bar closing back beyond the zone's far edge), `structure_shift` (**PRIMARY** — `backtest/lib/structure_shift.py`'s already-ratified detector, levels_active = the zone's confirmation edge), `wick_reject` (5-min bar with its extreme in the zone and close in the favourable 50% of its own range). Entry = the next 1-min bar's open at/after the confirming bar's close.
+- **Exits (grid axis 2 of 3):** `ribbon_ride` (**PRIMARY** — the production `RIBBON_RIDE` ExitShape verbatim through `walk_exit_manager`, `trigger_level = zone.high` for demand / `zone.low` for supply); `zone_to_zone` (TP1 priced off the option's own 1-min bar at the moment SPY first reaches the nearest opposing-kind zone edge, sell 2/3, same chandelier runner knobs, chart stop = zone's far edge ∓ $0.10).
+- **Strikes (grid axis 3 of 3):** `ATM` (**PRIMARY**), `OTM-1`, `OTM-2`, `ITM-1` — a direct offset axis via `strike_selection.atm_strike`, not an equity-tier lookup (independent of the arm axis).
+- **Arms:** every leg is priced ONCE at a canonical qty and then linearly scaled per arm (safe-2, bold-2, safe-3, risky-1, risky-3) using `equity * risk_pct` (Rule 6: Safe 30%/min 3, Bold 50%/min 5) against `accounts.json`'s `starting_equity` — a sizing breakdown, not a grid axis.
+- **Grid size:** 3 confirmations × 2 exits × 4 strikes = 24 cells per touch event.
+
+### 9.2 The ONE pre-committed promotion candidate (anti-cherry-pick)
+
+**`structure_shift` × `ribbon_ride` × `ATM` × safe-2 sizing** is named NOW, before any read, as the only cell this section pre-commits to treating as a promotion candidate at a future checkpoint. The other 23 cells (and the other 4 arms) are diagnostic/exploratory only — **they cannot be promoted from a future read of this instrument**, no matter how they score, without a fresh pre-registration naming them explicitly first. This mirrors §5's own anti-cherry-pick posture (G4 concentration gate) applied to a wider grid.
+
+### 9.3 Disclosed simplifications (do not treat this ledger as fill-fidelity evidence)
+
+Verbatim from `sd_zone_whatif_sim.py`'s own docstring, repeated here so a future reader of ONLY this prereg still sees them: (1) the ribbon-flip exit stage is inert (no 1-min ribbon series computed — structure_stop/catastrophe/TP1/trail/time_stop remain fully wired); (2) arm $ figures are linearly scaled from one canonical-qty walk per cell, not independently re-walked per arm; (3) no re-entry variant is implemented (a zone trades at most once per day; every row carries `reentry_variant: 0`); (4) arm sizing is the plain-English Rule 6 formula, not a byte-for-byte port of `risk_gate.py`. A future read that leans on this ledger for anything beyond direction/sign must re-verify these do not distort the conclusion.
+
+### 9.4 Reads never count before §3's clock clears
+
+Per §3 above (unchanged): no read of this ledger counts as promotion evidence until `sd-zone-forward-clock.json.eligible_for_forward_read` is `true`. Before that, every number this lane produces is labeled `CURIOSITY — forward clock not eligible` in its own summary (`analysis/sd-zone-whatif/SUMMARY.md`) — mirrors §3's own mid-accrual-peek language. Look-ahead-caveat rows (`eod_snapshot_only`, `no_snapshot_before_touch`) are excluded from any gate arithmetic at every checkpoint, forever, not just pre-eligibility.
+
+### 9.5 Kill / extend
+
+No independent kill criterion — this section lives and dies with §6 (the same forward window, same gates, same 2026-10-28 cutoff). If §6 kills SD_ZONE, this lane's scheduled task (`Gamma_SdZoneWhatIf`) is disarmed in the same commit (the ledger itself is cheap to leave running per OP-22, but a killed hypothesis should not keep accruing "evidence" toward a decision already made).

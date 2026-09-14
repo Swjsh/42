@@ -1,0 +1,93 @@
+{
+ "generated_at_et": "2026-09-14T13:24:19.997382",
+ "label": "CURIOSITY -- forward clock not eligible",
+ "primary_variant": {
+  "confirmation": "structure_shift",
+  "exit_variant": "ribbon_ride",
+  "strike_label": "ATM",
+  "arms": {
+   "safe-2": {
+    "n": 0,
+    "total_pnl": 0.0
+   },
+   "bold-2": {
+    "n": 0,
+    "total_pnl": 0.0
+   },
+   "safe-3": {
+    "n": 0,
+    "total_pnl": 0.0
+   },
+   "risky-1": {
+    "n": 0,
+    "total_pnl": 0.0
+   },
+   "risky-3": {
+    "n": 0,
+    "total_pnl": 0.0
+   }
+  },
+  "n_legs": 0,
+  "total_per_contract": 0.0
+ },
+ "by_confirmation": {
+  "touch_close": {
+   "n": 0,
+   "wr": null,
+   "total_per_contract": 0
+  },
+  "structure_shift": {
+   "n": 0,
+   "wr": null,
+   "total_per_contract": 0
+  },
+  "wick_reject": {
+   "n": 0,
+   "wr": null,
+   "total_per_contract": 0
+  }
+ },
+ "by_exit_variant": {
+  "ribbon_ride": {
+   "n": 0,
+   "wr": null,
+   "total_per_contract": 0
+  },
+  "zone_to_zone": {
+   "n": 0,
+   "wr": null,
+   "total_per_contract": 0
+  }
+ },
+ "by_strike": {
+  "ATM": {
+   "n": 0,
+   "wr": null,
+   "total_per_contract": 0
+  },
+  "OTM-1": {
+   "n": 0,
+   "wr": null,
+   "total_per_contract": 0
+  },
+  "OTM-2": {
+   "n": 0,
+   "wr": null,
+   "total_per_contract": 0
+  },
+  "ITM-1": {
+   "n": 0,
+   "wr": null,
+   "total_per_contract": 0
+  }
+ },
+ "last_10_sessions": {},
+ "n_ledger_rows_total": 0,
+ "n_priced_rows_total": 0,
+ "today": {
+  "day": "2026-09-14",
+  "warnings": [],
+  "n_touches": 0,
+  "narrative": []
+ }
+}

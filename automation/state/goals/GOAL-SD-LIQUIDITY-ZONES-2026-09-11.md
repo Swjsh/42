@@ -60,6 +60,7 @@ structure shift (2026-07-28). The feed never produced zones of that kind.
 - [x] (c) playbook "Levels" section: S/D base + liquidity definition, indicator mapping, what is NOT a zone.
 - [x] (d) `SD_ZONE` class in `trigger_anchor_class_read.py` + forward clock + promotion prereg (09-29 / 10-30 row).
 - [B] (e) 10-session read → promote / extend / kill, recorded here and in STATUS. **BLOCKED ON CALENDAR/DATA ACCRUAL, not on J or on effort:** `automation/state/sd-zone-forward-clock.json.eligible_for_forward_read` must be `true` (≥10 archived trading-day sessions in `journal/sd-zones-archive/`) before this read counts as evidence — see `prereg-sd-zone-anchor-promotion-2026-09-12.md` §3, which explicitly forbids a mid-accrual peek from counting. First possible archived session is 2026-09-14 (Monday); at one session/trading-day the clock cannot clear before roughly **2026-09-25**. **UNBLOCK CONDITION (check before re-opening to `[ ]`):** read `sd-zone-forward-clock.json`, confirm `eligible_for_forward_read == true`, THEN flip this back to `[ ]` (or straight to `[~]` and do the read) — do not re-open it just because a session wants work to do.
+- [x] (f) what-if shadow lane — a deterministic $0 EOD script that PLAYS each day's zone touches itself (zone → wait for the return → confirmation → hypothetical entry → walk the real production exit-stack) across a pre-registered confirmation x exit x strike grid, so evidence accrues even on a day the engine takes zero fills (2026-09-14: 0 engine fills, but SPY bounced clean off the 757.88-758.58 demand zone ~10:56-11:06 ET). Rule set frozen in `prereg-sd-zone-anchor-promotion-2026-09-12.md` §9 (DESCRIPTIVE companion — does not alter §3-6's own gates). See PROGRESS LOG entry below for files/tests/task/result.
 
 ## PROGRESS LOG
 - 2026-09-11 23:4x ET (Fable, audit session): goal authored on J's mid-turn directive; placed at the
@@ -175,6 +176,55 @@ structure shift (2026-07-28). The feed never produced zones of that kind.
 - 2026-09-12 00:37 ET (Fable, interactive): LANE COLLISION on item (b) -- this session built a second (b) in parallel (drawer-hosted CDP capture + a scorer INSIDE the frozen refresher under GAMMA_FREEZE_OVERRIDE, 8 guards GREEN, live smoke 10 boxes) while the 00:10 conductor fire built `sd_zones_producer.py` + `Gamma_SdZonesProducer` (zero frozen-file edits, 12 guards, task registered, ee9bdc19/441a270c). FOLDED to the conductor's; mine discarded before commit (the 2026-09-10 rule stands: do not stretch the freeze override for a shadow file). Kept from mine: `.gitignore` entry for `automation/state/sd-zones.json`, a consumer-side pin (heartbeat_core + fleet never reference the file), STATUS_MD isolation in the producer's dry-run test (its 00:22 cut leaked a `### BROKEN` block into the real STATUS.md -- removed). Independent read of the same CDP walk from this session: 10 boxes (770.48-769.80 down to 757.65-757.25), SMC inputs currently in_3=false / in_21=true (persistence across the NEXT relaunch still UNVERIFIED). ROOT CAUSE of the collision: the item was never flipped to `[~]`; the Stop-hook continuation text now says CLAIM FIRST (guard in setup/hooks/test_doctrine_hooks.py). Cadence UNVERIFIED until the first scheduled fire Mon 2026-09-14 08:44 ET advances `sd-zones.json.as_of`.
 - 2026-09-12 01:2x ET (conductor, Stop-hook continuation 1/3): **Corrected item (e)'s marker, did not do the read.** The Stop hook re-triggered on (e) because it was left as a bare `- [ ]` with only prose saying NOT-BEFORE ~2026-09-25 — `goal_next_open_item` only recognizes `[B]`/`[B-J]` as excluded from continuation (per `doctrine.goal_next_open_item`'s own docstring: "a blocked item must never keep re-triggering a continuation; that is what the B/B-J markers exist to prevent"), so a bare `[ ]` with a date in the text still counted as open work needing to be claimed. Doing the actual 10-session read right now would produce a meaningless result (the archive has zero sessions as of today — confirmed by the live `--sd-zone` smoke run in the entry above: `no_archive_days` for every day checked) and would directly violate this goal's own prereg §3 ("nothing is armed, tuned, or peeked at mid-window... a mid-window read for curiosity does not count and must be labeled as such"). Faking a claim/finish on (e) today would be gaming the continuation mechanism, not doing the work. Flipped `- [ ]` → `- [B]` with the unblock condition stated inline (check `sd-zone-forward-clock.json.eligible_for_forward_read == true` before re-opening). No code changed this continuation; this is a goal-bookkeeping-only correction. REVOKE: flip `[B]` back to `[ ]` (not recommended — recreates the false-continuation loop).
 - 2026-09-12 01:19 ET — closed by goal_autopilot: queue fully terminal (no bare '- [ ] ' item left)
+- 2026-09-14 13:2x ET (worker-tier build): **(f) DONE.** Built the SD-ZONE WHAT-IF shadow
+  lane. Files: `backtest/lib/sd_zone_whatif_sim.py` (pure sim core -- touch/confirmation
+  detection, strike math, sizing, the exit-stack walk), `setup/scripts/sd_zone_whatif.py`
+  (I/O orchestrator), `setup/scripts/install-sd-zone-whatif.ps1`,
+  `backtest/tests/test_sd_zone_whatif.py` (13 new tests) + 4 tests folded into
+  `test_sd_zones_producer_2026_09_12.py` covering the new per-15-min intraday zone archive
+  (`journal/sd-zones-archive/intraday/{day}/{HHMM}.json`, deliverable A -- the no-look-ahead
+  source `sd_zone_whatif.py` needs). Rule set frozen in
+  `prereg-sd-zone-anchor-promotion-2026-09-12.md` §9 (appended, §1-8 untouched). Tests:
+  `backtest/tests/test_sd_zone_whatif.py backtest/tests/test_sd_zones_producer_2026_09_12.py`
+  -- **36 passed** (`36 passed in 1.30s`). Task registered + verified via `schtasks /query`:
+  `Gamma_SdZoneWhatIf`, `Status: Ready`, `Schedule Type: Weekly`, `Days: MON, TUE, WED, THU,
+  FRI`, `Start Time: 2:20:00 PM` (16:20 ET). SCHEDULED-TASKS.md count 186→187 + new row.
+  **FOUND + FIXED IN PASSING (real bug, not mine originally):** 4 pre-existing tests in
+  `test_sd_zones_producer_2026_09_12.py` were NOT redirecting `ARCHIVE_DIR`/
+  `FORWARD_CLOCK_FILE` off the real repo paths on a real OK-status run -- every pytest pass
+  of that module was silently overwriting the REAL `journal/sd-zones-archive/{today}.json`
+  (+ forward clock) with fake `751.8-752.2` test zones. Caught live when this session's own
+  genuine producer capture was found replaced by test data after running the suite. Fixed
+  all 4 (now redirect ARCHIVE_DIR/INTRADAY_ARCHIVE_DIR/FORWARD_CLOCK_FILE to tmp_path);
+  regenerated the real 2026-09-14 archive + forward clock with a fresh live producer run
+  (`OK symbol=BATS:SPY spot=762.29 n_zones=10`) to undo the corruption. **BACKFILL RESULT
+  (F):** 2026-09-12 is a **Saturday** (0 SPY bars, both feeds) -- ran it per instruction
+  ("do not fabricate zones for earlier days"), correctly produced 0 rows with warning
+  `no SPY bars for 2026-09-12`, not a crash (fixed a real `.get("bars", [])` vs
+  `.get("bars") or []` bug this exposed -- Alpaca returns an explicit `bars: null`, not a
+  missing key, on an empty window). **2026-09-14 (today) also produced 0 rows** for an
+  honest, disclosed reason: the day's one real zone-respecting touch (SPY dipped into the
+  757.94-758.58 demand zone at **09:36 ET**, per a synthetic mechanism-validation replay
+  below -- the goal's own narrative said ~11:06, actual touch time per real 1-min bars is
+  09:36) happened BEFORE this session's first real intraday snapshot (13:07:17 ET) --
+  correct no-look-ahead behavior, not a bug: a zone this lane didn't know about yet cannot
+  be used to score a touch that already happened. **Mechanism validated separately** (not
+  written to the real ledger): re-ran `simulate_day` with a synthetic as-of-09:00 snapshot
+  carrying TODAY'S REAL zones -- found the real 09:36 touch, all 3 confirmations fired
+  (touch_close/structure_shift/wick_reject), proving detection is live-data-correct.
+  **Option-bar pricing is currently blocked**, separately: `exit_shape_parity_study.
+  fetch_option_bars` (pre-existing, unmodified) returns `HTTP Error 403: Forbidden` for
+  today's 0DTE contracts as of ~13:25 ET -- an upstream data-entitlement/availability
+  condition, not new code; the installed 16:20 ET fire runs after intraday option data is
+  typically posted, so this should self-heal on its own first real fire. **OPEN ITEMS for
+  the next session:** (1) confirm the 16:20 ET fire clears the 403 and actually prices a
+  leg once the day has a real post-instrumentation touch; (2) `obsidian_vault_sync.py`'s
+  new SD-zone-what-if SHADOW.md block is syntax-checked but UNVERIFIED by a real generator
+  run (not executed this session -- out of scope risk of touching other generated
+  surfaces). Added `.gitignore` entries for `sd-zone-forward-clock.json` (C34) and
+  `journal/sd-zones-archive/` (bloat, same reasoning as `gex-archive`) -- neither was ever
+  git-tracked (`git ls-tree HEAD` empty before this build). REVOKE: `git revert <this
+  commit>` + `schtasks /delete /tn Gamma_SdZoneWhatIf /f`.
 
 ## HONEST STATE
 AUTOPILOT CLOSE 2026-09-12 01:19 ET: queue fully terminal (no bare '- [ ] ' item left)

@@ -92,6 +92,19 @@ ET = pytz.timezone("America/New_York")
 ARCHIVE_DIR = REPO / "journal" / "sd-zones-archive"
 FORWARD_CLOCK_FILE = STATE_DIR / "sd-zone-forward-clock.json"
 
+# INTRADAY ARCHIVE (added 2026-09-14, SD-ZONE WHAT-IF shadow lane, GOAL-SD-LIQUIDITY-ZONES-
+# 2026-09-11 item f). WHY: `ARCHIVE_DIR` above keeps only the LAST snapshot of each day --
+# fine for the SD_ZONE forward-clock read (which only needs "the zones that existed that
+# day"), but insufficient for a no-look-ahead intraday replay: a touch at 11:06 must be
+# checked against the zones known AT 11:06, not the zones known at 15:55 (which could
+# include boxes the LuxAlgo study only formed AFTER the touch -- the exact look-ahead C6
+# forbids). Every real (status=="OK", non-dry-run) 15-min producer tick ALSO writes one
+# timestamped snapshot here; `sd_zone_whatif.py` picks the LAST snapshot with as_of <= the
+# touch time. Retention: dirs older than INTRADAY_RETENTION_DAYS are pruned each run (OP-22
+# -- this is a per-15-min accrual, unbounded without a cap).
+INTRADAY_ARCHIVE_DIR = ARCHIVE_DIR / "intraday"
+INTRADAY_RETENTION_DAYS = 90
+
 # The study added under item (a). A substring match, same convention item (a) verified
 # live (`data_get_pine_boxes(study_filter="Smart Money")` returned 5 zones).
 STUDY_FILTER = "Smart Money"
@@ -152,6 +165,55 @@ def archive_snapshot(day: str, out: dict) -> None:
     with open(tmp, "w", encoding="utf-8") as fh:
         json.dump(snapshot, fh, indent=2)
     tmp.replace(path)
+
+
+def archive_intraday_snapshot(day: str, hhmm: str, out: dict) -> None:
+    """One file per real 15-min tick, `journal/sd-zones-archive/intraday/{day}/{HHMM}.json`.
+    Same payload shape as `archive_snapshot`'s daily file (schema parity so a reader can
+    treat either as a `{date, as_of, chart_symbol, spot, zones}` snapshot). Only called for
+    a real successful capture -- same guard as `archive_snapshot`/`update_forward_clock`, so
+    a --dry-run or a SKIPPED_TV_DOWN tick never fabricates a same-day intraday reading."""
+    day_dir = INTRADAY_ARCHIVE_DIR / day
+    day_dir.mkdir(parents=True, exist_ok=True)
+    path = day_dir / f"{hhmm}.json"
+    snapshot = {
+        "date": day,
+        "as_of": out.get("as_of"),
+        "chart_symbol": out.get("chart_symbol"),
+        "spot": out.get("spot"),
+        "zones": out.get("zones") or [],
+    }
+    tmp = path.with_suffix(".json.tmp")
+    with open(tmp, "w", encoding="utf-8") as fh:
+        json.dump(snapshot, fh, indent=2)
+    tmp.replace(path)
+
+
+def prune_intraday_archive(retention_days: int = INTRADAY_RETENTION_DAYS,
+                            now: dt.datetime | None = None) -> list[str]:
+    """Remove `intraday/{day}/` directories older than `retention_days` (OP-22 consolidation
+    -- a 15-min-cadence accrual is unbounded without a cap). Returns the list of removed day
+    strings. Never raises on a single bad entry (a malformed dirname is skipped, not fatal)."""
+    if not INTRADAY_ARCHIVE_DIR.exists():
+        return []
+    cutoff = (now or dt.datetime.now(ET)).date() - dt.timedelta(days=retention_days)
+    removed: list[str] = []
+    for child in sorted(INTRADAY_ARCHIVE_DIR.iterdir()):
+        if not child.is_dir():
+            continue
+        try:
+            day = dt.date.fromisoformat(child.name)
+        except ValueError:
+            continue
+        if day < cutoff:
+            for f in child.glob("*.json"):
+                f.unlink(missing_ok=True)
+            try:
+                child.rmdir()
+            except OSError:
+                pass
+            removed.append(child.name)
+    return removed
 
 
 def update_forward_clock(day: str) -> dict:
@@ -396,6 +458,8 @@ def main(argv: list[str] | None = None) -> int:
         try:
             archive_snapshot(day, out)
             update_forward_clock(day)
+            archive_intraday_snapshot(day, now.strftime("%H%M"), out)
+            prune_intraday_archive(now=now)
         except OSError as exc:  # noqa: BLE001 -- archiving is best-effort, never blocks the live write
             flag_status_md(f"sd_zones_producer archive/clock write failed -- {exc}")
     print(f"{out['status']} symbol={out.get('chart_symbol')} spot={out.get('spot')} "

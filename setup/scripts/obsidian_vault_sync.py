@@ -1372,6 +1372,29 @@ def build_preregs_board(stamp: str) -> str:
         L.append("- **Trendline shadow** (`Gamma_TrendlineShadow`, 14:22 MT) — "
                  "no verdict recomputed yet; run "
                  "`setup/scripts/trendline_shadow_verdict.py`.")
+
+    # SD-Zone what-if shadow lane (Gamma_SdZoneWhatIf, 16:20 ET, added 2026-09-14 --
+    # GOAL-SD-LIQUIDITY-ZONES-2026-09-11 item f / prereg-sd-zone-anchor-promotion-2026-09-12.md
+    # section 9). Descriptive-only companion to the real-fills SD_ZONE reader above -- plays
+    # every zone touch through the real exit-stack walker even on a day the engine took 0
+    # fills. See setup/scripts/sd_zone_whatif.py's own docstring for the frozen rule set.
+    szw = REPO / "analysis" / "sd-zone-whatif" / "summary.json"
+    if szw.exists():
+        try:
+            s = json.loads(szw.read_text(encoding="utf-8")) or {}
+            pv = s.get("primary_variant") or {}
+            L.append(
+                f"- **SD-zone what-if** (`Gamma_SdZoneWhatIf`, 16:20 ET) — {s.get('label')}; "
+                f"primary cell (structure_shift x ribbon_ride x ATM) n_legs={pv.get('n_legs')} "
+                f"total/contract=${pv.get('total_per_contract')} — "
+                "[[analysis/sd-zone-whatif/SUMMARY.md]]"
+            )
+        except Exception:  # noqa: BLE001
+            L.append("- **SD-zone what-if** (`Gamma_SdZoneWhatIf`, 16:20 ET) — "
+                     "summary present but unreadable.")
+    else:
+        L.append("- **SD-zone what-if** (`Gamma_SdZoneWhatIf`, 16:20 ET) — "
+                 "no run yet; `setup/scripts/sd_zone_whatif.py`.")
     L.append("")
 
     # --- AUTO-DISCOVERED frozen preregs. Was a hardcoded 6-item list, which meant every

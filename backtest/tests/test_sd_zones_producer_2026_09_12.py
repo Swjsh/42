@@ -249,6 +249,15 @@ def test_classify_zones_zero_height_box_falls_back_to_default_zone_width():
 def test_end_to_end_run_with_fake_chart_writes_full_schema(tmp_path, monkeypatch):
     stamp = tmp_path / "sd-zones.json"
     monkeypatch.setattr(szp, "STATE_FILE", stamp)
+    # PRE-EXISTING TEST-ISOLATION BUG (found 2026-09-14 building the SD-ZONE WHAT-IF lane):
+    # this real OK-status run was NOT redirecting ARCHIVE_DIR/INTRADAY_ARCHIVE_DIR/
+    # FORWARD_CLOCK_FILE off the real repo paths, so every pytest run of this module
+    # silently overwrote the REAL journal/sd-zones-archive/{today}.json (+ forward clock,
+    # + intraday snapshots) with this test's FAKE 751.8-752.2 zone -- caught live when a
+    # genuine producer capture's last-write-of-day file was found replaced by test data.
+    monkeypatch.setattr(szp, "ARCHIVE_DIR", tmp_path / "archive")
+    monkeypatch.setattr(szp, "INTRADAY_ARCHIVE_DIR", tmp_path / "archive" / "intraday")
+    monkeypatch.setattr(szp, "FORWARD_CLOCK_FILE", tmp_path / "clock.json")
     monkeypatch.setattr(szp, "_spy_bars", lambda: _bars_df())
     boxes = [{"low": 751.8, "high": 752.2}, {"low": 747.8, "high": 748.2}]
     monkeypatch.setattr(szp, "TvChart", lambda: _FakeChart(boxes=boxes, spot=750.0))
@@ -349,6 +358,7 @@ def test_end_to_end_ok_run_archives_a_daily_snapshot_and_advances_the_clock(tmp_
     clock_file = tmp_path / "clock.json"
     monkeypatch.setattr(szp, "STATE_FILE", stamp)
     monkeypatch.setattr(szp, "ARCHIVE_DIR", archive_dir)
+    monkeypatch.setattr(szp, "INTRADAY_ARCHIVE_DIR", archive_dir / "intraday")
     monkeypatch.setattr(szp, "FORWARD_CLOCK_FILE", clock_file)
     monkeypatch.setattr(szp, "_spy_bars", lambda: _bars_df())
     monkeypatch.setattr(szp, "et_now", lambda: dt.datetime(2026, 9, 14, 9, 0))
@@ -395,9 +405,11 @@ def test_tv_down_skip_never_archives_or_advances_the_clock(tmp_path, monkeypatch
     stamp = tmp_path / "sd-zones.json"
     archive_dir = tmp_path / "archive"
     clock_file = tmp_path / "clock.json"
+    intraday_dir = tmp_path / "archive" / "intraday"
     stamp.write_text(json.dumps({"schema_version": 1, "zones": [], "drawn": []}), encoding="utf-8")
     monkeypatch.setattr(szp, "STATE_FILE", stamp)
     monkeypatch.setattr(szp, "ARCHIVE_DIR", archive_dir)
+    monkeypatch.setattr(szp, "INTRADAY_ARCHIVE_DIR", intraday_dir)
     monkeypatch.setattr(szp, "FORWARD_CLOCK_FILE", clock_file)
     monkeypatch.setattr(szp, "_spy_bars", lambda: _bars_df())
     monkeypatch.setattr(szp, "TvChart", _down_factory)
@@ -406,6 +418,75 @@ def test_tv_down_skip_never_archives_or_advances_the_clock(tmp_path, monkeypatch
     assert rc == 0
     assert not archive_dir.exists(), "a TV-down skip must never archive a snapshot"
     assert not clock_file.exists(), "a TV-down skip must never advance the forward clock"
+    assert not intraday_dir.exists(), "a TV-down skip must never write an intraday snapshot"
+
+
+# --------------------------------------------------------------------------- 8. intraday archive (SD-ZONE WHAT-IF item A, 2026-09-14)
+
+def test_end_to_end_ok_run_writes_an_intraday_snapshot(tmp_path, monkeypatch):
+    stamp = tmp_path / "sd-zones.json"
+    archive_dir = tmp_path / "archive"
+    intraday_dir = tmp_path / "archive" / "intraday"
+    clock_file = tmp_path / "clock.json"
+    monkeypatch.setattr(szp, "STATE_FILE", stamp)
+    monkeypatch.setattr(szp, "ARCHIVE_DIR", archive_dir)
+    monkeypatch.setattr(szp, "INTRADAY_ARCHIVE_DIR", intraday_dir)
+    monkeypatch.setattr(szp, "FORWARD_CLOCK_FILE", clock_file)
+    monkeypatch.setattr(szp, "_spy_bars", lambda: _bars_df())
+    monkeypatch.setattr(szp, "et_now", lambda: dt.datetime(2026, 9, 14, 11, 6))
+    boxes = [{"low": 757.88, "high": 758.58}]
+    monkeypatch.setattr(szp, "TvChart", lambda: _FakeChart(boxes=boxes, spot=757.90))
+
+    rc = szp.main([])
+    assert rc == 0
+
+    intraday_file = intraday_dir / "2026-09-14" / "1106.json"
+    assert intraday_file.exists(), "a real OK capture must write journal/sd-zones-archive/intraday/{day}/{HHMM}.json"
+    snap = json.loads(intraday_file.read_text(encoding="utf-8"))
+    assert snap["date"] == "2026-09-14"
+    assert len(snap["zones"]) == 1
+    # the daily last-write-of-day archive stays byte-shape-identical to before this build
+    assert (archive_dir / "2026-09-14.json").exists()
+
+
+def test_dry_run_never_writes_an_intraday_snapshot(tmp_path, monkeypatch):
+    stamp = tmp_path / "sd-zones.json"
+    archive_dir = tmp_path / "archive"
+    intraday_dir = tmp_path / "archive" / "intraday"
+    clock_file = tmp_path / "clock.json"
+    monkeypatch.setattr(szp, "STATE_FILE", stamp)
+    monkeypatch.setattr(szp, "ARCHIVE_DIR", archive_dir)
+    monkeypatch.setattr(szp, "INTRADAY_ARCHIVE_DIR", intraday_dir)
+    monkeypatch.setattr(szp, "FORWARD_CLOCK_FILE", clock_file)
+    monkeypatch.setattr(szp, "STATUS_MD", tmp_path / "STATUS.md")
+    monkeypatch.setattr(szp, "_spy_bars", lambda: _bars_df())
+    boxes = [{"low": 751.8, "high": 752.2}]
+    monkeypatch.setattr(szp, "TvChart", lambda: _FakeChart(boxes=boxes, spot=750.0))
+
+    rc = szp.main(["--dry-run"])
+    assert rc == 0
+    assert not intraday_dir.exists(), "--dry-run must never write an intraday snapshot"
+
+
+def test_prune_intraday_archive_removes_only_stale_days(tmp_path):
+    intraday_dir = tmp_path / "intraday"
+    old_day = intraday_dir / "2026-01-01"
+    fresh_day = intraday_dir / "2026-09-10"
+    old_day.mkdir(parents=True)
+    fresh_day.mkdir(parents=True)
+    (old_day / "0930.json").write_text("{}", encoding="utf-8")
+    (fresh_day / "0930.json").write_text("{}", encoding="utf-8")
+    import sd_zones_producer as szp_mod
+    szp_mod_INTRADAY = szp_mod.INTRADAY_ARCHIVE_DIR
+    try:
+        szp_mod.INTRADAY_ARCHIVE_DIR = intraday_dir
+        removed = szp_mod.prune_intraday_archive(
+            retention_days=90, now=dt.datetime(2026, 9, 14))
+    finally:
+        szp_mod.INTRADAY_ARCHIVE_DIR = szp_mod_INTRADAY
+    assert removed == ["2026-01-01"]
+    assert not old_day.exists()
+    assert fresh_day.exists()
 
 
 def test_forward_clock_is_idempotent_across_same_day_reruns(tmp_path, monkeypatch):
@@ -457,6 +538,9 @@ def test_producer_enforces_the_study_input_trim_before_reading_boxes(tmp_path, m
     stamp = tmp_path / "sd-zones.json"
     monkeypatch.setattr(szp, "STATE_FILE", stamp)
     monkeypatch.setattr(szp, "STATUS_MD", tmp_path / "STATUS.md")
+    monkeypatch.setattr(szp, "ARCHIVE_DIR", tmp_path / "archive")
+    monkeypatch.setattr(szp, "INTRADAY_ARCHIVE_DIR", tmp_path / "archive" / "intraday")
+    monkeypatch.setattr(szp, "FORWARD_CLOCK_FILE", tmp_path / "clock.json")
     monkeypatch.setattr(szp, "_spy_bars", lambda: _bars_df())
     monkeypatch.setattr(szp, "STUDY_RECOMPUTE_WAIT_S", 0)
     chart = _EvalChart(boxes=[{"low": 751.8, "high": 752.2}], spot=750.0)
@@ -473,6 +557,9 @@ def test_producer_input_enforcement_is_fail_open(tmp_path, monkeypatch):
     stamp = tmp_path / "sd-zones.json"
     monkeypatch.setattr(szp, "STATE_FILE", stamp)
     monkeypatch.setattr(szp, "STATUS_MD", tmp_path / "STATUS.md")
+    monkeypatch.setattr(szp, "ARCHIVE_DIR", tmp_path / "archive")
+    monkeypatch.setattr(szp, "INTRADAY_ARCHIVE_DIR", tmp_path / "archive" / "intraday")
+    monkeypatch.setattr(szp, "FORWARD_CLOCK_FILE", tmp_path / "clock.json")
     monkeypatch.setattr(szp, "_spy_bars", lambda: _bars_df())
     chart = _FakeChart(boxes=[{"low": 751.8, "high": 752.2}], spot=750.0)      # no evaluate at all
     monkeypatch.setattr(szp, "TvChart", lambda: chart)

@@ -57,7 +57,9 @@ uses. This file is **not** part of the live entry gate — `heartbeat_core` neve
 Promotion into `key-levels.json` as a real anchor class needs the forward `SD_ZONE` read
 (goal item d, `backtest/tools/trigger_anchor_class_read.py`) to out-respect the level classes
 below, with a pre-registered checkpoint gate (09-29 if it only removes anchors, 10-30 if it
-adds any).
+adds any). Because that live-fills reader has nothing to say about a day the engine took zero
+trades, a companion **what-if shadow lane** (goal item f) plays each day's zone touches itself
+through the real exit-stack — see `analysis/sd-zone-whatif/SUMMARY.md` for the running read.
 
 **What does NOT count as a zone or a liquidity level here** — these are exactly the classes
 `FABLE-FULL-AUDIT-2026-09-11` found losing money as trigger anchors, which is why this section

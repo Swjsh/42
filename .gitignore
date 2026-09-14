@@ -209,6 +209,9 @@ automation/state/crypto-twin/sim-bear-scenario-state.json
 automation/state/crypto-twin/sim-bear-positions.json
 automation/state/key-levels.json
 automation/state/sd-zones.json
+# sibling decision-gating state (C34): forward-clock eligibility for the SD_ZONE promotion
+# read, written every real sd_zones_producer.py tick. Same reasoning as sd-zones.json above.
+automation/state/sd-zone-forward-clock.json
 automation/state/key-levels-history/
 automation/state/daily-context.json
 automation/state/sight-beacon.json
@@ -290,6 +293,15 @@ analysis/crypto-twin/btc_5m_cache.json
 # disk / isn't read; neither is a correctness regression on this machine). Going forward,
 # new daily snapshots stay on disk (fully readable by every consumer above) but out of git.
 journal/gex-archive/*-cboe.json
+
+# sd-zones-archive (added 2026-09-14, SD-ZONE WHAT-IF build): same bloat/decision-gating-state
+# reasoning as gex-archive above, plus C34 (don't track decision-gating state). The daily
+# last-snapshot file AND the new per-15-min intraday/ subdir (sd_zone_whatif.py's own
+# no-look-ahead source) are never read from git history by any consumer -- every reader
+# (sd_zones_producer.py, sd_zone_whatif.py, trigger_anchor_class_read.py --sd-zone) globs the
+# directory straight off disk. Never committed to date (git ls-tree HEAD confirmed empty
+# before this ignore was added) -- ignoring here locks in that state rather than changing it.
+journal/sd-zones-archive/
 
 # Live TradingView chart-drawing state (entity_ids of the lines Gamma itself drew).
 # Untracked on purpose (C34): a tree-wide git op restoring stale entity_ids would
