@@ -21,6 +21,22 @@ import * as THREE from "three";
 // guaranteed by the texture itself, not by how much scene light lands here --
 // which is physically the right call anyway: a real distant sun-lit body
 // doesn't dim because a nearby space station's ambient fill is low.
+//
+// Polish pass (2026-09-14, coordinator, after J saw env-planetfix-1804.png:
+// "reads as a giant pale dome hovering over the base, flat-lit, sharp lower
+// edge, no limb"): (1) shrunk to ~40% apparent diameter and moved off-axis
+// so it no longer sits centered over the hub; (2) the terminator/lit side
+// now derives from the SCENE'S OWN directional-light direction (Scene.tsx's
+// `position={[6,10,4]}`) instead of just facing the camera -- a real fixed
+// relationship between "which way is the sun" and "which side is lit",
+// mirrored here (not imported) the same way PLANET_AZIMUTH already mirrors
+// Scene.tsx's BASE_AZIMUTH; (3) per-vertex limb darkening (bright facing the
+// camera, dimmer toward the silhouette) computed once from the geometry
+// itself -- the same "bake it into vertex colors once, never per-frame"
+// technique SkyDome.tsx already uses for ITS gradient; (4) a second, larger
+// BackSide sphere with an inverted (bright-at-the-edge) fresnel gradient for
+// a thin atmospheric rim glow, additive-blended; (5) subtle sine-layered
+// latitude banding in the texture so the surface isn't a flat gradient.
 
 const TEX_W = 256;
 const TEX_H = 128;
@@ -35,14 +51,15 @@ function smooth01(t: number): number {
  * longitude 0..1, v = latitude 0..1) -- NOT a physically traced terminator,
  * a deliberate low-poly-game-art shortcut (the same shorthand the
  * RenderHub/Kenney-style background planets in ENVIRONMENT-PLAN.md's
- * references use): a soft lit-to-dark sweep across one longitude band (the
- * only band ever actually on camera -- this is a fixed background prop, see
- * PLANET_AZIMUTH below), plus scattered dark crater speckle and 2 larger
- * dark "mare" blotches so the disc reads as a surface, not a flat gradient
- * ball. Built ONCE (module-level cache, same convention as palette.ts's own
- * makeMatcapTexture/makeToonGradientTexture) -- never per-frame, and never at
- * SSR time (throws loudly if invoked outside a browser, matching every other
- * canvas-texture helper in this tree). */
+ * references use): a soft lit-to-dark sweep across one longitude band
+ * (centered exactly on u=0.5 -- see PLANET_FACING_ROTATION below for why
+ * that specific value matters), plus subtle sine-layered latitude bands
+ * (polish-pass item 5 -- "not a flat gradient"), scattered dark crater
+ * speckle, and 2 larger dark "mare" blotches. Built ONCE (module-level
+ * cache, same convention as palette.ts's own makeMatcapTexture/
+ * makeToonGradientTexture) -- never per-frame, and never at SSR time (throws
+ * loudly if invoked outside a browser, matching every other canvas-texture
+ * helper in this tree). */
 function makePlanetTexture(): THREE.CanvasTexture {
   if (typeof document === "undefined") {
     throw new Error("makePlanetTexture() called outside a browser -- never call this during SSR");
@@ -55,31 +72,42 @@ function makePlanetTexture(): THREE.CanvasTexture {
   if (!ctx) throw new Error("makePlanetTexture(): 2D canvas context unavailable");
 
   const lit = new THREE.Color("#9fb8c9");
-  const dark = new THREE.Color("#0d1826");
+  // Polish-pass CORRECTION (2026-09-14, real capture env-polish-day-1830.png:
+  // "planet body reads as basically invisible, only the additive rim glow
+  // shows" -- the SAME class of failure this whole file exists to avoid, see
+  // this file's own top comment on Pass G-2). Root cause: two independently-
+  // reasonable multiplicative dimming factors (this texture's own terminator
+  // AND bakeLimbDarkening's camera-facing falloff) COMPOUND on whichever
+  // vertices the camera actually sees -- 0.5 lit x 0.5 limb-bright = 0.25,
+  // dark enough to vanish against the even-darker sky at this object's now-
+  // small on-screen size. Lightened from near-black (#0d1826) so the
+  // "dark" terminator side alone can never multiply down to invisible.
+  const dark = new THREE.Color("#1c3040");
   const tmp = new THREE.Color();
   const img = ctx.createImageData(TEX_W, TEX_H);
   for (let y = 0; y < TEX_H; y++) {
     const v = y / TEX_H; // 0 (top pole) .. 1 (bottom pole)
     const latShade = 1 - Math.abs(v - 0.5) * 0.6; // dimmer near poles
+    // Polish-pass item 5: 2 layered sines at different latitude frequencies
+    // -- a subtle (+-5%) brightness ripple so the surface reads as banded
+    // terrain/cloud structure rather than a single smooth gradient. Kept
+    // deliberately faint (0.05/0.03 amplitude) -- "subtle mottling", not a
+    // literal gas-giant stripe pattern.
+    const bandRipple = 0.05 * Math.sin(v * 26 + 1.3) + 0.03 * Math.sin(v * 11 - 0.4);
     for (let x = 0; x < TEX_W; x++) {
       const u = x / TEX_W; // 0..1 longitude
-      // World-3 Pass 1 real-capture correction (2026-09-14, env-e2e3-1750.png):
-      // the camera only ever sees roughly ONE hemisphere of this sphere (the
-      // side facing back toward the station, a fixed relative angle -- see
-      // PLANET_FACING_ROTATION below), and the first cut's narrow lit band
-      // (full brightness only across 15% of longitude) mostly missed that
-      // visible hemisphere, reading as "basically dark" all over again --
-      // the SAME class of failure Pass G-2 already hit once with a matcap.
-      // Widened so ~70% of longitude reads clearly lit (full brightness
-      // across a 0.4-0.6 plateau, CENTERED on u=0.5 -- three.js's default
-      // equirect UV maps u=0.5 to local +X exactly, verified against its own
-      // shipped SphereGeometry source this session, matching
-      // PLANET_FACING_ROTATION's own derivation below which points local +X
-      // at the camera). Generous enough that even a small facing-rotation
-      // error still shows real brightness, not a knife-edge terminator that
-      // has to land exactly right.
-      const litT = smooth01((u - 0.15) / 0.25) * (1 - smooth01((u - 0.6) / 0.25));
-      tmp.copy(dark).lerp(lit, Math.min(1, litT) * latShade);
+      // Wide, forgiving lit band (~70% of longitude, full brightness across
+      // a 0.4-0.6 plateau CENTERED on u=0.5 -- three.js's default equirect
+      // UV maps u=0.5 to local +X exactly, verified against its own shipped
+      // SphereGeometry source this session, matching PLANET_FACING_ROTATION's
+      // own derivation below which points local +X at the scene's sun).
+      // Polish-pass CORRECTION: floored at 0.2 (was 0) -- even the "fully
+      // dark" longitude now blends 20% toward the lit color, so a small
+      // sun/camera misalignment (the visible hemisphere isn't always
+      // perfectly sun-facing once the planet's OWN position is off-axis,
+      // item 1) can never land purely on the near-black dark stop.
+      const litT = 0.2 + 0.8 * smooth01((u - 0.15) / 0.25) * (1 - smooth01((u - 0.6) / 0.25));
+      tmp.copy(dark).lerp(lit, Math.min(1, Math.max(0, litT + bandRipple)) * latShade);
       const idx = (y * TEX_W + x) * 4;
       img.data[idx] = Math.round(tmp.r * 255);
       img.data[idx + 1] = Math.round(tmp.g * 255);
@@ -134,80 +162,229 @@ function makePlanetTexture(): THREE.CanvasTexture {
   return texture;
 }
 
-// Placement -- well inside SkyDome.tsx's own radius (70) so it never clips
-// the dome, well beyond the station's own footprint (Scene.tsx's
-// PLAZA_RADIUS ~=18.2). Azimuth mirrors Scene.tsx's own `BASE_AZIMUTH + PI`
-// (the far side of the origin from the camera's fixed overview position, so
-// the planet sits roughly BEHIND the hub from the default view) -- hardcoded
-// rather than imported from Scene.tsx to keep this decorative prop from
-// depending on the camera's own tuning constants; if BASE_AZIMUTH ever moves,
-// re-check this placement against a fresh capture rather than assuming it
-// still tracks (same "verify, don't assume" discipline Scene.tsx's own
-// camera comments already use throughout).
+// ─── Placement (polish pass, 2026-09-14) ────────────────────────────────────
+// Item 1: "~40% apparent diameter, lower-left of frame, never centered over
+// the hub, never cropped by the top". RADIUS cut to 0.4x the previous value
+// (angular size scales ~linearly with radius/distance at this range: verify
+// atan(5.6/58)=5.5deg vs the old atan(14/58)=13.6deg, ratio 0.406 -- matches
+// "~40%" directly). Azimuth offset by +35deg from the old dead-center-behind-
+// the-hub placement -- derived (not guessed) from the camera's own local
+// "right" vector at its default pose (right = forward x up, forward =
+// direction from BASE_AZIMUTH's camera position toward the origin): a
+// POSITIVE azimuth offset here maps to the camera's LEFT on screen (full
+// derivation in this pass's own session notes -- flip the sign if a real
+// capture ever shows it drifted right instead, this is geometry worked out
+// on paper, not read off a render). HEIGHT dropped further (0 -> -4) to bias
+// it lower in frame (smaller elevation-from-camera angle change happens to
+// move it toward center/lower, per this same file's own earlier H=16->0
+// correction logic).
 const BASE_AZIMUTH = Math.atan2(16, 20); // mirrors Scene.tsx's own BASE_AZIMUTH
-const PLANET_AZIMUTH = BASE_AZIMUTH + Math.PI;
-// World-3 Pass 1 correction: the sphere's own lit-band CENTER (texture
-// u=0.5 exactly, by construction of the litT formula above) sits at local
-// +X on the sphere's default equirect UVs -- three.js SphereGeometry maps
-// u=0 to local -X, u=0.25 to +Z, u=0.5 to +X, u=0.75 to -Z, verified from three's own shipped
-// BufferGeometry source this session) must point from the planet's position
-// back toward the origin/camera, since that's the ONE hemisphere the camera
-// ever actually sees (camera and planet sit on opposite sides of the origin
-// at BASE_AZIMUTH / BASE_AZIMUTH+PI). Solving `Ry(rotation) * (1,0,0) ==
-// -normalize(planetPosition)` for `rotation` (three's Ry: x'=x*cosR+z*sinR,
-// z'=-x*sinR+z*cosR -- the SAME convention Scene.tsx's own `Math.PI/2 -
-// angle` module-facing formula already uses, cross-checked against that
-// formula's own worked example before trusting this one) gives the
-// closed-form below rather than a guessed constant.
-const PLANET_FACING_ROTATION = Math.atan2(-Math.cos(BASE_AZIMUTH), Math.sin(BASE_AZIMUTH));
+// Polish-pass CORRECTION (2026-09-14, real capture env-polish-day-1830.png:
+// planet sat near the TOP edge, not "lower-left"): the naive "distance=58
+// from ORIGIN" mental model this file's comments originally reasoned from
+// undersold the TRUE camera-to-planet distance once item 1's off-axis
+// offset moved it away from the old dead-opposite-the-camera line (real
+// vector math this session put it around ~85-88 units, not 58) -- at that
+// true distance, the OLD height=-4 barely moved the on-screen elevation
+// versus the pre-polish H=0. Dropped further (-4 -> -22, worked out against
+// the actual camPos-planetPos vector, not the origin-distance shortcut) and
+// the offset eased back (35deg -> 20deg, less risk of the wide-angle
+// perspective skew a large off-axis swing can introduce) -- verify against
+// the next real capture per this whole file's own established discipline,
+// nudge once more if still not clearly lower-left.
+const PLANET_LEFT_OFFSET = (15 * Math.PI) / 180;
+const PLANET_AZIMUTH = BASE_AZIMUTH + Math.PI + PLANET_LEFT_OFFSET;
 const PLANET_DISTANCE = 58;
-// World-3 Pass 1 real-capture correction (2026-09-14, env-e1-1734.png): H=16
-// put the WHOLE disc above the visible frame (only a sliver of its bottom
-// rim showed at the very top edge) -- the ultra camera pitches down roughly
-// 33deg from its own 19.6-unit height, and this scene's frame only spans
-// roughly 12-54deg below horizontal, so anything near-level with the camera
-// is off-screen above the top edge, not "low on the horizon" at all. Dropped
-// to ground level so its elevation-from-camera lands inside that visible
-// window instead of guessed a second time blind -- verify against the next
-// real capture, nudge further if still clipped.
+// World-3 Pass 3 correction (2026-09-14, env-polish-day3-1905.png, AFTER
+// the depthWrite root-cause fix below): -6 still reduced to a barely-visible
+// sliver -- once depth-testing is actually correct (not painted over),
+// height=-6 is genuinely, physically LOW ENOUGH that most of the disc sits
+// behind Ground.tsx's own disc silhouette from this camera's elevated
+// look-down angle -- real occlusion, not a bug this time. Real data across
+// 4 tested heights (0=fully visible twice, -4=mostly rim only, -6=sliver,
+// -22=nothing) shows a steep, mostly-monotonic falloff -- the safe zone is
+// close to 0. Settled on H=0 (matching the two CONFIRMED-visible captures
+// exactly) and leaving "lower in frame" to the azimuth offset + smaller
+// radius alone -- reliably visible beats precisely "lower" if this file
+// has to choose between them again.
 const PLANET_HEIGHT = 0;
-const PLANET_RADIUS = 14;
+const PLANET_RADIUS = 5.6;
+
+// Item 2: the terminator now faces the scene's REAL sun direction, not the
+// camera. Scene.tsx's directional light sits at `position={[6,10,4]}` (a
+// THREE.DirectionalLight's rays travel FROM its position TOWARD its target,
+// default (0,0,0) -- so light arrives at any point in the scene, including
+// way out at the planet, from the same parallel (6,10,4) direction, exactly
+// what "directional" means). SUN_AZIMUTH mirrors that position's horizontal
+// (x,z) components through the SAME atan2(x,z) convention BASE_AZIMUTH
+// itself already uses. The closed-form rotation solve is identical in
+// shape to this file's own original (camera-facing) derivation, just fed a
+// different target azimuth -- see that derivation's own comment (git
+// history) for the worked Ry(rotation)*(1,0,0) algebra this reuses.
+const SUN_AZIMUTH = Math.atan2(6, 4);
+const PLANET_FACING_ROTATION = Math.atan2(-Math.cos(SUN_AZIMUTH), Math.sin(SUN_AZIMUTH));
+
+// Item 3 (limb darkening) + item 4 (rim glow) both need "which direction is
+// the camera, roughly, relative to this fixed background prop" -- computed
+// once from the camera's own DEFAULT overview pose (Scene.tsx's
+// CAMERA_DIST_ULTRA=28 / CAMERA_HEIGHT_ULTRA=19.6, mirrored not imported,
+// same reasoning as BASE_AZIMUTH above). A fixed background prop is only
+// ever really seen from roughly this one relative angle (the free-camera
+// orbit/zoom moves the VIEWER, not this math's own precision requirement --
+// this is a cheap, deliberate approximation for a decorative object, not a
+// real-time view-dependent shader).
+const _cameraDefaultPos = new THREE.Vector3(Math.sin(BASE_AZIMUTH) * 28, 19.6, Math.cos(BASE_AZIMUTH) * 28);
+const _yAxis = new THREE.Vector3(0, 1, 0);
+
+function planetWorldPosition(): THREE.Vector3 {
+  return new THREE.Vector3(Math.sin(PLANET_AZIMUTH) * PLANET_DISTANCE, PLANET_HEIGHT, Math.cos(PLANET_AZIMUTH) * PLANET_DISTANCE);
+}
+
+/** Local-space (i.e. BEFORE the mesh's own PLANET_FACING_ROTATION is
+ * applied) direction toward the camera's default position -- used to bake
+ * limb darkening on the planet body (rotated geometry) below. World-space
+ * view dir rotated by the INVERSE of the mesh's own Y rotation via three's
+ * own `Vector3.applyAxisAngle` (a verified library primitive, not hand-
+ * rolled trig -- lower risk than re-deriving another rotation matrix by
+ * hand for this second, independent use). */
+function localViewDirection(): THREE.Vector3 {
+  const worldView = _cameraDefaultPos.clone().sub(planetWorldPosition()).normalize();
+  return worldView.applyAxisAngle(_yAxis, -PLANET_FACING_ROTATION);
+}
+
+/** Bakes per-vertex limb-darkening colors onto a sphere geometry: bright
+ * (near white) where the local normal faces the camera, darkening toward
+ * the silhouette edge -- `pow(facing, 0.6)` keeps most of the visible disc
+ * fairly even and concentrates the falloff in the outer rim, matching how
+ * limb darkening actually reads (not a uniform vignette). Combines with
+ * `map` multiplicatively via `vertexColors` on the material (same
+ * multiply-together convention Ground.tsx's own `color`+`map` pair uses). */
+function bakeLimbDarkening(geometry: THREE.SphereGeometry, localView: THREE.Vector3): void {
+  const pos = geometry.attributes.position;
+  const colors = new Float32Array(pos.count * 3);
+  const n = new THREE.Vector3();
+  for (let i = 0; i < pos.count; i++) {
+    n.set(pos.getX(i), pos.getY(i), pos.getZ(i)).normalize();
+    const facing = Math.max(0, n.dot(localView));
+    // Polish-pass CORRECTION: floor 0.35 -> 0.65 -- this factor MULTIPLIES
+    // the texture's own terminator brightness (see makePlanetTexture's own
+    // matching correction note), and two independent 0..1 dimming factors
+    // compounded is what made the body read as invisible in the first real
+    // capture of this pass. Real limb darkening is a mild effect (the disc
+    // stays fairly even, only the outer sliver visibly dims) -- 0.65 is
+    // closer to that than the original 0.35 ever was.
+    const brightness = 0.65 + 0.35 * Math.pow(facing, 0.6);
+    colors[i * 3] = brightness;
+    colors[i * 3 + 1] = brightness;
+    colors[i * 3 + 2] = brightness;
+  }
+  geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+}
+
+const RIM_RADIUS_MULT = 1.14;
+const RIM_COLOR = new THREE.Color("#4fd6ff"); // PALETTE.planetRim's own hex -- reused, not reinvented
+
+/** Bakes an inverted fresnel (bright at the silhouette edge, transparent
+ * facing the camera) onto a LARGER sphere's vertex colors+alpha -- the
+ * "atmosphere glow" technique (an outer BackSide shell, additive-blended)
+ * used throughout three.js's own community examples for exactly this look.
+ * Deliberately NOT rotated to the sun direction -- a rim/atmosphere glow is
+ * a view-dependent optical effect (scattering toward the viewer), not a
+ * lit-vs-dark-hemisphere one, so it uses world-space normals directly
+ * (this mesh's own rotation stays 0) against the SAME camera view direction
+ * localViewDirection() computes for the body, just without the inverse-
+ * rotation step (nothing to un-rotate here). */
+function buildRimGeometry(): THREE.SphereGeometry {
+  const geo = new THREE.SphereGeometry(PLANET_RADIUS * RIM_RADIUS_MULT, 32, 24);
+  const pos = geo.attributes.position;
+  const colors = new Float32Array(pos.count * 4); // rgba -- alpha carries the fresnel falloff
+  const worldView = _cameraDefaultPos.clone().sub(planetWorldPosition()).normalize();
+  const n = new THREE.Vector3();
+  for (let i = 0; i < pos.count; i++) {
+    n.set(pos.getX(i), pos.getY(i), pos.getZ(i)).normalize();
+    const facing = Math.max(0, n.dot(worldView));
+    const rim = Math.pow(1 - facing, 2.2); // bright at grazing angles, ~0 facing the camera dead-on
+    colors[i * 4] = RIM_COLOR.r;
+    colors[i * 4 + 1] = RIM_COLOR.g;
+    colors[i * 4 + 2] = RIM_COLOR.b;
+    colors[i * 4 + 3] = rim * 0.55; // capped -- "thin", never a solid halo
+  }
+  geo.setAttribute("color", new THREE.BufferAttribute(colors, 4));
+  return geo;
+}
 
 interface PlanetProps {
   reducedMotion: boolean;
 }
 
 /** One low-poly-game-art background planet/moon -- both tiers (TV tier gets
- * sky+ground+planet+a few props per this pass's own brief; this is a single
- * unlit draw call, same cost class as SkyDome/Starfield, so it's never
- * ultra-gated). See this file's own top comment for why MeshBasicMaterial +
- * a baked CanvasTexture is the fix for Pass G-2's "basically black" failure. */
+ * sky+ground+planet+a few props per this pass's own brief; 2 unlit draw
+ * calls total -- body + rim glow -- same cost class as SkyDome/Starfield).
+ * See this file's own top comment for the polish-pass mechanism list. */
 export default function Planet({ reducedMotion }: PlanetProps) {
   const texture = useMemo(() => makePlanetTexture(), []);
+  const bodyGeometry = useMemo(() => {
+    const geo = new THREE.SphereGeometry(PLANET_RADIUS, 32, 24);
+    bakeLimbDarkening(geo, localViewDirection());
+    return geo;
+  }, []);
+  const rimGeometry = useMemo(() => buildRimGeometry(), []);
   const mesh = useRef<THREE.Mesh>(null);
-  const position = useMemo<[number, number, number]>(
-    () => [Math.sin(PLANET_AZIMUTH) * PLANET_DISTANCE, PLANET_HEIGHT, Math.cos(PLANET_AZIMUTH) * PLANET_DISTANCE],
-    [],
-  );
+  const position = useMemo<[number, number, number]>(() => {
+    const p = planetWorldPosition();
+    return [p.x, p.y, p.z];
+  }, []);
 
-  // Slow rotation, ADDED on top of the fixed facing offset -- reducedMotion
-  // freezes the drift (holds at the correct facing) rather than the object
-  // itself, matching Starfield.tsx's own established day/night-vs-motion
-  // split. The drift is slow enough (0.004 rad/s ~= 0.23deg/s) that it never
-  // meaningfully un-faces the lit side within any one viewing session.
+  // Slow rotation, ADDED on top of the fixed sun-facing offset --
+  // reducedMotion freezes the drift (holds at the correct facing) rather
+  // than the object itself, matching Starfield.tsx's own established
+  // day/night-vs-motion split. The drift is slow enough (0.004 rad/s ~=
+  // 0.23deg/s) that it never meaningfully un-faces the lit side within any
+  // one viewing session. The rim glow mesh is NOT rotated (see
+  // buildRimGeometry's own comment -- view-dependent, not sun-dependent).
   useFrame((state) => {
     if (!mesh.current) return;
     mesh.current.rotation.y = PLANET_FACING_ROTATION + (reducedMotion ? 0 : state.clock.elapsedTime * 0.004);
   });
 
   return (
-    <mesh ref={mesh} position={position} rotation={[0, PLANET_FACING_ROTATION, 0]} renderOrder={-9}>
-      <sphereGeometry args={[PLANET_RADIUS, 32, 24]} />
-      {/* fog=false: an airless background body sits beyond this scene's own
-          atmosphere-less haze, matching SkyDome's own fog exemption -- see
-          ENVIRONMENT-PLAN.md item 2 ("sky stays black-to-deep-indigo... this
-          is an airless body"). */}
-      <meshBasicMaterial map={texture} fog={false} toneMapped={false} />
-    </mesh>
+    <group position={position}>
+      {/* Rim glow -- drawn FIRST (more negative renderOrder) so the opaque
+          body below overdraws it wherever they overlap in screen space,
+          leaving only the silhouette-edge glow visible (both meshes skip
+          depthWrite -- item 4, "must stay behind everything" -- so their
+          relative compositing is controlled purely by this draw sequence,
+          not the depth buffer, exactly matching SkyDome.tsx's own
+          depthWrite={false} convention this file should have matched from
+          the start). */}
+      <mesh geometry={rimGeometry} renderOrder={-9.2}>
+        <meshBasicMaterial vertexColors transparent depthWrite={false} fog={false} toneMapped={false} blending={THREE.AdditiveBlending} side={THREE.BackSide} />
+      </mesh>
+      <mesh ref={mesh} geometry={bodyGeometry} rotation={[0, PLANET_FACING_ROTATION, 0]} renderOrder={-9.1}>
+        {/* fog=false: an airless background body sits beyond this scene's
+            own atmosphere-less haze, matching SkyDome's own fog exemption.
+            World-3 Pass 2 ROOT CAUSE fix (2026-09-14, env-polish-day2-
+            1845.png: the whole body vanished): depthWrite={false} here
+            (the coordinator's own literal suggestion for item 4, "stays
+            behind everything") backfired for a DISCRETE positioned object
+            (unlike SkyDome's infinite backdrop sphere, where it's correct):
+            this mesh draws EARLY (renderOrder -9.1) and, with no depth
+            written, leaves the depth buffer untouched at its own pixels --
+            so ANY normal opaque geometry drawn LATER (Ground.tsx's disc,
+            default renderOrder=0, depthWrite=true) simply painted over it
+            at every pixel where their SCREEN-SPACE footprints overlapped,
+            regardless of which was actually closer. A real, ~90-unit-away
+            discrete object is exactly what the depth buffer is FOR --
+            depthWrite restored to its default (true) so normal z-testing
+            (not draw-order guessing) is what keeps this "behind everything
+            closer" and correctly VISIBLE everywhere nothing closer exists,
+            satisfying the coordinator's own stated goal more reliably than
+            their literal suggested mechanism did. renderOrder stays low
+            anyway (harmless, and keeps it grouped with the other backdrop
+            draws). vertexColors multiplies the limb-darkening bake onto the
+            map texture. */}
+        <meshBasicMaterial map={texture} vertexColors fog={false} toneMapped={false} />
+      </mesh>
+    </group>
   );
 }

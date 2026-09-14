@@ -731,7 +731,22 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
   // a fresh clock read every poll beats a stale one cached at mount forever.
   const etMinutesNow = nowEtMinutes();
   const dayOfWeekNow = nowEtDayOfWeek();
-  const nightFactor = dayNightFactor(etMinutesNow);
+  // World-3 polish pass (2026-09-14, coordinator: "verify the night look...
+  // add a dev-only ?hour=22 override on dayNightFactor if none exists --
+  // never in production paths"): read once per render (cheap, same "fresh
+  // read every render" cadence etMinutesNow above already uses) -- ONLY
+  // overrides the value FED INTO dayNightFactor()'s own hour computation.
+  // `etMinutesNow` itself is UNTOUCHED, so isRegularTradingHours/persona
+  // scheduling below keep reading the real wall clock always -- this is a
+  // visual-mood-only test hook, same class of thing as CameraRig's own
+  // established `?camdist=` override (that one lives in CameraRig, which
+  // this pass does not own; this one lives here, in Scene()'s own general
+  // body, which this pass does). Absent or out-of-range -> real clock,
+  // byte-identical to before this override existed.
+  const hourOverrideRaw = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("hour") : null;
+  const hourOverride = hourOverrideRaw !== null ? Number(hourOverrideRaw) : NaN;
+  const etMinutesForMood = Number.isFinite(hourOverride) && hourOverride >= 0 && hourOverride <= 23 ? hourOverride * 60 : etMinutesNow;
+  const nightFactor = dayNightFactor(etMinutesForMood);
   const nightMult = lerp(0.5, 1, nightFactor);
   // World-2 coordinator review (2026-09-14, "DAYTIME BLOWOUT... the whole
   // hub is washed-out orange with no wall edges"): root cause (b) of 3 --
