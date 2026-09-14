@@ -186,6 +186,25 @@ def _fmt_td(td: Optional[timedelta]) -> str:
     return f"{hours / 24:.1f}d"
 
 
+def _parse_ts_et_to_utc(ts: Any) -> Optional[datetime]:
+    """Parses this project's 'YYYY-MM-DD HH:MM:SS ET' stamp convention (station_loop.py,
+    hypothesis_scorer.py, sector_rows.py all write rows this way) into a UTC-aware
+    datetime. None on any parse failure -- never a guess. Same DST-safe trick
+    _gt_manager_loop_ledger_cites_number already used inline (et_offset_hours at the
+    naive instant, since a raw ET wall-clock string carries no explicit UTC offset of
+    its own) -- pulled out here as a shared helper since the two 2026-09-14
+    company-roster ground-truth checks below (chef_verdict_rows, coach_sectors_fresh)
+    both need it too."""
+    if not ts or not isinstance(ts, str):
+        return None
+    try:
+        naive_et = datetime.strptime(ts, "%Y-%m-%d %H:%M:%S ET")
+    except ValueError:
+        return None
+    offset = et_offset_hours(naive_et.replace(tzinfo=timezone.utc))
+    return (naive_et - timedelta(hours=offset)).replace(tzinfo=timezone.utc)
+
+
 def _deliverable_mtime(persona: dict) -> Optional[datetime]:
     d = persona["deliverable"]
     base = REPO / d["path"]
@@ -730,6 +749,82 @@ def _gt_manager_loop_ledger_cites_number(gt: dict, now: datetime, ltd: str) -> d
     return {"verdict": "PASS", "evidence": evidence}
 
 
+def _gt_chef_verdict_rows(gt: dict, now: datetime, ltd: str) -> dict:
+    """2026-09-14 company-roster re-point: Chef owns the Station idea-loop's verdict
+    pass (hypothesis_scorer via station_board.score_testing_cards, run every
+    Gamma_Station fire). PASS requires BOTH: the newest station-verdicts.jsonl row is
+    <= max_age_min old, AND every ideas-board.json card with status=='testing' has at
+    least one verdict row (by card_id). WARN covers 'rows exist but stale' or 'a
+    testing card has no row yet' -- either alone is a real gap, not a ghost. FAIL is
+    reserved for the verdicts file itself being missing or carrying zero rows (nothing
+    to grade Chef's freshness against at all)."""
+    verdicts_path = REPO / gt["verdicts_path"]
+    if not verdicts_path.exists():
+        return {"verdict": "FAIL", "evidence": f"missing {gt['verdicts_path']}"}
+    rows = _read_jsonl_rows(verdicts_path)
+    if not rows:
+        return {"verdict": "FAIL", "evidence": f"{gt['verdicts_path']} exists but carries 0 parseable rows"}
+
+    newest_ts = max((r.get("ts_et") for r in rows if r.get("ts_et")), default=None)
+    newest_dt = _parse_ts_et_to_utc(newest_ts) if newest_ts else None
+    max_age = timedelta(minutes=gt.get("max_age_min", 60))
+    age = (now - newest_dt) if newest_dt is not None else None
+    fresh = age is not None and age <= max_age
+
+    scored_ids = {r.get("card_id") for r in rows if r.get("card_id")}
+    board = _read_json(REPO / gt["board_path"])
+    board_readable = isinstance(board, list)
+    testing_cards = [c for c in board if isinstance(c, dict) and c.get("status") == "testing"] if board_readable else []
+    missing_coverage = [c.get("id") for c in testing_cards if c.get("id") not in scored_ids]
+
+    evidence = (f"{gt['verdicts_path']}: {len(rows)} row(s), newest ts_et={newest_ts!r} age={_fmt_td(age)} "
+               f"(window {_fmt_td(max_age)}) | {gt['board_path']}: " +
+               (f"{len(testing_cards)} testing card(s), {len(missing_coverage)} without a verdict row"
+                if board_readable else "UNREADABLE -- cannot verify testing-card coverage"))
+
+    if not board_readable:
+        return {"verdict": "WARN", "evidence": evidence}
+    if age is None:
+        return {"verdict": "WARN", "evidence": evidence + " -- newest row has no parseable ts_et"}
+    if fresh and not missing_coverage:
+        return {"verdict": "PASS", "evidence": evidence}
+    reasons = []
+    if not fresh:
+        reasons.append("newest verdict row is stale")
+    if missing_coverage:
+        reasons.append(f"{len(missing_coverage)} testing card(s) have no verdict row")
+    return {"verdict": "WARN", "evidence": evidence + " -- " + "; ".join(reasons)}
+
+
+def _gt_coach_sectors_fresh(gt: dict, now: datetime, ltd: str) -> dict:
+    """2026-09-14 company-roster re-point: Coach owns sectors.json (the per-lane health
+    table + task-health snapshot, written every Gamma_Station fire regardless of
+    yield/ok/error). PASS <= max_age_min old, WARN when stale or the ts_et is missing/
+    unparseable, FAIL when the file itself is missing or unparseable. The evidence
+    string always carries the file's own summary_line so a WARN/FAIL reads with the
+    same headline a human would see in the ticker."""
+    sectors_path = REPO / gt["path"]
+    if not sectors_path.exists():
+        return {"verdict": "FAIL", "evidence": f"missing {gt['path']}"}
+    doc = _read_json(sectors_path)
+    if not isinstance(doc, dict):
+        return {"verdict": "FAIL", "evidence": f"{gt['path']} exists but is unreadable/unparseable"}
+
+    summary_line = doc.get("summary_line", "?")
+    ts_et = doc.get("ts_et")
+    dt = _parse_ts_et_to_utc(ts_et) if ts_et else None
+    max_age = timedelta(minutes=gt.get("max_age_min", 60))
+    age = (now - dt) if dt is not None else None
+    fresh = age is not None and age <= max_age
+
+    evidence = f"sectors.json ts_et={ts_et!r} age={_fmt_td(age)} (window {_fmt_td(max_age)}) | {summary_line}"
+    if dt is None:
+        return {"verdict": "WARN", "evidence": evidence + " -- ts_et missing or unparseable"}
+    if fresh:
+        return {"verdict": "PASS", "evidence": evidence}
+    return {"verdict": "WARN", "evidence": evidence + " -- stale"}
+
+
 GROUND_TRUTH_CHECKS: dict[str, Callable[[dict, datetime, str], dict]] = {
     "scout_before_open": _gt_scout_before_open,
     "pilot_decisions_and_rule_breaks": _gt_pilot_decisions_and_rule_breaks,
@@ -738,6 +833,8 @@ GROUND_TRUTH_CHECKS: dict[str, Callable[[dict, datetime, str], dict]] = {
     "coach_drift_within_cadence": _gt_coach_drift_within_cadence,
     "treasurer_weekly_review": _gt_treasurer_weekly_review,
     "manager_loop_ledger_cites_number": _gt_manager_loop_ledger_cites_number,
+    "chef_verdict_rows": _gt_chef_verdict_rows,
+    "coach_sectors_fresh": _gt_coach_sectors_fresh,
 }
 
 
