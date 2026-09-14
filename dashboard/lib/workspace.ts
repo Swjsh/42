@@ -95,4 +95,13 @@ export const paths = {
   // its `[~]` line marks the SINGLE currently-active goal (no active-
   // goal.json exists on disk; LADDER.md's own marker is authoritative).
   goalLadder: st("goals", "LADDER.md"),
+
+  // --- LIVE-1 item 5 (2026-09-14, coordinator-directed): HQ trading status
+  // strip -- "are we ready to trade today?" All read-only. ---
+  premarketReadiness: st("premarket-readiness.json"),
+  preopenReadiness: st("preopen-readiness.json"),
+  openBellPinged: st("open-bell-pinged.json"),
+  // 121MB+ and growing (2026-09-14) -- read via a byte-seek TAIL in
+  // lib/hq.ts#readCoreDecisionsLatest, never a full fs.readFile.
+  coreDecisions: st("core-decisions.jsonl"),
 };

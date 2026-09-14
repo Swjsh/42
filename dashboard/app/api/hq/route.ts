@@ -20,6 +20,7 @@ import {
   readLatestHqPerf,
   readBlocked,
   readCompanyAudit,
+  readTradingStatus,
 } from "@/lib/hq";
 import { collectCompany, type PersonaState, type Handoff } from "@/lib/personas";
 
@@ -77,6 +78,7 @@ export async function GET() {
     company,
     blocked,
     audit,
+    trading,
   ] = await Promise.all([
     readIdeasBoard(),
     readStationBrief(),
@@ -97,6 +99,11 @@ export async function GET() {
     safeCollectCompany(),
     readBlocked(),
     readCompanyAudit(),
+    // LIVE-1 item 5 (2026-09-14, coordinator-directed): trading status
+    // strip -- read server-side only, never from the browser (this whole
+    // route already is server-side; see lib/hq.ts#readTradingStatus for
+    // the fail-open contract per source file).
+    readTradingStatus(),
   ]);
 
   const lastRow = ledger.length > 0 ? ledger[ledger.length - 1] : null;
@@ -135,6 +142,7 @@ export async function GET() {
       company,
       blocked,
       audit,
+      trading,
     },
     { headers: { "Cache-Control": "no-store, max-age=0" } },
   );

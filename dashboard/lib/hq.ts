@@ -1,4 +1,5 @@
 import { promises as fs } from "node:fs";
+import type { FileHandle } from "node:fs/promises";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import path from "node:path";
@@ -512,4 +513,251 @@ export async function readBlocked(): Promise<BlockedItem[]> {
     deduped.push(item);
   }
   return deduped.slice(0, 8);
+}
+
+// ─── LIVE-1 item 5 (2026-09-14, coordinator-directed mid-task addition):
+//     trading status strip -- "are we ready to trade today?" answered
+//     without J having to ask. Every reader below is read-only; nothing
+//     under automation/state/ is ever written from this path (same
+//     contract as the rest of this file). Verdict/color decisions are made
+//     CLIENT-SIDE (Hud.tsx), off the SAME explicit-ET clock every other
+//     RTH-aware piece of this app already uses (Scene.tsx#isRth,
+//     palette.ts#isRegularTradingHours) -- this module only ever extracts
+//     and lightly summarizes the raw files, never computes "is it market
+//     hours" itself, so there is exactly one clock source of truth. ─────────
+
+export interface ReadinessCheck {
+  name: string;
+  status: string;
+  detail: string;
+  critical: boolean;
+}
+
+export interface ReadinessSnapshot {
+  tsEt: string | null;
+  verdict: string;
+  checks: ReadinessCheck[];
+}
+
+async function readReadinessFile(filePath: string, tsField: string): Promise<ReadinessSnapshot | null> {
+  try {
+    const text = await fs.readFile(filePath, "utf-8");
+    const data = JSON.parse(text) as Record<string, unknown>;
+    const rawChecks = Array.isArray(data.checks) ? data.checks : [];
+    const checks: ReadinessCheck[] = rawChecks
+      .filter((c): c is Record<string, unknown> => !!c && typeof c === "object")
+      .map((c) => ({
+        name: typeof c.name === "string" ? c.name : "?",
+        status: typeof c.status === "string" ? c.status : "UNKNOWN",
+        detail: typeof c.detail === "string" ? c.detail : "",
+        critical: c.critical === true,
+      }));
+    return {
+      tsEt: typeof data[tsField] === "string" ? (data[tsField] as string) : null,
+      verdict: typeof data.verdict === "string" ? data.verdict : "UNKNOWN",
+      checks,
+    };
+  } catch {
+    return null;
+  }
+}
+
+/** automation/state/premarket-readiness.json -- verdict + checks[], the
+ * MORE CURRENT of the two readiness files (fires later in the day, covers
+ * fleet reachability + engine_health + levels/bias freshness; verified
+ * against the live file this session -- real field names, not guessed). */
+async function readPremarketReadiness(): Promise<ReadinessSnapshot | null> {
+  return readReadinessFile(paths.premarketReadiness, "ts_et");
+}
+
+/** automation/state/preopen-readiness.json -- the EARLIER (08:00-08:30 ET)
+ * scheduled-task-readiness check. Same shape, different `ts` field name
+ * (verified against the live file this session: `checked_at_et`, not
+ * `ts_et`). */
+async function readPreopenReadiness(): Promise<ReadinessSnapshot | null> {
+  return readReadinessFile(paths.preopenReadiness, "checked_at_et");
+}
+
+export interface TradingReadiness {
+  verdict: string;
+  /** "<check name>: <check detail>", truncated to one line -- the specific
+   * YELLOW/RED check that's dragging the verdict down, per this task's own
+   * spec ("the readiness reason is the YELLOW/RED check's detail"). Null
+   * when verdict is GREEN/UNKNOWN (nothing to explain). */
+  reasonDetail: string | null;
+  tsEt: string | null;
+}
+
+const READINESS_VERDICT_RANK: Record<string, number> = { GREEN: 0, UNKNOWN: 0, YELLOW: 1, RED: 2 };
+
+/** Combines premarket + preopen into ONE verdict (the WORSE of the two --
+ * either genuinely blocking trading readiness) and surfaces the specific
+ * offending check's own detail text, never a fabricated summary. Fail-open
+ * per source (see readReadinessFile) -- if BOTH are missing, verdict reads
+ * UNKNOWN rather than a fake GREEN. */
+export async function readTradingReadiness(): Promise<TradingReadiness> {
+  const [premarket, preopen] = await Promise.all([readPremarketReadiness(), readPreopenReadiness()]);
+  const candidates = [premarket, preopen].filter((s): s is ReadinessSnapshot => !!s);
+  if (candidates.length === 0) return { verdict: "UNKNOWN", reasonDetail: null, tsEt: null };
+  let worst = candidates[0];
+  for (const c of candidates) {
+    if ((READINESS_VERDICT_RANK[c.verdict] ?? 0) > (READINESS_VERDICT_RANK[worst.verdict] ?? 0)) worst = c;
+  }
+  // Only ever explain a YELLOW/RED verdict -- picking an arbitrary GREEN
+  // check's own detail as the "reason" when the verdict is already GREEN
+  // would be a meaningless (if harmless) non-sequitur, not a real reason.
+  const offending = worst.verdict === "YELLOW" || worst.verdict === "RED"
+    ? worst.checks.find((c) => c.status === worst.verdict) ?? worst.checks.find((c) => c.status !== "GREEN") ?? null
+    : null;
+  return {
+    verdict: worst.verdict,
+    reasonDetail: offending ? `${offending.name}: ${offending.detail}`.slice(0, 140) : null,
+    tsEt: worst.tsEt,
+  };
+}
+
+export interface CoreDecisionRow {
+  tsEt: string;
+  account: "safe" | "bold";
+  armed: boolean;
+  spy: number | null;
+  vix: number | null;
+  ribbon: string | null;
+  verdict: string | null;
+  side: string | null;
+  setup: string | null;
+}
+
+// automation/state/core-decisions.jsonl is a large, continuously-growing
+// append-only ledger (121MB+ as of 2026-09-14, one ~tick per account,
+// every ~60s during RTH) -- a plain fs.readFile of the WHOLE file (the
+// convention every OTHER jsonl reader in this codebase uses, e.g.
+// lib/personas.ts#readJsonlTail) would read 100+MB on every single
+// /api/hq poll. This reads ONLY the last CORE_DECISIONS_TAIL_BYTES via a
+// byte-seek file handle instead -- at ~2-3KB/row, comfortably enough rows
+// to find the latest "safe" AND "bold" row even under a burst of writes
+// from one account.
+const CORE_DECISIONS_TAIL_BYTES = 512 * 1024; // 512 KiB
+
+/** Last row per account ("safe"/"bold" -- the only two values this file
+ * ever carries, verified against the live 42k+-line file this session) --
+ * whichever ticks most recently is the "is the engine actually ticking"
+ * signal the status strip needs. Fail-open: a missing/unreadable file or
+ * one malformed line never throws, degrading to null per account. */
+export async function readCoreDecisionsLatest(): Promise<{ safe: CoreDecisionRow | null; bold: CoreDecisionRow | null }> {
+  let handle: FileHandle | undefined;
+  try {
+    handle = await fs.open(paths.coreDecisions, "r");
+    const stat = await handle.stat();
+    const start = Math.max(0, stat.size - CORE_DECISIONS_TAIL_BYTES);
+    const length = stat.size - start;
+    if (length <= 0) return { safe: null, bold: null };
+    const buffer = Buffer.alloc(length);
+    await handle.read(buffer, 0, length, start);
+    const text = buffer.toString("utf-8");
+    // The FIRST line of a seeked chunk is very likely a truncated partial
+    // row (the seek almost certainly landed mid-line) -- drop it when we
+    // actually seeked past the start of the file; every other line is a
+    // complete newline-terminated jsonl row.
+    const lines = text.split("\n").slice(start > 0 ? 1 : 0).filter((l) => l.trim().length > 0);
+    let safe: CoreDecisionRow | null = null;
+    let bold: CoreDecisionRow | null = null;
+    for (const line of lines) {
+      let row: Record<string, unknown>;
+      try {
+        row = JSON.parse(line);
+      } catch {
+        continue; // one malformed/truncated line never blocks the rest
+      }
+      const account = row.account === "safe" || row.account === "bold" ? row.account : null;
+      if (!account) continue;
+      const parsed: CoreDecisionRow = {
+        tsEt: typeof row.ts_et === "string" ? row.ts_et : "",
+        account,
+        armed: row.armed === true,
+        spy: typeof row.spy === "number" ? row.spy : null,
+        vix: typeof row.vix === "number" ? row.vix : null,
+        ribbon: typeof row.ribbon === "string" ? row.ribbon : null,
+        verdict: typeof row.verdict === "string" ? row.verdict : null,
+        side: typeof row.side === "string" ? row.side : null,
+        setup: typeof row.setup === "string" ? row.setup : null,
+      };
+      if (account === "safe") safe = parsed; else bold = parsed;
+    }
+    return { safe, bold };
+  } catch {
+    return { safe: null, bold: null };
+  } finally {
+    await handle?.close();
+  }
+}
+
+export interface TodayBiasSummary {
+  date: string | null;
+  bias: string | null;
+  biasNoteFirstSentence: string | null;
+}
+
+/** automation/state/today-bias.json -- `bias_note` is a long hand-written
+ * paragraph; only its first real sentence belongs in a one-line strip
+ * (same "first sentence, never the raw dump" reasoning palette.ts's own
+ * firstBriefSentence already uses for Gamma's speech bubble). */
+export async function readTodayBiasSummary(): Promise<TodayBiasSummary | null> {
+  try {
+    const text = await fs.readFile(paths.todayBias, "utf-8");
+    const data = JSON.parse(text) as { date?: unknown; bias?: unknown; bias_note?: unknown };
+    const note = typeof data.bias_note === "string" ? data.bias_note.trim() : null;
+    const m = note ? /^(.*?[.!?])(\s|$)/.exec(note) : null;
+    const firstSentence = m ? m[1] : note ? note.slice(0, 140) : null;
+    return {
+      date: typeof data.date === "string" ? data.date : null,
+      bias: typeof data.bias === "string" ? data.bias : null,
+      biasNoteFirstSentence: firstSentence,
+    };
+  } catch {
+    return null;
+  }
+}
+
+function todayEtDateStr(): string {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit",
+  }).formatToParts(new Date());
+  const get = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
+  return `${get("year")}-${get("month")}-${get("day")}`;
+}
+
+/** automation/state/open-bell-pinged.json -- whether TODAY's (ET calendar
+ * date, computed the same explicit-Intl way as everywhere else in this
+ * codebase, never the server process's own local date) open bell has
+ * already been pinged. */
+async function readOpenBellPingedToday(): Promise<boolean> {
+  try {
+    const text = await fs.readFile(paths.openBellPinged, "utf-8");
+    const data = JSON.parse(text) as { date?: unknown };
+    return typeof data.date === "string" && data.date === todayEtDateStr();
+  } catch {
+    return false;
+  }
+}
+
+export interface TradingStatus {
+  readiness: TradingReadiness;
+  core: { safe: CoreDecisionRow | null; bold: CoreDecisionRow | null };
+  bias: TodayBiasSummary | null;
+  openBellPingedToday: boolean;
+}
+
+/** Combines every item-5 source into the ONE `trading` field /api/hq
+ * exposes. Each piece is independently fail-open (see its own reader) --
+ * one missing file degrades that piece to null/UNKNOWN, never a 500 for
+ * the whole payload. */
+export async function readTradingStatus(): Promise<TradingStatus> {
+  const [readiness, core, bias, openBellPingedToday] = await Promise.all([
+    readTradingReadiness(),
+    readCoreDecisionsLatest(),
+    readTodayBiasSummary(),
+    readOpenBellPingedToday(),
+  ]);
+  return { readiness, core, bias, openBellPingedToday };
 }

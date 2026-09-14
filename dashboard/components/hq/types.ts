@@ -1,8 +1,8 @@
 import type { StationIdeaCard, StationPresence, StationFace } from "@/lib/station";
-import type { SectorRow, TvPerfRow, BlockedItem } from "@/lib/hq";
+import type { SectorRow, TvPerfRow, BlockedItem, TradingStatus } from "@/lib/hq";
 import type { PersonaState, Handoff } from "@/lib/personas";
 
-export type { SectorRow, BlockedItem, PersonaState, Handoff };
+export type { SectorRow, BlockedItem, PersonaState, Handoff, TradingStatus };
 
 export interface HqBrainVitals {
   model: string | null;
@@ -94,6 +94,10 @@ export interface HqApiResponse {
    * (fail-open per this route's own convention: a missing audit degrades
    * to "no badge," never a fake PASS). */
   audit: HqAudit | null;
+  /** LIVE-1 item 5 (2026-09-14, coordinator-directed): trading status
+   * strip source data -- see lib/hq.ts#readTradingStatus for the fail-open
+   * contract per underlying file. */
+  trading: TradingStatus;
 }
 
 /** One module's derived (not server-sent) presentation state -- computed

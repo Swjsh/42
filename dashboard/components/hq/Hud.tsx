@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import type { HqApiResponse } from "./types";
-import { auditVerdictColor, personaStatusColor, rosterEvidenceText, truncateOneLine } from "./palette";
+import type { HqApiResponse, TradingStatus } from "./types";
+import { auditVerdictColor, isRegularTradingHours, minutesSinceEvidence, nowEtDayOfWeek, nowEtMinutes, personaStatusColor, rosterEvidenceText, truncateOneLine } from "./palette";
 import type { MotionEvent } from "@/lib/useMotionEvents";
 
 const BLOCKED_SOURCE_LABEL: Record<string, string> = {
@@ -12,6 +12,113 @@ const BLOCKED_SOURCE_LABEL: Record<string, string> = {
   queue_escalation: "Escalation",
   goal_blocked: "Goal",
 };
+
+// ─── LIVE-1 item 5 (2026-09-14, coordinator-directed mid-task addition):
+//     trading status strip -- "are we ready to trade today?" answered
+//     without J asking. Pure functions, no component state -- recomputed
+//     every Hud render (which already happens ~1x/sec off useEtClock's own
+//     interval), matching this file's existing "read the clock fresh every
+//     time" convention. ───────────────────────────────────────────────────
+
+const TRADING_STRIP_COLOR = {
+  green: "#22ff88",
+  amber: "#ffb020",
+  red: "#ff3b3b",
+  grey: "#7f93b0",
+} as const;
+type TradingStripColor = keyof typeof TRADING_STRIP_COLOR;
+
+const WEEKDAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+/** Next 09:30 ET weekday open, in ET minutes-since-midnight + day-of-week
+ * terms (the SAME representation nowEtMinutes/nowEtDayOfWeek already use).
+ * No market-holiday calendar is among this item's own listed source files,
+ * so this is a plain weekday rule (Mon-Fri 09:30 ET) -- an honest,
+ * documented simplification, not a claim of full exchange-calendar
+ * accuracy (a real holiday would show as a "closed" market that ticks
+ * anyway once its own scheduled tasks find nothing to do -- a known gap,
+ * not a silent wrong answer). */
+function nextOpenText(etMinutes: number, dayOfWeek: number): string {
+  const minuteOfDay = etMinutes % (24 * 60);
+  const openMin = 9 * 60 + 30;
+  if (dayOfWeek >= 1 && dayOfWeek <= 5 && minuteOfDay < openMin) return "today 09:30 ET";
+  let d = dayOfWeek;
+  let daysAhead = 1;
+  for (let i = 0; i < 7; i++) {
+    d = (d + 1) % 7;
+    if (d >= 1 && d <= 5) break;
+    daysAhead++;
+  }
+  return `${daysAhead === 1 ? "tomorrow" : WEEKDAY_NAMES[d]} 09:30 ET`;
+}
+
+/** "HH:MM" from a core-decisions.jsonl `ts_et` value ("YYYY-MM-DDTHH:MM:SS",
+ * no offset -- already ET wall-clock text, confirmed against the live file
+ * this session, so this is a plain substring, no timezone math needed at
+ * all (unlike an ISO string WITH an offset, which would need real
+ * conversion). */
+function hhmmFromEtIso(iso: string | null): string {
+  if (!iso) return "?";
+  const m = /T(\d{2}):(\d{2})/.exec(iso);
+  return m ? `${m[1]}:${m[2]}` : "?";
+}
+
+interface TradingStrip {
+  color: TradingStripColor;
+  text: string;
+}
+
+/** The one decision tree this whole item is built around -- see the task's
+ * own spec: green = armed + a decision within 3min during RTH; amber =
+ * readiness YELLOW; red = a decision older than 3min during RTH, or
+ * readiness RED; grey = market closed. RED conditions are checked before
+ * AMBER (a worse problem must never be masked by a lesser one displaying
+ * instead) -- "isRth" itself comes from the SAME explicit-ET clock every
+ * other RTH-gated piece of this app already uses (palette.ts's own
+ * isRegularTradingHours/Scene.tsx#isRth), never a second clock source. */
+function buildTradingStrip(trading: TradingStatus | undefined): TradingStrip {
+  if (!trading) return { color: "grey", text: "Trading status unavailable" };
+  const etMinutes = nowEtMinutes();
+  const dayOfWeek = nowEtDayOfWeek();
+  const { readiness, core } = trading;
+
+  if (!isRegularTradingHours(etMinutes, dayOfWeek)) {
+    const safeV = core.safe?.verdict ?? "?";
+    const boldV = core.bold?.verdict ?? "?";
+    return {
+      color: "grey",
+      text: `MARKET CLOSED · next open ${nextOpenText(etMinutes, dayOfWeek)} · last close: safe ${safeV} / bold ${boldV}`,
+    };
+  }
+
+  const lastTickIso = [core.safe?.tsEt ?? null, core.bold?.tsEt ?? null].filter((v): v is string => !!v).sort().pop() ?? null;
+  const ageMin = minutesSinceEvidence(lastTickIso ?? "");
+  const bothArmed = !!core.safe?.armed && !!core.bold?.armed;
+  const spy = core.safe?.spy ?? core.bold?.spy ?? null;
+  const vix = core.safe?.vix ?? core.bold?.vix ?? null;
+  const safeV = core.safe?.verdict ?? "?";
+  const boldV = core.bold?.verdict ?? "?";
+
+  let color: TradingStripColor;
+  if (readiness.verdict === "RED" || ageMin === null || ageMin > 3) {
+    color = "red";
+  } else if (readiness.verdict === "YELLOW") {
+    color = "amber";
+  } else if (bothArmed && ageMin <= 3) {
+    color = "green";
+  } else {
+    color = "amber";
+  }
+
+  const readinessPart = readiness.reasonDetail && readiness.verdict !== "GREEN"
+    ? `readiness ${readiness.verdict} (${readiness.reasonDetail})`
+    : `readiness ${readiness.verdict}`;
+
+  const text = `MARKET OPEN · engine ticking ${hhmmFromEtIso(lastTickIso)} ET · safe ${safeV} / bold ${boldV} · `
+    + `SPY ${spy !== null ? spy.toFixed(2) : "?"} · VIX ${vix !== null ? vix.toFixed(1) : "?"} · ${readinessPart}`;
+
+  return { color, text };
+}
 
 interface HudProps {
   data: HqApiResponse | undefined;
@@ -195,15 +302,20 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
           of the CANVAS -- this wrapper div is already width-constrained to
           the same `calc(100% - HUD_RIGHT_COLUMN_WIDTH)` the canvas itself
           uses (UltraCanvasRoot.tsx), so `left` here is relative to that same
-          box. Sits just above the bottom ticker strip (which occupies
-          bottom:34..~74) rather than on top of it. `key={hudVisible}`
-          remounts (replaying the fade) whenever H brings the HUD back. */}
+          box. Sits above the bottom stack (ticker + item-5 trading strip,
+          now one flex-column wrapper anchored at bottom:34 -- see that
+          wrapper's own comment for why a hand-guessed pixel gap doesn't
+          work here, the ticker's real height varies 1-3 lines). 195
+          clears that wrapper's worst case (a full 3-line ticker + the
+          trading strip) with margin -- verified against a real capture.
+          `key={hudVisible}` remounts (replaying the fade) whenever H
+          brings the HUD back. */}
       {tier === "ultra" && (
         <div
           key={String(hudVisible)}
           className="hq-camera-hint"
           style={{
-            position: "absolute", left: 20, bottom: 84,
+            position: "absolute", left: 20, bottom: 195,
             color: "#9fb3cc", fontSize: 14, fontFamily: HUD_FONT,
             background: "rgba(3,4,10,0.55)", padding: "4px 12px", borderRadius: 6,
           }}
@@ -273,36 +385,74 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
         </div>
       )}
 
-      {/* Bottom ticker (Pass F, 2026-09-13, coordinator's real-monitor
-          capture): the OLD version below this comment -- a 40px scrolling
-          sentence of raw brief.text, cut off at both ends -- is GONE. It
-          directly violated this project's own HQ FACE RULES ("motion =
-          events with a ticker," never raw prose) and was the coordinator's
-          #5 flagged item. This is now the ONE bottom ticker: the same real
-          event lines (lib/useMotionEvents.ts, "they need MEANING") that
-          used to sit in a floating stack above the brief scroll, now
-          resized to the coordinator's 24-26px spec and given a proper
-          bordered strip (matching the removed ticker's own band styling)
-          instead of floating transparently over the 3D scene. Newest-first,
-          each line ET-stamped, 3 max, static (no scroll needed -- 3 short
-          lines already fit one strip width without truncation). */}
-      <div
-        style={{
-          position: "absolute", left: 0, right: 0, bottom: 34, minHeight: 40,
-          overflow: "hidden", background: "rgba(3,4,10,0.7)", borderTop: "1px solid rgba(122,217,255,0.18)",
-          borderBottom: "1px solid rgba(122,217,255,0.18)", padding: "6px 20px",
-          display: "flex", flexDirection: "column-reverse", gap: 2,
-        }}
-      >
-        {motionEvents.length > 0 ? (
-          motionEvents.slice(0, 3).map((ev) => (
-            <div key={ev.id} style={{ color: "#9fd8ff", fontSize: 25, fontFamily: HUD_FONT, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-              <span style={{ color: "#4fd6ff", fontVariantNumeric: "tabular-nums" }}>{ev.tsEt}</span> {ev.text}
+      {/* Bottom stack: trading strip (LIVE-1 item 5) above the ticker
+          (Pass F). A SINGLE flex-column wrapper anchored at bottom:34
+          (instead of each strip hand-positioned with its own guessed
+          `bottom` pixel offset) -- the ticker's own height is DYNAMIC (1-3
+          lines depending on motionEvents.length, `minHeight:40` was never a
+          cap), so a fixed `bottom:76` on a sibling above it overlapped the
+          ticker's real (often ~100px+) rendered height the first time this
+          shipped, caught on a real capture (hq-live-5.png) with 3 ticker
+          lines showing. Normal (non-reversed) column flow: the FIRST child
+          below renders at the TOP of this auto-height box, the LAST child
+          renders at the BOTTOM (closest to bottom:34) -- so the trading
+          strip (first) always sits directly above the ticker (last)
+          regardless of how many ticker lines are currently showing. */}
+      <div style={{ position: "absolute", left: 0, right: 0, bottom: 34, display: "flex", flexDirection: "column" }}>
+        {/* Trading status strip (LIVE-1 item 5, 2026-09-14, coordinator-
+            directed: "so J never has to ask 'are we ready to trade
+            today?'") -- same full-width banded-strip convention as the
+            ticker below it, one line, colored by buildTradingStrip's own
+            decision tree. */}
+        {(() => {
+          const strip = buildTradingStrip(data?.trading);
+          const c = TRADING_STRIP_COLOR[strip.color];
+          return (
+            <div
+              style={{
+                background: "rgba(3,4,10,0.75)", borderTop: `1px solid ${c}55`, borderBottom: `1px solid ${c}55`,
+                padding: "5px 20px", display: "flex", alignItems: "center", gap: 8, flexShrink: 0,
+              }}
+            >
+              <span style={{ width: 10, height: 10, borderRadius: 999, flexShrink: 0, background: c, boxShadow: `0 0 6px ${c}` }} />
+              <span style={{ color: "#dff3ff", fontSize: 20, fontFamily: HUD_FONT, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                {strip.text}
+              </span>
             </div>
-          ))
-        ) : (
-          <div style={{ color: "#7f93b0", fontSize: 25, fontFamily: HUD_FONT }}>No events yet this session.</div>
-        )}
+          );
+        })()}
+
+        {/* Bottom ticker (Pass F, 2026-09-13, coordinator's real-monitor
+            capture): the OLD version below this comment -- a 40px scrolling
+            sentence of raw brief.text, cut off at both ends -- is GONE. It
+            directly violated this project's own HQ FACE RULES ("motion =
+            events with a ticker," never raw prose) and was the coordinator's
+            #5 flagged item. This is now the ONE bottom ticker: the same real
+            event lines (lib/useMotionEvents.ts, "they need MEANING") that
+            used to sit in a floating stack above the brief scroll, now
+            resized to the coordinator's 24-26px spec and given a proper
+            bordered strip (matching the removed ticker's own band styling)
+            instead of floating transparently over the 3D scene. Newest-first,
+            each line ET-stamped, 3 max, static (no scroll needed -- 3 short
+            lines already fit one strip width without truncation). */}
+        <div
+          style={{
+            minHeight: 40, flexShrink: 0,
+            overflow: "hidden", background: "rgba(3,4,10,0.7)", borderTop: "1px solid rgba(122,217,255,0.18)",
+            borderBottom: "1px solid rgba(122,217,255,0.18)", padding: "6px 20px",
+            display: "flex", flexDirection: "column-reverse", gap: 2,
+          }}
+        >
+          {motionEvents.length > 0 ? (
+            motionEvents.slice(0, 3).map((ev) => (
+              <div key={ev.id} style={{ color: "#9fd8ff", fontSize: 25, fontFamily: HUD_FONT, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                <span style={{ color: "#4fd6ff", fontVariantNumeric: "tabular-nums" }}>{ev.tsEt}</span> {ev.text}
+              </div>
+            ))
+          ) : (
+            <div style={{ color: "#7f93b0", fontSize: 25, fontFamily: HUD_FONT }}>No events yet this session.</div>
+          )}
+        </div>
       </div>
 
       {/* Bottom-right corner: perf + synced status. Pass G (2026-09-13,
