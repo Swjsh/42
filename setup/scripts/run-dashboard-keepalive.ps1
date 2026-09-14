@@ -12,6 +12,15 @@
 # The VBS launcher (run-dashboard-keepalive.vbs) must be created alongside this file:
 #   CreateObject("WScript.Shell").Run "powershell.exe -NonInteractive -WindowStyle Hidden " & _
 #     "-File ""C:\Users\jackw\Desktop\42\setup\scripts\run-dashboard-keepalive.ps1""", 0, False
+# STALE-BUILD GUARD (2026-09-14, coordinator-directed, HALLWAY-FIX builder's own
+# side finding this session): -DryRun prints the stale-build decision (see below)
+# without killing/respawning anything -- for manual verification against a live
+# server nobody wants disrupted. Comment-only lines may precede a param() block in
+# PowerShell; this one line must stay the first EXECUTABLE statement in the file.
+param(
+    [switch]$DryRun
+)
+
 . "$PSScriptRoot\_shared.ps1"
 
 $task   = "dashboard-keepalive"
@@ -48,8 +57,80 @@ try {
 }
 
 if ($alive) {
-    Write-TaskLog -TaskName $task -Message "OK dashboard alive pid=$existingPid on :$port"
-    exit 0
+    # STALE-BUILD GUARD (2026-09-14, coordinator-directed follow-up to the
+    # HALLWAY-FIX builder's own side finding this session): a `npm run build`
+    # from ANY builder overwrites dashboard/.next -- including deleting the
+    # OLD chunk files the currently-running node process's in-memory build
+    # manifest still references -- but nothing forces that process to
+    # actually restart afterward. Root-caused live this session (2026-09-14
+    # ~18:30 ET): a stale server kept serving HTML that referenced a chunk
+    # hash the fresh build had already deleted, giving every viewer
+    # net::ERR_CONNECTION_REFUSED + ChunkLoadError and a frozen loading
+    # screen for several minutes -- invisible to the liveness probe above,
+    # since Next.js's own `/` root route doesn't touch the broken route's
+    # chunks and still answers 200.
+    #
+    # Detection: BUILD_ID is rewritten by every `npm run build`
+    # (dashboard/.next/BUILD_ID). If its LastWriteTime is NEWER than the
+    # currently-listening process's own StartTime, that process predates the
+    # build it is nominally serving -- exactly the observed failure
+    # signature (verified this session via the same comparison, done by
+    # hand: `Get-Process -Id <port-3000 pid> | select StartTime` vs
+    # `(Get-Item dashboard/.next/BUILD_ID).LastWriteTime`). Two guards
+    # against a false trigger: (a) BUILD_ID must be >30s old -- a build
+    # still mid-write shouldn't trip an immediate restart, give it a moment
+    # to settle; (b) no dashboard/.build.lock younger than 15min may exist
+    # -- a builder actively mid build+restart cycle already owns this exact
+    # transition (see every HQ builder task brief's own build-lock
+    # protocol), racing them here would fight, not help.
+    # $buildDir (dashDir\.next) isn't defined until further down this script
+    # (the "Require a production build" check below) -- built directly from
+    # $dashDir (defined at the top of the file) here instead of depending on
+    # that later variable existing yet.
+    $stale = $false
+    $buildIdPath = Join-Path $dashDir ".next\BUILD_ID"
+    $lockPath = Join-Path $dashDir ".build.lock"
+    try {
+        if ((Test-Path $buildIdPath) -and $existingPid -gt 0) {
+            $buildIdTime = (Get-Item $buildIdPath).LastWriteTime
+            $buildIdAgeSec = (New-TimeSpan -Start $buildIdTime -End (Get-Date)).TotalSeconds
+            $lockIsFresh = $false
+            if (Test-Path $lockPath) {
+                $lockAgeMin = (New-TimeSpan -Start (Get-Item $lockPath).LastWriteTime -End (Get-Date)).TotalMinutes
+                if ($lockAgeMin -lt 15) { $lockIsFresh = $true }
+            }
+            $proc = Get-Process -Id $existingPid -ErrorAction SilentlyContinue
+            if ($proc -and $buildIdTime -gt $proc.StartTime -and $buildIdAgeSec -gt 30 -and (-not $lockIsFresh)) {
+                $stale = $true
+                $msg = "stale build: pid " + $existingPid + " started " + $proc.StartTime.ToString("HH:mm:ss") + ", BUILD_ID written " + $buildIdTime.ToString("HH:mm:ss") + " -> restart"
+                if ($DryRun) { $msg = "[DryRun] " + $msg }
+                Write-TaskLog -TaskName $task -Message $msg
+            }
+        }
+    } catch {
+        Write-TaskLog -TaskName $task -Message ("stale-build check error (non-fatal, treating as not stale): " + $_.Exception.Message)
+    }
+
+    if (-not $stale) {
+        Write-TaskLog -TaskName $task -Message "OK dashboard alive pid=$existingPid on :$port"
+        exit 0
+    }
+    if ($DryRun) {
+        Write-TaskLog -TaskName $task -Message "[DryRun] would kill pid=$existingPid and fall through to respawn -- no action taken"
+        exit 0
+    }
+    # Fall through to the existing kill+respawn path below -- but that path
+    # only spawns fresh when nothing currently holds the port, and a stale
+    # server IS still holding it, so kill it here first.
+    try {
+        Stop-Process -Id $existingPid -Force -ErrorAction Stop
+        Write-TaskLog -TaskName $task -Message ("killed stale pid=" + $existingPid)
+        Start-Sleep -Seconds 2
+        $existingPid = 0
+    } catch {
+        Write-TaskLog -TaskName $task -Message ("FAIL to kill stale pid=" + $existingPid + ": " + $_.Exception.Message)
+        exit 1
+    }
 }
 
 # Not answering on 3000. If another process holds the port (e.g. dev server), do NOT
