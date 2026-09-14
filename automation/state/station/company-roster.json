@@ -6,17 +6,17 @@
       "name": "Scout",
       "role_file": ".claude/agents/scout.md",
       "objective": "Be J's morning eyes on the world. Read the catalyst landscape, summarize it in a structured file, hand off to Premarket — don't trade, don't predict, don't moralize.",
-      "kpi": "scout_output.json posted (status ok/partial) before 08:30 ET Premarket on every trading day; single-fire cost <= $0.30 (cost_overrun flag false).",
-      "cadence": "05:30 ET weekdays via Gamma_ScoutPremarket",
-      "tasks": ["Gamma_ScoutPremarket"],
+      "kpi": "scout_output.json posted (status ok/partial) before 08:30 ET Premarket on every trading day; single-fire cost <= $0.30 (cost_overrun flag false); CREW-RIG R1 (2026-09-14): scout-feed-summary.json refreshed <= 60 min old 24/7 from >=3 of the 5 allowlisted feeds, $0 -- Scout is never 'done' between deep briefs.",
+      "cadence": "every 30 min feed scan inside Gamma_Station (scout_feed.py) + 05:30 ET weekday deep brief via Gamma_ScoutPremarket",
+      "tasks": ["Gamma_ScoutPremarket", "Gamma_Station"],
       "dedicated_task": true,
-      "deliverable": {"path": "automation/scout/state/scout_output.json", "glob": null},
+      "deliverable": {"path": "automation/scout/state/scout-feed-summary.json", "glob": null},
       "goal_ref": "none",
       "ground_truth": {
-        "kind": "scout_before_open",
-        "output_path": "automation/scout/state/scout_output.json",
-        "log_path": "automation/scout/state/scout-log.jsonl",
-        "deadline_et": "09:30:00"
+        "kind": "scout_feed_fresh",
+        "path": "automation/scout/state/scout-feed-summary.json",
+        "max_age_min": 60,
+        "min_feeds_ok": 3
       },
       "quiz": {
         "id": "scout_speculative_tag",
@@ -108,15 +108,15 @@
       "name": "Coach",
       "role_file": ".claude/agents/coach.md",
       "objective": "Run the sectors and the rig's health: one per-lane table with evidence timestamps every fire; RED lanes and dark scheduled tasks become cards; nothing goes quietly dark",
-      "kpi": "sectors.json < 60 min old 24/7; every RED lane is on the board within one fire",
-      "cadence": "every 30 min inside Gamma_Station (sectors + task-health snapshot written on every fire, yielded or not)",
+      "kpi": "sectors.json < 60 min old 24/7; every RED lane is on the board within one fire; CREW-RIG R2 (2026-09-14): coach-notes.json < 60 min old 24/7 with >=1 dollar-ranked note whenever crypto-twin/paper-arm/sectors data clears the bar -- Coach always has something to coach on, not just WAITING.",
+      "cadence": "every 30 min inside Gamma_Station (sectors + task-health snapshot + dollar-ranked coaching notes on the crypto twin/paper arms/RED lanes, written on every fire, yielded or not)",
       "tasks": ["Gamma_Station"],
       "dedicated_task": false,
       "deliverable": {"path": "automation/state/station/sectors.json", "glob": null},
       "goal_ref": "GOAL-GAMMA-STATION-2026-09-13",
       "ground_truth": {
-        "kind": "coach_sectors_fresh",
-        "path": "automation/state/station/sectors.json",
+        "kind": "coach_notes_fresh",
+        "path": "automation/state/station/coach-notes.json",
         "max_age_min": 60
       },
       "quiz": {

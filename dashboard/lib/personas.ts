@@ -281,36 +281,83 @@ export async function collectScout(): Promise<PersonaState> {
   const soul = path.join(ROOT, ".claude/agents/scout.md");
   const out = path.join(ROOT, "automation/scout/state/scout_output.json");
   const log = path.join(ROOT, "automation/scout/state/scout-log.jsonl");
-  const mt = await mtimeISO(out);
+  // CREW-RIG R1 (2026-09-14, J reading the HQ panel: "Scout is done?? Scout has access
+  // to the Internet. Scout should NEVER be done"): the continuous half of Scout --
+  // scout_feed.py scans 5 allowlisted RSS/Atom feeds every ~30 min inside Gamma_Station,
+  // $0, no LLM (setup/scripts/scout_feed.py). Read alongside the once-daily 05:30 ET
+  // deep brief below, which is unchanged and still real.
+  const feedSummaryPath = path.join(ROOT, "automation/scout/state/scout-feed-summary.json");
+
+  const [mt, logTail, data, feedSummary] = await Promise.all([
+    mtimeISO(out),
+    readJsonlTail<Record<string, unknown>>(log, 3),
+    readJson<Record<string, unknown>>(out),
+    readJson<{
+      ts_et?: string; feeds_ok?: number; feeds_failed?: number; new_items?: number;
+      top?: Array<{ ts?: string; source?: string; title?: string; tags?: string[]; link?: string }>;
+    }>(feedSummaryPath),
+  ]);
   const ageMin = mt ? (Date.now() - new Date(mt).getTime()) / 60000 : null;
-  const logTail = await readJsonlTail<Record<string, unknown>>(log, 3);
   const last = logTail[logTail.length - 1];
   const lastFire = (last?.fired_at as string) || null;
-  const data = await readJson<Record<string, unknown>>(out);
-  const preview = data
+  const briefPreview = data
     ? `regime=${(data.risk_regime_call as { verdict?: string })?.verdict || "?"} | ${(data.scout_one_line_summary as string) || ""}`
     : null;
-  const status: PersonaState["status"] = lastFire && ageMin !== null && ageMin < 24 * 60 ? "GREEN" : "IDLE";
-  // R4 quietReason: Scout is a once-a-day fire -- "IDLE" here just means
-  // more than 24h since its last real output, not a fault by itself.
+
+  const feedTs = feedSummary?.ts_et ? etLikeToIso(feedSummary.ts_et) : null;
+  const feedAgeMin = feedTs ? (Date.now() - new Date(feedTs).getTime()) / 60000 : null;
+  const feedFresh = feedAgeMin !== null && feedAgeMin < 45;
+  const topItem = feedSummary?.top?.[0] ?? null;
+
+  // "next ~HH:MM ET" -- the next :00/:30 minute boundary, matching the Station's own
+  // 30-min cadence. Computed inline (not a shared helper) to keep this edit entirely
+  // inside collectScout().
+  const nowEtParts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York", hour: "2-digit", minute: "2-digit", hour12: false,
+  }).formatToParts(new Date());
+  const nowEtHour = Number(nowEtParts.find((p) => p.type === "hour")?.value ?? 0) % 24;
+  const nowEtMinute = Number(nowEtParts.find((p) => p.type === "minute")?.value ?? 0);
+  const nextFireEt = `${String(nowEtMinute < 30 ? nowEtHour : (nowEtHour + 1) % 24).padStart(2, "0")}:` +
+    `${nowEtMinute < 30 ? "30" : "00"} ET`;
+
+  const scanLine = feedSummary
+    ? `scanning ${feedSummary.feeds_ok ?? "?"} feed${feedSummary.feeds_ok === 1 ? "" : "s"} · ` +
+      `${feedSummary.new_items ?? 0} new` +
+      (topItem?.title ? ` · top: ${truncFor(topItem.title, 70)}` : "") +
+      (feedFresh ? ` · next ~${nextFireEt}` : "")
+    : null;
+
+  // status: GREEN whenever EITHER producer is alive -- the continuous scan (the NEW
+  // always-on half) or the once-daily deep brief being same-day fresh. Both dark at once
+  // is the real ghost/IDLE case -- exactly what J flagged ("Scout is done").
+  const dailyFresh = !!lastFire && ageMin !== null && ageMin < 24 * 60;
+  const status: PersonaState["status"] = feedFresh || dailyFresh ? "GREEN" : "IDLE";
+
   const quietReason: PersonaState["quietReason"] = status === "GREEN"
     ? null
-    : lastFire
-      ? `expected daily 05:30 ET via Gamma_ScoutPremarket, last fired ${etHHMM(lastFire) ?? "?"} ET (${Math.round((ageMin ?? 0) / 60)}h ago)`
-      : "no producer for automation/scout/state/scout_output.json yet";
+    : feedTs
+      ? `expected every ~30 min via Gamma_Station, last feed scan ${etHHMM(feedTs) ?? "?"} ET`
+      : "no producer for automation/scout/state/scout-feed-summary.json yet";
+
+  const lastFireCandidates = [feedTs, mt].filter((x): x is string => !!x).sort();
+  const lastFireISO = lastFireCandidates.length ? lastFireCandidates[lastFireCandidates.length - 1] : null;
+
   return {
     name: "Scout",
     emoji: "🌍",
     color: "#3b82f6",
-    role: "pre-market macro / news / catalysts",
+    role: "pre-market macro / news / catalysts + continuous feed scan",
     soulFile: ".claude/agents/scout.md",
-    schedule: "daily 05:30 ET",
+    schedule: "every ~30 min feed scan (Gamma_Station) + daily 05:30 ET deep brief",
     status,
-    lastFireISO: lastFire,
-    lastFireResult: (last?.risk_regime as string) || "n/a",
-    deliverable: { path: "automation/scout/state/scout_output.json", exists: !!data, mtimeISO: mt, ageMin },
+    lastFireISO,
+    lastFireResult: (last?.risk_regime as string) || briefPreview || "n/a",
+    deliverable: {
+      path: "automation/scout/state/scout-feed-summary.json", exists: !!feedSummary,
+      mtimeISO: feedTs, ageMin: feedAgeMin,
+    },
     logTail,
-    recentOutput: preview,
+    recentOutput: scanLine ?? briefPreview,
     quietReason,
     guardrailsDeniedTools: ["mcp__alpaca__place_*", "production doctrine edits"],
   };
@@ -339,14 +386,34 @@ interface SectorsFile {
  * this same pass) may not have landed automation/state/station/sectors.json
  * yet -- that is an honest WAITING state, not an error, and is rendered as
  * one rather than faking a row. */
+/** One row of automation/state/station/coach-notes.json's own `notes` array
+ * (CREW-RIG R2, 2026-09-14) -- mirrors setup/scripts/coach_notes.py's build_notes()
+ * dict shape. Kept local to this Coach section exactly like SectorsFileRow/SectorsFile
+ * just above it. */
+interface CoachNoteRow { lane: string; stat: string; line: string; delta: number | null }
+interface CoachNotesFile { ts_et?: string; notes?: CoachNoteRow[] }
+
 export async function collectCoach(): Promise<PersonaState> {
   const sectorsPath = path.join(ROOT, "automation/state/station/sectors.json");
-  const role = "sectors + rig health: one per-lane table with evidence timestamps every fire; RED lanes and dark tasks become cards";
-  const schedule = "every 30 min via the Station loop (sector_rows.py build_sector_rows, station_facts.py)";
-  const [data, crewEvents] = await Promise.all([
+  // CREW-RIG R2 (2026-09-14, J reading the HQ panel: "why would Coach be WAITING?
+  // There should be a plethora of things for Coach to coach the crypto on, or paper
+  // trading"): coach_notes.py computes up to 6 dollar-ranked coaching notes (crypto
+  // twin P&L, paper-arm counterfactuals, sectors RED reasons) every Station fire, $0,
+  // no LLM (setup/scripts/coach_notes.py) -- read alongside sectors.json below.
+  const notesPath = path.join(ROOT, "automation/state/station/coach-notes.json");
+  const role = "sectors + rig health + dollar-ranked coaching notes (crypto twin, paper arms) every fire";
+  const schedule = "every 30 min via the Station loop (sector_rows.py + coach_notes.py)";
+  const [data, notesDoc, crewEvents] = await Promise.all([
     readJson<SectorsFile>(sectorsPath),
+    readJson<CoachNotesFile>(notesPath),
     readCrewEventsFor("Coach"),
   ]);
+
+  const notes = notesDoc?.notes ?? [];
+  const notesTs = notesDoc?.ts_et ? etLikeToIso(notesDoc.ts_et) : null;
+  const notesAgeMin = notesTs ? (Date.now() - new Date(notesTs).getTime()) / 60000 : null;
+  const notesFresh = notesAgeMin !== null && notesAgeMin < 45;
+  const topNote = notes[0] ?? null;
 
   if (!data || !Array.isArray(data.rows)) {
     const waitMsg = "sectors.json not written yet — CREW-RIG builder landing it";
@@ -358,13 +425,17 @@ export async function collectCoach(): Promise<PersonaState> {
       role,
       soulFile: ".claude/agents/coach.md",
       schedule,
-      status: "IDLE",
-      lastFireISO: crewLast ? etLikeToIso(crewLast.ts_et) : null,
+      // Coaching notes are a SEPARATE producer from sectors.json -- if notes landed but
+      // sectors somehow hasn't, Coach is doing real work and must read GREEN, not IDLE.
+      status: notesFresh ? "GREEN" : "IDLE",
+      lastFireISO: notesFresh ? notesTs : (crewLast ? etLikeToIso(crewLast.ts_et) : null),
       lastFireResult: waitMsg,
       deliverable: { path: "automation/state/station/sectors.json", exists: false, mtimeISO: null, ageMin: null },
       logTail: [],
-      recentOutput: crewLast ? crewLast.line : waitMsg,
-      quietReason: `no producer for automation/state/station/sectors.json yet — CREW-RIG builder landing it`,
+      recentOutput: topNote?.line ?? (crewLast ? crewLast.line : waitMsg),
+      quietReason: notesFresh
+        ? null
+        : "no producer for automation/state/station/sectors.json yet — CREW-RIG builder landing it",
       guardrailsDeniedTools: ["mcp__alpaca__place_*"],
     };
   }
@@ -390,6 +461,24 @@ export async function collectCoach(): Promise<PersonaState> {
   const crewLastIso = crewLast ? etLikeToIso(crewLast.ts_et) : null;
   const useCrewEvent = !!crewLastIso && (!mt || crewLastIso > mt);
 
+  // "now" = the freshest coaching note (what Coach is actively coaching on, right now)
+  // -- falls back to the sectors crew-event line, then the sectors summary itself, the
+  // same precedence the pre-existing code already used. The RED lane's own evidence
+  // stays visible as a SECOND line even when a coaching note is the primary line
+  // (explicit build instruction) -- a RED status pill must never lose its own reason.
+  const primaryLine = notesFresh && topNote?.line
+    ? topNote.line
+    : (useCrewEvent ? crewLast!.line : (data.summary_line ?? null));
+  const secondLine = redLane ? `${redLane.lane}: ${truncFor(redLane.evidence, 90)}` : null;
+  const recentOutput = primaryLine && secondLine && primaryLine !== secondLine
+    ? `${primaryLine}\n${secondLine}`
+    : (primaryLine ?? secondLine);
+
+  const lastFireCandidates = [notesFresh ? notesTs : null, useCrewEvent ? crewLastIso : mt]
+    .filter((x): x is string => !!x)
+    .sort();
+  const lastFireISO = lastFireCandidates.length ? lastFireCandidates[lastFireCandidates.length - 1] : null;
+
   return {
     name: "Coach",
     emoji: "🏋️",
@@ -398,11 +487,13 @@ export async function collectCoach(): Promise<PersonaState> {
     soulFile: ".claude/agents/coach.md",
     schedule,
     status,
-    lastFireISO: useCrewEvent ? crewLastIso : mt,
+    lastFireISO,
+    // "last" = the sectors table's own summary line -- its stable per-lane identity,
+    // the same field pre-existing readers of this card already key off.
     lastFireResult: data.summary_line || `${rows.length} lane(s) tracked`,
     deliverable: { path: "automation/state/station/sectors.json", exists: true, mtimeISO: mt, ageMin },
     logTail: rows as unknown as Array<Record<string, unknown>>,
-    recentOutput: useCrewEvent ? crewLast!.line : (data.summary_line ?? null),
+    recentOutput,
     quietReason,
     guardrailsDeniedTools: ["mcp__alpaca__place_*"],
   };

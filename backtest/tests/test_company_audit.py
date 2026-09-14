@@ -358,6 +358,161 @@ def test_chef_and_coach_kinds_registered_in_ground_truth_checks():
 
 
 # ============================================================================
+# CREW-RIG R1/R2 (2026-09-14): scout_feed_fresh and coach_notes_fresh, on
+# synthetic tmp_path trees -- PASS/WARN/FAIL for each, hermetically (no
+# PowerShell, no network -- both producers are pure file readers). J's verdict
+# that started this build: "Scout should NEVER be done" / "why would Coach be
+# WAITING?" -- these two ground-truth kinds are what now grades that.
+# ============================================================================
+
+def _scout_feed_gt(**overrides) -> dict:
+    gt = {"kind": "scout_feed_fresh", "path": "automation/scout/state/scout-feed-summary.json",
+          "max_age_min": 60, "min_feeds_ok": 3}
+    gt.update(overrides)
+    return gt
+
+
+def test_scout_feed_fresh_fails_when_file_missing(monkeypatch, tmp_path):
+    monkeypatch.setattr(ca, "REPO", tmp_path)
+    result = ca._gt_scout_feed_fresh(_scout_feed_gt(), datetime.now(timezone.utc), "2026-09-11")
+    assert result["verdict"] == "FAIL"
+    assert "missing" in result["evidence"].lower()
+
+
+def test_scout_feed_fresh_fails_when_file_unparseable(monkeypatch, tmp_path):
+    monkeypatch.setattr(ca, "REPO", tmp_path)
+    p = tmp_path / "automation" / "scout" / "state" / "scout-feed-summary.json"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text("not json", encoding="utf-8")
+    result = ca._gt_scout_feed_fresh(_scout_feed_gt(), datetime.now(timezone.utc), "2026-09-11")
+    assert result["verdict"] == "FAIL"
+
+
+def test_scout_feed_fresh_passes_when_fresh_and_enough_feeds(monkeypatch, tmp_path):
+    monkeypatch.setattr(ca, "REPO", tmp_path)
+    now = datetime.now(timezone.utc)
+    fresh_ts = ca.et_now(now_utc=now).strftime("%Y-%m-%d %H:%M:%S ET")
+    p = tmp_path / "automation" / "scout" / "state" / "scout-feed-summary.json"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps({"ts_et": fresh_ts, "feeds_ok": 5, "feeds_failed": 0,
+                             "new_items": 3, "top": []}), encoding="utf-8")
+
+    result = ca._gt_scout_feed_fresh(_scout_feed_gt(), now, "2026-09-11")
+    assert result["verdict"] == "PASS", result
+    assert "feeds_ok=5" in result["evidence"]
+
+
+def test_scout_feed_fresh_warns_when_stale(monkeypatch, tmp_path):
+    monkeypatch.setattr(ca, "REPO", tmp_path)
+    now = datetime.now(timezone.utc)
+    stale_ts = ca.et_now(now_utc=now - timedelta(hours=3)).strftime("%Y-%m-%d %H:%M:%S ET")
+    p = tmp_path / "automation" / "scout" / "state" / "scout-feed-summary.json"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps({"ts_et": stale_ts, "feeds_ok": 5, "feeds_failed": 0, "new_items": 0, "top": []}),
+                 encoding="utf-8")
+
+    result = ca._gt_scout_feed_fresh(_scout_feed_gt(), now, "2026-09-11")
+    assert result["verdict"] == "WARN"
+    assert "stale" in result["evidence"]
+
+
+def test_scout_feed_fresh_warns_when_too_few_feeds_ok(monkeypatch, tmp_path):
+    monkeypatch.setattr(ca, "REPO", tmp_path)
+    now = datetime.now(timezone.utc)
+    fresh_ts = ca.et_now(now_utc=now).strftime("%Y-%m-%d %H:%M:%S ET")
+    p = tmp_path / "automation" / "scout" / "state" / "scout-feed-summary.json"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps({"ts_et": fresh_ts, "feeds_ok": 2, "feeds_failed": 3, "new_items": 0, "top": []}),
+                 encoding="utf-8")
+
+    result = ca._gt_scout_feed_fresh(_scout_feed_gt(), now, "2026-09-11")
+    assert result["verdict"] == "WARN"
+    assert "2 feed(s) reachable" in result["evidence"]
+
+
+def test_scout_feed_fresh_warns_when_ts_et_missing(monkeypatch, tmp_path):
+    monkeypatch.setattr(ca, "REPO", tmp_path)
+    p = tmp_path / "automation" / "scout" / "state" / "scout-feed-summary.json"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps({"feeds_ok": 5, "feeds_failed": 0, "new_items": 0, "top": []}), encoding="utf-8")
+
+    result = ca._gt_scout_feed_fresh(_scout_feed_gt(), datetime.now(timezone.utc), "2026-09-11")
+    assert result["verdict"] == "WARN"
+    assert "ts_et" in result["evidence"]
+
+
+def _coach_notes_gt(**overrides) -> dict:
+    gt = {"kind": "coach_notes_fresh", "path": "automation/state/station/coach-notes.json", "max_age_min": 60}
+    gt.update(overrides)
+    return gt
+
+
+def test_coach_notes_fresh_fails_when_file_missing(monkeypatch, tmp_path):
+    monkeypatch.setattr(ca, "REPO", tmp_path)
+    result = ca._gt_coach_notes_fresh(_coach_notes_gt(), datetime.now(timezone.utc), "2026-09-11")
+    assert result["verdict"] == "FAIL"
+    assert "missing" in result["evidence"].lower()
+
+
+def test_coach_notes_fresh_fails_when_file_unparseable(monkeypatch, tmp_path):
+    monkeypatch.setattr(ca, "REPO", tmp_path)
+    p = tmp_path / "automation" / "state" / "station" / "coach-notes.json"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text("not json", encoding="utf-8")
+    result = ca._gt_coach_notes_fresh(_coach_notes_gt(), datetime.now(timezone.utc), "2026-09-11")
+    assert result["verdict"] == "FAIL"
+
+
+def test_coach_notes_fresh_passes_when_fresh_with_notes(monkeypatch, tmp_path):
+    monkeypatch.setattr(ca, "REPO", tmp_path)
+    now = datetime.now(timezone.utc)
+    fresh_ts = ca.et_now(now_utc=now).strftime("%Y-%m-%d %H:%M:%S ET")
+    p = tmp_path / "automation" / "state" / "station" / "coach-notes.json"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps({"ts_et": fresh_ts,
+                             "notes": [{"lane": "crypto_twin", "stat": "24h_pnl", "line": "Coach: x", "delta": -12.0}],
+                             "inputs": {}}), encoding="utf-8")
+
+    result = ca._gt_coach_notes_fresh(_coach_notes_gt(), now, "2026-09-11")
+    assert result["verdict"] == "PASS", result
+    assert "1 note(s)" in result["evidence"]
+
+
+def test_coach_notes_fresh_warns_when_zero_notes(monkeypatch, tmp_path):
+    monkeypatch.setattr(ca, "REPO", tmp_path)
+    now = datetime.now(timezone.utc)
+    fresh_ts = ca.et_now(now_utc=now).strftime("%Y-%m-%d %H:%M:%S ET")
+    p = tmp_path / "automation" / "state" / "station" / "coach-notes.json"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps({"ts_et": fresh_ts, "notes": [], "inputs": {}}), encoding="utf-8")
+
+    result = ca._gt_coach_notes_fresh(_coach_notes_gt(), now, "2026-09-11")
+    assert result["verdict"] == "WARN"
+    assert "zero notes" in result["evidence"]
+
+
+def test_coach_notes_fresh_warns_when_stale(monkeypatch, tmp_path):
+    monkeypatch.setattr(ca, "REPO", tmp_path)
+    now = datetime.now(timezone.utc)
+    stale_ts = ca.et_now(now_utc=now - timedelta(hours=3)).strftime("%Y-%m-%d %H:%M:%S ET")
+    p = tmp_path / "automation" / "state" / "station" / "coach-notes.json"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps({"ts_et": stale_ts, "notes": [{"lane": "x", "stat": "y", "line": "z", "delta": 1}]}),
+                 encoding="utf-8")
+
+    result = ca._gt_coach_notes_fresh(_coach_notes_gt(), now, "2026-09-11")
+    assert result["verdict"] == "WARN"
+    assert "stale" in result["evidence"]
+
+
+def test_scout_feed_and_coach_notes_kinds_registered_in_ground_truth_checks():
+    assert "scout_feed_fresh" in ca.GROUND_TRUTH_CHECKS
+    assert "coach_notes_fresh" in ca.GROUND_TRUTH_CHECKS
+    assert ca.GROUND_TRUTH_CHECKS["scout_feed_fresh"] is ca._gt_scout_feed_fresh
+    assert ca.GROUND_TRUTH_CHECKS["coach_notes_fresh"] is ca._gt_coach_notes_fresh
+
+
+# ============================================================================
 # The documented JSON shape -- one real --no-llm CLI run against the real repo
 # (no network; does enumerate the real Task Scheduler, same as a human's fire)
 # ============================================================================

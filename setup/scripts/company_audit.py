@@ -825,6 +825,83 @@ def _gt_coach_sectors_fresh(gt: dict, now: datetime, ltd: str) -> dict:
     return {"verdict": "WARN", "evidence": evidence + " -- stale"}
 
 
+def _gt_scout_feed_fresh(gt: dict, now: datetime, ltd: str) -> dict:
+    """CREW-RIG R1 (2026-09-14, J's verdict: "Scout should NEVER be done"): Scout's
+    continuous feed-scan producer (setup/scripts/scout_feed.py, called every
+    Gamma_Station fire). PASS requires BOTH: the summary is <= max_age_min old AND
+    feeds_ok >= min_feeds_ok. WARN covers 'stale' or 'fewer than min_feeds_ok reachable'
+    alone -- either one alone is a real but non-fatal gap. FAIL is reserved for the
+    summary file itself being missing/unparseable (this is the ONLY axis that grades
+    the continuous scan; the once-daily deep brief's own deadline is unaffected -- it
+    still runs via Gamma_ScoutPremarket, it just is not what this ground-truth check
+    measures any more)."""
+    path = REPO / gt["path"]
+    if not path.exists():
+        return {"verdict": "FAIL", "evidence": f"missing {gt['path']}"}
+    doc = _read_json(path)
+    if not isinstance(doc, dict):
+        return {"verdict": "FAIL", "evidence": f"{gt['path']} exists but is unreadable/unparseable"}
+
+    ts_et = doc.get("ts_et")
+    dt = _parse_ts_et_to_utc(ts_et) if ts_et else None
+    max_age = timedelta(minutes=gt.get("max_age_min", 60))
+    age = (now - dt) if dt is not None else None
+    fresh = age is not None and age <= max_age
+    feeds_ok = doc.get("feeds_ok")
+    min_feeds_ok = gt.get("min_feeds_ok", 3)
+    enough_feeds = isinstance(feeds_ok, int) and feeds_ok >= min_feeds_ok
+
+    evidence = (f"scout-feed-summary.json ts_et={ts_et!r} age={_fmt_td(age)} (window {_fmt_td(max_age)}) "
+                f"| feeds_ok={feeds_ok} (min {min_feeds_ok}) | feeds_failed={doc.get('feeds_failed')} "
+                f"| new_items={doc.get('new_items')}")
+    if dt is None:
+        return {"verdict": "WARN", "evidence": evidence + " -- ts_et missing or unparseable"}
+    if fresh and enough_feeds:
+        return {"verdict": "PASS", "evidence": evidence}
+    reasons = []
+    if not fresh:
+        reasons.append("stale")
+    if not enough_feeds:
+        reasons.append(f"only {feeds_ok} feed(s) reachable")
+    return {"verdict": "WARN", "evidence": evidence + " -- " + "; ".join(reasons)}
+
+
+def _gt_coach_notes_fresh(gt: dict, now: datetime, ltd: str) -> dict:
+    """CREW-RIG R2 (2026-09-14, J's verdict: "there should be a plethora of things for
+    Coach to coach"): Coach's dollar-ranked coaching-notes producer
+    (setup/scripts/coach_notes.py, called every Gamma_Station fire, right after the
+    sectors write). PASS requires BOTH: the doc is <= max_age_min old AND it carries
+    >=1 note. WARN covers 'stale' or 'zero notes' alone (zero notes is a legitimate
+    state -- e.g. the twin is flat and no arm/sector data cleared its bar -- so it warns
+    rather than fails). FAIL is reserved for the file itself being missing/unparseable."""
+    path = REPO / gt["path"]
+    if not path.exists():
+        return {"verdict": "FAIL", "evidence": f"missing {gt['path']}"}
+    doc = _read_json(path)
+    if not isinstance(doc, dict):
+        return {"verdict": "FAIL", "evidence": f"{gt['path']} exists but is unreadable/unparseable"}
+
+    ts_et = doc.get("ts_et")
+    dt = _parse_ts_et_to_utc(ts_et) if ts_et else None
+    max_age = timedelta(minutes=gt.get("max_age_min", 60))
+    age = (now - dt) if dt is not None else None
+    fresh = age is not None and age <= max_age
+    notes = doc.get("notes") or []
+
+    evidence = (f"coach-notes.json ts_et={ts_et!r} age={_fmt_td(age)} (window {_fmt_td(max_age)}) "
+                f"| {len(notes)} note(s)" + (f" | top: {str(notes[0].get('line', ''))[:100]!r}" if notes else ""))
+    if dt is None:
+        return {"verdict": "WARN", "evidence": evidence + " -- ts_et missing or unparseable"}
+    if fresh and notes:
+        return {"verdict": "PASS", "evidence": evidence}
+    reasons = []
+    if not fresh:
+        reasons.append("stale")
+    if not notes:
+        reasons.append("zero notes this fire (may be legitimate -- e.g. twin flat, no arm/sector data cleared the bar)")
+    return {"verdict": "WARN", "evidence": evidence + " -- " + "; ".join(reasons)}
+
+
 GROUND_TRUTH_CHECKS: dict[str, Callable[[dict, datetime, str], dict]] = {
     "scout_before_open": _gt_scout_before_open,
     "pilot_decisions_and_rule_breaks": _gt_pilot_decisions_and_rule_breaks,
@@ -835,6 +912,8 @@ GROUND_TRUTH_CHECKS: dict[str, Callable[[dict, datetime, str], dict]] = {
     "manager_loop_ledger_cites_number": _gt_manager_loop_ledger_cites_number,
     "chef_verdict_rows": _gt_chef_verdict_rows,
     "coach_sectors_fresh": _gt_coach_sectors_fresh,
+    "scout_feed_fresh": _gt_scout_feed_fresh,
+    "coach_notes_fresh": _gt_coach_notes_fresh,
 }
 
 

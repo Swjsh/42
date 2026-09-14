@@ -11,7 +11,14 @@
     "r5apex.exe"
   ],
   "web_scan": false,
-  "web_scan_feeds": [],
+  "web_scan_feeds": [
+    "https://www.federalreserve.gov/feeds/press_all.xml",
+    "https://www.cnbc.com/id/100003114/device/rss/rss.html",
+    "https://feeds.content.dowjones.io/public/rss/mw_topstories",
+    "https://news.google.com/rss/search?q=%22S%26P+500%22+OR+SPY+OR+Fed&hl=en-US&gl=US&ceid=US:en",
+    "https://www.sec.gov/news/pressreleases.rss"
+  ],
+  "_web_scan_feeds_doc": "CREW-RIG R1 (2026-09-14): consumed by setup/scripts/scout_feed.py's every-fire feed scan (Scout, via station_loop.py), NOT by station_facts.gather_web_scan's separate LLM-prompt web_scan path -- `web_scan` above stays false/whatever it was; enabling it is a different, still-off feature. All 5 verified 200+items live 2026-09-14 (BLS's bls_latest.rss 403s regardless of User-Agent -- dropped, not included).",
   "max_new_cards_per_fire": 2,
   "board_cap": 50,
   "dedupe_similarity_threshold": 0.8,

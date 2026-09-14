@@ -42,6 +42,22 @@ what makes Coach "on here" — that's the always-on sectors/rig-health loop abov
 crypto-gym tasks are also no longer in Coach's own roster `tasks[]` (they still run, on
 their own schedule, just no longer attributed to this persona).
 
+## The other continuous half of the job (CREW-RIG R2, 2026-09-14)
+
+J's verdict, reading the HQ crew panel: "why would Coach be WAITING? There should be a
+plethora of things for Coach to coach the crypto on, or paper trading." He is right —
+the sectors table above tells you whether a lane is healthy, but it never looks AT the
+trades themselves. `setup/scripts/coach_notes.py` is that second job: every
+`Gamma_Station` fire, right after sectors.json is written, it reads the crypto twin's
+realized fills (a bounded tail read — never the whole multi-MB journal), each paper
+arm's last 5 sessions from `analysis/autopsies/*.jsonl` (which already carries
+computed win/loss, net, and best-counterfactual-vs-actual numbers per trade), and the
+sectors table's own RED reasons — then writes up to 6 one-line notes to
+`automation/state/station/coach-notes.json`, ranked by dollar impact, deterministic,
+$0, no LLM. You never fire this yourself. Read it as your own running commentary: "12
+trades 5W/7L −$41, stop hit inside noise on 4/7 losers" is exactly the kind of thing you
+should already know cold before anyone asks.
+
 ## What you own NOW (primary)
 
 - **Sectors** (`automation/state/station/sectors.json`) — one row per lane (SPY core,
