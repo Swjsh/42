@@ -5,6 +5,7 @@ import * as THREE from "three";
 import type { StationIdeaCard } from "@/lib/station";
 import { useThrottledFrame } from "./useThrottledFrame";
 import { PALETTE } from "./palette";
+import { SMART_BOARD_LOCAL_OFFSET } from "./IdeasWall";
 
 interface CourierProps {
   cards: StationIdeaCard[];
@@ -40,6 +41,16 @@ export default function Courier({ cards, hub, wall, reducedMotion }: CourierProp
   const carryStart = useRef(0);
 
   const restWorld: [number, number, number] = [hub[0] + REST_OFFSET[0], hub[1], hub[2] + REST_OFFSET[2]];
+  // World-4 MODELS pass (2026-09-14): `wall` is Scene.tsx's bare WALL_POS
+  // prop -- the real SmartBoard now sits SMART_BOARD_LOCAL_OFFSET away from
+  // it (IdeasWall.tsx), not at that exact point. Without this, the carried
+  // card would rise toward the OLD empty-air spot instead of the board it
+  // is meant to visually land on.
+  const boardWorld: [number, number, number] = [
+    wall[0] + SMART_BOARD_LOCAL_OFFSET[0],
+    wall[1] + SMART_BOARD_LOCAL_OFFSET[1],
+    wall[2] + SMART_BOARD_LOCAL_OFFSET[2],
+  ];
 
   useEffect(() => {
     const seen = seenCards.current;
@@ -82,9 +93,9 @@ export default function Courier({ cards, hub, wall, reducedMotion }: CourierProp
         const rise = Math.max(0, (p - 0.3) / 0.7);
         cardMesh.current.visible = p > 0.25;
         cardMesh.current.position.set(
-          hub[0] + (wall[0] - hub[0]) * rise,
-          hub[1] + 0.3 + (wall[1] - hub[1] - 0.3) * rise,
-          hub[2] + (wall[2] - hub[2]) * rise,
+          hub[0] + (boardWorld[0] - hub[0]) * rise,
+          hub[1] + 0.3 + (boardWorld[1] - hub[1] - 0.3) * rise,
+          hub[2] + (boardWorld[2] - hub[2]) * rise,
         );
       }
       if (p >= 1) {

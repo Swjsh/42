@@ -14,6 +14,78 @@ public repo. No Mixamo/Synty/Sketchfab-store/NC/ND content is used anywhere belo
 | 4 | Space Kit (2.0) | Kenney | https://kenney.nl/assets/space-kit | CC0 1.0 | https://creativecommons.org/publicdomain/zero/1.0/ | 2026-09-13; terrain/prop pieces added 2026-09-14 | `astronautA.glb`, `barrels.glb`, `rock.glb`, `rocks_smallA.glb`, `rock_largeA.glb`, `rock_largeB.glb`, `crater.glb`, `craterLarge.glb`, `satelliteDish.glb`, `satelliteDish_large.glb`, `rover.glb`, `structure.glb`, `supports_high.glb`, `pipe_straight.glb`, `pipe_corner.glb` | "Kenney" / "www.kenney.nl" |
 | 5 | KayKit: Space Base Bits (1.0) | Kay Lousberg | https://github.com/KayKit-Game-Assets/KayKit-Space-Base-Bits-1.0 (official mirror of https://kaylousberg.itch.io/space-base-bits) | CC0 1.0 | https://creativecommons.org/publicdomain/zero/1.0/ | 2026-09-13 | `lights.gltf`, `lights.bin`, `spacebits_texture.png` | "Kay Lousberg" / "www.kaylousberg.com" |
 | 6 | Dikhololo Night (HDRI, 1k) | Poly Haven | https://polyhaven.com/a/dikhololo_night | CC0 1.0 | https://polyhaven.com/license | 2026-09-13 | `dikhololo_night_1k.hdr` | "Poly Haven" (not required) |
+| 7 | Furniture Kit (2.0) | Kenney | https://kenney.nl/assets/furniture-kit | CC0 1.0 | https://creativecommons.org/publicdomain/zero/1.0/ | 2026-09-14 | `television-modern.glb` (renamed from `televisionModern.glb`; 1 of 116 models) | "Kenney" / "www.kenney.nl" |
+
+## Update 2026-09-14 (MODELS builder, smart-board asset hunt)
+
+J, live on `/hq` (relayed via the MODELS builder brief): "the ideas board needs
+to basically be on a FLOATING SMART BOARD on the wall inside the main office
+... go on an asset site and find something that looks like a screen ... open
+them up and look at them, take your time." Real hunt performed this session
+(browser tool, not assumed from memory), in this order:
+
+1. **Already-bundled candidates inspected first** (Research & Reuse before any
+   new download) -- parsed the raw GLB binaries directly (same technique this
+   file's own prior passes use) for every plausible piece already in
+   `kenney-space-station-kit/`: `display-wall.glb` (raw 0.400w x 0.461h x
+   0.384d -- boxy/cube-like, reads as a control console, not a wide screen),
+   `structure-panel.glb` (0.850w x 0.125h x 0.850d -- flat but built as a
+   floor/ceiling panel, wrong proportions/orientation for a wall screen),
+   `computer-screen.glb` (0.800w x 0.661h x 0.438d -- already every desk's own
+   monitor via DeskScreen.tsx; reusing it at giant scale for "the board" would
+   read as a blown-up desk monitor, not a distinct fixture). All three
+   rejected -- none has the thin, wide, bezelled-screen silhouette J asked
+   for.
+2. **poly.pizza** (https://poly.pizza/search/monitor), CC0 filter -- 3 free
+   "Monitor" results (CreativeTrio, Poly by Google, Zsky), all the same
+   generic desk-monitor-on-a-stand shape already covered by
+   `computer-screen.glb` above. Rejected: no size/format advantage, nothing
+   reads as a "board" rather than a desk peripheral.
+3. **poly.pizza's own mirror of Kenney's "Furniture Kit"** (116 models,
+   browsed live via its in-page 3D viewer, orbited to see front/back) --
+   found `Television` (a real flat-panel-on-a-small-stand silhouette: thin
+   bezel, flat lighter-toned screen face, distinct from `Television Vintage`'s
+   bulky CRT box and `Cabinet Television`'s enclosed-cabinet shape, both
+   rejected as wrong silhouette for "smart board"). This is the candidate
+   used -- see below.
+4. **quaternius.com** -- browsed the live catalog (`Assets` page); no
+   "Ultimate Office" pack exists in the current catalog (the name in this
+   project's own HQ-ULTRA-TIER-BRIEF doesn't resolve to a live page today).
+   Opened "Modular Sci-Fi Megakit" from the catalog grid; its card did not
+   open a browsable detail view in this session (same JS-driven-catalog
+   friction this file's own 2026-09-13 pass already documented for
+   Quaternius's character packs) -- not pursued further given a verified,
+   license-clean candidate was already in hand and the task's own 25-minute
+   hunt budget.
+5. **kaykit.itch.io** -- not separately browsed this pass; the only KayKit
+   pack already in this project (`Space Base Bits`) is a lights/greeble set,
+   and time budget favored confirming the strong Kenney lead over further
+   exploratory browsing.
+
+**Chosen: `televisionModern.glb`**, downloaded directly from kenney.nl's own
+CDN (`https://kenney.nl/media/pages/assets/furniture-kit/440e0608a4-1677580847/kenney_furniture-kit.zip`,
+5,130,729 bytes, `curl`), License.txt inside the zip re-quoted and confirmed
+CC0 1.0 verbatim (same text as row 2 above). Parsed the extracted
+`Models/GLTF format/televisionModern.glb` directly: glTF binary magic
+confirmed at byte 0, 1 mesh / 1 node / 2 materials (`metalDark`, `metal`), raw
+bbox 0.685w x 0.455h x 0.128d -- a genuine thin flat-screen-on-a-stand
+silhouette, ~144 triangles. Only this one file (6,368 bytes) was kept and
+copied to `kenney-furniture-kit/television-modern.glb`; the other 115 models
+and the 5.1 MB raw zip stay in the session scratchpad, never committed.
+SmartBoard.tsx layers its own canvas-texture plane on the model's front face
+for the actual IdeasWall content (title/cards/verdict) rather than retexturing
+either of the GLB's own 2 materials in place -- avoids needing to identify
+which submesh is the screen vs. the bezel/stand, and matches this codebase's
+own established DeskScreen.tsx/BaySign.tsx "separate canvas-texture face"
+convention. Total added this pass: 6,368 bytes (0.006 MB), well under the
+session budget.
+
+**Procedural-fallback note (not needed):** the task brief authorized a clean
+procedural board (bezel box + emissive face + wall arms + LED) if no CC0
+model was convincing. Not used -- `televisionModern.glb` cleared the bar. The
+wall-mount arms + backing plate + status LED are still added procedurally
+around the found model (SmartBoard.tsx) since the kit piece itself ships only
+its own small pedestal foot, not a wall-mount bracket.
 
 ## Update 2026-09-14 (World-3 environment pass, ENVIRONMENT builder)
 

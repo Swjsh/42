@@ -97,6 +97,16 @@
       "files": [
         "dikhololo_night_1k.hdr"
       ]
+    },
+    {
+      "slug": "kenney-furniture-kit",
+      "author": "Kenney",
+      "license": "CC0-1.0",
+      "sourceUrl": "https://kenney.nl/assets/furniture-kit",
+      "note": "MODELS builder, smart-board pass (2026-09-14, J: \"go on an asset site and find something that looks like a screen\"). Only 1 of 116 models kept (televisionModern.glb, renamed television-modern.glb) -- see LICENSES.md's own 'Update 2026-09-14 (MODELS builder)' note for the full asset-hunt disclosure (candidates opened and rejected).",
+      "files": [
+        "television-modern.glb"
+      ]
     }
   ],
   "characters": [
@@ -430,6 +440,12 @@
         "kaykit-space-base-bits/lights.bin",
         "kaykit-space-base-bits/spacebits_texture.png"
       ]
+    },
+    {
+      "file": "kenney-furniture-kit/television-modern.glb",
+      "category": "screen",
+      "sizeBytes": 6368,
+      "note": "SmartBoard.tsx's body -- rawBounds 0.685w x 0.455h x 0.128d (thin flat-screen-on-a-stand silhouette, 2 materials, 1 mesh, ~144 tris), the only bundled or evaluated piece that actually reads as a wide screen rather than a console/cube -- see LICENSES.md's own asset-hunt disclosure. A separate canvas-texture plane (SmartBoard.tsx) is layered on its front face for the IdeasWall content rather than retexturing this GLB's own 'metal' submaterial in place."
     }
   ],
   "hdri": {
