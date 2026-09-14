@@ -3,7 +3,6 @@
   "never_restore": [
     "Gamma_CryptoTwin",
     "Gamma_CompanionKeepalive",
-    "Gamma_DashboardKeepalive",
     "Gamma_KitchenDaemonKeepalive",
     "Gamma_DiscordBridge",
     "Gamma_QuoteRecorderKeepalive",
@@ -13,5 +12,6 @@
     "Gamma_ProcTraceKeepalive",
     "Gamma_MultiEvaluate",
     "Gamma_MultiOutcomes"
-  ]
+  ],
+  "_2026_09_13_change": "Gamma_DashboardKeepalive removed 2026-09-13 22:50 ET: it is the TV/monitor face keepalive (a $0 node liveness probe) and now ESSENTIAL in quiet_mode.py; the 09-05 launch-spam risk it was parked for was the wmic-removed bug, fixed by _proc_table.py."
 }

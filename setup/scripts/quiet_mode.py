@@ -133,6 +133,11 @@ ESSENTIAL = {
     # alive (read-only LAN proxy, no model, no window).
     "Gamma_Station",
     "Gamma_StationKiosk",
+    # Dashboard keepalive (2026-09-13 22:45 ET): the Next.js dashboard IS the TV/monitor face
+    # (/hq, /station). Same shape as Gamma_CompanionKeepalive above -- a $0 node liveness
+    # probe, no LLM, no window. The evening blackout held it Disabled 18:00-23:00 ET, so when
+    # a rebuild restart failed at 22:3x ET nothing brought :3000 back and the faces went dark.
+    "Gamma_DashboardKeepalive",
     "Gamma_Premarket",
     "Gamma_PremarketReadiness",
     "Gamma_PreopenReadiness",
