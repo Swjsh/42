@@ -79,18 +79,29 @@ const BASE_AZIMUTH = Math.atan2(16, 20);
 const CAMERA_DIST = 22;
 const CAMERA_HEIGHT = 7.5;
 // LIVE-1 item 1 (2026-09-14, J: "i need to be able to move around and see,
-// i cant really see"): ultra tier's OWN closer default -- "the ring should
-// fill ~85% of the canvas height at 1420x1080". TV tier's CAMERA_DIST/
-// CAMERA_HEIGHT above are UNCHANGED (this pass is ultra-tier only, matching
-// every other `ultra` branch in this file) -- the real physical TV's
-// framing was tuned across Pass A/F/G against real captures and this task
-// never asks for it to move. Scaled down from the shared 22/7.5 pair by
-// ~0.73x, holding the SAME depression angle (atan((height-1.4)/dist),
-// ~14-15deg either way) so the established 3/4 elevated "diorama" look
-// carries over unchanged, just closer -- first estimate, verified/adjusted
-// against a real capture per this task's own mandatory verification step.
-const CAMERA_DIST_ULTRA = 16;
-const CAMERA_HEIGHT_ULTRA = 5.5;
+// i cant really see"): ultra tier's OWN closer default. TV tier's
+// CAMERA_DIST/CAMERA_HEIGHT above are UNCHANGED (this pass is ultra-tier
+// only, matching every other `ultra` branch in this file) -- the real
+// physical TV's framing was tuned across Pass A/F/G against real captures
+// and this task never asks for it to move.
+// World-2 coordinator review (2026-09-14, "THE OVERVIEW IS NOT AN OVERVIEW...
+// the hub fills the frame and the bays are cut off at the edges, so the
+// connected building you built is invisible"): LIVE-1's 16/5.5 pair (above,
+// superseded) was tuned back when the station was just a hub + floating
+// pods with nothing between them -- once W2/W3 (this same pass) added a
+// real ground/plaza and 7 real hallways, that same close distance put the
+// camera effectively INSIDE the hub's own open doorway, unable to show the
+// very connectivity those items were built to prove. Pulled back to
+// distance=28 (within "26-30u"), elevation~=35deg (within "32-38deg") --
+// height = 28*tan(35deg)~=19.6 -- so hub + all 7 bays + the plaza edge fit
+// in frame together. This is ALSO the key-"0" overview pose (OVERVIEW_CAM_POS
+// below is computed FROM these same two constants) and the free camera's
+// own auto-orbit distance (CameraRig's "auto" mode reads these directly) --
+// changing them here satisfies "make key 0 land there" by construction, not
+// a separate edit. Fly-to presets 1-7 (per-desk, computed independently in
+// `cameraPresets` below) are untouched.
+const CAMERA_DIST_ULTRA = 28;
+const CAMERA_HEIGHT_ULTRA = 19.6;
 // One reusable scratch vector for CameraRig's per-frame desired-position
 // math (module scope, never per-frame allocation -- same discipline as
 // StationModule.tsx's `_screenColor` / ActivityBubbleLayer.tsx's `_camPos`).
@@ -634,6 +645,16 @@ function ExposureSync({ dayFactor }: ExposureSyncProps) {
 function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
   const ultra = tier === "ultra";
   const coreMeshRef = useRef<THREE.Mesh>(null);
+  // INTERACT-2 (I2 f, 2026-09-14): "the day's FIRST core-decisions row at/
+  // after 15:55 ET" -- a monotonic ref (never React state; mutated in plain
+  // render-time code below, not an effect, matching this file's own
+  // dayFactorRef "latest ref" convention two screens down) holding the ET
+  // calendar date of the last qualifying row seen. Stays null until the
+  // first such row this mount ever observes, then holds that SAME date
+  // string for the rest of the day (no further mutation until a genuinely
+  // NEW day's row arrives) -- exactly the stable-until-a-real-change shape
+  // Agent.tsx's own eventWalk seen-value-diff needs to fire exactly once.
+  const pilotPostCloseKeyRef = useRef<string | null>(null);
   // World pass A REAL bug fix #3 (2026-09-13, root-caused via a capture-
   // phase window 'error' listener injected right after navigation -- the
   // earlier bubble-phase listener never fired, which is WHY this looked
@@ -849,6 +870,36 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
   const latestChefVerdict = [...crewEvents].reverse().find((e) => e.who === "Chef" && e.kind === "verdict") ?? null;
   const latestCoachSectors = [...crewEvents].reverse().find((e) => e.who === "Coach" && (e.kind === "sectors" || e.kind === "task_health")) ?? null;
 
+  // INTERACT-2 (I2 c-f, 2026-09-14): the remaining four named-event walks
+  // -- each a (source persona -> trigger key, target) pair, looked up by
+  // the SOURCE persona's own name in the per-persona loop below. (d) Scout's
+  // own scout_output.json mtime (already wired on the roster); (c) a new
+  // Analyst EOD digest (desks.Analyst.path changing); (e) a new treasury
+  // file (desks.Treasurer.path changing); (f) the day's first
+  // core-decisions row at/after 15:55 ET (pilotPostCloseKeyRef above).
+  const findPersonaHome = (name: string): [number, number, number] | undefined => {
+    const idx = innerPersonas.findIndex((p) => p.name === name);
+    return idx >= 0 ? (personaGeometry[idx] ?? personaGeometry[0]).agentHome : undefined;
+  };
+  const scoutMtimeKey = innerPersonas.find((p) => p.name === "Scout")?.deliverable.mtimeISO ?? undefined;
+  const analystDigestKey = data?.desks?.Analyst?.path ?? undefined;
+  const treasuryFileKey = data?.desks?.Treasurer?.path ?? undefined;
+  const latestCoreAny = ([data?.trading?.core?.safe, data?.trading?.core?.bold] as const)
+    .filter((r): r is CoreDecisionRow => !!r && !!r.tsEt)
+    .sort((a, b) => a.tsEt.localeCompare(b.tsEt))
+    .pop() ?? null;
+  if (latestCoreAny && hhmmFromEtIso(latestCoreAny.tsEt) >= "15:55") {
+    const d = latestCoreAny.tsEt.slice(0, 10);
+    if (pilotPostCloseKeyRef.current !== d) pilotPostCloseKeyRef.current = d;
+  }
+  const pilotPostCloseKey = pilotPostCloseKeyRef.current ?? undefined;
+  const NAMED_EVENT_WALKS: Record<string, { key: string | undefined; target: [number, number, number] | undefined }> = {
+    Scout: { key: scoutMtimeKey, target: findPersonaHome("Pilot") },
+    Analyst: { key: analystDigestKey, target: findPersonaHome("Chef") },
+    Treasurer: { key: treasuryFileKey, target: gammaHubMeet },
+    Pilot: { key: pilotPostCloseKey, target: findPersonaHome("Analyst") },
+  };
+
   // LIVE-1 item 1 (2026-09-14): keyboard fly-to targets for keys "1".."7" --
   // the SAME fixed [Gamma, ...6 personas] order collectCompany() already
   // guarantees (allPersonas[0] is always Gamma; innerPersonas is everyone
@@ -991,8 +1042,47 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
       const ackPos: [number, number, number] = [gammaDeskCenter[0], 2.0, gammaDeskCenter[2]];
       out.push({ key: "hubevent:gamma-ack", position: ackPos, text: truncateOneLine(GAMMA_CREW_ACK[event.kind] ?? "logged, thanks", 60), urgent: false });
     });
+    // INTERACT-2 (I2 c-f, 2026-09-14): a matching destination bubble for
+    // each of the remaining four named-event walks -- same
+    // EVENT_BUBBLE_WINDOW_MIN activeness window, each keyed off the SAME
+    // real age signal that gates its own walk trigger above.
+    const namedBubbles: Array<{ key: string; ageMin: number | null; targetPos: [number, number, number] | undefined; text: string }> = [
+      {
+        key: "namedwalk:Analyst",
+        ageMin: data?.desks?.Analyst?.ageMin ?? null,
+        targetPos: findPersonaHome("Chef"),
+        text: `Analyst -> Chef: your queue: ${data?.desks?.Analyst?.headline ?? "new digest"}`,
+      },
+      {
+        key: "namedwalk:Scout",
+        ageMin: innerPersonas.find((p) => p.name === "Scout")?.deliverable.ageMin ?? null,
+        targetPos: findPersonaHome("Pilot"),
+        text: "Scout -> Pilot: fresh catalyst read",
+      },
+      {
+        key: "namedwalk:Treasurer",
+        ageMin: data?.desks?.Treasurer?.ageMin ?? null,
+        targetPos: gammaHubMeet,
+        text: `Treasurer -> Gamma: ${data?.desks?.Treasurer?.headline ?? "new report"}`,
+      },
+      {
+        key: "namedwalk:Pilot",
+        ageMin: latestCoreAny && hhmmFromEtIso(latestCoreAny.tsEt) >= "15:55" ? minutesSinceEvidence(latestCoreAny.tsEt) : null,
+        targetPos: findPersonaHome("Analyst"),
+        text: "Pilot -> Analyst: day's decisions in, handing off",
+      },
+    ];
+    namedBubbles.forEach(({ key, ageMin, targetPos, text }) => {
+      if (ageMin === null || ageMin >= EVENT_BUBBLE_WINDOW_MIN || !targetPos) return;
+      const pos: [number, number, number] = [targetPos[0], targetPos[1] + 2.0, targetPos[2]];
+      out.push({ key, position: pos, text: truncateOneLine(text, 60), urgent: false });
+    });
     return out;
-  }, [rows, geometry, innerPersonas, personaGeometry, purposefulWalks, crewEvents, latestChefVerdict, latestCoachSectors, gammaHubMeet, gammaDeskCenter, data?.desks]);
+  }, [
+    rows, geometry, innerPersonas, personaGeometry, purposefulWalks, crewEvents,
+    latestChefVerdict, latestCoachSectors, gammaHubMeet, gammaDeskCenter, data?.desks,
+    data?.trading?.core?.safe?.tsEt, data?.trading?.core?.bold?.tsEt,
+  ]);
 
   const resolveHandoffPosition = (label: string): [number, number, number] => {
     const stripped = label.replace(/^[^\w]+/u, "").trim();
@@ -1108,7 +1198,7 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
 
       {ultra && (
         <Suspense fallback={null}>
-          <HubRoom />
+          <HubRoom dayFactor={nightFactor} />
         </Suspense>
       )}
 
@@ -1183,6 +1273,7 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
               reducedMotion={reducedMotion}
               dimFactor={dimFactor}
               ultra={ultra}
+              dayFactor={nightFactor}
             />
             {/* Scene-root sibling, NOT nested inside StationModule -- see the
                 agentHome comment above. Lane agents never walk anymore (no
@@ -1312,6 +1403,13 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
         // Every other persona passes undefined for both props (no-op, see
         // Agent.tsx's own null/undefined guard).
         const hubEvent = persona.name === "Chef" ? latestChefVerdict : persona.name === "Coach" ? latestCoachSectors : null;
+        // INTERACT-2 (I2 c-f): every OTHER named-event walk (Scout->Pilot,
+        // Analyst->Chef, Treasurer->Gamma, Pilot->Analyst) resolves from the
+        // NAMED_EVENT_WALKS lookup above by this persona's own name -- only
+        // ever set when BOTH a trigger key and a real target resolved.
+        const namedWalk = NAMED_EVENT_WALKS[persona.name];
+        const eventWalkKeyFinal = hubEvent ? hubEvent.ts_et : namedWalk?.target ? namedWalk.key : undefined;
+        const eventWalkTargetFinal = hubEvent ? gammaHubMeet : namedWalk?.target;
         return (
           <group key={persona.name}>
             <PersonaModule position={slot.position} persona={persona} behavior={behavior} audit={auditByName.get(persona.name)} />
@@ -1360,11 +1458,14 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
                 // every 6-10 min" -- see palette.ts#computePurposefulWalk.
                 purposefulWalkEventKey={purposeful.walk.bucketKey}
                 purposefulTarget={purposeful.target}
-                // INTERACT-2 (I2 a/b): Chef/Coach -> Gamma at the hub, on
-                // their own real crew-event row. undefined for every other
-                // persona (hubEvent is null there) -- zero behavior change.
-                eventWalkEventKey={hubEvent ? hubEvent.ts_et : undefined}
-                eventWalkTarget={hubEvent ? gammaHubMeet : undefined}
+                // INTERACT-2 (I2 a-f): Chef/Coach -> Gamma at the hub on a
+                // real crew-event row, OR one of the four other named-event
+                // walks (Scout->Pilot, Analyst->Chef, Treasurer->Gamma,
+                // Pilot->Analyst) resolved above. undefined for any persona
+                // with neither -- zero behavior change (Agent.tsx's own
+                // null/undefined guard on this channel).
+                eventWalkEventKey={eventWalkKeyFinal}
+                eventWalkTarget={eventWalkTargetFinal}
                 // Item 2c (LIVE-1): Pilot-only "stands and points at the
                 // wall screen" -- a genuine ENTER/EXIT decision (seen-value-
                 // diff on action+timestamp, same convention as every other
