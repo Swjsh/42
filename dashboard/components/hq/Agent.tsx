@@ -7,7 +7,7 @@ import { makeMatcapTexture, seededRandom } from "./palette";
 import { KitAgentBody, type KitAnimState } from "./KitAgent";
 
 export type AgentBehavior = "working" | "idle" | "alert" | "frozen";
-export type AgentWalkKind = "roundtrip" | "arrival";
+export type AgentWalkKind = "roundtrip" | "arrival" | "allhands";
 export type AgentPresenceMode = "greet" | "patrol";
 
 interface AgentProps {
@@ -27,8 +27,21 @@ interface AgentProps {
   /** "roundtrip" = home -> a fixed side-approach point near the hub -> home
    * (used when a walk is a brief errand); "arrival" = hub -> home, once,
    * ending in "working" (a persona that just fired walking in from the
-   * manager and sitting down). Default "roundtrip". */
+   * manager and sitting down); "allhands" = home -> ring around the core
+   * (idle clip, facing the core) for ALLHANDS_HUB_PAUSE seconds -> home,
+   * queued only via `allHandsEventKey` below, never via `walkKind` itself
+   * (that prop stays each persona's OWN individual-arrival kind; the two
+   * trigger channels are independent so one persona firing doesn't get
+   * mistaken for a company-wide event or vice versa). Default "roundtrip". */
   walkKind?: AgentWalkKind;
+  /** Company Mode all-hands event (Pass B, 2026-09-13): pass
+   * `data.brief.mtime_ms` here (personas only -- lane Agents omit this) --
+   * a genuine change after mount queues exactly ONE "allhands" walk,
+   * independent of `walkEventKey`/`walkKind` above (that pair keeps
+   * driving each persona's own lastFireISO-triggered arrival walk
+   * unaffected). Same seen-value-diff seeding convention as every other
+   * event trigger in this file. */
+  allHandsEventKey?: string | null;
   /** J 2026-09-13 ("nearest agent turns to the viewer / night-patrol dim"
    * on presence flipping): "greet" holds the resting-state facing at
    * `facingYaw` instead of the idle look-around; "patrol" dims the visor.
@@ -48,6 +61,7 @@ interface AgentProps {
 
 const WALK_DURATION = 4.5;
 const HUB_PAUSE = 1.5;
+const ALLHANDS_HUB_PAUSE = 60;
 type WalkPhase = "resting" | "toHub" | "atHub" | "toHome" | "arriving";
 
 /**
@@ -67,7 +81,7 @@ type WalkPhase = "resting" | "toHub" | "atHub" | "toHome" | "arriving";
  * (no timer, no destination) and stay as-is.
  */
 export default function Agent({
-  laneSeed, home, hub, behavior, accentColor, reducedMotion, walkEventKey, walkKind, presenceMode, facingYaw,
+  laneSeed, home, hub, behavior, accentColor, reducedMotion, walkEventKey, walkKind, allHandsEventKey, presenceMode, facingYaw,
   ultra = false,
 }: AgentProps) {
   const group = useRef<THREE.Group>(null);
@@ -89,14 +103,31 @@ export default function Agent({
 
   const matcap = useMemo(() => makeMatcapTexture(), []);
   const rng = useMemo(() => seededRandom(laneSeed), [laneSeed]);
+  // Radius 1.8->3.2 (Pass B, 2026-09-13): this point doubles as the
+  // all-hands "ring around the core" stand now (ALLHANDS_HUB_PAUSE below) --
+  // 1.8 sat INSIDE BrainCore's own ring geometry (~2.24 world radius after
+  // its 1.15 group scale), which would have clipped through the core for a
+  // 60s stand. 3.2 clears that with margin and stays well inside the
+  // persona ring's own 6.5 radius. No live caller used the old "roundtrip"
+  // brief-errand radius before this pass (lane agents don't walk; personas
+  // only ever used "arrival", which never reads `approach` at all -- see
+  // the "arriving" phase branch below), so this is a safe, unobserved
+  // change, not a tuned value regressing something already shipped.
   const approach = useMemo(() => {
     const angle = rng() * Math.PI * 2;
-    return [hub[0] + Math.cos(angle) * 1.8, home[1], hub[2] + Math.sin(angle) * 1.8] as [number, number, number];
+    return [hub[0] + Math.cos(angle) * 3.2, home[1], hub[2] + Math.sin(angle) * 3.2] as [number, number, number];
   }, [rng, hub, home]);
 
   const phase = useRef<WalkPhase>("resting");
   const phaseStart = useRef(0);
   const paceOffset = useRef(0);
+  // Which AgentWalkKind is actually IN PROGRESS (set when a queued walk
+  // starts, read by the atHub branch below to pick its pause duration/
+  // facing/animState) -- distinct from the `walkKind` PROP, which for
+  // personas is permanently "arrival" (their own individual trigger) even
+  // while an "allhands" walk (a completely separate trigger) is what's
+  // actually playing.
+  const activeWalkKind = useRef<AgentWalkKind>("roundtrip");
 
   // Event-triggered walk queue (replaces the old random 20-60s timer, J
   // 2026-09-13). `seenWalkKey` seeds silently on the first value seen after
@@ -115,6 +146,24 @@ export default function Agent({
     seenWalkKey.current = walkEventKey;
     pendingWalk.current = walkKind ?? "roundtrip";
   }, [walkEventKey, walkKind]);
+
+  // All-hands event trigger (Pass B, 2026-09-13) -- a SEPARATE seen-value
+  // diff from the one above, so a persona's own arrival walk and a
+  // company-wide all-hands walk can never be confused for each other. If
+  // both happen to change in the exact same render, this effect (declared
+  // second) wins the shared `pendingWalk` slot -- a rare, low-stakes
+  // collision (one visual walk is skipped that tick, never a crash).
+  const seenAllHandsKey = useRef<string | null | undefined>(undefined);
+  useEffect(() => {
+    if (allHandsEventKey === null || allHandsEventKey === undefined) return;
+    if (seenAllHandsKey.current === undefined) {
+      seenAllHandsKey.current = allHandsEventKey;
+      return;
+    }
+    if (allHandsEventKey === seenAllHandsKey.current) return;
+    seenAllHandsKey.current = allHandsEventKey;
+    pendingWalk.current = "allhands";
+  }, [allHandsEventKey]);
 
   // Set initial position once -- everything after this is imperative ref
   // mutation, never React state, so an agent's motion never triggers a
@@ -148,6 +197,7 @@ export default function Agent({
       if (reducedMotion) {
         pendingWalk.current = null;
       } else if (phase.current === "resting") {
+        activeWalkKind.current = pendingWalk.current;
         phase.current = pendingWalk.current === "arrival" ? "arriving" : "toHub";
         phaseStart.current = t;
         pendingWalk.current = null;
@@ -173,10 +223,29 @@ export default function Agent({
         home[1],
         home[2] + (approach[2] - home[2]) * p,
       );
-      if (p >= 1) { phase.current = "atHub"; phaseStart.current = t; }
+      if (p >= 1) {
+        phase.current = "atHub";
+        phaseStart.current = t;
+        // All-hands stand: "idle clip" per the spec -- drop the ultra
+        // tier's `walking` animState flag for the duration of the ring
+        // stand, restored when it ends (see the atHub branch below).
+        if (activeWalkKind.current === "allhands") setWalking(false);
+      }
     } else if (phase.current === "atHub") {
       g.position.set(...approach);
-      if (t - phaseStart.current >= HUB_PAUSE) { phase.current = "toHome"; phaseStart.current = t; }
+      // All-hands stand: face the core precisely (spec: "facing core") --
+      // roundtrip's brief 1.5s touch never bothered with facing, but a
+      // 60s stand reads wrong looking anywhere else. Same atan2(dx,dz)
+      // convention as `greeterFacingYaw` above.
+      if (activeWalkKind.current === "allhands") {
+        g.rotation.y = Math.atan2(hub[0] - approach[0], hub[2] - approach[2]);
+      }
+      const pauseSeconds = activeWalkKind.current === "allhands" ? ALLHANDS_HUB_PAUSE : HUB_PAUSE;
+      if (t - phaseStart.current >= pauseSeconds) {
+        phase.current = "toHome";
+        phaseStart.current = t;
+        if (activeWalkKind.current === "allhands") setWalking(true);
+      }
     } else if (phase.current === "toHome") {
       const p = Math.min(1, (t - phaseStart.current) / WALK_DURATION);
       g.position.set(

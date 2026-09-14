@@ -104,6 +104,56 @@ export function rosterEvidenceText(iso: string | null): string {
   return `quiet since ${new Date(t).toISOString().slice(0, 10)}`;
 }
 
+/** One line, <=max chars, collapsing newlines/repeated whitespace first --
+ * moved here from Hud.tsx (2026-09-13, Pass B) since ActivityBubbleLayer.tsx
+ * and DeskScreen.tsx now need the identical rule; Hud.tsx imports it from
+ * here instead of defining its own copy. */
+export function truncateOneLine(text: string | null, max: number): string {
+  if (!text) return "no output yet";
+  const flat = text.replace(/\s+/g, " ").trim();
+  return flat.length > max ? `${flat.slice(0, max - 1)}…` : flat;
+}
+
+/** Company audit badge color (commit 58d0b9c6, 2026-09-13, J: "the roster
+ * must show ghosts as ghosts") -- deliberately the SAME hex values as
+ * HEALTH_COLOR's green/amber/red (one PASS/WARN/FAIL meaning, no reason to
+ * invent a fourth palette for it), but its own named map/function per this
+ * file's own established convention (see PERSONA_STATUS_COLOR's comment on
+ * why orthogonal axes never share one lookup) -- audit verdict and persona
+ * "is it currently firing" status are different questions about the same
+ * persona and can disagree (a persona can be GREEN/just-fired *and*
+ * audit-FAIL, e.g. Treasurer this session: fired on schedule, has never
+ * once produced its deliverable). */
+export const AUDIT_VERDICT_COLOR: Record<string, string> = {
+  PASS: "#22ff88",
+  WARN: "#ffb020",
+  FAIL: "#ff3b3b",
+};
+
+export function auditVerdictColor(verdict: string | undefined): string {
+  return AUDIT_VERDICT_COLOR[verdict ?? ""] ?? "#7f93b0";
+}
+
+/** First real sentence of a station-brief body, for Gamma's speech bubble
+ * (Pass B, 2026-09-13). station_brief.md's own generator always opens with
+ * one machine header line ("<ts> ET - model <name> - N cards on the
+ * board"), then a blank-line separator, then hand-written prose (verified
+ * against a real brief this session) -- skipping straight to the header's
+ * own first "sentence" would put a timestamp dump in Gamma's mouth, not
+ * something that reads as speech. Falls back to the RAW text's first
+ * sentence if no blank-line separator is found (a format change, or a
+ * short/malformed brief), so this never throws or returns empty on honest
+ * input -- only ever "" when `text` itself is empty. */
+export function firstBriefSentence(text: string, maxLen = 90): string {
+  if (!text) return "";
+  const body = text.split(/\r?\n\s*\r?\n/, 2);
+  const source = body.length > 1 ? body[1] : text;
+  const trimmed = source.trim();
+  const m = /^(.*?[.!?])(\s|$)/.exec(trimmed);
+  const sentence = m ? m[1] : trimmed.split(/\r?\n/)[0];
+  return sentence.length > maxLen ? `${sentence.slice(0, maxLen - 1)}…` : sentence;
+}
+
 export const IDEA_STATUS_COLOR: Record<string, string> = {
   proposed: "#22d3ee",
   testing: "#ffb020",
@@ -270,6 +320,73 @@ export function makeMatcapTexture(): THREE.CanvasTexture {
   texture.colorSpace = THREE.SRGBColorSpace;
   _matcapTexture = texture;
   return texture;
+}
+
+export interface ScreenLine {
+  text: string;
+  color?: string;
+  size?: number;
+}
+
+/** One 256x160 canvas + THREE.CanvasTexture pair for a desk/wall "screen"
+ * mesh (Pass B, 2026-09-13: "real canvas-rendered textures... on kit
+ * computer-screen meshes"). Deliberately NOT a cached module-level
+ * singleton like makeMatcapTexture/makeToonGradientTexture above -- every
+ * screen shows DIFFERENT content, so each DeskScreen instance owns one of
+ * these for its own lifetime and calls drawScreenLines() on it only when
+ * its content actually changes (never per-frame -- this is real 2D canvas
+ * drawing, not free even on an idle GPU, and the brief's own budget line
+ * says "regenerated on data change only"). */
+export function createScreenCanvas(): { canvas: HTMLCanvasElement; texture: THREE.CanvasTexture } {
+  if (typeof document === "undefined") {
+    throw new Error("createScreenCanvas() called outside a browser -- never call this during SSR");
+  }
+  const canvas = document.createElement("canvas");
+  canvas.width = 256;
+  canvas.height = 160;
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return { canvas, texture };
+}
+
+/** Draws an optional dim header row (`title`) then `lines` top-to-bottom
+ * onto `canvas`, and flags `texture` for GPU re-upload. Every caller passes
+ * real evidence text (row.evidence / persona.recentOutput / idea titles --
+ * never placeholder copy), truncated defensively here too since a caller's
+ * own truncation budget (tuned for an Html DOM line) doesn't necessarily
+ * match this canvas's fixed 256px pixel width. */
+export function drawScreenLines(canvas: HTMLCanvasElement, texture: THREE.CanvasTexture, title: string | null, lines: ScreenLine[]): void {
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+  const w = canvas.width;
+  const h = canvas.height;
+  ctx.fillStyle = "#040a12";
+  ctx.fillRect(0, 0, w, h);
+  ctx.textBaseline = "top";
+  let y = 10;
+  if (title) {
+    ctx.fillStyle = "#5f7a99";
+    ctx.font = "bold 15px system-ui, sans-serif";
+    ctx.fillText(title.length > 26 ? `${title.slice(0, 25)}…` : title, 12, y);
+    y += 22;
+    ctx.strokeStyle = "rgba(122,217,255,0.25)";
+    ctx.beginPath();
+    ctx.moveTo(12, y);
+    ctx.lineTo(w - 12, y);
+    ctx.stroke();
+    y += 8;
+  }
+  for (const line of lines) {
+    if (y > h - 16) break;
+    const size = line.size ?? 18;
+    ctx.fillStyle = line.color ?? "#dff3ff";
+    ctx.font = `${size}px system-ui, sans-serif`;
+    const maxChars = Math.floor((w - 24) / (size * 0.56));
+    const text = line.text.length > maxChars ? `${line.text.slice(0, Math.max(1, maxChars - 1))}…` : line.text;
+    ctx.fillText(text, 12, y);
+    y += size + 8;
+  }
+  texture.needsUpdate = true;
 }
 
 let _toonGradientTexture: THREE.DataTexture | null = null;

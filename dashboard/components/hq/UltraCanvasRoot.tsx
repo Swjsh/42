@@ -5,11 +5,19 @@ import { Canvas } from "@react-three/fiber";
 import * as THREE from "three";
 import Scene from "./Scene";
 import StandbyPanel from "./StandbyPanel";
+import PerfReporter from "./PerfReporter";
 import type { HqApiResponse } from "./types";
 
 interface UltraCanvasRootProps {
   data: HqApiResponse | undefined;
   reducedMotion: boolean;
+  /** Pass B (2026-09-13): PerfReporter was never mounted on this tier at
+   * all before this pass (CanvasRoot.tsx's TV tier had it, this one
+   * didn't) -- the coordinator's per-pass report now needs real fps/calls/
+   * tris numbers from here too, since screenshots never reach disk. See
+   * CanvasRoot.tsx's own comment on why `kiosk` (not `lanKiosk`) is the
+   * right gate. */
+  kiosk: boolean;
 }
 
 /**
@@ -36,7 +44,7 @@ interface UltraCanvasRootProps {
 /** World pass A: memoized alongside Scene.tsx's own memo (see that file's
  * comment for the full mechanism) -- defense in depth, one more layer that
  * skips work when page.tsx's stable `sceneData` hasn't actually changed. */
-function UltraCanvasRoot({ data, reducedMotion }: UltraCanvasRootProps) {
+function UltraCanvasRoot({ data, reducedMotion, kiosk }: UltraCanvasRootProps) {
   const gaming = data?.mode === "gaming";
   const [hidden, setHidden] = useState(false);
   const [contextLost, setContextLost] = useState(false);
@@ -92,6 +100,11 @@ function UltraCanvasRoot({ data, reducedMotion }: UltraCanvasRootProps) {
           }}
         >
           <Scene data={data} reducedMotion={reducedMotion} tier="ultra" />
+          {/* firstReportMs 30s (not PerfReporter's own 10s default) -- see
+              that component's own comment: ultra tier's async GLTF/Suspense
+              loading storm needs longer than 10s to settle before a "steady
+              state" sample means anything. */}
+          <PerfReporter enabled={kiosk} firstReportMs={30_000} />
         </Canvas>
       </div>
 

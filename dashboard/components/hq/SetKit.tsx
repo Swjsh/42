@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { Suspense, useEffect, useMemo } from "react";
 import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
+import DeskScreen from "./DeskScreen";
+import type { ScreenLine } from "./palette";
 
 // ─── HQ kit rebuild (2026-09-13, HQ-SCENE-PLAN.md) ──────────────────────────
 // Real CC0 GLB pieces (Kenney Space Station Kit / Modular Space Kit / Space
@@ -266,6 +268,13 @@ interface DeskClusterProps {
    * shape Scene.tsx already threads through `localToWorld` for agent homes
    * -- callers read this back to place the matching <Agent>/<KitAgentBody>
    * exactly at the chair, never duplicating the offset math. */
+  /** Pass B (2026-09-13): when given, the computer-screen slot below
+   * renders a real DeskScreen (canvas-texture content) instead of the
+   * plain accent-tinted KitProp -- omitted (the default) for every desk
+   * that has no specific content spec (most persona desks), which keeps
+   * their screen exactly as before this pass. */
+  screenTitle?: string | null;
+  screenLines?: ScreenLine[];
 }
 
 const DESK_TOP_HEIGHT = 0.4 * FURNITURE_SCALE; // table.glb raw height 0.4
@@ -290,7 +299,8 @@ export const BAY_SEAT_LOCAL: [number, number, number] = [0, 0, BAY_DESK_OFFSET_Z
  * (which way the character/screen actually face) is a COSMETIC assumption,
  * not yet confirmed against a render -- see HQ-SCENE-PLAN.md; flip the
  * `Math.PI` on computer-screen/chair if a screenshot shows it backwards. */
-export function DeskCluster({ accentColor }: DeskClusterProps) {
+export function DeskCluster({ accentColor, screenTitle, screenLines }: DeskClusterProps) {
+  const SCREEN_POSITION: [number, number, number] = [0, DESK_TOP_HEIGHT, 0.55 * FURNITURE_SCALE];
   return (
     <group>
       <KitProp path={KIT_PATHS.furniture.table} scale={FURNITURE_SCALE} position={[0, 0, 0.3 * FURNITURE_SCALE]} receiveShadow />
@@ -309,14 +319,20 @@ export function DeskCluster({ accentColor }: DeskClusterProps) {
         tintStrength={0.12}
         castShadow
       />
-      <KitProp
-        path={KIT_PATHS.furniture.computerScreen}
-        scale={FURNITURE_SCALE}
-        position={[0, DESK_TOP_HEIGHT, 0.55 * FURNITURE_SCALE]}
-        rotation={[0, Math.PI, 0]}
-        tint={accentColor}
-        tintStrength={0.2}
-      />
+      {screenLines ? (
+        <Suspense fallback={null}>
+          <DeskScreen path={KIT_PATHS.furniture.computerScreen} position={SCREEN_POSITION} rotation={[0, Math.PI, 0]} scale={FURNITURE_SCALE} title={screenTitle ?? null} lines={screenLines} />
+        </Suspense>
+      ) : (
+        <KitProp
+          path={KIT_PATHS.furniture.computerScreen}
+          scale={FURNITURE_SCALE}
+          position={SCREEN_POSITION}
+          rotation={[0, Math.PI, 0]}
+          tint={accentColor}
+          tintStrength={0.2}
+        />
+      )}
     </group>
   );
 }

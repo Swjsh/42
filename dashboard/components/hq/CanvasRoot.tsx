@@ -10,6 +10,16 @@ interface CanvasRootProps {
   data: HqApiResponse | undefined;
   reducedMotion: boolean;
   lanKiosk: boolean;
+  /** Coordinator 2026-09-13: "record... the HUD perf line (fps/calls/tris
+   * ...from PerfReporter)" per pass -- PerfReporter's old `enabled={lanKiosk}`
+   * gate never fires for a `?kiosk=1` localhost test tab (lanKiosk requires
+   * a non-localhost hostname), only for a real LAN viewer. `kiosk` is
+   * page.tsx's broader boolean (`?kiosk=1` OR lanKiosk) already used for
+   * poll interval/Hud gating -- widening PerfReporter to the same boundary
+   * lets a manual `?kiosk=1` test session report real numbers too, without
+   * spamming the probe endpoint for a plain interactive dev tab (neither
+   * kiosk flag is set there). */
+  kiosk: boolean;
 }
 
 const MAX_BUFFER_WIDTH = 1920;
@@ -38,7 +48,7 @@ function computeDpr(): number {
  * page after 5s. Everything <Scene> needs before it's safe to run on a TV
  * SoC lives here, not scattered across the scene components.
  */
-export default function CanvasRoot({ data, reducedMotion, lanKiosk }: CanvasRootProps) {
+export default function CanvasRoot({ data, reducedMotion, lanKiosk: _lanKiosk, kiosk }: CanvasRootProps) {
   const [dpr, setDpr] = useState(() => (typeof window !== "undefined" ? computeDpr() : 1));
   const [frameloop, setFrameloop] = useState<"always" | "never">("always");
   const [contextLost, setContextLost] = useState(false);
@@ -79,7 +89,7 @@ export default function CanvasRoot({ data, reducedMotion, lanKiosk }: CanvasRoot
         }}
       >
         <Scene data={data} reducedMotion={reducedMotion} />
-        <PerfReporter enabled={lanKiosk} />
+        <PerfReporter enabled={kiosk} />
       </Canvas>
 
       {contextLost && (

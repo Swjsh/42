@@ -5,6 +5,22 @@ import { useFrame, useThree } from "@react-three/fiber";
 
 interface PerfReporterProps {
   enabled: boolean; // LAN kiosk only -- matches app/station/page.tsx's probeWebGl gating
+  /** Pass B (2026-09-13): the ultra tier's first real reading came back
+   * fps=0/calls=1/tris=1 -- almost certainly the default 10s window landing
+   * during ultra tier's async GLTF/Suspense loading storm (TV tier has
+   * ZERO GLTF loads -- pure procedural geometry -- and its own historical
+   * samples never show this). UltraCanvasRoot passes a longer delay so the
+   * FIRST sample reflects steady state, not the loading burst; TV tier
+   * (CanvasRoot.tsx) omits this and keeps the original 10s. NOTE this does
+   * not address a second, separate suspicion: @react-three/postprocessing's
+   * EffectComposer runs multiple internal renderer.render() passes per
+   * frame, and THREE's `info.render.calls/triangles` reset at the start of
+   * each one -- a snapshot taken after the LAST pass (SMAA, a single
+   * fullscreen-quad draw) may read close to 1 regardless of window timing.
+   * Unconfirmed without a source-level trace; flagged here rather than
+   * silently fixed, since a wrong fix would just produce a different wrong
+   * number with more confidence behind it. */
+  firstReportMs?: number;
 }
 
 const FIRST_REPORT_MS = 10_000;
@@ -21,11 +37,11 @@ const REPEAT_MS = 5 * 60 * 1000;
  * Fire-and-forget: a failed fetch never throws into the render loop. Does
  * nothing when !enabled (non-kiosk/non-LAN viewing never reports).
  */
-export default function PerfReporter({ enabled }: PerfReporterProps) {
+export default function PerfReporter({ enabled, firstReportMs = FIRST_REPORT_MS }: PerfReporterProps) {
   const { gl } = useThree();
   const frameCount = useRef(0);
   const windowStartMs = useRef<number | null>(null);
-  const nextDelayMs = useRef(FIRST_REPORT_MS);
+  const nextDelayMs = useRef(firstReportMs);
 
   useFrame(() => {
     if (!enabled) return;

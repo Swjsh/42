@@ -17,16 +17,25 @@ import {
 // which baked clip plays here -- see the CLIP_TABLE export below, which
 // doubles as this file's own documentation of the event->clip mapping.
 
-export type KitAnimState = "resting-idle" | "resting-working" | "walking" | "alert";
+export type KitAnimState = "resting-idle" | "resting-working" | "walking" | "alert" | "thinking";
 
 /** Event -> clip mapping (also quoted verbatim in the final task report).
  * Every clip name is verified present on all 3 bodies via manifest.json's
- * own per-character animation list -- no per-body existence guard needed. */
+ * own per-character animation list -- no per-body existence guard needed
+ * ("interact-right" confirmed present on character-male-b, the body Gamma
+ * uses, by parsing the GLB's own JSON chunk this session -- not assumed
+ * from the pack's generic marketing copy). `thinking` (Pass B, 2026-09-13):
+ * Gamma's own state when brainVitals.gpu.util_pct > 30 -- the kit's
+ * "interact" gesture reads as "working at the console" better than
+ * `sit`+`resting-working`'s arm-typing loop (which GammaCharacter.tsx
+ * doesn't use -- Gamma isn't a Kenney character with typing arms, she gets
+ * the pack's own gesture clip instead). */
 export const CLIP_TABLE: Record<KitAnimState, { clip: string; speed: number }> = {
   "resting-idle": { clip: "sit", speed: 0.7 },
   "resting-working": { clip: "sit", speed: 1.15 },
   walking: { clip: "walk", speed: 1.0 },
   alert: { clip: "walk", speed: 1.6 },
+  thinking: { clip: "interact-right", speed: 0.8 },
 };
 
 interface KitAgentBodyProps {
@@ -47,6 +56,11 @@ interface KitAgentBodyProps {
   /** gaming mode / hidden tab: freezes the mixer via timeScale=0 (holds
    * whatever pose was already playing) rather than a special clip. */
   frozen?: boolean;
+  /** Pass B (2026-09-13): Gamma is a SPECIFIC body ("male-b" per the brief),
+   * not whichever one pickCharacterBody's seed hash happens to land on --
+   * bypasses that hash entirely when set. Every other caller (lane/persona
+   * Agents) omits this and keeps the deterministic-per-seed pick unchanged. */
+  forceBodyId?: CharacterBodyId;
 }
 
 const HEAD_BEACON_RADIUS = 0.045;
@@ -67,8 +81,8 @@ const HEAD_BEACON_RADIUS = 0.045;
  * where gaming mode caught it, same intent as the old procedural body's
  * early-return-on-frozen).
  */
-export function KitAgentBody({ laneSeed, animState, accentColor, patrolDim = 1, frozen = false }: KitAgentBodyProps) {
-  const bodyId = useMemo(() => pickCharacterBody(laneSeed), [laneSeed]);
+export function KitAgentBody({ laneSeed, animState, accentColor, patrolDim = 1, frozen = false, forceBodyId }: KitAgentBodyProps) {
+  const bodyId = useMemo(() => forceBodyId ?? pickCharacterBody(laneSeed), [laneSeed, forceBodyId]);
   const path = KIT_PATHS.characters[bodyId];
   // useDraco=false EXPLICITLY -- see SetKit.tsx#KitProp's own comment (same
   // drei default, verified from source, kept off outright).

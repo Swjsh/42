@@ -7,7 +7,7 @@ import { Html } from "@react-three/drei";
 import * as THREE from "three";
 import type { SectorRow } from "./types";
 import type { AgentBehavior } from "./Agent";
-import { healthColor, isParkedState, makeToonGradientTexture, PALETTE } from "./palette";
+import { healthColor, isParkedState, makeToonGradientTexture, PALETTE, truncateOneLine, type ScreenLine } from "./palette";
 import { BAY_CEILING_Y, BAY_DESK_OFFSET_Z, BAY_HALF_DEPTH, DepartmentBayShell, DeskCluster } from "./SetKit";
 
 const _screenColor = new THREE.Color();
@@ -66,6 +66,18 @@ export default function StationModule({
   // section) move from the OLD 2.8-deep floor's -1.35/1.15 offsets to match.
   const bayHalfDepth = BAY_HALF_DEPTH;
 
+  // Bay desk screen (Pass B, 2026-09-13): "each bay screen=lane name+window
+  // P&L+health" -- real canvas texture on the DeskCluster's computer-screen
+  // mesh, built entirely from `row` (no new data producer). Health line
+  // reuses `color` (already computed above from row.health) so the screen
+  // and the module's own beacon/label agree on the same hex.
+  const pnlText = typeof row.window_pnl === "number" ? `P&L ${row.window_pnl >= 0 ? "+" : ""}${row.window_pnl.toFixed(0)}` : `P&L ${row.window_pnl}`;
+  const screenLines: ScreenLine[] = [
+    { text: pnlText, color: typeof row.window_pnl === "number" ? (row.window_pnl >= 0 ? "#22ff88" : "#ff3b3b") : "#7f93b0", size: 20 },
+    { text: `${row.state} · ${row.health}`, color, size: 16 },
+    { text: truncateOneLine(row.evidence, 34), size: 13 },
+  ];
+
   return (
     <group position={position} rotation={[0, rotationY, 0]}>
       {!ultra ? (
@@ -111,7 +123,7 @@ export default function StationModule({
           <Suspense fallback={null}>
             <DepartmentBayShell />
             <group position={[0, 0, BAY_DESK_OFFSET_Z]}>
-              <DeskCluster accentColor={color} />
+              <DeskCluster accentColor={color} screenTitle={row.lane} screenLines={screenLines} />
             </group>
           </Suspense>
 

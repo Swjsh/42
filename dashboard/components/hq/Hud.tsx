@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { HqApiResponse } from "./types";
-import { personaStatusColor, rosterEvidenceText } from "./palette";
+import { auditVerdictColor, personaStatusColor, rosterEvidenceText, truncateOneLine } from "./palette";
 import type { MotionEvent } from "@/lib/useMotionEvents";
 
 const BLOCKED_SOURCE_LABEL: Record<string, string> = {
@@ -12,15 +12,6 @@ const BLOCKED_SOURCE_LABEL: Record<string, string> = {
   queue_escalation: "Escalation",
   goal_blocked: "Goal",
 };
-
-/** One line, <=60 chars, per the roster panel's own spec -- collapses
- * newlines/repeated whitespace first so a multi-line recentOutput preview
- * (several collectors return a few lines) still reads as a single line. */
-function truncateOneLine(text: string | null, max: number): string {
-  if (!text) return "no output yet";
-  const flat = text.replace(/\s+/g, " ").trim();
-  return flat.length > max ? `${flat.slice(0, max - 1)}…` : flat;
-}
 
 interface HudProps {
   data: HqApiResponse | undefined;
@@ -65,6 +56,12 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents }: 
   const brief = data?.brief.text || "NO DATA -- no brief written yet";
   const personas = data?.company?.personas ?? [];
   const blockedItems = data?.blocked ?? [];
+  // Company audit badge (commit 58d0b9c6, coordinator 2026-09-13: "the
+  // roster must show ghosts as ghosts") -- matched by name, the same string
+  // on both sides (PersonaState.name / PersonaAudit.name). `data.audit` is
+  // null on an old build or a failed audit run (fail-open) -- every lookup
+  // below falls back to "no badge" rather than a fake verdict.
+  const auditByName = new Map((data?.audit?.personas ?? []).map((a) => [a.name, a]));
 
   return (
     <div style={{ position: "fixed", inset: 0, pointerEvents: "none", fontFamily: HUD_FONT, zIndex: 10 }}>
@@ -203,6 +200,15 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents }: 
         <div style={{ position: "absolute", top: 70, right: 20, width: 460, display: "flex", flexDirection: "column", gap: 8 }}>
           {personas.map((p) => {
             const color = personaStatusColor(p.status);
+            const audit = auditByName.get(p.name);
+            const auditColor = auditVerdictColor(audit?.verdict);
+            // Hover title (coordinator 2026-09-13: "works-evidence line on
+            // hover/plaque") -- native title attribute, a real OS tooltip,
+            // cheapest correct way to surface a long evidence string without
+            // permanently spending screen space on it.
+            const auditTitle = audit
+              ? `Audit ${audit.verdict}: ${audit.checks.works.evidence}`
+              : "Audit: not yet run for this persona";
             return (
               <div
                 key={p.name}
@@ -216,6 +222,24 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents }: 
                   <span style={{ width: 10, height: 10, borderRadius: 999, flexShrink: 0, background: color, boxShadow: `0 0 6px ${color}` }} />
                   <span style={{ color: "#dff3ff", fontSize: 24, fontWeight: 700, whiteSpace: "nowrap" }}>
                     {p.emoji} {p.name}
+                  </span>
+                  {/* Audit badge -- a SEPARATE dot from the status dot above
+                      (status = "is it firing on schedule", audit = "is the
+                      work real" -- the two can disagree, e.g. Treasurer
+                      fires on time but has never once produced its
+                      deliverable, a ghost this badge is the point of
+                      catching). Letter, not just a color, since PASS/WARN
+                      both use warm-adjacent hues some viewers won't
+                      distinguish by color alone. */}
+                  <span
+                    title={auditTitle}
+                    style={{
+                      pointerEvents: "auto", marginLeft: "auto", fontSize: 15, fontWeight: 800,
+                      color: "#03040a", background: auditColor, borderRadius: 4,
+                      padding: "1px 5px", flexShrink: 0, letterSpacing: 0.5,
+                    }}
+                  >
+                    {audit ? audit.verdict[0] : "?"}
                   </span>
                 </div>
                 <div style={{ color: "#9fb3cc", fontSize: 24, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginTop: 2 }}>

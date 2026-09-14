@@ -151,6 +151,13 @@ function HqView() {
       company: data.company,
       ideas: data.ideas.cards,
       blocked: data.blocked,
+      // Pass B (2026-09-13): Scene.tsx now reads data.audit (company audit
+      // badges on personas) -- included here per this memo's own
+      // inclusion-list contract ("a new API field Scene never reads can't
+      // accidentally destabilize this by omission" -- the inverse is also
+      // true: a field Scene DOES read must be listed, or its reference
+      // would stay stale across a real content change).
+      audit: data.audit,
     });
     if (key === sceneDataKeyRef.current && sceneDataRef.current) return sceneDataRef.current;
     sceneDataKeyRef.current = key;
@@ -164,12 +171,12 @@ function HqView() {
         <HqFallback data={data} error={error} />
       ) : webgl2 === true && tier === "tv" ? (
         <>
-          <CanvasRoot data={sceneData} reducedMotion={reducedMotion} lanKiosk={lanKiosk} />
+          <CanvasRoot data={sceneData} reducedMotion={reducedMotion} lanKiosk={lanKiosk} kiosk={kiosk} />
           <Hud data={data} error={error} kiosk={kiosk} isValidating={isValidating} motionEvents={motionEvents} />
         </>
       ) : webgl2 === true && tier === "ultra" ? (
         <>
-          <UltraCanvasRoot data={sceneData} reducedMotion={reducedMotion} />
+          <UltraCanvasRoot data={sceneData} reducedMotion={reducedMotion} kiosk={kiosk} />
           <Hud data={data} error={error} kiosk={kiosk} isValidating={isValidating} motionEvents={motionEvents} />
         </>
       ) : (

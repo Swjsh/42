@@ -18,7 +18,9 @@ import Starfield from "./Starfield";
 import SkyDome from "./SkyDome";
 import PmremEnvironment from "./PmremEnvironment";
 import EffectsStack from "./EffectsStack";
-import { freshness01, healthColor, isParkedState, localToWorld, minutesSinceEvidence, PALETTE, personaStatusColor } from "./palette";
+import GammaCharacter from "./GammaCharacter";
+import ActivityBubbleLayer, { type ActivityBubbleCandidate } from "./ActivityBubbleLayer";
+import { freshness01, healthColor, isParkedState, localToWorld, minutesSinceEvidence, PALETTE, personaStatusColor, rosterEvidenceText, truncateOneLine, type ScreenLine } from "./palette";
 import { BAY_DESK_OFFSET_Z, BAY_HALF_DEPTH, BAY_SEAT_LOCAL, CorridorRun, DeskCluster, HubRoom, HUB_WALL_RADIUS } from "./SetKit";
 
 export type HqTier = "ultra" | "tv";
@@ -320,6 +322,57 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [innerPersonas.map((p) => p.name).join("|"), personaGeometry]);
 
+  // Gamma's own desk (Pass B, 2026-09-13): fixed angle/radius near the
+  // core, not part of either ring loop -- she doesn't walk, doesn't rotate
+  // through a slot index. ARC_CENTER matches every other module's "faces
+  // the camera most directly" angle; GAMMA_RADIUS sits just outside
+  // BrainCore's ring geometry (~2.24 world radius) and well inside the
+  // persona ring (6.5) -- the same "just outside the core" band Agent.tsx's
+  // all-hands ring (radius 3.2) now stands in too.
+  const GAMMA_RADIUS = 3.4;
+  const gammaDeskCenter: [number, number, number] = [Math.cos(ARC_CENTER) * GAMMA_RADIUS, 0, Math.sin(ARC_CENTER) * GAMMA_RADIUS];
+  const gammaRotationY = Math.PI / 2 - ARC_CENTER;
+
+  // Company audit (commit 58d0b9c6, coordinator 2026-09-13: "the roster
+  // must show ghosts as ghosts") -- matched by name onto PersonaState.
+  // `data.audit` is included in page.tsx's sceneData content key, so this
+  // reference is stable across no-op polls same as everything else here.
+  const auditByName = useMemo(() => new Map((data?.audit?.personas ?? []).map((a) => [a.name, a] as const)), [data?.audit]);
+
+  // Activity bubbles (Pass B, "what they are doing," 2026-09-13) -- one
+  // candidate per WORKING lane/persona, text from real evidence only:
+  // lanes get health+state+evidence (RED gets a "!" prefix and `urgent`,
+  // which ActivityBubbleLayer uses to always outrank non-urgent bubbles at
+  // the same camera distance), personas get recentOutput or a
+  // rosterEvidenceText "quiet since..." fallback -- the SAME two text
+  // sources Hud.tsx's roster panel already reads, so the in-scene bubble
+  // and the flat HUD panel never disagree about what a persona is doing.
+  // Parked lanes / IDLE personas are excluded entirely (candidates with no
+  // Agent body shouldn't get a bubble hovering over nothing). Bubble Y is
+  // agentHome's own Y + 2.0 -- above a 1.8-unit-tall character's head,
+  // clear of StationModule's doorway nameplate (y=2.3) and PersonaModule's
+  // nameplate (its own Html, unaffected).
+  const activityCandidates: ActivityBubbleCandidate[] = useMemo(() => {
+    const out: ActivityBubbleCandidate[] = [];
+    rows.forEach((row, i) => {
+      if (isParkedState(row.state, row.health)) return;
+      const slot = geometry[i] ?? geometry[0];
+      const pos: [number, number, number] = [slot.agentHome[0], slot.agentHome[1] + 2.0, slot.agentHome[2]];
+      const text = row.health === "red"
+        ? truncateOneLine(`! ${row.evidence}`, 60)
+        : truncateOneLine(`${row.state} · ${row.evidence}`, 60);
+      out.push({ key: `lane:${row.lane}`, position: pos, text, urgent: row.health === "red" });
+    });
+    innerPersonas.forEach((p, i) => {
+      if (p.status === "IDLE") return;
+      const slot = personaGeometry[i] ?? personaGeometry[0];
+      const pos: [number, number, number] = [slot.agentHome[0], slot.agentHome[1] + 2.0, slot.agentHome[2]];
+      const text = p.recentOutput ? truncateOneLine(p.recentOutput, 60) : truncateOneLine(rosterEvidenceText(p.lastFireISO), 60);
+      out.push({ key: `persona:${p.name}`, position: pos, text, urgent: p.status === "RED" });
+    });
+    return out;
+  }, [rows, geometry, innerPersonas, personaGeometry]);
+
   const resolveHandoffPosition = (label: string): [number, number, number] => {
     const stripped = label.replace(/^[^\w]+/u, "").trim();
     const match = Object.keys(personaPositions).find((name) => stripped.startsWith(name));
@@ -394,6 +447,23 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
         ultra={ultra}
         coreMeshRef={coreMeshRef}
       />
+
+      {/* Gamma's own character + desk + speech bubble (Pass B, 2026-09-13)
+          -- ultra tier only, same reasoning as every other real-kit-geometry
+          piece in this scene (TV tier keeps BrainCore's plaque-only
+          depiction, no draw-call budget for a 15th character body). */}
+      {ultra && (
+        <GammaCharacter
+          deskCenter={gammaDeskCenter}
+          rotationY={gammaRotationY}
+          accentColor={allPersonas[0]?.color ?? PALETTE.hubCore}
+          briefText={data?.brief.text ?? ""}
+          briefMtimeMs={data?.brief.mtime_ms ?? null}
+          utilPct={data?.brainVitals.gpu.util_pct ?? null}
+          modelName={data?.brainVitals.models[0]?.name ?? null}
+          gaming={gaming}
+        />
+      )}
 
       {rows.map((row, i) => {
         const slot = geometry[i] ?? geometry[0];
@@ -475,9 +545,28 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
         // maps BOTH YELLOW and IDLE to the same "idle" Agent animation, and
         // YELLOW ("acknowledging") must keep its body.
         const showAgent = persona.status !== "IDLE";
+        // Pilot's desk screen (Pass B, 2026-09-13): "SPY price + last
+        // decision (or lane row's last_evidence line if no SPY field -- do
+        // NOT add a new data producer)". There is no SPY-specific field
+        // anywhere on HqApiResponse (checked this session) -- Pilot's own
+        // recentOutput already IS "spy=<price> last_bar=<ts>" whenever
+        // Pilot has fired (verified against a live /api/hq response this
+        // session), so reading it directly satisfies the ask with zero new
+        // producers; the "lane row" fallback in the brief doesn't map
+        // cleanly onto a persona (Pilot isn't a sectors.row), so the honest
+        // equivalent fallback is the SAME rosterEvidenceText "quiet
+        // since..." text every other persona's bubble/roster line already
+        // uses when recentOutput is empty.
+        const isPilot = persona.name === "Pilot";
+        const pilotScreenLines: ScreenLine[] | undefined = isPilot
+          ? [
+              { text: persona.recentOutput ? truncateOneLine(persona.recentOutput, 30) : "no output yet", color: "#7ad9ff", size: 18 },
+              { text: rosterEvidenceText(persona.lastFireISO), size: 14 },
+            ]
+          : undefined;
         return (
           <group key={persona.name}>
-            <PersonaModule position={slot.position} persona={persona} behavior={behavior} />
+            <PersonaModule position={slot.position} persona={persona} behavior={behavior} audit={auditByName.get(persona.name)} />
             {/* Kit rebuild: persona desks get the SAME real DeskCluster as
                 the lane bays (SetKit.tsx), offset+rotated identically --
                 ultra tier only, no room shell (personas already sit inside
@@ -488,7 +577,7 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
               <Suspense fallback={null}>
                 <group position={slot.position} rotation={[0, slot.rotationY, 0]}>
                   <group position={[0, 0, BAY_DESK_OFFSET_Z]}>
-                    <DeskCluster accentColor={personaStatusColor(persona.status)} />
+                    <DeskCluster accentColor={personaStatusColor(persona.status)} screenTitle={isPilot ? "PILOT" : undefined} screenLines={pilotScreenLines} />
                   </group>
                 </group>
               </Suspense>
@@ -508,6 +597,13 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
                 // that was already showing a lastFireISO on page load.
                 walkEventKey={persona.lastFireISO}
                 walkKind="arrival"
+                // All-hands event (Pass B, 2026-09-13): "on new station-brief
+                // mtime, 6 personas walk to hub, ring around core for 60s...
+                // walk back". Every inner persona reads the SAME key
+                // (brief.mtime_ms) so all 6 queue the SAME walk on the SAME
+                // poll -- independent of each persona's own arrival trigger
+                // above (see Agent.tsx's own comment on the two channels).
+                allHandsEventKey={data?.brief.mtime_ms != null ? String(data.brief.mtime_ms) : null}
                 ultra={ultra}
               />
             )}
@@ -523,6 +619,8 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
 
       <IdeasWall cards={data?.ideas.cards ?? []} position={WALL_POS} dimFactor={dimFactor} />
       <Courier cards={data?.ideas.cards ?? []} hub={HUB} wall={WALL_POS} reducedMotion={reducedMotion || gaming} />
+
+      {ultra && !gaming && <ActivityBubbleLayer candidates={activityCandidates} />}
     </>
   );
 }

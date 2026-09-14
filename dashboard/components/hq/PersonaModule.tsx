@@ -4,12 +4,18 @@ import type { CSSProperties } from "react";
 import { Html } from "@react-three/drei";
 import type { PersonaState } from "@/lib/personas";
 import type { AgentBehavior } from "./Agent";
-import { personaStatusColor, rosterEvidenceText } from "./palette";
+import type { PersonaAudit } from "./types";
+import { auditVerdictColor, personaStatusColor, rosterEvidenceText } from "./palette";
 
 interface PersonaModuleProps {
   position: [number, number, number];
   persona: PersonaState;
   behavior: AgentBehavior;
+  /** Company audit row (commit 58d0b9c6, coordinator 2026-09-13: "the
+   * roster must show ghosts as ghosts") -- undefined when /api/hq predates
+   * the audit or the audit script failed for this persona; renders no
+   * badge rather than a fake one. */
+  audit?: PersonaAudit;
 }
 
 /**
@@ -22,8 +28,9 @@ interface PersonaModuleProps {
  * hemisphere/directional lights -- zero new point lights (item 12 of the
  * Company Mode spec).
  */
-export default function PersonaModule({ position, persona, behavior }: PersonaModuleProps) {
+export default function PersonaModule({ position, persona, behavior, audit }: PersonaModuleProps) {
   const color = personaStatusColor(persona.status);
+  const auditColor = auditVerdictColor(audit?.verdict);
 
   return (
     <Html position={[position[0], 1.05, position[2]]} center distanceFactor={9} style={{ pointerEvents: "none" }}>
@@ -37,8 +44,20 @@ export default function PersonaModule({ position, persona, behavior }: PersonaMo
           }}
         >
           <span key={persona.status} className="hq-shine" />
-          <div style={{ fontSize: 28, fontWeight: 800, lineHeight: 1.2 }}>
-            {persona.emoji} {persona.name}
+          <div style={{ fontSize: 28, fontWeight: 800, lineHeight: 1.2, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+            <span>{persona.emoji} {persona.name}</span>
+            {/* Audit badge (coordinator 2026-09-13) -- a second, SEPARATE
+                verdict from the status dot the plaque's own beam-color
+                already carries: status is "is it firing," audit is "is the
+                work real," and they can disagree (a ghost). No hover in-
+                scene (Html here has pointerEvents:none, matching every
+                other in-scene label) -- the full works-evidence line lives
+                on Hud.tsx's roster panel's own badge title instead. */}
+            {audit && (
+              <span style={{ fontSize: 15, fontWeight: 800, color: "#03040a", background: auditColor, borderRadius: 4, padding: "1px 5px" }}>
+                {audit.verdict[0]}
+              </span>
+            )}
           </div>
           <div style={{ fontSize: 26, color: "#7f93b0" }}>
             {rosterEvidenceText(persona.lastFireISO)}

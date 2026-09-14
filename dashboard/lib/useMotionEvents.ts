@@ -58,6 +58,7 @@ export function useMotionEvents(data: HqApiResponse | undefined): MotionEvent[] 
   const prevPersonaStatus = useRef<Map<string, string>>(new Map());
   const prevGaming = useRef<boolean | null>(null);
   const prevPresent = useRef<boolean | null>(null);
+  const prevBriefMtime = useRef<number | null | undefined>(undefined);
 
   if (!data) return events.current;
 
@@ -83,6 +84,7 @@ export function useMotionEvents(data: HqApiResponse | undefined): MotionEvent[] 
     for (const r of rows) prevLaneHealth.current.set(r.lane, r.health);
     prevGaming.current = gaming;
     prevPresent.current = present;
+    prevBriefMtime.current = data.brief?.mtime_ms ?? null;
     return events.current;
   }
 
@@ -142,6 +144,16 @@ export function useMotionEvents(data: HqApiResponse | undefined): MotionEvent[] 
     push(gaming ? "GPU reserved for J -- everyone freezes" : "Gaming ended -- agents resume");
   }
   prevGaming.current = gaming;
+
+  // (h): a new station-brief mtime -> the all-hands event (Agent.tsx's
+  // "allhands" walk, triggered from Scene.tsx off this SAME field). Named
+  // here so the ticker says WHY 6 personas just converged on the core,
+  // matching the brief's own example line.
+  const briefMtime = data.brief?.mtime_ms ?? null;
+  if (prevBriefMtime.current !== undefined && briefMtime !== null && prevBriefMtime.current !== briefMtime) {
+    push("Station brief -> all hands at the core");
+  }
+  prevBriefMtime.current = briefMtime;
 
   // (g): presence toggling -- the greeter turns to face the room / dims.
   if (prevPresent.current !== null && prevPresent.current !== present) {
