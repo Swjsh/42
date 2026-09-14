@@ -165,7 +165,16 @@ interface KitPropProps {
  * 8 times) + a per-instance clone. This is the one building block every
  * component below is made of. */
 export function KitProp({ path, scale = 1, position, rotation, tint, tintStrength = 0.15, castShadow, receiveShadow }: KitPropProps) {
-  const { scene } = useGLTF(path);
+  // useDraco=false EXPLICITLY -- verified this session by reading drei's own
+  // useGLTF source (node_modules/@react-three/drei/core/Gltf.js): omitting
+  // the arg defaults it to `true`, which points a DRACOLoader at a
+  // gstatic.com CDN path. That decoder is only ever FETCHED if a loaded
+  // file actually contains `KHR_draco_mesh_compression` (none of these
+  // bundled Kenney/KayKit GLBs do -- confirmed by parsing their raw JSON
+  // chunks directly), so it would stay dormant in practice -- but this
+  // project's zero-network-requests rule is absolute, so it's set false
+  // outright rather than left as an implicit, easy-to-miss assumption.
+  const { scene } = useGLTF(path, false);
   const cloned = useTintedClone(scene, tint, tintStrength);
 
   useEffect(() => {
@@ -181,11 +190,29 @@ export function KitProp({ path, scale = 1, position, rotation, tint, tintStrengt
 }
 
 /** Central hub interior shell -- one `room-large.glb` at ARCHITECTURE_SCALE_HUB
- * (-> 10x10 footprint, radius 5, clearing the existing PERSONA_RING_RADIUS=4.5
- * by 0.5 units). Neutral (no tint) -- the hub is shared/manager space, no
- * single lane's health color belongs on its walls. */
+ * (-> 15x15 footprint, radius 7.5, clearing Scene.tsx's PERSONA_RING_RADIUS=6.5
+ * by 1.0 unit -- see ARCHITECTURE_SCALE_HUB's own comment for why this isn't
+ * the smaller number an earlier pass of this file used). Neutral (no tint)
+ * -- the hub is shared/manager space, no single lane's health color belongs
+ * on its walls. Plus 4 ceiling lights (decorative greeble only). */
+const HUB_CEILING_Y = 4.25 * ARCHITECTURE_SCALE_HUB - 0.4; // room-large raw height 4.25
+
 export function HubRoom() {
-  return <KitProp path={KIT_PATHS.architecture.roomLarge} scale={ARCHITECTURE_SCALE_HUB} receiveShadow />;
+  const lightRadius = 4;
+  return (
+    <>
+      <KitProp path={KIT_PATHS.architecture.roomLarge} scale={ARCHITECTURE_SCALE_HUB} receiveShadow />
+      {[0, 90, 180, 270].map((deg) => {
+        const rad = (deg * Math.PI) / 180;
+        return (
+          <CeilingLight
+            key={deg}
+            position={[Math.cos(rad) * lightRadius, HUB_CEILING_Y, Math.sin(rad) * lightRadius]}
+          />
+        );
+      })}
+    </>
+  );
 }
 
 /** One department bay's room shell + hub-facing gate-door, in the module's
@@ -193,6 +220,8 @@ export function HubRoom() {
  * StationModule.tsx). `room-small.glb` at ARCHITECTURE_SCALE_BAY -> 5.4x5.4.
  * The gate-door sits at local -Z (the hub-facing edge, matching the existing
  * beacon/edge-strip convention already in StationModule.tsx). */
+const BAY_CEILING_Y = 4.25 * ARCHITECTURE_SCALE_BAY - 0.35; // room-small raw height 4.25
+
 export function DepartmentBayShell() {
   const halfDepth = (12 * ARCHITECTURE_SCALE_BAY) / 2; // room-small raw depth 12
   return (
@@ -204,6 +233,7 @@ export function DepartmentBayShell() {
         position={[0, 0, -halfDepth]}
         castShadow
       />
+      <CeilingLight position={[0, BAY_CEILING_Y, BAY_DESK_OFFSET_Z * 0.5]} />
     </>
   );
 }
@@ -282,13 +312,16 @@ export function DeskCluster({ accentColor }: DeskClusterProps) {
 const CORRIDOR_UP = new THREE.Vector3(0, 1, 0);
 
 export function CorridorRun({ from, to }: { from: [number, number, number]; to: [number, number, number] }) {
-  const { positions, quaternion, count } = useMemo(() => {
+  const { positions, quaternion } = useMemo(() => {
     const start = new THREE.Vector3(...from);
     const end = new THREE.Vector3(...to);
     const dir = new THREE.Vector3().subVectors(end, start);
     const length = dir.length() || 0.001;
     dir.normalize();
     const q = new THREE.Quaternion().setFromUnitVectors(CORRIDOR_UP, dir);
+    // draw-call sanity: segCount is small on purpose -- ARCHITECTURE_SCALE_BAY's
+    // 1.8u segment length vs a ~4-5u hub-to-bay gap means 2-3 segments per
+    // corridor, not a dozen, x8 lanes.
     const segCount = Math.max(1, Math.round(length / CORRIDOR_SEGMENT_LENGTH));
     const step = length / segCount;
     const segs: [number, number, number][] = [];
@@ -296,7 +329,7 @@ export function CorridorRun({ from, to }: { from: [number, number, number]; to: 
       const d = step * (i + 0.5);
       segs.push([start.x + dir.x * d, start.y, start.z + dir.z * d]);
     }
-    return { positions: segs, quaternion: q, count: segCount };
+    return { positions: segs, quaternion: q };
   }, [from[0], from[1], from[2], to[0], to[1], to[2]]);
 
   const euler = useMemo(() => new THREE.Euler().setFromQuaternion(quaternion), [quaternion]);
@@ -313,9 +346,6 @@ export function CorridorRun({ from, to }: { from: [number, number, number]; to: 
           receiveShadow
         />
       ))}
-      {/* draw-call sanity: `count` segments per corridor, x8 lanes -- kept
-          small on purpose (ARCHITECTURE_SCALE_BAY's 1.8u segment length vs a
-          ~5u hub-to-bay gap means 2-3 segments/corridor, not a dozen). */}
     </group>
   );
 }
@@ -354,12 +384,15 @@ export function CeilingLight({ position }: { position: [number, number, number] 
 
 // Preload the small, always-visible set eagerly (drei's suspense cache) --
 // characters are preloaded per-body from KitAgent.tsx instead, since which
-// bodies are actually needed depends on runtime lane/persona names.
-useGLTF.preload(KIT_PATHS.architecture.roomLarge);
-useGLTF.preload(KIT_PATHS.architecture.roomSmall);
-useGLTF.preload(KIT_PATHS.architecture.corridor);
-useGLTF.preload(KIT_PATHS.architecture.gateDoor);
-useGLTF.preload(KIT_PATHS.furniture.table);
-useGLTF.preload(KIT_PATHS.furniture.chair);
-useGLTF.preload(KIT_PATHS.furniture.computer);
-useGLTF.preload(KIT_PATHS.furniture.computerScreen);
+// bodies are actually needed depends on runtime lane/persona names. `false`
+// (useDraco) on every call -- see KitProp's own comment on why this is
+// explicit rather than left to the (network-pointing) default.
+useGLTF.preload(KIT_PATHS.architecture.roomLarge, false);
+useGLTF.preload(KIT_PATHS.architecture.roomSmall, false);
+useGLTF.preload(KIT_PATHS.architecture.corridor, false);
+useGLTF.preload(KIT_PATHS.architecture.gateDoor, false);
+useGLTF.preload(KIT_PATHS.furniture.table, false);
+useGLTF.preload(KIT_PATHS.furniture.chair, false);
+useGLTF.preload(KIT_PATHS.furniture.computer, false);
+useGLTF.preload(KIT_PATHS.furniture.computerScreen, false);
+useGLTF.preload(KIT_PATHS.lights, false);

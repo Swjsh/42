@@ -70,7 +70,9 @@ const HEAD_BEACON_RADIUS = 0.045;
 export function KitAgentBody({ laneSeed, animState, accentColor, patrolDim = 1, frozen = false }: KitAgentBodyProps) {
   const bodyId = useMemo(() => pickCharacterBody(laneSeed), [laneSeed]);
   const path = KIT_PATHS.characters[bodyId];
-  const { scene, animations } = useGLTF(path);
+  // useDraco=false EXPLICITLY -- see SetKit.tsx#KitProp's own comment (same
+  // drei default, verified from source, kept off outright).
+  const { scene, animations } = useGLTF(path, false);
 
   // Skinned clone -- one per mounted instance, never re-run unless the
   // source scene reference itself changes (i.e. never, after first load).
@@ -132,6 +134,6 @@ export function KitAgentBody({ laneSeed, animState, accentColor, patrolDim = 1, 
   );
 }
 
-CHARACTER_BODY_IDS.forEach((id) => useGLTF.preload(KIT_PATHS.characters[id]));
+CHARACTER_BODY_IDS.forEach((id) => useGLTF.preload(KIT_PATHS.characters[id], false));
 
 export type { CharacterBodyId };
