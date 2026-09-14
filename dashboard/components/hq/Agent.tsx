@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useThrottledFrame } from "./useThrottledFrame";
-import { seededRandom } from "./palette";
+import { makeMatcapTexture, seededRandom } from "./palette";
 
 export type AgentBehavior = "working" | "idle" | "alert" | "frozen";
 export type AgentWalkKind = "roundtrip" | "arrival";
@@ -67,6 +67,7 @@ export default function Agent({
   const armR = useRef<THREE.Mesh>(null);
   const visorMat = useRef<THREE.MeshLambertMaterial>(null);
 
+  const matcap = useMemo(() => makeMatcapTexture(), []);
   const rng = useMemo(() => seededRandom(laneSeed), [laneSeed]);
   const approach = useMemo(() => {
     const angle = rng() * Math.PI * 2;
@@ -201,38 +202,38 @@ export default function Agent({
 
   return (
     <group ref={group}>
-      {/* Legs -- Lambert everywhere below (cheap N.L diffuse, no PBR sampling
-          -- the real TV's Mali-G31 is fragment-bound and hates per-pixel
-          lights, so Standard's roughness/metalness terms are pure waste
-          here). The alert "!" indicator moved to the module's own label
-          (StationModule.tsx) instead of a second floating Html per agent --
-          keeps the page's total Html overlay count well under budget. */}
+      {/* Legs/body/arms/backpack -- procedural matcap (HQ v4 look pass,
+          2026-09-13): one texture lookup replaces Lambert's per-fragment
+          N.L at the same cost class, giving these little bots actual
+          dimensional shading instead of flat color blocks. The visor below
+          stays Lambert+emissive unchanged -- it's meant to glow, not be
+          shaded by a matcap. */}
       <mesh ref={legL} position={[-0.09, 0.18, 0]}>
         <cylinderGeometry args={[0.045, 0.045, 0.32, 6]} />
-        <meshLambertMaterial color="#1b2436" />
+        <meshMatcapMaterial matcap={matcap} color="#1b2436" />
       </mesh>
       <mesh ref={legR} position={[0.09, 0.18, 0]}>
         <cylinderGeometry args={[0.045, 0.045, 0.32, 6]} />
-        <meshLambertMaterial color="#1b2436" />
+        <meshMatcapMaterial matcap={matcap} color="#1b2436" />
       </mesh>
       {/* Body (capsule) */}
       <mesh position={[0, 0.5, 0]}>
         <capsuleGeometry args={[0.14, 0.32, 4, 8]} />
-        <meshLambertMaterial color="#232d44" />
+        <meshMatcapMaterial matcap={matcap} color="#232d44" />
       </mesh>
       {/* Arms */}
       <mesh ref={armL} position={[-0.19, 0.55, 0]}>
         <cylinderGeometry args={[0.035, 0.035, 0.28, 6]} />
-        <meshLambertMaterial color="#232d44" />
+        <meshMatcapMaterial matcap={matcap} color="#232d44" />
       </mesh>
       <mesh ref={armR} position={[0.19, 0.55, 0]}>
         <cylinderGeometry args={[0.035, 0.035, 0.28, 6]} />
-        <meshLambertMaterial color="#232d44" />
+        <meshMatcapMaterial matcap={matcap} color="#232d44" />
       </mesh>
       {/* Backpack */}
       <mesh position={[0, 0.5, -0.13]}>
         <boxGeometry args={[0.16, 0.22, 0.08]} />
-        <meshLambertMaterial color="#141b2e" />
+        <meshMatcapMaterial matcap={matcap} color="#141b2e" />
       </mesh>
       {/* Visor / head-lamp */}
       <mesh position={[0, 0.78, 0.09]}>

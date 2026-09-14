@@ -10,6 +10,7 @@ const BLOCKED_SOURCE_LABEL: Record<string, string> = {
   discord: "Discord",
   conductor_proposal: "Proposal",
   queue_escalation: "Escalation",
+  goal_blocked: "Goal",
 };
 
 /** One line, <=60 chars, per the roster panel's own spec -- collapses
@@ -186,7 +187,7 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents }: 
             <div key={`${item.source}-${item.ts ?? i}`} style={{ fontSize: 14, color: "#ffe0a3", marginTop: i === 0 ? 0 : 6, lineHeight: 1.3 }}>
               <span style={{ color: "#ffb020", fontWeight: 700 }}>[{BLOCKED_SOURCE_LABEL[item.source] ?? item.source}]</span>{" "}
               {item.text}
-              <span style={{ color: "#c99457" }}> &middot; {timeAgoText(item.ts)}</span>
+              <span style={{ color: "#c99457" }}> &middot; {item.age}</span>
             </div>
           ))}
         </div>

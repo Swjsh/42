@@ -62,7 +62,12 @@ export default function CanvasRoot({ data, reducedMotion, lanKiosk }: CanvasRoot
         dpr={dpr}
         frameloop={frameloop}
         shadows={false}
-        gl={{ antialias: false, powerPreference: "low-power", alpha: false }}
+        // HQ v4 look pass (2026-09-13): MSAA turned on -- ARM's own docs
+        // call 4x MSAA "almost free" on tile-based GPUs like the Mali-G31
+        // (resolved in on-chip tile memory, unlike immediate-mode desktop
+        // GPUs) -- the single highest-confidence fix for the "jaggy PS2"
+        // tell, verify via tv-perf.jsonl TV rows: fps should barely move.
+        gl={{ antialias: true, powerPreference: "low-power", alpha: false }}
         camera={{ fov: 42, near: 0.5, far: 90 }}
         onCreated={(state) => {
           const canvas = state.gl.domElement;

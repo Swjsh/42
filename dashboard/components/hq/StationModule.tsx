@@ -1,13 +1,13 @@
 "use client";
 
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 import type { CSSProperties } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import * as THREE from "three";
 import type { SectorRow } from "./types";
 import type { AgentBehavior } from "./Agent";
-import { healthColor, isParkedState, PALETTE } from "./palette";
+import { healthColor, isParkedState, makeToonGradientTexture, PALETTE } from "./palette";
 
 const _screenColor = new THREE.Color();
 
@@ -26,6 +26,7 @@ export default function StationModule({
   const beaconRef = useRef<THREE.Mesh>(null);
   const screenMat = useRef<THREE.MeshBasicMaterial>(null);
   const edgeMat = useRef<THREE.MeshBasicMaterial>(null);
+  const gradientMap = useMemo(() => makeToonGradientTexture(), []);
 
   const parked = isParkedState(row.state, row.health);
   const color = healthColor(row.health);
@@ -52,10 +53,12 @@ export default function StationModule({
 
   return (
     <group position={position} rotation={[0, rotationY, 0]}>
-      {/* Floor slab -- Lambert (cheap diffuse) instead of Standard */}
+      {/* Floor slab -- toon-shaded (HQ v4 look pass, 2026-09-13): a 3-step
+          gradientMap gives the floor actual depth-band shading instead of
+          Lambert's single flat N.L tone, same cost class. */}
       <mesh position={[0, -0.05, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <planeGeometry args={[3.2, 2.8]} />
-        <meshLambertMaterial color={PALETTE.floor} />
+        <meshToonMaterial color={PALETTE.floor} gradientMap={gradientMap} />
       </mesh>
 
       {/* Emissive floor-edge strip, hub-facing side -- REPLACES the old
@@ -75,10 +78,10 @@ export default function StationModule({
         <meshBasicMaterial ref={screenMat} color={color} toneMapped={false} />
       </mesh>
 
-      {/* Desk */}
+      {/* Desk -- toon-shaded, same gradientMap as the floor above */}
       <mesh position={[0, 0.28, 0.55]}>
         <boxGeometry args={[1.5, 0.5, 0.55]} />
-        <meshLambertMaterial color={PALETTE.deskDark} />
+        <meshToonMaterial color={PALETTE.deskDark} gradientMap={gradientMap} />
       </mesh>
 
       {/* Door beacon -- hub-facing edge */}

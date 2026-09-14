@@ -1,7 +1,14 @@
 // Shared palette + small deterministic helpers for the /hq space-station
 // scene. Colors are plain hex strings (three.js accepts them directly on
-// `color`/`emissive` props) so this file has zero three.js dependency and can
-// be imported from the 2D fallback too.
+// `color`/`emissive` props) so this file has zero three.js RUNTIME
+// dependency for EVERYTHING BELOW except makeMatcapTexture()/
+// makeToonGradientTexture() near the bottom (HQ v4 look pass, 2026-09-13) --
+// those two are the one deliberate exception (the style brief's own
+// section 5 places them here). The `three` import itself is SSR-safe (it
+// only references classes/constants, same as any other module import) --
+// it's calling these two functions that needs a browser, which is why both
+// throw loudly rather than run silently if invoked outside one.
+import * as THREE from "three";
 
 export const PALETTE = {
   space: "#03040a",
@@ -17,6 +24,16 @@ export const PALETTE = {
   planetRim: "#4fd6ff",
   text: "#dff3ff",
   textDim: "#7f93b0",
+  // HQ v4 look pass (2026-09-13, Direction A -- Tron/Blade-Runner cold-warm
+  // contrast): the EXISTING amberAlert hex promoted to a deliberate second
+  // hero hue used decoratively (sky-dome horizon glow, HUD scan tint) --
+  // same value, a DIFFERENT role, so alert semantics and decoration never
+  // share one lookup (same reasoning as PERSONA_STATUS_COLOR vs
+  // HEALTH_COLOR below: never invent a new hex when one already carries the
+  // right meaning). Horizon/depth reuses the existing `corridor` hex as the
+  // sky dome's mid-gradient stop.
+  warmAccent: "#ffb020",
+  horizonDepth: "#12203a",
 } as const;
 
 export const HEALTH_COLOR: Record<string, string> = {
@@ -188,4 +205,74 @@ export function localToWorld(
     center[1] + local[1],
     center[2] - local[0] * sin + local[2] * cos,
   ];
+}
+
+// ─── HQ v4 look pass (2026-09-13): procedural textures, all-canvas-drawn,
+//     zero bundled assets (nidorx/matcaps was checked and rejected --
+//     untraceable original authorship, a real license risk for a public
+//     repo). Both are cached module-level singletons built ONCE on first
+//     call, never per-frame/per-render, and never at module-import time
+//     (canvas/DataTexture need a browser -- calling either during Next.js's
+//     server render would throw "document is not defined"; both functions
+//     fail loudly instead of silently returning something wrong). Only
+//     ever call these from inside an r3f child of <Canvas>, which never
+//     executes during SSR. ─────────────────────────────────────────────────
+
+let _matcapTexture: THREE.CanvasTexture | null = null;
+
+/** A single soft radial-gradient "sphere shading" matcap -- the standard
+ * Bruno-Simon-portfolio-style technique: one texture lookup keyed by
+ * view-space normal replaces Lambert's per-fragment N.L, at a fraction of
+ * the cost on a fragment-bound mobile GPU, while giving flat unlit meshes
+ * actual dimensional shading. Neutral/blue-white so `color` tinting (every
+ * caller passes its own part color) reads naturally on top of it. */
+export function makeMatcapTexture(): THREE.CanvasTexture {
+  if (typeof document === "undefined") {
+    throw new Error("makeMatcapTexture() called outside a browser -- never call this during SSR");
+  }
+  if (_matcapTexture) return _matcapTexture;
+  const size = 128;
+  const canvas = document.createElement("canvas");
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("makeMatcapTexture(): 2D canvas context unavailable");
+  const gradient = ctx.createRadialGradient(size * 0.35, size * 0.32, size * 0.04, size * 0.5, size * 0.5, size * 0.62);
+  gradient.addColorStop(0, "#ffffff");
+  gradient.addColorStop(0.22, "#cfe9ff");
+  gradient.addColorStop(0.5, "#5f83a0");
+  gradient.addColorStop(0.78, "#1c2c3c");
+  gradient.addColorStop(1, "#05090f");
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, size, size);
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.needsUpdate = true;
+  texture.colorSpace = THREE.SRGBColorSpace;
+  _matcapTexture = texture;
+  return texture;
+}
+
+let _toonGradientTexture: THREE.DataTexture | null = null;
+
+/** 3-step toon gradient ramp (the brief's own spec) for MeshToonMaterial's
+ * `gradientMap` -- a tiny 1-row RedFormat DataTexture sampled by N.L,
+ * NearestFilter so the 3 bands stay crisp bands rather than blurring into a
+ * smooth Lambert-like gradient (that smoothing is exactly the "flat/no
+ * depth modeling" look this material swap exists to fix). WebGL2-only
+ * (RedFormat), which this project already requires throughout. */
+export function makeToonGradientTexture(): THREE.DataTexture {
+  if (typeof document === "undefined") {
+    throw new Error("makeToonGradientTexture() called outside a browser -- never call this during SSR");
+  }
+  if (_toonGradientTexture) return _toonGradientTexture;
+  const steps = 3;
+  const data = new Uint8Array(steps);
+  for (let i = 0; i < steps; i++) data[i] = Math.round((i / (steps - 1)) * 255);
+  const texture = new THREE.DataTexture(data, steps, 1, THREE.RedFormat);
+  texture.minFilter = THREE.NearestFilter;
+  texture.magFilter = THREE.NearestFilter;
+  texture.generateMipmaps = false;
+  texture.needsUpdate = true;
+  _toonGradientTexture = texture;
+  return texture;
 }

@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import * as THREE from "three";
 import type { PersonaState } from "@/lib/personas";
-import { clamp01, lerp, PALETTE, personaStatusColor } from "./palette";
+import { clamp01, lerp, makeMatcapTexture, PALETTE, personaStatusColor } from "./palette";
 
 interface BrainCoreProps {
   utilPct: number | null;
@@ -33,7 +33,8 @@ const PULSE_DURATION_MS = 10_000;
 export default function BrainCore({
   utilPct, memUsedMib, memTotalMib, modelName, manager, briefMtimeMs, gaming, dimFactor, reducedMotion,
 }: BrainCoreProps) {
-  const coreMat = useRef<THREE.MeshStandardMaterial>(null);
+  const coreMat = useRef<THREE.MeshMatcapMaterial>(null);
+  const matcap = useMemo(() => makeMatcapTexture(), []);
   const ringA = useRef<THREE.Mesh>(null);
   const ringB = useRef<THREE.Mesh>(null);
   const ringAMat = useRef<THREE.MeshBasicMaterial>(null);
@@ -102,7 +103,12 @@ export default function BrainCore({
 
     const flicker = Math.sin(t * 2.1) * 0.06;
     const baseGlow = lerp(0.7, 2.6, utilFrac) * dimFactor;
-    if (coreMat.current) coreMat.current.emissiveIntensity = baseGlow + flicker;
+    // meshMatcapMaterial has no emissive/emissiveIntensity (HQ v4 look pass,
+    // 2026-09-13) -- the same "brighter = busier" animation now scales the
+    // material's own `color` instead, the identical THREE.Color.set(hex).
+    // multiplyScalar(factor) pattern already used everywhere else in this
+    // file (ring materials) and in StationModule.tsx's screen/edge tint.
+    if (coreMat.current) coreMat.current.color.set(PALETTE.hubCore).multiplyScalar(baseGlow + flicker);
     if (glowMat.current) glowMat.current.opacity = clamp01(0.35 + utilFrac * 0.5) * dimFactor;
     if (ringAMat.current) ringAMat.current.color.set(PALETTE.hubRing).multiplyScalar(ringBoost * dimFactor);
     if (ringBMat.current) ringBMat.current.color.set("#7ad9ff").multiplyScalar(ringBoost * dimFactor);
@@ -112,18 +118,15 @@ export default function BrainCore({
 
   return (
     <group scale={1.15}>
-      {/* Core sphere -- Lambert (cheap N.L diffuse, no PBR/roughness sampling)
-          keeps the same emissive/emissiveIntensity animation path Standard
-          had, at a fraction of the fragment cost on a weak mobile GPU. */}
+      {/* Core sphere -- procedural matcap (HQ v4 look pass, 2026-09-13):
+          one texture lookup keyed by view-space normal replaces Lambert's
+          per-fragment N.L, giving the sphere real dimensional shading
+          (the "flat sticker" tell the style brief names as tell #1) at the
+          same fragment-cost class Lambert was. `color` scales brightness
+          in useFrame the same way emissiveIntensity used to. */}
       <mesh>
         <sphereGeometry args={[1.05, 20, 16]} />
-        <meshLambertMaterial
-          ref={coreMat}
-          color={PALETTE.hubCore}
-          emissive={PALETTE.hubCore}
-          emissiveIntensity={1}
-          toneMapped={false}
-        />
+        <meshMatcapMaterial ref={coreMat} matcap={matcap} color={PALETTE.hubCore} toneMapped={false} />
       </mesh>
 
       {/* Counter-rotating rings -- thickened (was 0.02-0.025 tube radius,

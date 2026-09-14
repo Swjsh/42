@@ -2,7 +2,7 @@ import { promises as fs } from "node:fs";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import path from "node:path";
-import { paths } from "./workspace";
+import { paths, WORKSPACE_ROOT } from "./workspace";
 
 const execFileAsync = promisify(execFile);
 
@@ -223,20 +223,51 @@ export async function readLatestHqPerf(): Promise<{ perf: TvPerfRow | null; perf
 //     nothing, never a 500 for the whole card. ─────────────────────────────
 
 export interface BlockedItem {
-  source: "discord" | "conductor_proposal" | "queue_escalation";
+  source: "discord" | "conductor_proposal" | "queue_escalation" | "goal_blocked";
   ts: string | null;
+  age: string;
   text: string;
 }
 
-/** discord-outbox.jsonl has NO delivered/resolved marker anywhere in its
- * schema (checked directly: 7623 rows, several shapes -- {content,source,
- * queued_at}, {ts,channel,message,source}, {ts,source,reason,detail,...} --
- * none carry a status/delivered/resolved field). So "not marked delivered/
- * resolved" reduces to "recent" here: this reads only the last 300 rows
- * (not the whole 7623-row history) and treats every one of those that
- * mentions J as still-relevant, rather than inventing a resolution state
- * this producer doesn't track. Body text comes from whichever of
- * content/message/detail is present. */
+// Recency caps (2026-09-13 hotfix): the ORIGINAL v3 card shipped noisy --
+// its discord source took every `<@J>` row (the PROSPECTOR/SENTINEL digest
+// spam J muted Discord over on purpose), and the other two sources had no
+// staleness check at all (6 "pending" conductor proposals dated June/July
+// that nobody will ever decide; goal `[B-J]` lines surviving from a CLOSED
+// goal). "Needs J" must mean a decision only J can make, right now.
+const PROPOSAL_MAX_AGE_DAYS = 14;
+const ESCALATION_MAX_AGE_DAYS = 14;
+const DISCORD_MAX_AGE_DAYS = 7;
+
+function daysAgo(iso: string | null): number | null {
+  if (!iso) return null;
+  const t = Date.parse(iso);
+  return Number.isNaN(t) ? null : (Date.now() - t) / 86_400_000;
+}
+
+/** "2d" / "5h" -- computed server-side (not left to the client to re-derive
+ * from `ts`) so `age` is always present on the wire, matching what a
+ * `curl /api/station` verification actually reads. */
+function formatAge(iso: string | null): string {
+  const d = daysAgo(iso);
+  if (d === null) return "?";
+  if (d < 1) return `${Math.max(0, Math.round(d * 24))}h`;
+  return `${Math.round(d)}d`;
+}
+
+/** discord-outbox.jsonl rows only count as a J-decision using the EXACT
+ * same rule the bridge itself uses to decide what reaches Discord at all --
+ * `classify_outbox_row()` in setup/scripts/discord-bridge.py:
+ * `j_decision = bool(row.get("j_decision"))`. Alarm/brief/digest rows
+ * (PROSPECTOR, TWIN SENTINEL, etc.) never set this field, so they are
+ * excluded by construction, not by a second hand-rolled content filter --
+ * reusing the bridge's own rule instead of re-inventing a "looks like it
+ * mentions J" heuristic is the whole point of this hotfix. Reads the last
+ * 300 rows (this producer has no delivered/resolved marker in its schema,
+ * so "recent" is the only available notion of "still relevant") and then
+ * additionally requires age <= DISCORD_MAX_AGE_DAYS with a PARSEABLE
+ * timestamp -- a qualifying row with no usable ts is excluded rather than
+ * assumed fresh. */
 async function readDiscordBlocked(): Promise<BlockedItem[]> {
   try {
     const text = await fs.readFile(paths.discordOutbox, "utf-8");
@@ -245,12 +276,15 @@ async function readDiscordBlocked(): Promise<BlockedItem[]> {
     for (const line of lines) {
       try {
         const row = JSON.parse(line) as {
-          content?: string; message?: string; detail?: string;
+          content?: string; message?: string; detail?: string; j_decision?: unknown;
           ts?: string; queued_at?: string; ts_utc?: string;
         };
+        if (!row.j_decision) continue;
+        const ts = row.ts ?? row.queued_at ?? row.ts_utc ?? null;
+        const age = daysAgo(ts);
+        if (age === null || age > DISCORD_MAX_AGE_DAYS) continue;
         const body = row.content ?? row.message ?? row.detail ?? "";
-        if (!body.includes("<@") && !body.includes("J:")) continue;
-        items.push({ source: "discord", ts: row.ts ?? row.queued_at ?? row.ts_utc ?? null, text: body.slice(0, 140) });
+        items.push({ source: "discord", ts, age: formatAge(ts), text: body.slice(0, 140) });
       } catch {
         // one malformed line never blocks the rest
       }
@@ -261,6 +295,9 @@ async function readDiscordBlocked(): Promise<BlockedItem[]> {
   }
 }
 
+/** Pending proposals older than PROPOSAL_MAX_AGE_DAYS are excluded -- a
+ * "pending" row from June/July that nobody has acted on in months is not a
+ * decision anyone is about to make tonight, it's backlog. */
 async function readConductorProposalsBlocked(): Promise<BlockedItem[]> {
   try {
     const text = await fs.readFile(paths.conductorProposals, "utf-8");
@@ -270,8 +307,10 @@ async function readConductorProposalsBlocked(): Promise<BlockedItem[]> {
       try {
         const row = JSON.parse(line) as { status?: string; created_at?: string; title?: string; apply?: string; proposal_id?: string };
         if (row.status !== "pending") continue;
+        const age = daysAgo(row.created_at ?? null);
+        if (age === null || age > PROPOSAL_MAX_AGE_DAYS) continue;
         const label = row.title || row.apply || row.proposal_id || "pending proposal";
-        items.push({ source: "conductor_proposal", ts: row.created_at ?? null, text: label.slice(0, 140) });
+        items.push({ source: "conductor_proposal", ts: row.created_at ?? null, age: formatAge(row.created_at ?? null), text: label.slice(0, 140) });
       } catch {
         // one malformed line never blocks the rest
       }
@@ -283,47 +322,124 @@ async function readConductorProposalsBlocked(): Promise<BlockedItem[]> {
 }
 
 /** "Lines containing FABLE-ESCALATION" per the literal spec -- a simple
- * substring match, not a tag parser (queue.md mixes "- [ ] FABLE-ESCALATION-
- * ..." task lines, "## FABLE-ESCALATION: ..." headings, and prose that just
- * mentions the term; all three match, which can occasionally over-include a
- * line that only references an escalation rather than declaring one -- an
- * acceptable trade for a read-only visibility card). No reliable per-line
- * timestamp field exists in this free-form doc, so "newest first" uses
- * reverse FILE order (an append-oriented queue file) as the recency proxy;
- * a "filed YYYY-MM-DD" date embedded in the line's own prose is extracted
- * as `ts` when present. */
+ * substring match, not a tag parser. A "filed YYYY-MM-DD" date embedded in
+ * the line's own prose is extracted when present and must be
+ * <= ESCALATION_MAX_AGE_DAYS old; an UNDATED line can't be aged at all, so
+ * (per the 2026-09-13 hotfix) only the 2 most recent undated lines survive
+ * (file order is this doc's only recency signal for those) rather than
+ * every mention ever filed. */
 async function readQueueEscalations(): Promise<BlockedItem[]> {
   try {
     const text = await fs.readFile(paths.overnightQueue, "utf-8");
     const lines = text.split("\n");
-    const items: BlockedItem[] = [];
+    const dated: BlockedItem[] = [];
+    const undated: BlockedItem[] = [];
     for (const line of lines) {
       if (!line.includes("FABLE-ESCALATION")) continue;
+      // A blockquote line (`>` after trim) is prose QUOTING or SUMMARIZING
+      // something elsewhere, never the queue's own declarative item --
+      // confirmed against the real file (2026-09-13 hotfix verification):
+      // line 681 is `> follow-ups, ..., the live FABLE-ESCALATION,`, a
+      // passing mention with no date and no actionable content of its own.
+      if (line.trim().startsWith(">")) continue;
       const dateMatch = /filed (\d{4}-\d{2}-\d{2})/.exec(line);
-      items.push({ source: "queue_escalation", ts: dateMatch ? dateMatch[1] : null, text: line.trim().slice(0, 140) });
+      const ts = dateMatch ? dateMatch[1] : null;
+      const item: BlockedItem = { source: "queue_escalation", ts, age: formatAge(ts), text: line.trim().slice(0, 140) };
+      if (ts === null) {
+        undated.push(item);
+        continue;
+      }
+      const age = daysAgo(ts);
+      if (age !== null && age <= ESCALATION_MAX_AGE_DAYS) dated.push(item);
     }
-    return items.reverse();
+    return [...dated, ...undated.slice(-2)].reverse();
   } catch {
     return [];
   }
 }
 
-/** Merges all three sources, newest-first (rows with a ts sort before rows
- * without one), capped at 8. Each per-source reader is independently
+/** Reads LADDER.md's own `[~]` marker (the goal-autopilot's SINGLE current
+ * pointer -- no active-goal.json exists on disk) and returns the `file:`
+ * path of every active entry (in practice, at most one). A `[ ]` queued-but-
+ * not-yet-opened or `[x]` closed goal is never scanned -- this is exactly
+ * the mechanism that excluded GOAL-APP-REBUILD-2026-08-30's stale [B-J]
+ * lines from the 2026-09-13 hotfix. */
+async function readActiveGoalFiles(): Promise<string[]> {
+  try {
+    const text = await fs.readFile(paths.goalLadder, "utf-8");
+    const files: string[] = [];
+    for (const line of text.split("\n")) {
+      if (!line.trim().startsWith("- [~]")) continue;
+      const m = /file:\s*(\S+)/.exec(line);
+      if (m) files.push(m[1]);
+    }
+    return files;
+  } catch {
+    return [];
+  }
+}
+
+/** A goal file's OWN curated `## J-DECISIONS` section (not the QUEUE
+ * section's `[B-J]`-annotated work items, which are a broader work list
+ * where the tag is incidental) -- that section's entire stated purpose
+ * ("blocked-on-J; everything else ships without asking") is exactly this
+ * card's contract, so it is the single most authoritative source per goal
+ * file. Only UNCHECKED `- [ ]` bullets count -- a `- [x]` there means J
+ * already decided it. No per-item date exists in this free-form section, so
+ * the goal's OWN nominal date (parsed from its `GOAL-<NAME>-YYYY-MM-DD`
+ * filename) stands in for `ts` -- reasonable since "still active on the
+ * ladder" is itself the recency signal for this source (see
+ * readActiveGoalFiles), not an additional day-cutoff. */
+async function readGoalBlocked(): Promise<BlockedItem[]> {
+  const relFiles = await readActiveGoalFiles();
+  const items: BlockedItem[] = [];
+  for (const relPath of relFiles) {
+    try {
+      const text = await fs.readFile(path.join(WORKSPACE_ROOT, relPath), "utf-8");
+      const lines = text.split("\n");
+      const dateMatch = /(\d{4}-\d{2}-\d{2})/.exec(path.basename(relPath));
+      const ts = dateMatch ? `${dateMatch[1]}T00:00:00Z` : null;
+      let inSection = false;
+      for (const raw of lines) {
+        const line = raw.trim();
+        if (/^##\s+J-DECISIONS/.test(line)) { inSection = true; continue; }
+        if (inSection && /^##\s/.test(line)) break; // next section ends it
+        if (!inSection) continue;
+        const m = /^- \[ \]\s*(.+)$/.exec(line);
+        if (m) items.push({ source: "goal_blocked", ts, age: formatAge(ts), text: m[1].slice(0, 140) });
+      }
+    } catch {
+      // one bad/missing goal file never blocks the rest
+    }
+  }
+  return items;
+}
+
+/** Merges all four sources, dedupes by exact text (keeping the first/
+ * newest occurrence), sorts newest-first (rows with a ts sort before rows
+ * without one), caps at 8. Each per-source reader is independently
  * fail-open, so one bad file degrades to "contributes nothing", never a 500
  * for the whole card. */
 export async function readBlocked(): Promise<BlockedItem[]> {
-  const [discord, proposals, escalations] = await Promise.all([
+  const [discord, proposals, escalations, goalItems] = await Promise.all([
     readDiscordBlocked(),
     readConductorProposalsBlocked(),
     readQueueEscalations(),
+    readGoalBlocked(),
   ]);
-  const all = [...discord, ...proposals, ...escalations];
+  const all = [...goalItems, ...discord, ...proposals, ...escalations];
   all.sort((a, b) => {
     if (a.ts && b.ts) return b.ts.localeCompare(a.ts);
     if (a.ts) return -1;
     if (b.ts) return 1;
     return 0;
   });
-  return all.slice(0, 8);
+  const seenText = new Set<string>();
+  const deduped: BlockedItem[] = [];
+  for (const item of all) {
+    if (seenText.has(item.text)) continue;
+    seenText.add(item.text);
+    deduped.push(item);
+  }
+  return deduped.slice(0, 8);
 }

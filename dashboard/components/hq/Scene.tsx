@@ -14,6 +14,7 @@ import Corridor from "./Corridor";
 import IdeasWall from "./IdeasWall";
 import Courier from "./Courier";
 import Starfield from "./Starfield";
+import SkyDome from "./SkyDome";
 import { freshness01, healthColor, isParkedState, localToWorld, minutesSinceEvidence, PALETTE, personaStatusColor } from "./palette";
 
 interface SceneProps {
@@ -227,6 +228,7 @@ export default function Scene({ data, reducedMotion }: SceneProps) {
       <directionalLight position={[6, 10, 4]} intensity={0.55 * dimFactor} />
 
       <CameraRig reducedMotion={reducedMotion} />
+      <SkyDome />
       <Starfield reducedMotion={reducedMotion} />
 
       <BrainCore

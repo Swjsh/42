@@ -12,15 +12,12 @@ import type { StationFace, StationIdeaCard, StationPresence, TvCapability } from
 import type { BlockedItem } from "@/lib/hq";
 import { probeWebGl } from "@/lib/webgl-probe";
 import { useKioskWatchdog, kioskErrorRetry } from "@/lib/useKioskWatchdog";
-// timeAgoText has zero three.js dependency by design (see its own file's
-// header comment: "can be imported from the 2D fallback too") -- reused
-// here rather than re-implementing the same "3m ago" formatter a third time.
-import { timeAgoText } from "@/components/hq/palette";
 
 const BLOCKED_SOURCE_LABEL: Record<string, string> = {
   discord: "Discord",
   conductor_proposal: "Proposal",
   queue_escalation: "Escalation",
+  goal_blocked: "Goal",
 };
 
 interface StationApiResponse {
@@ -193,7 +190,7 @@ function StationView() {
                 {data.blocked.slice(0, 3).map((item, i) => (
                   <p key={`${item.source}-${item.ts ?? i}`} className="text-xs text-amber-200/90">
                     <span className="font-semibold text-amber-400">[{BLOCKED_SOURCE_LABEL[item.source] ?? item.source}]</span>{" "}
-                    {item.text} <span className="text-amber-200/60">&middot; {timeAgoText(item.ts)}</span>
+                    {item.text} <span className="text-amber-200/60">&middot; {item.age}</span>
                   </p>
                 ))}
               </div>

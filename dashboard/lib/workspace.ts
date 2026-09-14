@@ -91,4 +91,8 @@ export const paths = {
   // owns both station.md and this identity file; this app only ever reads them.
   stationIdentityMd: path.join(WORKSPACE_ROOT, "automation", "prompts", "station-identity.md"),
   stationFactsScript: path.join(WORKSPACE_ROOT, "setup", "scripts", "station_facts.py"),
+  // "NEEDS J" hotfix (2026-09-13): the goal-autopilot's ordered queue --
+  // its `[~]` line marks the SINGLE currently-active goal (no active-
+  // goal.json exists on disk; LADDER.md's own marker is authoritative).
+  goalLadder: st("goals", "LADDER.md"),
 };
