@@ -189,49 +189,6 @@ function useTintedClone(
   return cloned;
 }
 
-// Pass G-4 (2026-09-13, coordinator's systemic fix): architecture-class
-// default emissive. Root cause (found via a real camera raycast, Pass G-3):
-// every DepartmentBayShell instance's room-small + gate-door props sit at
-// 25-32u from the camera (vs HubRoom's own room-large at ~7.5u) and were
-// NEVER given Pass F/G's emissive treatment -- that fix only ever touched
-// HubRoom's own explicit `emissive` prop, so every OTHER architecture piece
-// stayed at zero self-illumination and read near-black wherever direct
-// light + fog left it under-lit, which for far bay shells seen at a grazing
-// angle through the hub's own open roof is most of their visible surface.
-// Fix at the choke point instead of one layer per capture: KitProp itself
-// now applies a default whenever `emissive` is omitted AND the path is one
-// of the 4 KIT_PATHS.architecture entries -- covers room-small/room-large/
-// corridor/gate-door in every current AND future caller at once. HubRoom's
-// own explicit emissive prop (0.85) still wins via `??` -- this default is
-// pure addition, zero behavior change for any caller that already passes
-// one.
-//
-// Intensity tuning (real, measured, not the first guess): the coordinator's
-// own 1.2x-hub estimate (0.85*1.2=1.02) was verified via direct material
-// inspection to be CORRECTLY applied (right color, right intensity, on the
-// real hit object) yet produced ZERO visible pixel change -- fog(20-62u) +
-// ACES tonemap attenuation over the far bays' 25-32u range (vs the hub's
-// 7.5u) is far steeper than a straight 1.2x carryover accounts for. 20 (one
-// deliberate extreme test) proved the mechanism by clearing the arch
-// completely, but also blew the whole frame into a flat orange wash
-// (Bloom's spread radius amplifying an input far past its threshold). 5
-// lands the middle: verified via real capture to clear the arch (channel
-// sum 178 at its own pixel, comfortably over the 90 bar) while nearby lit
-// surfaces shifted only moderately (not blown to pure white) -- roughly
-// 5.9x the hub's own 0.85, reflecting how much steeper the falloff over
-// 25-32u actually is versus the geometric first estimate.
-const ARCHITECTURE_EMISSIVE_INTENSITY = 5;
-// Split out separately (not folded into the map below) so a single-line
-// tune is possible without touching the other 3 paths, matching this
-// session's own established "verify before generalizing further" pattern.
-const ARCHITECTURE_ROOM_SMALL_INTENSITY = ARCHITECTURE_EMISSIVE_INTENSITY;
-const ARCHITECTURE_DEFAULT_EMISSIVE: Record<string, { color: string; intensity: number }> = {
-  [KIT_PATHS.architecture.roomSmall]: { color: PALETTE.warmAccent, intensity: ARCHITECTURE_ROOM_SMALL_INTENSITY },
-  [KIT_PATHS.architecture.roomLarge]: { color: PALETTE.warmAccent, intensity: ARCHITECTURE_EMISSIVE_INTENSITY },
-  [KIT_PATHS.architecture.corridor]: { color: PALETTE.warmAccent, intensity: ARCHITECTURE_EMISSIVE_INTENSITY },
-  [KIT_PATHS.architecture.gateDoor]: { color: PALETTE.warmAccent, intensity: ARCHITECTURE_EMISSIVE_INTENSITY },
-};
-
 interface KitPropProps {
   path: string;
   scale?: number | [number, number, number];
@@ -244,9 +201,8 @@ interface KitPropProps {
   /** Pass F (2026-09-13): self-illuminating glow, independent of scene
    * lighting reaching this surface -- see tintObjectMaterials' own comment
    * for why this exists (a large kit shell reading flat black regardless
-   * of ambient/directional light). Omit to fall back to
-   * ARCHITECTURE_DEFAULT_EMISSIVE for the 4 architecture paths (Pass G-4),
-   * or to no emissive at all for desks/characters/furniture (unchanged). */
+   * of ambient/directional light). Omit (every current caller except
+   * HubRoom) for zero behavior change. */
   emissive?: { color: string; intensity: number };
   castShadow?: boolean;
   receiveShadow?: boolean;
@@ -267,8 +223,7 @@ export function KitProp({ path, scale = 1, position, rotation, tint, tintStrengt
   // project's zero-network-requests rule is absolute, so it's set false
   // outright rather than left as an implicit, easy-to-miss assumption.
   const { scene } = useGLTF(path, false);
-  const effectiveEmissive = emissive ?? ARCHITECTURE_DEFAULT_EMISSIVE[path];
-  const cloned = useTintedClone(scene, tint, tintStrength, effectiveEmissive);
+  const cloned = useTintedClone(scene, tint, tintStrength, emissive);
 
   useEffect(() => {
     if (!castShadow && !receiveShadow) return;
