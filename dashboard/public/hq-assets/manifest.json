@@ -2,7 +2,7 @@
   "generated": "2026-09-13",
   "generatedBy": "asset-curator worker session",
   "updated": "2026-09-14",
-  "updatedBy": "ENVIRONMENT builder (World-3 pass, J: \"grey abyss... space theme or a park or something real\") -- added 13 kenney-space-kit terrain/prop pieces (rocks, craters, dishes, rover, solar-support, pipes) for Ground.tsx/Rocks.tsx/BaseProps.tsx. See LICENSES.md's own updated verification note.",
+  "updatedBy": "WORLD-6 builder (W2 pass) -- added shuttle.glb/scifi-computer.glb/pipes-panel.glb (Quaternius, via poly.pizza's own static CDN mirror) and potted-plant.glb/plant-small.glb (Kenney Furniture Kit) for BaseProps.tsx/HubInterior.tsx/BayInterior.tsx. Prior entry: ENVIRONMENT builder (World-3 pass, J: \"grey abyss... space theme or a park or something real\") -- added 13 kenney-space-kit terrain/prop pieces (rocks, craters, dishes, rover, solar-support, pipes) for Ground.tsx/Rocks.tsx/BaseProps.tsx. See LICENSES.md's own updated verification note.",
   "note": "Kept-file manifest for dashboard/public/hq-assets. All packs CC0 1.0 -- see LICENSES.md for full provenance. scaleHint on each character is (0.88 / rawBoundsHeight): 0.88 approximates the current procedural Agent.tsx body height (capsule top + visor) in this scene's own units -- a starting point to eyeball/tune visually, not a verified render.",
   "packs": [
     {
@@ -103,9 +103,23 @@
       "author": "Kenney",
       "license": "CC0-1.0",
       "sourceUrl": "https://kenney.nl/assets/furniture-kit",
-      "note": "MODELS builder, smart-board pass (2026-09-14, J: \"go on an asset site and find something that looks like a screen\"). Only 1 of 116 models kept (televisionModern.glb, renamed television-modern.glb) -- see LICENSES.md's own 'Update 2026-09-14 (MODELS builder)' note for the full asset-hunt disclosure (candidates opened and rejected).",
+      "note": "MODELS builder, smart-board pass (2026-09-14, J: \"go on an asset site and find something that looks like a screen\"). Only 1 of 116 models kept (televisionModern.glb, renamed television-modern.glb) -- see LICENSES.md's own 'Update 2026-09-14 (MODELS builder)' note for the full asset-hunt disclosure (candidates opened and rejected). WORLD-6 builder (W2 pass, same day) added 2 more of the 116 models: pottedPlant.glb -> potted-plant.glb, plantSmall1.glb -> plant-small.glb.",
       "files": [
-        "television-modern.glb"
+        "television-modern.glb",
+        "potted-plant.glb",
+        "plant-small.glb"
+      ]
+    },
+    {
+      "slug": "polypizza-quaternius",
+      "author": "Quaternius",
+      "license": "CC0-1.0",
+      "sourceUrl": "https://poly.pizza (Quaternius's own uploads, re-hosted on Poly Pizza's static CDN -- see each file's own manifest.json `props` entry for its exact /m/<id> source page)",
+      "note": "WORLD-6 builder (2026-09-14, W2 pass): 3 pieces picked after visually orbiting each candidate in poly.pizza's own in-page 3D viewer, CC0-licence-filtered. Downloaded via a direct `https://static.poly.pizza/<S3ID>.glb` URL resolved from each model's own `/api/model/<id>/bundles` response and confirmed live via a HEAD request before curl -- see LICENSES.md's own 'Update 2026-09-14 (WORLD-6 builder, W2 asset hunt)' section for the full disclosed hunt (candidates opened and rejected, including 2 other Quaternius spaceship variants).",
+      "files": [
+        "shuttle.glb",
+        "scifi-computer.glb",
+        "pipes-panel.glb"
       ]
     }
   ],
@@ -447,6 +461,41 @@
       "category": "screen",
       "sizeBytes": 6368,
       "note": "SmartBoard.tsx's body -- rawBounds 0.685w x 0.455h x 0.128d (thin flat-screen-on-a-stand silhouette, 2 materials, 1 mesh, ~144 tris), the only bundled or evaluated piece that actually reads as a wide screen rather than a console/cube -- see LICENSES.md's own asset-hunt disclosure. A separate canvas-texture plane (SmartBoard.tsx) is layered on its front face for the IdeasWall content rather than retexturing this GLB's own 'metal' submaterial in place."
+    },
+    {
+      "file": "kenney-furniture-kit/potted-plant.glb",
+      "category": "decorative",
+      "sizeBytes": 7576,
+      "note": "WORLD-6 (W2, 2026-09-14): rawBounds (glb_extents.mjs) 0.212w x 0.654h x 0.241d, floor Y=0 (flush). HubInterior.tsx's interior plant, flanking the round table.",
+      "rawBoundsHeight": 0.654
+    },
+    {
+      "file": "kenney-furniture-kit/plant-small.glb",
+      "category": "decorative",
+      "sizeBytes": 8224,
+      "note": "WORLD-6 (W2, 2026-09-14): rawBounds (glb_extents.mjs) 0.095w x 0.140h x 0.095d, floor Y=0 (flush). BayInterior.tsx's desk-scale plant, one per bay.",
+      "rawBoundsHeight": 0.140
+    },
+    {
+      "file": "polypizza-quaternius/shuttle.glb",
+      "category": "base-prop",
+      "sizeBytes": 62668,
+      "sourceUrl": "https://poly.pizza/m/PQzePrvBCD",
+      "note": "WORLD-6 (W2, 2026-09-14): rawBounds (glb_extents.mjs) 10.382w x 1.859h x 9.209d, floor Y=-0.145 (origin sits 0.145 below the model's own lowest vertex -- BaseProps.tsx's LandingPad placement corrects for this). Parked, static -- no motion (HQ face rule)."
+    },
+    {
+      "file": "polypizza-quaternius/scifi-computer.glb",
+      "category": "base-prop",
+      "sizeBytes": 41964,
+      "sourceUrl": "https://poly.pizza/m/U0xmt6tUlL",
+      "note": "WORLD-6 (W2, 2026-09-14): rawBounds (glb_extents.mjs) 0.580w x 2.079h x 0.644d, floor Y~=0 (flush). BaseProps.tsx's exterior server-annex cluster (relocated here from the hub's own crowded brain-wall segment -- see LICENSES.md's own reasoning)."
+    },
+    {
+      "file": "polypizza-quaternius/pipes-panel.glb",
+      "category": "base-prop",
+      "sizeBytes": 26836,
+      "sourceUrl": "https://poly.pizza/m/rzvuy93JU3",
+      "note": "WORLD-6 (W2, 2026-09-14): rawBounds (glb_extents.mjs) 0.514w x 1.585h x 0.093d, ORIGIN AT VERTICAL CENTER (min Y=-0.792, max Y=+0.792 -- a wall-mount panel authored around its own middle, not its base). BaseProps.tsx's server-annex cluster, alongside scifi-computer.glb."
     }
   ],
   "hdri": {

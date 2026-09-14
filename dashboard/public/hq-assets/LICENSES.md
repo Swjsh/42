@@ -14,7 +14,10 @@ public repo. No Mixamo/Synty/Sketchfab-store/NC/ND content is used anywhere belo
 | 4 | Space Kit (2.0) | Kenney | https://kenney.nl/assets/space-kit | CC0 1.0 | https://creativecommons.org/publicdomain/zero/1.0/ | 2026-09-13; terrain/prop pieces added 2026-09-14 | `astronautA.glb`, `barrels.glb`, `rock.glb`, `rocks_smallA.glb`, `rock_largeA.glb`, `rock_largeB.glb`, `crater.glb`, `craterLarge.glb`, `satelliteDish.glb`, `satelliteDish_large.glb`, `rover.glb`, `structure.glb`, `supports_high.glb`, `pipe_straight.glb`, `pipe_corner.glb` | "Kenney" / "www.kenney.nl" |
 | 5 | KayKit: Space Base Bits (1.0) | Kay Lousberg | https://github.com/KayKit-Game-Assets/KayKit-Space-Base-Bits-1.0 (official mirror of https://kaylousberg.itch.io/space-base-bits) | CC0 1.0 | https://creativecommons.org/publicdomain/zero/1.0/ | 2026-09-13 | `lights.gltf`, `lights.bin`, `spacebits_texture.png` | "Kay Lousberg" / "www.kaylousberg.com" |
 | 6 | Dikhololo Night (HDRI, 1k) | Poly Haven | https://polyhaven.com/a/dikhololo_night | CC0 1.0 | https://polyhaven.com/license | 2026-09-13 | `dikhololo_night_1k.hdr` | "Poly Haven" (not required) |
-| 7 | Furniture Kit (2.0) | Kenney | https://kenney.nl/assets/furniture-kit | CC0 1.0 | https://creativecommons.org/publicdomain/zero/1.0/ | 2026-09-14 | `television-modern.glb` (renamed from `televisionModern.glb`; 1 of 116 models) | "Kenney" / "www.kenney.nl" |
+| 7 | Furniture Kit (2.0) | Kenney | https://kenney.nl/assets/furniture-kit | CC0 1.0 | https://creativecommons.org/publicdomain/zero/1.0/ | 2026-09-14 | `television-modern.glb` (renamed from `televisionModern.glb`); `potted-plant.glb` (renamed from `pottedPlant.glb`); `plant-small.glb` (renamed from `plantSmall1.glb`) -- 3 of 116 models | "Kenney" / "www.kenney.nl" |
+| 8 | Spaceship (mirror) | Quaternius | https://poly.pizza/m/PQzePrvBCD (Quaternius's own model, re-hosted by Poly Pizza's static CDN) | CC0 1.0 | https://poly.pizza/m/PQzePrvBCD (page states "Public Domain (CC0)") | 2026-09-14 | `shuttle.glb` (renamed from the source's own generic "Spaceship" title) | "Quaternius" |
+| 9 | Scifi Computer (mirror) | Quaternius | https://poly.pizza/m/U0xmt6tUlL | CC0 1.0 | https://poly.pizza/m/U0xmt6tUlL (page states "Public Domain (CC0)") | 2026-09-14 | `scifi-computer.glb` | "Quaternius" |
+| 10 | Pipes Panel (mirror) | Quaternius | https://poly.pizza/m/rzvuy93JU3 | CC0 1.0 | https://poly.pizza/m/rzvuy93JU3 (page states "Public Domain (CC0)") | 2026-09-14 | `pipes-panel.glb` | "Quaternius" |
 
 ## Update 2026-09-14 (MODELS builder, smart-board asset hunt)
 
@@ -163,3 +166,72 @@ specific clips onto his own machine, and re-exports/re-targets them locally — 
 files would then need to stay **out of the public GitHub repo** (gitignored, loaded from
 a local-only path) rather than committed, since Mixamo content can't legally ship in a
 public repo under these terms.
+
+## Update 2026-09-14 (WORLD-6 builder, W2 asset hunt)
+
+J's standing brief: "open them up and look at them, take your time." Real hunt performed
+this session (browser tool + the Artifact/network layer to resolve each model's real
+download URL, not assumed from a listing thumbnail), goal: "make the base read as a real
+trading outpost and UNIQUE," at most 6 pieces, under 3 MB total.
+
+**kenney.nl's own in-page search never filtered results this session** (typed/filled the
+search box via both `computer.type` and `form_input`; the result grid never changed —
+same JS-driven-catalog friction this file's own 2026-09-13 pass already documented for
+Quaternius's character packs, now also hit on Kenney's own site) — worked around by
+navigating directly to known asset-page URLs instead (`kenney.nl/assets/<slug>`).
+
+**poly.pizza cracked further this pass**: the CC0-licence filter (Licence dropdown ->
+"CC0 1.0") works via the UI, and the in-page 3D viewer was used to actually look at every
+candidate below (orbited via the "Toggle Turntable" control) before picking one — never a
+thumbnail-only guess. For 3 Quaternius pieces, itch.io's own "name your price" gate (the
+blocker the 2026-09-13 pass hit and gave up on) is now confirmed **avoidable**: poly.pizza
+re-hosts Quaternius's own uploads on its own static CDN, one static file per model, found
+by reading each model's own `/api/model/<id>/bundles` response (`S3ID` field) and
+confirming a live `HEAD https://static.poly.pizza/<S3ID>.glb` (200, `content-type:
+gltf-binary`) before downloading — genuine direct file URLs, not a scrape/bypass of any
+paywall (poly.pizza's own site openly re-hosts and serves these as free CC0 downloads).
+
+**Candidates opened and REJECTED**:
+- kenney.nl "Nature Kit" (330 files, CC0) — opened and viewed its own hero render: bright
+  cartoon-saturated stylized trees/foliage (cyan/orange/purple), tonally wrong for this
+  scene's cool Tron/Blade-Runner palette (`palette.ts`'s own established direction) —
+  would read as a different game's asset dropped in, not a trading-outpost interior plant.
+- poly.pizza "Potted plant" search, paid-tier results (Survival Engine, Toon Fantasy
+  Nature, Ultimate Low Poly Nature Pack, Hyper Casual Trees And Plants) — all paid, not
+  CC0, filtered out by the Licence dropdown itself.
+- poly.pizza "Spaceship" by Quaternius, `/m/VSxUAFhzbA` (green/orange/black toy-like
+  X-wing shape) and `/m/u105mYHLHU` (bulbous yellow/black "bee" pod with a huge blue
+  window) — both viewed via the turntable, both read as too cartoonish/toy-scaled for a
+  "shuttle parked on a landing pad" read; `/m/PQzePrvBCD` (chosen below) is a sleeker
+  white/grey swept-wing shuttle silhouette from the SAME uploader/bundle, a much closer
+  match, tints cleanly via `KitProp`'s existing `tint`/`tintStrength` mechanism regardless
+  of its raw white base color.
+- poly.pizza "server rack" search — no genuine server-rack silhouette in CC0 results
+  ("Shelf Tall", "Coat Rack", "Corrugated Iron Sheet", "Dishrack" all rejected as wrong
+  category entirely); pivoted the search term to "sci-fi terminal" / "computer server
+  rack sci-fi", which surfaced the Quaternius "Scifi Computer" piece actually used below.
+- Placing the "Scifi Computer"/"Pipes Panel" pair literally "along the hub's second wall"
+  (the brief's own suggested location) was evaluated and set aside: every open radius on
+  the hub's own brain-wall segment either collides with Gamma's own desk (radius 3.4,
+  angle ~61deg — not this builder's file to move) or repeats the EXACT
+  radius-6.8-is-invisible-from-the-default-camera failure `layout.ts#computeBrainWallMount`'s
+  own header already documents and fixed once for the smart board itself; the hub's OTHER
+  three wall segments are live persona-desk territory this session (LAYOUT/PEOPLE builders
+  concurrently in that file tree — `git status` confirmed uncommitted changes there this
+  session). Relocated to an exterior "server annex" cluster in `BaseProps.tsx` (this
+  builder's own zero-contention file, with an already-proven `minClearRadius` placement
+  pattern) instead of guessing at an interior spot this builder cannot verify is clear
+  without risking another builder's own in-flight geometry.
+
+**Verification performed this session (all 5 new files)**: every file's glTF binary magic
+(`glTF` at byte 0) confirmed via `xxd`; every real-file byte size matches the `HEAD`
+request's own `content-length` exactly (shuttle 62,668 B; scifi-computer 41,964 B;
+pipes-panel 26,836 B; potted-plant 7,576 B; plant-small 8,224 B — total 147,268 B, 0.14 MB,
+well under the 3 MB pass budget); the Kenney Furniture Kit zip's own `License.txt` was
+re-extracted and re-read verbatim (byte-identical CC0 text to row 7's existing entry) from
+THIS session's own fresh download, not assumed from the 2026-09-14 MODELS-builder pass;
+every poly.pizza model page was read directly (`get_page_text`) for its own
+"Public Domain (CC0)" license line before use. Every kept `.glb` was measured with
+`dashboard/scripts/glb_extents.mjs` before being placed in any component — see
+`BaseProps.tsx`/`HubInterior.tsx`/`BayInterior.tsx`'s own placement comments for the
+per-piece raw bounds and the scale/offset derived from them.
