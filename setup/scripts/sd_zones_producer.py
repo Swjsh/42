@@ -73,6 +73,7 @@ for _p in (str(REPO), str(SCRIPTS_DIR)):
 import pytz  # noqa: E402
 
 from et_clock import et_now  # noqa: E402
+from market_calendar import is_trading_day  # noqa: E402
 from tv_cdp import TvChart, TvCdpError  # noqa: E402
 
 # Read-only reuse of the ALREADY-RATIFIED touch/zone-width math -- refresh_levels_intraday.py
@@ -216,6 +217,21 @@ def prune_intraday_archive(retention_days: int = INTRADAY_RETENTION_DAYS,
     return removed
 
 
+def _is_session_day(day: str) -> bool:
+    """True iff `day` (YYYY-MM-DD) is a trading day. Sat/Sun always False; a known full-day
+    holiday False; calendar unknown (None) -> weekday result (fail-open, never zeroes)."""
+    try:
+        verdict = is_trading_day(day)
+    except Exception:  # noqa: BLE001
+        verdict = None
+    if verdict is not None:
+        return bool(verdict)
+    try:
+        return dt.date.fromisoformat(day).weekday() < 5
+    except ValueError:
+        return False
+
+
 def update_forward_clock(day: str) -> dict:
     """Append `day` to the accrued-sessions list (idempotent) and recompute eligibility.
     GOAL-SD-LIQUIDITY-ZONES-2026-09-11 item (d) needs >= 10 accrued sessions before the
@@ -229,10 +245,18 @@ def update_forward_clock(day: str) -> dict:
         clock = {}
     if not isinstance(clock, dict):
         clock = {}
-    dates = sorted(set(clock.get("archived_dates") or []) | {day})
+    # 2026-09-14 fix: prereg-sd-zone-anchor-promotion §3 counts DISTINCT TRADING-DAY
+    # snapshots only. The producer had archived a Saturday (2026-09-12 01:57 ET, the build
+    # session) and the clock counted it. Weekends/holidays are pruned on every update, so
+    # a contaminated clock self-heals on the next real tick. Unknown (None) fails OPEN to
+    # the weekday test so a calendar-cache miss can never zero the clock.
+    dates = sorted(d for d in (set(clock.get("archived_dates") or []) | {day})
+                   if _is_session_day(d))
+    if not dates:
+        dates = []
     clock = {
         "schema_version": 1,
-        "first_archived_date": dates[0],
+        "first_archived_date": (dates[0] if dates else None),
         "archived_dates": dates,
         "sessions_accrued": len(dates),
         "eligible_for_forward_read": len(dates) >= 10,

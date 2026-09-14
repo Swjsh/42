@@ -506,7 +506,9 @@ def test_forward_clock_is_idempotent_across_same_day_reruns(tmp_path, monkeypatc
 def test_forward_clock_becomes_eligible_at_ten_accrued_sessions(tmp_path, monkeypatch):
     clock_file = tmp_path / "clock.json"
     monkeypatch.setattr(szp, "FORWARD_CLOCK_FILE", clock_file)
-    days = [f"2026-{9 if d <= 30 else 10:02d}-{d if d <= 30 else d - 30:02d}" for d in range(14, 24)]
+    # 2026-09-14: was calendar days 09-14..09-23 (contains Sat 09-19 / Sun 09-20), which
+    # the prereg never allowed to count. Ten WEEKDAYS: Mon 09-14 .. Fri 09-25.
+    days = [f"2026-09-{d:02d}" for d in (14, 15, 16, 17, 18, 21, 22, 23, 24, 25)]
     clock = None
     for day in days:
         clock = szp.update_forward_clock(day)
@@ -567,3 +569,19 @@ def test_producer_input_enforcement_is_fail_open(tmp_path, monkeypatch):
     doc = json.loads(stamp.read_text(encoding="utf-8"))
     assert doc["inputs_enforced"]["status"] == "unavailable" and len(doc["zones"]) == 1
 
+
+
+def test_forward_clock_never_counts_a_weekend_snapshot(tmp_path, monkeypatch):
+    """prereg §3: distinct TRADING-day snapshots only. RED-proofed 2026-09-14 against the
+    pre-fix clock, which counted Sat 2026-09-12 (the build-session capture) as a session."""
+    clock_file = tmp_path / "clock.json"
+    monkeypatch.setattr(szp, "FORWARD_CLOCK_FILE", clock_file)
+    # contaminated pre-existing clock: a Saturday already accrued
+    clock_file.write_text(json.dumps({"archived_dates": ["2026-09-12"], "sessions_accrued": 1}))
+    c = szp.update_forward_clock("2026-09-14")
+    assert c["archived_dates"] == ["2026-09-14"]
+    assert c["sessions_accrued"] == 1
+    # a Sunday tick on its own never adds a session either
+    c2 = szp.update_forward_clock("2026-09-20")
+    assert c2["archived_dates"] == ["2026-09-14"]
+    assert c2["sessions_accrued"] == 1
