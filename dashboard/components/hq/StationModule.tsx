@@ -3,7 +3,7 @@
 import { useMemo, useRef } from "react";
 import type { CSSProperties } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Html } from "@react-three/drei";
+import { Html, MeshReflectorMaterial } from "@react-three/drei";
 import * as THREE from "three";
 import type { SectorRow } from "./types";
 import type { AgentBehavior } from "./Agent";
@@ -18,10 +18,16 @@ interface StationModuleProps {
   behavior: AgentBehavior;
   reducedMotion: boolean;
   dimFactor: number;
+  /** Ultra tier (HQ-ULTRA-TIER-BRIEF.md): floor -> MeshReflectorMaterial
+   * (config forked from the repo's own proven dashboard/components/
+   * Scene3D.tsx, resolution raised from 256->512 since a 5080 has far more
+   * headroom than that scene's original budget), desk -> meshStandardMaterial.
+   * TV tier's meshToonMaterial path is completely unchanged. */
+  ultra?: boolean;
 }
 
 export default function StationModule({
-  position, angle, row, behavior, reducedMotion, dimFactor,
+  position, angle, row, behavior, reducedMotion, dimFactor, ultra = false,
 }: StationModuleProps) {
   const beaconRef = useRef<THREE.Mesh>(null);
   const screenMat = useRef<THREE.MeshBasicMaterial>(null);
@@ -53,12 +59,23 @@ export default function StationModule({
 
   return (
     <group position={position} rotation={[0, rotationY, 0]}>
-      {/* Floor slab -- toon-shaded (HQ v4 look pass, 2026-09-13): a 3-step
-          gradientMap gives the floor actual depth-band shading instead of
-          Lambert's single flat N.L tone, same cost class. */}
-      <mesh position={[0, -0.05, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+      {/* Floor slab. TV tier: toon-shaded (HQ v4 look pass, 2026-09-13) --
+          a 3-step gradientMap gives actual depth-band shading instead of
+          Lambert's flat N.L tone, same cost class. Ultra tier: a real
+          reflector (config forked from Scene3D.tsx's proven settings,
+          resolution raised for a 5080's headroom) -- reflects the
+          screen/edge-strip emissive glow back up for the "wet floor"
+          sci-fi look, receives the scene's real shadow. */}
+      <mesh position={[0, -0.05, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow={ultra}>
         <planeGeometry args={[3.2, 2.8]} />
-        <meshToonMaterial color={PALETTE.floor} gradientMap={gradientMap} />
+        {ultra ? (
+          <MeshReflectorMaterial
+            blur={[60, 20]} resolution={512} mixBlur={0.6} mixStrength={1.4} mirror={0.45}
+            color={PALETTE.floor} roughness={0.55} metalness={0.55} depthScale={0.4}
+          />
+        ) : (
+          <meshToonMaterial color={PALETTE.floor} gradientMap={gradientMap} />
+        )}
       </mesh>
 
       {/* Emissive floor-edge strip, hub-facing side -- REPLACES the old
@@ -78,10 +95,16 @@ export default function StationModule({
         <meshBasicMaterial ref={screenMat} color={color} toneMapped={false} />
       </mesh>
 
-      {/* Desk -- toon-shaded, same gradientMap as the floor above */}
-      <mesh position={[0, 0.28, 0.55]}>
+      {/* Desk -- TV tier: toon-shaded, same gradientMap as the floor above.
+          Ultra tier: meshStandardMaterial (roughness/metalness), real
+          light + PMREM response instead of the toon ramp. */}
+      <mesh position={[0, 0.28, 0.55]} castShadow={ultra} receiveShadow={ultra}>
         <boxGeometry args={[1.5, 0.5, 0.55]} />
-        <meshToonMaterial color={PALETTE.deskDark} gradientMap={gradientMap} />
+        {ultra ? (
+          <meshStandardMaterial color={PALETTE.deskDark} roughness={0.4} metalness={0.5} />
+        ) : (
+          <meshToonMaterial color={PALETTE.deskDark} gradientMap={gradientMap} />
+        )}
       </mesh>
 
       {/* Door beacon -- hub-facing edge */}

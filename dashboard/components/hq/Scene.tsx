@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import { useThree, useFrame } from "@react-three/fiber";
+import type * as THREE from "three";
 import type { HqApiResponse, SectorRow } from "./types";
 import type { PersonaState } from "@/lib/personas";
 import type { AgentBehavior } from "./Agent";
@@ -15,11 +16,20 @@ import IdeasWall from "./IdeasWall";
 import Courier from "./Courier";
 import Starfield from "./Starfield";
 import SkyDome from "./SkyDome";
+import PmremEnvironment from "./PmremEnvironment";
+import EffectsStack from "./EffectsStack";
 import { freshness01, healthColor, isParkedState, localToWorld, minutesSinceEvidence, PALETTE, personaStatusColor } from "./palette";
+
+export type HqTier = "ultra" | "tv";
 
 interface SceneProps {
   data: HqApiResponse | undefined;
   reducedMotion: boolean;
+  /** Default "tv" (not "ultra"): CanvasRoot.tsx (the existing TV-tier
+   * wrapper) never passes this prop -- only the new UltraCanvasRoot.tsx
+   * does. Defaulting to the cheap tier is the safe failure direction if
+   * this prop is ever omitted. */
+  tier?: HqTier;
 }
 
 const HUB: [number, number, number] = [0, 0, 0];
@@ -97,7 +107,9 @@ function CameraRig({ reducedMotion }: { reducedMotion: boolean }) {
  * useFrame -- so a new /api/hq payload only re-renders this tree, it never
  * changes what each child's OWN useFrame throttle is doing mid-animation.
  */
-export default function Scene({ data, reducedMotion }: SceneProps) {
+export default function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
+  const ultra = tier === "ultra";
+  const coreMeshRef = useRef<THREE.Mesh>(null);
   const rows = data?.sectors.rows ?? [];
   const gaming = (data?.mode ?? "work") === "gaming";
   const dimFactor = gaming ? 0.35 : 1;
@@ -225,9 +237,27 @@ export default function Scene({ data, reducedMotion }: SceneProps) {
       <color attach="background" args={[PALETTE.space]} />
       <fog attach="fog" args={[PALETTE.fogColor, 20, 62]} />
       <hemisphereLight args={["#3a4a7a", "#04040a", 0.55 * dimFactor]} />
-      <directionalLight position={[6, 10, 4]} intensity={0.55 * dimFactor} />
+      {/* Ultra tier: this directional light also casts real shadows
+          (module/agent meshes opt in via castShadow/receiveShadow below) --
+          the TV tier's identical light stays shadow-free (shadows={false}
+          on CanvasRoot's <Canvas> makes castShadow a no-op there anyway,
+          so this prop is harmless to set unconditionally). */}
+      <directionalLight
+        position={[6, 10, 4]}
+        intensity={0.55 * dimFactor}
+        castShadow={ultra}
+        shadow-mapSize={[2048, 2048]}
+        shadow-camera-near={1}
+        shadow-camera-far={40}
+        shadow-camera-left={-14}
+        shadow-camera-right={14}
+        shadow-camera-top={14}
+        shadow-camera-bottom={-14}
+      />
 
       <CameraRig reducedMotion={reducedMotion} />
+      {ultra && <PmremEnvironment />}
+      {ultra && <EffectsStack coreMeshRef={coreMeshRef} />}
       <SkyDome />
       <Starfield reducedMotion={reducedMotion} />
 
@@ -241,6 +271,8 @@ export default function Scene({ data, reducedMotion }: SceneProps) {
         gaming={gaming}
         dimFactor={dimFactor}
         reducedMotion={reducedMotion}
+        ultra={ultra}
+        coreMeshRef={coreMeshRef}
       />
 
       {rows.map((row, i) => {
@@ -262,6 +294,7 @@ export default function Scene({ data, reducedMotion }: SceneProps) {
               behavior={behavior}
               reducedMotion={reducedMotion}
               dimFactor={dimFactor}
+              ultra={ultra}
             />
             {/* Scene-root sibling, NOT nested inside StationModule -- see the
                 agentHome comment above. Lane agents never walk anymore (no

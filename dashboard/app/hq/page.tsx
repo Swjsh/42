@@ -7,6 +7,7 @@ import type { HqApiResponse } from "@/components/hq/types";
 import HqFallback from "@/components/hq/HqFallback";
 import Hud from "@/components/hq/Hud";
 import CanvasRoot from "@/components/hq/CanvasRoot";
+import UltraCanvasRoot from "@/components/hq/UltraCanvasRoot";
 import { useKioskWatchdog, kioskErrorRetry } from "@/lib/useKioskWatchdog";
 import { useMotionEvents } from "@/lib/useMotionEvents";
 
@@ -86,6 +87,26 @@ function HqView() {
     return () => mq.removeEventListener("change", update);
   }, []);
 
+  // Tier (HQ v4 ultra-tier plumbing, 2026-09-13, J: "dont use my tv as a
+  // constraint im fine showing it on my monitor with epic graphics"):
+  // ?tier=ultra|tv overrides; otherwise default ultra UNLESS the UA is the
+  // real TV (SMART-TV/Tizen), which always gets the cheap tier regardless
+  // of query string -- decided after mount, same SSR-mismatch-avoidance
+  // reasoning as webgl2/lanKiosk above. `navigator.userAgent` is
+  // client-only, so this can never be "proven" via a server-side curl --
+  // it's a per-browser decision, verified by code path + a screenshot once
+  // gaming mode is off, not by hitting the API.
+  const [tier, setTier] = useState<"ultra" | "tv" | null>(null);
+  useEffect(() => {
+    const q = searchParams.get("tier");
+    if (q === "ultra" || q === "tv") {
+      setTier(q);
+      return;
+    }
+    const isRealTv = /SMART-TV|Tizen/i.test(navigator.userAgent);
+    setTier(isRealTv ? "tv" : "ultra");
+  }, [searchParams]);
+
   // "They need MEANING" (J 2026-09-13): a small log of what real event just
   // caused an agent to move -- see lib/useMotionEvents.ts. Computed here
   // (not inside Scene.tsx) because Hud.tsx, the only consumer, lives
@@ -96,9 +117,14 @@ function HqView() {
     <div style={{ position: "fixed", inset: 0, overflow: "hidden", background: "#03040a" }}>
       {webgl2 === false ? (
         <HqFallback data={data} error={error} />
-      ) : webgl2 === true ? (
+      ) : webgl2 === true && tier === "tv" ? (
         <>
           <CanvasRoot data={data} reducedMotion={reducedMotion} lanKiosk={lanKiosk} />
+          <Hud data={data} error={error} kiosk={kiosk} isValidating={isValidating} motionEvents={motionEvents} />
+        </>
+      ) : webgl2 === true && tier === "ultra" ? (
+        <>
+          <UltraCanvasRoot data={data} reducedMotion={reducedMotion} />
           <Hud data={data} error={error} kiosk={kiosk} isValidating={isValidating} motionEvents={motionEvents} />
         </>
       ) : (

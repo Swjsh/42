@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { CSSProperties } from "react";
+import type { CSSProperties, RefObject } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import * as THREE from "three";
@@ -18,6 +18,14 @@ interface BrainCoreProps {
   gaming: boolean;
   dimFactor: number;
   reducedMotion: boolean;
+  /** Ultra tier (2026-09-13, HQ-ULTRA-TIER-BRIEF.md): swaps the core
+   * sphere to meshPhysicalMaterial (clearcoat, PMREM reflections) instead
+   * of the TV tier's matcap. `coreMeshRef` is attached to that sphere's
+   * own <mesh> regardless of tier -- EffectsStack's GodRays reads it as
+   * the scene's one "sun" object, and it's harmless/unused when GodRays
+   * isn't mounted (tv tier). */
+  ultra?: boolean;
+  coreMeshRef?: RefObject<THREE.Mesh | null>;
 }
 
 const GAUGE_WIDTH = 1.8;
@@ -32,8 +40,9 @@ const PULSE_DURATION_MS = 10_000;
  */
 export default function BrainCore({
   utilPct, memUsedMib, memTotalMib, modelName, manager, briefMtimeMs, gaming, dimFactor, reducedMotion,
+  ultra = false, coreMeshRef,
 }: BrainCoreProps) {
-  const coreMat = useRef<THREE.MeshMatcapMaterial>(null);
+  const coreMat = useRef<THREE.MeshMatcapMaterial | THREE.MeshPhysicalMaterial>(null);
   const matcap = useMemo(() => makeMatcapTexture(), []);
   const ringA = useRef<THREE.Mesh>(null);
   const ringB = useRef<THREE.Mesh>(null);
@@ -118,15 +127,20 @@ export default function BrainCore({
 
   return (
     <group scale={1.15}>
-      {/* Core sphere -- procedural matcap (HQ v4 look pass, 2026-09-13):
-          one texture lookup keyed by view-space normal replaces Lambert's
-          per-fragment N.L, giving the sphere real dimensional shading
-          (the "flat sticker" tell the style brief names as tell #1) at the
-          same fragment-cost class Lambert was. `color` scales brightness
-          in useFrame the same way emissiveIntensity used to. */}
-      <mesh>
-        <sphereGeometry args={[1.05, 20, 16]} />
-        <meshMatcapMaterial ref={coreMat} matcap={matcap} color={PALETTE.hubCore} toneMapped={false} />
+      {/* Core sphere -- TV tier: procedural matcap (HQ v4 look pass,
+          2026-09-13), one texture lookup replacing Lambert's per-fragment
+          N.L at the same cost class. Ultra tier (HQ-ULTRA-TIER-BRIEF.md):
+          meshPhysicalMaterial with clearcoat + PMREM env reflections --
+          "the single biggest fidelity jump in the whole brief". Both
+          branches share the same `color` brightness animation (useFrame
+          above) and the same coreMeshRef (GodRays' one "sun" object). */}
+      <mesh ref={coreMeshRef} castShadow={ultra} receiveShadow={ultra}>
+        <sphereGeometry args={[1.05, ultra ? 48 : 20, ultra ? 36 : 16]} />
+        {ultra ? (
+          <meshPhysicalMaterial ref={coreMat} color={PALETTE.hubCore} clearcoat={1} clearcoatRoughness={0.15} roughness={0.25} metalness={0.1} envMapIntensity={1.4} toneMapped={false} />
+        ) : (
+          <meshMatcapMaterial ref={coreMat} matcap={matcap} color={PALETTE.hubCore} toneMapped={false} />
+        )}
       </mesh>
 
       {/* Counter-rotating rings -- thickened (was 0.02-0.025 tube radius,
