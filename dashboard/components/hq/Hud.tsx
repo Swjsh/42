@@ -52,20 +52,86 @@ export default function Hud({ data, error, kiosk, isValidating }: HudProps) {
           from { transform: translateX(100vw); }
           to { transform: translateX(-100%); }
         }
+
+        /* "Epic animations for the folders" (2026-09-13, J via 21st.dev) --
+           hand-implemented (no code copied), concepts credited per rule:
+           transform/opacity/background-position ONLY (no filter:blur,
+           box-shadow spreads, or backdrop-filter -- those melt the TV's
+           Mali-G31 compositor). Shared here so drei's <Html>-portaled
+           content elsewhere in the tree (module panels, brain plaque) can
+           use the same classes -- <style> is a plain global stylesheet. */
+
+        /* Border Beam (https://21st.dev/s/border, "Border Beam": a beam
+           that travels around a card's edge) -- a rotating conic-gradient
+           behind a 1px-padded wrapper; the inner panel's own background
+           covers everything except that 1px ring. transform:rotate only. */
+        .hq-beam { position: relative; padding: 1px; }
+        .hq-beam::before {
+          content: ""; position: absolute; inset: -100%;
+          background: conic-gradient(from 0deg, transparent 0%, var(--beam-color, #7ad9ff) 6%, transparent 16%);
+          animation: hq-beam-spin 4.5s linear infinite;
+        }
+        @keyframes hq-beam-spin { to { transform: rotate(360deg); } }
+
+        /* Shine Border (https://21st.dev/s/border, "Shine Border": a moving
+           light effect that travels across the border) -- reimagined as a
+           one-shot diagonal shine sweep across the panel, replayed by
+           remounting the span via a changing React key prop whenever the
+           row's health/state changes. transform:translateX + opacity only. */
+        .hq-shine {
+          position: absolute; top: -30%; bottom: -30%; left: -60%; width: 35%;
+          background: linear-gradient(100deg, transparent, rgba(255,255,255,0.5), transparent);
+          animation: hq-shine-sweep 0.9s ease-out;
+          pointer-events: none;
+        }
+        @keyframes hq-shine-sweep {
+          from { transform: translateX(0%); opacity: 0; }
+          15% { opacity: 1; }
+          to { transform: translateX(420%); opacity: 0; }
+        }
+
+        /* Meteors (a "meteor shower" pattern -- a group of beams drifting
+           through a container; see e.g. magicui.design/docs/components/meteors,
+           cross-listed on 21st.dev) -- a subtle decorative drift behind the
+           HUD title, low-opacity so it never competes with the readable
+           text on top of it. transform:translate + opacity only. */
+        .hq-meteor {
+          position: absolute; width: 2px; height: 46px; top: -50px; left: 0;
+          background: linear-gradient(180deg, rgba(122,217,255,0.85), transparent);
+          animation: hq-meteor-fall linear infinite;
+        }
+        @keyframes hq-meteor-fall {
+          0% { transform: translate(0, 0) rotate(35deg); opacity: 0; }
+          12% { opacity: 0.65; }
+          85% { opacity: 0.65; }
+          100% { transform: translate(150px, 130px) rotate(35deg); opacity: 0; }
+        }
       `}</style>
 
-      {/* Top-left: title + ET clock + mode badge */}
-      <div style={{ position: "absolute", top: 16, left: 20, display: "flex", alignItems: "center", gap: 12 }}>
-        <span style={{ color: "#dff3ff", fontSize: 22, fontWeight: 700, letterSpacing: 2, textShadow: "0 0 12px rgba(122,217,255,0.6)" }}>
+      {/* Meteors drifting behind the title (decorative only, z-index below
+          the text) -- 5 elements, staggered delay/position so they don't
+          all fall in lockstep. */}
+      <div style={{ position: "absolute", top: 0, left: 0, width: 260, height: 70, overflow: "hidden" }}>
+        {[0, 1.4, 2.8, 4.2, 5.6].map((delay, i) => (
+          <span key={i} className="hq-meteor" style={{ left: 20 + i * 48, animationDelay: `${delay}s`, animationDuration: "6s" }} />
+        ))}
+      </div>
+
+      {/* Top-left: title + ET clock + mode badge. 10-foot-readability sizing
+          (2026-09-13, J: "it's just like text ... no animations"): mode
+          badge bumped to ~34px per spec; title/clock bumped alongside it so
+          the badge doesn't outsize its own header. */}
+      <div style={{ position: "absolute", top: 14, left: 20, display: "flex", alignItems: "center", gap: 16 }}>
+        <span style={{ color: "#dff3ff", fontSize: 34, fontWeight: 800, letterSpacing: 1.5, textShadow: "0 0 14px rgba(122,217,255,0.6)" }}>
           GAMMA HQ
         </span>
-        <span style={{ color: "#7f93b0", fontSize: 15, fontVariantNumeric: "tabular-nums" }}>{etClock}</span>
+        <span style={{ color: "#7f93b0", fontSize: 20, fontVariantNumeric: "tabular-nums" }}>{etClock}</span>
         <span
           style={{
-            fontSize: 12, padding: "2px 10px", borderRadius: 999,
+            fontSize: 22, fontWeight: 700, padding: "3px 16px", borderRadius: 999,
             background: gaming ? "rgba(255,176,32,0.18)" : "rgba(34,255,136,0.14)",
             color: gaming ? "#ffb020" : "#22ff88",
-            border: `1px solid ${gaming ? "#ffb020" : "#22ff88"}`,
+            border: `2px solid ${gaming ? "#ffb020" : "#22ff88"}`,
           }}
         >
           {gaming ? "GPU RESERVED" : `mode: ${mode}`}
@@ -95,26 +161,31 @@ export default function Hud({ data, error, kiosk, isValidating }: HudProps) {
         </div>
       )}
 
-      {/* Bottom ticker: scrolling brief text */}
+      {/* Bottom ticker: scrolling brief text -- ~26px per the readability pass */}
       <div
         style={{
-          position: "absolute", left: 0, right: 0, bottom: 34, height: 26,
-          overflow: "hidden", background: "rgba(3,4,10,0.55)", borderTop: "1px solid rgba(122,217,255,0.15)",
-          borderBottom: "1px solid rgba(122,217,255,0.15)",
+          position: "absolute", left: 0, right: 0, bottom: 34, height: 40,
+          overflow: "hidden", background: "rgba(3,4,10,0.6)", borderTop: "1px solid rgba(122,217,255,0.18)",
+          borderBottom: "1px solid rgba(122,217,255,0.18)",
         }}
       >
         <div
           style={{
-            whiteSpace: "nowrap", color: "#9fd8ff", fontSize: 13, lineHeight: "26px",
-            display: "inline-block", animation: "hq-ticker-scroll 55s linear infinite",
+            whiteSpace: "nowrap", color: "#9fd8ff", fontSize: 26, lineHeight: "40px",
+            display: "inline-block", animation: "hq-ticker-scroll 65s linear infinite",
           }}
         >
           {brief}
         </div>
       </div>
 
-      {/* Bottom-right corner: synced status */}
-      <div style={{ position: "absolute", bottom: 8, right: 12 }}>
+      {/* Bottom-right corner: TV self-reported perf (J must SEE the number) + synced status */}
+      <div style={{ position: "absolute", bottom: 8, right: 12, textAlign: "right" }}>
+        {data?.perf && (
+          <div style={{ color: "#5c7aa0", fontSize: 12, fontVariantNumeric: "tabular-nums" }}>
+            TV {data.perf.fps} fps · {data.perf.w}x{data.perf.h} · {data.perf.calls} calls
+          </div>
+        )}
         <span style={{ color: "#4a5a78", fontSize: 11 }}>{syncedText}</span>
       </div>
     </div>

@@ -97,11 +97,11 @@ export default function Courier({ cards, hub, wall, reducedMotion }: CourierProp
       <group ref={bodyGroup}>
         <mesh position={[0, 0.5, 0]}>
           <capsuleGeometry args={[0.13, 0.3, 4, 8]} />
-          <meshStandardMaterial color="#2a2440" roughness={0.5} />
+          <meshLambertMaterial color="#2a2440" />
         </mesh>
         <mesh position={[0, 0.78, 0.08]}>
           <sphereGeometry args={[0.09, 10, 8]} />
-          <meshStandardMaterial color="#d68cff" emissive="#d68cff" emissiveIntensity={1.4} toneMapped={false} />
+          <meshLambertMaterial color="#d68cff" emissive="#d68cff" emissiveIntensity={1.4} toneMapped={false} />
         </mesh>
       </group>
       <mesh ref={cardMesh} visible={false}>

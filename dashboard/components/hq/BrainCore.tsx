@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import type { CSSProperties } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import * as THREE from "three";
@@ -31,10 +32,16 @@ export default function BrainCore({
   const coreMat = useRef<THREE.MeshStandardMaterial>(null);
   const ringA = useRef<THREE.Mesh>(null);
   const ringB = useRef<THREE.Mesh>(null);
+  const ringAMat = useRef<THREE.MeshBasicMaterial>(null);
+  const ringBMat = useRef<THREE.MeshBasicMaterial>(null);
   const glowMat = useRef<THREE.SpriteMaterial>(null);
 
   const utilFrac = clamp01((utilPct ?? 0) / 100);
   const memFrac = memUsedMib && memTotalMib ? clamp01(memUsedMib / memTotalMib) : 0;
+  // One accent moment (2026-09-13): when the brain is genuinely busy (GPU
+  // util > 30%), the rings brighten -- Scene.tsx pairs this with faster
+  // corridor pulses from the same utilPct reading.
+  const ringBoost = utilFrac > 0.3 ? 1 + Math.min(1, (utilFrac - 0.3) / 0.7) * 0.7 : 1;
 
   useFrame((state) => {
     const t = state.clock.elapsedTime;
@@ -46,34 +53,39 @@ export default function BrainCore({
     const baseGlow = lerp(0.7, 2.6, utilFrac) * dimFactor;
     if (coreMat.current) coreMat.current.emissiveIntensity = baseGlow + flicker;
     if (glowMat.current) glowMat.current.opacity = clamp01(0.35 + utilFrac * 0.5) * dimFactor;
+    if (ringAMat.current) ringAMat.current.color.set(PALETTE.hubRing).multiplyScalar(ringBoost * dimFactor);
+    if (ringBMat.current) ringBMat.current.color.set("#7ad9ff").multiplyScalar(ringBoost * dimFactor);
   });
 
   const gaugeColor = memFrac > 0.85 ? "#ff3b3b" : memFrac > 0.6 ? "#ffb020" : "#22ff88";
 
   return (
-    <group>
-      {/* Core sphere */}
+    <group scale={1.15}>
+      {/* Core sphere -- Lambert (cheap N.L diffuse, no PBR/roughness sampling)
+          keeps the same emissive/emissiveIntensity animation path Standard
+          had, at a fraction of the fragment cost on a weak mobile GPU. */}
       <mesh>
-        <sphereGeometry args={[1.05, 24, 18]} />
-        <meshStandardMaterial
+        <sphereGeometry args={[1.05, 20, 16]} />
+        <meshLambertMaterial
           ref={coreMat}
           color={PALETTE.hubCore}
           emissive={PALETTE.hubCore}
           emissiveIntensity={1}
-          roughness={0.35}
-          metalness={0.2}
           toneMapped={false}
         />
       </mesh>
 
-      {/* Counter-rotating rings */}
+      {/* Counter-rotating rings -- thickened (was 0.02-0.025 tube radius,
+          near-invisible/aliased with antialias off) and opaque (no blend
+          cost) per the TV-crispness pass; brighten together as the "one
+          accent moment" when the brain is busy (ringBoost, see above). */}
       <mesh ref={ringA} rotation={[Math.PI / 2.4, 0, 0]}>
-        <torusGeometry args={[1.55, 0.025, 8, 64]} />
-        <meshBasicMaterial color={PALETTE.hubRing} transparent opacity={0.75 * dimFactor} toneMapped={false} />
+        <torusGeometry args={[1.55, 0.05, 8, 48]} />
+        <meshBasicMaterial ref={ringAMat} color={PALETTE.hubRing} toneMapped={false} />
       </mesh>
       <mesh ref={ringB} rotation={[0, 0, Math.PI / 3]}>
-        <torusGeometry args={[1.95, 0.02, 8, 64]} />
-        <meshBasicMaterial color="#7ad9ff" transparent opacity={0.5 * dimFactor} toneMapped={false} />
+        <torusGeometry args={[1.95, 0.04, 8, 48]} />
+        <meshBasicMaterial ref={ringBMat} color="#7ad9ff" toneMapped={false} />
       </mesh>
 
       {/* Additive glow sprite -- camera-facing, cheap */}
@@ -92,22 +104,27 @@ export default function BrainCore({
           <meshBasicMaterial color={gaugeColor} toneMapped={false} />
         </mesh>
         <Html position={[0, -0.22, 0]} center distanceFactor={9} style={{ pointerEvents: "none" }}>
-          <div style={{ color: "#7f93b0", fontSize: 12, fontFamily: "system-ui, sans-serif", whiteSpace: "nowrap" }}>
+          <div style={{ color: "#7f93b0", fontSize: 16, fontFamily: "system-ui, sans-serif", whiteSpace: "nowrap" }}>
             MEM {memUsedMib ?? "?"}/{memTotalMib ?? "?"} MiB
           </div>
         </Html>
       </group>
 
-      {/* Model plaque */}
-      <Html position={[0, 1.7, 0]} center distanceFactor={9} style={{ pointerEvents: "none" }}>
-        <div
-          style={{
-            color: "#dff3ff", fontSize: 14, fontFamily: "system-ui, sans-serif",
-            background: "rgba(3,4,10,0.55)", padding: "3px 12px", borderRadius: 6,
-            border: "1px solid rgba(122,217,255,0.35)", whiteSpace: "nowrap",
-          }}
-        >
-          {modelName || "BRAIN IDLE"}
+      {/* Model plaque -- 10-foot-readability sizing (2026-09-13): ~34px, the
+          brain's own status line, must read clearly across a room on the 4K
+          panel. Wrapped in .hq-beam (Border Beam, see Hud.tsx's shared
+          <style>) since this is the hub's own HUD-adjacent plaque. */}
+      <Html position={[0, 1.75, 0]} center distanceFactor={9} style={{ pointerEvents: "none" }}>
+        <div className="hq-beam" style={{ "--beam-color": "#7ad9ff", borderRadius: 8 } as CSSProperties}>
+          <div
+            style={{
+              color: "#dff3ff", fontSize: 34, fontWeight: 700, fontFamily: "system-ui, sans-serif",
+              background: "rgba(3,4,10,0.7)", padding: "4px 20px", borderRadius: 7,
+              whiteSpace: "nowrap",
+            }}
+          >
+            {modelName || "BRAIN IDLE"}
+          </div>
         </div>
       </Html>
 

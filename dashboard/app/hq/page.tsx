@@ -81,7 +81,7 @@ function HqView() {
         <HqFallback data={data} error={error} />
       ) : webgl2 === true ? (
         <>
-          <CanvasRoot data={data} reducedMotion={reducedMotion} />
+          <CanvasRoot data={data} reducedMotion={reducedMotion} lanKiosk={lanKiosk} />
           <Hud data={data} error={error} kiosk={kiosk} isValidating={isValidating} />
         </>
       ) : (

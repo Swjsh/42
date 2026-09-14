@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
-import { Html } from "@react-three/drei";
 import { useThrottledFrame } from "./useThrottledFrame";
 import { seededRandom } from "./palette";
 
@@ -37,7 +36,7 @@ export default function Agent({ laneSeed, home, hub, behavior, accentColor, redu
   const legR = useRef<THREE.Mesh>(null);
   const armL = useRef<THREE.Mesh>(null);
   const armR = useRef<THREE.Mesh>(null);
-  const visorMat = useRef<THREE.MeshStandardMaterial>(null);
+  const visorMat = useRef<THREE.MeshLambertMaterial>(null);
 
   const rng = useMemo(() => seededRandom(laneSeed), [laneSeed]);
   const approach = useMemo(() => {
@@ -135,45 +134,44 @@ export default function Agent({ laneSeed, home, hub, behavior, accentColor, redu
 
   return (
     <group ref={group}>
-      {/* Legs */}
+      {/* Legs -- Lambert everywhere below (cheap N.L diffuse, no PBR sampling
+          -- the real TV's Mali-G31 is fragment-bound and hates per-pixel
+          lights, so Standard's roughness/metalness terms are pure waste
+          here). The alert "!" indicator moved to the module's own label
+          (StationModule.tsx) instead of a second floating Html per agent --
+          keeps the page's total Html overlay count well under budget. */}
       <mesh ref={legL} position={[-0.09, 0.18, 0]}>
         <cylinderGeometry args={[0.045, 0.045, 0.32, 6]} />
-        <meshStandardMaterial color="#1b2436" roughness={0.7} />
+        <meshLambertMaterial color="#1b2436" />
       </mesh>
       <mesh ref={legR} position={[0.09, 0.18, 0]}>
         <cylinderGeometry args={[0.045, 0.045, 0.32, 6]} />
-        <meshStandardMaterial color="#1b2436" roughness={0.7} />
+        <meshLambertMaterial color="#1b2436" />
       </mesh>
       {/* Body (capsule) */}
       <mesh position={[0, 0.5, 0]}>
         <capsuleGeometry args={[0.14, 0.32, 4, 8]} />
-        <meshStandardMaterial color="#232d44" roughness={0.55} metalness={0.15} />
+        <meshLambertMaterial color="#232d44" />
       </mesh>
       {/* Arms */}
       <mesh ref={armL} position={[-0.19, 0.55, 0]}>
         <cylinderGeometry args={[0.035, 0.035, 0.28, 6]} />
-        <meshStandardMaterial color="#232d44" roughness={0.6} />
+        <meshLambertMaterial color="#232d44" />
       </mesh>
       <mesh ref={armR} position={[0.19, 0.55, 0]}>
         <cylinderGeometry args={[0.035, 0.035, 0.28, 6]} />
-        <meshStandardMaterial color="#232d44" roughness={0.6} />
+        <meshLambertMaterial color="#232d44" />
       </mesh>
       {/* Backpack */}
       <mesh position={[0, 0.5, -0.13]}>
         <boxGeometry args={[0.16, 0.22, 0.08]} />
-        <meshStandardMaterial color="#141b2e" roughness={0.8} />
+        <meshLambertMaterial color="#141b2e" />
       </mesh>
       {/* Visor / head-lamp */}
       <mesh position={[0, 0.78, 0.09]}>
-        <sphereGeometry args={[0.1, 12, 10]} />
-        <meshStandardMaterial ref={visorMat} color={accentColor} emissive={accentColor} emissiveIntensity={1.4} toneMapped={false} />
+        <sphereGeometry args={[0.1, 10, 8]} />
+        <meshLambertMaterial ref={visorMat} color={accentColor} emissive={accentColor} emissiveIntensity={1.4} toneMapped={false} />
       </mesh>
-
-      {behavior === "alert" && (
-        <Html position={[0, 1.05, 0]} center distanceFactor={9} style={{ pointerEvents: "none" }}>
-          <div style={{ color: "#ff3b3b", fontSize: 20, fontWeight: 800, textShadow: "0 0 8px #ff3b3b" }}>!</div>
-        </Html>
-      )}
     </group>
   );
 }

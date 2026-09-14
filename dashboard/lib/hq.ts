@@ -1,6 +1,7 @@
 import { promises as fs } from "node:fs";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
+import path from "node:path";
 import { paths } from "./workspace";
 
 const execFileAsync = promisify(execFile);
@@ -123,5 +124,72 @@ export async function readKitchenSummary(): Promise<KitchenSummary> {
     };
   } catch {
     return { daemon_alive: null, idle: null, current_task_id: null, failed_permanent: null };
+  }
+}
+
+// ─── tv-perf.jsonl (HQ v2, 2026-09-13): unified TV render-perf history, one
+//     line per report from EITHER kiosk face's own self-probe. Capped at 200
+//     lines so a 24/7 TV never grows this unbounded. ──────────────────────────
+
+export interface TvPerfRow {
+  ts_et: string;
+  page: string;
+  fps: number;
+  calls: number;
+  tris: number;
+  w: number;
+  h: number;
+  dpr: number;
+  rawDpr?: number;
+  ua: string;
+}
+
+const TV_PERF_MAX_LINES = 200;
+
+/** Pure function, no fs access: given the file's CURRENT text and one new
+ * JSON line, returns the new file text capped at `maxLines`. Kept pure and
+ * exported specifically so it's unit-testable -- see the tv-probe route's
+ * own comment on why no test file accompanies it today (no TS/JS test
+ * runner in this project; adding one is out of scope -- "no new npm deps"). */
+export function capJsonlText(existingText: string, newLineJson: string, maxLines: number): string {
+  const lines = existingText.split("\n").map((l) => l.trim()).filter(Boolean);
+  lines.push(newLineJson);
+  return lines.slice(-maxLines).join("\n") + "\n";
+}
+
+/** Appends one row to tv-perf.jsonl, capped, via the same tmp+rename atomic
+ * write every other station writer in this codebase already uses. */
+export async function appendTvPerfRow(row: TvPerfRow): Promise<void> {
+  let existing = "";
+  try {
+    existing = await fs.readFile(paths.tvPerf, "utf-8");
+  } catch {
+    existing = "";
+  }
+  const nextText = capJsonlText(existing, JSON.stringify(row), TV_PERF_MAX_LINES);
+  await fs.mkdir(path.dirname(paths.tvPerf), { recursive: true });
+  const tmp = `${paths.tvPerf}.tmp`;
+  await fs.writeFile(tmp, nextText, "utf-8");
+  await fs.rename(tmp, paths.tvPerf);
+}
+
+/** The latest page==="hq" row (or null) -- scanned from the tail backward so
+ * a mixed station+hq history still finds the right one. Fail-open: a
+ * missing file or one malformed line never throws. */
+export async function readLatestHqPerf(): Promise<TvPerfRow | null> {
+  try {
+    const text = await fs.readFile(paths.tvPerf, "utf-8");
+    const lines = text.trim().split("\n").filter(Boolean);
+    for (let i = lines.length - 1; i >= 0; i--) {
+      try {
+        const row = JSON.parse(lines[i]) as TvPerfRow;
+        if (row.page === "hq") return row;
+      } catch {
+        // one malformed line never blocks scanning the rest of the tail
+      }
+    }
+    return null;
+  } catch {
+    return null;
   }
 }

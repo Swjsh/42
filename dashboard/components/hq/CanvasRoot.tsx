@@ -3,20 +3,31 @@
 import { useEffect, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import Scene from "./Scene";
+import PerfReporter from "./PerfReporter";
 import type { HqApiResponse } from "./types";
 
 interface CanvasRootProps {
   data: HqApiResponse | undefined;
   reducedMotion: boolean;
+  lanKiosk: boolean;
 }
 
 const MAX_BUFFER_WIDTH = 1920;
+// HQ v2 (2026-09-13): the real TV reports devicePixelRatio 1.25 (Tizen 9 /
+// SamsungBrowser scales its 1536x749 CSS viewport up from a 1920x936 device
+// buffer) -- capping dpr at 1 was rendering 1536x749 and letting the panel
+// upscale ~2.5x, which is the "pixelated" J saw. Clamping to [1, 1.25]
+// matches the device's own reported ratio (crisp on THIS TV) while never
+// going below native 1x on any screen; the >1920-wide scale-down below is
+// unrelated and can still legitimately push the effective dpr under 1 on a
+// very wide, low-dpr viewport (kept as-is).
+const MAX_DPR = 1.25;
 
 function computeDpr(): number {
-  const raw = Math.min(window.devicePixelRatio || 1, 1);
+  const dpr = Math.min(Math.max(window.devicePixelRatio || 1, 1), MAX_DPR);
   const cssWidth = window.innerWidth || MAX_BUFFER_WIDTH;
-  const bufferWidth = cssWidth * raw;
-  return bufferWidth <= MAX_BUFFER_WIDTH ? raw : MAX_BUFFER_WIDTH / cssWidth;
+  const bufferWidth = cssWidth * dpr;
+  return bufferWidth <= MAX_BUFFER_WIDTH ? dpr : MAX_BUFFER_WIDTH / cssWidth;
 }
 
 /**
@@ -27,7 +38,7 @@ function computeDpr(): number {
  * page after 5s. Everything <Scene> needs before it's safe to run on a TV
  * SoC lives here, not scattered across the scene components.
  */
-export default function CanvasRoot({ data, reducedMotion }: CanvasRootProps) {
+export default function CanvasRoot({ data, reducedMotion, lanKiosk }: CanvasRootProps) {
   const [dpr, setDpr] = useState(() => (typeof window !== "undefined" ? computeDpr() : 1));
   const [frameloop, setFrameloop] = useState<"always" | "never">("always");
   const [contextLost, setContextLost] = useState(false);
@@ -63,6 +74,7 @@ export default function CanvasRoot({ data, reducedMotion }: CanvasRootProps) {
         }}
       >
         <Scene data={data} reducedMotion={reducedMotion} />
+        <PerfReporter enabled={lanKiosk} />
       </Canvas>
 
       {contextLost && (

@@ -50,8 +50,8 @@ export default function Starfield({ reducedMotion }: { reducedMotion: boolean })
 
       <group ref={planetGroup} position={[-14, 6, -20]}>
         <mesh>
-          <sphereGeometry args={[3.2, 24, 20]} />
-          <meshStandardMaterial color={PALETTE.planet} roughness={0.9} metalness={0.05} />
+          <sphereGeometry args={[3.2, 18, 14]} />
+          <meshLambertMaterial color={PALETTE.planet} />
         </mesh>
         <mesh>
           <sphereGeometry args={[3.42, 24, 20]} />

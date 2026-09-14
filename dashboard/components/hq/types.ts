@@ -1,5 +1,5 @@
 import type { StationIdeaCard, StationPresence, StationFace } from "@/lib/station";
-import type { SectorRow } from "@/lib/hq";
+import type { SectorRow, TvPerfRow } from "@/lib/hq";
 
 export type { SectorRow };
 
@@ -44,6 +44,7 @@ export interface HqApiResponse {
   extras: HqExtras;
   face: StationFace | null;
   build_id: string | null;
+  perf: TvPerfRow | null;
 }
 
 /** One module's derived (not server-sent) presentation state -- computed

@@ -9,6 +9,7 @@ interface CorridorProps {
   from: [number, number, number];
   to: [number, number, number];
   freshness: number; // 0..1, 1 = just happened -- drives pulse speed
+  speedBoost?: number; // >1 when the brain core is busy (GPU util > 30%)
   reducedMotion: boolean;
 }
 
@@ -21,9 +22,9 @@ const UP = new THREE.Vector3(0, 1, 0);
  * ONCE via useMemo (not per frame); only the pulse's scalar position lerps
  * every tick, no vector allocation in the hot path.
  */
-export default function Corridor({ from, to, freshness, reducedMotion }: CorridorProps) {
+export default function Corridor({ from, to, freshness, speedBoost = 1, reducedMotion }: CorridorProps) {
   const pulse = useRef<THREE.Mesh>(null);
-  const speed = lerp(0.04, 0.5, freshness); // cycles per second
+  const speed = lerp(0.04, 0.5, freshness) * speedBoost; // cycles per second
 
   const { length, midpoint, quaternion } = useMemo(() => {
     const dx = to[0] - from[0];
@@ -51,9 +52,12 @@ export default function Corridor({ from, to, freshness, reducedMotion }: Corrido
 
   return (
     <group>
+      {/* Thickened (was 0.035 radius, near-invisible with antialias off) and
+          opaque (was transparent -- cuts blend/overdraw cost across 8 of
+          these on the TV's weak GPU) per the TV-crispness pass. */}
       <mesh position={midpoint} quaternion={quaternion}>
-        <cylinderGeometry args={[0.035, 0.035, length, 6, 1, true]} />
-        <meshBasicMaterial color={PALETTE.corridor} transparent opacity={0.55} side={THREE.DoubleSide} />
+        <cylinderGeometry args={[0.06, 0.06, length, 6, 1, true]} />
+        <meshBasicMaterial color={PALETTE.corridor} side={THREE.DoubleSide} toneMapped={false} />
       </mesh>
       <mesh ref={pulse} position={from}>
         <sphereGeometry args={[0.07, 8, 6]} />

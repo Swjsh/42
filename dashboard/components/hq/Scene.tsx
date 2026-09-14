@@ -18,11 +18,20 @@ interface SceneProps {
 }
 
 const HUB: [number, number, number] = [0, 0, 0];
-const RING_RADIUS = 8.5;
+const RING_RADIUS = 9.8;
 const WALL_POS: [number, number, number] = [0, 3.4, 0];
 const BASE_AZIMUTH = Math.atan2(16, 20);
-const CAMERA_DIST = 25.5;
-const CAMERA_HEIGHT = 14;
+const CAMERA_DIST = 26.5;
+const CAMERA_HEIGHT = 13;
+// Composition pass (2026-09-13): modules on a wide ARC facing the camera --
+// not a full 360deg ring, where half of them would sit hidden behind the
+// hub from this fixed 3/4 view. Module position uses cos->x/sin->z while
+// the camera's own azimuth uses sin->x/cos->z (see CameraRig below), so the
+// module-space angle that faces the camera most directly is (90deg -
+// BASE_AZIMUTH) -- the arc is centered there, spanning ~230deg so all 8
+// modules stay generally camera-facing and spread across the 16:9 frame.
+const ARC_CENTER = Math.PI / 2 - BASE_AZIMUTH;
+const ARC_SPAN = (230 * Math.PI) / 180;
 
 /** health=red -> alert (overrides evidence recency); a parked lane (killed/
  * dormant/dead state or frozen/zombie health) -> idle, never "working" even
@@ -45,7 +54,11 @@ function CameraRig({ reducedMotion }: { reducedMotion: boolean }) {
     const drift = reducedMotion ? 0 : (Math.PI / 22.5) * Math.sin(state.clock.elapsedTime * 0.05);
     const azimuth = BASE_AZIMUTH + drift;
     camera.position.set(Math.sin(azimuth) * CAMERA_DIST, CAMERA_HEIGHT, Math.cos(azimuth) * CAMERA_DIST);
-    camera.lookAt(0, 0.6, 0);
+    // Look ABOVE the hub's own center (y=0) so the whole station -- hub,
+    // modules, and the elevated ideas wall at y=3.4 -- settles into the
+    // lower ~80% of frame, leaving the top clear for the HUD (title/mode
+    // badge) instead of the two overlapping.
+    camera.lookAt(0, 1.9, 0);
   });
   return null;
 }
@@ -75,19 +88,32 @@ export default function Scene({ data, reducedMotion }: SceneProps) {
   const geometry = useMemo(
     () =>
       Array.from({ length: slotCount }, (_, i) => {
-        const angle = (i / slotCount) * Math.PI * 2;
+        const t = slotCount > 1 ? i / (slotCount - 1) : 0.5;
+        const angle = ARC_CENTER - ARC_SPAN / 2 + t * ARC_SPAN;
         const position: [number, number, number] = [Math.cos(angle) * RING_RADIUS, 0, Math.sin(angle) * RING_RADIUS];
         return { angle, position };
       }),
     [slotCount],
   );
 
+  // One accent moment (2026-09-13): when the brain is genuinely busy
+  // (GPU util > 30%), corridor pulses run faster -- BrainCore does the
+  // matching "brighter rings" half of this internally from the same
+  // utilPct prop it already receives.
+  const utilPct = data?.brainVitals.gpu.util_pct ?? null;
+  const corridorSpeedBoost = utilPct !== null && utilPct > 30 ? 1 + Math.min(1, (utilPct - 30) / 70) * 0.9 : 1;
+
   return (
     <>
+      {/* HQ v2 perf pass: Mali-G31 (the real TV's GPU) is fragment-bound and
+          hates per-pixel lights -- ONE hemisphereLight + ONE directionalLight
+          for the entire scene, zero pointLights anywhere (module health tint
+          now comes from emissive floor-edge strips, not a per-module light;
+          see StationModule.tsx). */}
       <color attach="background" args={[PALETTE.space]} />
       <fog attach="fog" args={[PALETTE.fogColor, 20, 62]} />
-      <ambientLight intensity={0.22 * dimFactor + 0.05} />
-      <hemisphereLight args={["#3a4a7a", "#04040a", 0.35 * dimFactor]} />
+      <hemisphereLight args={["#3a4a7a", "#04040a", 0.55 * dimFactor]} />
+      <directionalLight position={[6, 10, 4]} intensity={0.55 * dimFactor} />
 
       <CameraRig reducedMotion={reducedMotion} />
       <Starfield reducedMotion={reducedMotion} />
@@ -110,6 +136,7 @@ export default function Scene({ data, reducedMotion }: SceneProps) {
               from={slot.position}
               to={HUB}
               freshness={freshness01(minutesSinceEvidence(row.last_evidence_et))}
+              speedBoost={corridorSpeedBoost}
               reducedMotion={reducedMotion}
             />
             <StationModule

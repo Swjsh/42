@@ -2,7 +2,7 @@
 
 import { Html } from "@react-three/drei";
 import type { StationIdeaCard } from "@/lib/station";
-import { ideaStatusColor, PALETTE } from "./palette";
+import { ideaStatusColor } from "./palette";
 
 interface IdeasWallProps {
   cards: StationIdeaCard[];
@@ -11,20 +11,17 @@ interface IdeasWallProps {
 }
 
 /**
- * A holographic panel near the hub listing the newest <=6 idea cards. The
- * "panel" is a single translucent plane (1 draw call); every bit of text is
- * DOM via <Html> (never drei <Text>, which fetches a font -- forbidden at
- * runtime on the TV).
+ * A holographic panel near the hub listing the newest <=6 idea cards. Text
+ * is DOM via <Html> (never drei <Text>, which fetches a font -- forbidden at
+ * runtime on the TV). The backing plane mesh (0.06 opacity, essentially
+ * invisible) was dropped in the TV-perf pass -- pure overdraw cost for zero
+ * visible value; the Html div's own background carries the panel look.
  */
 export default function IdeasWall({ cards, position, dimFactor }: IdeasWallProps) {
   const newest = [...cards].reverse().slice(0, 6);
 
   return (
     <group position={position}>
-      <mesh>
-        <planeGeometry args={[2.6, 2.0]} />
-        <meshBasicMaterial color={PALETTE.hubRing} transparent opacity={0.06 * dimFactor} toneMapped={false} />
-      </mesh>
       <Html position={[0, 0, 0.02]} center distanceFactor={9} style={{ pointerEvents: "none" }}>
         <div
           style={{

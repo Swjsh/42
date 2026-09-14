@@ -77,6 +77,11 @@ export const paths = {
   sectorRowsScript: path.join(WORKSPACE_ROOT, "setup", "scripts", "sector_rows.py"),
   futuresHealth: st("futures", "health.json"),
   cryptoTwinDecisions: st("crypto-twin", "decisions.jsonl"),
+  // HQ v2 (2026-09-13): unified TV render-perf history, one line per report
+  // from either kiosk face's own self-probe (gitignored, capped at 200 lines
+  // by dashboard/lib/hq.ts's appendTvPerfRow -- see that module). Lives next
+  // to tv-capability.json under station/, not directly under state/.
+  tvPerf: st("station", "tv-perf.jsonl"),
   // "Talk to Gamma" chat persona (amendment 5a, 2026-09-13) -- deliberately NOT
   // stationPromptMd above: station.md is the 30-min loop's JSON-only output-schema
   // prompt, and using it for chat would make Gamma answer J in raw JSON. Fable

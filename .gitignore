@@ -441,6 +441,7 @@ automation/state/station/mode.json
 automation/state/station/brain-test-prompt.md
 automation/state/station/presence.json
 automation/state/station/tv-capability.json
+automation/state/station/tv-perf.jsonl
 automation/state/station/kiosk-snapshot.png
 automation/state/station/kiosk.pid
 automation/state/station/.tv-token

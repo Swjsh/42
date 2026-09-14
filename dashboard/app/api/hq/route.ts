@@ -17,6 +17,7 @@ import {
   readFuturesVerdict,
   readCryptoTwinTail,
   readKitchenSummary,
+  readLatestHqPerf,
 } from "@/lib/hq";
 
 export const dynamic = "force-dynamic";
@@ -50,6 +51,7 @@ export async function GET() {
     kitchen,
     face,
     buildId,
+    perf,
   ] = await Promise.all([
     readIdeasBoard(),
     readStationBrief(),
@@ -66,6 +68,7 @@ export async function GET() {
     readKitchenSummary(),
     readFaceConfig(),
     readBuildId(),
+    readLatestHqPerf(),
   ]);
 
   const lastRow = ledger.length > 0 ? ledger[ledger.length - 1] : null;
@@ -99,6 +102,7 @@ export async function GET() {
       },
       face,
       build_id: buildId,
+      perf,
     },
     { headers: { "Cache-Control": "no-store, max-age=0" } },
   );
