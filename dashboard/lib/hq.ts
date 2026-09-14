@@ -727,6 +727,83 @@ function todayEtDateStr(): string {
   return `${get("year")}-${get("month")}-${get("day")}`;
 }
 
+// CREW-2 (roster) coordinator correction (2026-09-14): Pilot's roster card
+// was reading automation/state/loop-state.json (a stale side file the live
+// deterministic engine, heartbeat_core.py, doesn't write) for both its
+// "is it working" freshness AND its "N decisions today" count, so it could
+// disagree with the trading strip's own "engine ticking HH:MM" line, which
+// reads core-decisions.jsonl via readCoreDecisionsLatest() above. Pilot's
+// roster card must read the SAME file. readCoreDecisionsLatest()'s own
+// bounded 512KiB tail (comfortably enough to find the newest row per
+// account, per that function's own comment) is too small to reliably count
+// EVERY row from today once several hours into a ~1-tick/min RTH day (up to
+// ~385 ticks/account * ~2.5KB/row ~= ~1MB/account), so this reads a larger
+// (4MiB) tail instead, filters to rows whose ts_et starts with today's ET
+// date, and counts + separately names genuine ENTER/EXIT trade rows (same
+// /^(ENTER|EXIT)/ test Scene.tsx's own commit 81147547 already established
+// against this file's real verdict vocabulary) -- never a bare stale count.
+const CORE_DECISIONS_TODAY_TAIL_BYTES = 4 * 1024 * 1024; // 4 MiB
+
+export interface CoreDecisionsToday {
+  safe: { count: number; trades: CoreDecisionRow[] };
+  bold: { count: number; trades: CoreDecisionRow[] };
+}
+
+/** Every core-decisions.jsonl row from TODAY (ET calendar date), split by
+ * account, plus which of those rows were genuine ENTER/EXIT trade actions.
+ * Fail-open: a missing/unreadable file or one malformed line never throws
+ * (degrades to a 0 count, never a fabricated number). */
+export async function readCoreDecisionsToday(): Promise<CoreDecisionsToday> {
+  const empty: CoreDecisionsToday = { safe: { count: 0, trades: [] }, bold: { count: 0, trades: [] } };
+  let handle: FileHandle | undefined;
+  try {
+    handle = await fs.open(paths.coreDecisions, "r");
+    const stat = await handle.stat();
+    const start = Math.max(0, stat.size - CORE_DECISIONS_TODAY_TAIL_BYTES);
+    const length = stat.size - start;
+    if (length <= 0) return empty;
+    const buffer = Buffer.alloc(length);
+    await handle.read(buffer, 0, length, start);
+    const text = buffer.toString("utf-8");
+    // Same "drop the first line if we seeked mid-file" rule as
+    // readCoreDecisionsLatest above -- a seeked chunk's first line is very
+    // likely a truncated partial row.
+    const lines = text.split("\n").slice(start > 0 ? 1 : 0).filter((l) => l.trim().length > 0);
+    const today = todayEtDateStr();
+    const result: CoreDecisionsToday = { safe: { count: 0, trades: [] }, bold: { count: 0, trades: [] } };
+    for (const line of lines) {
+      let row: Record<string, unknown>;
+      try {
+        row = JSON.parse(line);
+      } catch {
+        continue; // one malformed/truncated line never blocks the rest
+      }
+      const account = row.account === "safe" || row.account === "bold" ? row.account : null;
+      if (!account) continue;
+      const tsEt = typeof row.ts_et === "string" ? row.ts_et : "";
+      if (!tsEt.startsWith(today)) continue; // only today's rows count toward "decisions today"
+      const parsed: CoreDecisionRow = {
+        tsEt,
+        account,
+        armed: row.armed === true,
+        spy: typeof row.spy === "number" ? row.spy : null,
+        vix: typeof row.vix === "number" ? row.vix : null,
+        ribbon: typeof row.ribbon === "string" ? row.ribbon : null,
+        verdict: typeof row.verdict === "string" ? row.verdict : null,
+        side: typeof row.side === "string" ? row.side : null,
+        setup: typeof row.setup === "string" ? row.setup : null,
+      };
+      result[account].count += 1;
+      if (parsed.verdict && /^(ENTER|EXIT)/.test(parsed.verdict)) result[account].trades.push(parsed);
+    }
+    return result;
+  } catch {
+    return empty;
+  } finally {
+    await handle?.close();
+  }
+}
+
 /** automation/state/open-bell-pinged.json -- whether TODAY's (ET calendar
  * date, computed the same explicit-Intl way as everywhere else in this
  * codebase, never the server process's own local date) open bell has

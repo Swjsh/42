@@ -16,6 +16,11 @@ import { execSync } from "child_process";
 // import is "three"). Real market-hours math must stay ONE source of truth
 // project-wide (CLAUDE.md's own standing TZ lesson).
 import { isRegularTradingHours, nowEtDayOfWeek, nowEtMinutes } from "@/components/hq/palette";
+// Coordinator correction (2026-09-14): Pilot must read the SAME
+// core-decisions.jsonl truth the trading strip and 3D desk screen already
+// use (lib/hq.ts), not a stale loop-state.json side file. See collectPilot()
+// below for the full rationale.
+import { readCoreDecisionsLatest, readCoreDecisionsToday, type CoreDecisionRow } from "@/lib/hq";
 
 const ROOT = path.join(process.cwd(), "..");
 
@@ -168,6 +173,33 @@ function fmtSignedDollar(v: number | null | undefined): string {
   const rounded = Math.round(v);
   const sign = rounded >= 0 ? "+" : "-";
   return `${sign}$${Math.abs(rounded).toLocaleString("en-US")}`;
+}
+
+/** "next open 09:30 ET" / "next open tomorrow 09:30 ET" / "next open Monday
+ * 09:30 ET" -- the next Mon-Fri 09:30 ET RTH open, same explicit-Intl ET
+ * wall-clock approach as every other check in this file (never a naive
+ * local Date, per CLAUDE.md's own standing TZ lesson). Small and
+ * Pilot-specific rather than importing lib/crew.ts's more general
+ * nextDailyFireText -- this file stays fs/server-only and crew.ts stays
+ * fs-free/client-importable, so neither imports the other. */
+function nextRthOpenText(): string {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York", weekday: "short", hour: "2-digit", minute: "2-digit", hour12: false,
+  }).formatToParts(new Date());
+  const get = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
+  const hour = Number(get("hour")) % 24;
+  const minute = Number(get("minute"));
+  const names = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const dow = names.findIndex((n) => n.startsWith(get("weekday")));
+  const minuteOfDay = hour * 60 + minute;
+  const isWeekday = dow >= 1 && dow <= 5;
+  if (isWeekday && minuteOfDay < 9 * 60 + 30) return "next open 09:30 ET";
+  let d = dow < 0 ? 0 : dow;
+  for (let i = 1; i <= 7; i++) {
+    d = (d + 1) % 7;
+    if (d >= 1 && d <= 5) return i === 1 ? "next open tomorrow 09:30 ET" : `next open ${names[d]} 09:30 ET`;
+  }
+  return "next open 09:30 ET";
 }
 
 /** One crew-events.jsonl row (automation/state/station/crew-events.jsonl,
@@ -376,42 +408,75 @@ export async function collectCoach(): Promise<PersonaState> {
   };
 }
 
+/** Coordinator correction (2026-09-14, real-capture review of crew2-1155.png):
+ * Pilot's card disagreed with the trading strip on the SAME frame ("last
+ * decision 11:39 ET" next to "engine ticking 11:55 ET"). Root cause: this
+ * collector read automation/state/loop-state.json, a side file the LIVE
+ * deterministic engine (heartbeat_core.py) doesn't write -- the trading
+ * strip's own truth is automation/state/core-decisions.jsonl via
+ * lib/hq.ts#readCoreDecisionsLatest (commit 81147547 already re-pointed
+ * Pilot's 3D desk screen the same way; this re-points the roster card to
+ * the SAME source, per the coordinator's explicit instruction). */
 export async function collectPilot(): Promise<PersonaState> {
-  const decisions = path.join(ROOT, "automation/state/decisions.jsonl");
-  const loopState = path.join(ROOT, "automation/state/loop-state.json");
-  const today = todayET();
-  const tail = await readJsonlTail<Record<string, unknown>>(decisions, 5);
-  const todaysDecisions = tail.filter((d) => {
-    const ts = (d.fire_at as string) || (d.timestamp as string) || "";
-    return ts.startsWith(today);
-  });
-  const mt = await mtimeISO(loopState);
-  const ageMin = mt ? (Date.now() - new Date(mt).getTime()) / 60000 : null;
-  const loop = await readJson<Record<string, unknown>>(loopState);
-  const lastFire = (tail[tail.length - 1]?.fire_at as string) || mt;
-  const status: PersonaState["status"] = ageMin !== null && ageMin < 10 ? "GREEN" : "IDLE";
-  // R4 quietReason: Pilot's OWN schedule is RTH-only (Rule 5's per-account
-  // hours) -- most of a 24h day it is correctly, deliberately idle. Only
-  // flag it when it's quiet DURING the window it's supposed to be ticking.
+  const [core, today] = await Promise.all([
+    readCoreDecisionsLatest(),
+    readCoreDecisionsToday(),
+  ]);
   const rth = isRegularTradingHours(nowEtMinutes(), nowEtDayOfWeek());
+  const latest = [core.safe, core.bold]
+    .filter((r): r is CoreDecisionRow => !!r)
+    .sort((a, b) => a.tsEt.localeCompare(b.tsEt))
+    .pop() ?? null;
+  // core-decisions.jsonl's own ts_et is "YYYY-MM-DDTHH:MM:SS" ET wall-clock
+  // text (no offset) -- etLikeToIso's `[ T]` separator class already
+  // handles this shape (it was built for the space-separated "... ET"
+  // shape elsewhere in this file, but the leading digit pattern is
+  // identical either way).
+  const lastFireISO = latest ? etLikeToIso(latest.tsEt) : null;
+  const ageMin = lastFireISO ? (Date.now() - new Date(lastFireISO).getTime()) / 60000 : null;
+  const status: PersonaState["status"] = rth && ageMin !== null && ageMin < 5 ? "GREEN" : "IDLE";
+
+  const spy = core.safe?.spy ?? core.bold?.spy ?? null;
+  const nowLine = rth && latest
+    ? `tick ${etHHMM(lastFireISO) ?? "?"} ET · safe ${core.safe?.verdict ?? "?"} / bold ${core.bold?.verdict ?? "?"}${spy !== null ? ` · SPY ${spy.toFixed(2)}` : ""}`
+    : null;
+
+  const totalCount = today.safe.count + today.bold.count;
+  // "ENTER/EXIT rows get named" -- genuine trade actions (not HOLD/SKIP/
+  // ERROR ticks) are called out by verdict+time rather than folded into a
+  // bare count; see Scene.tsx commit 81147547 for the same /^(ENTER|EXIT)/
+  // vocabulary test against this file's real data.
+  const trades = [...today.safe.trades, ...today.bold.trades].sort((a, b) => a.tsEt.localeCompare(b.tsEt));
+  const namedTrades = trades.map((t) => `${t.verdict} ${etHHMM(etLikeToIso(t.tsEt)) ?? "?"}`).join(", ");
+  const lastFireResult = totalCount > 0
+    ? `${totalCount} decision${totalCount === 1 ? "" : "s"} today${namedTrades ? ` (${namedTrades})` : ""}`
+    : "0 decisions today";
+
+  // R4 quietReason: Pilot's OWN schedule is RTH-only (Rule 5's per-account
+  // hours) -- most of a 24h day it is correctly, deliberately idle. Coordinator
+  // correction (2026-09-14): outside RTH this is WAITING for the next open,
+  // not YIELDING -- deliberately NOT prefixed "yields " (the crew.ts pill
+  // classifier's YIELDING trigger), so it falls through to WAITING with a
+  // real "next open HH:MM ET" projection instead.
   const quietReason: PersonaState["quietReason"] = status === "GREEN"
     ? null
     : !rth
-      ? "yields 09:30-15:55 ET (RTH) — Gamma_HeartbeatCore only ticks during market hours"
-      : `expected every ~1-3 min during RTH, last decision ${etHHMM(lastFire) ?? "?"} ET — check Gamma_HeartbeatCore`;
+      ? nextRthOpenText()
+      : `expected every ~1-3 min during RTH, last tick ${etHHMM(lastFireISO) ?? "?"} ET — check Gamma_HeartbeatCore`;
+
   return {
     name: "Pilot",
     emoji: "✈️",
     color: "#ef4444",
     role: "LIVE 0DTE trader (refs heartbeat.md)",
     soulFile: ".claude/agents/pilot.md",
-    schedule: "every 3 min market hours via Gamma_Heartbeat",
+    schedule: "every ~1 min market hours via Gamma_HeartbeatCore",
     status,
-    lastFireISO: lastFire,
-    lastFireResult: `${todaysDecisions.length} decisions today`,
-    deliverable: { path: "automation/state/loop-state.json", exists: !!loop, mtimeISO: mt, ageMin },
-    logTail: tail,
-    recentOutput: loop ? `spy=${(loop.spy as { last?: number })?.last ?? "?"} last_bar=${(loop.last_bar_timestamp as number) || "?"}` : null,
+    lastFireISO,
+    lastFireResult,
+    deliverable: { path: "automation/state/core-decisions.jsonl", exists: !!latest, mtimeISO: lastFireISO, ageMin },
+    logTail: [],
+    recentOutput: nowLine,
     quietReason,
     guardrailsDeniedTools: ["doctrine edits — Pilot reads heartbeat.md, cannot modify it"],
   };
@@ -458,9 +523,45 @@ export async function collectAnalyst(): Promise<PersonaState> {
 interface StationVerdictRow {
   ts_et?: string;
   card_id?: string;
+  spec?: { type?: string; params?: Record<string, unknown> };
   result?: { n_pre?: number; n_post?: number; effect_pre?: number; effect_post?: number; verdict?: string; detail?: string };
 }
-interface IdeaBoardCardLite { id?: string; title?: string; status?: string }
+
+// Coordinator correction (2026-09-14): the now-line quoted the ideas-board
+// card TITLE (a long human sentence) truncated to 42 chars, which ate the
+// n_post/pre numbers the whole line exists to show. Replaced with a
+// compact spec-derived label built from the verdict row's OWN `spec` field
+// -- no ideas-board.json read needed any more (title was this collector's
+// only use of it).
+
+// The two entry-setup prefixes this project currently runs (CLAUDE.md:
+// "Both directions ACTIVE (BEARISH_REJECTION + BULLISH_RECLAIM_..., identical
+// placement path)") -- stripping a KNOWN prefix leaves the exit-style
+// suffix (e.g. "RIDE_THE_RIBBON") as the genuinely distinguishing short
+// name. A strategy string that matches neither (a future addition) falls
+// back to its own last underscore-token rather than guessing.
+const KNOWN_STRATEGY_PREFIXES = ["BULLISH_RECLAIM_", "BEARISH_REJECTION_"];
+
+function shortStrategyName(strategy: string): string {
+  for (const prefix of KNOWN_STRATEGY_PREFIXES) {
+    if (strategy.startsWith(prefix)) return strategy.slice(prefix.length);
+  }
+  const tokens = strategy.split("_");
+  return tokens[tokens.length - 1] || strategy;
+}
+
+/** The first spec.params entry that isn't `strategy` (handled separately
+ * by shortStrategyName), rendered as its bare value -- e.g. size_cap's
+ * `{cap: 3, strategy: "..."}` yields "3", matching the "size_cap(3)"
+ * shape. "?" when spec/params carry nothing else (never a guessed number). */
+function formatSpecKeyParam(params: Record<string, unknown> | undefined): string {
+  if (!params) return "?";
+  for (const [k, v] of Object.entries(params)) {
+    if (k === "strategy") continue;
+    if (typeof v === "number" || typeof v === "string" || typeof v === "boolean") return String(v);
+  }
+  return "?";
+}
 
 /** Chef re-point (CREW-2, 2026-09-14): Chef's OLD deliverable
  * (strategy/candidates/_LEADERBOARD.md, fed by the retired conductor-era
@@ -469,16 +570,14 @@ interface IdeaBoardCardLite { id?: string; title?: string; status?: string }
  * board.json gets a runnable test via setup/scripts/hypothesis_scorer.py
  * (station_loop.py's score_testing_cards()), which fires every ~30 min
  * through the Station loop, $0, including RTH. This reads the verdicts
- * ledger it writes and joins card_id -> title against the ideas board. */
+ * ledger it writes. */
 export async function collectChef(): Promise<PersonaState> {
   const verdictsPath = path.join(ROOT, "analysis/recommendations/station-verdicts.jsonl");
-  const ideasPath = path.join(ROOT, "automation/state/station/ideas-board.json");
   const role = "idea-loop owner: every board card gets a runnable test and a verdict from data";
   const schedule = "every ~30 min via the Station loop (score_testing_cards, hypothesis_scorer.py)";
 
-  const [verdictTail, ideas, crewEvents] = await Promise.all([
+  const [verdictTail, crewEvents] = await Promise.all([
     readJsonlTail<StationVerdictRow>(verdictsPath, 5),
-    readJson<IdeaBoardCardLite[]>(ideasPath),
     readCrewEventsFor("Chef"),
   ]);
 
@@ -488,14 +587,21 @@ export async function collectChef(): Promise<PersonaState> {
   const fresh = ageMin !== null && ageMin < 45;
   const status: PersonaState["status"] = !last ? "IDLE" : fresh ? "GREEN" : ageMin !== null && ageMin < 24 * 60 ? "YELLOW" : "IDLE";
 
+  // Format: "<spec type>(<key param>) <strategy short> · n_post 0/10 ·
+  // pre +$1,237" -- e.g. "size_cap(3) RIDE_THE_RIBBON · n_post 0/10 ·
+  // pre +$1,237". Coordinator-specified shape (2026-09-14): numbers must
+  // never be truncated away by a long title again.
   let nowLine: string | null = null;
   if (last) {
-    const card = (ideas ?? []).find((c) => c.id === last.card_id) ?? null;
-    const title = card?.title ?? last.card_id ?? "unknown card";
+    const specType = last.spec?.type ?? "test";
+    const keyParam = formatSpecKeyParam(last.spec?.params);
+    const strategyRaw = typeof last.spec?.params?.strategy === "string" ? last.spec.params.strategy : null;
+    const strategyShort = strategyRaw ? shortStrategyName(strategyRaw) : null;
     const nPost = last.result?.n_post ?? null;
     const minNMatch = last.result?.detail ? /min_n=(\d+)/.exec(last.result.detail) : null;
     const minN = minNMatch ? Number(minNMatch[1]) : 10;
-    nowLine = `scoring "${truncFor(title, 42)}" · n_post ${nPost ?? "?"}/${minN} · pre ${fmtSignedDollar(last.result?.effect_pre)}`;
+    const label = strategyShort ? `${specType}(${keyParam}) ${strategyShort}` : `${specType}(${keyParam})`;
+    nowLine = `${label} · n_post ${nPost ?? "?"}/${minN} · pre ${fmtSignedDollar(last.result?.effect_pre)}`;
   }
 
   const quietReason: PersonaState["quietReason"] = fresh

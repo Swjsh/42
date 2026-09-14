@@ -15,7 +15,7 @@
 import { rosterEvidenceText, truncateOneLine } from "@/components/hq/palette";
 import type { PersonaState } from "./personas";
 
-export type CrewPillKind = "WORKING" | "WAITING" | "YIELDING" | "GHOST";
+export type CrewPillKind = "WORKING" | "DONE" | "WAITING" | "YIELDING" | "GHOST";
 
 export interface CrewPill {
   kind: CrewPillKind;
@@ -23,19 +23,77 @@ export interface CrewPill {
 }
 
 const WORKING_FALLBACK_REASON = "active — no further detail on file";
+// Coordinator correction (2026-09-14): "Scout shows WORKING at noon with
+// 'next tomorrow 05:30 ET' -- a role that fired 6h ago and is done for the
+// day is not working." Root cause: quietReason===null only means "the
+// evidence is still considered VALID" (personas.ts's own freshness bar,
+// e.g. Scout's is a full 24h since it fires once/day) -- that is a much
+// looser bar than "is it doing something RIGHT NOW". This constant is the
+// presentation-layer split between the two: within the "evidence is good"
+// bucket, only genuinely recent output (or a persona's own live window,
+// Pilot's RTH) reads as WORKING; everything else good-but-not-fresh is
+// DONE, not WORKING.
+const WORKING_FRESH_MIN = 45;
 
-/** Classifies PersonaState.quietReason into one of 4 pill kinds via the
- * prefix convention lib/personas.ts's own R4 doc comment establishes:
- * "no producer for " -> GHOST (structurally nothing produces this
- * deliverable), "yields " -> YIELDING (deliberately, scheduled-ly idle --
- * RTH window, Sunday-only, etc), any other non-null text -> WAITING (an
- * overdue-vs-cadence message or a "Gamma_X DISABLED" fault), null ->
- * WORKING (status is GREEN and evidence is fresh -- nothing to explain).
- * Pure and deterministic: same PersonaState in, same pill out. */
-export function deriveCrewPill(p: PersonaState): CrewPill {
+function ageMinutes(iso: string | null, nowMs: number): number | null {
+  if (!iso) return null;
+  const t = Date.parse(iso);
+  if (Number.isNaN(t)) return null;
+  return Math.max(0, (nowMs - t) / 60000);
+}
+
+/** Real UTC ISO -> "HH:MM" in America/New_York -- same job as
+ * lib/personas.ts's own (private, unexported) etHHMM, reimplemented here
+ * since this file must stay fs-free / independently importable client-side
+ * (see this file's own header) rather than importing a server-only module. */
+function etHHMM(iso: string | null): string | null {
+  if (!iso) return null;
+  const t = Date.parse(iso);
+  if (Number.isNaN(t)) return null;
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York", hour: "2-digit", minute: "2-digit", hour12: false,
+  }).formatToParts(new Date(t));
+  const hh = parts.find((p) => p.type === "hour")?.value;
+  const mm = parts.find((p) => p.type === "minute")?.value;
+  return hh && mm ? `${hh}:${mm}` : null;
+}
+
+/** Only Pilot currently has a "live window" concept (Rule 5's RTH hours) --
+ * a persona whose last output crossed the 45min freshness bar but whose
+ * OWN window is still open must still read WORKING, never DONE (DONE means
+ * "finished for the day", which would be actively wrong while the trading
+ * window is still running even through a momentary stale tick -- that's a
+ * WAITING/overdue problem, a different failure mode than "done"). */
+function isPilotLiveWindowOpen(nowMs: number): boolean {
+  const { minuteOfDay, dayOfWeek } = etNowParts(nowMs);
+  const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 5;
+  return isWeekday && minuteOfDay >= 9 * 60 + 30 && minuteOfDay < 15 * 60 + 55;
+}
+
+/** Classifies a PersonaState into one of 5 pill kinds. Non-null
+ * quietReason follows the prefix convention lib/personas.ts's own R4 doc
+ * comment establishes: "no producer for " -> GHOST (structurally nothing
+ * produces this deliverable), "yields " -> YIELDING (deliberately,
+ * scheduled-ly idle -- e.g. Gamma Manager's own RTH yield), any other
+ * non-null text -> WAITING (an overdue-vs-cadence message, a "next open"
+ * projection, or a "Gamma_X DISABLED" fault). A null quietReason (the
+ * evidence is still considered valid) splits further into WORKING
+ * (genuinely recent, or a live window is open) vs DONE (valid but stale --
+ * fired once, succeeded, and is waiting on its OWN next scheduled fire).
+ * Pure and deterministic given explicit `nowMs`, matching this file's own
+ * time-as-parameter convention throughout. */
+export function deriveCrewPill(p: PersonaState, nowMs: number): CrewPill {
   const reason = p.quietReason;
   if (reason === null) {
-    return { kind: "WORKING", reason: crewNowLine(p) ?? WORKING_FALLBACK_REASON };
+    const fresh = (ageMinutes(p.lastFireISO, nowMs) ?? Infinity) <= WORKING_FRESH_MIN;
+    const liveWindowOpen = p.name === "Pilot" && isPilotLiveWindowOpen(nowMs);
+    if (fresh || liveWindowOpen) {
+      return { kind: "WORKING", reason: crewNowLine(p) ?? WORKING_FALLBACK_REASON };
+    }
+    const firedAt = etHHMM(p.lastFireISO) ?? "?";
+    const nextRaw = crewNextLine(p, nowMs);
+    const nextTrim = nextRaw.endsWith(" ET") ? nextRaw.slice(0, -3) : nextRaw;
+    return { kind: "DONE", reason: `fired ${firedAt} ET · next ${nextTrim}` };
   }
   if (reason.startsWith("no producer for")) return { kind: "GHOST", reason };
   if (reason.startsWith("yields")) return { kind: "YIELDING", reason };
@@ -45,10 +103,15 @@ export function deriveCrewPill(p: PersonaState): CrewPill {
 /** "now:" line -- the current unit of work, ONLY meaningful while WORKING
  * (quietReason === null). A quiet persona has no "now", only a "last" and
  * a "next" -- showing a stale recentOutput next to a WAITING/YIELDING pill
- * would contradict the pill (exactly the "random text" J flagged). */
+ * would contradict the pill (exactly the "random text" J flagged).
+ * Coordinator correction (2026-09-14): a 72-char cap was truncating Chef's
+ * now-line mid-number ("...pr..."). The UI now wraps this line to 2 lines
+ * (Hud.tsx's own CSS line-clamp) instead of single-line-ellipsis, so this
+ * only needs to guard against a pathologically long string breaking layout,
+ * not chase an exact character budget. */
 export function crewNowLine(p: PersonaState): string | null {
   if (p.quietReason !== null) return null;
-  return p.recentOutput ? truncateOneLine(p.recentOutput, 72) : null;
+  return p.recentOutput ? truncateOneLine(p.recentOutput, 160) : null;
 }
 
 function basename(filePath: string): string {
@@ -182,6 +245,7 @@ export function crewNextLine(p: PersonaState, nowMs: number): string {
  * "something needs fixing" -- not a 5th color no one asked for). */
 export const CREW_PILL_COLOR: Record<CrewPillKind, string> = {
   WORKING: "#22ff88",
+  DONE: "#4fd6ff",
   WAITING: "#ffb020",
   YIELDING: "#6a86b8",
   GHOST: "#5c6b85",

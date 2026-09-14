@@ -121,12 +121,18 @@ function buildTradingStrip(trading: TradingStatus | undefined): TradingStrip {
 
 interface FeedRow {
   key: string;
+  /** "As-if-UTC" comparable epoch-ms (see comparableMsFromEtString below) --
+   * sort key only, never rendered directly. */
+  ms: number;
+  /** Display stamp: "HH:MM" for today, "Sun 18:00" for any other day
+   * (coordinator correction, 2026-09-14). */
   tsEt: string;
   actor: { emoji: string; color: string; name: string } | null;
   text: string;
 }
 
 const FEED_MAX_ROWS = 12;
+const FEED_WEEKDAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 /** Best-effort actor match for a MotionEvent's already-formatted prose line
  * -- useMotionEvents.ts pushes lines starting `${p.emoji} ${p.name} ...` for
@@ -141,20 +147,14 @@ function actorForMotionText(text: string, personas: PersonaState[]): FeedRow["ac
   return null;
 }
 
-/** Builds the merged, capped, newest-first feed. crew-events.jsonl rows
- * (structured, real `who`/`to`) lead; the existing motion-diff ticker lines
- * fill the remainder -- both are genuinely "what it reads today," per R3's
- * own spec, merged rather than either one replacing the other. Every " -> "
- * separator (both sources use plain ASCII arrows) renders as "→" for
- * handoff/interaction rows, uniformly. */
-// A crew-events.jsonl row's own `line` sometimes ALREADY embeds the actor
-// ("Coach: Gamma_Funnel_5 went Disabled"), sometimes doesn't ("8 lanes --
-// 4 GREEN..."), and `to` is set on effectively every row (the producer uses
-// it as a "who reads this" routing target, not only genuine handoffs) --
-// verified against the live file this session (both shapes seen from the
-// SAME `who`). Blindly prepending "${who} -> ${to}:" doubled the actor name
-// on the first shape ("Coach -> Gamma: Coach: ... went Disabled"). Fixed by
-// skipping the prefix when `line` already starts with it.
+/** A crew-events.jsonl row's own `line` sometimes ALREADY embeds the actor
+ * ("Coach: Gamma_Funnel_5 went Disabled"), sometimes doesn't ("8 lanes --
+ * 4 GREEN..."), and `to` is set on effectively every row (the producer uses
+ * it as a "who reads this" routing target, not only genuine handoffs) --
+ * verified against the live file this session (both shapes seen from the
+ * SAME `who`). Blindly prepending "${who} -> ${to}:" doubled the actor name
+ * on the first shape ("Coach -> Gamma: Coach: ... went Disabled"). Fixed by
+ * skipping the prefix when `line` already starts with it. */
 function formatCrewLine(e: CrewEvent): string {
   const withPrefix = e.line.startsWith(`${e.who}:`);
   if (withPrefix) return e.line;
@@ -162,35 +162,101 @@ function formatCrewLine(e: CrewEvent): string {
   return `${e.who}: ${e.line}`;
 }
 
-// crew-events.jsonl can carry a same-timestamp BURST (e.g. a one-time
-// backfill of N "task went Disabled" rows) that would otherwise fill the
-// entire row budget with one repeated shape and crowd out every other kind
-// of activity -- the opposite of R3's own goal ("see these people
-// interacting," plural). Capping crew's share below the full budget
-// guarantees the motion-diff ticker (idea cards, handoffs, fires) always
-// gets some room too.
-const CREW_SHARE_MAX = Math.ceil(FEED_MAX_ROWS * 0.6);
+// ─── Coordinator correction (2026-09-14): "rows must sort by ts descending
+//     ACROSS sources" -- the old build just concatenated crew rows (newest-
+//     first within that source) ahead of motion rows (also newest-first
+//     within ITS source), so a same-timestamp BACKFILL burst of old
+//     crew-events rows sat above today's more-recent motion-ticker rows.
+//     Fixed with a real merge-sort on a comparable epoch-ms per row, across
+//     BOTH sources. ──────────────────────────────────────────────────────
 
-function buildFeedRows(motionEvents: MotionEvent[], crewEvents: CrewEvent[], personas: PersonaState[]): FeedRow[] {
+/** Today's ET calendar date as {y, mo, d} -- combined with a MotionEvent's
+ * bare "HH:MM" (it carries no date at all) to make it comparable against a
+ * crew-events row's full date+time. */
+function etTodayYMD(nowMs: number): { y: number; mo: number; d: number } {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit",
+  }).formatToParts(new Date(nowMs));
+  const get = (t: string) => Number(parts.find((p) => p.type === t)?.value ?? "0");
+  return { y: get("year"), mo: get("month"), d: get("day") };
+}
+
+/** "As-if-UTC" comparable epoch-ms from a full "YYYY-MM-DD HH:MM[:SS]"-ish
+ * string (crew-events.jsonl's ts_et) -- digits taken literally via
+ * Date.UTC, not a true UTC instant, but consistently wrong by the same
+ * amount as every other comparable-ms value this module produces, so
+ * relative ORDER across rows is correct (same trick lib/useMotionEvents.ts's
+ * own toComparableEtMs already uses for the SAME reason -- reimplemented
+ * here rather than imported, since that hook is a different builder's file
+ * and this merge needs to run for BOTH sources with one consistent trick). */
+function comparableMsFromEtString(raw: string): number | null {
+  const m = /(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})(?::(\d{2}))?/.exec(raw);
+  if (!m) return null;
+  const [, y, mo, d, h, mi, s] = m;
+  return Date.UTC(Number(y), Number(mo) - 1, Number(d), Number(h), Number(mi), s ? Number(s) : 0);
+}
+
+/** Same trick for a motion-ticker event's bare "HH:MM" -- these are live
+ * diff events generated THIS browser session (useMotionEvents.ts), always
+ * "today" by construction, so today's ET date is what they're combined
+ * with. */
+function comparableMsFromHHMM(hhmm: string, nowMs: number): number | null {
+  const m = /(\d{2}):(\d{2})/.exec(hhmm);
+  if (!m) return null;
+  const { y, mo, d } = etTodayYMD(nowMs);
+  return Date.UTC(y, mo - 1, d, Number(m[1]), Number(m[2]), 0);
+}
+
+/** "HH:MM" for a row whose as-if-UTC comparable date matches today; "Sun
+ * 18:00" (weekday abbreviation) for any other day -- reads the SAME as-if-
+ * UTC value back via UTC getters (never local-time getters, which would
+ * silently reintroduce this box's own non-ET local time -- CLAUDE.md's
+ * standing TZ lesson). */
+function formatRowStamp(ms: number, nowMs: number): string {
+  const d = new Date(ms);
+  const hh = String(d.getUTCHours()).padStart(2, "0");
+  const mm = String(d.getUTCMinutes()).padStart(2, "0");
+  const today = etTodayYMD(nowMs);
+  const sameDay = d.getUTCFullYear() === today.y && d.getUTCMonth() + 1 === today.mo && d.getUTCDate() === today.d;
+  if (sameDay) return `${hh}:${mm}`;
+  return `${FEED_WEEKDAY_NAMES[d.getUTCDay()]} ${hh}:${mm}`;
+}
+
+/** Builds the merged, capped, TRUE-chronological (newest-first, across
+ * both sources) feed. crew-events.jsonl rows (structured, real `who`/`to`)
+ * and the existing motion-diff ticker lines are read from the same well
+ * each poll -- "what it reads today," per R3's own spec -- then sorted
+ * together by real timestamp rather than concatenated by source. Every
+ * " -> " separator (both sources use plain ASCII arrows) renders as "→"
+ * for handoff/interaction rows, uniformly. */
+function buildFeedRows(motionEvents: MotionEvent[], crewEvents: CrewEvent[], personas: PersonaState[], nowMs: number): FeedRow[] {
   const personaByName = new Map(personas.map((p) => [p.name, p]));
-  const crewSlice = crewEvents.slice(-CREW_SHARE_MAX).reverse();
-  const crewRows: FeedRow[] = crewSlice.map((e, i) => {
+  // Slicing each source to FEED_MAX_ROWS before the merge is a safe upper
+  // bound (the final sorted+capped output can never need MORE than
+  // FEED_MAX_ROWS from either source alone) while avoiding a full-array sort
+  // over crewEvents' whole (up to ~100-row) buffer every render.
+  const crewRows: FeedRow[] = crewEvents.slice(-FEED_MAX_ROWS).map((e, i) => {
     const p = personaByName.get(e.who);
-    const hhmm = /(\d{2}):(\d{2})/.exec(e.ts_et);
+    const ms = comparableMsFromEtString(e.ts_et) ?? 0;
     return {
       key: `crew-${e.ts_et}-${i}`,
-      tsEt: hhmm ? `${hhmm[1]}:${hhmm[2]}` : "--:--",
+      ms,
+      tsEt: formatRowStamp(ms, nowMs),
       actor: p ? { emoji: p.emoji, color: p.color, name: p.name } : null,
       text: formatCrewLine(e).replace(/ -> /g, " → "),
     };
   });
-  const motionRows: FeedRow[] = motionEvents.map((ev) => ({
-    key: `motion-${ev.id}`,
-    tsEt: ev.tsEt,
-    actor: actorForMotionText(ev.text, personas),
-    text: ev.text.replace(/ -> /g, " → "),
-  }));
-  return [...crewRows, ...motionRows].slice(0, FEED_MAX_ROWS);
+  const motionRows: FeedRow[] = motionEvents.slice(0, FEED_MAX_ROWS).map((ev) => {
+    const ms = comparableMsFromHHMM(ev.tsEt, nowMs) ?? 0;
+    return {
+      key: `motion-${ev.id}`,
+      ms,
+      tsEt: formatRowStamp(ms, nowMs),
+      actor: actorForMotionText(ev.text, personas),
+      text: ev.text.replace(/ -> /g, " → "),
+    };
+  });
+  return [...crewRows, ...motionRows].sort((a, b) => b.ms - a.ms).slice(0, FEED_MAX_ROWS);
 }
 
 interface HudProps {
@@ -271,20 +337,21 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
       : "Loading...";
   const personas = data?.company?.personas ?? [];
   const blockedItems = data?.blocked ?? [];
+  // CREW-2 (roster): one "now" reference per render, shared by the feed's
+  // sort/day-prefix logic and every card's pill/next: line (lib/crew.ts's
+  // functions take explicit time, never Date.now() buried inside) -- this
+  // component already re-renders ~1x/sec via useEtClock's own interval, so
+  // this stays fresh without a second timer.
+  const nowMs = Date.now();
   // R3 (CREW-2): merged, capped, newest-first event feed -- see this file's
   // own buildFeedRows() header comment for the two sources it merges.
-  const feedRows = buildFeedRows(motionEvents, data?.crewEvents ?? [], personas);
+  const feedRows = buildFeedRows(motionEvents, data?.crewEvents ?? [], personas, nowMs);
   // Company audit badge (commit 58d0b9c6, coordinator 2026-09-13: "the
   // roster must show ghosts as ghosts") -- matched by name, the same string
   // on both sides (PersonaState.name / PersonaAudit.name). `data.audit` is
   // null on an old build or a failed audit run (fail-open) -- every lookup
   // below falls back to "no badge" rather than a fake verdict.
   const auditByName = new Map((data?.audit?.personas ?? []).map((a) => [a.name, a]));
-  // CREW-2 (roster): one "now" reference per render for every card's next:
-  // line (lib/crew.ts#crewNextLine takes explicit time, never Date.now()
-  // buried inside it) -- this component already re-renders ~1x/sec via
-  // useEtClock's own interval, so this stays fresh without a second timer.
-  const nowMs = Date.now();
 
   return (
     <>
@@ -666,7 +733,7 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
             const auditTitle = audit
               ? `Audit ${audit.verdict}: ${audit.checks.works.evidence}`
               : "Audit: not yet run for this persona";
-            const pill = deriveCrewPill(p);
+            const pill = deriveCrewPill(p, nowMs);
             const pillColor = CREW_PILL_COLOR[pill.kind];
             const nowLine = crewNowLine(p);
             const lastLine = crewLastLine(p);
@@ -738,7 +805,19 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
                 </div>
 
                 {nowLine && (
-                  <div style={{ fontSize: 14, color: "#cfe9ff", marginTop: 6, lineHeight: 1.35 }}>
+                  // Coordinator correction (2026-09-14): Chef's now-line was
+                  // getting hard-truncated (an ellipsis mid-number). Wraps
+                  // to 2 lines instead via a webkit line-clamp -- standard
+                  // in the Chromium/Edge this dashboard targets (both the
+                  // ultra tier and the TV kiosk) -- rather than a 1-line
+                  // ellipsis cutoff.
+                  <div
+                    style={{
+                      fontSize: 14, color: "#cfe9ff", marginTop: 6, lineHeight: 1.35,
+                      display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical",
+                      overflow: "hidden",
+                    }}
+                  >
                     <span style={{ color: "#5c7aa0", fontWeight: 700 }}>now </span>{nowLine}
                   </div>
                 )}
