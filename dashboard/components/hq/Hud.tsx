@@ -441,6 +441,27 @@ function buildRunsAsLine(role: HqApiResponse["runtime"]["roles"][number] | undef
   return `${label} · ${hostLabel} · ${lastBit}next ${role.nextFire}`;
 }
 
+// ─── PANEL-3 (2026-09-14): LEARN tab presentation helper -- pure, no
+//     component state. See lib/hq-learn.ts's own header for the 6 real
+//     files behind data.learn; this file only ever renders what that module
+//     already computed, never re-derives a number. ─────────────────────────
+
+/** Chip style for a LearnedRow's `who` -- reuses the SAME persona
+ * emoji/color the Crew tab already renders (PersonaState, matched by name)
+ * so "Chef"/"Coach"/"Analyst" read as the same actor across both tabs.
+ * "Gamma" (lib/hq-learn.ts's LearnedWho enum) matches the roster's "Gamma
+ * (Manager)" by prefix, not exact string equality -- the two names differ
+ * on purpose (see lib/hq-runtime.ts's own ROSTER_ORDER). "Autopsy" is not a
+ * roster persona at all (trade_autopsy.py is a nightly script, not a crew
+ * member with a desk), so it gets a fixed neutral chip rather than a guessed
+ * match. */
+const AUTOPSY_CHIP = { emoji: "🔬", color: "#8296b3" } as const;
+function personaChipForLearnedWho(who: string, personas: PersonaState[]): { emoji: string; color: string } {
+  if (who === "Autopsy") return AUTOPSY_CHIP;
+  const match = personas.find((p) => (who === "Gamma" ? p.name.startsWith("Gamma") : p.name === who));
+  return match ? { emoji: match.emoji, color: match.color } : { emoji: "❔", color: "#7f93b0" };
+}
+
 /**
  * Plain HTML overlay (not 3D text -- crisp at any TV viewing distance).
  * Sits in a fixed, full-viewport, pointer-events-none wrapper above the
@@ -527,7 +548,20 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
   // crew cards + up to FEED_MAX_ROWS activity rows stacked would make the
   // panel very long to scroll through, and J's whole complaint was "too
   // much on screen" -- a tab keeps ONE focused list visible at a time).
-  const [activePanelTab, setActivePanelTab] = useState<"crew" | "activity">("crew");
+  const [activePanelTab, setActivePanelTab] = useState<"crew" | "activity" | "learn">("crew");
+  // PANEL-3 (2026-09-14): dev-only `?tab=learn` query hook -- lets the
+  // headless capture script (hq_capture.ps1) land directly on the LEARN tab
+  // for a proof screenshot without a synthetic click. Harmless in normal
+  // browsing: an unrecognized or absent `tab` value leaves the default
+  // ("crew") untouched, and this never writes back to the URL.
+  useEffect(() => {
+    try {
+      const tab = new URLSearchParams(window.location.search).get("tab");
+      if (tab === "crew" || tab === "activity" || tab === "learn") setActivePanelTab(tab);
+    } catch {
+      // URLSearchParams/window access should never crash the page
+    }
+  }, []);
 
   // U6: which persona is currently "focused" (hotkey 1-7, a crew-card
   // click, or -- once U2 lands -- a world click, ALL of which go through
@@ -633,6 +667,13 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
   // connector below.
   const runtime = data?.runtime;
   const roleByName = new Map((runtime?.roles ?? []).map((r) => [r.name, r]));
+  // PANEL-3 (2026-09-14): the LEARN tab's own data, plus the SAME "next
+  // fire" text the RUNS AS row already computes for Gamma (Manager) -- the
+  // Station loop is this tab's own producer (see lib/hq-runtime.ts's
+  // ROLE_CLASSIFICATION), so the empty state reuses that text rather than a
+  // second "when does Station fire next" computation.
+  const learn = data?.learn;
+  const stationNextFire = roleByName.get("Gamma (Manager)")?.nextFire ?? "soon";
   const handoffs = data?.company?.handoffs ?? [];
   /** True iff computeHandoffs() (lib/personas.ts) reports a FRESH ("OK")
    * handoff whose `from`/`to` strings (which carry an emoji prefix, e.g.
@@ -1153,7 +1194,7 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
             on screen"). Pinned in the header -- it IS the navigation for
             the scrollable body below it. */}
         <div style={{ display: "flex", gap: 4, pointerEvents: "auto" }}>
-          {(["crew", "activity"] as const).map((t) => (
+          {(["crew", "activity", "learn"] as const).map((t) => (
             <button
               key={t}
               type="button"
@@ -1167,7 +1208,12 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
                 background: activePanelTab === t ? "#7ad9ff" : "rgba(122,217,255,0.1)",
               }}
             >
-              {t === "crew" ? "Crew" : `Activity${feedRows.length > 0 ? ` (${feedRows.length})` : ""}`}
+              {t === "crew"
+                ? "Crew"
+                : t === "activity"
+                  ? `Activity${feedRows.length > 0 ? ` (${feedRows.length})` : ""}`
+                  // PANEL-3: count badge = learned rows today (lib/hq-learn.ts#HqLearn.learned).
+                  : `Learn${learn && learn.learned.length > 0 ? ` (${learn.learned.length})` : ""}`}
             </button>
           ))}
         </div>
@@ -1437,6 +1483,80 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
             })
           ) : (
             <div style={{ color: "#7f93b0", fontSize: 15, fontFamily: HUD_FONT }}>No events yet this session.</div>
+          )}
+        </div>
+      )}
+
+      {/* PANEL-3 (2026-09-14): LEARN tab -- "i want this automated trading
+          agent world to be self learning, improving, and awesome as fuck"
+          (J's verbatim mandate, 2026-09-14 ~18:25 ET). Real rows only, from
+          lib/hq-learn.ts's own fail-open reader -- see that module's header
+          for the 6 source files and why each row's numbers are the
+          producer's own text, never re-derived here. Same Animated List
+          row-in treatment as the Activity tab above (keyed so a genuinely
+          NEW row plays the mount animation; a reorder never replays it).
+          Compact mode (<1000px, same `compactPanel` flag the Crew tab
+          already uses) drops the freeze caption and caps rows at 3, per
+          this task's own "top line + 3 rows" spec. */}
+      {activePanelTab === "learn" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 8, fontVariantNumeric: "tabular-nums" }}>
+          {learn && (
+            <div style={{ fontSize: 12.5, color: "#8296b3", lineHeight: 1.4 }}>
+              today:{" "}
+              <span style={{ color: "#dff3ff", fontWeight: 800 }}>
+                {learn.verdictsToday.supported + learn.verdictsToday.refuted + learn.verdictsToday.testing}
+              </span>{" "}
+              verdict{(learn.verdictsToday.supported + learn.verdictsToday.refuted + learn.verdictsToday.testing) === 1 ? "" : "s"}{" "}
+              ({learn.verdictsToday.supported} supported &middot; {learn.verdictsToday.refuted} refuted &middot; {learn.verdictsToday.testing} testing) &middot;{" "}
+              <span style={{ color: "#dff3ff", fontWeight: 800 }}>{learn.settledMechanisms}</span>{" "}
+              mechanism{learn.settledMechanisms === 1 ? "" : "s"} settled
+              {learn.lastLearnedAtEt && <> &middot; last learned {learn.lastLearnedAtEt} ET</>}
+              {learn.error && <span style={{ color: "#ffb020" }}> &middot; {learn.error}</span>}
+            </div>
+          )}
+          {/* CLAUDE.md config-freeze note, quoted rather than re-derived:
+              trading-path params are frozen to 2026-10-30, so today's
+              learning can only move SHADOW/prereg/parking state -- never
+              live sizing or exits. Static doctrine text (not server data),
+              the same status as this file's own "MARKET CLOSED" strip
+              label elsewhere -- dropped in compact mode to stay inside the
+              "top line + 3 rows" budget. */}
+          {!compactPanel && (
+            <div style={{ fontSize: 11.5, color: "#5c7aa0", lineHeight: 1.3 }}>
+              trading-path params frozen to 2026-10-30 &mdash; today&rsquo;s learning can only move SHADOW / prereg / parking state, never live sizing or exits
+            </div>
+          )}
+          {(!learn || learn.learned.length === 0) ? (
+            <div style={{ color: "#7f93b0", fontSize: 15, fontFamily: HUD_FONT, marginTop: 4 }}>
+              nothing learned yet today &mdash; next Station fire {stationNextFire}
+            </div>
+          ) : (
+            (compactPanel ? learn.learned.slice(0, 3) : learn.learned).map((row, i) => {
+              const chip = personaChipForLearnedWho(row.who, personas);
+              return (
+                <div
+                  key={`${row.when}-${row.who}-${i}`}
+                  className={reducedMotion ? undefined : "hq-row-in"}
+                  style={{ display: "flex", alignItems: "flex-start", gap: 7, borderBottom: "1px solid rgba(122,217,255,0.08)", paddingBottom: 7 }}
+                >
+                  <span style={{ color: "#4fd6ff", fontSize: 12, flexShrink: 0, width: 34, marginTop: 1 }}>{row.when}</span>
+                  <span
+                    title={row.who}
+                    style={{
+                      width: 18, height: 18, borderRadius: 5, flexShrink: 0, fontSize: 11, marginTop: 1,
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      background: `${chip.color}33`, border: `1px solid ${chip.color}88`,
+                    }}
+                  >
+                    {chip.emoji}
+                  </span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ color: "#cfe9ff", fontSize: 13.5, lineHeight: 1.35 }}>{row.what}</div>
+                    <div style={{ color: "#6c81a0", fontSize: 12, lineHeight: 1.3, marginTop: 2 }}>{row.changed}</div>
+                  </div>
+                </div>
+              );
+            })
           )}
         </div>
       )}
