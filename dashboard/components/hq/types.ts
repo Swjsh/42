@@ -8,8 +8,11 @@ import type { DeskPersonaName, DeskContent } from "@/lib/desk-content";
 // PANEL-2 (2026-09-14): type-only, see lib/hq-runtime.ts's own module
 // header for the fail-open contract and the truth this type carries.
 import type { HqRuntime } from "@/lib/hq-runtime";
+// PANEL-3 (2026-09-14): type-only, see lib/hq-learn.ts's own module header
+// for the 6 real files this turns into the LEARN tab's rows.
+import type { HqLearn } from "@/lib/hq-learn";
 
-export type { SectorRow, BlockedItem, PersonaState, Handoff, TradingStatus, CoreDecisionRow, CrewEvent, DeskPersonaName, DeskContent, HqBuildStatus, SectorsSnapshot, HqRuntime };
+export type { SectorRow, BlockedItem, PersonaState, Handoff, TradingStatus, CoreDecisionRow, CrewEvent, DeskPersonaName, DeskContent, HqBuildStatus, SectorsSnapshot, HqRuntime, HqLearn };
 
 export interface HqBrainVitals {
   model: string | null;
@@ -133,6 +136,10 @@ export interface HqApiResponse {
   // on my PC, or is this whole thing agents running on my PC?" answered from
   // a measured process table + per-role runtime classification, not prose.
   runtime: HqRuntime;
+  // PANEL-3 (2026-09-14) -- additive, see lib/hq-learn.ts. "Make the
+  // LEARNING VISIBLE" (J's verbatim mandate): what Gamma's research board
+  // learned today and what changed because of it, from 6 real files only.
+  learn: HqLearn;
 }
 
 /** One module's derived (not server-sent) presentation state -- computed

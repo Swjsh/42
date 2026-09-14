@@ -33,6 +33,10 @@ import { readDesksSnapshot } from "@/lib/desk-content";
 // agents running on my PC?" -- see lib/hq-runtime.ts's own header for the
 // full truth this establishes. Additive only.
 import { readHqRuntime } from "@/lib/hq-runtime";
+// PANEL-3 (2026-09-14): "make the LEARNING VISIBLE" (J's verbatim mandate)
+// -- see lib/hq-learn.ts's own header for the 6 real source files this
+// turns into the LEARN tab's rows. Additive only, 30s-cached internally.
+import { readHqLearn } from "@/lib/hq-learn";
 
 /** Unlike every other reader in this route's Promise.all, collectCompany()
  * has no internal try/catch (personas/route.ts's OWN top-level GET() is
@@ -132,6 +136,7 @@ async function buildHqResponse() {
     desks,
     build,
     sectorsSnapshot,
+    learn,
   ] = await Promise.all([
     readIdeasBoard(),
     readStationBrief(),
@@ -170,6 +175,10 @@ async function buildHqResponse() {
     // for why this is named `sectorsSnapshot` and not `sectors` (the latter
     // already exists above, a different producer).
     readSectorsSnapshot(),
+    // PANEL-3 (2026-09-14) -- "make the LEARNING VISIBLE" instrument,
+    // additive. See lib/hq-learn.ts for the 6 real files this reads and the
+    // freeze-aware (to 2026-10-30) "changed" text each row carries.
+    readHqLearn(),
   ]);
 
   const lastRow = ledger.length > 0 ? ledger[ledger.length - 1] : null;
@@ -236,6 +245,11 @@ async function buildHqResponse() {
       // PC?" from measured process counts + per-role runtime classification,
       // never invented prose.
       runtime,
+      // PANEL-3 (2026-09-14) -- additive, see lib/hq-learn.ts. What Gamma's
+      // research board learned today and what changed because of it, from 6
+      // real files only; fail-open (an `error` field appears only if every
+      // per-source reader's own fail-open guard was somehow bypassed).
+      learn,
       // I3: explicit alias for brief.mtime_ms -- surfaces the SAME real
       // mtime as a readable ISO string so the all-hands trigger has a
       // self-explanatory field name on the wire (brief.mtime_ms already
