@@ -230,7 +230,14 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
         <span style={{ color: "#dff3ff", fontSize: 34, fontWeight: 800, letterSpacing: 1.5, textShadow: "0 0 14px rgba(122,217,255,0.6)" }}>
           GAMMA HQ
         </span>
-        <span style={{ color: "#7f93b0", fontSize: 20, fontVariantNumeric: "tabular-nums" }}>{etClock}</span>
+        {/* LIVE-1 item 3 (2026-09-14) follow-up: a text-shadow, not a color
+            change -- the sky behind this overlay now legitimately brightens
+            by day (SkyDome.tsx), and this medium-gray clock text had
+            nothing else to keep it readable against that brighter
+            background (the title next to it already had its own glow
+            shadow). A soft dark halo keeps it legible against ANY sky
+            brightness, day or night, without changing its look at night. */}
+        <span style={{ color: "#7f93b0", fontSize: 20, fontVariantNumeric: "tabular-nums", textShadow: "0 1px 4px rgba(0,0,0,0.7)" }}>{etClock}</span>
         <span
           style={{
             fontSize: 22, fontWeight: 700, padding: "3px 16px", borderRadius: 999,

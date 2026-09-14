@@ -897,7 +897,10 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
         </Suspense>
       )}
       {ultra && coreReady && <EffectsStack coreMeshRef={coreMeshRef} />}
-      <SkyDome />
+      {/* Item 3 (LIVE-1, 2026-09-14): the sky now tracks the SAME
+          day/night factor the hemisphere/directional lights already use --
+          see SkyDome.tsx's own comment for the root cause this fixes. */}
+      <SkyDome dayFactor={nightFactor} />
       <Starfield reducedMotion={reducedMotion} />
       {/* Item 2e (LIVE-1, 2026-09-14): ambient patrol drones -- see
           ServiceDrones.tsx's own comment for why this is unconditional on
