@@ -3,20 +3,17 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { PALETTE, makeMatcapTexture } from "./palette";
 
 const STAR_COUNT = 900;
 
 /**
- * Background dressing: one Points cloud (single draw call) drifting slowly,
- * plus a distant planet sphere with a cheap atmosphere rim (a slightly
- * larger back-facing transparent sphere, not a custom fresnel shader --
- * simpler to build and maintain, and the brief explicitly allows either).
+ * Background dressing: one Points cloud (single draw call) drifting slowly.
+ * Used to also carry a distant planet sphere -- dropped Pass G-2 (2026-09-13,
+ * see the comment at its old JSX site in git history / this file's blame):
+ * read as "basically black" at its on-screen size even with matcap shading.
  */
 export default function Starfield({ reducedMotion }: { reducedMotion: boolean }) {
   const points = useRef<THREE.Points>(null);
-  const planetGroup = useRef<THREE.Group>(null);
-  const matcap = useMemo(() => makeMatcapTexture(), []);
 
   const positions = useMemo(() => {
     const arr = new Float32Array(STAR_COUNT * 3);
@@ -37,7 +34,6 @@ export default function Starfield({ reducedMotion }: { reducedMotion: boolean })
     if (reducedMotion) return;
     const t = state.clock.elapsedTime;
     if (points.current) points.current.rotation.y = t * 0.006;
-    if (planetGroup.current) planetGroup.current.rotation.y = t * 0.03;
   });
 
   return (
@@ -49,37 +45,23 @@ export default function Starfield({ reducedMotion }: { reducedMotion: boolean })
         <pointsMaterial color="#bcd7ff" size={0.12} sizeAttenuation transparent opacity={0.75} />
       </points>
 
-      {/* World pass A (2026-09-13, J's own screenshot complaint: "huge
-          black planet disc"): meshLambertMaterial only shades from the
-          scene's own hemisphere+directional light, so the planet's
-          hub-facing side (which those lights barely reach at this
-          position/angle) read as flat black -- a "black hole", not a lit
-          world. Swapped to the SAME procedural matcap every other hero
-          surface in this scene already uses (BrainCore, characters):
-          camera-facing pseudo-shading that is NEVER fully black on any
-          side, zero new cost (matcap is a cached module-level singleton).
-          Also moved further off-center/back and shrunk (radius 3.2->2.1,
-          position pulled to a screen-corner-ish spot) so it reads as
-          background dressing behind the station, not a dominant disc
-          competing with it -- both purely COSMETIC, unverified beyond this
-          screenshot pass, easy to nudge again. */}
-      <group ref={planetGroup} position={[-26, 13, -34]}>
-        <mesh>
-          <sphereGeometry args={[2.1, 24, 18]} />
-          <meshMatcapMaterial matcap={matcap} color={PALETTE.planet} />
-        </mesh>
-        <mesh>
-          <sphereGeometry args={[2.28, 24, 20]} />
-          <meshBasicMaterial
-            color={PALETTE.planetRim}
-            transparent
-            opacity={0.32}
-            side={THREE.BackSide}
-            depthWrite={false}
-            toneMapped={false}
-          />
-        </mesh>
-      </group>
+      {/* Pass G-2 (2026-09-13, coordinator: "make the planet not a pure
+          black disc (it is one now at the top of the frame) -- lit
+          terminator or drop it"). World pass A's earlier matcap fix (see
+          git history) swapped meshLambertMaterial for a camera-facing
+          matcap specifically because it's never FULLY (0,0,0) black -- but
+          makeMatcapTexture()'s own gradient is dark navy-to-near-black
+          past its small top-left highlight (palette.ts: stops "#1c2c3c" at
+          0.78, "#05090f" at 1.0), and PALETTE.planet ("#16324a") is itself
+          a dark navy base color -- at this small an on-screen size, most of
+          the visible disc still reads as "basically black" even though no
+          single pixel is literal (0,0,0). Dropping it (the coordinator's
+          own offered fallback) rather than building and tuning a real lit-
+          terminator shader blind, with zero capture budget left to verify
+          a second guess -- the scene keeps its stars + the SkyDome's own
+          warmed gradient (see that file) for background interest. Group
+          ref (planetGroup) and its rotation in useFrame below are now
+          dead and removed together with this JSX. */}
     </group>
   );
 }

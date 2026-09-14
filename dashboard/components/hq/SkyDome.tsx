@@ -27,7 +27,22 @@ function buildSkyGeometry(): THREE.SphereGeometry {
   const geo = new THREE.SphereGeometry(RADIUS, 48, 32);
   const pos = geo.attributes.position;
   const colors = new Float32Array(pos.count * 3);
-  const zenith = new THREE.Color(PALETTE.space);
+  // Pass G-2 (2026-09-13): zenith base color PALETTE.space ("#03040a", near-
+  // black) -> PALETTE.horizonDepth ("#12203a", dark navy). Root cause of the
+  // hub's black arch, confirmed by a real camera raycast (not guessed): the
+  // ray passed through HubRoom entirely (an intentional open-top diorama,
+  // "the bays have no roofs either") and hit THIS sphere's own BackSide
+  // surface directly (dist=88.75, chain=[(Mesh) < (Scene)], material=
+  // MeshBasicMaterial -- an exact match for this component), at a Y high
+  // enough that skyT sits near 0 (pole region, outside the horizon glow
+  // band) -- so the arch WAS this gradient's own darkest stop, correctly
+  // rendered, just too close to the scene's own #03040a background/void
+  // color to read as sky rather than a hole. horizonDepth is still clearly
+  // the DARKEST stop in the gradient (skyT=0 still lerps toward it, never
+  // fully replaces the mid/horizon tones), so the "dark at zenith, warm at
+  // horizon" shape this pass's own capture already approved is unchanged --
+  // only the floor is lifted from near-black to a dark, clearly-sky navy.
+  const zenith = new THREE.Color(PALETTE.horizonDepth);
   const depth = new THREE.Color(PALETTE.horizonDepth);
   const warm = new THREE.Color(PALETTE.warmAccent);
   const tmp = new THREE.Color();
