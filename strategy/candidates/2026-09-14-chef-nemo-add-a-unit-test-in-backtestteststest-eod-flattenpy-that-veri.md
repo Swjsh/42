@@ -1,4 +1,4 @@
-# CANDIDATE: run-stage-1-backtest-via-the-autoresearch-grinder-harness-to
+# CANDIDATE: add-a-unit-test-in-backtestteststest-eod-flattenpy-that-veri
 
 **Filed:** 2026-09-14
 **Filer:** kitchen-daemon (Stage-1-gated cook, GOAL-KITCHEN-RUNNER-IN-LOOP-2026-09-05)
@@ -6,11 +6,11 @@
 
 ## Hypothesis
 
-Run Stage-1 backtest via the autoresearch grinder harness to generate initial edge_capture and Sharpe projections.
+Add a unit test in backtest/tests/test_eod_flatten.py that verifies the core eod-flatten script scans pnl-statement.json for unrecorded fills by simulating a closed-but-unjournaled round trip and asserting the journal is updated.
 
 ## Provenance
 
-provenance: C:\Users\jackw\Desktop\42\backtest\.venv\Scripts\python.exe C:\Users\jackw\Desktop\42\setup\scripts\kitchen_stage1_runner.py --combo-json {} --slug run-stage-1-backtest-via-the-autoresearch-grinder-harness-to --task-id 6b298241-bdae-491d-90c9-60819e039797 --timeout-s 480.0 -> RUNNER-FAILED (single_worker_lock_held -- another Stage-1 run is in flight)
+provenance: C:\Users\jackw\Desktop\42\backtest\.venv\Scripts\python.exe C:\Users\jackw\Desktop\42\setup\scripts\kitchen_stage1_runner.py --combo-json {} --slug add-a-unit-test-in-backtestteststest-eod-flattenpy-that-veri --task-id b46f26ad-27d1-44f8-a688-0e4cf7f1e509 --timeout-s 480.0 -> RUNNER-FAILED (single_worker_lock_held -- another Stage-1 run is in flight)
 status: RUNNER-FAILED (single_worker_lock_held -- another Stage-1 run is in flight)
 engine_note: MECHANISM EVIDENCE ONLY -- BS-synthetic option pricing over historical SPY/VIX bars (backtest.autoresearch.overnight_grinder.evaluate_combo -> lib.pricing.black_scholes). NOT real-fills evidence. Per memory project_free_kitchen_plan_b_hardened.md.
 

@@ -1,4 +1,4 @@
-# CANDIDATE: run-stage-1-backtest-via-the-autoresearch-grinder-harness-to
+# CANDIDATE: re-run-stage-1-runner-for-this-candidate-after-resolving-the
 
 **Filed:** 2026-09-14
 **Filer:** kitchen-daemon (Stage-1-gated cook, GOAL-KITCHEN-RUNNER-IN-LOOP-2026-09-05)
@@ -6,11 +6,11 @@
 
 ## Hypothesis
 
-Run Stage-1 backtest via the autoresearch grinder harness to generate initial edge_capture and Sharpe projections.
+Re-run Stage-1 runner for this candidate after resolving the single_worker_lock_held conflict (ensure no concurrent Stage-1 runs).
 
 ## Provenance
 
-provenance: C:\Users\jackw\Desktop\42\backtest\.venv\Scripts\python.exe C:\Users\jackw\Desktop\42\setup\scripts\kitchen_stage1_runner.py --combo-json {} --slug run-stage-1-backtest-via-the-autoresearch-grinder-harness-to --task-id 6b298241-bdae-491d-90c9-60819e039797 --timeout-s 480.0 -> RUNNER-FAILED (single_worker_lock_held -- another Stage-1 run is in flight)
+provenance: C:\Users\jackw\Desktop\42\backtest\.venv\Scripts\python.exe C:\Users\jackw\Desktop\42\setup\scripts\kitchen_stage1_runner.py --combo-json {} --slug re-run-stage-1-runner-for-this-candidate-after-resolving-the --task-id 71956b07-5ac9-4040-9bba-7dabe0279059 --timeout-s 480.0 -> RUNNER-FAILED (single_worker_lock_held -- another Stage-1 run is in flight)
 status: RUNNER-FAILED (single_worker_lock_held -- another Stage-1 run is in flight)
 engine_note: MECHANISM EVIDENCE ONLY -- BS-synthetic option pricing over historical SPY/VIX bars (backtest.autoresearch.overnight_grinder.evaluate_combo -> lib.pricing.black_scholes). NOT real-fills evidence. Per memory project_free_kitchen_plan_b_hardened.md.
 

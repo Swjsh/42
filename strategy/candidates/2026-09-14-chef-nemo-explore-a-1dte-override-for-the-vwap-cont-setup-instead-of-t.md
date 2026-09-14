@@ -1,4 +1,4 @@
-# CANDIDATE: run-stage-1-backtest-via-the-autoresearch-grinder-harness-to
+# CANDIDATE: explore-a-1dte-override-for-the-vwap-cont-setup-instead-of-t
 
 **Filed:** 2026-09-14
 **Filer:** kitchen-daemon (Stage-1-gated cook, GOAL-KITCHEN-RUNNER-IN-LOOP-2026-09-05)
@@ -6,11 +6,11 @@
 
 ## Hypothesis
 
-Run Stage-1 backtest via the autoresearch grinder harness to generate initial edge_capture and Sharpe projections.
+Explore a 1DTE override for the VWAP_CONT setup (instead of the currently HOLD 2DTE override) to reduce premium inflation and avoid the sizing blocker (57% fewer contracts), while preserving the OOS edge; run OOS/WF analysis on 1DTE override using the same framework as the WEEKLY_DTE_NOT_0DTE candidate.
 
 ## Provenance
 
-provenance: C:\Users\jackw\Desktop\42\backtest\.venv\Scripts\python.exe C:\Users\jackw\Desktop\42\setup\scripts\kitchen_stage1_runner.py --combo-json {} --slug run-stage-1-backtest-via-the-autoresearch-grinder-harness-to --task-id 6b298241-bdae-491d-90c9-60819e039797 --timeout-s 480.0 -> RUNNER-FAILED (single_worker_lock_held -- another Stage-1 run is in flight)
+provenance: C:\Users\jackw\Desktop\42\backtest\.venv\Scripts\python.exe C:\Users\jackw\Desktop\42\setup\scripts\kitchen_stage1_runner.py --combo-json {} --slug explore-a-1dte-override-for-the-vwap-cont-setup-instead-of-t --task-id e70bd0d4-8004-4dd8-bbc4-6ac17a997a9c --timeout-s 480.0 -> RUNNER-FAILED (single_worker_lock_held -- another Stage-1 run is in flight)
 status: RUNNER-FAILED (single_worker_lock_held -- another Stage-1 run is in flight)
 engine_note: MECHANISM EVIDENCE ONLY -- BS-synthetic option pricing over historical SPY/VIX bars (backtest.autoresearch.overnight_grinder.evaluate_combo -> lib.pricing.black_scholes). NOT real-fills evidence. Per memory project_free_kitchen_plan_b_hardened.md.
 

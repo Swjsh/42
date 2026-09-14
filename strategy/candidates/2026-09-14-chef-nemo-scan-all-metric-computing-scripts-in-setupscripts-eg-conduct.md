@@ -1,4 +1,4 @@
-# CANDIDATE: run-stage-1-backtest-via-the-autoresearch-grinder-harness-to
+# CANDIDATE: scan-all-metric-computing-scripts-in-setupscripts-eg-conduct
 
 **Filed:** 2026-09-14
 **Filer:** kitchen-daemon (Stage-1-gated cook, GOAL-KITCHEN-RUNNER-IN-LOOP-2026-09-05)
@@ -6,11 +6,11 @@
 
 ## Hypothesis
 
-Run Stage-1 backtest via the autoresearch grinder harness to generate initial edge_capture and Sharpe projections.
+Scan all metric computing scripts in setup/scripts/ (e.g., conductor_outcome.py, unattended_health.py) for patterns that read eventually-consistent live ledger data without reconciling against backfilled broker truth; apply the same per-trading-day MAX reconciliation pattern used in conductor_outcome.py to ensure metrics reflect the best-known value.
 
 ## Provenance
 
-provenance: C:\Users\jackw\Desktop\42\backtest\.venv\Scripts\python.exe C:\Users\jackw\Desktop\42\setup\scripts\kitchen_stage1_runner.py --combo-json {} --slug run-stage-1-backtest-via-the-autoresearch-grinder-harness-to --task-id 6b298241-bdae-491d-90c9-60819e039797 --timeout-s 480.0 -> RUNNER-FAILED (single_worker_lock_held -- another Stage-1 run is in flight)
+provenance: C:\Users\jackw\Desktop\42\backtest\.venv\Scripts\python.exe C:\Users\jackw\Desktop\42\setup\scripts\kitchen_stage1_runner.py --combo-json {} --slug scan-all-metric-computing-scripts-in-setupscripts-eg-conduct --task-id 6c2fb4bf-3b42-4c19-b3d5-d4d8f85e92d9 --timeout-s 480.0 -> RUNNER-FAILED (single_worker_lock_held -- another Stage-1 run is in flight)
 status: RUNNER-FAILED (single_worker_lock_held -- another Stage-1 run is in flight)
 engine_note: MECHANISM EVIDENCE ONLY -- BS-synthetic option pricing over historical SPY/VIX bars (backtest.autoresearch.overnight_grinder.evaluate_combo -> lib.pricing.black_scholes). NOT real-fills evidence. Per memory project_free_kitchen_plan_b_hardened.md.
 
