@@ -3,12 +3,23 @@
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { useThrottledFrame } from "./useThrottledFrame";
-import { makeMatcapTexture, seededRandom } from "./palette";
+import { isRegularTradingHours, makeMatcapTexture, nowEtDayOfWeek, nowEtMinutes, seededRandom } from "./palette";
 import { ALERT_PACE_SPEED, CLIP_TABLE, IDLE_VARIANTS, KitAgentBody, NATIVE_WALK_CLIP_MPS, WALK_SPEED, WORKING_VARIANTS, clipCadenceRatio, type KitAnimState } from "./KitAgent";
 import { recordAgentSample } from "@/lib/hq-motion-diag";
+// MOTION-2 V2 (2026-09-14): type-only -- LAYOUT's own walk-graph contract
+// (see that interface's own doc comment in types.ts). Never a value import
+// (types.ts re-exports several other modules' types but no runtime code of
+// its own), so this cannot create a circular runtime dependency.
+import type { WalkPlan } from "./types";
 
 export type AgentBehavior = "working" | "idle" | "alert" | "frozen";
-export type AgentWalkKind = "roundtrip" | "arrival" | "allhands" | "purposeful";
+// MOTION-2 V2: "waypoints" added -- a walk driven by a real LAYOUT-supplied
+// WalkPlan (N waypoints from the walk graph) instead of the legacy
+// home<->single-point kinds below. Every existing kind keeps its EXACT
+// current meaning/behavior -- see resolvePathPose's own comment for why
+// routing them all through the same generalized path machinery is provably
+// a no-op for a 2-point path.
+export type AgentWalkKind = "roundtrip" | "arrival" | "allhands" | "purposeful" | "waypoints";
 export type AgentPresenceMode = "greet" | "patrol";
 
 interface AgentProps {
@@ -87,6 +98,17 @@ interface AgentProps {
    * somehow queues the key with no target (defensive; Scene.tsx always
    * pairs the two). */
   eventWalkTarget?: [number, number, number] | null;
+  /** MOTION-2 V2 (2026-09-14): a FIFTH independent seen-value-diff trigger
+   * channel, same convention as the four above -- a genuine change queues
+   * kind "waypoints" (see `walkPlan` below for the payload). Until LAYOUT's
+   * scene-side producer passes this, no caller sets it and this component's
+   * behavior is byte-identical to today. */
+  walkPlanKey?: string | null;
+  /** MOTION-2 V2: the WalkPlan a queued "waypoints" walk follows -- read
+   * live (not snapshotted early) at the instant the walk actually starts,
+   * same discipline as `eventWalkTarget` above. See types.ts#WalkPlan's own
+   * doc comment for the field contract. */
+  walkPlan?: WalkPlan | null;
   /** J 2026-09-13 ("nearest agent turns to the viewer / night-patrol dim"
    * on presence flipping): "greet" holds the resting-state facing at
    * `facingYaw` instead of the idle look-around; "patrol" dims the visor.
@@ -158,6 +180,16 @@ const NATIVE_SWING_HZ = 8;
 // not redefined here, so this file's translation speed and that file's
 // clip-speed multiplier can never drift apart.
 const ALERT_PACE_PAUSE_S = 2.5; // was 1.5 -- a real pause, not a tap-and-go
+// MOTION-2 V2: "smooth turn at each corner (yaw slerp over ~0.25s, no
+// snapping)" (spec) -- see resolvePathPose's own comment for the mechanism.
+const CORNER_TURN_S = 0.25;
+// MOTION-2 V3 (J: "a little bit of LOGIC to their movement" -- never a
+// fire-drill look): the last SECONDS the dwell of a "waypoints" walk holds
+// before departing -- see the atHub branch's own nod logic below.
+const DWELL_NOD_S = 1;
+// MOTION-2 V3: no two agents start a walk within this many seconds of each
+// other -- see `lastGlobalWalkStartT` below for the mechanism.
+const WALK_START_STAGGER_S = 4;
 type WalkPhase = "resting" | "toHub" | "atHub" | "toHome" | "arriving";
 type AlertPacePhase = "toDoor" | "atDoor" | "toDesk" | "atDesk";
 
@@ -182,6 +214,125 @@ function easedWalkProgress(elapsed: number, total: number, easeS: number): numbe
   return (v * e) / 2 + v * (elapsed - e);
 }
 
+/** Total distance along a multi-leg path (sum of consecutive-point
+ * distances, XZ-plane only -- every walk in this file stays at one fixed Y).
+ * Called once per walk-start (never per-frame), so its small per-call
+ * allocation is a one-time cost, not a hot-path one. */
+function pathTotalDistance(waypoints: [number, number, number][]): number {
+  let total = 0;
+  for (let i = 0; i < waypoints.length - 1; i++) {
+    total += Math.hypot(waypoints[i + 1][0] - waypoints[i][0], waypoints[i + 1][2] - waypoints[i][2]);
+  }
+  return total;
+}
+
+/** Shortest-path angle interpolation -- equivalent to slerp for a single
+ * Y-axis rotation (this file only ever rotates agents about Y). Wraps the
+ * raw a->b difference into [-PI, PI] first so a corner near the +-PI seam
+ * (e.g. 170deg -> -170deg) blends the SHORT way instead of spinning the long
+ * way around. */
+function slerpAngle(a: number, b: number, t: number): number {
+  const twoPi = Math.PI * 2;
+  const diff = (((b - a + Math.PI) % twoPi) + twoPi) % twoPi - Math.PI;
+  return a + diff * t;
+}
+
+/** MOTION-2 V2 -- resolves (position, facing) at fractional distance-
+ * progress `pathT` (0..1, ALREADY eased -- see easedWalkProgress) along a
+ * multi-leg path, with a short yaw-slerp blend at each INTERIOR corner
+ * (never at the path's own first leg, which has no previous heading to
+ * blend from -- that leg keeps this file's existing "turn before moving"
+ * behavior for free, since easedWalkProgress's own ramp-up keeps `pathT`
+ * near 0, hence translation near-zero, for the first fraction of a second
+ * regardless). Translation itself stays at CONSTANT speed along interior
+ * legs (`pathT` maps linearly to distance-along-path except at the whole
+ * path's own two ends, where easedWalkProgress supplies the ease) -- only
+ * the FACING gets a corner transition, decoupled entirely from position, so
+ * a walker's turn never shows up as a speed change.
+ *
+ * Provably a no-op for today's existing 2-point walks (roundtrip/allhands/
+ * purposeful/eventWalk): with exactly one leg, the loop below always picks
+ * legIndex 0, legLocalT reduces to exactly `pathT`, position reduces to
+ * exactly `lerp(waypoints[0], waypoints[1], pathT)`, and the `legIndex > 0`
+ * guard means the corner-slerp branch never runs -- byte-identical to the
+ * single-leg math this replaced.
+ *
+ * Called from the throttled (20Hz) frame callback, same allocation class as
+ * this file's existing per-tick temporaries (e.g. the alert-pace branch's
+ * own `doorPos` literal) -- not the true per-rAF hot path.
+ */
+function resolvePathPose(
+  waypoints: [number, number, number][],
+  pathT: number,
+  walkSpeed: number,
+): { position: [number, number, number]; facing: number } {
+  const legCount = waypoints.length - 1;
+  if (legCount <= 0) return { position: waypoints[0] ?? [0, 0, 0], facing: 0 };
+  const legDist: number[] = [];
+  let total = 0;
+  for (let i = 0; i < legCount; i++) {
+    const d = Math.hypot(waypoints[i + 1][0] - waypoints[i][0], waypoints[i + 1][2] - waypoints[i][2]);
+    legDist.push(d);
+    total += d;
+  }
+  const targetDist = pathT * total;
+  let cum = 0;
+  let legIndex = legCount - 1; // default: last leg -- also correctly covers pathT>=1
+  for (let i = 0; i < legCount; i++) {
+    if (targetDist <= cum + legDist[i] || i === legCount - 1) { legIndex = i; break; }
+    cum += legDist[i];
+  }
+  const d = legDist[legIndex];
+  const legLocalT = d > 0 ? Math.min(1, Math.max(0, (targetDist - cum) / d)) : 1;
+  const from = waypoints[legIndex];
+  const to = waypoints[legIndex + 1];
+  const position: [number, number, number] = [
+    from[0] + (to[0] - from[0]) * legLocalT,
+    from[1],
+    from[2] + (to[2] - from[2]) * legLocalT,
+  ];
+  const legHeading = Math.atan2(to[0] - from[0], to[2] - from[2]);
+  let facing = legHeading;
+  if (legIndex > 0) {
+    const legLocalDist = legLocalT * d;
+    const turnBlendDist = Math.min(walkSpeed * CORNER_TURN_S, d);
+    if (legLocalDist < turnBlendDist) {
+      const prevFrom = waypoints[legIndex - 1];
+      const prevHeading = Math.atan2(from[0] - prevFrom[0], from[2] - prevFrom[2]);
+      const blend = turnBlendDist > 0 ? legLocalDist / turnBlendDist : 1;
+      facing = slerpAngle(prevHeading, legHeading, blend);
+    }
+  }
+  return { position, facing };
+}
+
+/** MOTION-2 V2 -- maps a WalkPlan's `dwellAnim` onto one of KitAgent.tsx's
+ * EXISTING animation states (types.ts#WalkPlan's own doc comment: "which of
+ * Agent.tsx's existing animation states to hold" -- no new clip names
+ * invented). "interact" = arms on the desk/board (CLIP_TABLE's
+ * interact-right clip); "point" = the SAME pose this file's own
+ * `pointEventKey` mechanism already uses; "idle" = a slow look, not the
+ * fully-neutral seated idle. */
+function dwellAnimState(dwellAnim: WalkPlan["dwellAnim"]): KitAnimState {
+  if (dwellAnim === "interact") return "resting-working-type";
+  if (dwellAnim === "point") return "thinking";
+  return "resting-idle-look";
+}
+
+// MOTION-2 V3 (J: "a little bit of LOGIC to their movement" -- the room
+// should never look like a fire drill): MODULE scope, not component state --
+// every mounted <Agent> instance (all 13+ lanes/personas) shares this ONE
+// variable, so "no two agents start a walk within WALK_START_STAGGER_S of
+// each other" holds ACROSS the whole room, not just within one agent's own
+// walk history. A plain mutable number, updated imperatively from inside the
+// throttled frame callback below -- zero allocation, and safe under JS's
+// single-threaded execution (whichever instance's callback happens to run
+// first in a given animation frame wins the read-then-write race
+// deterministically, no lock needed). Starts at -Infinity so the very first
+// walk any agent ever takes is never held up waiting for a "previous" walk
+// that never happened.
+let lastGlobalWalkStartT = -Infinity;
+
 /**
  * One little procedural bot: capsule body, visor sphere (doubles as the
  * head-lamp -- emissive, no extra mesh needed), backpack box, two swinging
@@ -199,7 +350,7 @@ function easedWalkProgress(elapsed: number, total: number, easeS: number): numbe
  * (no timer, no destination) and stay as-is.
  */
 export default function Agent({
-  laneSeed, home, hub, behavior, accentColor, reducedMotion, walkEventKey, walkKind, allHandsEventKey, purposefulWalkEventKey, pointEventKey, purposefulTarget, eventWalkEventKey, eventWalkTarget, presenceMode, facingYaw,
+  laneSeed, home, hub, behavior, accentColor, reducedMotion, walkEventKey, walkKind, allHandsEventKey, purposefulWalkEventKey, pointEventKey, purposefulTarget, eventWalkEventKey, eventWalkTarget, walkPlanKey, walkPlan, presenceMode, facingYaw,
   scheduleDim = 1,
   ultra = false,
 }: AgentProps) {
@@ -218,13 +369,14 @@ export default function Agent({
   // below); the TV tier's procedural body ignores it entirely.
   const [walking, setWalking] = useState(false);
   // Item 2a (LIVE-1, 2026-09-14): seated variety -- cycles among
-  // IDLE_VARIANTS/WORKING_VARIANTS on its own per-instance 8-20s timer (see
-  // the throttled callback below), instead of always showing the same "sit"
-  // clip. `useState` (not a ref) because KitAgentBody's own clip crossfade
-  // is driven by `animState` CHANGING as a REACT PROP -- a ref mutation
-  // alone would never re-render KitAgentBody with the new value. Costs one
-  // extra re-render every 8-20s per agent, the same "state for discrete
-  // moments" tradeoff this file already makes for `walking` below.
+  // IDLE_VARIANTS/WORKING_VARIANTS on its own per-instance 10-24s timer (see
+  // the throttled callback below, MOTION-2 V3: was 8-20s -- "calmer
+  // cadence"), instead of always showing the same "sit" clip. `useState`
+  // (not a ref) because KitAgentBody's own clip crossfade is driven by
+  // `animState` CHANGING as a REACT PROP -- a ref mutation alone would never
+  // re-render KitAgentBody with the new value. Costs one extra re-render
+  // every 10-24s per agent, the same "state for discrete moments" tradeoff
+  // this file already makes for `walking` below.
   const [variantIdx, setVariantIdx] = useState(0);
   const nextVariantAt = useRef(0);
   const [pointing, setPointing] = useState(false);
@@ -235,9 +387,21 @@ export default function Agent({
   // itself stays a ref (continuous per-frame position/rotation math), this
   // is only the discrete "which clip should ultra tier show" signal.
   const [alertPaused, setAlertPaused] = useState(false);
+  // MOTION-2 V2: which KitAnimState a "waypoints" walk's dwell should hold
+  // (see dwellAnimState) -- `useState` for the SAME "a ref mutation alone
+  // never re-renders KitAgentBody" reason `walking`/`pointing`/`variantIdx`
+  // above are all state, not refs. Declared here (not near the other V2
+  // refs further down) because `animState` below reads it synchronously --
+  // a `const` declared after that read would be a temporal-dead-zone error.
+  const [dwelling, setDwelling] = useState<KitAnimState | null>(null);
   const pool = behavior === "working" ? WORKING_VARIANTS : IDLE_VARIANTS;
   const animState: KitAnimState =
-    behavior === "alert" ? (alertPaused ? "alert-pause" : "alert") : walking ? "walking" : pointing ? "thinking" : pool[variantIdx % pool.length];
+    behavior === "alert" ? (alertPaused ? "alert-pause" : "alert")
+    // MOTION-2 V2: `dwelling` (set only during a "waypoints" walk's atHub
+    // phase, see dwellAnimState) outranks the generic walking/pointing/pool
+    // states below -- a dwell has a SPECIFIC, plan-chosen pose to show.
+    : dwelling ? dwelling
+    : walking ? "walking" : pointing ? "thinking" : pool[variantIdx % pool.length];
   const patrolDim = Math.min(presenceMode === "patrol" ? 0.35 : 1, scheduleDim);
 
   const matcap = useMemo(() => makeMatcapTexture(), []);
@@ -259,17 +423,18 @@ export default function Agent({
 
   const phase = useRef<WalkPhase>("resting");
   const phaseStart = useRef(0);
-  // World-2 MOTION-FIX: computed ONCE at walk-start (see the pendingWalk
-  // consumption block below) -- toHub and toHome always cover the SAME
-  // straight-line distance (the same two points, reversed), and "arriving"
-  // is a single leg, so one duration value covers whichever leg(s) a given
-  // walk actually plays. walkFacing is recomputed at EACH leg's own start
-  // (toHub/arriving in the consumption block, toHome at the atHub->toHome
-  // transition) since the two legs of a roundtrip face opposite ways --
-  // this is the "turn before moving" lever: rotation snaps to the new
-  // heading the instant a leg starts, and since easedWalkProgress's ramp-up
-  // keeps actual translation near-zero for the first fraction of a second,
-  // the visible result reads as "turns, then departs" without a separate
+  // World-2 MOTION-FIX, updated MOTION-2 V2: computed ONCE at walk-start
+  // (see the pendingWalk consumption block below) -- toHub and toHome always
+  // cover the SAME total path distance (the same waypoints, reversed -- see
+  // `outboundPath`/`returnPath` below), and "arriving" is a single leg, so
+  // one duration value covers whichever leg(s) a given walk actually plays.
+  // walkFacing is used ONLY by "arriving" now (toHub/toHome get their facing
+  // from resolvePathPose every frame instead, corner-slerp included) -- kept
+  // as a ref rather than inlined since "arriving" still needs the ORIGINAL
+  // "turn before moving" trick: rotation snaps to the new heading the
+  // instant that leg starts, and since easedWalkProgress's ramp-up keeps
+  // actual translation near-zero for the first fraction of a second, the
+  // visible result reads as "turns, then departs" without a separate
   // turn-only sub-phase.
   const walkLegDuration = useRef(MIN_WALK_LEG_S);
   const walkFacing = useRef(0);
@@ -295,6 +460,18 @@ export default function Agent({
   // comment for why this must be a snapshot, not a live read, of a value
   // that can change out from under a mid-walk agent otherwise.
   const activeTarget = useRef<[number, number, number] | null>(null);
+  // MOTION-2 V2: the WalkPlan actually driving the CURRENT "waypoints" walk
+  // (snapshotted at walk-start, same discipline as `activeTarget` above),
+  // and the resolved outbound/return paths every kind now walks through
+  // (see resolvePathPose) -- for the legacy 2-point kinds this is just
+  // `[home, target]`/its reverse, computed at walk-start same as before.
+  const activePlan = useRef<WalkPlan | null>(null);
+  const outboundPath = useRef<[number, number, number][]>([home, home]);
+  const returnPath = useRef<[number, number, number][]>([home, home]);
+  // MOTION-2 V3: fires the end-of-dwell nod exactly once per dwell (a ref,
+  // not state, since it's read-and-set inside the same per-frame branch that
+  // already calls setDwelling -- no separate re-render trigger needed).
+  const nodded = useRef(false);
 
   // Event-triggered walk queue (replaces the old random 20-60s timer, J
   // 2026-09-13). `seenWalkKey` seeds silently on the first value seen after
@@ -366,6 +543,23 @@ export default function Agent({
     pendingWalk.current = "purposeful";
   }, [eventWalkEventKey]);
 
+  // MOTION-2 V2 (2026-09-14) -- WalkPlan trigger, a FIFTH independent
+  // seen-value-diff channel (same convention, same low-stakes shared-
+  // `pendingWalk`-slot collision note as the channels above). `walkPlan`
+  // itself is read LIVE inside the throttled frame callback at walk-start,
+  // not snapshotted here -- same discipline as `eventWalkTarget`.
+  const seenWalkPlanKey = useRef<string | null | undefined>(undefined);
+  useEffect(() => {
+    if (walkPlanKey === null || walkPlanKey === undefined) return;
+    if (seenWalkPlanKey.current === undefined) {
+      seenWalkPlanKey.current = walkPlanKey;
+      return;
+    }
+    if (walkPlanKey === seenWalkPlanKey.current) return;
+    seenWalkPlanKey.current = walkPlanKey;
+    pendingWalk.current = "waypoints";
+  }, [walkPlanKey]);
+
   // Item 2c (LIVE-1, 2026-09-14) -- Pilot-only "stands and points" trigger,
   // a THIRD independent seen-value-diff channel (never confused with the
   // walk-queue triggers above -- this one holds a POSE, it never queues a
@@ -400,15 +594,19 @@ export default function Agent({
 
     if (behavior === "frozen") return; // hold whatever pose it already had (a queued walk waits)
 
-    // Item 2a (LIVE-1): pick a new seated-pose variant every 8-20s (this
-    // agent's own seeded range, so a room full of agents doesn't sync up).
-    // Runs unconditionally (cheap scalar check) -- harmless while walking/
-    // alert, since `animState` above only reads `variantIdx` in the
-    // resting branch; the timer keeps ticking in the background so the
-    // NEXT time this agent sits back down it doesn't always reopen on
-    // variant 0.
+    // Item 2a (LIVE-1): pick a new seated-pose variant on this agent's own
+    // seeded range, so a room full of agents doesn't sync up. MOTION-2 V3
+    // (spec: "working cycles between typing and reading at a calmer cadence,
+    // each state >= 6s"): 8-20s -> 10-24s -- the floor already cleared 6s,
+    // but J's own "calmer" word plus the room-wide half-speed pass this
+    // session both point the same direction, so the whole range moves up,
+    // not just the floor. Runs unconditionally (cheap scalar check) --
+    // harmless while walking/alert, since `animState` above only reads
+    // `variantIdx` in the resting branch; the timer keeps ticking in the
+    // background so the NEXT time this agent sits back down it doesn't
+    // always reopen on variant 0.
     if (t >= nextVariantAt.current) {
-      nextVariantAt.current = t + 8 + rng() * 12; // 8-20s
+      nextVariantAt.current = t + 10 + rng() * 14; // 10-24s
       const poolLen = pool.length;
       let next = Math.floor(rng() * poolLen);
       if (poolLen > 1 && next === variantIdx) next = (next + 1) % poolLen;
@@ -497,7 +695,29 @@ export default function Agent({
       if (reducedMotion) {
         pendingWalk.current = null;
         eventWalkPending.current = false;
-      } else if (phase.current === "resting") {
+      } else if (laneSeed === "Pilot" && isRegularTradingHours(nowEtMinutes(), nowEtDayOfWeek())) {
+        // MOTION-2 V3: Pilot never leaves its desk during RTH (CLAUDE.md's
+        // 09:30-15:55 ET market-hours window) -- discarded, not deferred, so
+        // a trigger that fires mid-session doesn't suddenly walk hours later
+        // once the window closes. Checked here (not left to whichever
+        // caller happens to gate its own trigger) so this holds as a real
+        // backstop even if a future caller forgets to; an in-progress walk
+        // (phase.current !== "resting") is never interrupted by this --
+        // only a not-yet-started QUEUED walk is dropped.
+        pendingWalk.current = null;
+        eventWalkPending.current = false;
+      } else if (
+        phase.current === "resting" &&
+        // MOTION-2 V3 (J: "a little bit of LOGIC to their movement" -- never
+        // a fire-drill look): module-scope stagger shared by EVERY Agent
+        // instance (see lastGlobalWalkStartT's own comment) -- if another
+        // agent anywhere started a walk within the last
+        // WALK_START_STAGGER_S, this one simply waits (pendingWalk.current
+        // stays set, re-checked next throttled tick) instead of starting
+        // alongside it.
+        t - lastGlobalWalkStartT >= WALK_START_STAGGER_S
+      ) {
+        lastGlobalWalkStartT = t;
         activeWalkKind.current = pendingWalk.current;
         // Item 2b (LIVE-1) / INTERACT-2 (I2): snapshot the destination NOW,
         // not a live prop read later. A "purposeful" walk queued by THIS
@@ -509,27 +729,50 @@ export default function Agent({
         activeTarget.current = pendingWalk.current === "purposeful"
           ? (eventWalkPending.current ? (eventWalkTarget ?? approach) : (purposefulTarget ?? approach))
           : null;
+        // MOTION-2 V2: snapshot the WalkPlan the SAME way (live prop read,
+        // not the effect-time value -- see the prop's own comment).
+        activePlan.current = pendingWalk.current === "waypoints" ? (walkPlan ?? null) : null;
         eventWalkPending.current = false;
         const startPhase = pendingWalk.current === "arrival" ? "arriving" : "toHub";
         phase.current = startPhase;
         phaseStart.current = t;
         pendingWalk.current = null;
         setWalking(true);
-        // World-2 MOTION-FIX: distance-based duration + facing, computed
-        // ONCE here at walk-start (see walkLegDuration/walkFacing's own
-        // comment by their ref declarations above) -- "arriving" is
-        // hub->home; every other kind starts toHub, home->(purposeful
-        // target or approach).
-        const legFrom = startPhase === "arriving" ? hub : home;
-        const legTo = startPhase === "arriving"
-          ? home
-          : (activeWalkKind.current === "purposeful" && activeTarget.current ? activeTarget.current : approach);
-        const dist = Math.hypot(legTo[0] - legFrom[0], legTo[2] - legFrom[2]);
-        walkLegDuration.current = Math.max(MIN_WALK_LEG_S, dist / WALK_SPEED);
-        walkFacing.current = Math.atan2(legTo[0] - legFrom[0], legTo[2] - legFrom[2]);
+        setDwelling(null);
+        nodded.current = false;
+        if (startPhase === "arriving") {
+          // Unchanged from before V2 -- "arriving" is a one-way hub->home
+          // trip with no dwell/return, kept as its own direct leg rather
+          // than routed through resolvePathPose (zero new capability needed
+          // there, so zero risk taken there).
+          const dist = Math.hypot(home[0] - hub[0], home[2] - hub[2]);
+          walkLegDuration.current = Math.max(MIN_WALK_LEG_S, dist / WALK_SPEED);
+          walkFacing.current = Math.atan2(home[0] - hub[0], home[2] - hub[2]);
+        } else if (activeWalkKind.current === "waypoints" && activePlan.current) {
+          // MOTION-2 V2: a real N-point path (LAYOUT's own walk-graph
+          // route) instead of a single straight leg -- see resolvePathPose's
+          // own comment for how this generalizes the toHub/atHub/toHome
+          // machinery below. Defensive prepend: `waypoints` is documented as
+          // "a real path" but not guaranteed to literally start at this
+          // agent's OWN current `home` -- only prepend when it doesn't
+          // already, so this works under either convention.
+          const first = activePlan.current.waypoints[0];
+          const startsAtHome = !!first && Math.hypot(first[0] - home[0], first[2] - home[2]) < 0.05;
+          outboundPath.current = startsAtHome ? activePlan.current.waypoints : [home, ...activePlan.current.waypoints];
+          walkLegDuration.current = Math.max(MIN_WALK_LEG_S, pathTotalDistance(outboundPath.current) / WALK_SPEED);
+        } else {
+          // Legacy 2-point kinds (roundtrip/allhands/purposeful/eventWalk) --
+          // "a straight line IS a 2-waypoint plan" (spec): routed through the
+          // SAME resolvePathPose machinery below, mathematically identical
+          // to the old direct-lerp behavior (see that function's own
+          // no-op-for-2-points proof).
+          const legTo = activeWalkKind.current === "purposeful" && activeTarget.current ? activeTarget.current : approach;
+          outboundPath.current = [home, legTo];
+          const dist = Math.hypot(legTo[0] - home[0], legTo[2] - home[2]);
+          walkLegDuration.current = Math.max(MIN_WALK_LEG_S, dist / WALK_SPEED);
+        }
       }
     }
-    const walkTarget = activeWalkKind.current === "purposeful" && activeTarget.current ? activeTarget.current : approach;
 
     if (phase.current === "arriving") {
       // One-way hub -> home (a persona that just fired, walking in from the
@@ -544,23 +787,27 @@ export default function Agent({
       );
       if (p >= 1) { phase.current = "resting"; setWalking(false); }
     } else if (phase.current === "toHub") {
+      // MOTION-2 V2: resolvePathPose walks the (possibly multi-leg) outbound
+      // path -- see that function's own comment; reduces to exactly today's
+      // single-leg lerp+fixed-facing for every existing 2-point kind.
       const p = easedWalkProgress(t - phaseStart.current, walkLegDuration.current, WALK_EASE_S);
-      g.rotation.y = walkFacing.current;
-      g.position.set(
-        home[0] + (walkTarget[0] - home[0]) * p,
-        home[1],
-        home[2] + (walkTarget[2] - home[2]) * p,
-      );
+      const pose = resolvePathPose(outboundPath.current, p, WALK_SPEED);
+      g.rotation.y = pose.facing;
+      g.position.set(...pose.position);
       if (p >= 1) {
         phase.current = "atHub";
         phaseStart.current = t;
-        // All-hands stand: "idle clip" per the spec -- drop the ultra
-        // tier's `walking` animState flag for the duration of the ring
-        // stand, restored when it ends (see the atHub branch below).
-        if (activeWalkKind.current === "allhands") setWalking(false);
+        // All-hands stand / waypoints dwell: "idle clip" per the spec --
+        // drop the ultra tier's `walking` animState flag for the duration of
+        // the stand, restored when it ends (see the atHub branch below).
+        if (activeWalkKind.current === "allhands" || activeWalkKind.current === "waypoints") setWalking(false);
+        if (activeWalkKind.current === "waypoints" && activePlan.current) {
+          setDwelling(dwellAnimState(activePlan.current.dwellAnim));
+        }
       }
     } else if (phase.current === "atHub") {
-      g.position.set(...walkTarget);
+      const pathEnd = outboundPath.current[outboundPath.current.length - 1] ?? approach;
+      g.position.set(...pathEnd);
       // All-hands stand: face the core precisely (spec: "facing core") --
       // roundtrip's brief 1.5s touch never bothered with facing, but a
       // 60s stand reads wrong looking anywhere else. Same atan2(dx,dz)
@@ -570,27 +817,48 @@ export default function Agent({
       if (activeWalkKind.current === "allhands") {
         g.rotation.y = Math.atan2(hub[0] - approach[0], hub[2] - approach[2]);
       } else if (activeWalkKind.current === "purposeful") {
-        g.rotation.y = Math.atan2(hub[0] - walkTarget[0], hub[2] - walkTarget[2]);
+        g.rotation.y = Math.atan2(hub[0] - pathEnd[0], hub[2] - pathEnd[2]);
+      } else if (activeWalkKind.current === "waypoints" && activePlan.current) {
+        // MOTION-2 V2: face the plan's own faceYaw if given, else the
+        // heading the agent arrived WITH (resolvePathPose at pathT=1 is
+        // exactly the final leg's own heading) -- never the "purposeful"
+        // convention of facing back toward the hub, since a waypoint walk's
+        // destination usually isn't the hub at all.
+        g.rotation.y = activePlan.current.faceYaw ?? resolvePathPose(outboundPath.current, 1, WALK_SPEED).facing;
+        // MOTION-2 V3 (J: "the dwell must read as doing something"): a small
+        // head nod in the LAST DWELL_NOD_S seconds -- a clear "wrapped up,
+        // about to leave" tell. `nodded` guards this to a single setState
+        // call per dwell (the throttled callback would otherwise re-fire it
+        // every 50ms for the rest of the window, harmless but wasteful).
+        // Math.max(0, ...) so a dwellS shorter than DWELL_NOD_S still nods
+        // immediately rather than never nodding at all.
+        const dwellS = activePlan.current.dwellS;
+        if (!nodded.current && t - phaseStart.current >= Math.max(0, dwellS - DWELL_NOD_S)) {
+          nodded.current = true;
+          setDwelling("resting-idle-nod");
+        }
       }
-      const pauseSeconds = activeWalkKind.current === "allhands" ? ALLHANDS_HUB_PAUSE : activeWalkKind.current === "purposeful" ? PURPOSEFUL_PAUSE : HUB_PAUSE;
+      const pauseSeconds =
+        activeWalkKind.current === "allhands" ? ALLHANDS_HUB_PAUSE
+        : activeWalkKind.current === "purposeful" ? PURPOSEFUL_PAUSE
+        : activeWalkKind.current === "waypoints" ? (activePlan.current?.dwellS ?? PURPOSEFUL_PAUSE)
+        : HUB_PAUSE;
       if (t - phaseStart.current >= pauseSeconds) {
         phase.current = "toHome";
         phaseStart.current = t;
-        // World-2 MOTION-FIX: return leg -- same distance as toHub (computed
-        // once at walk-start above, walkLegDuration is unchanged), reversed
-        // facing ("turn before moving" for the trip home too).
-        walkFacing.current = Math.atan2(home[0] - walkTarget[0], home[2] - walkTarget[2]);
-        if (activeWalkKind.current === "allhands") setWalking(true);
+        // MOTION-2 V2: return leg -- the SAME path, reversed (computed once
+        // here, not per-frame; total distance is unchanged under reversal so
+        // walkLegDuration stays correct as-is for legacy kinds too).
+        returnPath.current = outboundPath.current.slice().reverse();
+        if (activeWalkKind.current === "allhands" || activeWalkKind.current === "waypoints") setWalking(true);
+        if (activeWalkKind.current === "waypoints") setDwelling(null);
       }
     } else if (phase.current === "toHome") {
       const p = easedWalkProgress(t - phaseStart.current, walkLegDuration.current, WALK_EASE_S);
-      g.rotation.y = walkFacing.current;
-      g.position.set(
-        walkTarget[0] + (home[0] - walkTarget[0]) * p,
-        home[1],
-        walkTarget[2] + (home[2] - walkTarget[2]) * p,
-      );
-      if (p >= 1) { phase.current = "resting"; activeTarget.current = null; }
+      const pose = resolvePathPose(returnPath.current, p, WALK_SPEED);
+      g.rotation.y = pose.facing;
+      g.position.set(...pose.position);
+      if (p >= 1) { phase.current = "resting"; activeTarget.current = null; activePlan.current = null; }
     } else {
       // resting -- bob (working = brisker, idle = slower/shallower)
       const bobAmp = behavior === "working" ? 0.05 : 0.025;
