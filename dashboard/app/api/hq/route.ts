@@ -31,7 +31,12 @@ import { collectCompany, type PersonaState, type Handoff } from "@/lib/personas"
 async function safeCollectCompany(): Promise<{ personas: PersonaState[]; handoffs: Handoff[] }> {
   try {
     return await collectCompany();
-  } catch {
+  } catch (err) {
+    // Failure honesty (2026-09-13 fix): this was a bare silent catch --
+    // a real exception here degrades the whole roster to an empty array
+    // with ZERO trace of why, which is exactly what let a genuine bug go
+    // undiagnosed via curl alone. Logged with context now, never swallowed.
+    console.error("[/api/hq] collectCompany() threw, roster degraded to empty:", err);
     return { personas: [], handoffs: [] };
   }
 }

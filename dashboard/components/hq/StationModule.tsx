@@ -78,13 +78,21 @@ export default function StationModule({
         )}
       </mesh>
 
-      {/* Emissive floor-edge strip, hub-facing side -- REPLACES the old
-          per-module pointLight as the "ambient health tint" signal. Thick
-          (not 1-px), opaque, unlit -- reads as a neon floor trim. */}
-      <mesh position={[0, -0.005, -1.35]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[3.0, 0.14]} />
-        <meshBasicMaterial ref={edgeMat} color={color} toneMapped={false} />
-      </mesh>
+      {/* Emissive floor-edge strip, hub-facing side -- TV tier only
+          (2026-09-13, J: "colored floor 'wedges' that read as broken
+          geometry" on the ultra-tier screenshot). This thin unlit plane
+          sits 5mm above the floor; on the TV's flat toon floor that reads
+          as a clean neon trim, but on ultra's MeshReflectorMaterial +
+          N8AO it double-reflects and seams against the mirror floor into
+          exactly the "wedge" artifact J flagged -- removed there rather
+          than fought, since the desk/screen color + reflector tint already
+          carry the same health signal without it. TV tier is unchanged. */}
+      {!ultra && (
+        <mesh position={[0, -0.005, -1.35]} rotation={[-Math.PI / 2, 0, 0]}>
+          <planeGeometry args={[3.0, 0.14]} />
+          <meshBasicMaterial ref={edgeMat} color={color} toneMapped={false} />
+        </mesh>
+      )}
 
       {/* Screen wall (emissive panel, faces -Z toward hub/agent) -- opaque
           now (was transparent): cuts overdraw/blend cost on the TV's weak
@@ -138,7 +146,7 @@ export default function StationModule({
           >
             <span key={row.health} className="hq-shine" />
             <div style={{ fontSize: 30, fontWeight: 800, lineHeight: 1.15 }}>{row.lane}</div>
-            <div style={{ fontSize: 15, color: "#7f93b0", marginBottom: 2 }}>{row.arm_or_acct_alias}</div>
+            <div style={{ fontSize: 26, color: "#7f93b0", marginBottom: 2 }}>{row.arm_or_acct_alias}</div>
             <div style={{ fontSize: 26, fontWeight: 600 }}>
               <span style={{ color: typeof row.window_pnl === "number" ? (row.window_pnl >= 0 ? "#22ff88" : "#ff3b3b") : "#7f93b0" }}>
                 {typeof row.window_pnl === "number" ? row.window_pnl.toFixed(0) : row.window_pnl}

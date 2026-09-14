@@ -172,7 +172,7 @@ export default function BrainCore({
           <meshBasicMaterial color={gaugeColor} toneMapped={false} />
         </mesh>
         <Html position={[0, -0.22, 0]} center distanceFactor={9} style={{ pointerEvents: "none" }}>
-          <div style={{ color: "#7f93b0", fontSize: 16, fontFamily: "system-ui, sans-serif", whiteSpace: "nowrap" }}>
+          <div style={{ color: "#7f93b0", fontSize: 26, fontFamily: "system-ui, sans-serif", whiteSpace: "nowrap" }}>
             MEM {memUsedMib ?? "?"}/{memTotalMib ?? "?"} MiB
           </div>
         </Html>
@@ -197,7 +197,7 @@ export default function BrainCore({
                 its own live status color -- no 8th desk, the hub itself is
                 persona #7's home. */}
             {manager && (
-              <div style={{ fontSize: 15, fontWeight: 600, color: personaStatusColor(manager.status), marginTop: 2 }}>
+              <div style={{ fontSize: 26, fontWeight: 600, color: personaStatusColor(manager.status), marginTop: 2 }}>
                 {manager.emoji} {manager.name}
               </div>
             )}
@@ -209,7 +209,11 @@ export default function BrainCore({
           station-brief.md mtime is seen (see the effect above); paired with
           the additive ring-speed boost in useFrame. */}
       {pulsing && (
-        <Html position={[0, 2.4, 0]} center distanceFactor={9} style={{ pointerEvents: "none" }}>
+        // Raised from 2.4 (2026-09-13 layout-hygiene pass): the model
+        // plaque directly below grew taller once its manager-caption line
+        // was bumped 15px->26px for the roster-label-size floor, so this
+        // needs more clearance to stay a clean stack, not an overlap.
+        <Html position={[0, 2.8, 0]} center distanceFactor={9} style={{ pointerEvents: "none" }}>
           <div className="hq-beam" style={{ "--beam-color": manager?.color ?? PALETTE.hubRing, borderRadius: 8 } as CSSProperties}>
             <div
               style={{
@@ -226,7 +230,7 @@ export default function BrainCore({
 
       {/* Gaming-mode plaque */}
       {gaming && (
-        <Html position={[0, 3.0, 0]} center distanceFactor={9} style={{ pointerEvents: "none" }}>
+        <Html position={[0, 3.5, 0]} center distanceFactor={9} style={{ pointerEvents: "none" }}>
           <div
             style={{
               color: "#ffb020", fontSize: 18, fontWeight: 700, fontFamily: "system-ui, sans-serif",

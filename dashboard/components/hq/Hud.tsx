@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { HqApiResponse } from "./types";
-import { personaStatusColor, timeAgoText } from "./palette";
+import { personaStatusColor, rosterEvidenceText } from "./palette";
 import type { MotionEvent } from "@/lib/useMotionEvents";
 
 const BLOCKED_SOURCE_LABEL: Record<string, string> = {
@@ -219,7 +219,7 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents }: 
                   </span>
                 </div>
                 <div style={{ color: "#9fb3cc", fontSize: 22, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginTop: 2 }}>
-                  {timeAgoText(p.lastFireISO)} &mdash; {truncateOneLine(p.recentOutput, 60)}
+                  {rosterEvidenceText(p.lastFireISO)} &mdash; {truncateOneLine(p.recentOutput, 60)}
                 </div>
               </div>
             );

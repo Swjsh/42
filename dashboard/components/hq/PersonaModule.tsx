@@ -4,7 +4,7 @@ import type { CSSProperties } from "react";
 import { Html } from "@react-three/drei";
 import type { PersonaState } from "@/lib/personas";
 import type { AgentBehavior } from "./Agent";
-import { personaStatusColor, timeAgoText } from "./palette";
+import { personaStatusColor, rosterEvidenceText } from "./palette";
 
 interface PersonaModuleProps {
   position: [number, number, number];
@@ -40,8 +40,8 @@ export default function PersonaModule({ position, persona, behavior }: PersonaMo
           <div style={{ fontSize: 19, fontWeight: 800, lineHeight: 1.2 }}>
             {persona.emoji} {persona.name}
           </div>
-          <div style={{ fontSize: 13, color: "#7f93b0" }}>
-            {timeAgoText(persona.lastFireISO)}
+          <div style={{ fontSize: 26, color: "#7f93b0" }}>
+            {rosterEvidenceText(persona.lastFireISO)}
             {behavior === "alert" && <span style={{ color: "#ff3b3b", fontWeight: 800 }}> · ⚠</span>}
           </div>
         </div>

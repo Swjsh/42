@@ -53,7 +53,13 @@ const ARC_SPAN = (230 * Math.PI) / 180;
 // chart nested inside the departments it runs." Gamma (Manager), persona[0]
 // in collectCompany()'s fixed order, is NOT drawn here -- it becomes
 // BrainCore's own manager nameplate/status instead (no 7th desk).
-const PERSONA_RING_RADIUS = 4.5;
+// Layout hygiene fix (2026-09-13, J: "persona nameplates must not sit
+// inside the hub plaque area") -- 4.5 put persona Html labels too close to
+// BrainCore's own plaques (model plaque at y=1.75, all-hands pulse at
+// y=2.4) in screen-space from the fixed 3/4 view. 6.5 is still safely
+// inside the lane ring's own radius (9.8, "nested inside the departments
+// it runs" per the original design intent) with real clearance from center.
+const PERSONA_RING_RADIUS = 6.5;
 const COURIER_REST: [number, number, number] = [-1.3, 0, 1.1];
 
 /** health=red -> alert (overrides evidence recency); a parked lane (killed/

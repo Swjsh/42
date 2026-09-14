@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import Scene from "./Scene";
+import StandbyPanel from "./StandbyPanel";
 import type { HqApiResponse } from "./types";
 
 interface UltraCanvasRootProps {
@@ -48,43 +49,34 @@ export default function UltraCanvasRoot({ data, reducedMotion }: UltraCanvasRoot
 
   return (
     <div style={{ position: "fixed", inset: 0, background: "#03040a" }}>
-      <Canvas
-        dpr={[1, 2]}
-        frameloop={frameloop}
-        shadows="soft"
-        gl={{ antialias: false, powerPreference: "high-performance", alpha: false }}
-        camera={{ fov: 42, near: 0.5, far: 90 }}
-        onCreated={(state) => {
-          const canvas = state.gl.domElement;
-          canvas.addEventListener("webglcontextlost", (e) => {
-            e.preventDefault();
-            setContextLost(true);
-            window.setTimeout(() => window.location.reload(), 5000);
-          });
-        }}
-      >
-        <Scene data={data} reducedMotion={reducedMotion} tier="ultra" />
-      </Canvas>
-
-      {/* GPU-reserved plaque -- a plain DOM sibling of <Canvas>, same
-          pattern as the "Reconnecting..." overlay below, so it stays
-          visible even with frameloop fully stopped (it never depends on
-          the canvas rendering at all, unlike an in-canvas <Html>). */}
-      {gaming && (
-        <div
-          style={{
-            position: "fixed", inset: 0, background: "rgba(3,4,10,0.92)", color: "#ffb020",
-            display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 12,
-            fontSize: 26, fontWeight: 800, fontFamily: "system-ui, sans-serif", letterSpacing: 1, zIndex: 50,
-            textShadow: "0 0 18px rgba(255,176,32,0.5)",
+      {/* Standby state (2026-09-13 -- J: "wtf is this slop" on the old
+          dim-the-whole-3D-scene-and-overlay-a-giant-plaque approach). That
+          is GONE: while paused the canvas is fully HIDDEN
+          (visibility:hidden, not just dimmed -- it isn't rendering at all,
+          frameloop is "never") and StandbyPanel is the only thing on
+          screen, a purpose-built HTML panel with real roster/needs-J/vitals
+          data, not a degraded view of the 3D scene. */}
+      <div style={{ position: "absolute", inset: 0, visibility: paused ? "hidden" : "visible" }}>
+        <Canvas
+          dpr={[1, 2]}
+          frameloop={frameloop}
+          shadows="soft"
+          gl={{ antialias: false, powerPreference: "high-performance", alpha: false }}
+          camera={{ fov: 42, near: 0.5, far: 90 }}
+          onCreated={(state) => {
+            const canvas = state.gl.domElement;
+            canvas.addEventListener("webglcontextlost", (e) => {
+              e.preventDefault();
+              setContextLost(true);
+              window.setTimeout(() => window.location.reload(), 5000);
+            });
           }}
         >
-          <div>GPU RESERVED -- J IS GAMING</div>
-          <div style={{ fontSize: 14, fontWeight: 500, color: "#7f93b0", letterSpacing: 0 }}>
-            Ultra-tier rendering paused -- resumes automatically
-          </div>
-        </div>
-      )}
+          <Scene data={data} reducedMotion={reducedMotion} tier="ultra" />
+        </Canvas>
+      </div>
+
+      {paused && <StandbyPanel data={data} />}
 
       {contextLost && (
         <div

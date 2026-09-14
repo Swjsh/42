@@ -68,6 +68,39 @@ function todayET(): string {
   return `${y}-${m}-${d}`;
 }
 
+/** "2026-09-13 22:51:00 ET" -> a genuine UTC ISO string (roster hotfix,
+ * 2026-09-13). DST-aware: tries both plausible ET offsets (-4 EDT, -5 EST)
+ * and keeps whichever one, reformatted back through the America/New_York
+ * timezone, reproduces the EXACT wall-clock digits given -- a hardcoded
+ * "always -4" would silently drift wrong at every DST transition (this
+ * project's own setup/scripts/et_clock.py is DST-aware for the same
+ * reason). Falls back to EDT (right for mid-March..early-November, which
+ * covers the live trading calendar) rather than returning null -- a
+ * slightly-off timestamp still beats "never fired". */
+function etLikeToIso(raw: string): string | null {
+  const m = /(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2}):(\d{2})/.exec(raw);
+  if (!m) return null;
+  // m.slice(1) already drops the full-match element (index 0) -- the 6
+  // remaining entries ARE [year,month,day,hour,min,sec] with no offset, so
+  // this destructure must NOT have a leading skipped slot (the original
+  // off-by-one shifted every value down one field and left `s` undefined,
+  // which made Date.UTC(...) return NaN and threw RangeError: Invalid time
+  // value inside Intl.DateTimeFormat -- caught by safeCollectCompany()'s
+  // try/catch with no logging, silently degrading the ENTIRE roster to an
+  // empty array; found via the console.error added to that catch block).
+  const [y, mo, d, h, mi, s] = m.slice(1).map(Number);
+  for (const offsetHours of [4, 5]) {
+    const utcMs = Date.UTC(y, mo - 1, d, h + offsetHours, mi, s);
+    const parts = new Intl.DateTimeFormat("en-US", {
+      timeZone: "America/New_York", hour: "2-digit", minute: "2-digit", hour12: false,
+    }).formatToParts(new Date(utcMs));
+    const hourBack = Number(parts.find((p) => p.type === "hour")?.value) % 24;
+    const minBack = Number(parts.find((p) => p.type === "minute")?.value);
+    if (hourBack === h && minBack === mi) return new Date(utcMs).toISOString();
+  }
+  return new Date(Date.UTC(y, mo - 1, d, h + 4, mi, s)).toISOString();
+}
+
 export interface PersonaState {
   name: string;
   emoji: string;
@@ -239,6 +272,14 @@ export async function collectChef(): Promise<PersonaState> {
   const logTail = await readJsonlTail<Record<string, unknown>>(log, 3);
   const last = logTail[logTail.length - 1];
   const preview = await readText(leaderboard, 800);
+  // Roster-truth fix (2026-09-13): _chef-log.jsonl's own `started_at` field
+  // is "YYYY-MM-DDTHH:MM:SS ET" -- NOT valid ISO-8601 (Date.parse returns
+  // NaN on the trailing " ET"), so `lastFireISO` silently became that
+  // unparseable string, and every downstream age/roster read it as "never
+  // fired" even though a real leaderboard existed. J's own mapping table
+  // says "Chef = latest strategy/candidates CHANGE" -- i.e. the file's own
+  // mtime IS the intended evidence, not the log row -- so use it directly
+  // rather than trying to reformat the log's ambiguous string.
   return {
     name: "Chef",
     emoji: "👨‍🍳",
@@ -247,7 +288,7 @@ export async function collectChef(): Promise<PersonaState> {
     soulFile: ".claude/agents/chef.md",
     schedule: "overnight wake fires on @chef-tagged queue tasks + /chef manual",
     status: last ? "GREEN" : "IDLE",
-    lastFireISO: (last?.started_at as string) || mt,
+    lastFireISO: mt,
     lastFireResult: last ? `${(last.work_item as string) || "?"} → ${(last.verdict as string) || "?"} (${(last.confidence as number) ?? "?"}/10)` : "no fires yet",
     deliverable: { path: "strategy/candidates/_LEADERBOARD.md", exists: !!preview, mtimeISO: mt, ageMin },
     logTail,
@@ -282,30 +323,53 @@ export async function collectTreasurer(): Promise<PersonaState> {
 }
 
 export async function collectGammaManager(): Promise<PersonaState> {
-  const log = path.join(ROOT, "automation/state/manager-log.jsonl");
-  const today = todayET();
-  const brief = path.join(ROOT, "analysis/daily-brief", `${today}.md`);
-  const status = path.join(ROOT, "automation/state", `daily-loop-status-${today}.json`);
-  const mt = await mtimeISO(brief);
-  const ageMin = mt ? (Date.now() - new Date(mt).getTime()) / 60000 : null;
-  const logTail = await readJsonlTail<Record<string, unknown>>(log, 3);
-  const last = logTail[logTail.length - 1];
-  const exists = await fileExists(brief);
-  const preview = exists ? (await readText(brief, 800))?.split("\n").slice(0, 12).join("\n") || null : null;
-  const verdict = await readJson<{ loop_status?: string }>(status);
+  // Roster-truth fix (2026-09-13): this collector was reading
+  // manager-log.jsonl (an unrelated Ollama-model-pick log) and
+  // analysis/daily-brief/{today}.md (doesn't exist most days) -- neither
+  // has anything to do with what "Gamma (Manager)" actually means on the
+  // roster: the Station loop that fires every 30 min. J's own mapping:
+  // "Gamma (Manager) = loop-ledger.jsonl last row (ts + status +
+  // cards_added) and conductor-outcomes.jsonl if newer."
+  const loopLedger = path.join(ROOT, "automation/state/station/loop-ledger.jsonl");
+  const conductorOutcomes = path.join(ROOT, "automation/state/conductor-outcomes.jsonl");
+  const [ledgerTail, outcomesTail] = await Promise.all([
+    readJsonlTail<{ ts_et?: string; status?: string; reason?: string; cards_added?: number; board_size?: number }>(loopLedger, 3),
+    readJsonlTail<{ fired_at?: string; task_id?: string; items_added?: number; note?: string }>(conductorOutcomes, 30),
+  ]);
+  const lastLedger = ledgerTail[ledgerTail.length - 1];
+  // conductor-outcomes.jsonl is shared across multiple tasks -- filter to
+  // the station task before comparing "if newer" against the ledger.
+  const stationOutcomes = outcomesTail.filter((r) => r.task_id === "Gamma_Station");
+  const lastOutcome = stationOutcomes[stationOutcomes.length - 1];
+
+  const ledgerIso = lastLedger?.ts_et ? etLikeToIso(lastLedger.ts_et) : null;
+  const outcomeIso = lastOutcome?.fired_at ?? null; // already real ISO (e.g. "...+00:00")
+  const useOutcome = !!outcomeIso && (!ledgerIso || outcomeIso > ledgerIso);
+  const lastFireISO = useOutcome ? outcomeIso : ledgerIso;
+
+  const ledgerStatus = lastLedger?.status; // "ok" | "yielded" | "error" | ...
+  const status: PersonaState["status"] =
+    ledgerStatus === "error" ? "RED" : ledgerStatus === "yielded" ? "YELLOW" : lastFireISO ? "GREEN" : "IDLE";
+
+  const lastFireResult = useOutcome
+    ? `${lastOutcome!.task_id}${lastOutcome!.note ? ": " + lastOutcome!.note : ""} (${lastOutcome!.items_added ?? 0} items added)`
+    : lastLedger
+      ? `${lastLedger.status}${lastLedger.reason ? " -- " + lastLedger.reason : ""}, cards_added=${lastLedger.cards_added ?? 0}`
+      : null;
+
   return {
     name: "Gamma (Manager)",
     emoji: "🎩",
     color: "#ec4899",
-    role: "conductor / daily-loop verifier / J's briefing writer",
+    role: "conductor / Station loop / J's briefing writer",
     soulFile: ".claude/agents/gamma.md (CLAUDE.md is project soul)",
-    schedule: "weekdays 17:30 ET via Gamma_ManagerDailyVerify",
-    status: verdict?.loop_status === "GREEN" ? "GREEN" : verdict?.loop_status === "RED" ? "RED" : exists ? "YELLOW" : "IDLE",
-    lastFireISO: (last?.fired_at as string) || mt,
-    lastFireResult: last ? `${(last.loop_status as string) || "?"} — ${(last.phases_passed as number) ?? "?"}/11 phases, ${(last.red_flags as number) ?? "?"} flags` : "no fires yet",
-    deliverable: { path: `analysis/daily-brief/${today}.md`, exists, mtimeISO: mt, ageMin },
-    logTail,
-    recentOutput: preview,
+    schedule: "every 30 min via the Station loop (Gamma_Station)",
+    status,
+    lastFireISO,
+    lastFireResult: lastFireResult ?? "no fires yet",
+    deliverable: { path: "automation/state/station/loop-ledger.jsonl", exists: !!lastLedger, mtimeISO: lastFireISO, ageMin: lastFireISO ? (Date.now() - new Date(lastFireISO).getTime()) / 60000 : null },
+    logTail: ledgerTail,
+    recentOutput: lastFireResult,
     guardrailsDeniedTools: ["mcp__alpaca__place_*", "production doctrine edits"],
   };
 }

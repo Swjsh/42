@@ -19,7 +19,12 @@ const RADIUS = 70;
  * hue must stay a background accent, never compete with the scene's own
  * foreground cyan/amber accents. */
 function buildSkyGeometry(): THREE.SphereGeometry {
-  const geo = new THREE.SphereGeometry(RADIUS, 24, 16);
+  // Layout hygiene fix (2026-09-13, J: "sky dome silhouette visible as a
+  // dark octagon at the top") -- 24 width segments was faceted enough to
+  // show as a visible polygon silhouette at the horizon from inside a
+  // BackSide sphere; 48/32 is the brief's own stated floor and reads as a
+  // smooth gradient instead. Still a single 1-draw-call mesh either way.
+  const geo = new THREE.SphereGeometry(RADIUS, 48, 32);
   const pos = geo.attributes.position;
   const colors = new Float32Array(pos.count * 3);
   const zenith = new THREE.Color(PALETTE.space);

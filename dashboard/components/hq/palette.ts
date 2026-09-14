@@ -84,6 +84,26 @@ export function timeAgoText(iso: string | null): string {
   return `${Math.round(hr / 24)}d ago`;
 }
 
+/** Roster truth (2026-09-13, J: "never print 'never fired' / 'no output
+ * yet'"): same time-ago math as timeAgoText, but evidence genuinely older
+ * than 7 days becomes "quiet since <date>" -- never a fake-sounding streak
+ * or status string. Used by the roster panel (Hud.tsx) and the standby
+ * panel, both of which display a persona's real lastFireISO -- once
+ * lib/personas.ts's collectors are fixed to always point at real evidence
+ * files, "no evidence file" (a null/unparseable iso) should be rare-to-never
+ * in practice, but stays honest rather than silently guessing. */
+export function rosterEvidenceText(iso: string | null): string {
+  if (!iso) return "no evidence file";
+  const t = Date.parse(iso);
+  if (Number.isNaN(t)) return "no evidence file";
+  const min = Math.max(0, (Date.now() - t) / 60000);
+  if (min < 1) return "just now";
+  if (min < 60) return `${Math.round(min)}m ago`;
+  const hr = min / 60;
+  if (hr < 24 * 7) return hr < 48 ? `${Math.round(hr)}h ago` : `${Math.round(hr / 24)}d ago`;
+  return `quiet since ${new Date(t).toISOString().slice(0, 10)}`;
+}
+
 export const IDEA_STATUS_COLOR: Record<string, string> = {
   proposed: "#22d3ee",
   testing: "#ffb020",
