@@ -757,6 +757,15 @@ function Invoke-Claude {
     $stdoutTask = $null
     $stderrTask = $null
     try {
+        # LOCAL-BRAIN-BUDGET (2026-09-14 01:0x ET): Resolve-BrainModel (_brain.ps1) sets GAMMA_BRAIN=local when
+        # this fire runs on Ollama through the no-think proxy. Claude Code still meters --max-budget-usd
+        # against its own price table for a model id it does not know, so a $2 cap killed the Treasurer
+        # after 17 local turns ("Exceeded USD budget (2)", treasurer-2026-09-14.log) that cost $0.00 real.
+        # Local fires get a cap that cannot bite; the wall clock (-TimeoutSec) stays the real bound.
+        if ($env:GAMMA_BRAIN -eq "local" -and $MaxBudgetUsd -lt 1000) {
+            Write-TaskLog -TaskName $TaskName -Message ("BRAIN=local: --max-budget-usd " + $MaxBudgetUsd + " -> 1000 (Claude Code prices the local model id; real cost is 0)")
+            $MaxBudgetUsd = 1000.0
+        }
         $startMsg = "=== START tick (timeout=" + $TimeoutSec + "s effort=" + $Effort + " budget=" + $MaxBudgetUsd + " model=" + $Model + " freeMB=" + $disk.FreeMB + ") ==="
         Write-TaskLog -TaskName $TaskName -Message $startMsg
         $logPath = Join-Path $LogDir "$TaskName-$((Get-EtNow).ToString('yyyy-MM-dd')).log"

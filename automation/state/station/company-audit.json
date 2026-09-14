@@ -1,11 +1,11 @@
 {
-  "ts_et": "2026-09-14 00:35:05 ET",
+  "ts_et": "2026-09-14 01:06:17 ET",
   "last_trading_day": "2026-09-11",
-  "llm_used": true,
-  "llm_model": "gamma-planner-fast",
-  "llm_skip_reason": null,
+  "llm_used": false,
+  "llm_model": null,
+  "llm_skip_reason": "--no-llm",
   "scheduled_tasks_enumeration_error": null,
-  "runtime_s": 30.4,
+  "runtime_s": 5.2,
   "personas": [
     {
       "name": "Scout",
@@ -18,7 +18,7 @@
       ],
       "deliverable": "automation/scout/state/scout_output.json",
       "goal_ref": "none",
-      "verdict": "FAIL",
+      "verdict": "PASS",
       "checks": {
         "works": {
           "verdict": "PASS",
@@ -29,8 +29,8 @@
           "evidence": "objective verified verbatim in .claude/agents/scout.md; kpi present; goal_ref=none (standing production doctrine, not tied to a dated ladder item)"
         },
         "is_smart": {
-          "verdict": "FAIL",
-          "evidence": "scout_output.json for_session_date='2026-09-11' mtime_et=2026-09-11 05:31:17 (last trading day=2026-09-11, deadline 09:30:00 ET) | scout-log row for 2026-09-11: found (cost_usd=0.58) | quiz[scout_speculative_tag]=FAIL: 'TAG: [UNCITED]'"
+          "verdict": "PASS",
+          "evidence": "scout_output.json for_session_date='2026-09-11' mtime_et=2026-09-11 05:31:17 (last trading day=2026-09-11, deadline 09:30:00 ET) | scout-log row for 2026-09-11: found (cost_usd=0.58) | quiz: LLM quiz skipped: --no-llm"
         },
         "autonomous": {
           "verdict": "PASS",
@@ -38,12 +38,9 @@
         }
       },
       "quiz": {
-        "asked": true,
-        "id": "scout_speculative_tag",
-        "model": "gamma-planner-fast",
-        "verdict": "FAIL",
-        "answer": "TAG: [UNCITED]",
-        "wall_s": 9.8
+        "asked": false,
+        "verdict": "SKIPPED",
+        "note": "LLM quiz skipped: --no-llm"
       }
     },
     {
@@ -69,7 +66,7 @@
         },
         "is_smart": {
           "verdict": "PASS",
-          "evidence": "core-decisions.jsonl: 772 row(s) dated 2026-09-11 (min 10) | rule-breaks.jsonl: 0 break row(s) dated 2026-09-11 | rule-break-audit.json: last ran 2.3d ago | quiz[pilot_rule5_isolation]=PASS: 'VERDICT: YES\\nRule 5 states kill switches are isolated — Safe halting does NOT halt Bold.'"
+          "evidence": "core-decisions.jsonl: 772 row(s) dated 2026-09-11 (min 10) | rule-breaks.jsonl: 0 break row(s) dated 2026-09-11 | rule-break-audit.json: last ran 2.4d ago | quiz: LLM quiz skipped: --no-llm"
         },
         "autonomous": {
           "verdict": "PASS",
@@ -77,12 +74,9 @@
         }
       },
       "quiz": {
-        "asked": true,
-        "id": "pilot_rule5_isolation",
-        "model": "gamma-planner-fast",
-        "verdict": "PASS",
-        "answer": "VERDICT: YES\nRule 5 states kill switches are isolated — Safe halting does NOT halt Bold.",
-        "wall_s": 2.7
+        "asked": false,
+        "verdict": "SKIPPED",
+        "note": "LLM quiz skipped: --no-llm"
       }
     },
     {
@@ -108,7 +102,7 @@
         },
         "is_smart": {
           "verdict": "WARN",
-          "evidence": "analysis/eod/2026-09-11.md QUANT TOTAL accepted=13 vs journal/trades.csv 13 distinct entry_order_id (16 raw rows) on 2026-09-11 | _analyst-log.jsonl row for 2026-09-11: NOT FOUND -- own fire-log gap | quiz[analyst_lookahead_bug]=PASS: 'BUG: The slice `bars[i - 20:i + 1]` includes the current bar `i`, causing look-ahead bias by comparing the close against a high that may be from the same bar.\\nF'"
+          "evidence": "analysis/eod/2026-09-11.md QUANT TOTAL accepted=13 vs journal/trades.csv 13 distinct entry_order_id (16 raw rows) on 2026-09-11 | _analyst-log.jsonl row for 2026-09-11: NOT FOUND -- own fire-log gap | quiz: LLM quiz skipped: --no-llm"
         },
         "autonomous": {
           "verdict": "PASS",
@@ -116,12 +110,9 @@
         }
       },
       "quiz": {
-        "asked": true,
-        "id": "analyst_lookahead_bug",
-        "model": "gamma-planner-fast",
-        "verdict": "PASS",
-        "answer": "BUG: The slice `bars[i - 20:i + 1]` includes the current bar `i`, causing look-ahead bias by comparing the close against a high that may be from the same bar.\nFIX: bars[i - 20:i]",
-        "wall_s": 3.3
+        "asked": false,
+        "verdict": "SKIPPED",
+        "note": "LLM quiz skipped: --no-llm"
       }
     },
     {
@@ -135,32 +126,29 @@
       ],
       "deliverable": "strategy/candidates/_LEADERBOARD.md",
       "goal_ref": "none",
-      "verdict": "FAIL",
+      "verdict": "WARN",
       "checks": {
         "works": {
           "verdict": "WARN",
-          "evidence": "Gamma_Conductor: state=Ready last_run=25m ago (cadence window 24.0h) LastTaskResult=0 | NOTE: no dedicated Task Scheduler entry owned by this persona -- cadence cannot be independently verified from the scheduler alone; capped at WARN even if the umbrella task above is healthy | deliverable strategy/candidates/_LEADERBOARD.md: last advanced 8.9d ago (window 24.0h)"
+          "evidence": "Gamma_Conductor: state=Ready last_run=6m ago (cadence window 24.0h) LastTaskResult=0 | NOTE: no dedicated Task Scheduler entry owned by this persona -- cadence cannot be independently verified from the scheduler alone; capped at WARN even if the umbrella task above is healthy | deliverable strategy/candidates/_LEADERBOARD.md: last advanced 9.0d ago (window 24.0h)"
         },
         "has_goal": {
           "verdict": "PASS",
           "evidence": "objective verified verbatim in .claude/agents/chef.md; kpi present; goal_ref=none (standing production doctrine, not tied to a dated ladder item)"
         },
         "is_smart": {
-          "verdict": "FAIL",
-          "evidence": "_LEADERBOARD.md age=8.9d | newest non-archived candidate file age=7m | _chef-log.jsonl (Chef's own fire log) age=22.8d (window 14d) -- files changed recently but Chef's OWN fire log did not; the recent change was likely written by a different process (e.g. a goal-adjudication pass), not a genuine Chef research fire | quiz[chef_canonical_battery]=FAIL: 'statistical significance, out-of-sample robustness, drawdown limits'"
+          "verdict": "WARN",
+          "evidence": "_LEADERBOARD.md age=9.0d | newest non-archived candidate file age=38m | _chef-log.jsonl (Chef's own fire log) age=22.9d (window 14d) -- files changed recently but Chef's OWN fire log did not; the recent change was likely written by a different process (e.g. a goal-adjudication pass), not a genuine Chef research fire | quiz: LLM quiz skipped: --no-llm"
         },
         "autonomous": {
           "verdict": "WARN",
-          "evidence": "Gamma_Conductor: LastTaskResult=0 LastRunTime=2026-09-13T22:10:01-06:00 | deliverable mtime is 12844 min from Gamma_Conductor's own LastRunTime -- deliverable's timestamp is far from any registered run; may have been produced by a manual/interactive invocation instead of the scheduler"
+          "evidence": "Gamma_Conductor: LastTaskResult=0 LastRunTime=2026-09-13T23:00:01-06:00 | deliverable mtime is 12894 min from Gamma_Conductor's own LastRunTime -- deliverable's timestamp is far from any registered run; may have been produced by a manual/interactive invocation instead of the scheduler"
         }
       },
       "quiz": {
-        "asked": true,
-        "id": "chef_canonical_battery",
-        "model": "gamma-planner-fast",
-        "verdict": "FAIL",
-        "answer": "statistical significance, out-of-sample robustness, drawdown limits",
-        "wall_s": 2.5
+        "asked": false,
+        "verdict": "SKIPPED",
+        "note": "LLM quiz skipped: --no-llm"
       }
     },
     {
@@ -181,28 +169,25 @@
       "checks": {
         "works": {
           "verdict": "FAIL",
-          "evidence": "Gamma_CryptoDaily: state=Ready last_run=42.6h ago (cadence window 2.9d) LastTaskResult=0 | Gamma_CryptoRegression: state=Ready last_run=8m ago (cadence window 1.5h) LastTaskResult=0 | Gamma_CryptoGrinderKeepalive: state=Disabled | Gamma_SelfAudit: state=Ready last_run=7.1h ago (cadence window 2.9d) LastTaskResult=0 | deliverable crypto/data/scorecards/drift_report.json: last advanced 8m ago (window 2.9d)"
+          "evidence": "Gamma_CryptoDaily: state=Ready last_run=43.1h ago (cadence window 2.9d) LastTaskResult=0 | Gamma_CryptoRegression: state=Ready last_run=9m ago (cadence window 1.5h) LastTaskResult=0 | Gamma_CryptoGrinderKeepalive: state=Disabled | Gamma_SelfAudit: state=Ready last_run=7.6h ago (cadence window 2.9d) LastTaskResult=0 | deliverable crypto/data/scorecards/drift_report.json: last advanced 9m ago (window 2.9d)"
         },
         "has_goal": {
           "verdict": "PASS",
           "evidence": "objective verified verbatim in .claude/agents/coach.md; kpi present; goal_ref=none (standing production doctrine, not tied to a dated ladder item)"
         },
         "is_smart": {
-          "verdict": "FAIL",
-          "evidence": "drift_report.json overall_health='GREEN' age=8m (window 30.0h) | coach-log.jsonl (Coach's own snapshot log) age=64.6d (window 3d) -- the deterministic gym/drift pipeline is fresh, but Coach's OWN fire log has not been appended in-window; the persona's own accountability trail is dead even though the underlying automation is alive | quiz[coach_red_priority]=FAIL: 'I must write to `incident_log.md`.'"
+          "verdict": "WARN",
+          "evidence": "drift_report.json overall_health='GREEN' age=9m (window 30.0h) | coach-log.jsonl (Coach's own snapshot log) age=64.6d (window 3d) -- the deterministic gym/drift pipeline is fresh, but Coach's OWN fire log has not been appended in-window; the persona's own accountability trail is dead even though the underlying automation is alive | quiz: LLM quiz skipped: --no-llm"
         },
         "autonomous": {
           "verdict": "PASS",
-          "evidence": "Gamma_CryptoDaily: LastTaskResult=0 LastRunTime=2026-09-12T04:00:01-06:00 | Gamma_CryptoRegression: LastTaskResult=0 LastRunTime=2026-09-13T22:27:00-06:00 | Gamma_CryptoGrinderKeepalive: LastTaskResult=0 LastRunTime=2026-09-05T06:01:00-06:00 | Gamma_SelfAudit: LastTaskResult=0 LastRunTime=2026-09-13T15:30:01-06:00 | deliverable mtime is 0 min from Gamma_CryptoRegression's own LastRunTime -- the scheduler (not a human) produced the most recent deliverable, and the run exited cleanly"
+          "evidence": "Gamma_CryptoDaily: LastTaskResult=0 LastRunTime=2026-09-12T04:00:01-06:00 | Gamma_CryptoRegression: LastTaskResult=0 LastRunTime=2026-09-13T22:57:00-06:00 | Gamma_CryptoGrinderKeepalive: LastTaskResult=0 LastRunTime=2026-09-05T06:01:00-06:00 | Gamma_SelfAudit: LastTaskResult=0 LastRunTime=2026-09-13T15:30:01-06:00 | deliverable mtime is 0 min from Gamma_CryptoRegression's own LastRunTime -- the scheduler (not a human) produced the most recent deliverable, and the run exited cleanly"
         }
       },
       "quiz": {
-        "asked": true,
-        "id": "coach_red_priority",
-        "model": "gamma-planner-fast",
-        "verdict": "FAIL",
-        "answer": "I must write to `incident_log.md`.",
-        "wall_s": 2.5
+        "asked": false,
+        "verdict": "SKIPPED",
+        "note": "LLM quiz skipped: --no-llm"
       }
     },
     {
@@ -220,7 +205,7 @@
       "checks": {
         "works": {
           "verdict": "FAIL",
-          "evidence": "Gamma_TreasurerWeekly: state=Ready last_run=8.6h ago (cadence window 8.0d) LastTaskResult=0 | deliverable MISSING: analysis/treasury/20*.md"
+          "evidence": "Gamma_TreasurerWeekly: state=Ready last_run=2m ago (cadence window 8.0d) LastTaskResult=0 | deliverable MISSING: analysis/treasury/20*.md"
         },
         "has_goal": {
           "verdict": "PASS",
@@ -228,20 +213,17 @@
         },
         "is_smart": {
           "verdict": "FAIL",
-          "evidence": "analysis/treasury/*.md newest=None age=? (window 8d) | _treasurer-log.jsonl exists=False | draft-params-changes.md exists=False -- Treasurer has never produced a dated report in this repo | quiz[treasurer_sizing_math]=PASS: '$5,266.38 \\\\times 0.30 / (2.10 \\\\times 100) = 7.49 \\\\rightarrow 7$\\n\\nANSWER: 7'"
+          "evidence": "analysis/treasury/*.md newest=None age=? (window 8d) | _treasurer-log.jsonl exists=False | draft-params-changes.md exists=False -- Treasurer has never produced a dated report in this repo | quiz: LLM quiz skipped: --no-llm"
         },
         "autonomous": {
           "verdict": "WARN",
-          "evidence": "Gamma_TreasurerWeekly: LastTaskResult=0 LastRunTime=2026-09-13T14:00:00-06:00 -- deliverable missing, cannot correlate its timestamp to the scheduled run"
+          "evidence": "Gamma_TreasurerWeekly: LastTaskResult=0 LastRunTime=2026-09-13T23:03:58-06:00 -- deliverable missing, cannot correlate its timestamp to the scheduled run"
         }
       },
       "quiz": {
-        "asked": true,
-        "id": "treasurer_sizing_math",
-        "model": "gamma-planner-fast",
-        "verdict": "PASS",
-        "answer": "$5,266.38 \\times 0.30 / (2.10 \\times 100) = 7.49 \\rightarrow 7$\n\nANSWER: 7",
-        "wall_s": 3.1
+        "asked": false,
+        "verdict": "SKIPPED",
+        "note": "LLM quiz skipped: --no-llm"
       }
     },
     {
@@ -260,7 +242,7 @@
       "checks": {
         "works": {
           "verdict": "PASS",
-          "evidence": "Gamma_Station: state=Ready last_run=14m ago (cadence window 1.5h) LastTaskResult=0 | Gamma_Conductor: state=Ready last_run=25m ago (cadence window 24.0h) LastTaskResult=0 | deliverable automation/state/station/loop-ledger.jsonl: last advanced 14m ago (window 24.0h)"
+          "evidence": "Gamma_Station: state=Ready last_run=15m ago (cadence window 1.5h) LastTaskResult=0 | Gamma_Conductor: state=Ready last_run=6m ago (cadence window 24.0h) LastTaskResult=0 | deliverable automation/state/station/loop-ledger.jsonl: last advanced 15m ago (window 24.0h)"
         },
         "has_goal": {
           "verdict": "PASS",
@@ -268,27 +250,24 @@
         },
         "is_smart": {
           "verdict": "WARN",
-          "evidence": "loop-ledger.jsonl: 19 status=ok row(s) in the last 24.0h | station-brief.md cites 2 numeric token(s) (string-match heuristic, min 3 digits), 0 also appear in the latest autopsy/trades.csv -- brief cites no number traceable to real ledgers (may be generic prose) | quiz[manager_never_orders]=PASS: 'orders'"
+          "evidence": "loop-ledger.jsonl: 19 status=ok row(s) in the last 24.0h | station-brief.md cites 2 numeric token(s) (string-match heuristic, min 3 digits), 0 also appear in the latest autopsy/trades.csv -- brief cites no number traceable to real ledgers (may be generic prose) | quiz: LLM quiz skipped: --no-llm"
         },
         "autonomous": {
           "verdict": "PASS",
-          "evidence": "Gamma_Station: LastTaskResult=0 LastRunTime=2026-09-13T22:21:00-06:00 | Gamma_Conductor: LastTaskResult=0 LastRunTime=2026-09-13T22:10:01-06:00 | deliverable mtime is 0 min from Gamma_Station's own LastRunTime -- the scheduler (not a human) produced the most recent deliverable, and the run exited cleanly"
+          "evidence": "Gamma_Station: LastTaskResult=0 LastRunTime=2026-09-13T22:51:00-06:00 | Gamma_Conductor: LastTaskResult=0 LastRunTime=2026-09-13T23:00:01-06:00 | deliverable mtime is 9 min from Gamma_Conductor's own LastRunTime -- the scheduler (not a human) produced the most recent deliverable, and the run exited cleanly"
         }
       },
       "quiz": {
-        "asked": true,
-        "id": "manager_never_orders",
-        "model": "gamma-planner-fast",
-        "verdict": "PASS",
-        "answer": "orders",
-        "wall_s": 2.3
+        "asked": false,
+        "verdict": "SKIPPED",
+        "note": "LLM quiz skipped: --no-llm"
       }
     }
   ],
   "summary": {
-    "pass": 1,
-    "warn": 2,
-    "fail": 4,
+    "pass": 2,
+    "warn": 3,
+    "fail": 2,
     "total": 7
   }
 }

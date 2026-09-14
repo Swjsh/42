@@ -1,50 +1,50 @@
 {
   "model": "gamma-planner-fast",
   "score": "3/3",
-  "gen_tok_per_s": 48.6,
+  "gen_tok_per_s": 48.0,
   "processor_split": "100% GPU",
   "questions": [
     {
       "id": "rule5_isolation",
       "label": "Repo rule read (needs the isolation nuance)",
       "expected": "VERDICT: NO -- Rule 5 kill switches are isolated per account",
-      "answer": "VERDICT: NO\nRule 5 explicitly states that kill switches are isolated, so Safe halting does NOT halt Bold.",
+      "answer": "VERDICT: NO\nRule 5 states that kill switches are isolated, so Safe halting does NOT halt Bold.",
       "correct": true,
-      "gen_tokens": 27,
-      "gen_tok_per_s": 48.6,
+      "gen_tokens": 26,
+      "gen_tok_per_s": 47.5,
       "prompt_tokens": 1594,
-      "prompt_tok_per_s": 1206.2,
-      "load_s": 7.1,
-      "wall_s": 11.1
+      "prompt_tok_per_s": 1115.9,
+      "load_s": 9.2,
+      "wall_s": 13.2
     },
     {
       "id": "sizing_math",
       "label": "Sizing arithmetic (Rule 6, round down)",
       "expected": "5,266.38 x 0.30 = 1,579.91; / 210 = 7.52 -> ANSWER: 7",
-      "answer": "Risk per contract = $2.10 * 100 = $210; Max Risk = 0.30 * $5,266.38 = $1,579.914; Contracts = floor($1,579.914 / $210) = floor(7.523) = 7\nANSWER: 7",
+      "answer": "Risk per contract = $2.10 * 100 = $210; Max Risk = 0.30 * $5,266.38 = $1,579.914; Contracts = floor($1,579.914 / $210) = 7\nANSWER: 7",
       "correct": true,
-      "gen_tokens": 88,
-      "gen_tok_per_s": 49.0,
+      "gen_tokens": 79,
+      "gen_tok_per_s": 47.4,
       "prompt_tokens": 133,
-      "prompt_tok_per_s": 768.7,
+      "prompt_tok_per_s": 773.7,
       "load_s": 0.0,
-      "wall_s": 4.1
+      "wall_s": 4.0
     },
     {
       "id": "lookahead_bug",
       "label": "Code bug hunt (look-ahead / self-inclusion)",
       "expected": "window includes bar i itself (close can never beat its own high) -> bars[i - 20:i]",
-      "answer": "BUG: The slice `bars[i - 20:i + 1]` includes the current bar `i`, causing look-ahead bias by comparing the close against a high that may include the current bar's own high.\nFIX: bars[i - 20:i]",
+      "answer": "BUG: The slice `bars[i - 20:i + 1]` includes the current bar, causing the current high to be part of the prior high calculation.\nFIX: bars[i - 20:i]",
       "correct": true,
-      "gen_tokens": 57,
-      "gen_tok_per_s": 48.3,
+      "gen_tokens": 47,
+      "gen_tok_per_s": 49.1,
       "prompt_tokens": 155,
-      "prompt_tok_per_s": 863.4,
+      "prompt_tok_per_s": 1031.7,
       "load_s": 0.0,
-      "wall_s": 3.4
+      "wall_s": 3.2
     }
   ],
-  "ts_et": "2026-09-13 15:08:20 Sunday EDT",
+  "ts_et": "2026-09-13 19:57:55 Sunday EDT",
   "others": [
     {
       "model": "qwen3:14b",

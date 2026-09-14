@@ -79,7 +79,7 @@ a future fire, once you're asked) to hand it a spec instead of scoring itself.
 At most 120 words. First person, plain sentences, facts-only -- no markdown, no bullet
 theater. What you looked at, what stood out (or didn't), and what you're proposing this fire
 if anything. This is read by a human skimming quickly, so lead with the one sentence that
-matters.
+matters. Quote at least one exact figure verbatim from the FACTS block (a day P&L, a fill count, a date) so a reader can find it in the ledgers; a sum you derived yourself is not a citation (company audit 2026-09-14: the brief cited numbers that matched nothing on disk).
 
 ## Output contract
 
