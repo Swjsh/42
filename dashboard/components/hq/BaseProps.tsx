@@ -2,10 +2,27 @@
 
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
+import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import { PALETTE, lerp } from "./palette";
 import { KIT_PATHS, KitProp } from "./SetKit";
 import { minClearRadius } from "./layout";
+
+// ─── W2 (2026-09-14, WORLD-6 builder): 3 reputable-source CC0 pieces --
+// self-contained model paths (same "own local path, not a new SetKit.tsx
+// KIT_PATHS entry" convention HubInterior.tsx/SmartBoard.tsx already use for
+// their own self-contained pieces) so this stays a zero-contention add on a
+// file SetKit.tsx doesn't own. Provenance + raw-bounds measurements (via
+// dashboard/scripts/glb_extents.mjs, this session) are recorded in
+// public/hq-assets/manifest.json's own `props` entries; see LICENSES.md's
+// "Update 2026-09-14 (WORLD-6 builder, W2 asset hunt)" for the full
+// candidates-opened-and-rejected disclosure.
+const SHUTTLE_PATH = "/hq-assets/polypizza-quaternius/shuttle.glb";
+const SCIFI_COMPUTER_PATH = "/hq-assets/polypizza-quaternius/scifi-computer.glb";
+const PIPES_PANEL_PATH = "/hq-assets/polypizza-quaternius/pipes-panel.glb";
+useGLTF.preload(SHUTTLE_PATH, false);
+useGLTF.preload(SCIFI_COMPUTER_PATH, false);
+useGLTF.preload(PIPES_PANEL_PATH, false);
 
 // ─── E3, World-3 environment pass (2026-09-14, J: "grey abyss... space theme
 // or a park or something real") ─────────────────────────────────────────────
@@ -143,6 +160,91 @@ function LandingPad({ dayFactor }: { dayFactor: number }) {
   );
 }
 
+// ─── Shuttle -- W2 (2026-09-14): "a shuttle parked on the landing pad" per
+// the task's own suggested category, real CC0 GLB (Quaternius, via
+// poly.pizza's own static CDN -- see this file's own top-of-file comment).
+// Parked, static -- no motion (HQ face rule: this piece has no event source
+// to animate off, matching Rover's own reasoning directly below). Sits at
+// the EXACT same position LandingPad places its own disc at (polar(270,27),
+// duplicated rather than threaded as a prop -- LandingPad's own `pos` is a
+// local const, not exported, same "tiny local duplication over cross-file
+// coupling" convention this file already uses for outdoorLampFactor). ──────
+const SHUTTLE_SCALE = 0.55;
+// rawBounds (glb_extents.mjs, this session): 10.382w x 1.859h x 9.209d,
+// floor Y=-0.145 -- the model's own lowest vertex sits BELOW its local
+// origin (an authoring quirk, not a bug in this file), so a flush landing
+// needs +0.145*scale of Y correction or the hull clips into the pad disc.
+const SHUTTLE_FLOOR_CORRECTION = 0.145 * SHUTTLE_SCALE;
+
+function Shuttle({ dayFactor }: { dayFactor: number }) {
+  const pos = polar(270, 27);
+  const lampFactor = outdoorLampFactor(dayFactor);
+  return (
+    <>
+      <KitProp
+        path={SHUTTLE_PATH}
+        scale={SHUTTLE_SCALE}
+        position={[pos[0], SHUTTLE_FLOOR_CORRECTION, pos[2]]}
+        rotation={[0, _deg(35), 0]}
+        castShadow
+        receiveShadow
+      />
+      {/* W3: contact glow, reads as the shuttle's own landing lights washing
+          the pad under it. */}
+      <GroundGlow position={pos} radius={3.4} color={PALETTE.warmAccent} opacity={0.06 * lampFactor} />
+    </>
+  );
+}
+
+// ─── Server annex -- W2 (2026-09-14): "sci-fi consoles/servers" per the
+// task's own suggested category. Originally scoped for the hub's own
+// "second wall" (the task brief's literal suggestion); relocated here
+// instead after checking the actual geometry -- every open radius on the
+// hub's brain-wall segment either collides with Gamma's own desk (radius
+// 3.4, angle ~61deg -- not this builder's file to move) or repeats the
+// EXACT radius-6.8-is-invisible-from-the-default-camera failure
+// layout.ts#computeBrainWallMount's own header already documents (and fixed
+// once, for the smart board, by pulling it in to radius 4.9); the hub's
+// other 3 wall segments are live persona-desk territory other builders are
+// concurrently editing this session. An exterior cluster, using the SAME
+// minClearRadius safety math every other azimuth-placed piece in this file
+// already uses, is the zero-contention choice. ONE scifi-computer.glb plus
+// one pipes-panel.glb greeble behind it -- was 2 console instances at first
+// draft (a "small server bank" read), cut to 1 after a coordinator draw-
+// call-budget flag (2026-09-14 ~19:2x ET, real capture
+// hq-20260914-1725.png: 1093/1100 calls): scifi-computer.glb has 5
+// primitives (glb_extents.mjs's own JSON-chunk inspection this session), so
+// the 2nd instance alone cost 5 draw calls for a repeated prop. ───────────
+const SERVER_ANNEX_AZIMUTH = 320; // clear gap between the nearest pipe (285deg) and the antenna mast (340deg)
+
+function ServerAnnex({ dayFactor }: { dayFactor: number }) {
+  const lampFactor = outdoorLampFactor(dayFactor);
+  const emissive = useMemo(() => ({ color: PALETTE.warmAccent, intensity: 0.4 * lampFactor }), [lampFactor]);
+  const radius = minClearRadius(_deg(SERVER_ANNEX_AZIMUTH), 1.5);
+  const base = polar(SERVER_ANNEX_AZIMUTH, radius);
+  return (
+    <group position={base} rotation={[0, _deg(SERVER_ANNEX_AZIMUTH + 180), 0]}>
+      {/* Scifi Computer -- rawBounds 0.580w x 2.079h x 0.644d, floor Y~=0
+          (flush, no correction needed), tinted amber to match this file's
+          own outdoor-beacon accent. */}
+      <KitProp
+        path={SCIFI_COMPUTER_PATH} scale={0.85} position={[0, 0, 0]}
+        tint={PALETTE.warmAccent} tintStrength={0.12} emissive={emissive} castShadow receiveShadow
+      />
+      {/* Pipes Panel -- rawBounds 0.514w x 1.585h x 0.093d, origin at
+          VERTICAL CENTER (min/max Y = -0.792/+0.792 -- a wall-mount panel
+          authored around its own middle, not its base): position.y below is
+          the panel's own MIDDLE height, not a floor offset. */}
+      <KitProp
+        path={PIPES_PANEL_PATH} scale={0.9} position={[0, 0.71, -0.32]}
+        tint={PALETTE.warmAccent} tintStrength={0.12} emissive={emissive} castShadow receiveShadow
+      />
+      {/* W3: contact glow under the console. */}
+      <GroundGlow position={[0, 0, 0]} radius={0.9} color={PALETTE.warmAccent} opacity={0.08 * lampFactor} />
+    </group>
+  );
+}
+
 // ─── Rover -- parked, static (no motion: J's own HQ face rule -- "motion =
 // events with a ticker", this rover has no event source, so it never moves). ─
 function Rover() {
@@ -210,6 +312,46 @@ function PipesAlongEdge() {
   );
 }
 
+// ─── W3 (2026-09-14): static additive light cone -- "raise the look without
+// ambient motion" (this pass's own 2-technique budget). ConeGeometry's own
+// default orientation (apex at local +height/2, base at local -height/2,
+// verified against three.js's own source this session, not assumed) already
+// points the WIDE end down when centered with its apex at the fixture and
+// base at the ground -- no rotation needed. Deliberately faint (opacity
+// capped low, additive, depthWrite=false) so it reads as a soft volumetric
+// hint, never a solid visible cone shape; scales with the SAME
+// outdoorLampFactor(dayFactor) curve the fixture's own emissive intensity
+// already uses, so the cone is a DATA readout (real light state), not a
+// decorative loop -- zero useFrame, built once per dayFactor change. ───────
+function LightCone({ apexY, radius, color, opacity }: { apexY: number; radius: number; color: string; opacity: number }) {
+  if (opacity <= 0.002) return null; // fully faded (bright daylight) -- skip the draw call entirely
+  return (
+    <mesh position={[0, apexY / 2, 0]} raycast={() => null}>
+      <coneGeometry args={[radius, apexY, 14, 1, true]} />
+      <meshBasicMaterial
+        color={color} transparent opacity={opacity} side={THREE.DoubleSide}
+        depthWrite={false} toneMapped={false} blending={THREE.AdditiveBlending}
+      />
+    </mesh>
+  );
+}
+
+/** W3, second technique -- a flat additive "contact glow" disc flush on the
+ * ground under a hero prop, selling "this is a real, lit object sitting
+ * here" (a cheap, static stand-in for real contact-shadow/bounce lighting --
+ * this scene's own standing cost discipline rules out a real light per prop,
+ * see PerimeterLights' own comment). Zero motion, day/night-aware via the
+ * same lampFactor every other outdoor glow in this file already uses. */
+function GroundGlow({ position, radius, color, opacity }: { position: [number, number, number]; radius: number; color: string; opacity: number }) {
+  if (opacity <= 0.002) return null;
+  return (
+    <mesh position={[position[0], position[1] + 0.015, position[2]]} rotation={[-Math.PI / 2, 0, 0]} raycast={() => null}>
+      <circleGeometry args={[radius, 24]} />
+      <meshBasicMaterial color={color} transparent opacity={opacity} depthWrite={false} toneMapped={false} blending={THREE.AdditiveBlending} />
+    </mesh>
+  );
+}
+
 // ─── Perimeter lights -- 8 posts (procedural cylinder) + a real kaykit
 // `lights.gltf` head each, per task spec ("base perimeter lights (kaykit
 // lights) at ~8 posts"). Emissive-only, like SetKit.tsx#CeilingLight -- "no
@@ -235,6 +377,7 @@ function PerimeterLights({ dayFactor }: { dayFactor: number }) {
             <meshStandardMaterial color={PALETTE.deskDark} roughness={0.7} metalness={0.3} />
           </mesh>
           <KitProp path={KIT_PATHS.lights} scale={0.9} position={[0, 1.85, 0]} rotation={[Math.PI, 0, 0]} emissive={emissive} />
+          <LightCone apexY={1.75} radius={0.6} color={PALETTE.warmAccent} opacity={0.1 * lampFactor} />
         </group>
       ))}
     </>
@@ -306,6 +449,10 @@ export default function BaseProps({ ultra, dayFactor, reducedMotion }: BaseProps
           <ContainersAndBarrels />
           <PipesAlongEdge />
           <PerimeterLights dayFactor={dayFactor} />
+          {/* W2 (2026-09-14): shuttle on the landing pad + exterior server
+              annex -- see each component's own header comment. */}
+          <Shuttle dayFactor={dayFactor} />
+          <ServerAnnex dayFactor={dayFactor} />
         </>
       )}
     </>
