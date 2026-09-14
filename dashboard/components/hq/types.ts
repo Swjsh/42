@@ -1,8 +1,8 @@
 import type { StationIdeaCard, StationPresence, StationFace } from "@/lib/station";
-import type { SectorRow, TvPerfRow, BlockedItem, TradingStatus, CoreDecisionRow } from "@/lib/hq";
+import type { SectorRow, TvPerfRow, BlockedItem, TradingStatus, CoreDecisionRow, CrewEvent } from "@/lib/hq";
 import type { PersonaState, Handoff } from "@/lib/personas";
 
-export type { SectorRow, BlockedItem, PersonaState, Handoff, TradingStatus, CoreDecisionRow };
+export type { SectorRow, BlockedItem, PersonaState, Handoff, TradingStatus, CoreDecisionRow, CrewEvent };
 
 export interface HqBrainVitals {
   model: string | null;
@@ -98,6 +98,9 @@ export interface HqApiResponse {
    * strip source data -- see lib/hq.ts#readTradingStatus for the fail-open
    * contract per underlying file. */
   trading: TradingStatus;
+  // CREW-2 (roster) -- additive field, see lib/hq.ts#readCrewEvents. May be
+  // [] before CREW-RIG's crew-events.jsonl producer lands -- never fabricated.
+  crewEvents: CrewEvent[];
 }
 
 /** One module's derived (not server-sent) presentation state -- computed

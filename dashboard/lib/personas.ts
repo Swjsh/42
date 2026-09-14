@@ -10,6 +10,12 @@
 import { promises as fs } from "fs";
 import path from "path";
 import { execSync } from "child_process";
+// CREW-2 (2026-09-14): reused rather than re-derived -- lib/useMotionEvents.ts
+// already sets the precedent for a lib/ file importing pure helpers from
+// components/hq/palette.ts (zero risk of circularity: palette.ts's only
+// import is "three"). Real market-hours math must stay ONE source of truth
+// project-wide (CLAUDE.md's own standing TZ lesson).
+import { isRegularTradingHours, nowEtDayOfWeek, nowEtMinutes } from "@/components/hq/palette";
 
 const ROOT = path.join(process.cwd(), "..");
 
@@ -120,6 +126,69 @@ function etLikeToIso(raw: string): string | null {
   return new Date(Date.UTC(y, mo - 1, d, h + 4, mi, s)).toISOString();
 }
 
+// ─── CREW-2 R4 helpers (2026-09-14): quietReason generation. Kept local to
+//     this file (not imported from components/hq/palette.ts, even though
+//     lib/useMotionEvents.ts sets a precedent for lib->components/hq
+//     imports) because etHHMM below needs a DIFFERENT contract than
+//     palette.ts's hhmmFromEtIso -- this one converts a genuine UTC ISO
+//     string (fs mtimes, Date#toISOString(), this file's own etLikeToIso()
+//     output) through a REAL timezone conversion, where hhmmFromEtIso just
+//     regexes ET wall-clock digits already embedded in a ts_et-style
+//     string. Two different jobs, not a duplicate. ─────────────────────────
+
+/** Real UTC ISO string -> "HH:MM" in America/New_York. Null in (or
+ * unparsable) -> null out, never "??:??" baked into a sentence. */
+function etHHMM(iso: string | null): string | null {
+  if (!iso) return null;
+  const t = Date.parse(iso);
+  if (Number.isNaN(t)) return null;
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York", hour: "2-digit", minute: "2-digit", hour12: false,
+  }).formatToParts(new Date(t));
+  const hh = parts.find((p) => p.type === "hour")?.value;
+  const mm = parts.find((p) => p.type === "minute")?.value;
+  return hh && mm ? `${hh}:${mm}` : null;
+}
+
+/** One line, collapsed whitespace, <=max chars -- local copy of palette.ts's
+ * truncateOneLine (that one returns "no output yet" for empty input, which
+ * is the wrong fallback for the short evidence fragments this file embeds
+ * mid-sentence, e.g. a lane's `evidence` string inside a quietReason). */
+function truncFor(text: string, max: number): string {
+  const flat = text.replace(/\s+/g, " ").trim();
+  return flat.length > max ? `${flat.slice(0, max - 1)}…` : flat;
+}
+
+/** "+$1,237" / "-$412" / "n/a" -- station-verdicts.jsonl's effect_pre/
+ * effect_post are cents-precision floats; a roster line needs the headline
+ * whole-dollar number, signed, thousands-separated. Null/NaN -> "n/a"
+ * (never a fabricated "+$0"). */
+function fmtSignedDollar(v: number | null | undefined): string {
+  if (v === null || v === undefined || Number.isNaN(v)) return "n/a";
+  const rounded = Math.round(v);
+  const sign = rounded >= 0 ? "+" : "-";
+  return `${sign}$${Math.abs(rounded).toLocaleString("en-US")}`;
+}
+
+/** One crew-events.jsonl row (automation/state/station/crew-events.jsonl,
+ * a NEW producer another builder -- CREW-RIG -- lands alongside this pass;
+ * schema per that builder's own spec: {ts_et, who, kind, line, ref, to?},
+ * capped 500 rows). Kept as a local, narrower type here rather than
+ * importing one from lib/hq.ts's shared reader, since this file only ever
+ * needs 4 fields off it. */
+interface CrewEventLite { ts_et: string; who: string; kind: string; line: string; ref?: string; to?: string }
+
+/** The last `n` crew-events.jsonl rows for one persona, oldest-first within
+ * that slice. Reads a 200-row tail of the (≤500-row) file and filters
+ * client-side rather than a second file format -- this file has no other
+ * per-persona index. Fail-open to [] via readJsonlTail's own try/catch: a
+ * file that doesn't exist yet (CREW-RIG hasn't landed it) is a normal
+ * not-there-yet state, not an error. */
+async function readCrewEventsFor(personaName: string, n = 3): Promise<CrewEventLite[]> {
+  const rows = await readJsonlTail<CrewEventLite>(path.join(ROOT, "automation/state/station/crew-events.jsonl"), 200);
+  return rows.filter((r) => r?.who === personaName).slice(-n);
+}
+
 export interface PersonaState {
   name: string;
   emoji: string;
@@ -134,6 +203,15 @@ export interface PersonaState {
   logTail: Array<Record<string, unknown>>;
   recentOutput: string | null;
   guardrailsDeniedTools: string[];
+  /** CREW-2 R4 (2026-09-14): why is this persona quiet RIGHT NOW, in one
+   * sentence a viewer can act on -- null means genuinely current (status
+   * GREEN, nothing to explain). Non-null strings follow a prefix convention
+   * the HUD's pill derivation (lib/crew.ts) matches on: "no producer for "
+   * -> GHOST, "yields " -> YIELDING, anything else (an overdue-vs-cadence
+   * or "Gamma_X DISABLED" message) -> WAITING. Never a bare status dot --
+   * see CLAUDE.md HQ FACE RULES ("needs-J = decisions only" is a different
+   * rule; this is "never show a color with no reason"). */
+  quietReason: string | null;
 }
 
 export interface Handoff {
@@ -180,6 +258,14 @@ export async function collectScout(): Promise<PersonaState> {
   const preview = data
     ? `regime=${(data.risk_regime_call as { verdict?: string })?.verdict || "?"} | ${(data.scout_one_line_summary as string) || ""}`
     : null;
+  const status: PersonaState["status"] = lastFire && ageMin !== null && ageMin < 24 * 60 ? "GREEN" : "IDLE";
+  // R4 quietReason: Scout is a once-a-day fire -- "IDLE" here just means
+  // more than 24h since its last real output, not a fault by itself.
+  const quietReason: PersonaState["quietReason"] = status === "GREEN"
+    ? null
+    : lastFire
+      ? `expected daily 05:30 ET via Gamma_ScoutPremarket, last fired ${etHHMM(lastFire) ?? "?"} ET (${Math.round((ageMin ?? 0) / 60)}h ago)`
+      : "no producer for automation/scout/state/scout_output.json yet";
   return {
     name: "Scout",
     emoji: "🌍",
@@ -187,40 +273,105 @@ export async function collectScout(): Promise<PersonaState> {
     role: "pre-market macro / news / catalysts",
     soulFile: ".claude/agents/scout.md",
     schedule: "daily 05:30 ET",
-    status: lastFire && ageMin !== null && ageMin < 24 * 60 ? "GREEN" : "IDLE",
+    status,
     lastFireISO: lastFire,
     lastFireResult: (last?.risk_regime as string) || "n/a",
     deliverable: { path: "automation/scout/state/scout_output.json", exists: !!data, mtimeISO: mt, ageMin },
     logTail,
     recentOutput: preview,
+    quietReason,
     guardrailsDeniedTools: ["mcp__alpaca__place_*", "production doctrine edits"],
   };
 }
 
+/** One row of automation/state/station/sectors.json's own `rows` array --
+ * mirrors setup/scripts/sector_rows.py's build_sector_rows() dict shape
+ * (same fields lib/hq.ts's SectorRow type already names for the OTHER
+ * reader of the SAME builder, sector_rows.py --json; sectors.json is a
+ * different producer -- CREW-RIG's per-fire snapshot -- so this file keeps
+ * its own narrow copy rather than importing lib/hq.ts's type for 2 fields). */
+interface SectorsFileRow { lane: string; state: string; last_evidence_et: string; evidence: string; health: string }
+interface SectorsFile {
+  ts_et?: string;
+  rows?: SectorsFileRow[];
+  summary_line?: string;
+  task_health?: { disabled?: string[]; failed_last_run?: string[]; total?: number };
+}
+
+/** Coach re-point (CREW-2, 2026-09-14): Coach's real job moved off the
+ * crypto-gym (crypto/data/scorecards/*, whose tasks are parked -- see this
+ * pass's own CLAUDE.md-adjacent brief) onto the Station's sectors table,
+ * which fires every 30 min, 24/7, $0, including the RTH window where the
+ * LLM half of the loop yields (setup/scripts/sector_rows.py build_sector_
+ * rows() via station_facts.py). The producer (CREW-RIG, a parallel builder
+ * this same pass) may not have landed automation/state/station/sectors.json
+ * yet -- that is an honest WAITING state, not an error, and is rendered as
+ * one rather than faking a row. */
 export async function collectCoach(): Promise<PersonaState> {
-  const log = path.join(ROOT, "crypto/data/scorecards/coach-log.jsonl");
-  const drift = path.join(ROOT, "crypto/data/scorecards/drift_report.json");
-  const mt = await mtimeISO(drift);
+  const sectorsPath = path.join(ROOT, "automation/state/station/sectors.json");
+  const role = "sectors + rig health: one per-lane table with evidence timestamps every fire; RED lanes and dark tasks become cards";
+  const schedule = "every 30 min via the Station loop (sector_rows.py build_sector_rows, station_facts.py)";
+  const [data, crewEvents] = await Promise.all([
+    readJson<SectorsFile>(sectorsPath),
+    readCrewEventsFor("Coach"),
+  ]);
+
+  if (!data || !Array.isArray(data.rows)) {
+    const waitMsg = "sectors.json not written yet — CREW-RIG builder landing it";
+    const crewLast = crewEvents[crewEvents.length - 1] ?? null;
+    return {
+      name: "Coach",
+      emoji: "🏋️",
+      color: "#22c55e",
+      role,
+      soulFile: ".claude/agents/coach.md",
+      schedule,
+      status: "IDLE",
+      lastFireISO: crewLast ? etLikeToIso(crewLast.ts_et) : null,
+      lastFireResult: waitMsg,
+      deliverable: { path: "automation/state/station/sectors.json", exists: false, mtimeISO: null, ageMin: null },
+      logTail: [],
+      recentOutput: crewLast ? crewLast.line : waitMsg,
+      quietReason: `no producer for automation/state/station/sectors.json yet — CREW-RIG builder landing it`,
+      guardrailsDeniedTools: ["mcp__alpaca__place_*"],
+    };
+  }
+
+  const mt = data.ts_et ? etLikeToIso(data.ts_et) : null;
   const ageMin = mt ? (Date.now() - new Date(mt).getTime()) / 60000 : null;
-  const logTail = await readJsonlTail<Record<string, unknown>>(log, 3);
-  const last = logTail[logTail.length - 1];
-  const data = await readJson<{ overall_health?: string; consecutive_fail_streak?: number }>(drift);
-  const status: PersonaState["status"] = data?.overall_health === "GREEN"
-    ? "GREEN"
-    : data?.overall_health === "RED" ? "RED" : "YELLOW";
+  const rows = data.rows;
+  const redLane = rows.find((r) => r.health === "red") ?? null;
+  const anyWarn = rows.some((r) => r.health === "amber" || r.health === "frozen" || r.health === "zombie");
+  const stale = ageMin === null || ageMin > 45;
+  const status: PersonaState["status"] = redLane ? "RED" : anyWarn || stale ? "YELLOW" : "GREEN";
+  const firstDisabled = data.task_health?.disabled?.[0] ?? null;
+
+  let quietReason: PersonaState["quietReason"] = null;
+  if (status !== "GREEN") {
+    if (redLane) quietReason = `${redLane.lane} is RED — ${truncFor(redLane.evidence, 80)}`;
+    else if (firstDisabled) quietReason = `${firstDisabled} DISABLED`;
+    else if (stale) quietReason = `expected every 30 min via the Station loop, last evidence ${etHHMM(mt) ?? "?"} ET`;
+    else quietReason = `a lane needs attention — ${truncFor(data.summary_line ?? "see sectors table", 80)}`;
+  }
+
+  const crewLast = crewEvents[crewEvents.length - 1] ?? null;
+  const crewLastIso = crewLast ? etLikeToIso(crewLast.ts_et) : null;
+  const useCrewEvent = !!crewLastIso && (!mt || crewLastIso > mt);
+
   return {
     name: "Coach",
     emoji: "🏋️",
     color: "#22c55e",
-    role: "gym / harness / scheduled-tasks supervisor",
+    role,
     soulFile: ".claude/agents/coach.md",
-    schedule: "every 30 min via Gamma_CryptoRegression + daily 06:00 via Gamma_CryptoDaily",
+    schedule,
     status,
-    lastFireISO: (last?.ts as string) || mt,
-    lastFireResult: (last?.verdict as string) || data?.overall_health || "n/a",
-    deliverable: { path: "crypto/data/scorecards/drift_report.json", exists: !!data, mtimeISO: mt, ageMin },
-    logTail,
-    recentOutput: data ? `health=${data.overall_health} streak=${data.consecutive_fail_streak}` : null,
+    lastFireISO: useCrewEvent ? crewLastIso : mt,
+    lastFireResult: data.summary_line || `${rows.length} lane(s) tracked`,
+    deliverable: { path: "automation/state/station/sectors.json", exists: true, mtimeISO: mt, ageMin },
+    logTail: rows as unknown as Array<Record<string, unknown>>,
+    recentOutput: useCrewEvent ? crewLast!.line : (data.summary_line ?? null),
+    quietReason,
     guardrailsDeniedTools: ["mcp__alpaca__place_*"],
   };
 }
@@ -239,6 +390,15 @@ export async function collectPilot(): Promise<PersonaState> {
   const loop = await readJson<Record<string, unknown>>(loopState);
   const lastFire = (tail[tail.length - 1]?.fire_at as string) || mt;
   const status: PersonaState["status"] = ageMin !== null && ageMin < 10 ? "GREEN" : "IDLE";
+  // R4 quietReason: Pilot's OWN schedule is RTH-only (Rule 5's per-account
+  // hours) -- most of a 24h day it is correctly, deliberately idle. Only
+  // flag it when it's quiet DURING the window it's supposed to be ticking.
+  const rth = isRegularTradingHours(nowEtMinutes(), nowEtDayOfWeek());
+  const quietReason: PersonaState["quietReason"] = status === "GREEN"
+    ? null
+    : !rth
+      ? "yields 09:30-15:55 ET (RTH) — Gamma_HeartbeatCore only ticks during market hours"
+      : `expected every ~1-3 min during RTH, last decision ${etHHMM(lastFire) ?? "?"} ET — check Gamma_HeartbeatCore`;
   return {
     name: "Pilot",
     emoji: "✈️",
@@ -252,6 +412,7 @@ export async function collectPilot(): Promise<PersonaState> {
     deliverable: { path: "automation/state/loop-state.json", exists: !!loop, mtimeISO: mt, ageMin },
     logTail: tail,
     recentOutput: loop ? `spy=${(loop.spy as { last?: number })?.last ?? "?"} last_bar=${(loop.last_bar_timestamp as number) || "?"}` : null,
+    quietReason,
     guardrailsDeniedTools: ["doctrine edits — Pilot reads heartbeat.md, cannot modify it"],
   };
 }
@@ -266,6 +427,13 @@ export async function collectAnalyst(): Promise<PersonaState> {
   const last = logTail[logTail.length - 1];
   const exists = await fileExists(digest);
   const preview = exists ? (await readText(digest, 800))?.split("\n").slice(0, 12).join("\n") || null : null;
+  const lastFireISO = (last?.fired_at as string) || mt;
+  // R4 quietReason: Analyst is a once-a-weekday fire -- no digest for
+  // TODAY just means its 16:45 ET window hasn't produced one yet, not that
+  // Analyst has never worked (a prior day's digest, if any, is named).
+  const quietReason: PersonaState["quietReason"] = exists
+    ? null
+    : `expected 16:45 ET weekdays via Gamma_AnalystEodReview${lastFireISO ? `, last digest ${etHHMM(lastFireISO) ?? "?"} ET on a prior day` : " — no digest on file yet"}`;
   return {
     name: "Analyst",
     emoji: "🔬",
@@ -274,44 +442,86 @@ export async function collectAnalyst(): Promise<PersonaState> {
     soulFile: ".claude/agents/analyst.md",
     schedule: "weekdays 16:45 ET via Gamma_AnalystEodReview",
     status: exists ? "GREEN" : "IDLE",
-    lastFireISO: (last?.fired_at as string) || mt,
+    lastFireISO,
     lastFireResult: last ? `${(last.trades_audited as number) ?? "?"} trades, ${(last.rule_breaks as number) ?? "?"} breaks, ${(last.chef_inbox_added as number) ?? "?"} queued` : "no fires yet",
     deliverable: { path: `analysis/eod/${today}.md`, exists, mtimeISO: mt, ageMin },
     logTail,
     recentOutput: preview,
+    quietReason,
     guardrailsDeniedTools: ["mcp__alpaca__place_*", "production doctrine edits", "journal/trades.csv writes (read-only)"],
   };
 }
 
+/** One tail row of analysis/recommendations/station-verdicts.jsonl -- real
+ * shape verified against the live file this session (card_id + spec +
+ * result.{n_pre,n_post,effect_pre,effect_post,verdict,detail}). */
+interface StationVerdictRow {
+  ts_et?: string;
+  card_id?: string;
+  result?: { n_pre?: number; n_post?: number; effect_pre?: number; effect_post?: number; verdict?: string; detail?: string };
+}
+interface IdeaBoardCardLite { id?: string; title?: string; status?: string }
+
+/** Chef re-point (CREW-2, 2026-09-14): Chef's OLD deliverable
+ * (strategy/candidates/_LEADERBOARD.md, fed by the retired conductor-era
+ * flow) has no live producer any more. Chef's REAL work is now the idea-
+ * loop scorer -- every board card in automation/state/station/ideas-
+ * board.json gets a runnable test via setup/scripts/hypothesis_scorer.py
+ * (station_loop.py's score_testing_cards()), which fires every ~30 min
+ * through the Station loop, $0, including RTH. This reads the verdicts
+ * ledger it writes and joins card_id -> title against the ideas board. */
 export async function collectChef(): Promise<PersonaState> {
-  const log = path.join(ROOT, "strategy/candidates/_chef-log.jsonl");
-  const leaderboard = path.join(ROOT, "strategy/candidates/_LEADERBOARD.md");
-  const mt = await mtimeISO(leaderboard);
+  const verdictsPath = path.join(ROOT, "analysis/recommendations/station-verdicts.jsonl");
+  const ideasPath = path.join(ROOT, "automation/state/station/ideas-board.json");
+  const role = "idea-loop owner: every board card gets a runnable test and a verdict from data";
+  const schedule = "every ~30 min via the Station loop (score_testing_cards, hypothesis_scorer.py)";
+
+  const [verdictTail, ideas, crewEvents] = await Promise.all([
+    readJsonlTail<StationVerdictRow>(verdictsPath, 5),
+    readJson<IdeaBoardCardLite[]>(ideasPath),
+    readCrewEventsFor("Chef"),
+  ]);
+
+  const last = verdictTail[verdictTail.length - 1];
+  const mt = last?.ts_et ? etLikeToIso(last.ts_et) : null;
   const ageMin = mt ? (Date.now() - new Date(mt).getTime()) / 60000 : null;
-  const logTail = await readJsonlTail<Record<string, unknown>>(log, 3);
-  const last = logTail[logTail.length - 1];
-  const preview = await readText(leaderboard, 800);
-  // Roster-truth fix (2026-09-13): _chef-log.jsonl's own `started_at` field
-  // is "YYYY-MM-DDTHH:MM:SS ET" -- NOT valid ISO-8601 (Date.parse returns
-  // NaN on the trailing " ET"), so `lastFireISO` silently became that
-  // unparseable string, and every downstream age/roster read it as "never
-  // fired" even though a real leaderboard existed. J's own mapping table
-  // says "Chef = latest strategy/candidates CHANGE" -- i.e. the file's own
-  // mtime IS the intended evidence, not the log row -- so use it directly
-  // rather than trying to reformat the log's ambiguous string.
+  const fresh = ageMin !== null && ageMin < 45;
+  const status: PersonaState["status"] = !last ? "IDLE" : fresh ? "GREEN" : ageMin !== null && ageMin < 24 * 60 ? "YELLOW" : "IDLE";
+
+  let nowLine: string | null = null;
+  if (last) {
+    const card = (ideas ?? []).find((c) => c.id === last.card_id) ?? null;
+    const title = card?.title ?? last.card_id ?? "unknown card";
+    const nPost = last.result?.n_post ?? null;
+    const minNMatch = last.result?.detail ? /min_n=(\d+)/.exec(last.result.detail) : null;
+    const minN = minNMatch ? Number(minNMatch[1]) : 10;
+    nowLine = `scoring "${truncFor(title, 42)}" · n_post ${nPost ?? "?"}/${minN} · pre ${fmtSignedDollar(last.result?.effect_pre)}`;
+  }
+
+  const quietReason: PersonaState["quietReason"] = fresh
+    ? null
+    : !last
+      ? "no producer for analysis/recommendations/station-verdicts.jsonl yet"
+      : `expected every ~30 min via the Station loop, last verdict ${etHHMM(mt) ?? "?"} ET`;
+
+  const crewLast = crewEvents[crewEvents.length - 1] ?? null;
+  const crewLastIso = crewLast ? etLikeToIso(crewLast.ts_et) : null;
+  const useCrewEvent = !!crewLastIso && (!mt || crewLastIso > mt);
+
   return {
     name: "Chef",
     emoji: "👨‍🍳",
     color: "#f97316",
-    role: "strategy R&D — backtest, knob tune, candidate rank",
+    role,
     soulFile: ".claude/agents/chef.md",
-    schedule: "overnight wake fires on @chef-tagged queue tasks + /chef manual",
-    status: last ? "GREEN" : "IDLE",
-    lastFireISO: mt,
-    lastFireResult: last ? `${(last.work_item as string) || "?"} → ${(last.verdict as string) || "?"} (${(last.confidence as number) ?? "?"}/10)` : "no fires yet",
-    deliverable: { path: "strategy/candidates/_LEADERBOARD.md", exists: !!preview, mtimeISO: mt, ageMin },
-    logTail,
-    recentOutput: preview?.split("\n").slice(0, 14).join("\n") || null,
+    schedule,
+    status,
+    lastFireISO: useCrewEvent ? crewLastIso : mt,
+    lastFireResult: last ? `${last.result?.verdict ?? "pending"} n_pre=${last.result?.n_pre ?? "?"} n_post=${last.result?.n_post ?? "?"}` : "no fires yet",
+    deliverable: { path: "analysis/recommendations/station-verdicts.jsonl", exists: !!last, mtimeISO: mt, ageMin },
+    logTail: verdictTail as unknown as Array<Record<string, unknown>>,
+    recentOutput: useCrewEvent ? crewLast!.line : nowLine,
+    quietReason,
     guardrailsDeniedTools: ["mcp__alpaca__place_*", "production doctrine edits", "params*.json edits"],
   };
 }
@@ -324,6 +534,15 @@ export async function collectTreasurer(): Promise<PersonaState> {
   const logTail = await readJsonlTail<Record<string, unknown>>(log, 3);
   const last = logTail[logTail.length - 1];
   const preview = await readText(drafts, 800);
+  const status: PersonaState["status"] = last ? "GREEN" : "IDLE";
+  // R4 quietReason: Treasurer's whole job is Sunday-only -- being quiet
+  // Mon-Sat is correct scheduled behavior (YIELDING), not a fault; only a
+  // missing Sunday review is actually overdue (WAITING).
+  const quietReason: PersonaState["quietReason"] = status === "GREEN"
+    ? null
+    : nowEtDayOfWeek() === 0
+      ? "expected Sundays 16:00 ET via Gamma_TreasurerWeekly, no review yet today"
+      : "yields Mon-Sat — weekly review fires Sundays 16:00 ET via Gamma_TreasurerWeekly";
   return {
     name: "Treasurer",
     emoji: "💰",
@@ -331,12 +550,13 @@ export async function collectTreasurer(): Promise<PersonaState> {
     role: "risk + money management auditor",
     soulFile: ".claude/agents/treasurer.md",
     schedule: "Sundays 16:00 ET via Gamma_TreasurerWeekly",
-    status: last ? "GREEN" : "IDLE",
+    status,
     lastFireISO: (last?.fired_at as string) || mt,
     lastFireResult: last ? `${(last.verdict as string) || "?"} Safe=$${(last.safe_equity as number) ?? "?"} Bold=$${(last.bold_equity as number) ?? "?"}` : "no fires yet",
     deliverable: { path: "analysis/treasury/draft-params-changes.md", exists: !!preview, mtimeISO: mt, ageMin },
     logTail,
     recentOutput: preview?.split("\n").slice(0, 14).join("\n") || null,
+    quietReason,
     guardrailsDeniedTools: ["mcp__alpaca__place_*", "params*.json edits (DRAFT only)"],
   };
 }
@@ -376,6 +596,17 @@ export async function collectGammaManager(): Promise<PersonaState> {
       ? `${lastLedger.status}${lastLedger.reason ? " -- " + lastLedger.reason : ""}, cards_added=${lastLedger.cards_added ?? 0}`
       : null;
 
+  // R4 quietReason: "yielded" is Gamma's OWN Station loop deliberately
+  // skipping a fire (GPU busy / RTH / gaming mode etc, per its ledger's own
+  // `reason` field) -- that's the YIELDING case, not an error. "error" is a
+  // genuine fault (RED). No ledger row at all is a true ghost.
+  const quietReason: PersonaState["quietReason"] = status === "GREEN"
+    ? null
+    : status === "RED"
+      ? `error${lastLedger?.reason ? ` — ${lastLedger.reason}` : ""} — check Gamma_Station`
+      : status === "YELLOW"
+        ? `yields${lastLedger?.reason ? ` — ${lastLedger.reason}` : ""}`
+        : "no producer for automation/state/station/loop-ledger.jsonl yet";
   return {
     name: "Gamma (Manager)",
     emoji: "🎩",
@@ -389,6 +620,7 @@ export async function collectGammaManager(): Promise<PersonaState> {
     deliverable: { path: "automation/state/station/loop-ledger.jsonl", exists: !!lastLedger, mtimeISO: lastFireISO, ageMin: lastFireISO ? (Date.now() - new Date(lastFireISO).getTime()) / 60000 : null },
     logTail: ledgerTail,
     recentOutput: lastFireResult,
+    quietReason,
     guardrailsDeniedTools: ["mcp__alpaca__place_*", "production doctrine edits"],
   };
 }

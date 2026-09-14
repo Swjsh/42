@@ -761,3 +761,56 @@ export async function readTradingStatus(): Promise<TradingStatus> {
   ]);
   return { readiness, core, bias, openBellPingedToday };
 }
+
+// CREW-2 (roster) -- automation/state/station/crew-events.jsonl : a NEW
+// producer (CREW-RIG, a parallel builder this same pass) writing one row
+// per persona action/handoff, capped 500 lines. Read-only mirror, additive
+// field on /api/hq (`crewEvents`) -- feeds Hud.tsx's R3 event feed AND
+// lib/personas.ts's Chef/Coach "last:" fallback (a persona's own crew-event
+// row, when fresher than its file deliverable). Fail-open: the file may not
+// exist yet (CREW-RIG hasn't landed it), which reads as [], never a throw.
+
+export interface CrewEvent {
+  ts_et: string;
+  who: string;
+  kind: string;
+  line: string;
+  ref?: string;
+  to?: string;
+}
+
+const CREW_EVENTS_READ_LIMIT = 100;
+
+/** Last `limit` rows of crew-events.jsonl, newest-last (same tail
+ * convention as every other jsonl reader in this codebase, e.g.
+ * lib/personas.ts#readJsonlTail) -- the caller reverses/slices as needed. */
+export async function readCrewEvents(limit = CREW_EVENTS_READ_LIMIT): Promise<CrewEvent[]> {
+  try {
+    const text = await fs.readFile(
+      path.join(WORKSPACE_ROOT, "automation", "state", "station", "crew-events.jsonl"),
+      "utf-8",
+    );
+    const lines = text.trim().split("\n").filter(Boolean).slice(-limit);
+    const rows: CrewEvent[] = [];
+    for (const line of lines) {
+      try {
+        const row = JSON.parse(line) as Record<string, unknown>;
+        if (typeof row.ts_et === "string" && typeof row.who === "string" && typeof row.line === "string") {
+          rows.push({
+            ts_et: row.ts_et,
+            who: row.who,
+            kind: typeof row.kind === "string" ? row.kind : "event",
+            line: row.line,
+            ref: typeof row.ref === "string" ? row.ref : undefined,
+            to: typeof row.to === "string" ? row.to : undefined,
+          });
+        }
+      } catch {
+        // one malformed line never blocks the rest
+      }
+    }
+    return rows;
+  } catch {
+    return [];
+  }
+}

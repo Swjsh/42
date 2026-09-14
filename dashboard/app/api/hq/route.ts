@@ -21,6 +21,7 @@ import {
   readBlocked,
   readCompanyAudit,
   readTradingStatus,
+  readCrewEvents,
 } from "@/lib/hq";
 import { collectCompany, type PersonaState, type Handoff } from "@/lib/personas";
 
@@ -79,6 +80,7 @@ export async function GET() {
     blocked,
     audit,
     trading,
+    crewEvents,
   ] = await Promise.all([
     readIdeasBoard(),
     readStationBrief(),
@@ -104,6 +106,10 @@ export async function GET() {
     // route already is server-side; see lib/hq.ts#readTradingStatus for
     // the fail-open contract per source file).
     readTradingStatus(),
+    // CREW-2 (roster) -- crew-events.jsonl, additive: feeds Hud.tsx's event
+    // feed (R3) and (via lib/personas.ts's own separate read) the roster's
+    // per-persona "last:" fallback. See lib/hq.ts#readCrewEvents.
+    readCrewEvents(),
   ]);
 
   const lastRow = ledger.length > 0 ? ledger[ledger.length - 1] : null;
@@ -143,6 +149,8 @@ export async function GET() {
       blocked,
       audit,
       trading,
+      // CREW-2 (roster) -- additive, see lib/hq.ts#readCrewEvents.
+      crewEvents,
     },
     { headers: { "Cache-Control": "no-store, max-age=0" } },
   );
