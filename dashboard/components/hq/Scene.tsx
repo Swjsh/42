@@ -29,7 +29,15 @@ import EffectsStack from "./EffectsStack";
 import GammaCharacter from "./GammaCharacter";
 import ActivityBubbleLayer, { type ActivityBubbleCandidate } from "./ActivityBubbleLayer";
 import { computePurposefulWalk, dayNightFactor, freshness01, healthColor, hhmmFromEtIso, isParkedState, isRegularTradingHours, lerp, localToWorld, minutesSinceEvidence, nowEtDayOfWeek, nowEtMinutes, PALETTE, personaStatusColor, rosterEvidenceText, scheduleOnShift, truncateOneLine, type ScreenLine } from "./palette";
-import { BAY_DESK_OFFSET_Z, BAY_HALF_DEPTH, BAY_SEAT_LOCAL, CHARACTER_SCALE, CHARACTER_TARGET_HEIGHT, CorridorRun, DeskCluster, HubRoom, HUB_WALL_RADIUS, Plaza } from "./SetKit";
+import { BAY_DESK_OFFSET_Z, BAY_SEAT_LOCAL, CHARACTER_SCALE, CHARACTER_TARGET_HEIGHT, CorridorRun, DeskCluster, HubRoom, HUB_WALL_RADIUS, Plaza, TJunction } from "./SetKit";
+// LAYOUT builder pass (2026-09-14, campus-cross rebuild): pure geometry/math
+// module (no React/Three deps) shared with SetKit.tsx -- see that module's
+// own header for why the dependency runs this direction only (layout.ts ->
+// SetKit.tsx's raw-kit constants), never the reverse.
+import {
+  ARM_HALF_WIDTH, ARM_LEN, armAngle, buildWalkGraph, computeAllBaySlots, computeArmLayout, computePersonaWallSlots,
+  findWalkPath, PLAZA_APRON, PLAZA_CENTER_RADIUS, type ArmLayout,
+} from "./layout";
 // World-2 coordinator review (2026-09-14, "GAMMA'S BUBBLE... must derive it
 // from the same truth as the panel"): the SAME pure function Hud.tsx's own
 // crew-panel "next:" line already uses for Gamma, reused here (not
@@ -51,17 +59,16 @@ interface SceneProps {
 }
 
 const HUB: [number, number, number] = [0, 0, 0];
-// Kit rebuild (2026-09-13, HQ-SCENE-PLAN.md): 9.8 -> 14. The hub is now a
-// real `room-large` shell (SetKit.tsx#HubRoom, radius 7.5) that must clear
-// PERSONA_RING_RADIUS (6.5, below) with margin, plus a ~4-unit corridor gap
-// (2 kit segments) to each bay's own room-small shell (radius 2.7) --
-// 7.5+4+2.7=14.2, rounded down slightly.
-const RING_RADIUS = 14;
-// World-2 item 3(a) (2026-09-14): the plaza floor plate (SetKit.tsx#Plaza)
-// covers the hub + every bay + the corridor gaps between them -- outer bay
-// edge sits at RING_RADIUS+BAY_HALF_DEPTH (~16.7), plus 1.5u of margin so
-// the plate's own edge lip doesn't clip through a bay's outer wall.
-const PLAZA_RADIUS = RING_RADIUS + BAY_HALF_DEPTH + 1.5;
+// LAYOUT builder pass (2026-09-14, campus-cross rebuild replacing the old
+// 8-way ring, J: "the doors... jumbled mess... space this out... it needs
+// to look real"). All bay/hallway/T-junction geometry now comes from
+// layout.ts (ARM_LEN/ARM_HALF_WIDTH/computeAllBaySlots/computeArmLayout) --
+// see that module's own header for the full root-cause + fix writeup and
+// the exact parsed kit dimensions it's built from. `ARMS` is a MODULE-level
+// constant (every input is compile-time-fixed, no dynamic data) rather than
+// a per-render useMemo -- the 4 main spines + T-junctions never change
+// shape, only the 8 bays (indexed by `rows`) carry live data.
+const ARMS: ArmLayout[] = [0, 1, 2, 3].map((k) => computeArmLayout(k));
 const WALL_POS: [number, number, number] = [0, 3.4, 0];
 const BASE_AZIMUTH = Math.atan2(16, 20);
 // World pass A (2026-09-13, first real screenshot -- gaming mode ended):
@@ -111,8 +118,19 @@ const CAMERA_HEIGHT = 7.5;
 // changing them here satisfies "make key 0 land there" by construction, not
 // a separate edit. Fly-to presets 1-7 (per-desk, computed independently in
 // `cameraPresets` below) are untouched.
-const CAMERA_DIST_ULTRA = 28;
-const CAMERA_HEIGHT_ULTRA = 19.6;
+// LAYOUT builder pass (2026-09-14, campus-cross rebuild): the old ring's
+// outer reach was ~16.7-18.2u (RING_RADIUS+BAY_HALF_DEPTH / old
+// PLAZA_RADIUS, both now removed); the new cross's own worst-case reach (a
+// bay's own far corner, ARM_LEN x ARM_HALF_WIDTH) is ~22.8u -- pulled back
+// proportionally (both distance and height scaled by the same ~1.14 ratio,
+// keeping the same ~35deg elevation angle this pose was already tuned to)
+// so the whole cross -- all 4 arms, not just the hub -- still fits in frame
+// at the default overview pose. Stays under FREE_CAM_MAX_DISTANCE (36,
+// UNCHANGED -- this task's own proof command fixes `?camdist=36` as a named
+// checkpoint, so that ceiling must keep meaning the same thing it always
+// has) with real headroom to zoom out further.
+const CAMERA_DIST_ULTRA = 32;
+const CAMERA_HEIGHT_ULTRA = 22;
 // One reusable scratch vector for CameraRig's per-frame desired-position
 // math (module scope, never per-frame allocation -- same discipline as
 // StationModule.tsx's `_screenColor` / ActivityBubbleLayer.tsx's `_camPos`).
@@ -183,36 +201,30 @@ const TV_PERSONA_SEAT_LOCAL: [number, number, number] = [0, 0, -0.1];
 // first guess (real capture, hq-world-G-shadowtest.png) visibly revealed
 // one more character of the clipped label ("on-SPY 0DTE)" -> "non-SPY
 // 0DTE)") but wasn't conclusively fully clear -- 10deg here as the one
-// follow-up per this same file's own no-blind-repeated-guessing discipline
-// (ARC_SPAN, Pass F). Verify via the final real capture; if still clipped,
-// document honestly rather than guess a third angle.
+// follow-up per this same file's own no-blind-repeated-guessing discipline.
+// Verify via the final real capture; if still clipped, document honestly
+// rather than guess a third angle.
 const ARC_CENTER_NUDGE = (10 * Math.PI) / 180;
+// ARC_CENTER is still "the direction that faces the camera most directly"
+// -- Gamma's own desk (gammaDeskCenter below, UNCHANGED by this pass) and
+// BrainCore both anchor off it. ARC_SPAN (the old 230deg lane-ring arc this
+// constant used to pair with) is GONE -- the campus-cross rebuild
+// (layout.ts) replaced that whole ring placement, so the arc-span tuning
+// history that used to live here no longer applies to anything.
 const ARC_CENTER = Math.PI / 2 - BASE_AZIMUTH + ARC_CENTER_NUDGE;
-// Pass F (2026-09-13): tried 200 here to pull Crypto twin/Futures (the
-// labels still grazing the roster column after the framing fix alone) back
-// toward center -- REVERTED after a real re-capture showed it made that
-// SAME collision WORSE, not better (both labels landed further into the
-// roster column, not less). The angular-compression reasoning that
-// predicted the opposite was wrong about the actual screen-space direction
-// -- rather than keep guessing blindly against a 43s-per-iteration real
-// capture loop, left at the original 230 and documented as a known
-// remaining issue (see StationModule.tsx's label styling / Hud.tsx's
-// roster opacity for the mitigations that DID verifiably help) rather than
-// risk a third blind swing.
-const ARC_SPAN = (230 * Math.PI) / 180;
-// Company Mode (2026-09-13): a second, smaller, FIXED ring for the 6
-// non-manager personas (item 10 of the spec -- "keep the two rings visually
-// distinct"), inside the lane ring's radius 9.8 so it reads as "the org
-// chart nested inside the departments it runs." Gamma (Manager), persona[0]
-// in collectCompany()'s fixed order, is NOT drawn here -- it becomes
-// BrainCore's own manager nameplate/status instead (no 7th desk).
-// Layout hygiene fix (2026-09-13, J: "persona nameplates must not sit
-// inside the hub plaque area") -- 4.5 put persona Html labels too close to
-// BrainCore's own plaques (model plaque at y=1.75, all-hands pulse at
-// y=2.4) in screen-space from the fixed 3/4 view. 6.5 is still safely
-// inside the lane ring's own radius (9.8, "nested inside the departments
-// it runs" per the original design intent) with real clearance from center.
-const PERSONA_RING_RADIUS = 6.5;
+// LAYOUT builder pass (2026-09-14): "Persona desks stay in the hub along
+// the 4 wall segments between doors (2-2-2-1 with Gamma at the brain
+// wall)." Wall segment k spans armAngle(k)..armAngle(k+1) (centered on
+// armAngle(k)+45deg) -- picks whichever segment's own center sits angularly
+// closest to ARC_CENTER as "the brain wall" (reserved: Gamma's own desk
+// stays near the core, UNCHANGED, so that segment gets zero extra desks
+// rather than crowding hers), leaving the other 3 segments for the 6 inner
+// personas at 2 apiece (layout.ts#computePersonaWallSlots).
+function normalizeAngle(a: number): number {
+  const twoPi = Math.PI * 2;
+  return ((a % twoPi) + twoPi) % twoPi;
+}
+const BRAIN_WALL_ARM_INDEX = Math.round(normalizeAngle(ARC_CENTER - Math.PI / 4) / (Math.PI / 2)) % 4;
 // INTERACT-2 (I2 a/b, 2026-09-14): how long a hub-exchange bubble (Chef's
 // verdict line / Coach's sectors line + Gamma's ack) stays visible after the
 // real crew-events.jsonl row's own ts_et -- roughly the eventWalk's own
@@ -302,18 +314,35 @@ interface CameraRigProps {
    * Scene.tsx's own [Gamma, ...6 personas] fixed order) -- see that
    * component's own comment for how each entry is derived. */
   cameraPresets: CameraPreset[];
+  /** LAYOUT builder pass (2026-09-14): `?preset=bay0`..`?preset=bay7`
+   * (Scene.tsx's own fixed `geometry`/`rows` order) -- additive, no
+   * keyboard binding (the numeric "0".."7" namespace is already fully
+   * spoken for by the overview + 7 persona desks) -- see
+   * resolveCameraPresetKey's own `bay` branch. */
+  bayPresets: CameraPreset[];
+  /** `?preset=hall0`..`?preset=hall3`, one per main spine (Scene.tsx's own
+   * `ARMS` order) -- same URL-only, no-keyboard-binding convention as
+   * `bayPresets`. */
+  hallPresets: CameraPreset[];
 }
 
-/** Shared by the keyboard "0".."7" fly-to handler AND the `?preset=N` mount
+/** Shared by the keyboard "0".."7" fly-to handler AND the `?preset=` mount
  * hook below -- "0" = the fixed overview pose, "1".."7" index
  * `cameraPresets[0..6]` (Scene.tsx's own fixed [Gamma, ...6 personas]
- * order). Factored out (2026-09-14, P4) so the URL hook can never drift
- * from what pressing the real key does -- both call sites resolve the
- * SAME destination through this one function, not two independently-
- * maintained copies of the same 2-line lookup. */
-function resolveCameraPresetKey(key: string, cameraPresets: CameraPreset[]): CameraPreset | null {
+ * order), "bayN" (N=0..7, URL-only, see CameraRigProps' own comment) index
+ * `bayPresets[N]`. Factored out (2026-09-14, P4) so the URL hook can never
+ * drift from what pressing the real key does -- every call site resolves
+ * the SAME destination through this one function, not several
+ * independently-maintained copies of the same lookup. */
+function resolveCameraPresetKey(
+  key: string, cameraPresets: CameraPreset[], bayPresets: CameraPreset[], hallPresets: CameraPreset[],
+): CameraPreset | null {
   if (key === "0") return { camPos: OVERVIEW_CAM_POS, headPos: [DEFAULT_LOOKAT.x, DEFAULT_LOOKAT.y, DEFAULT_LOOKAT.z] };
   if (key >= "1" && key <= "7") return cameraPresets[Number(key) - 1] ?? null;
+  const bayMatch = /^bay([0-7])$/.exec(key);
+  if (bayMatch) return bayPresets[Number(bayMatch[1])] ?? null;
+  const hallMatch = /^hall([0-3])$/.exec(key);
+  if (hallMatch) return hallPresets[Number(hallMatch[1])] ?? null;
   return null;
 }
 
@@ -342,7 +371,7 @@ function resolveCameraPresetKey(key: string, cameraPresets: CameraPreset[]): Cam
  * eventful happening. reducedMotion holds everything at the default lookAt
  * with zero drift, matching every other reducedMotion branch in this file.
  */
-function CameraRig({ reducedMotion, rows, geometry, briefMtimeMs, ultra, cameraPresets }: CameraRigProps) {
+function CameraRig({ reducedMotion, rows, geometry, briefMtimeMs, ultra, cameraPresets, bayPresets, hallPresets }: CameraRigProps) {
   const { camera } = useThree();
   const lookAtCurrent = useRef(new THREE.Vector3(0, 1.4, 0));
   const focusGoal = useRef<THREE.Vector3 | null>(null);
@@ -453,9 +482,13 @@ function CameraRig({ reducedMotion, rows, geometry, briefMtimeMs, ultra, cameraP
     if (!controls) return;
     const raw = new URLSearchParams(window.location.search).get("preset");
     if (raw === null) return;
-    if (cameraPresets.length === 0) return; // real persona data not in yet -- wait for the next render
+    // LAYOUT builder pass: bay presets are ready as soon as `geometry` is
+    // (rows count alone, no persona fetch needed) -- waiting on EITHER
+    // array being non-empty (not requiring both) lets `?preset=bay0` land
+    // even on a render where personas haven't resolved yet.
+    if (cameraPresets.length === 0 && bayPresets.length === 0 && hallPresets.length === 0) return;
     presetFired.current = true;
-    const dest = resolveCameraPresetKey(raw, cameraPresets);
+    const dest = resolveCameraPresetKey(raw, cameraPresets, bayPresets, hallPresets);
     if (!dest) return;
     flight.current = {
       fromPos: camera.position.clone(),
@@ -466,7 +499,7 @@ function CameraRig({ reducedMotion, rows, geometry, briefMtimeMs, ultra, cameraP
     };
     mode.current = "flying";
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ultra, camera, cameraPresets.length]);
+  }, [ultra, camera, cameraPresets.length, bayPresets.length, hallPresets.length]);
 
   // Keyboard fly-to: "1".."7" = cameraPresets[0..6] (Scene.tsx's own fixed
   // [Gamma, ...6 personas] order), "0" = the fixed overview pose. A window-
@@ -482,7 +515,7 @@ function CameraRig({ reducedMotion, rows, geometry, briefMtimeMs, ultra, cameraP
       if (e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
       const controls = controlsRef.current;
       if (!controls) return;
-      const dest = resolveCameraPresetKey(e.key, cameraPresets);
+      const dest = resolveCameraPresetKey(e.key, cameraPresets, bayPresets, hallPresets);
       if (!dest) return;
       flight.current = {
         fromPos: camera.position.clone(),
@@ -495,7 +528,7 @@ function CameraRig({ reducedMotion, rows, geometry, briefMtimeMs, ultra, cameraP
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [ultra, cameraPresets, camera]);
+  }, [ultra, cameraPresets, bayPresets, hallPresets, camera]);
 
   useFrame((state, delta) => {
     const t = state.clock.elapsedTime;
@@ -868,21 +901,20 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
   const seatLocal = ultra ? BAY_SEAT_LOCAL : TV_LANE_SEAT_LOCAL;
 
   const slotCount = Math.max(rows.length, 1);
+  // LAYOUT builder pass (2026-09-14, campus-cross rebuild): each bay's own
+  // position/rotation now comes from layout.ts#computeAllBaySlots (4 arms x
+  // 2 sides, every corridor meeting a real hub doorway) instead of a point
+  // on the old 8-way ring -- see that module's own header for the full
+  // writeup. `agentHome` is still computed the SAME way (localToWorld from
+  // this slot's own position/rotationY) so the "scene-root sibling, never
+  // nested" fix that comment used to describe stays exactly as true as it
+  // always was, just fed different input geometry.
   const geometry = useMemo(
     () =>
-      Array.from({ length: slotCount }, (_, i) => {
-        const t = slotCount > 1 ? i / (slotCount - 1) : 0.5;
-        const angle = ARC_CENTER - ARC_SPAN / 2 + t * ARC_SPAN;
-        const position: [number, number, number] = [Math.cos(angle) * RING_RADIUS, 0, Math.sin(angle) * RING_RADIUS];
-        const rotationY = Math.PI / 2 - angle;
-        // Bug fix (2026-09-13): computed here and passed to <Agent> as a
-        // TRUE scene-root sibling of <StationModule> (never nested inside
-        // StationModule's own positioned+rotated <group>) -- see
-        // palette.ts#localToWorld's own comment for why nesting it there
-        // silently placed every agent ~one ring-radius from its desk.
-        const agentHome = localToWorld(position, rotationY, seatLocal);
-        return { angle, position, rotationY, agentHome };
-      }),
+      computeAllBaySlots(slotCount).map((slot) => ({
+        ...slot,
+        agentHome: localToWorld(slot.position, slot.rotationY, seatLocal),
+      })),
     [slotCount, seatLocal],
   );
 
@@ -945,16 +977,19 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
   const managerNextLine = allPersonas[0] ? crewNextLine(allPersonas[0], Date.now()) : null;
   const innerPersonas = allPersonas.slice(1);
   const personaSlotCount = Math.max(innerPersonas.length, 1);
+  // LAYOUT builder pass (2026-09-14): "Persona desks stay in the hub along
+  // the 4 wall segments between doors" -- see BRAIN_WALL_ARM_INDEX's own
+  // comment above for the segment-picking logic. PERSONA_WALL_RADIUS (from
+  // layout.ts) is the SAME 6.5 the old PERSONA_RING_RADIUS used, so the
+  // camera-preset "pull" math further down (deskRadius/outwardRoom, keyed
+  // off this exact radius) needs no changes at all.
   const personaGeometry = useMemo(
     () =>
-      Array.from({ length: personaSlotCount }, (_, i) => {
-        const t = personaSlotCount > 1 ? i / (personaSlotCount - 1) : 0.5;
-        const angle = ARC_CENTER - ARC_SPAN / 2 + t * ARC_SPAN;
-        const position: [number, number, number] = [Math.cos(angle) * PERSONA_RING_RADIUS, 0, Math.sin(angle) * PERSONA_RING_RADIUS];
-        const rotationY = Math.PI / 2 - angle;
-        const agentHome = localToWorld(position, rotationY, personaSeatLocal);
-        return { position, rotationY, agentHome };
-      }),
+      computePersonaWallSlots(personaSlotCount, BRAIN_WALL_ARM_INDEX).map((slot) => ({
+        position: slot.position,
+        rotationY: slot.rotationY,
+        agentHome: localToWorld(slot.position, slot.rotationY, personaSeatLocal),
+      })),
     [personaSlotCount, personaSeatLocal],
   );
 
@@ -988,6 +1023,43 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
   // wall" -- 70% of the way from the hub center to Gamma's own desk, so the
   // visitor stands near her without literally overlapping her chair.
   const gammaHubMeet: [number, number, number] = [gammaDeskCenter[0] * 0.7, 0, gammaDeskCenter[2] * 0.7];
+
+  // LAYOUT builder pass (2026-09-14): the walk graph (layout.ts's own
+  // "Walk graph" section) -- nodes for every real destination this scene
+  // walks a persona to (hub doorways/T-junctions/bay doors+desks, persona
+  // desks, Gamma's own hub-meet spot, the smart board, the 3 ambient
+  // hub-interior points) plus every hallway/hub-interior edge between
+  // them. `eventWalk`/`computePurposefulWalk`'s OWN destinations below now
+  // resolve THROUGH this graph (findPersonaHome, the
+  // ideas-wall/core/lounge/neighbor lookups) instead of a second,
+  // separately-maintained set of position lookups -- the single structure
+  // the task asks for, not a parallel one that could drift from it.
+  // Agent.tsx's own walk consumer still only takes ONE final target point
+  // today (MOTION-2 owns wiring it to the FULL `waypoints` array -- see
+  // types.ts#WalkPlan's own header); every lookup below still resolves to
+  // the exact same point it always did for every CURRENT trigger (all
+  // hub-interior, a single hop), so this is a safe, additive foundation,
+  // not a behavior change. Memoized on the same referentially-stable
+  // building blocks as everything else in this file (geometry/
+  // personaGeometry are already stable across a no-op poll; gammaHubMeet is
+  // a fresh array every render but numerically constant, so its two scalar
+  // components -- not the array reference -- are the dependency, same
+  // convention BaySign.tsx's own worldPosVec memo already uses).
+  const walkGraph = useMemo(
+    () =>
+      buildWalkGraph({
+        baySlots: geometry,
+        personaSlots: innerPersonas.map((p, i) => ({
+          name: p.name,
+          position: (personaGeometry[i] ?? personaGeometry[0]).agentHome,
+        })),
+        gammaDeskPos: gammaHubMeet,
+        smartBoardPos: WALL_POS,
+        ambientPoints: PURPOSEFUL_TARGETS,
+      }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [geometry, personaGeometry, innerPersonas.map((p) => p.name).join("|"), gammaHubMeet[0], gammaHubMeet[2]],
+  );
   // Latest Chef "verdict" / Coach "sectors"|"task_health"|"hq_review" row
   // from crew-events.jsonl (CREW-2's own additive field, newest-last tail
   // order per lib/hq.ts#readCrewEvents' own doc comment) -- feeds both the
@@ -1007,10 +1079,8 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
   // Analyst EOD digest (desks.Analyst.path changing); (e) a new treasury
   // file (desks.Treasurer.path changing); (f) the day's first
   // core-decisions row at/after 15:55 ET (pilotPostCloseKeyRef above).
-  const findPersonaHome = (name: string): [number, number, number] | undefined => {
-    const idx = innerPersonas.findIndex((p) => p.name === name);
-    return idx >= 0 ? (personaGeometry[idx] ?? personaGeometry[0]).agentHome : undefined;
-  };
+  const findPersonaHome = (name: string): [number, number, number] | undefined =>
+    walkGraph.nodes.get(`persona-${name}`)?.position;
   const scoutMtimeKey = innerPersonas.find((p) => p.name === "Scout")?.deliverable.mtimeISO ?? undefined;
   const analystDigestKey = data?.desks?.Analyst?.path ?? undefined;
   const treasuryFileKey = data?.desks?.Treasurer?.path ?? undefined;
@@ -1101,6 +1171,73 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
     });
   })();
 
+  // LAYOUT builder pass (2026-09-14, campus-cross rebuild, PROOF
+  // requirement: "two bay presets... look through the door at the desk"):
+  // one preset per lane bay, additive alongside the existing "0".."7"
+  // persona/overview keys -- reachable via `?preset=bay0`..`?preset=bay7`
+  // (resolveCameraPresetKey's own `bay` prefix branch below), index-aligned
+  // with `geometry`/`rows`.
+  //
+  // Bug fix (2 real captures, layout-bay0-1741.png and -1748.png): a
+  // ground-level shot standing on the doorway's own centerline, at any
+  // standoff distance tried, looked straight through BaySign's own bright,
+  // unlit, toneMapped=false door sign (mounted just inside the door,
+  // StationModule.tsx/BaySign.tsx, not this pass' own) -- a plane that size
+  // at head height dominates a level sightline down a hallway no matter how
+  // far back the camera stands. Rather than keep guessing standoff/lateral
+  // numbers against a 40s-per-iteration real-capture loop, switched to the
+  // SAME proven elevated-3/4-angle formula the persona desk presets above
+  // already use successfully (UP well above the sign's own y=2.3, looking
+  // DOWN at the desk) -- the sign ends up low in frame, read as part of the
+  // room instead of blocking the shot.
+  const BAY_PRESET_STANDOFF = 3.0; // horizontal pull-back, outward through the door
+  const BAY_PRESET_HEIGHT = 4.4; // clears BaySign's own y=2.3 with real margin
+  const bayPresets: CameraPreset[] = geometry.map((slot): CameraPreset => {
+    const dx = slot.tCenter[0] - slot.position[0];
+    const dz = slot.tCenter[2] - slot.position[2];
+    const dlen = Math.hypot(dx, dz) || 1;
+    const outX = dx / dlen;
+    const outZ = dz / dlen;
+    const headPos: [number, number, number] = [slot.agentHome[0], slot.agentHome[1] + 0.9, slot.agentHome[2]];
+    const camPos: [number, number, number] = [
+      slot.doorWorldPos[0] + outX * BAY_PRESET_STANDOFF, BAY_PRESET_HEIGHT, slot.doorWorldPos[2] + outZ * BAY_PRESET_STANDOFF,
+    ];
+    return { headPos, camPos };
+  });
+
+  // LAYOUT builder pass: one preset per main spine, PROOF requirement's own
+  // "one hallway close-up" -- reachable via `?preset=hall0`..`?preset=hall3`
+  // (resolveCameraPresetKey's own `hall` prefix branch below).
+  //
+  // Bug fix (real capture layout-hall0-1758.png, UNVERIFIED past this point
+  // -- this session's 7-capture budget was spent, see this pass' own final
+  // report): looking back toward the hub doorway put the hub's own OPEN
+  // interior (persona desks sit just inside it, PERSONA_WALL_RADIUS=6.5
+  // vs the wall at HUB_WALL_RADIUS=7.5, only 1u past the threshold) in the
+  // sightline beyond that opening -- an open doorway doesn't block the
+  // view, so the shot read as "inside the hub" rather than "a hallway."
+  // Flipped to look the OTHER way (toward the T-junction, away from the
+  // hub) and moved the camera to just past the hub's own doorway instead of
+  // the spine's midpoint, so the corridor's own rails/floor/kit segments
+  // recede down the frame ahead of the camera -- the standard "vanishing
+  // point down a corridor" composition -- with the T-junction/bay doors as
+  // the far focal point instead of an open doorway that reads as "not a
+  // hallway, a room."
+  const HALL_PRESET_ENTRY = 2.0; // just past the hub's own doorway, into the hallway
+  const HALL_PRESET_LATERAL = 0.7; // off the centerline (both rails visible, not straddled)
+  const hallPresets: CameraPreset[] = ARMS.map((arm): CameraPreset => {
+    const dirX = Math.cos(arm.mainAngle);
+    const dirZ = Math.sin(arm.mainAngle);
+    const perp = arm.mainAngle + Math.PI / 2;
+    const sideX = Math.cos(perp) * HALL_PRESET_LATERAL;
+    const sideZ = Math.sin(perp) * HALL_PRESET_LATERAL;
+    const camPos: [number, number, number] = [
+      arm.hubDoorPos[0] + dirX * HALL_PRESET_ENTRY + sideX, 1.6, arm.hubDoorPos[2] + dirZ * HALL_PRESET_ENTRY + sideZ,
+    ];
+    const headPos: [number, number, number] = [arm.tNearEdge[0], 1.5, arm.tNearEdge[2]];
+    return { headPos, camPos };
+  });
+
   // Item 2b (LIVE-1, 2026-09-14): one purposeful-walk decision per inner
   // persona, computed fresh each render from the SAME pure function
   // lib/useMotionEvents.ts's ticker line uses (see that function's own
@@ -1116,10 +1253,20 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
   const purposefulWalks = innerPersonas.map((persona, i) => {
     const neighbor = innerPersonas.length > 1 ? innerPersonas[(i + 1) % innerPersonas.length] : null;
     const walk = computePurposefulWalk(persona.name, nowMsForWalks, ideasCount, persona.lastFireISO, neighbor?.name ?? null);
+    // LAYOUT builder pass: both branches now resolve through walkGraph
+    // instead of a separate PURPOSEFUL_TARGETS-only lookup + a direct
+    // personaGeometry read -- see walkGraph's own comment above. The
+    // "neighbor" case is a genuine 2-hop graph query (self -> hub-center ->
+    // neighbor's desk); only the FINAL waypoint feeds Agent.tsx's existing
+    // single-point prop today (same value the old direct lookup produced --
+    // both personas sit on hub-interior graph leaves, so the resolved
+    // endpoint is unchanged), with the full path ready for MOTION-2's own
+    // Agent.tsx upgrade to consume via WalkPlan.
+    const fallback = findPersonaHome(persona.name) ?? HUB;
     const target: [number, number, number] =
       walk.destination === "neighbor" && neighbor
-        ? (personaGeometry[(i + 1) % innerPersonas.length] ?? personaGeometry[0]).agentHome
-        : PURPOSEFUL_TARGETS[walk.destination as "ideas-wall" | "core" | "lounge"] ?? PURPOSEFUL_TARGETS.lounge;
+        ? findWalkPath(walkGraph, `persona-${persona.name}`, `persona-${neighbor.name}`)?.pop() ?? fallback
+        : walkGraph.nodes.get(`ambient-${walk.destination}`)?.position ?? PURPOSEFUL_TARGETS.lounge;
     return { walk, target };
   });
 
@@ -1327,6 +1474,8 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
         briefMtimeMs={data?.brief.mtime_ms ?? null}
         ultra={ultra}
         cameraPresets={cameraPresets}
+        bayPresets={bayPresets}
+        hallPresets={hallPresets}
       />
       {/* LIVE-1 item 2 follow-up (2026-09-14): renderer-exposure half of the
           day/night exposure+threshold pair -- see ExposureSync's own
@@ -1380,8 +1529,18 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
           BrainCore/EffectsStack, which are SIBLINGS here, not descendants. */}
       {/* World-2 item 3(a) (2026-09-14): the plaza floor plate under
           hub+corridors+bays -- see SetKit.tsx#Plaza's own comment. No
-          Suspense needed (pure procedural geometry, no useGLTF load). */}
-      {ultra && <Plaza radius={PLAZA_RADIUS} dayFactor={nightFactor} />}
+          Suspense needed (pure procedural geometry, no useGLTF load).
+          LAYOUT builder pass (campus-cross rebuild): now a union footprint
+          (central hub circle + 4 arm slabs), sized from layout.ts's own
+          exported dimensions -- all three already apron-inclusive. */}
+      {ultra && (
+        <Plaza
+          centerRadius={PLAZA_CENTER_RADIUS}
+          armLen={ARM_LEN + PLAZA_APRON}
+          armHalfWidth={ARM_HALF_WIDTH + PLAZA_APRON}
+          dayFactor={nightFactor}
+        />
+      )}
 
       {ultra && (
         <Suspense fallback={null}>
@@ -1443,42 +1602,59 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
         );
       })()}
 
+      {/* LAYOUT builder pass (2026-09-14, campus-cross rebuild): the
+          hallway SKELETON -- 4 main spines (hub doorway -> T-junction) +
+          their T-junction pieces -- rendered ONCE per arm, independent of
+          `rows` (a spine is shared by both of its arm's bays, so it must
+          not be drawn twice, once per bay, the way the old per-lane loop
+          implicitly did). `ARMS` is the module-level constant above (fixed
+          geometry, never recomputed). See layout.ts's own header for why
+          every one of these 4 hallways now meets a real hub doorway. */}
+      {ultra && ARMS.map((arm) => (
+        <Suspense key={arm.armIndex} fallback={null}>
+          <CorridorRun from={arm.hubDoorPos} to={arm.tNearEdge} dayFactor={nightFactor} wide />
+          <TJunction position={arm.tCenter} rotationY={arm.rotationY} dayFactor={nightFactor} />
+        </Suspense>
+      ))}
+
       {rows.map((row, i) => {
         const slot = geometry[i] ?? geometry[0];
         const behavior = deriveBehavior(row, gaming);
         return (
           <group key={row.lane}>
+            {/* Ambient data pulse -- 2 hops (bay -> T-junction -> hub
+                doorway) instead of one straight bay -> HUB shot, so it
+                travels the SAME hallway centerline a walker would instead
+                of cutting a diagonal through a wall corner (see
+                Corridor.tsx's own header for why it never draws walls of
+                its own -- only this scene's own call-site geometry decides
+                the path it travels). */}
             <Corridor
               from={slot.position}
-              to={HUB}
+              to={slot.tCenter}
               freshness={freshness01(minutesSinceEvidence(row.last_evidence_et))}
               speedBoost={corridorSpeedBoost}
               reducedMotion={reducedMotion}
             />
-            {/* Kit rebuild: real corridor.glb segments -- WALL to WALL
-                (hub's outer wall at HUB_WALL_RADIUS to the bay's near wall
-                at RING_RADIUS-BAY_HALF_DEPTH), both along the SAME angle
-                `slot.position` already sits on. World pass A fix
-                (2026-09-13, caught from the first real screenshot): the
-                original version ran center-to-center (HUB to
-                slot.position), which clips straight through both rooms'
-                interiors instead of filling only the gap between their
-                walls -- the pulse sprite above still travels the full
-                center-to-center line unchanged (Corridor.tsx), only the
-                real kit geometry's span changed. Ultra tier only. */}
+            <Corridor
+              from={slot.tCenter}
+              to={ARMS[slot.armIndex].hubDoorPos}
+              freshness={freshness01(minutesSinceEvidence(row.last_evidence_et))}
+              speedBoost={corridorSpeedBoost}
+              reducedMotion={reducedMotion}
+            />
+            {/* Side hallway -- this bay's own T-junction edge to its own
+                door. `doorAtFrom={false}`: a T-junction has no door, only
+                the two real building entrances (hub doorway, bay doorway)
+                do -- see CorridorRun's own comment. Ultra tier only. */}
             {ultra && (
               <Suspense fallback={null}>
-                <CorridorRun
-                  from={[Math.cos(slot.angle) * HUB_WALL_RADIUS, 0, Math.sin(slot.angle) * HUB_WALL_RADIUS]}
-                  to={[Math.cos(slot.angle) * (RING_RADIUS - BAY_HALF_DEPTH), 0, Math.sin(slot.angle) * (RING_RADIUS - BAY_HALF_DEPTH)]}
-                  angle={slot.angle}
-                  dayFactor={nightFactor}
-                />
+                <CorridorRun from={slot.hallFrom} to={slot.hallTo} dayFactor={nightFactor} doorAtFrom={false} />
               </Suspense>
             )}
             <StationModule
               position={slot.position}
-              angle={slot.angle}
+              angle={slot.stationAngle}
               row={row}
               behavior={behavior}
               reducedMotion={reducedMotion}

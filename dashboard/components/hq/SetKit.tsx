@@ -48,6 +48,13 @@ export const KIT_PATHS = {
     roomSmall: `${KIT_BASE}/kenney-modular-space-kit/room-small.glb`,
     roomLarge: `${KIT_BASE}/kenney-modular-space-kit/room-large.glb`,
     corridor: `${KIT_BASE}/kenney-modular-space-kit/corridor.glb`,
+    // LAYOUT builder pass (2026-09-14, campus-cross rebuild): both already
+    // on disk (manifest.json) but never wired into KIT_PATHS until now --
+    // corridorWide dresses the 4 main hub-to-T spines ("corridor-wide or 2x
+    // corridor" per the layout brief, CorridorRun's own `wide` option),
+    // corridorIntersection dresses each T-junction (TJunction below).
+    corridorWide: `${KIT_BASE}/kenney-modular-space-kit/corridor-wide.glb`,
+    corridorIntersection: `${KIT_BASE}/kenney-modular-space-kit/corridor-intersection.glb`,
     gateDoor: `${KIT_BASE}/kenney-modular-space-kit/gate-door.glb`,
   },
   lights: `${KIT_BASE}/kaykit-space-base-bits/lights.gltf`,
@@ -491,31 +498,71 @@ export function DeskCluster({ accentColor, screenTitle, screenLines }: DeskClust
 // own outer disc (that one stays mounted on both tiers, y=-0.06) so the
 // station's own footprint reads as a deliberately-built, lighter-toned
 // surface distinct from raw exterior ground -- with a raised edge lip (a
-// flattened torus "curb") so the platform boundary reads as a real edge
-// instead of an invisible blend into Ground beneath it. `radius` is passed
-// in from Scene.tsx (RING_RADIUS + BAY_HALF_DEPTH + 1.5) rather than
-// recomputed here, since RING_RADIUS is Scene.tsx's own constant and this
-// file must never import back from its own caller.
+// flattened torus "curb") on the central circle so that boundary reads as a
+// real edge instead of an invisible blend into Ground beneath it.
+//
+// LAYOUT builder pass (2026-09-14, campus-cross rebuild, task: "Plaza plate
+// becomes the union footprint (rounded cross/square under hub + hallways +
+// bays, ~1.5u apron)"): a single big circle sized to the OLD ring's outer
+// edge doesn't fit the new orthogonal cross at all -- it would either clip
+// a bay's own corner (if sized to the cross's on-axis reach) or waste a
+// huge area of open floor in the diagonal gaps between arms (if sized to
+// the cross's own corner reach). Replaced with the union shape the task
+// asks for: the same central circle (now scoped to just the hub + apron)
+// plus 4 flat rectangular slabs, one per arm, each sized to carry that
+// arm's own T-junction + both its bays. All three dimensions
+// (`centerRadius`/`armLen`/`armHalfWidth`) are passed in from Scene.tsx,
+// already apron-inclusive -- layout.ts computes them, this file stays a
+// pure renderer of whatever size it's given, the same "receives computed
+// dimensions as props" convention this component already used before this
+// pass (just three numbers instead of one).
 const PLAZA_Y = -0.04;
 const PLAZA_NIGHT = new THREE.Color(PALETTE.deskDark);
 const PLAZA_DAY = new THREE.Color(PALETTE.plazaDay);
 const _plazaColor = new THREE.Color();
 
-export function Plaza({ radius, dayFactor = 1 }: { radius: number; dayFactor?: number }) {
+export function Plaza({ centerRadius, armLen, armHalfWidth, dayFactor = 1 }: {
+  centerRadius: number; armLen: number; armHalfWidth: number; dayFactor?: number;
+}) {
   const color = useMemo(() => _plazaColor.copy(PLAZA_NIGHT).lerp(PLAZA_DAY, dayFactor).clone(), [dayFactor]);
   const lipTube = 0.09;
   return (
     <group>
       <mesh position={[0, PLAZA_Y, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <circleGeometry args={[radius, 96]} />
+        <circleGeometry args={[centerRadius, 64]} />
         <meshStandardMaterial color={color} roughness={0.85} metalness={0.05} />
       </mesh>
-      {/* Edge lip -- a low curb ring at the plaza's own outer radius so the
-          platform boundary reads as a real, deliberately-built edge. */}
+      {/* Edge lip -- a low curb ring at the CENTRAL circle's own outer
+          radius so that boundary reads as a real, deliberately-built edge.
+          The 4 arm slabs below stay plain-edged (a lip framing every side
+          of a plus-sign is a lot of extra geometry for a secondary polish
+          item -- Ground.tsx's own different tone underneath already gives
+          the arm's own edge some contrast; flagged as a possible follow-up,
+          not silently dropped). */}
       <mesh position={[0, PLAZA_Y + lipTube * 0.5, 0]} rotation={[Math.PI / 2, 0, 0]}>
-        <torusGeometry args={[radius, lipTube, 8, 96]} />
+        <torusGeometry args={[centerRadius, lipTube, 8, 64]} />
         <meshStandardMaterial color={color} roughness={0.6} metalness={0.15} />
       </mesh>
+      {/* 4 arm slabs -- one per cardinal spine, each starting at the hub
+          center (so it seamlessly unions with the central circle, no gap)
+          and reaching out to `armLen`, wide enough (`armHalfWidth`, both
+          sides) to carry both of that arm's bays + the T-junction between
+          them. Arms 0/2 (+-X) run long-axis-X; arms 1/3 (+-Z) run
+          long-axis-Z -- a flat `rotation={[-Math.PI/2,0,0]}` plane's own
+          local X always maps to world X and local Y to world (mirrored) Z,
+          so swapping which planeGeometry argument is the long one is all
+          that's needed, no extra per-arm Y-rotation. */}
+      {[0, 1, 2, 3].map((armIndex) => {
+        const angle = (armIndex * Math.PI) / 2;
+        const center: [number, number, number] = [(Math.cos(angle) * armLen) / 2, PLAZA_Y, (Math.sin(angle) * armLen) / 2];
+        const alongX = armIndex % 2 === 0;
+        return (
+          <mesh key={armIndex} position={center} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+            <planeGeometry args={alongX ? [armLen, armHalfWidth * 2] : [armHalfWidth * 2, armLen]} />
+            <meshStandardMaterial color={color} roughness={0.85} metalness={0.05} />
+          </mesh>
+        );
+      })}
     </group>
   );
 }
@@ -523,45 +570,60 @@ export function Plaza({ radius, dayFactor = 1 }: { radius: number; dayFactor?: n
 const CORRIDOR_WIDTH = 2.6;
 const CORRIDOR_RAIL_HEIGHT = 0.3;
 const CORRIDOR_RAIL_THICKNESS = 0.07;
+// LAYOUT builder pass (2026-09-14, campus-cross rebuild): main spines
+// (hub wall -> T-junction) use the doubled-width corridor-wide.glb kit
+// piece instead of corridor.glb -- "corridor-wide or 2x corridor" per the
+// layout brief, chosen since one wide piece is both fewer draw calls per
+// unit length AND reads as the more important "main hallway" against the
+// narrower bay-side spurs. Raw footprint 8x8 (parsed this session, see
+// layout.ts's own header) -- exactly 2x corridor.glb's 4x4, so both the
+// segment length and the strip width double together (it's square).
+const CORRIDOR_WIDE_SEGMENT_LENGTH = 8 * ARCHITECTURE_SCALE_BAY;
+const CORRIDOR_WIDE_WIDTH = CORRIDOR_WIDE_SEGMENT_LENGTH;
 
-/** Real hallway from the hub's wall to one bay's door: a guaranteed-correct
- * procedural floor strip + low side rails (Scene.tsx's own `angle`, the
- * SAME `Math.PI/2 - angle` yaw StationModule.tsx's module group already
- * uses -- local -Z always faces the hub, matching the bay's own gate-door
- * placement exactly) PLUS the kit's real corridor.glb segments layered on
- * top as architectural detail.
+/** Real hallway between two real building openings (a hub doorway and a
+ * T-junction, or a T-junction and a bay door): a guaranteed-correct
+ * procedural floor strip + low side rails PLUS the kit's real corridor.glb/
+ * corridor-wide.glb segments layered on top as architectural detail.
  *
- * World-2 item 3(b) bug fix (2026-09-14, "check why the existing CorridorRun
- * does not read as connected... and fix the actual cause"): the OLD version
- * reused Corridor.tsx's own `quaternion.setFromUnitVectors(UP, dir)` --
- * correct THERE because that file's pulse tube is a raw CylinderGeometry,
- * whose long axis really is local Y by default, so tipping "up" over to
- * point along a horizontal direction is exactly right for a cylinder. This
- * asset is not a cylinder: parsing corridor.glb's own JSON chunk this
- * session (`node`, reading the accessor min/max directly, same technique
- * this file's own HQ-SCENE-PLAN.md verification already used elsewhere)
- * shows an UPRIGHT piece, Y 0..4.25 (matching room-large's own raw height),
- * a square 4x4 XZ footprint -- the same "modeled upright, faces -Z by
- * default" convention every OTHER Modular Space Kit piece in this file
- * (room-small, room-large, gate-door) already gets with a plain yaw
- * rotation, never a tip-over quaternion. Rotating "up" onto a near-
- * horizontal direction instead tipped every corridor segment ~90 degrees
- * onto its side -- geometry that never read as a flat, walkable hallway no
- * matter how correctly its segments were positioned along the ray. Fixed by
- * using the SAME plain-yaw convention as its own sibling kit pieces, which
- * also makes the kit segments' own facing agree with the procedural strip's
- * rails below (both share the identical `rotationY`). The procedural strip
- * is what actually GUARANTEES the continuous, correctly-sized (2.6u) floor
- * this item's deliverable needs -- the kit segments are detail on top of
- * it, not the sole source of the connection, so a kit-asset quirk this
- * session couldn't fully verify without a 3D inspector can never leave a
- * visible gap in the floor itself. */
+ * LAYOUT builder pass (2026-09-14, J: "the doors... jumbled mess... you
+ * have stuff connecting to the corner where there's no wall for it to
+ * connect to"): `angle` is GONE -- the old ring layout passed a separate
+ * `angle` prop the caller had to keep hand-in-sync with `from`/`to`, and a
+ * corridor whose real endpoints disagreed with its own passed-in angle is
+ * exactly the bug class that produced the jumble (4 of 8 corridors ran at
+ * an angle with no doorway behind it). `rotationY` is now derived DIRECTLY
+ * from the two real endpoints below -- see layout.ts#rotationYFacing's own
+ * comment for the algebraic check that this reduces to the OLD `Math.PI/2 -
+ * angle` formula for every case the ring layout ever used, so nothing that
+ * used to face the hub correctly stops doing so; it now ALSO works for the
+ * new off-origin side hallways (T-junction -> bay) the old formula could
+ * never express (those don't lie on a ray through the world origin).
+ *
+ * World-2 item 3(b) bug fix (2026-09-14, prior pass): corridor.glb is an
+ * UPRIGHT piece (Y 0..4.25, a square 4x4 XZ footprint, parsed from its own
+ * JSON chunk), the same "modeled upright, faces -Z by default" convention
+ * every other Modular Space Kit piece in this file uses -- a plain yaw
+ * rotation, never a tip-over quaternion (that earlier bug tipped every
+ * segment ~90deg onto its side). The procedural strip is what actually
+ * GUARANTEES the continuous, correctly-sized floor; the kit segments are
+ * detail on top of it, never the sole source of the connection. */
 export function CorridorRun({
-  from, to, angle, dayFactor = 1,
+  from, to, dayFactor = 1, wide = false, doorAtFrom = true,
 }: {
-  from: [number, number, number]; to: [number, number, number]; angle: number; dayFactor?: number;
+  from: [number, number, number]; to: [number, number, number]; dayFactor?: number;
+  /** Main spines only -- see this function's own header for why. */
+  wide?: boolean;
+  /** Side hallways (T-junction -> bay) must NOT get a second door frame at
+   * their T-junction end -- a junction has no door, only the two real
+   * building entrances (hub doorway, bay doorway) do. Defaults true,
+   * unchanged behavior for every hub-wall caller. */
+  doorAtFrom?: boolean;
 }) {
-  const rotationY = Math.PI / 2 - angle;
+  const rotationY = Math.atan2(to[0] - from[0], to[2] - from[2]);
+  const corridorPath = wide ? KIT_PATHS.architecture.corridorWide : KIT_PATHS.architecture.corridor;
+  const segmentLength = wide ? CORRIDOR_WIDE_SEGMENT_LENGTH : CORRIDOR_SEGMENT_LENGTH;
+  const stripWidth = wide ? CORRIDOR_WIDE_WIDTH : CORRIDOR_WIDTH;
   // World-2 coordinator polish (2026-09-14, "HALLWAYS still read as short
   // dark bridges between pods... make each corridor floor the SAME plate
   // tone/height as the plaza (continuous, no dark step)"): the strip now
@@ -580,10 +642,10 @@ export function CorridorRun({
     const end = new THREE.Vector3(...to);
     const len = start.distanceTo(end) || 0.001;
     const mid: [number, number, number] = [(from[0] + to[0]) / 2, (from[1] + to[1]) / 2, (from[2] + to[2]) / 2];
-    // draw-call sanity: segCount is small on purpose -- ARCHITECTURE_SCALE_BAY's
-    // 1.8u segment length vs a ~4-5u hub-to-bay gap means 2-3 segments per
-    // corridor, not a dozen, x8 lanes.
-    const segCount = Math.max(1, Math.round(len / CORRIDOR_SEGMENT_LENGTH));
+    // draw-call sanity: segCount is small on purpose -- a 1.8u (or 3.6u
+    // wide) segment length vs a ~4.5-9u hallway span means 2-3 segments
+    // per run, not a dozen, x12 hallways (4 main + 8 side).
+    const segCount = Math.max(1, Math.round(len / segmentLength));
     const step = len / segCount;
     const dirX = (end.x - start.x) / len;
     const dirZ = (end.z - start.z) / len;
@@ -593,17 +655,17 @@ export function CorridorRun({
       segs.push([start.x + dirX * d, start.y, start.z + dirZ * d]);
     }
     return { midpoint: mid, length: len, segPositions: segs };
-  }, [from[0], from[1], from[2], to[0], to[1], to[2]]);
+  }, [from[0], from[1], from[2], to[0], to[1], to[2], segmentLength]);
 
   return (
     <group>
       <group position={midpoint} rotation={[0, rotationY, 0]}>
         <mesh position={[0, PLAZA_Y + 0.002, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-          <planeGeometry args={[CORRIDOR_WIDTH, length]} />
+          <planeGeometry args={[stripWidth, length]} />
           <meshStandardMaterial color={plateColorStyle} roughness={0.85} metalness={0.05} />
         </mesh>
         {[-1, 1].map((side) => (
-          <mesh key={side} position={[(side * (CORRIDOR_WIDTH - CORRIDOR_RAIL_THICKNESS)) / 2, CORRIDOR_RAIL_HEIGHT / 2, 0]} castShadow>
+          <mesh key={side} position={[(side * (stripWidth - CORRIDOR_RAIL_THICKNESS)) / 2, CORRIDOR_RAIL_HEIGHT / 2, 0]} castShadow>
             <boxGeometry args={[CORRIDOR_RAIL_THICKNESS, CORRIDOR_RAIL_HEIGHT, length]} />
             <meshStandardMaterial color={PALETTE.deskDark} roughness={0.6} metalness={0.2} />
           </mesh>
@@ -612,7 +674,7 @@ export function CorridorRun({
       {segPositions.map((pos, i) => (
         <KitProp
           key={i}
-          path={KIT_PATHS.architecture.corridor}
+          path={corridorPath}
           scale={ARCHITECTURE_SCALE_BAY}
           position={pos}
           rotation={[0, rotationY, 0]}
@@ -628,21 +690,42 @@ export function CorridorRun({
           receiveShadow
         />
       ))}
-      {/* Hub-end door frame + light -- World-2 coordinator polish: "add the
-          low side rails/door frames from the kit at both ends, and a
-          doorway light per bay; the goal is the eye tracing hub -> hallway
-          -> bay without a break." The bay end already has its own gate-door
-          (DepartmentBayShell, mounted from StationModule.tsx); this is the
-          matching piece at the HUB wall, so both ends of the hallway share
-          the same real threshold, not just one. */}
-      <KitProp
-        path={KIT_PATHS.architecture.gateDoor}
-        scale={ARCHITECTURE_SCALE_BAY}
-        position={from}
-        rotation={[0, rotationY, 0]}
-        castShadow
-      />
-      <pointLight position={[from[0], 0.9, from[2]]} color="#ffe9c2" intensity={1.5 * lampFactor} distance={3} decay={2} />
+      {/* Hub-end door frame + light -- "the goal is the eye tracing hub ->
+          hallway -> bay without a break." The bay end already has its own
+          gate-door (DepartmentBayShell, mounted from StationModule.tsx); a
+          T-junction end (doorAtFrom=false, side hallways) gets neither --
+          an open junction, not a mystery door with no room behind it. */}
+      {doorAtFrom && (
+        <>
+          <KitProp
+            path={KIT_PATHS.architecture.gateDoor}
+            scale={ARCHITECTURE_SCALE_BAY}
+            position={from}
+            rotation={[0, rotationY, 0]}
+            castShadow
+          />
+          <pointLight position={[from[0], 0.9, from[2]]} color="#ffe9c2" intensity={1.5 * lampFactor} distance={3} decay={2} />
+        </>
+      )}
+    </group>
+  );
+}
+
+/** T-junction dressing -- one corridor-intersection.glb piece + a light, at
+ * a spine's own T-junction center (layout.ts#computeArmLayout's `tCenter`).
+ * Visually a 4-way crossing piece used for a 3-way join (only 3 real
+ * hallways ever meet here: the main spine + 2 side hallways) -- the kit has
+ * no dedicated T-piece, and an unused 4th "arm" stub reads as a minor
+ * cosmetic choice, never a structural gap (unlike the old ring layout's
+ * actual off-wall corridor jumble this whole pass replaces). */
+export function TJunction({ position, rotationY, dayFactor = 1 }: {
+  position: [number, number, number]; rotationY: number; dayFactor?: number;
+}) {
+  const lampFactor = interiorLampFactor(dayFactor);
+  return (
+    <group position={position} rotation={[0, rotationY, 0]}>
+      <KitProp path={KIT_PATHS.architecture.corridorIntersection} scale={ARCHITECTURE_SCALE_BAY} receiveShadow />
+      <pointLight position={[0, 1.6, 0]} color="#ffe9c2" intensity={2.5 * lampFactor} distance={5} decay={2} />
     </group>
   );
 }
@@ -687,6 +770,8 @@ export function CeilingLight({ position }: { position: [number, number, number] 
 useGLTF.preload(KIT_PATHS.architecture.roomLarge, false);
 useGLTF.preload(KIT_PATHS.architecture.roomSmall, false);
 useGLTF.preload(KIT_PATHS.architecture.corridor, false);
+useGLTF.preload(KIT_PATHS.architecture.corridorWide, false);
+useGLTF.preload(KIT_PATHS.architecture.corridorIntersection, false);
 useGLTF.preload(KIT_PATHS.architecture.gateDoor, false);
 useGLTF.preload(KIT_PATHS.furniture.table, false);
 useGLTF.preload(KIT_PATHS.furniture.chair, false);
