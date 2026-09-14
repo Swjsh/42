@@ -191,7 +191,26 @@ const ARC_SPAN = (230 * Math.PI) / 180;
 // inside the lane ring's own radius (9.8, "nested inside the departments
 // it runs" per the original design intent) with real clearance from center.
 const PERSONA_RING_RADIUS = 6.5;
-const COURIER_REST: [number, number, number] = [-1.3, 0, 1.1];
+// INTERACT-2 (I2 a/b, 2026-09-14): how long a hub-exchange bubble (Chef's
+// verdict line / Coach's sectors line + Gamma's ack) stays visible after the
+// real crew-events.jsonl row's own ts_et -- roughly the eventWalk's own
+// round-trip time (WALK_DURATION*2+PURPOSEFUL_PAUSE in Agent.tsx, ~13s), a
+// UI display-duration constant of the SAME class as FADE_SECONDS
+// (ActivityBubbleLayer.tsx) / PURPOSEFUL_PAUSE (Agent.tsx) -- the window's
+// ORIGIN is always a real event timestamp, never a fabricated ambient timer.
+const EVENT_BUBBLE_WINDOW_MIN = 2;
+// Gamma's deterministic per-kind ack -- mirrors lib/dialogue.ts#GAMMA_CREW_ACK
+// verbatim. Kept as a local copy rather than an import: that module also
+// exports fs-touching server readers (getLatestSpeech), and a "use client"
+// file must never take a VALUE import from a module with a node:fs import at
+// module scope (see dialogue.ts's own getLatestSpeech-vs-LatestSpeech split,
+// the established safe precedent this file already follows for every other
+// server-only type it consumes via `import type`).
+const GAMMA_CREW_ACK: Record<string, string> = {
+  verdict: "logged -- it stays on the board until n_post clears the bar",
+  sectors: "on it -- flagging anything red to the board",
+  task_health: "on it -- disabled/failed tasks go on the board",
+};
 // Item 2b (LIVE-1, 2026-09-14): fixed ground-level destinations for
 // palette.ts#computePurposefulWalk's non-neighbor destinations. "ideas-wall"
 // targets near the hub's own center (WALL_POS itself is [0,3.4,0] -- the
@@ -530,6 +549,16 @@ function CameraRig({ reducedMotion, rows, geometry, briefMtimeMs, ultra, cameraP
 
 const EXPOSURE_NIGHT = 1.35; // unchanged from UltraCanvasRoot.tsx's original one-time onCreated value
 const EXPOSURE_DAY = 1.0; // coordinator's own number -- "day ~1.0 exposure"
+// World-2 coordinator review (2026-09-14, DAYTIME BLOWOUT root cause (c) of
+// 3): PmremEnvironment.tsx's real HDRI feeds every PBR material's
+// reflections via THREE.Scene.environmentIntensity (three 0.184, default 1,
+// verified present in this project's installed three/src/scenes/Scene.js
+// before using it) -- unconditionally at full strength regardless of time
+// of day, on top of the sky/lights already being much brighter by day.
+// Scaled down to ~0.3 by day (night keeps the default 1 -- reflections
+// should read strongly against a dark station).
+const ENV_INTENSITY_NIGHT = 1;
+const ENV_INTENSITY_DAY = 0.3;
 
 interface ExposureSyncProps {
   dayFactor: number;
@@ -557,13 +586,19 @@ interface ExposureSyncProps {
  * exposure at all, so this must never touch that renderer.
  */
 function ExposureSync({ dayFactor }: ExposureSyncProps) {
-  const { gl } = useThree();
+  const { gl, scene } = useThree();
   const lastCheckAtS = useRef(-Infinity); // -Infinity: first frame applies immediately, no 1s wait at a wrong exposure
   useFrame((state) => {
     const t = state.clock.elapsedTime;
     if (t - lastCheckAtS.current < 1) return;
     lastCheckAtS.current = t;
     gl.toneMappingExposure = lerp(EXPOSURE_NIGHT, EXPOSURE_DAY, dayFactor);
+    // World-2 coordinator review: same reactive-value-via-imperative-write
+    // discipline as the exposure line above (never a prop on
+    // PmremEnvironment's own <Environment> -- see that file's own comment
+    // on why a reactive prop there would reopen the GodRays-class teardown/
+    // reapply bug this whole HQ tree already paid to fix once).
+    scene.environmentIntensity = lerp(ENV_INTENSITY_NIGHT, ENV_INTENSITY_DAY, dayFactor);
   });
   return null;
 }
@@ -652,6 +687,19 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
   const dayOfWeekNow = nowEtDayOfWeek();
   const nightFactor = dayNightFactor(etMinutesNow);
   const nightMult = lerp(0.5, 1, nightFactor);
+  // World-2 coordinator review (2026-09-14, "DAYTIME BLOWOUT... the whole
+  // hub is washed-out orange with no wall edges"): root cause (b) of 3 --
+  // hemisphereLight/directionalLight only ever scaled INTENSITY by
+  // nightMult, never their own COLORS, so the ambient fill stayed literal
+  // night-navy (#3a4a7a sky / #04040a ground) even at full noon, fighting
+  // the now-bright day sky dome (SkyDome.tsx's own dayFactor blend) and the
+  // PBR materials' environment reflections for the scene's "what time is
+  // it" read. Lerped the SAME nightFactor every other day/night mechanism
+  // in this file already uses, memoized (not per-frame -- Scene() only
+  // re-renders on a genuine poll, matching SkyDome's own rebake cadence).
+  const hemiSkyColor = useMemo(() => new THREE.Color("#3a4a7a").lerp(new THREE.Color("#cfe3ff"), nightFactor).getStyle(), [nightFactor]);
+  const hemiGroundColor = useMemo(() => new THREE.Color("#04040a").lerp(new THREE.Color("#8a7a60"), nightFactor).getStyle(), [nightFactor]);
+  const sunColor = useMemo(() => new THREE.Color("#dce8ff").lerp(new THREE.Color("#fff4e0"), nightFactor).getStyle(), [nightFactor]);
   // LIVE-1 item 2 follow-up (coordinator 2026-09-14): the SAME nightFactor
   // exposed to EffectsStack.tsx (Bloom threshold) and ExposureSync (tone-
   // mapping exposure) below via a ref, never a reactive prop -- see
@@ -789,6 +837,17 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
   const GAMMA_RADIUS = 3.4;
   const gammaDeskCenter: [number, number, number] = [Math.cos(ARC_CENTER) * GAMMA_RADIUS, 0, Math.sin(ARC_CENTER) * GAMMA_RADIUS];
   const gammaRotationY = Math.PI / 2 - ARC_CENTER;
+  // INTERACT-2 (I2 a/b, 2026-09-14): "Chef/Coach walks to Gamma at the hub
+  // wall" -- 70% of the way from the hub center to Gamma's own desk, so the
+  // visitor stands near her without literally overlapping her chair.
+  const gammaHubMeet: [number, number, number] = [gammaDeskCenter[0] * 0.7, 0, gammaDeskCenter[2] * 0.7];
+  // Latest Chef "verdict" / Coach "sectors"|"task_health" row from
+  // crew-events.jsonl (CREW-2's own additive field, newest-last tail order
+  // per lib/hq.ts#readCrewEvents' own doc comment) -- feeds both the
+  // eventWalk trigger below (per persona) and the two-bubble hub exchange.
+  const crewEvents = data?.crewEvents ?? [];
+  const latestChefVerdict = [...crewEvents].reverse().find((e) => e.who === "Chef" && e.kind === "verdict") ?? null;
+  const latestCoachSectors = [...crewEvents].reverse().find((e) => e.who === "Coach" && (e.kind === "sectors" || e.kind === "task_health")) ?? null;
 
   // LIVE-1 item 1 (2026-09-14): keyboard fly-to targets for keys "1".."7" --
   // the SAME fixed [Gamma, ...6 personas] order collectCompany() already
@@ -892,7 +951,17 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
       if (p.status === "IDLE") return;
       const slot = personaGeometry[i] ?? personaGeometry[0];
       const pos: [number, number, number] = [slot.agentHome[0], slot.agentHome[1] + 2.0, slot.agentHome[2]];
-      const text = p.recentOutput ? truncateOneLine(p.recentOutput, 60) : truncateOneLine(rosterEvidenceText(p.lastFireISO), 60);
+      // I3 (INTERACT-2, 2026-09-14): "each person's bubble shows their own
+      // one-line status (recentOutput or their desk headline)" -- desk
+      // headline is a new, more targeted fallback ahead of the generic
+      // "quiet since..." evidence text, since it names the SAME real
+      // source the persona's own desk screen shows.
+      const deskHeadline = data?.desks?.[p.name]?.headline;
+      const text = p.recentOutput
+        ? truncateOneLine(p.recentOutput, 60)
+        : deskHeadline
+          ? truncateOneLine(deskHeadline, 60)
+          : truncateOneLine(rosterEvidenceText(p.lastFireISO), 60);
       out.push({ key: `persona:${p.name}`, position: pos, text, urgent: p.status === "RED" });
     });
     // Item 2b (LIVE-1, 2026-09-14): "each walk gets... a speech bubble with
@@ -907,8 +976,23 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
       const pos: [number, number, number] = [target[0], target[1] + 2.0, target[2]];
       out.push({ key: `walk:${p.name}`, position: pos, text: truncateOneLine(`${p.name} -> ${destLabel}: ${walk.reason}`, 60), urgent: false });
     });
+    // INTERACT-2 (I2 a/b, 2026-09-14): the Chef/Coach -> Gamma hub exchange
+    // -- two bubbles per active event (the visitor's own real crew-event
+    // line, Gamma's deterministic ack). Active for EVENT_BUBBLE_WINDOW_MIN
+    // minutes after the row's own real ts_et.
+    const hubExchanges: Array<{ persona: string; event: (typeof crewEvents)[number] }> = [];
+    if (latestChefVerdict) hubExchanges.push({ persona: "Chef", event: latestChefVerdict });
+    if (latestCoachSectors) hubExchanges.push({ persona: "Coach", event: latestCoachSectors });
+    hubExchanges.forEach(({ persona: name, event }) => {
+      const ageMin = minutesSinceEvidence(event.ts_et);
+      if (ageMin === null || ageMin >= EVENT_BUBBLE_WINDOW_MIN) return;
+      const visitorPos: [number, number, number] = [gammaHubMeet[0], gammaHubMeet[1] + 2.0, gammaHubMeet[2]];
+      out.push({ key: `hubevent:${name}`, position: visitorPos, text: truncateOneLine(event.line, 60), urgent: false });
+      const ackPos: [number, number, number] = [gammaDeskCenter[0], 2.0, gammaDeskCenter[2]];
+      out.push({ key: "hubevent:gamma-ack", position: ackPos, text: truncateOneLine(GAMMA_CREW_ACK[event.kind] ?? "logged, thanks", 60), urgent: false });
+    });
     return out;
-  }, [rows, geometry, innerPersonas, personaGeometry, purposefulWalks]);
+  }, [rows, geometry, innerPersonas, personaGeometry, purposefulWalks, crewEvents, latestChefVerdict, latestCoachSectors, gammaHubMeet, gammaDeskCenter, data?.desks]);
 
   const resolveHandoffPosition = (label: string): [number, number, number] => {
     const stripped = label.replace(/^[^\w]+/u, "").trim();
@@ -933,7 +1017,7 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
           artificial lighting wouldn't. nightMult floors at 0.5 (never
           pitch black -- a mood shift, not a blackout) and only multiplies
           the SAME two lights the pre-Pass-C perf budget already spent. */}
-      <hemisphereLight args={["#3a4a7a", "#04040a", 0.55 * nightMult * dimFactor]} />
+      <hemisphereLight args={[hemiSkyColor, hemiGroundColor, 0.55 * nightMult * dimFactor]} />
       {/* Ultra tier: this directional light also casts real shadows
           (module/agent meshes opt in via castShadow/receiveShadow below) --
           the TV tier's identical light stays shadow-free (shadows={false}
@@ -958,6 +1042,7 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
           shadows back on for floors/desks -- this toggle was scene-wide and
           never should ship disabled). */}
       <directionalLight
+        color={sunColor}
         position={[6, 10, 4]}
         intensity={0.55 * nightMult * dimFactor}
         castShadow={ultra}
@@ -1202,6 +1287,31 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
         const pilotScreenLines: ScreenLine[] | undefined = isPilot
           ? [accountScreenLine("SAFE", safeDecision), accountScreenLine("BOLD", boldDecision)]
           : undefined;
+        // INTERACT-2 (I1, 2026-09-14): every non-Pilot desk shows real work
+        // too -- lib/desk-content.ts's own reader per role, keyed by the
+        // EXACT persona.name string lib/personas.ts's collectors already
+        // use. Pilot keeps its dedicated core-decisions wiring above,
+        // never duplicated here (data.desks has no "Pilot" entry at all).
+        const deskInfo = !isPilot ? data?.desks?.[persona.name] : undefined;
+        const deskScreenLines: ScreenLine[] | undefined = deskInfo
+          ? [
+              { text: truncateOneLine(deskInfo.headline, 32), color: deskInfo.stale ? "#ffb020" : "#dff3ff", size: 15 },
+              { text: truncateOneLine(deskInfo.sub, 32), color: "#7ad9ff", size: 13 },
+              {
+                text: deskInfo.ageMin === null ? "age unknown" : `${Math.round(deskInfo.ageMin)}m ago${deskInfo.stale ? " (stale)" : ""}`,
+                color: deskInfo.stale ? "#ffb020" : "#5f7a99",
+                size: 12,
+              },
+            ]
+          : undefined;
+        // INTERACT-2 (I2 a/b): Chef's own station-verdicts.jsonl scoring /
+        // Coach's own sectors.json summary walks that ONE persona to Gamma
+        // at the hub -- see Agent.tsx's own eventWalk channel comment for
+        // why this reuses the "purposeful" phase machinery under a
+        // dedicated trigger rather than the 6-10min rotation's own one.
+        // Every other persona passes undefined for both props (no-op, see
+        // Agent.tsx's own null/undefined guard).
+        const hubEvent = persona.name === "Chef" ? latestChefVerdict : persona.name === "Coach" ? latestCoachSectors : null;
         return (
           <group key={persona.name}>
             <PersonaModule position={slot.position} persona={persona} behavior={behavior} audit={auditByName.get(persona.name)} />
@@ -1215,7 +1325,11 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
               <Suspense fallback={null}>
                 <group position={slot.position} rotation={[0, slot.rotationY, 0]}>
                   <group position={[0, 0, BAY_DESK_OFFSET_Z]}>
-                    <DeskCluster accentColor={personaStatusColor(persona.status)} screenTitle={isPilot ? "PILOT" : undefined} screenLines={pilotScreenLines} />
+                    <DeskCluster
+                      accentColor={personaStatusColor(persona.status)}
+                      screenTitle={isPilot ? "PILOT" : deskInfo ? persona.name.toUpperCase() : undefined}
+                      screenLines={isPilot ? pilotScreenLines : deskScreenLines}
+                    />
                   </group>
                 </group>
               </Suspense>
@@ -1246,6 +1360,11 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
                 // every 6-10 min" -- see palette.ts#computePurposefulWalk.
                 purposefulWalkEventKey={purposeful.walk.bucketKey}
                 purposefulTarget={purposeful.target}
+                // INTERACT-2 (I2 a/b): Chef/Coach -> Gamma at the hub, on
+                // their own real crew-event row. undefined for every other
+                // persona (hubEvent is null there) -- zero behavior change.
+                eventWalkEventKey={hubEvent ? hubEvent.ts_et : undefined}
+                eventWalkTarget={hubEvent ? gammaHubMeet : undefined}
                 // Item 2c (LIVE-1): Pilot-only "stands and points at the
                 // wall screen" -- a genuine ENTER/EXIT decision (seen-value-
                 // diff on action+timestamp, same convention as every other
@@ -1286,11 +1405,13 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
           </group>
         );
       })}
+      {/* I4 (INTERACT-2, 2026-09-14): the anonymous courier bot is retired
+          -- see HandoffCourier.tsx's own header comment. Only the STALE/
+          MISSING dashed-line markers remain, so no reducedMotion/rest
+          position is needed here any more. */}
       <HandoffCourier
         handoffs={data?.company?.handoffs ?? []}
         resolvePosition={resolveHandoffPosition}
-        restPosition={COURIER_REST}
-        reducedMotion={reducedMotion || gaming}
       />
 
       <IdeasWall cards={data?.ideas.cards ?? []} position={WALL_POS} dimFactor={dimFactor} />

@@ -8,13 +8,6 @@ import type { Handoff } from "@/lib/personas";
 interface HandoffCourierProps {
   handoffs: Handoff[];
   resolvePosition: (label: string) => [number, number, number];
-  // Accepted-but-unused (temporary): Scene.tsx (owned by the WORLD builder,
-  // mid-edit as of this commit -- see git status) still calls this component
-  // with its PRE-I4 prop shape. Kept optional here so the shared build stays
-  // green until the coordinated Scene.tsx edit lands (same pass) and drops
-  // these two -- never remove this without also touching that call site.
-  restPosition?: [number, number, number];
-  reducedMotion?: boolean;
 }
 
 /** One STALE/MISSING hop rendered as a dim dashed line + a small red "!"

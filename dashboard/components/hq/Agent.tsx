@@ -66,6 +66,26 @@ interface AgentProps {
    * never yanks the destination out from under an agent already walking
    * there. Omitted by every non-purposeful caller. */
   purposefulTarget?: [number, number, number] | null;
+  /** INTERACT-2 (I2, 2026-09-14): "walk to persona X" for a NAMED real event
+   * -- a crew-events.jsonl row (Chef verdict / Coach sectors|task_health),
+   * Scout's own mtime, a new Analyst/Treasurer file, or the day's first
+   * post-close core-decision (see Scene.tsx's own eventWalk derivation for
+   * each). A FOURTH independent seen-value-diff channel, never confused with
+   * `purposefulWalkEventKey`'s own 6-10min rotation -- reuses that SAME
+   * "purposeful" phase machinery (toHub/atHub-facing-target/toHome, the
+   * PURPOSEFUL_PAUSE dwell) rather than inventing a new walk kind, since the
+   * only real difference is WHICH real event chose the destination. If both
+   * channels change in the exact same render, this effect (declared after
+   * the purposeful one) wins the shared `pendingWalk` slot -- the same rare,
+   * low-stakes collision this file's other multi-channel triggers already
+   * accept, now favoring the more specific named event. */
+  eventWalkEventKey?: string | null;
+  /** The real world point `eventWalkEventKey`'s walk goes to (Gamma's desk
+   * area, Pilot's desk, Chef's desk, ...) -- same snapshot-at-walk-start
+   * discipline as `purposefulTarget`. Falls back to `approach` if a caller
+   * somehow queues the key with no target (defensive; Scene.tsx always
+   * pairs the two). */
+  eventWalkTarget?: [number, number, number] | null;
   /** J 2026-09-13 ("nearest agent turns to the viewer / night-patrol dim"
    * on presence flipping): "greet" holds the resting-state facing at
    * `facingYaw` instead of the idle look-around; "patrol" dims the visor.
@@ -95,7 +115,11 @@ interface AgentProps {
 
 const WALK_DURATION = 4.5;
 const HUB_PAUSE = 1.5;
-const ALLHANDS_HUB_PAUSE = 60;
+// INTERACT-2 (I3, 2026-09-14): 60 -> 25s -- "everyone turns toward the hub
+// wall for ~25s" (spec). BrainCore.tsx's own all-hands pulse window is a
+// SEPARATE constant (not owned by this file); this only shortens how long
+// each persona's own Agent body stands at the core facing it.
+const ALLHANDS_HUB_PAUSE = 25;
 const POINT_HOLD_S = 7; // item 2c (LIVE-1): how long Pilot holds the "point" gesture after a fresh ENTER/EXIT
 const PURPOSEFUL_PAUSE = 4; // item 2b (LIVE-1): dwell at the destination -- long enough for the reason bubble/ticker line to read
 // World-2 item 5 (2026-09-14, J: "futures is running because it's on alert...
@@ -129,7 +153,7 @@ type AlertPacePhase = "toDoor" | "atDoor" | "toDesk" | "atDesk";
  * (no timer, no destination) and stay as-is.
  */
 export default function Agent({
-  laneSeed, home, hub, behavior, accentColor, reducedMotion, walkEventKey, walkKind, allHandsEventKey, purposefulWalkEventKey, pointEventKey, purposefulTarget, presenceMode, facingYaw,
+  laneSeed, home, hub, behavior, accentColor, reducedMotion, walkEventKey, walkKind, allHandsEventKey, purposefulWalkEventKey, pointEventKey, purposefulTarget, eventWalkEventKey, eventWalkTarget, presenceMode, facingYaw,
   scheduleDim = 1,
   ultra = false,
 }: AgentProps) {
@@ -263,6 +287,25 @@ export default function Agent({
     pendingWalk.current = "purposeful";
   }, [purposefulWalkEventKey]);
 
+  // INTERACT-2 (I2, 2026-09-14) -- named-event walk trigger, a FOURTH
+  // independent seen-value-diff channel. `eventWalkPending` records that
+  // THIS channel (not the rotational purposeful-walk one) is the reason
+  // `pendingWalk.current` is "purposeful", so the consumption block below
+  // reads `eventWalkTarget` instead of `purposefulTarget` for this walk.
+  const seenEventWalkKey = useRef<string | null | undefined>(undefined);
+  const eventWalkPending = useRef(false);
+  useEffect(() => {
+    if (eventWalkEventKey === null || eventWalkEventKey === undefined) return;
+    if (seenEventWalkKey.current === undefined) {
+      seenEventWalkKey.current = eventWalkEventKey;
+      return;
+    }
+    if (eventWalkEventKey === seenEventWalkKey.current) return;
+    seenEventWalkKey.current = eventWalkEventKey;
+    eventWalkPending.current = true;
+    pendingWalk.current = "purposeful";
+  }, [eventWalkEventKey]);
+
   // Item 2c (LIVE-1, 2026-09-14) -- Pilot-only "stands and points" trigger,
   // a THIRD independent seen-value-diff channel (never confused with the
   // walk-queue triggers above -- this one holds a POSE, it never queues a
@@ -379,13 +422,20 @@ export default function Agent({
     if (pendingWalk.current) {
       if (reducedMotion) {
         pendingWalk.current = null;
+        eventWalkPending.current = false;
       } else if (phase.current === "resting") {
         activeWalkKind.current = pendingWalk.current;
-        // Item 2b (LIVE-1): snapshot the destination NOW, not a live prop
-        // read later -- falls back to the generic `approach` point if the
-        // parent somehow queued "purposeful" with no target (defensive,
-        // should never happen given Scene.tsx always pairs the two).
-        activeTarget.current = pendingWalk.current === "purposeful" ? (purposefulTarget ?? approach) : null;
+        // Item 2b (LIVE-1) / INTERACT-2 (I2): snapshot the destination NOW,
+        // not a live prop read later. A "purposeful" walk queued by THIS
+        // render's eventWalk trigger reads eventWalkTarget; the rotational
+        // 6-10min trigger reads purposefulTarget as before. Both fall back
+        // to the generic `approach` point if the parent somehow queued with
+        // no target (defensive, should never happen given Scene.tsx always
+        // pairs a trigger with its own target).
+        activeTarget.current = pendingWalk.current === "purposeful"
+          ? (eventWalkPending.current ? (eventWalkTarget ?? approach) : (purposefulTarget ?? approach))
+          : null;
+        eventWalkPending.current = false;
         phase.current = pendingWalk.current === "arrival" ? "arriving" : "toHub";
         phaseStart.current = t;
         pendingWalk.current = null;

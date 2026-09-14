@@ -107,8 +107,12 @@ export interface HqApiResponse {
   crewEvents: CrewEvent[];
   // INTERACT-2 (I1) -- additive field, see lib/desk-content.ts#readDesksSnapshot.
   // Pilot is deliberately absent (Scene.tsx keeps reading data.trading.core
-  // for Pilot's own desk screen -- see that file's own comment).
-  desks: Record<DeskPersonaName, DeskContent>;
+  // for Pilot's own desk screen -- see that file's own comment). A Partial
+  // string-keyed record (not the stricter Record<DeskPersonaName, ...>) is
+  // the honest wire type here: callers look this up by an arbitrary
+  // PersonaState.name (a plain string), and only 6 of those names actually
+  // resolve to a real entry.
+  desks: Partial<Record<string, DeskContent>>;
   // INTERACT-2 (I3) -- explicit alias for brief.mtime_ms as a readable ISO
   // string; same real mtime, no new read. Null exactly when brief.mtime_ms is.
   briefWrittenAt: string | null;
