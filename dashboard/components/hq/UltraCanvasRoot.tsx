@@ -6,6 +6,7 @@ import * as THREE from "three";
 import Scene from "./Scene";
 import StandbyPanel from "./StandbyPanel";
 import PerfReporter from "./PerfReporter";
+import { HUD_RIGHT_COLUMN_WIDTH } from "./Hud";
 import type { HqApiResponse } from "./types";
 
 interface UltraCanvasRootProps {
@@ -60,7 +61,19 @@ function UltraCanvasRoot({ data, reducedMotion, kiosk }: UltraCanvasRootProps) {
   const frameloop = paused ? "never" : "always";
 
   return (
-    <div style={{ position: "fixed", inset: 0, background: "#03040a" }}>
+    // Pass G (2026-09-13, coordinator item 1: "the 3D canvas gets the left
+    // ~74% of the viewport... nothing can sit under the roster after
+    // that"): width constrained to calc(100% - HUD_RIGHT_COLUMN_WIDTH)
+    // instead of the old full-viewport inset:0 -- the canvas DOM element's
+    // own bounding rect is what drei's <Html> positions labels relative
+    // to, so a narrower container makes it STRUCTURALLY impossible for a
+    // 3D-projected label to land under Hud.tsx's solid right column,
+    // rather than relying on camera framing / opacity to avoid it (Pass
+    // F's approach, which helped but never fully worked). r3f's own
+    // ResizeObserver on the canvas element updates `camera.aspect`
+    // automatically when this width changes -- no separate aspect-ratio
+    // code needed here.
+    <div style={{ position: "fixed", top: 0, left: 0, bottom: 0, width: `calc(100% - ${HUD_RIGHT_COLUMN_WIDTH}px)`, background: "#03040a" }}>
       {/* Standby state (2026-09-13 -- J: "wtf is this slop" on the old
           dim-the-whole-3D-scene-and-overlay-a-giant-plaque approach). That
           is GONE: while paused the canvas is fully HIDDEN

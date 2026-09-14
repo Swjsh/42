@@ -19,7 +19,25 @@ interface HudProps {
   kiosk: boolean;
   isValidating: boolean;
   motionEvents: MotionEvent[];
+  /** Pass G (2026-09-13, coordinator item 4): "on the ultra tier show THIS
+   * device's numbers; the TV line only on the TV tier (or prefixed as a
+   * second line, never alone)" -- the perf-line block below needs to know
+   * which tier IT is rendering inside to pick data.perf vs data.perfOther
+   * correctly; Hud.tsx previously always read data.perf regardless of
+   * viewer. */
+  tier: "ultra" | "tv";
 }
+
+/** Pass G (2026-09-13, coordinator item 1: "split layout... world left,
+ * roster right, the Grok-Bot company view J liked"): fixed right-column
+ * width shared with UltraCanvasRoot.tsx/CanvasRoot.tsx, whose OWN canvas
+ * container is width-constrained to `calc(100% - HUD_RIGHT_COLUMN_WIDTH)`
+ * so the 3D canvas physically CANNOT render a pixel under this column --
+ * solved by construction, not by the camera-angle/opacity mitigations Pass
+ * F tried (which helped but never fully eliminated the collision, per that
+ * pass's own honest note). One constant, three files -- exported from here
+ * since this component owns the column's actual content. */
+export const HUD_RIGHT_COLUMN_WIDTH = 500;
 
 function useEtClock(): string {
   const [text, setText] = useState("--:--:--");
@@ -43,7 +61,7 @@ const HUD_FONT = "system-ui, -apple-system, Segoe UI, Roboto, sans-serif";
  * Sits in a fixed, full-viewport, pointer-events-none wrapper above the
  * <Canvas>; individual controls (Home link) re-enable pointer events.
  */
-export default function Hud({ data, error, kiosk, isValidating, motionEvents }: HudProps) {
+export default function Hud({ data, error, kiosk, isValidating, motionEvents, tier }: HudProps) {
   const etClock = useEtClock();
   const mode = data?.mode ?? "unknown";
   const gaming = mode === "gaming";
@@ -63,7 +81,13 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents }: 
   const auditByName = new Map((data?.audit?.personas ?? []).map((a) => [a.name, a]));
 
   return (
-    <div style={{ position: "fixed", inset: 0, pointerEvents: "none", fontFamily: HUD_FONT, zIndex: 10 }}>
+    <>
+    <div
+      style={{
+        position: "fixed", top: 0, left: 0, bottom: 0, width: `calc(100% - ${HUD_RIGHT_COLUMN_WIDTH}px)`,
+        pointerEvents: "none", fontFamily: HUD_FONT, zIndex: 10, overflow: "hidden",
+      }}
+    >
       <style>{`
         /* "Epic animations for the folders" (2026-09-13, J via 21st.dev) --
            hand-implemented (no code copied), concepts credited per rule:
@@ -158,102 +182,6 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents }: 
         </span>
       </div>
 
-      {/* NEEDS-J card (Company Mode step 7, 2026-09-13): read-only amber
-          alert aggregating discord-outbox mentions of J, pending conductor
-          proposals, and FABLE-ESCALATION queue lines -- see
-          lib/hq.ts#readBlocked. Newest 3 of up to 8; hidden entirely when
-          there's nothing blocked so it never occupies space on a clean day. */}
-      {blockedItems.length > 0 && (
-        <div
-          style={{
-            position: "absolute", top: 70, left: 20, width: 380,
-            background: "rgba(40,26,0,0.75)", border: "1px solid #ffb020", borderRadius: 8,
-            padding: "8px 14px",
-          }}
-        >
-          <div style={{ color: "#ffb020", fontSize: 18, fontWeight: 800, letterSpacing: 0.5, marginBottom: 4 }}>
-            NEEDS J ({blockedItems.length})
-          </div>
-          {blockedItems.slice(0, 3).map((item, i) => (
-            <div key={`${item.source}-${item.ts ?? i}`} style={{ fontSize: 14, color: "#ffe0a3", marginTop: i === 0 ? 0 : 6, lineHeight: 1.3 }}>
-              <span style={{ color: "#ffb020", fontWeight: 700 }}>[{BLOCKED_SOURCE_LABEL[item.source] ?? item.source}]</span>{" "}
-              {item.text}
-              <span style={{ color: "#c99457" }}> &middot; {item.age}</span>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Roster HUD (Company Mode step 5, 2026-09-13): right-edge company
-          roster -- emoji/name/status-dot/"Xm ago"/one line of recentOutput
-          (<=60 chars) per persona, 22-24px per the 10-foot-readability
-          scale used everywhere else on this HUD. GREEN rows pulse
-          (.hq-pulse, opacity-only); everything else is static text -- no
-          per-row 3D geometry, so this never touches the scene's own budget. */}
-      {personas.length > 0 && (
-        <div style={{ position: "absolute", top: 70, right: 20, width: 460, display: "flex", flexDirection: "column", gap: 8 }}>
-          {personas.map((p) => {
-            const color = personaStatusColor(p.status);
-            const audit = auditByName.get(p.name);
-            const auditColor = auditVerdictColor(audit?.verdict);
-            // Hover title (coordinator 2026-09-13: "works-evidence line on
-            // hover/plaque") -- native title attribute, a real OS tooltip,
-            // cheapest correct way to surface a long evidence string without
-            // permanently spending screen space on it.
-            const auditTitle = audit
-              ? `Audit ${audit.verdict}: ${audit.checks.works.evidence}`
-              : "Audit: not yet run for this persona";
-            return (
-              <div
-                key={p.name}
-                className={p.status === "GREEN" ? "hq-pulse" : undefined}
-                style={{
-                  // Pass F (2026-09-13, coordinator's real-monitor capture,
-                  // item 4 "reserve the right 480px for the roster"):
-                  // opacity 0.6->0.93 -- a 3D-projected lane/persona label
-                  // can land anywhere on screen depending on camera angle
-                  // (they're not screen-space-aware of this HUD column), so
-                  // a near-opaque background is what actually GUARANTEES
-                  // this column reads clean regardless of what's behind it,
-                  // rather than relying on camera angle alone to avoid
-                  // ever placing something back there.
-                  background: "rgba(3,4,10,0.93)", border: `1px solid ${color}55`,
-                  borderRadius: 8, padding: "6px 12px",
-                }}
-              >
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <span style={{ width: 10, height: 10, borderRadius: 999, flexShrink: 0, background: color, boxShadow: `0 0 6px ${color}` }} />
-                  <span style={{ color: "#dff3ff", fontSize: 24, fontWeight: 700, whiteSpace: "nowrap" }}>
-                    {p.emoji} {p.name}
-                  </span>
-                  {/* Audit badge -- a SEPARATE dot from the status dot above
-                      (status = "is it firing on schedule", audit = "is the
-                      work real" -- the two can disagree, e.g. Treasurer
-                      fires on time but has never once produced its
-                      deliverable, a ghost this badge is the point of
-                      catching). Letter, not just a color, since PASS/WARN
-                      both use warm-adjacent hues some viewers won't
-                      distinguish by color alone. */}
-                  <span
-                    title={auditTitle}
-                    style={{
-                      pointerEvents: "auto", marginLeft: "auto", fontSize: 15, fontWeight: 800,
-                      color: "#03040a", background: auditColor, borderRadius: 4,
-                      padding: "1px 5px", flexShrink: 0, letterSpacing: 0.5,
-                    }}
-                  >
-                    {audit ? audit.verdict[0] : "?"}
-                  </span>
-                </div>
-                <div style={{ color: "#9fb3cc", fontSize: 24, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginTop: 2 }}>
-                  {rosterEvidenceText(p.lastFireISO)} &mdash; {truncateOneLine(p.recentOutput, 60)}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
       {/* Non-kiosk only: Home link, slim */}
       {!kiosk && (
         <div style={{ position: "absolute", top: 16, right: 20, pointerEvents: "auto", display: "flex", alignItems: "center", gap: 14 }}>
@@ -309,24 +237,135 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents }: 
         )}
       </div>
 
-      {/* Bottom-right corner: TV self-reported perf (J must SEE the number) + synced status.
-          2026-09-13 bug fix: /api/hq now separates the TV's own reports from a PC-browser
-          LAN visit (lib/hq.ts#readLatestHqPerf) -- label says "TV" only when the row's own
-          UA actually is one; a PC visit shows as "Last visit" instead so it never gets
-          mistaken for the TV's real number. */}
+      {/* Bottom-right corner: perf + synced status. Pass G (2026-09-13,
+          coordinator item 4: "on the ultra tier show THIS device's
+          numbers; the TV line only on the TV tier (or prefixed 'TV:' as a
+          second line, never alone)") -- this used to ALWAYS read
+          data.perf (the TV-tagged report, matched by UA) regardless of
+          which tier was actually rendering it, so an ultra-tier viewer on
+          J's own monitor saw a stale/unrelated TV number, never their own.
+          Now: ultra tier reads data.perfOther (this session's own report,
+          per PerfReporter.tsx's `enabled={kiosk}` gate) as the primary
+          line, with the TV's own line added below it ONLY if data.perf
+          exists (both labeled, never one bare number with no source). TV
+          tier keeps exactly its old single line. */}
       <div style={{ position: "absolute", bottom: 8, right: 12, textAlign: "right" }}>
-        {(() => {
-          const p = data?.perf;
-          if (!p) return null;
-          const isTv = /SMART-TV|Tizen/.test(p.ua);
-          return (
+        {tier === "ultra" ? (
+          <>
+            {data?.perfOther && (
+              <div style={{ color: "#5c7aa0", fontSize: 12, fontVariantNumeric: "tabular-nums" }}>
+                This device: {data.perfOther.fps} fps · {data.perfOther.w}x{data.perfOther.h} · {data.perfOther.calls} calls · {data.perfOther.tris} tris
+              </div>
+            )}
+            {data?.perf && (
+              <div style={{ color: "#3f4f68", fontSize: 11, fontVariantNumeric: "tabular-nums" }}>
+                TV: {data.perf.fps} fps · {data.perf.w}x{data.perf.h} · {data.perf.calls} calls
+              </div>
+            )}
+          </>
+        ) : (
+          data?.perf && (
             <div style={{ color: "#5c7aa0", fontSize: 12, fontVariantNumeric: "tabular-nums" }}>
-              {isTv ? "TV" : "Last visit"} {p.fps} fps · {p.w}x{p.h} · {p.calls} calls
+              TV: {data.perf.fps} fps · {data.perf.w}x{data.perf.h} · {data.perf.calls} calls
             </div>
-          );
-        })()}
+          )
+        )}
         <span style={{ color: "#4a5a78", fontSize: 11 }}>{syncedText}</span>
       </div>
     </div>
+
+    {/* Right column (Pass G, 2026-09-13, coordinator item 1): needs-J +
+        roster, solid background, normal document flow (no more per-item
+        absolute positioning -- there's no camera-angle collision to dodge
+        once the canvas physically cannot render under this column). Both
+        moved here verbatim from the left overlay above (needs-J was
+        top-left, roster was top-right -- now stacked together on the
+        right, matching the coordinator's own "Grok-Bot company view"
+        reference). */}
+    <div
+      style={{
+        position: "fixed", top: 0, right: 0, bottom: 0, width: HUD_RIGHT_COLUMN_WIDTH,
+        background: "#03040a", borderLeft: "1px solid rgba(122,217,255,0.15)",
+        overflowY: "auto", zIndex: 10, padding: "20px 20px", pointerEvents: "none",
+        display: "flex", flexDirection: "column", gap: 16,
+      }}
+    >
+      {/* NEEDS-J card (Company Mode step 7, 2026-09-13): read-only amber
+          alert aggregating discord-outbox mentions of J, pending conductor
+          proposals, and FABLE-ESCALATION queue lines -- see
+          lib/hq.ts#readBlocked. Newest 3 of up to 8; hidden entirely when
+          there's nothing blocked so it never occupies space on a clean day. */}
+      {blockedItems.length > 0 && (
+        <div
+          style={{
+            background: "rgba(40,26,0,0.75)", border: "1px solid #ffb020", borderRadius: 8,
+            padding: "8px 14px", flexShrink: 0,
+          }}
+        >
+          <div style={{ color: "#ffb020", fontSize: 18, fontWeight: 800, letterSpacing: 0.5, marginBottom: 4 }}>
+            NEEDS J ({blockedItems.length})
+          </div>
+          {blockedItems.slice(0, 3).map((item, i) => (
+            <div key={`${item.source}-${item.ts ?? i}`} style={{ fontSize: 14, color: "#ffe0a3", marginTop: i === 0 ? 0 : 6, lineHeight: 1.3 }}>
+              <span style={{ color: "#ffb020", fontWeight: 700 }}>[{BLOCKED_SOURCE_LABEL[item.source] ?? item.source}]</span>{" "}
+              {item.text}
+              <span style={{ color: "#c99457" }}> &middot; {item.age}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Roster HUD (Company Mode step 5, 2026-09-13): emoji/name/status-
+          dot/"Xm ago"/one line of recentOutput (<=60 chars) per persona,
+          22-24px per the 10-foot-readability scale used everywhere else on
+          this HUD. GREEN rows pulse (.hq-pulse, opacity-only); everything
+          else is static text -- no per-row 3D geometry, so this never
+          touches the scene's own budget. Opacity 0.93 (Pass F) kept even
+          though the split-column layout (Pass G) makes it structurally
+          redundant now -- cheap insurance, never hurts. */}
+      {personas.length > 0 && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {personas.map((p) => {
+            const color = personaStatusColor(p.status);
+            const audit = auditByName.get(p.name);
+            const auditColor = auditVerdictColor(audit?.verdict);
+            const auditTitle = audit
+              ? `Audit ${audit.verdict}: ${audit.checks.works.evidence}`
+              : "Audit: not yet run for this persona";
+            return (
+              <div
+                key={p.name}
+                className={p.status === "GREEN" ? "hq-pulse" : undefined}
+                style={{
+                  background: "rgba(3,4,10,0.93)", border: `1px solid ${color}55`,
+                  borderRadius: 8, padding: "6px 12px",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ width: 10, height: 10, borderRadius: 999, flexShrink: 0, background: color, boxShadow: `0 0 6px ${color}` }} />
+                  <span style={{ color: "#dff3ff", fontSize: 24, fontWeight: 700, whiteSpace: "nowrap" }}>
+                    {p.emoji} {p.name}
+                  </span>
+                  <span
+                    title={auditTitle}
+                    style={{
+                      pointerEvents: "auto", marginLeft: "auto", fontSize: 15, fontWeight: 800,
+                      color: "#03040a", background: auditColor, borderRadius: 4,
+                      padding: "1px 5px", flexShrink: 0, letterSpacing: 0.5,
+                    }}
+                  >
+                    {audit ? audit.verdict[0] : "?"}
+                  </span>
+                </div>
+                <div style={{ color: "#9fb3cc", fontSize: 24, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginTop: 2 }}>
+                  {rosterEvidenceText(p.lastFireISO)} &mdash; {truncateOneLine(p.recentOutput, 60)}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+    </>
   );
 }

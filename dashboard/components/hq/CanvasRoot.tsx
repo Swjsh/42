@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import Scene from "./Scene";
 import PerfReporter from "./PerfReporter";
+import { HUD_RIGHT_COLUMN_WIDTH } from "./Hud";
 import type { HqApiResponse } from "./types";
 
 interface CanvasRootProps {
@@ -35,7 +36,14 @@ const MAX_DPR = 1.25;
 
 function computeDpr(): number {
   const dpr = Math.min(Math.max(window.devicePixelRatio || 1, 1), MAX_DPR);
-  const cssWidth = window.innerWidth || MAX_BUFFER_WIDTH;
+  // Pass G (2026-09-13): the canvas container is now calc(100% -
+  // HUD_RIGHT_COLUMN_WIDTH) wide (see the split-layout div below), not the
+  // full window -- subtracting it here keeps this buffer-width cap
+  // matched to the canvas's ACTUAL rendered width instead of over-counting
+  // by 500px of a column it no longer occupies. Floored at a sane minimum
+  // so a pathologically narrow window (well below any real TV/monitor)
+  // never divides by a near-zero width.
+  const cssWidth = Math.max(window.innerWidth - HUD_RIGHT_COLUMN_WIDTH, 320) || MAX_BUFFER_WIDTH;
   const bufferWidth = cssWidth * dpr;
   return bufferWidth <= MAX_BUFFER_WIDTH ? dpr : MAX_BUFFER_WIDTH / cssWidth;
 }
@@ -67,7 +75,10 @@ export default function CanvasRoot({ data, reducedMotion, lanKiosk: _lanKiosk, k
   }, []);
 
   return (
-    <div style={{ position: "fixed", inset: 0, background: "#03040a" }}>
+    // Pass G (2026-09-13, coordinator item 1): same split-layout width
+    // constraint as UltraCanvasRoot.tsx -- see that file's own comment for
+    // the full mechanism.
+    <div style={{ position: "fixed", top: 0, left: 0, bottom: 0, width: `calc(100% - ${HUD_RIGHT_COLUMN_WIDTH}px)`, background: "#03040a" }}>
       <Canvas
         dpr={dpr}
         frameloop={frameloop}

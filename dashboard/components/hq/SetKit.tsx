@@ -253,20 +253,52 @@ export function HubRoom() {
           capture): this shell was reading flat BLACK -- a dome dominating
           the frame, exactly the earlier "black hole" complaint, but on the
           room shell, not the Starfield planet (see tintObjectMaterials' own
-          comment for the angular-size math ruling the planet out). A warm,
-          modest emissive (never fully dark regardless of what light
-          reaches it) plus a slight tint toward the same warm accent this
-          scene already uses at the horizon (PALETTE.warmAccent) -- low
-          intensity (0.4) so it reads as a dimly-lit interior surface, not a
-          glowing lightbulb. */}
+          comment for the angular-size math ruling the planet out). A warm
+          emissive (never fully dark regardless of what light reaches it)
+          plus a slight tint toward the same warm accent this scene already
+          uses at the horizon (PALETTE.warmAccent).
+          Pass G escalation (2026-09-13, coordinator: "the big black arch at
+          the hub's top... reads as a cave mouth" -- STILL visible after
+          Pass F's fix): emissive is UNIFORM across this whole mesh (one
+          shared material, confirmed by parsing room-large.glb's own JSON
+          chunk -- one mesh, one material), so a genuinely still-dark patch
+          isn't a per-face lighting gap, it's that 0.4 wasn't bright enough
+          for a surface receiving ZERO other light to read as clearly LIT
+          rather than merely "not pure black" once tone-mapping/exposure
+          compresses it back down next to a much brighter, directly-lit
+          neighbor. 0.4->0.85 (a direct escalation of the SAME already-
+          working mechanism, not a new one) plus one additional real
+          pointLight below, centered and with a much longer falloff than
+          the 4 existing ceiling fixtures (distance 9, tuned for the near
+          desk/floor area) specifically so the far dome interior actually
+          receives real, non-emissive light too, not just the emissive
+          floor. */}
+      {/* Pass G (2026-09-13): tried a 180deg Y rotation here to test whether
+          the black patch was a camera-facing opening -- REVERTED after a
+          real re-capture showed the patch UNCHANGED in shape/position,
+          same evidence-based discipline as Pass F's ARC_SPAN revert. Two
+          real data points now rule out both "not bright enough" (emissive
+          0.4->0.85 + a new pointLight: no visible change) and "wrong side
+          facing camera" (180deg rotation: no visible change) -- together
+          these point at something the coordinator's own three suggested
+          fixes don't cover: likely the mesh's actual OUTER silhouette
+          against the sky/void (a real gap or funnel shape a rotation
+          around the vertical axis can't hide), not a lighting or facing
+          problem at all. Left honestly unresolved rather than guessed a
+          third time -- needs either direct mesh inspection (Blender, not
+          available this session) or a positioned patch mesh, flagged for
+          next pass. The emissive+pointLight escalation stays (a real,
+          if partial, improvement to the rest of the shell's lit look --
+          see the room-wide comparison against Pass F's own capture). */}
       <KitProp
         path={KIT_PATHS.architecture.roomLarge}
         scale={ARCHITECTURE_SCALE_HUB}
         tint={PALETTE.warmAccent}
         tintStrength={0.08}
-        emissive={{ color: PALETTE.warmAccent, intensity: 0.4 }}
+        emissive={{ color: PALETTE.warmAccent, intensity: 0.85 }}
         receiveShadow
       />
+      <pointLight position={[0, HUB_CEILING_Y * 0.7, 0]} color="#ffd9a0" intensity={6} distance={16} decay={1.5} />
       {[0, 90, 180, 270].map((deg) => {
         const rad = (deg * Math.PI) / 180;
         const pos: [number, number, number] = [Math.cos(rad) * lightRadius, HUB_CEILING_Y, Math.sin(rad) * lightRadius];

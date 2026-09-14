@@ -27,6 +27,80 @@ function hopKey(from: string, to: string, evidence: string): string {
   return `${from}->${to}::${evidence}`;
 }
 
+/** ET string ("2026-09-14 02:21:00 ET" -- station-brief/loop-ledger's own
+ * format) or a real ISO string (PersonaState.lastFireISO, WITH a timezone
+ * offset) -> a comparable sort key. The two need different handling: an ET
+ * string has NO offset, so `Date.parse` would read it as the BROWSER's
+ * local time (this codebase's own standing TZ bug, CLAUDE.md's own
+ * lesson) -- parsed by digits instead, "as if UTC" (wrong in absolute
+ * terms, but self-consistent for sorting since every ET-labeled value uses
+ * the same trick). A real ISO string parses correctly via Date.parse, then
+ * its ET-timezone digits are re-extracted via Intl and fed through the
+ * SAME "as if UTC" trick -- so both source shapes land in one comparable
+ * unit. Returns null on anything unparsable (an event that can't be
+ * time-sorted honestly is dropped, never guessed into the wrong slot). */
+function toComparableEtMs(raw: string): number | null {
+  const etMatch = /(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2}):(\d{2})/.exec(raw);
+  if (etMatch && /ET\s*$/.test(raw)) {
+    const [, y, mo, d, h, mi, s] = etMatch.map(Number);
+    return Date.UTC(y, mo - 1, d, h, mi, s);
+  }
+  const parsed = Date.parse(raw);
+  if (Number.isNaN(parsed)) return null;
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York",
+    year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false,
+  }).formatToParts(new Date(parsed));
+  const get = (type: string) => Number(parts.find((p) => p.type === type)?.value ?? "0");
+  const hour = get("hour") % 24;
+  return Date.UTC(get("year"), get("month") - 1, get("day"), hour, get("minute"), get("second"));
+}
+
+/** Ticker seed (Pass G, 2026-09-13, coordinator: "a fresh page shows the
+ * last hour of the company" instead of the blank 'no events yet' state
+ * every viewer saw on load). Two REAL-timestamped sources, both already on
+ * the wire (zero new producers): brainVitals.fireTimeline (Gamma_Station's
+ * own loop-ledger tail, readLedgerTail(10) in app/api/hq/route.ts) and
+ * each persona's own lastFireISO. Merged, sorted newest-first by the
+ * comparable key above, top 3 kept -- matching the live ticker's own
+ * "newest first, 3 max" shape exactly, just computed once up front instead
+ * of accumulated one poll at a time. Idea-card and handoff seeding were
+ * considered and left out: StationIdeaCard has a real ts_et field (a
+ * future addition could fold it in), but Handoff carries NO timestamp
+ * field at all -- fabricating one to sort by would violate "every line
+ * names a real event" by lying about the ORDER, not just inventing text. */
+function buildSeedEvents(data: HqApiResponse): MotionEvent[] {
+  const candidates: { ms: number; tsEt: string; text: string }[] = [];
+
+  const fireTimeline = (data.brainVitals?.fireTimeline ?? []) as Array<{ ts_et?: string; cards_added?: number; status?: string; reason?: string }>;
+  for (const row of fireTimeline) {
+    if (!row.ts_et) continue;
+    const ms = toComparableEtMs(row.ts_et);
+    if (ms === null) continue;
+    const hhmm = row.ts_et.slice(11, 16);
+    const added = row.cards_added ?? 0;
+    const text = row.status === "yielded"
+      ? `Station fire ${hhmm} ET -> yielded (${row.reason ?? "GPU busy"})`
+      : added > 0
+        ? `Station fire ${hhmm} ET -> ${added} card${added === 1 ? "" : "s"} added`
+        : `Station fire ${hhmm} ET -> nothing new`;
+    candidates.push({ ms, tsEt: hhmm, text });
+  }
+
+  for (const p of data.company?.personas ?? []) {
+    if (!p.lastFireISO) continue;
+    const ms = toComparableEtMs(p.lastFireISO);
+    if (ms === null) continue;
+    const d = new Date(ms);
+    const hhmm = `${String(d.getUTCHours()).padStart(2, "0")}:${String(d.getUTCMinutes()).padStart(2, "0")}`;
+    candidates.push({ ms, tsEt: hhmm, text: `${p.emoji} ${p.name} fired` });
+  }
+
+  candidates.sort((a, b) => b.ms - a.ms);
+  return candidates.slice(0, 3).map((c, i) => ({ id: -1000 - i, tsEt: c.tsEt, text: c.text }));
+}
+
 /**
  * "They need MEANING" (J 2026-09-13): every agent walk must trace to a
  * real, nameable event, and the HUD must SAY what it was. This hook is the
@@ -75,7 +149,10 @@ export function useMotionEvents(data: HqApiResponse | undefined): MotionEvent[] 
   const present = data.presence?.present ?? null;
 
   if (!seeded.current) {
-    // First poll ever: seed every map/set, log nothing.
+    // First poll ever: seed every map/set (unchanged -- live diffing below
+    // still only logs a GENUINE change after this point) AND populate the
+    // ticker from real past events (Pass G, 2026-09-13) instead of leaving
+    // it blank until something happens live.
     seeded.current = true;
     for (const c of cards) prevCardStatus.current.set(c.id, c.status);
     for (const p of personas) prevPersonaFire.current.set(p.name, p.lastFireISO);
@@ -85,6 +162,7 @@ export function useMotionEvents(data: HqApiResponse | undefined): MotionEvent[] 
     prevGaming.current = gaming;
     prevPresent.current = present;
     prevBriefMtime.current = data.brief?.mtime_ms ?? null;
+    events.current = buildSeedEvents(data);
     return events.current;
   }
 

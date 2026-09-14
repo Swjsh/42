@@ -183,6 +183,30 @@ export default function StationModule({
         distanceFactor={9}
         style={{ pointerEvents: "none" }}
       >
+        {/* Pass G (2026-09-13, coordinator item 5: "parked lanes quiet --
+            currently carry the biggest labels in the frame; parked = dim,
+            small, grey; active/armed lanes keep the weight"): a parked
+            label previously only dropped to 0.6 opacity at the SAME big
+            font size + the same rotating .hq-beam border + the same
+            one-shot .hq-shine sweep on health change -- all three read as
+            "look at me," the opposite of quiet. Parked now skips the beam/
+            shine entirely (a plain, static, small box) and drops font size
+            ~45% + opacity to 0.45 + text color to a flat grey, matching
+            "small and grey" literally rather than just dimmer at full
+            size. Active/armed lanes are BYTE-IDENTICAL to before this
+            edit -- only the parked branch changed. */}
+        {parked ? (
+          <div
+            style={{
+              fontFamily: "system-ui, sans-serif", color: "#5c7aa0",
+              background: "rgba(3,4,10,0.6)", padding: "4px 10px", borderRadius: 6,
+              whiteSpace: "nowrap", textAlign: "center", opacity: 0.45,
+            }}
+          >
+            <div style={{ fontSize: ultra ? 20 : 17, fontWeight: 600, lineHeight: 1.15 }}>{row.lane}</div>
+            <div style={{ fontSize: ultra ? 16 : 14 }}>{row.state} · PARKED</div>
+          </div>
+        ) : (
         <div className="hq-beam" style={{ "--beam-color": color, borderRadius: 8 } as CSSProperties}>
           <div
             style={{
@@ -190,7 +214,6 @@ export default function StationModule({
               fontFamily: "system-ui, sans-serif", color: "#dff3ff",
               background: "rgba(3,4,10,0.75)", padding: "6px 16px", borderRadius: 7,
               whiteSpace: "nowrap", textAlign: "center",
-              opacity: parked ? 0.6 : 1,
             }}
           >
             <span key={row.health} className="hq-shine" />
@@ -206,11 +229,11 @@ export default function StationModule({
               </span>
               {"  ·  "}
               {row.state}
-              {parked && <span style={{ color: "#ffb020", fontWeight: 800 }}> · PARKED</span>}
               {behavior === "alert" && <span style={{ color: "#ff3b3b", fontWeight: 800 }}> · ⚠ ALERT</span>}
             </div>
           </div>
         </div>
+        )}
       </Html>
     </group>
   );
