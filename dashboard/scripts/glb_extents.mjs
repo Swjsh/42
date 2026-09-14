@@ -203,7 +203,17 @@ function vec3Cross(a, b) {
  * material blocks: that's the WALL axis; the other horizontal axis is the
  * open/travel axis a hallway must be laid out along. */
 function analyzeWallAxis(positions, indices) {
+  // T-JUNCTION follow-up (2026-09-14, coordinator: "the intersection piece
+  // is a symmetric 4-way; a T needs its outward opening closed -- check it
+  // against the geometry"): axis totals alone (wallAreaX/wallAreaZ) can't
+  // answer "which of the 4 sides is open" -- a piece could have walls on
+  // BOTH +Z and -Z (a real corridor, both sides "facing Z") or on only ONE
+  // of them (a dead-end). Bucket by SIGN too, via each wall-like triangle's
+  // own centroid position on its dominant axis -- a triangle sitting near
+  // x=+2 with a normal facing X contributes to the "+X side has wall
+  // material" bucket, not just "the X axis has wall material" in general.
   let wallAreaX = 0, wallAreaZ = 0, horizArea = 0, otherArea = 0;
+  const bySide = { xPos: 0, xNeg: 0, zPos: 0, zNeg: 0 };
   for (let i = 0; i + 2 < indices.length; i += 3) {
     const a = positions[indices[i]], b = positions[indices[i + 1]], c = positions[indices[i + 2]];
     const normal = vec3Cross(vec3Sub(b, a), vec3Sub(c, a));
@@ -212,11 +222,18 @@ function analyzeWallAxis(positions, indices) {
     const area = 0.5 * len;
     const nx = Math.abs(normal[0] / len), ny = Math.abs(normal[1] / len), nz = Math.abs(normal[2] / len);
     if (ny > 0.35) { horizArea += area; continue; }
-    if (nx > nz * 1.05) wallAreaX += area;
-    else if (nz > nx * 1.05) wallAreaZ += area;
-    else otherArea += area;
+    const centroid = [(a[0] + b[0] + c[0]) / 3, (a[1] + b[1] + c[1]) / 3, (a[2] + b[2] + c[2]) / 3];
+    if (nx > nz * 1.05) {
+      wallAreaX += area;
+      if (centroid[0] >= 0) bySide.xPos += area; else bySide.xNeg += area;
+    } else if (nz > nx * 1.05) {
+      wallAreaZ += area;
+      if (centroid[2] >= 0) bySide.zPos += area; else bySide.zNeg += area;
+    } else {
+      otherArea += area;
+    }
   }
-  return { wallAreaX, wallAreaZ, horizArea, otherArea };
+  return { wallAreaX, wallAreaZ, horizArea, otherArea, bySide };
 }
 
 function measure(path) {
@@ -231,7 +248,7 @@ function measure(path) {
   const globalMin = [Infinity, Infinity, Infinity];
   const globalMax = [-Infinity, -Infinity, -Infinity];
   const perNode = [];
-  const wallAxis = { wallAreaX: 0, wallAreaZ: 0, horizArea: 0, otherArea: 0 };
+  const wallAxis = { wallAreaX: 0, wallAreaZ: 0, horizArea: 0, otherArea: 0, bySide: { xPos: 0, xNeg: 0, zPos: 0, zNeg: 0 } };
 
   function visit(nodeIdx, parentMatrix, ancestry) {
     const node = nodes[nodeIdx];
@@ -288,6 +305,10 @@ function measure(path) {
           wallAxis.wallAreaZ += a.wallAreaZ;
           wallAxis.horizArea += a.horizArea;
           wallAxis.otherArea += a.otherArea;
+          wallAxis.bySide.xPos += a.bySide.xPos;
+          wallAxis.bySide.xNeg += a.bySide.xNeg;
+          wallAxis.bySide.zPos += a.bySide.zPos;
+          wallAxis.bySide.zNeg += a.bySide.zNeg;
         }
       });
     }
@@ -312,7 +333,7 @@ function report(path) {
   console.log(`floor Y starts at ${r.globalMin[1].toFixed(3)} (should be ~0 for a flush floor)`);
   const xzRatio = r.size[0] / r.size[2];
   console.log(`X/Z ratio ${xzRatio.toFixed(3)} (~1.0 = square footprint -- long axis NOT determinable from the overall box alone, see wall-axis analysis below)`);
-  const { wallAreaX, wallAreaZ, horizArea, otherArea } = r.wallAxis;
+  const { wallAreaX, wallAreaZ, horizArea, otherArea, bySide } = r.wallAxis;
   console.log(`-- wall-axis analysis (triangle-normal area sums, see analyzeWallAxis's own header) --`);
   console.log(`  horizontal (floor/ceiling-like, |ny|>0.35) area = ${horizArea.toFixed(3)}`);
   console.log(`  wall-like area facing X (blocks X movement)    = ${wallAreaX.toFixed(3)}`);
@@ -324,6 +345,20 @@ function report(path) {
   else if (wallAreaZ > wallAreaX * margin && wallAreaZ > 0.01) verdict = "WALLS BLOCK Z -> OPEN/TRAVEL AXIS IS X";
   else verdict = "SYMMETRIC (walls on all 4 sides, or no vertical wall geometry at all -- e.g. an open junction/floor-only piece)";
   console.log(`  VERDICT: ${verdict}`);
+  // Per-side breakdown -- answers "which of the 4 faces actually has wall
+  // material" (see analyzeWallAxis's own header). A near-zero bucket on one
+  // side of an axis that otherwise shows real wall area means that SPECIFIC
+  // side is open (no wall), even though the piece's whole-axis total looked
+  // "symmetric" against the opposite axis.
+  console.log(`-- per-side wall area (open if near zero) --`);
+  console.log(`  +X = ${bySide.xPos.toFixed(3)}   -X = ${bySide.xNeg.toFixed(3)}   +Z = ${bySide.zPos.toFixed(3)}   -Z = ${bySide.zNeg.toFixed(3)}`);
+  const sideOpenThreshold = 0.5;
+  const openSides = [];
+  if (bySide.xPos < sideOpenThreshold) openSides.push("+X");
+  if (bySide.xNeg < sideOpenThreshold) openSides.push("-X");
+  if (bySide.zPos < sideOpenThreshold) openSides.push("+Z");
+  if (bySide.zNeg < sideOpenThreshold) openSides.push("-Z");
+  console.log(`  OPEN sides (wall area < ${sideOpenThreshold}): ${openSides.length > 0 ? openSides.join(", ") : "none -- fully enclosed on all 4 sides"}`);
   console.log(`-- per mesh-bearing node (root-space) --`);
   for (const n of r.perNode) {
     console.log(

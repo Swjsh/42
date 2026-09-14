@@ -750,13 +750,61 @@ export function CorridorRun({
   );
 }
 
+// HALLWAY-FIX builder, T-junction outward-cap follow-up (2026-09-14,
+// coordinator: "the spine, seen from just inside the hub doorway, ends in
+// open sky/horizon... the junction's outward face reads as an open 4th
+// leg"). Measured (dashboard/scripts/glb_extents.mjs, per-side triangle-
+// normal breakdown -- see that tool's own analyzeWallAxis header), not
+// assumed: corridor-intersection.glb reports EQUAL wall-like area on all 4
+// local sides (+X=-X=+Z=-Z=8.631) with a large unclassified/diagonal area
+// (23.06 vs 17.262 per axis) -- the signature of corner-pillar/pilaster
+// framing (matching room-large/room-small's own pillar-and-collar look
+// already visible in every real capture), not a flat blocking wall on any
+// single face. That measurement alone can't PROVE a given face is fully
+// open (small symmetric corner stubs would read the same way), but real
+// captures from the prior pass already did: layout-hall0-1758.png (BEFORE
+// this pass' corridor-rotation fix) and hallfix-tjunction-inside-1824.png
+// (AFTER it) both show a clean, unbroken sightline straight through this
+// piece along its own local Z axis -- exactly the "4-way piece used for a
+// 3-way join" gap this component's own prior comment already named but
+// never closed. This component's own `rotation={[0, rotationY, 0]}` puts
+// local -Z toward the hub (layout.ts#computeArmLayout's own rotationY,
+// `rotationYFacing(tCenter, HUB)`), so local +Z is the unused, outward-
+// facing 4th side -- the one that needs capping, leaving the two side-
+// hallway openings (local +-X, see CorridorRun's own side-hallway callers)
+// untouched.
+//
+// Cap piece choice: no dedicated end-wall/cap piece exists in this kit
+// (kenney-modular-space-kit dir listing checked this session) -- using a
+// plain corridor.glb per the task's own "a corridor segment placed across
+// works if the kit has no dedicated end-wall" allowance. corridor.glb's OWN
+// per-side measurement (also this session) confirms it has REAL, substantial
+// solid wall area on BOTH its local +Z and -Z faces (71.216 each, ~5x its
+// X-faces' 13.681) -- exactly the two flat panels needed to block a
+// sightline. Mounted as a CorridorRun-independent sibling inside THIS
+// SAME rotated group with rotation OMITTED (identity relative to the
+// parent) -- deliberately the OPPOSITE choice from CorridorRun's own
+// CORRIDOR_KIT_YAW_OFFSET: an in-line hallway segment needs its OPEN axis
+// (local X) aligned with the direction of travel, but a cap needs the
+// opposite -- its WALL axis (local Z, unrotated here) aligned with the
+// spine so the solid panel actually faces the sightline it's blocking, not
+// the open ends aiming down it. Positioned at local (0,0,+CORRIDOR_SEGMENT_
+// LENGTH/2) -- CORRIDOR_SEGMENT_LENGTH/2 is algebraically the SAME value as
+// layout.ts#T_JUNCTION_HALF (both `(4 * ARCHITECTURE_SCALE_BAY) / 2`, the
+// raw corridor/intersection footprint's own half-extent) computed locally
+// so this file never has to import from layout.ts (see that module's own
+// header: the dependency runs ONE way only, layout.ts -> SetKit.tsx) --
+// flush with the intersection piece's own outward edge, overlapping halfway
+// into it for a guaranteed no-gap seal.
+const T_JUNCTION_CAP_OFFSET = CORRIDOR_SEGMENT_LENGTH / 2;
+
 /** T-junction dressing -- one corridor-intersection.glb piece + a light, at
  * a spine's own T-junction center (layout.ts#computeArmLayout's `tCenter`).
  * Visually a 4-way crossing piece used for a 3-way join (only 3 real
  * hallways ever meet here: the main spine + 2 side hallways) -- the kit has
- * no dedicated T-piece, and an unused 4th "arm" stub reads as a minor
- * cosmetic choice, never a structural gap (unlike the old ring layout's
- * actual off-wall corridor jumble this whole pass replaces). */
+ * no dedicated T-piece, so the unused 4th "arm" stub is explicitly CAPPED
+ * below rather than left open (see T_JUNCTION_CAP_OFFSET's own header for
+ * the measured evidence + reasoning). */
 export function TJunction({ position, rotationY, dayFactor = 1 }: {
   position: [number, number, number]; rotationY: number; dayFactor?: number;
 }) {
@@ -764,6 +812,12 @@ export function TJunction({ position, rotationY, dayFactor = 1 }: {
   return (
     <group position={position} rotation={[0, rotationY, 0]}>
       <KitProp path={KIT_PATHS.architecture.corridorIntersection} scale={ARCHITECTURE_SCALE_BAY} receiveShadow />
+      <KitProp
+        path={KIT_PATHS.architecture.corridor}
+        scale={ARCHITECTURE_SCALE_BAY}
+        position={[0, 0, T_JUNCTION_CAP_OFFSET]}
+        receiveShadow
+      />
       <pointLight position={[0, 1.6, 0]} color="#ffe9c2" intensity={2.5 * lampFactor} distance={5} decay={2} />
     </group>
   );
