@@ -82,6 +82,13 @@ def _isolate_station_paths(monkeypatch, tmp_path):
         "ts_et": "2026-09-14 00:00:00 ET", "disabled": [], "failed_last_run": [],
         "total": 0, "source": "test-stub (autouse fixture)",
     })
+    # 2026-09-14 C9/C10 (coordinator-directed): hq_self_review.review_once makes a real
+    # HTTP call (to the dashboard) and can spawn a real PowerShell capture -- stubbed
+    # wholesale here, exactly the lesson learned from the test_station_yield_unload.py
+    # leak this same session (a test with an injected clock must never touch live state,
+    # or in this case, a real network/subprocess call). Tests targeting hq_self_review
+    # itself live in test_hq_self_review.py with their own proper isolation.
+    monkeypatch.setattr(sl.hq_self_review, "review_once", lambda *a, **kw: {"stubbed": True})
     yield
 
 

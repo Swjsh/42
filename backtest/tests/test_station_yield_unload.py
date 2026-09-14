@@ -59,6 +59,9 @@ def _no_real_side_effects(monkeypatch, tmp_path):
         })
     if hasattr(station_loop, "sector_rows"):
         monkeypatch.setattr(station_loop.sector_rows, "build_sector_rows", lambda *a, **kw: [], raising=False)
+    if hasattr(station_loop, "hq_self_review"):
+        monkeypatch.setattr(station_loop.hq_self_review, "review_once", lambda *a, **kw: {"stubbed": True},
+                            raising=False)
 
 
 def _decide(gpu, table):

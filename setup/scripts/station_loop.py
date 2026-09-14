@@ -52,6 +52,7 @@ import conductor_outcome  # noqa: E402 -- item 12: every run_once() path records
 import sector_rows  # noqa: E402 -- 2026-09-14 company-roster re-point: Coach's sectors.json (C2)
 import crew_events  # noqa: E402 -- 2026-09-14 company-roster re-point: the crew ticker (C3)
 import audit_scheduled_tasks as _ast  # noqa: E402 -- reused live task-enumeration helper (C2's task_health)
+import hq_self_review  # noqa: E402 -- 2026-09-14 coordinator-directed C9/C10: Gamma looks at its own HQ
 
 _CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
 
@@ -682,6 +683,16 @@ def run_once(*, force: bool = False, now_utc: Optional[datetime] = None) -> dict
         _write_sectors_and_crew_events(ts_et, now_utc, config)
     except Exception as exc:  # noqa: BLE001
         _log(f"_write_sectors_and_crew_events failed (non-fatal): {exc!r}")
+
+    # C9/C10 (2026-09-14, coordinator-directed): Gamma's own HQ self-review -- same
+    # every-fire spot, same fail-open contract. hq_self_review.review_once's fast path
+    # (payload fetch + grading) is bounded by its own 5s HTTP timeout; the OPTIONAL
+    # capture+vision path (gated on J-absent/outside-RTH/<=4-day, see that module) can
+    # run longer on the rare fire it fires at all -- never on a normal RTH-adjacent fire.
+    try:
+        hq_self_review.review_once(ts_et, now_utc, config)
+    except Exception as exc:  # noqa: BLE001
+        _log(f"hq_self_review.review_once failed (non-fatal): {exc!r}")
 
     status, reason = decide_action(now_utc, config, force=force)
     if status != "ok":
