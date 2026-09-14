@@ -8,7 +8,7 @@ import * as THREE from "three";
 import type { SectorRow } from "./types";
 import type { AgentBehavior } from "./Agent";
 import { healthColor, isParkedState, makeToonGradientTexture, PALETTE } from "./palette";
-import { BAY_DESK_OFFSET_Z, DepartmentBayShell, DeskCluster } from "./SetKit";
+import { ARCHITECTURE_SCALE_BAY, BAY_DESK_OFFSET_Z, DepartmentBayShell, DeskCluster } from "./SetKit";
 
 const _screenColor = new THREE.Color();
 
@@ -64,7 +64,7 @@ export default function StationModule({
   // hub-facing wall sits at -halfDepth (see SetKit.tsx#DepartmentBayShell);
   // the beacon/label (kept -- see the plan doc's "what stays procedural"
   // section) move from the OLD 2.8-deep floor's -1.35/1.15 offsets to match.
-  const bayHalfDepth = (12 * 0.45) / 2; // ARCHITECTURE_SCALE_BAY, see SetKit.tsx
+  const bayHalfDepth = (12 * ARCHITECTURE_SCALE_BAY) / 2; // room-small raw depth 12, see SetKit.tsx
 
   return (
     <group position={position} rotation={[0, rotationY, 0]}>
