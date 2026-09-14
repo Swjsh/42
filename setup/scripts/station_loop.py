@@ -550,7 +550,28 @@ def _write_sectors_and_crew_events(ts_et: str, now_utc: datetime, config: dict) 
     fail-open at every sub-step (hard rule from the build brief: the Station fire must
     never die because sectors/crew-events failed) -- one bad lane, a Task Scheduler
     enumeration failure, or a broken ticker write can each only blank ITS OWN piece,
-    never take the others or the fire down with it."""
+    never take the others or the fire down with it.
+
+    SYNTHETIC-CLOCK GUARD (2026-09-14, added after a real leak): a caller whose `now_utc`
+    is far from actual wall-clock time (the unmistakable signature of a test injecting a
+    fixed historical/future clock -- e.g. test_station_yield_unload.py's SUNDAY_EVENING_UTC)
+    combined with SECTORS_PATH/CREW_EVENTS_PATH still pointing at the REAL repo path (i.e.
+    some caller forgot to monkeypatch them) must never write real state. This is defense
+    in depth on top of proper test isolation, not a substitute for it -- see the C34-class
+    lesson (a synthetic clock touching real state) this guard closes. A test that DOES
+    redirect these paths under tmp_path is unaffected: tmp_path never equals the real
+    REPO-derived path, so the guard simply never fires for a properly isolated test."""
+    try:
+        real_sectors_path = REPO / "automation" / "state" / "station" / "sectors.json"
+        real_crew_events_path = REPO / "automation" / "state" / "station" / "crew-events.jsonl"
+        clock_drift_s = abs((datetime.now(timezone.utc) - now_utc).total_seconds())
+        if clock_drift_s > 900 and (SECTORS_PATH == real_sectors_path or CREW_EVENTS_PATH == real_crew_events_path):
+            _log(f"_write_sectors_and_crew_events: synthetic clock + real path -> skipped "
+                f"(now_utc={now_utc.isoformat()}, drift={clock_drift_s / 60:.0f}m)")
+            return
+    except Exception:  # noqa: BLE001 -- the guard itself must never break a real fire
+        pass
+
     try:
         rows = sector_rows.build_sector_rows()
     except Exception as exc:  # noqa: BLE001

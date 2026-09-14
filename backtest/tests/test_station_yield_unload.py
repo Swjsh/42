@@ -31,15 +31,34 @@ CONFIG = dict(station_loop.DEFAULT_CONFIG, yield_processes=["steam.exe", "r5apex
 @pytest.fixture(autouse=True)
 def _no_real_side_effects(monkeypatch, tmp_path):
     """run_once() now scores the board and records an outcome on EVERY path (item 12); keep this suite
-    off the real ledgers exactly like test_station_loop.py's autouse fixture does."""
+    off the real ledgers exactly like test_station_loop.py's autouse fixture does.
+
+    2026-09-14 BUG FIX: this fixture predated the sectors.json/crew-events.jsonl wiring
+    (company-roster re-point) and never isolated SECTORS_PATH/CREW_EVENTS_PATH nor
+    stubbed _task_health_snapshot -- so test_run_once_unloads_models_only_on_a_denylisted_
+    process's two `run_once(now_utc=SUNDAY_EVENING_UTC)` calls below wrote REAL rows to
+    the real automation/state/station/{sectors.json,crew-events.jsonl}, stamped
+    '2026-09-13 18:00:00 ET' (SUNDAY_EVENING_UTC's ET rendering), and diffed the REAL
+    Task Scheduler against whatever baseline was there -- the exact leak a CREW-RIG
+    live-check caught this session. station_loop._write_sectors_and_crew_events now also
+    carries its own synthetic-clock-vs-real-path guard as defense in depth, but this
+    fixture is the correct, preferred fix."""
     for name in ("IDEAS_BOARD_PATH", "BRIEF_PATH", "LEDGER_PATH", "INBOX_PATH", "INBOX_PROCESSED_PATH",
-                 "PENDING_NOTES_PATH", "VERDICTS_LEDGER_PATH", "SETTLED_HYP_PATH"):
+                 "PENDING_NOTES_PATH", "VERDICTS_LEDGER_PATH", "SETTLED_HYP_PATH",
+                 "SECTORS_PATH", "CREW_EVENTS_PATH"):
         if hasattr(station_loop, name):
             monkeypatch.setattr(station_loop, name, tmp_path / name.lower())
     if hasattr(station_loop, "AUTOPSY_DIR"):
         monkeypatch.setattr(station_loop, "AUTOPSY_DIR", tmp_path / "autopsies")
     if hasattr(station_loop, "conductor_outcome"):
         monkeypatch.setattr(station_loop.conductor_outcome, "record", lambda *a, **k: None, raising=False)
+    if hasattr(station_loop, "_task_health_snapshot"):
+        monkeypatch.setattr(station_loop, "_task_health_snapshot", lambda now_utc, **kw: {
+            "ts_et": "test-stub", "disabled": [], "failed_last_run": [], "total": 0,
+            "source": "test-stub (test_station_yield_unload fixture)",
+        })
+    if hasattr(station_loop, "sector_rows"):
+        monkeypatch.setattr(station_loop.sector_rows, "build_sector_rows", lambda *a, **kw: [], raising=False)
 
 
 def _decide(gpu, table):

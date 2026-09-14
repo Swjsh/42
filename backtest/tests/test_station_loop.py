@@ -1108,3 +1108,67 @@ def test_task_health_snapshot_fails_open_on_enumeration_error():
     assert result["disabled"] == []
     assert result["total"] == 0
     assert "unavailable" in result["source"]
+
+
+# ============================================================================
+# 2026-09-14 bug fix: synthetic-clock-vs-real-path guard in
+# _write_sectors_and_crew_events. Found live -- test_station_yield_unload.py's
+# pre-existing fixture called run_once(now_utc=SUNDAY_EVENING_UTC) twice without
+# isolating SECTORS_PATH/CREW_EVENTS_PATH, writing real rows stamped
+# '2026-09-13 18:00:00 ET' into the real repo. The fixture is now fixed (the
+# correct, preferred fix); this guard is defense in depth so ANY future caller
+# with the same mistake degrades to a no-op instead of corrupting live state.
+# REPO itself is redirected to tmp_path here (never the real absolute path) so
+# this test can prove the guard's real-path branch without ever risking a write
+# to the actual repo.
+# ============================================================================
+
+def test_write_sectors_and_crew_events_skips_on_synthetic_clock_at_a_real_shaped_path(monkeypatch, tmp_path):
+    monkeypatch.setattr(sl, "REPO", tmp_path)
+    real_sectors = tmp_path / "automation" / "state" / "station" / "sectors.json"
+    real_crew_events = tmp_path / "automation" / "state" / "station" / "crew-events.jsonl"
+    monkeypatch.setattr(sl, "SECTORS_PATH", real_sectors)
+    monkeypatch.setattr(sl, "CREW_EVENTS_PATH", real_crew_events)
+    monkeypatch.setattr(sl.sector_rows, "build_sector_rows", lambda *a, **kw: [{"lane": "A", "health": "green"}])
+    monkeypatch.setattr(sl, "_task_health_snapshot", lambda now_utc, **kw: {
+        "ts_et": "x", "disabled": [], "failed_last_run": [], "total": 0, "source": "stub"})
+
+    far_clock = datetime(2020, 1, 1, tzinfo=timezone.utc)  # decades of drift -- unambiguous
+    sl._write_sectors_and_crew_events("2020-01-01 00:00:00 ET", far_clock, dict(sl.DEFAULT_CONFIG))
+
+    assert not real_sectors.exists(), "a synthetic clock at a real-shaped path must skip the write entirely"
+    assert not real_crew_events.exists()
+
+
+def test_write_sectors_and_crew_events_proceeds_on_a_fresh_clock_at_the_same_path(monkeypatch, tmp_path):
+    # Same "real"-shaped path as above -- proves the guard keys off clock drift, not the
+    # path alone, so a genuine production fire (now_utc always close to wall-clock time)
+    # is never blocked just because it happens to write to the real location.
+    monkeypatch.setattr(sl, "REPO", tmp_path)
+    real_sectors = tmp_path / "automation" / "state" / "station" / "sectors.json"
+    real_crew_events = tmp_path / "automation" / "state" / "station" / "crew-events.jsonl"
+    monkeypatch.setattr(sl, "SECTORS_PATH", real_sectors)
+    monkeypatch.setattr(sl, "CREW_EVENTS_PATH", real_crew_events)
+    monkeypatch.setattr(sl.sector_rows, "build_sector_rows", lambda *a, **kw: [{"lane": "A", "health": "green"}])
+    monkeypatch.setattr(sl, "_task_health_snapshot", lambda now_utc, **kw: {
+        "ts_et": "x", "disabled": [], "failed_last_run": [], "total": 0, "source": "stub"})
+
+    fresh_clock = datetime.now(timezone.utc)
+    sl._write_sectors_and_crew_events(sl.et_now(now_utc=fresh_clock).strftime("%Y-%m-%d %H:%M:%S ET"),
+                                      fresh_clock, dict(sl.DEFAULT_CONFIG))
+
+    assert real_sectors.exists(), "a fresh (real-fire) clock must proceed even at a real-shaped path"
+
+
+def test_write_sectors_and_crew_events_guard_respects_the_15_minute_boundary(monkeypatch, tmp_path):
+    monkeypatch.setattr(sl, "REPO", tmp_path)
+    real_sectors = tmp_path / "automation" / "state" / "station" / "sectors.json"
+    monkeypatch.setattr(sl, "SECTORS_PATH", real_sectors)
+    monkeypatch.setattr(sl, "CREW_EVENTS_PATH", tmp_path / "automation" / "state" / "station" / "crew-events.jsonl")
+    monkeypatch.setattr(sl.sector_rows, "build_sector_rows", lambda *a, **kw: [])
+    monkeypatch.setattr(sl, "_task_health_snapshot", lambda now_utc, **kw: {
+        "ts_et": "x", "disabled": [], "failed_last_run": [], "total": 0, "source": "stub"})
+
+    just_inside = datetime.now(timezone.utc) - timedelta(minutes=10)  # < 15m -- must proceed
+    sl._write_sectors_and_crew_events("t", just_inside, dict(sl.DEFAULT_CONFIG))
+    assert real_sectors.exists(), "10 minutes of drift is well inside the 15-minute guard threshold"
