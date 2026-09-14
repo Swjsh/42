@@ -81,8 +81,11 @@ DEFAULT_CONFIG = {
     "model_call_timeout_s": 300,
     "gpu_util_yield_pct": 50,
     "yield_processes": [
-        "steam.exe", "epicgameslauncher.exe", "riotclientservices.exe",
-        "battle.net.exe", "obs64.exe", "eaconnect_microsoft.exe",
+        # GAMES + GPU encoders only. Launchers (steam.exe, epicgameslauncher.exe, riotclientservices.exe,
+        # battle.net.exe, eaconnect_microsoft.exe) were removed 2026-09-13 20:05 ET: Steam idling in the tray
+        # kept every unforced fire in yield all evening (denylisted_process:steam.exe) while the TV showed a
+        # frozen board. gpu_util_yield_pct catches any real game regardless of its name.
+        "obs64.exe",
         "r5apex_dx12.exe", "r5apex.exe",  # Apex Legends -- J's game (2026-09-13: 99% GPU, prefill fell to ~25 tok/s)
     ],
     "web_scan": False,

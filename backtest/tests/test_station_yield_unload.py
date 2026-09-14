@@ -91,6 +91,16 @@ def test_unload_helper_fails_open_without_ollama(monkeypatch):
     assert station_loop._unload_loaded_models() == []
 
 
-@pytest.mark.parametrize("name", ["r5apex_dx12.exe", "r5apex.exe", "steam.exe"])
+@pytest.mark.parametrize("name", ["r5apex_dx12.exe", "r5apex.exe"])
 def test_default_denylist_names_the_game_j_plays(name):
     assert name in station_loop.DEFAULT_CONFIG["yield_processes"]
+
+
+@pytest.mark.parametrize("name", ["steam.exe", "epicgameslauncher.exe", "riotclientservices.exe", "battle.net.exe"])
+def test_default_denylist_excludes_idle_launchers(name):
+    # 2026-09-13 20:05 ET (test premise changed on purpose, not weakened): Steam idling in the
+    # tray kept every unforced fire in yield all evening (denylisted_process:steam.exe) while
+    # the TV showed a frozen board. A launcher is not a game; gpu_util_yield_pct catches any
+    # real game regardless of its name, so the default list names GAME executables only.
+    assert name not in station_loop.DEFAULT_CONFIG["yield_processes"]
+

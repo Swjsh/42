@@ -6,12 +6,7 @@
   "model_call_timeout_s": 300,
   "gpu_util_yield_pct": 50,
   "yield_processes": [
-    "steam.exe",
-    "epicgameslauncher.exe",
-    "riotclientservices.exe",
-    "battle.net.exe",
     "obs64.exe",
-    "eaconnect_microsoft.exe",
     "r5apex_dx12.exe",
     "r5apex.exe"
   ],
@@ -34,5 +29,6 @@
   "dashboard_origin": "http://127.0.0.1:3000",
   "kiosk_display_index": 2,
   "_hdmi_kiosk_doc": "SAFETY GATE found during verification 2026-09-13 (Sonnet builder #2): this box already reports 2 displays for J's own normal desk setup (DISPLAY2 is his live second monitor, confirmed by a real station_kiosk.ps1 -Snapshot capture -- not a TV). The '>=2 displays -> launch a fullscreen kiosk browser' path from the original spec would therefore hijack J's own active monitor the instant Gamma_StationKiosk fires, not just when a TV is genuinely HDMI-connected. hdmi_kiosk_enabled defaults false so station_kiosk.ps1 -Start ALWAYS falls through to the Wi-Fi TV face (station_tv.py --face) regardless of display count, until a human flips this to true after physically confirming the TV is the actual HDMI-connected display (and updating kiosk_display_index to match it, not just trusting the count).",
-  "hdmi_kiosk_enabled": false
+  "hdmi_kiosk_enabled": false,
+  "_yield_processes_doc": "2026-09-13 20:05 ET: launchers (steam/epic/riot/battle.net/eaconnect) REMOVED -- Steam idling in the tray held the loop in yield all evening (denylisted_process:steam.exe) while J watched a frozen board. The gpu_util_yield_pct guard catches any real game; list GAME executables here (plus obs64 = GPU encoder)."
 }

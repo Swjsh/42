@@ -46,7 +46,7 @@ function Get-StationYieldConfig {
     # gpu_util_yield_pct + yield_processes from automation/state/station/config.json (the Station loop's own
     # yield rule); defaults mirror station_loop.DEFAULT_CONFIG. Fail-open: unreadable -> defaults.
     $path = Join-Path $Global:WorkDir "automation\state\station\config.json"
-    $cfg = @{ gpu_util_yield_pct = 50; yield_processes = @("steam.exe", "epicgameslauncher.exe", "riotclientservices.exe", "battle.net.exe", "obs64.exe", "eaconnect_microsoft.exe") }
+    $cfg = @{ gpu_util_yield_pct = 50; yield_processes = @("obs64.exe", "r5apex_dx12.exe", "r5apex.exe") }  # games + GPU encoders only; launchers removed 2026-09-13 (Steam in the tray froze the evening)
     if (Test-Path $path) {
         try {
             $j = Get-Content $path -Raw -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop

@@ -125,6 +125,14 @@ ESSENTIAL = {
     "Gamma_CompanionKeepalive",
     "Gamma_LaunchTV",
     "Gamma_TvWatchdog",
+    # Gamma Station (J 2026-09-13, "full go mode"): the 30-min local-brain loop IS J's
+    # evening surface (the TV face). $0, hidden, ~20 s of GPU per fire, and it yields
+    # by itself on game processes / GPU busy / mode=gaming (station_loop.decide_action),
+    # so the evening blackout must not hold it down -- it did tonight (State=Disabled
+    # 18:00-23:00 while J watched a frozen board). StationKiosk keeps the TV page-server
+    # alive (read-only LAN proxy, no model, no window).
+    "Gamma_Station",
+    "Gamma_StationKiosk",
     "Gamma_Premarket",
     "Gamma_PremarketReadiness",
     "Gamma_PreopenReadiness",
