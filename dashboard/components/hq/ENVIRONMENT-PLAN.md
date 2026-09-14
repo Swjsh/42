@@ -107,3 +107,45 @@ Three compounding bugs, not one:
   station is one flat pale wall, and (pre-Pass-G-2) there was never a planet or
   ground feature to look at anyway. Three independent "make it paler/emptier"
   choices stacked into exactly the flat, featureless wash J flagged.
+
+## World-4 pass (2026-09-14) — in-world signage + ideas-board legibility
+
+Trigger: coordinator work order, P2 ("floating lane labels… hover mid-air…
+replace with IN-WORLD SIGNS") + P3's ideas-board-legibility half. Design rule
+followed before writing any sign/panel code (WebSearch this session —
+`kenney.nl` navigation and the ArtStation listing itself were both blocked/
+403'd to this session, so this reads search-result/listing text, not a
+directly-viewed render; disclosed rather than presented as a direct look):
+
+1. **ArtStation "Sci-Fi Style Holograms and Signage"** listing text — "based
+   on hologram designs found in Mass Effect on the Citadel… mimics the tones
+   of a cyberpunk/futurist space aesthetic… individual elements ready to be
+   tiled for rapid environmental design."
+2. **itch.io "Sci-Fi Holographic HUD Kit"** listing text — "12 interactive
+   holographic glass buttons with neon borders in cyan, blue, and tech-green
+   plus 12 status bars with segmented designs and metallic brackets… flat
+   vector/holographic neon style."
+3. Cross-checked against this project's OWN already-shipped plaque language
+   (`.hq-beam` border-glow on every existing Html plaque, Hud.tsx/
+   StationModule.tsx/BrainCore.tsx) — confirms the SAME "dark panel body,
+   bright THIN edge, not a filled wash" convention this codebase already
+   committed to independently, rather than importing a clashing new style.
+
+**3 choices taken into BaySign.tsx / IdeasWall.tsx this pass:**
+
+1. **Edge-lit, not filled** — panel body stays dark/near-black (matches this
+   tree's own established `rgba(3,4,10,0.7-0.93)` plaque background), the
+   health/status color lives ONLY on a thin bright border strip, never as a
+   full-panel tint — the "neon border" reading from both references, and
+   already this codebase's own convention independently.
+2. **A capped top bar, not a uniform box** — a distinct brighter accent strip
+   across the TOP of the panel (the "segmented design / metallic bracket"
+   framing both references use) rather than one same-weight border all the
+   way around, so the sign reads as a technical readout/nameplate, not a
+   generic rounded card.
+3. **Short lines, high contrast, generous spacing** — every reference
+   (hologram HUD kit, hologram-UI genre generally) favors a FEW bright lines
+   on near-black over dense small text — reinforces going leaner on both the
+   bay sign (lane name + one state word, nothing else) and the ideas-board
+   panel (fewer/bigger lines, per P3's own "≤5 lines… ≥28px" spec) rather
+   than trying to preserve every old field.

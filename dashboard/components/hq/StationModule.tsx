@@ -7,8 +7,9 @@ import { Html } from "@react-three/drei";
 import * as THREE from "three";
 import type { SectorRow } from "./types";
 import type { AgentBehavior } from "./Agent";
-import { healthColor, isParkedState, lerp, makeToonGradientTexture, PALETTE, truncateOneLine, type ScreenLine } from "./palette";
+import { healthColor, isParkedState, lerp, localToWorld, makeToonGradientTexture, PALETTE, truncateOneLine, type ScreenLine } from "./palette";
 import { BAY_CEILING_Y, BAY_DESK_OFFSET_Z, BAY_HALF_DEPTH, DepartmentBayShell, DeskCluster } from "./SetKit";
+import BaySign from "./BaySign";
 
 const _screenColor = new THREE.Color();
 
@@ -89,6 +90,19 @@ export default function StationModule({
   // the beacon/label (kept -- see the plan doc's "what stays procedural"
   // section) move from the OLD 2.8-deep floor's -1.35/1.15 offsets to match.
   const bayHalfDepth = BAY_HALF_DEPTH;
+  // World-4 fix (P2, 2026-09-14): the in-world sign's anchor -- the SAME
+  // spot "above the doorway" the old always-visible Html label already used
+  // (see that block's own comment below) -- plus its WORLD-space twin so
+  // BaySign's own useFrame distance check never has to allocate. Memoized
+  // on the SAME referentially-stable `position`/`rotationY`/`bayHalfDepth`
+  // Scene.tsx's own geometry memo already guarantees stay stable across
+  // polls (see Scene.tsx's own comment on why that stability matters).
+  const signLocalPos = useMemo<[number, number, number]>(() => [0, 2.3, -bayHalfDepth + 0.4], [bayHalfDepth]);
+  const signWorldPos = useMemo(
+    () => localToWorld(position, rotationY, signLocalPos),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [position[0], position[1], position[2], rotationY, signLocalPos],
+  );
 
   // Bay desk screen (Pass B, 2026-09-13): "each bay screen=lane name+window
   // P&L+health" -- real canvas texture on the DeskCluster's computer-screen
@@ -195,23 +209,42 @@ export default function StationModule({
         <meshBasicMaterial ref={beaconMat} color={row.health === "red" ? "#ff3b3b" : color} transparent toneMapped={false} />
       </mesh>
 
-      {/* Label -- one Html per module (8 total across the scene); the ALERT
-          state now folds in here instead of a second floating Html per
-          agent, keeping the page's total Html overlay count well under
-          budget. 10-foot-readability sizing (2026-09-13): lane name ~30px
-          bold, one ~26px status line (P&L colored + state), arm alias
-          demoted to a small abbreviation line -- everything else here was
-          "just like text ... no animations" at the old 13px on a 4K panel
-          viewed across a room. Wrapped in .hq-beam (a Border-Beam-style
-          rotating edge glow) and carries a .hq-shine one-shot sweep,
-          replayed via `key={row.health}` whenever health changes -- see
-          Hud.tsx's shared <style> for both, credited to their 21st.dev
-          sources there. Ultra tier: repositioned above the doorway (like a
-          department sign over the entrance) instead of the TV's over-the-
-          screen spot -- the kit bay is bigger and deeper than the old 2.8u
-          floor plane, and the desk/screen cluster now occupies that space. */}
+      {/* World-4 fix (P2, 2026-09-14): ultra tier gets a REAL in-world sign
+          (BaySign.tsx -- a canvas-textured mesh flush on the bay's own
+          hub-facing wall, health color on its edge, foreshortens with real
+          perspective like the rest of the kit) instead of the always-on
+          screen-space Html plaque that used to "hover mid-air" regardless
+          of distance. TV tier is BYTE-IDENTICAL to before this pass (see
+          its own Html block just below) -- draw-call budget doesn't have
+          room for 2 more meshes per bay there (P5's own ~130-call soft
+          ceiling). */}
+      {ultra && (
+        <BaySign
+          position={signLocalPos}
+          worldPosition={signWorldPos}
+          laneName={row.lane}
+          stateWord={row.state}
+          color={color}
+          parked={parked}
+          dimFactor={dimFactor}
+        />
+      )}
+
+      {/* Label -- TV tier only past this pass (see BaySign.tsx for ultra's
+          own replacement) -- one Html per module; the ALERT state folds in
+          here instead of a second floating Html per agent, keeping the
+          page's total Html overlay count well under budget.
+          10-foot-readability sizing (2026-09-13): lane name ~30px bold, one
+          ~26px status line (P&L colored + state), arm alias demoted to a
+          small abbreviation line -- everything else here was "just like
+          text ... no animations" at the old 13px on a 4K panel viewed
+          across a room. Wrapped in .hq-beam (a Border-Beam-style rotating
+          edge glow) and carries a .hq-shine one-shot sweep, replayed via
+          `key={row.health}` whenever health changes -- see Hud.tsx's shared
+          <style> for both, credited to their 21st.dev sources there. */}
+      {!ultra && (
       <Html
-        position={ultra ? [0, 2.3, -bayHalfDepth + 0.4] : [0, 1.95, 1.15]}
+        position={[0, 1.95, 1.15]}
         center
         distanceFactor={9}
         style={{ pointerEvents: "none" }}
@@ -235,7 +268,7 @@ export default function StationModule({
               whiteSpace: "nowrap", textAlign: "center", opacity: 0.6,
             }}
           >
-            <div style={{ fontSize: ultra ? 20 : 17, fontWeight: 600, lineHeight: 1.15 }}>{row.lane}</div>
+            <div style={{ fontSize: 17, fontWeight: 600, lineHeight: 1.15 }}>{row.lane}</div>
           </div>
         ) : (
         <div className="hq-beam" style={{ "--beam-color": color, borderRadius: 8 } as CSSProperties}>
@@ -248,7 +281,7 @@ export default function StationModule({
             }}
           >
             <span key={row.health} className="hq-shine" />
-            <div style={{ fontSize: ultra ? 32 : 26, fontWeight: 800, lineHeight: 1.15 }}>
+            <div style={{ fontSize: 26, fontWeight: 800, lineHeight: 1.15 }}>
               {row.lane}
               <span style={{ fontWeight: 600, color: "#7f93b0" }}> · {row.state}</span>
             </div>
@@ -256,6 +289,7 @@ export default function StationModule({
         </div>
         )}
       </Html>
+      )}
     </group>
   );
 }
