@@ -486,6 +486,46 @@ function CameraRig({ reducedMotion, rows, geometry, briefMtimeMs, ultra, cameraP
   );
 }
 
+const EXPOSURE_NIGHT = 1.35; // unchanged from UltraCanvasRoot.tsx's original one-time onCreated value
+const EXPOSURE_DAY = 1.0; // coordinator's own number -- "day ~1.0 exposure"
+
+interface ExposureSyncProps {
+  dayFactor: number;
+}
+
+/**
+ * LIVE-1 item 2 follow-up (coordinator 2026-09-14): "the tan architecture
+ * is blown out in daylight (exposure 1.35 + bloom threshold 0.78 were
+ * tuned for the night look). Scale exposure... with the same nightFactor."
+ * UltraCanvasRoot.tsx sets `gl.toneMappingExposure = 1.35` exactly ONCE,
+ * inside `onCreated` (fires at canvas construction, never again) -- fine
+ * for the night mood it was tuned against, wrong once item 3 made daytime
+ * genuinely bright under the SAME fixed exposure. This tiny component is
+ * the reactive owner of that value instead: `useThree()` for the real
+ * THREE.WebGLRenderer, one throttled useFrame writing a plain scalar
+ * property (zero resource cost, nothing like Bloom's GPU-resource
+ * reconstruction risk -- see EffectsStack.tsx's own comment for why THAT
+ * one needs ref indirection and this one doesn't). Deliberately NOT folded
+ * into CameraRig, which already carries enough unrelated complexity: a
+ * small single-purpose component mounted as its own <ExposureSync> JSX
+ * sibling, matching this file's existing convention (CameraRig,
+ * EffectsStack) of small focused subcomponents driving one concern each.
+ * Ultra tier only (mounted `{ultra && ...}` in Scene's return) -- the TV
+ * tier's CanvasRoot.tsx never sets ACESFilmicToneMapping or a non-default
+ * exposure at all, so this must never touch that renderer.
+ */
+function ExposureSync({ dayFactor }: ExposureSyncProps) {
+  const { gl } = useThree();
+  const lastCheckAtS = useRef(-Infinity); // -Infinity: first frame applies immediately, no 1s wait at a wrong exposure
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    if (t - lastCheckAtS.current < 1) return;
+    lastCheckAtS.current = t;
+    gl.toneMappingExposure = lerp(EXPOSURE_NIGHT, EXPOSURE_DAY, dayFactor);
+  });
+  return null;
+}
+
 /**
  * Scene composition: hub + one module per sector row arranged on a ring,
  * each connected to the hub by a corridor, plus the ideas wall, the courier,
@@ -570,6 +610,15 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
   const dayOfWeekNow = nowEtDayOfWeek();
   const nightFactor = dayNightFactor(etMinutesNow);
   const nightMult = lerp(0.5, 1, nightFactor);
+  // LIVE-1 item 2 follow-up (coordinator 2026-09-14): the SAME nightFactor
+  // exposed to EffectsStack.tsx (Bloom threshold) and ExposureSync (tone-
+  // mapping exposure) below via a ref, never a reactive prop -- see
+  // EffectsStack.tsx's own comment on why. A plain per-render assignment
+  // (not a useEffect) is deliberate: the ref's CONTENTS should reflect
+  // every render's freshly-computed value immediately, only its identity
+  // needs to stay stable, and this is the standard "latest ref" pattern.
+  const dayFactorRef = useRef(nightFactor);
+  dayFactorRef.current = nightFactor;
   // Item 2c (LIVE-1, 2026-09-14): Pilot's desk-pulse/point gesture is
   // gated to Regular Trading Hours only, same ET clock read as everything
   // else in this function (never a separate/stale one).
@@ -887,6 +936,11 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
         ultra={ultra}
         cameraPresets={cameraPresets}
       />
+      {/* LIVE-1 item 2 follow-up (2026-09-14): renderer-exposure half of the
+          day/night exposure+threshold pair -- see ExposureSync's own
+          comment. Ultra tier only, same gate as EffectsStack below (the TV
+          tier's renderer never gets a non-default exposure at all). */}
+      {ultra && <ExposureSync dayFactor={nightFactor} />}
       {/* Suspense-scoped (world pass A bug fix, see BrainCore.tsx) -- the
           HDRI load suspends too, and is a SIBLING of BrainCore/EffectsStack
           here, not a descendant; without its own boundary it would ALSO
@@ -896,7 +950,7 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
           <PmremEnvironment />
         </Suspense>
       )}
-      {ultra && coreReady && <EffectsStack coreMeshRef={coreMeshRef} />}
+      {ultra && coreReady && <EffectsStack coreMeshRef={coreMeshRef} dayFactorRef={dayFactorRef} />}
       {/* Item 3 (LIVE-1, 2026-09-14): the sky now tracks the SAME
           day/night factor the hemisphere/directional lights already use --
           see SkyDome.tsx's own comment for the root cause this fixes. */}

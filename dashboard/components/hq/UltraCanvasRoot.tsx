@@ -101,7 +101,13 @@ function UltraCanvasRoot({ data, reducedMotion, kiosk }: UltraCanvasRootProps) {
             // constructor time. ACESFilmicToneMapping is the standard
             // "cinematic" curve (rolls off highlights instead of clipping
             // them white) that exposure/bloom tuning is normally built
-            // around; explicit rather than assumed.
+            // around; explicit rather than assumed. toneMappingExposure's
+            // initial 1.35 (LIVE-1 item 2 follow-up, 2026-09-14) is now only
+            // the FIRST-PAINT value, matching Scene.tsx#ExposureSync's own
+            // EXPOSURE_NIGHT constant -- that component overwrites this
+            // property reactively from its very first useFrame onward,
+            // scaling it down toward 1.0 by day so the architecture no
+            // longer blows out once daylight is genuinely bright (item 3).
             state.gl.toneMapping = THREE.ACESFilmicToneMapping;
             state.gl.toneMappingExposure = 1.35;
             const canvas = state.gl.domElement;
