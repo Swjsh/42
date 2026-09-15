@@ -115,8 +115,16 @@ export interface LiveAgent {
   state: LiveAgentState;
   /** A real walk-graph node id from dashboard/components/hq/layout.ts
    * (buildWalkGraph's own node-id convention) -- never an invented place.
-   * See ZONE_NODE_ID below for the exact mapping. */
+   * See ZONE_NODE_ID below for the exact mapping, or PERSONA_NODE_ID when
+   * `interaction` is set (PERSONA-VISIT pass, 2026-09-15). */
   targetZone: string;
+  /** PERSONA-VISIT pass (2026-09-15): set only when this agent's STABLE
+   * target (post-stickiness, see resolveTargetKey below) is a persona's own
+   * evidence file -- never invented, always traced to a real pulse row. Null
+   * for a plain coarse-zone target (build/lab/ops/docs/hub). `phrase` is a
+   * short, factual, human description of what evidence was touched (e.g.
+   * "checking Scout's feed") -- never invented dialogue. */
+  interaction: { personaId: PersonaId; phrase: string } | null;
 }
 
 export interface PulseRow {
@@ -233,6 +241,124 @@ export const ZONE_NODE_ID: Record<LiveAgentZone, string> = {
   docs: "ambient-ideas-wall",
   hub: "hub-center",
 };
+
+// ─── Persona targeting (PERSONA-VISIT pass, 2026-09-15) ────────────────────
+//
+// Queue item g: a live agent whose recent tool call touched a PERSONA's own
+// evidence file should walk to that persona's desk, not just the coarse
+// zone the file lives under. dashboard/lib/personas.ts is this project's
+// existing source of truth for "which file does persona X's own collector
+// read" -- but personas.ts has no single exported {persona -> file} map to
+// import (each collector inlines its own path.join(ROOT, ...) calls) AND
+// this module's own established convention (see this file's header) is
+// zero sibling lib/*.ts value imports, so personas.ts (which pulls in
+// child_process + a "@/components/hq/palette" path-alias import Node's own
+// ESM loader can't resolve under plain `node --test`) can never be import-
+// ed here either way. The table below is therefore the smallest faithful
+// TRANSCRIPTION of personas.ts's own literal path fragments (verified by
+// grep against that file's own path.join(ROOT, ...) call sites, cited per
+// row below), not a second, independently-invented mapping -- if a
+// collector's path ever changes, this table must be updated in the same
+// diff (no separate source of truth to drift from it).
+export type PersonaId = "Scout" | "Coach" | "Pilot" | "Analyst" | "Chef" | "Treasurer" | "Gamma";
+
+/** [needle (path fragment, matched case-insensitively against a
+ * backslash-normalized `to`+`detail` string), personaId, short factual
+ * phrase]. Checked in order, first match wins -- ordered most-specific-
+ * first so no fragment here is a substring of an earlier row's own needle
+ * (verified: no two needles collide). */
+const PERSONA_EVIDENCE_RULES: ReadonlyArray<readonly [string, PersonaId, string]> = [
+  // Scout -- personas.ts#collectScout (L396-404): scout_output.json / scout-log.jsonl / scout-feed-summary.json
+  ["scout-feed-summary.json", "Scout", "checking Scout's feed summary"],
+  ["scout_output.json", "Scout", "checking Scout's feed output"],
+  ["scout-log.jsonl", "Scout", "checking Scout's feed log"],
+  // Coach -- personas.ts#collectCoach (L512-518): station/sectors.json + station/coach-notes.json
+  ["station/sectors.json", "Coach", "reading Coach's sector rows"],
+  ["station/coach-notes.json", "Coach", "reading Coach's notes"],
+  // Pilot -- personas.ts#collectPilot (L650) + collectHandoffs (L1015): core-decisions.jsonl / decisions.jsonl
+  ["core-decisions.jsonl", "Pilot", "reading Pilot's decision log"],
+  ["automation/state/decisions.jsonl", "Pilot", "reading Pilot's decision log"],
+  // Analyst -- personas.ts#collectAnalyst (L726-728) + collectHandoffs (L1138): eod log/digest + mistakes ledger
+  ["_analyst-log.jsonl", "Analyst", "reading Analyst's log"],
+  ["analysis/eod/", "Analyst", "reading Analyst's EOD digest"],
+  ["journal/mistakes.md", "Analyst", "reading Analyst's mistakes ledger"],
+  // Treasurer -- personas.ts#collectTreasurer (L883-884): treasurer log + draft params changes
+  ["_treasurer-log.jsonl", "Treasurer", "reading Treasurer's log"],
+  ["treasury/draft-params-changes.md", "Treasurer", "reading Treasurer's draft"],
+  // Chef -- personas.ts#collectChef (L1044-1060) + collectHandoffs (L1121/1130): inbox + leaderboard + candidates
+  ["_chef-inbox", "Chef", "checking Chef's inbox"],
+  ["_leaderboard.md", "Chef", "checking Chef's leaderboard"],
+  ["strategy/candidates", "Chef", "checking Chef's candidates"],
+  // Gamma (station/manager) -- personas.ts#collectCrewEvents (L324) + collectGammaManager (L931-932) +
+  // scheduled-tasks audit (L1097): crew log / loop ledger / conductor outcomes / task audit
+  ["station/crew-events.jsonl", "Gamma", "checking the station crew log"],
+  ["station/loop-ledger.jsonl", "Gamma", "checking the station loop ledger"],
+  ["conductor-outcomes.jsonl", "Gamma", "checking conductor outcomes"],
+  ["scheduled-tasks-audit.json", "Gamma", "checking the scheduled-tasks audit"],
+];
+
+/** The real walk-graph node id each persona resolves to -- `persona-${name}`
+ * is layout.ts#buildWalkGraph's own existing node convention for the 6
+ * inner personas (Scout/Coach/Pilot/Analyst/Chef/Treasurer, added straight
+ * from Scene.tsx's `personaSlots`); Gamma is NOT one of those (she's
+ * excluded from the inner ring -- Scene.tsx's own comment: "Gamma (Manager)
+ * excluded, it's BrainCore itself") and instead gets her own dedicated
+ * `gamma-desk` node layout.ts already wires. No new node added anywhere --
+ * every id below is already a real, walkable graph node. */
+export const PERSONA_NODE_ID: Record<PersonaId, string> = {
+  Scout: "persona-Scout",
+  Coach: "persona-Coach",
+  Pilot: "persona-Pilot",
+  Analyst: "persona-Analyst",
+  Chef: "persona-Chef",
+  Treasurer: "persona-Treasurer",
+  Gamma: "gamma-desk",
+};
+
+/** Classifies a row's own `to`+`detail` text against PERSONA_EVIDENCE_RULES.
+ * Returns null (never a guess) when nothing matches -- most rows won't;
+ * that's honest, not a bug (see this task's own evidence-count step: only
+ * real pulse rows ever produce a persona visit). */
+export function classifyPersona(text: string): { id: PersonaId; phrase: string } | null {
+  const norm = (text || "").replace(/\\/g, "/").toLowerCase();
+  for (const [needle, id, phrase] of PERSONA_EVIDENCE_RULES) {
+    if (norm.includes(needle)) return { id, phrase };
+  }
+  return null;
+}
+
+// ─── Target stickiness (PERSONA-VISIT pass, 2026-09-15) ────────────────────
+//
+// Task spec: "an agent should not ping-pong between zones on every tool
+// call. Require the same zone for >=2 consecutive rows or >=20s before
+// retargeting." Applied uniformly to BOTH coarse-zone and persona targets
+// via one string key ("zone:<zone>" or "persona:<id>") so a persona visit
+// and a coarse-zone hop compete under the identical rule -- no special
+// case for one or the other. A row with NO real signal (classifyZone
+// returns "hub" AND classifyPersona returns null) never counts as a
+// retarget candidate at all -- same "a bare `git status` must never blank
+// a real target back to hub" guarantee this module already had before this
+// pass (see the now-removed inline comment this replaces), just phrased as
+// "never a candidate" instead of "zone !== hub only overwrites".
+const TARGET_STICKY_MIN_ROWS = 2;
+const TARGET_STICKY_MIN_HOLD_MS = 20_000;
+
+function resolveTargetKey(text: string): { key: string; persona: { id: PersonaId; phrase: string } | null } | null {
+  const persona = classifyPersona(text);
+  if (persona) return { key: `persona:${persona.id}`, persona };
+  const zone = classifyZone(text);
+  if (zone === "hub") return null; // no real signal -- never a retarget candidate
+  return { key: `zone:${zone}`, persona: null };
+}
+
+function nodeIdForTargetKey(key: string): string {
+  if (key.startsWith("persona:")) {
+    const id = key.slice("persona:".length) as PersonaId;
+    return PERSONA_NODE_ID[id] ?? ZONE_NODE_ID.hub;
+  }
+  const zone = key.slice("zone:".length) as LiveAgentZone;
+  return ZONE_NODE_ID[zone] ?? ZONE_NODE_ID.hub;
+}
 
 /** Where a spawning agent first appears -- "campus-gate"
  * (layout.ts#buildWalkGraph's own new entry-node leaf, wired to arm 0's
@@ -516,7 +642,29 @@ interface AgentAcc {
   lastTsPseudoMs: number;
   lastDetail: string;
   lastRawDetail: string;
-  zone: LiveAgentZone;
+  /** The current STABLE target key ("zone:<zone>" or "persona:<id>"), post-
+   * stickiness -- see resolveTargetKey/TARGET_STICKY_* above. Starts at
+   * "zone:hub" (a placeholder, not yet claimed by a real signal) until the
+   * first real-signal row claims it outright. */
+  targetKey: string;
+  /** True once `targetKey` has been claimed by a real signal at least once
+   * -- distinguishes "still on the cold-start hub placeholder" (next real
+   * signal claims immediately, no debounce) from "already has a real
+   * target" (retargeting away from it needs the sticky rule). */
+  targetIsReal: boolean;
+  /** pseudo-ms `targetKey` was last actually switched -- the sticky rule's
+   * own time-hold baseline. */
+  targetSwitchTsPseudo: number;
+  /** A candidate key currently accumulating consecutive-row votes to
+   * unseat `targetKey`, and how many consecutive rows it's seen so far. */
+  pendingKey: string | null;
+  pendingCount: number;
+  /** Last persona phrase seen for each "persona:<id>" key this agent has
+   * ever matched -- read at emit time for whichever key is the FINAL
+   * `targetKey`, so `interaction.phrase` always reflects real evidence for
+   * the stable target, not necessarily the very last row (which may have
+   * been a still-pending candidate or a neutral non-signal row). */
+  personaPhraseByKey: Map<string, string>;
   /** pseudo-ms of the most recent tool-start row that has NOT yet been closed by a
    * matching "done" row for the same tool, or null when the agent's last tool call
    * already completed (or it has never started one). See ACTIVE_TOOL_GRACE_MS above. */
@@ -556,7 +704,7 @@ export function buildLiveAgents(rows: PulseRow[], nowMs: number = Date.now()): L
     const key = row.agent_id ? row.agent_id : row.session_id ? `session:${row.session_id}` : null;
     if (!key) continue; // malformed ts already filtered out above -- never guess "now" for a row we can't date
 
-    const zone = classifyZone(`${row.to} ${row.detail}`);
+    const targetText = `${row.to} ${row.detail}`;
     let existing = groups.get(key);
     if (!existing) {
       existing = {
@@ -568,7 +716,12 @@ export function buildLiveAgents(rows: PulseRow[], nowMs: number = Date.now()): L
         lastTsPseudoMs: tsPseudo,
         lastDetail: shortDetail(row),
         lastRawDetail: rawDetailFor(row),
-        zone,
+        targetKey: "zone:hub",
+        targetIsReal: false,
+        targetSwitchTsPseudo: tsPseudo,
+        pendingKey: null,
+        pendingCount: 0,
+        personaPhraseByKey: new Map(),
         openToolTs: null,
         openToolName: null,
       };
@@ -586,12 +739,42 @@ export function buildLiveAgents(rows: PulseRow[], nowMs: number = Date.now()): L
         existing.lastTsPseudoMs = tsPseudo;
         existing.lastDetail = shortDetail(row);
         existing.lastRawDetail = rawDetailFor(row);
-        // A real zone signal only ever REPLACES the stale one on a later row
-        // -- a row with no path in its own detail/to (e.g. a bare "Ran: ls")
-        // must never blank an agent back to "hub" just because it's the most
-        // recent row seen.
-        if (zone !== "hub") existing.zone = zone;
         if (row.agent_id && row.agent_type) existing.label = row.agent_type;
+      }
+    }
+
+    // Target resolution + stickiness (PERSONA-VISIT pass): a row with no real
+    // signal (resolved === null) never touches targetKey/pendingKey at all --
+    // same "never blanked by a neutral row" guarantee this module always had
+    // (see resolveTargetKey's own header). A real-signal row either claims the
+    // still-unclaimed cold-start placeholder immediately, reaffirms the
+    // current target (resetting any drifting pending candidate), or accumulates
+    // toward TARGET_STICKY_MIN_ROWS/TARGET_STICKY_MIN_HOLD_MS before unseating
+    // it. Runs on EVERY row for this agent (not just the latest-wins branch
+    // above) so consecutive-row counting sees every real row in order, not
+    // just whichever one happened to also be the new last-seen row.
+    const resolved = resolveTargetKey(targetText);
+    if (resolved) {
+      if (resolved.persona) existing.personaPhraseByKey.set(resolved.key, resolved.persona.phrase);
+      if (!existing.targetIsReal) {
+        existing.targetKey = resolved.key;
+        existing.targetIsReal = true;
+        existing.targetSwitchTsPseudo = tsPseudo;
+        existing.pendingKey = null;
+        existing.pendingCount = 0;
+      } else if (resolved.key === existing.targetKey) {
+        existing.pendingKey = null;
+        existing.pendingCount = 0;
+      } else {
+        existing.pendingCount = existing.pendingKey === resolved.key ? existing.pendingCount + 1 : 1;
+        existing.pendingKey = resolved.key;
+        const holdMs = tsPseudo - existing.targetSwitchTsPseudo;
+        if (existing.pendingCount >= TARGET_STICKY_MIN_ROWS || holdMs >= TARGET_STICKY_MIN_HOLD_MS) {
+          existing.targetKey = resolved.key;
+          existing.targetSwitchTsPseudo = tsPseudo;
+          existing.pendingKey = null;
+          existing.pendingCount = 0;
+        }
       }
     }
 
@@ -633,6 +816,12 @@ export function buildLiveAgents(rows: PulseRow[], nowMs: number = Date.now()): L
     } else if (age >= IDLE_TIMEOUT_MS - COOLING_WINDOW_MS) {
       state = "cooling";
     }
+    const interaction = a.targetKey.startsWith("persona:")
+      ? {
+          id: a.targetKey.slice("persona:".length) as PersonaId,
+          phrase: a.personaPhraseByKey.get(a.targetKey) ?? "",
+        }
+      : null;
     return {
       id: a.id,
       label: a.label,
@@ -642,7 +831,8 @@ export function buildLiveAgents(rows: PulseRow[], nowMs: number = Date.now()): L
       rawDetail: a.lastRawDetail,
       taskDetail: sanitizeTaskText(a.lastRawDetail),
       state,
-      targetZone: ZONE_NODE_ID[a.zone],
+      targetZone: nodeIdForTargetKey(a.targetKey),
+      interaction: interaction && interaction.phrase ? { personaId: interaction.id, phrase: interaction.phrase } : null,
     };
   });
 }

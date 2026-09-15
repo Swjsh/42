@@ -21,9 +21,11 @@ import {
   nowLocalPseudoMs,
   parsePulseLines,
   classifyZone,
+  classifyPersona,
   buildLiveAgents,
   liveAgentBubbleAction,
   ZONE_NODE_ID,
+  PERSONA_NODE_ID,
   TAIL_MAX_LINES,
   type PulseRow,
 } from "../lib/hq-agents.ts";
@@ -483,4 +485,122 @@ test("liveAgentBubbleAction falls back to 'checking a URL' when curl's own targe
     to: "",
   });
   assert.equal(action, "checking a URL");
+});
+
+// ─── classifyPersona (PERSONA-VISIT pass, 2026-09-15) ──────────────────────
+
+test("classifyPersona maps Scout's own evidence files", () => {
+  assert.equal(classifyPersona("Ran: cat automation/scout/state/scout_output.json")?.id, "Scout");
+  assert.equal(classifyPersona("Ran: tail automation/scout/state/scout-feed-summary.json")?.id, "Scout");
+});
+
+test("classifyPersona maps Coach's own evidence files", () => {
+  assert.equal(classifyPersona("Ran: cat automation/state/station/sectors.json")?.id, "Coach");
+  assert.equal(classifyPersona("Ran: cat automation/state/station/coach-notes.json")?.id, "Coach");
+});
+
+test("classifyPersona maps Pilot's own evidence files", () => {
+  assert.equal(classifyPersona("Ran: tail automation/state/core-decisions.jsonl")?.id, "Pilot");
+});
+
+test("classifyPersona maps Analyst's own evidence files", () => {
+  assert.equal(classifyPersona("Ran: cat analysis/eod/2026-09-15.md")?.id, "Analyst");
+  assert.equal(classifyPersona("Ran: cat journal/mistakes.md")?.id, "Analyst");
+});
+
+test("classifyPersona maps Treasurer's own evidence files", () => {
+  assert.equal(classifyPersona("Ran: cat analysis/treasury/draft-params-changes.md")?.id, "Treasurer");
+});
+
+test("classifyPersona maps Chef's own evidence files", () => {
+  assert.equal(classifyPersona("Ran: ls strategy/candidates/_chef-inbox")?.id, "Chef");
+  assert.equal(classifyPersona("Ran: cat strategy/candidates/_LEADERBOARD.md")?.id, "Chef");
+});
+
+test("classifyPersona maps Gamma's own station evidence files", () => {
+  assert.equal(classifyPersona("Ran: tail automation/state/station/crew-events.jsonl")?.id, "Gamma");
+  assert.equal(classifyPersona("Ran: cat automation/state/station/loop-ledger.jsonl")?.id, "Gamma");
+});
+
+test("classifyPersona returns null for a row with no persona evidence", () => {
+  assert.equal(classifyPersona("Editing dashboard/lib/hq-agents.ts"), null);
+  assert.equal(classifyPersona("Ran: git status"), null);
+});
+
+test("classifyPersona normalizes Windows backslashes before matching", () => {
+  assert.equal(classifyPersona("Ran: cat C:\\Users\\jackw\\Desktop\\42\\journal\\mistakes.md")?.id, "Analyst");
+});
+
+// ─── buildLiveAgents: persona targeting + interaction field ────────────────
+
+test("buildLiveAgents targets a persona's own walk-graph node on a single matching row", () => {
+  const rows = [row({ agent_id: "a1", ts: "2026-09-14T21:51:50", detail: "Ran: cat automation/state/station/sectors.json" })];
+  const agents = buildLiveAgents(rows, NOW);
+  assert.equal(agents[0].targetZone, PERSONA_NODE_ID.Coach);
+  assert.deepEqual(agents[0].interaction, { personaId: "Coach", phrase: "reading Coach's sector rows" });
+});
+
+test("buildLiveAgents targets gamma-desk for Gamma's own station evidence", () => {
+  const rows = [row({ agent_id: "a1", ts: "2026-09-14T21:51:50", detail: "Ran: tail automation/state/station/crew-events.jsonl" })];
+  const agents = buildLiveAgents(rows, NOW);
+  assert.equal(agents[0].targetZone, PERSONA_NODE_ID.Gamma);
+  assert.equal(agents[0].targetZone, "gamma-desk");
+});
+
+test("buildLiveAgents interaction is null for a plain coarse-zone target", () => {
+  const rows = [row({ agent_id: "a1", ts: "2026-09-14T21:51:50", detail: "Editing dashboard/lib/x.ts" })];
+  const agents = buildLiveAgents(rows, NOW);
+  assert.equal(agents[0].interaction, null);
+  assert.equal(agents[0].targetZone, ZONE_NODE_ID.build);
+});
+
+// ─── Stickiness: >=2 consecutive rows OR >=20s hold before retargeting ─────
+
+test("buildLiveAgents does NOT retarget on a single alternating row (ping-pong guard)", () => {
+  const rows = [
+    row({ agent_id: "a1", ts: "2026-09-14T21:51:00", detail: "Editing dashboard/x.ts" }), // claims build immediately (cold start)
+    row({ agent_id: "a1", ts: "2026-09-14T21:51:05", detail: "Ran: cat automation/state/station/sectors.json" }), // 1 candidate row, 5s later -- not enough
+  ];
+  const agents = buildLiveAgents(rows, NOW);
+  assert.equal(agents[0].targetZone, ZONE_NODE_ID.build);
+});
+
+test("buildLiveAgents retargets after 2 CONSECUTIVE rows for the new target", () => {
+  const rows = [
+    row({ agent_id: "a1", ts: "2026-09-14T21:51:00", detail: "Editing dashboard/x.ts" }),
+    row({ agent_id: "a1", ts: "2026-09-14T21:51:05", detail: "Ran: cat automation/state/station/sectors.json" }), // candidate #1
+    row({ agent_id: "a1", ts: "2026-09-14T21:51:08", detail: "Ran: cat automation/state/station/coach-notes.json" }), // candidate #2 (same persona key) -- unseats
+  ];
+  const agents = buildLiveAgents(rows, NOW);
+  assert.equal(agents[0].targetZone, PERSONA_NODE_ID.Coach);
+});
+
+test("buildLiveAgents retargets after a >=20s hold even on a single candidate row", () => {
+  const rows = [
+    row({ agent_id: "a1", ts: "2026-09-14T21:51:00", detail: "Editing dashboard/x.ts" }),
+    row({ agent_id: "a1", ts: "2026-09-14T21:51:25", detail: "Ran: cat automation/state/station/sectors.json" }), // 25s later -- past the 20s hold
+  ];
+  const agents = buildLiveAgents(rows, NOW);
+  assert.equal(agents[0].targetZone, PERSONA_NODE_ID.Coach);
+});
+
+test("buildLiveAgents: a non-consecutive candidate resets its own counter (real ping-pong never accumulates)", () => {
+  const rows = [
+    row({ agent_id: "a1", ts: "2026-09-14T21:51:00", detail: "Editing dashboard/x.ts" }), // claims build
+    row({ agent_id: "a1", ts: "2026-09-14T21:51:02", detail: "Ran: cat automation/state/station/sectors.json" }), // Coach candidate #1
+    row({ agent_id: "a1", ts: "2026-09-14T21:51:04", detail: "Editing dashboard/y.ts" }), // back to build -- resets Coach's candidate count
+    row({ agent_id: "a1", ts: "2026-09-14T21:51:06", detail: "Ran: cat automation/state/station/sectors.json" }), // Coach candidate #1 again (not #2)
+  ];
+  const agents = buildLiveAgents(rows, NOW);
+  assert.equal(agents[0].targetZone, ZONE_NODE_ID.build);
+});
+
+test("buildLiveAgents: interaction.phrase reflects the STABLE target, not a still-pending candidate row", () => {
+  const rows = [
+    row({ agent_id: "a1", ts: "2026-09-14T21:51:00", detail: "Ran: cat automation/state/station/sectors.json" }), // claims Coach immediately (cold start)
+    row({ agent_id: "a1", ts: "2026-09-14T21:51:05", detail: "Editing dashboard/x.ts" }), // 1 build candidate row -- not enough to unseat
+  ];
+  const agents = buildLiveAgents(rows, NOW);
+  assert.equal(agents[0].targetZone, PERSONA_NODE_ID.Coach);
+  assert.deepEqual(agents[0].interaction, { personaId: "Coach", phrase: "reading Coach's sector rows" });
 });

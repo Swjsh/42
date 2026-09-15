@@ -26,6 +26,7 @@ import { reportAutoOrbitResumed } from "@/lib/hq-camera-mode";
 // 0-5, the SAME fixed order cameraPresets below already uses).
 import { getHoveredPersonaIndex, subscribeHoveredPersonaIndex } from "@/lib/hq-hover-persona";
 import type { HqApiResponse, SectorRow, CoreDecisionRow } from "./types";
+import type { PersonaId } from "@/lib/hq-agents";
 import type { PersonaState } from "@/lib/personas";
 import type { AgentBehavior } from "./Agent";
 import Agent from "./Agent";
@@ -49,6 +50,7 @@ import LiveAgents from "./LiveAgents";
 import LabelDeclutterManager from "./LabelDeclutterManager";
 import { PRIORITY } from "./labelDeclutter";
 import { laneBubbleAction, personaBubbleAction } from "./bubbleText";
+import { liveAgentIdentity } from "./liveAgentIdentity";
 import { computePurposefulWalk, dayNightFactor, healthColor, hhmmFromEtIso, isParkedState, isRegularTradingHours, lerp, localToWorld, minutesSinceEvidence, nowEtDayOfWeek, nowEtMinutes, PALETTE, personaStatusColor, scheduleOnShift, truncateOneLine, type ScreenLine } from "./palette";
 import { BAY_DESK_OFFSET_Z, BAY_SEAT_LOCAL, CampusGate, CHARACTER_SCALE, CHARACTER_TARGET_HEIGHT, CorridorRun, DeskCluster, HubRoom, HUB_WALL_RADIUS, Plaza, TJunction } from "./SetKit";
 // LAYOUT builder pass (2026-09-14, campus-cross rebuild): pure geometry/math
@@ -993,6 +995,23 @@ function ExposureSync({ dayFactor }: ExposureSyncProps) {
 function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
   const ultra = tier === "ultra";
   const coreMeshRef = useRef<THREE.Mesh>(null);
+  // PERSONA-VISIT pass (2026-09-15, queue item g): "on arrival at a persona
+  // zone, the persona's bubble shows a short acknowledgement for ~4s ...
+  // must not replace the persona's own status for longer than that". Real
+  // per-frame ARRIVAL detection lives inside Agent.tsx's own useFrame
+  // movement code, which this pass is explicitly barred from touching (see
+  // this task's own "DO NOT change walking/slot/follow/wait logic" rule) --
+  // so this uses the same server-computed signal LiveAgents.tsx already
+  // renders from (`data.liveAgents[].interaction`, lib/hq-agents.ts's own
+  // stable, stickiness-debounced target) as a wall-clock-gated proxy: the
+  // first render where a given live agent id's interaction names THIS
+  // persona starts a 4s window (keyed by agent id, so a different agent
+  // targeting the same persona later restarts its own window rather than
+  // reusing a stale timestamp). A plain ref (not state) -- display-only
+  // side table, never a reason to re-render on its own; read once per
+  // render inside the persona map below, same convention as every other
+  // *Ref in this file.
+  const personaGreetingSinceRef = useRef<Map<PersonaId, { agentId: string; sinceMs: number }>>(new Map());
   // INTERACT-2 (I2 f, 2026-09-14): "the day's FIRST core-decisions row at/
   // after 15:55 ET" -- a monotonic ref (never React state; mutated in plain
   // render-time code below, not an effect, matching this file's own
@@ -1508,6 +1527,27 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
   // SAME fixed roster order collectCompany() guarantees, wrapping -- a
   // stable, deterministic "who's nearby" pick with zero extra data needed.
   const nowMsForWalks = Date.now();
+  // PERSONA-VISIT pass (2026-09-15): the ~4s acknowledgement-bubble window
+  // for each persona currently being visited by a live agent (see
+  // personaGreetingSinceRef's own header above for why this is a wall-clock
+  // proxy rather than real arrival detection). Recomputed each render from
+  // the CURRENT liveAgents list + the ref's own prior state -- a persona
+  // absent from this map this render either has no visitor right now, or
+  // its window has already expired, either way `personaBubbleAction`'s
+  // normal evidence-backed pill takes over unmodified.
+  const PERSONA_GREETING_WINDOW_MS = 4000;
+  const personaGreetingText = new Map<PersonaId, string>();
+  for (const liveAgent of data?.liveAgents ?? []) {
+    if (!liveAgent.interaction) continue;
+    const personaId = liveAgent.interaction.personaId;
+    const prior = personaGreetingSinceRef.current.get(personaId);
+    const sinceMs = prior && prior.agentId === liveAgent.id ? prior.sinceMs : nowMsForWalks;
+    personaGreetingSinceRef.current.set(personaId, { agentId: liveAgent.id, sinceMs });
+    if (nowMsForWalks - sinceMs <= PERSONA_GREETING_WINDOW_MS) {
+      const identity = liveAgentIdentity(liveAgent.label, liveAgent.id);
+      personaGreetingText.set(personaId, `↔ ${identity.displayName}`);
+    }
+  }
   const ideasCount = data?.ideas.cards.length ?? 0;
   const purposefulWalks = innerPersonas.map((persona, i) => {
     const neighbor = innerPersonas.length > 1 ? innerPersonas[(i + 1) % innerPersonas.length] : null;
@@ -2061,7 +2101,13 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
         // Idle/working bubble text -- lib/crew.ts's own evidence-backed pill
         // (deriveCrewPill), the SAME derivation Hud.tsx's roster panel uses,
         // so the 3D bubble and the flat panel can never disagree (P2 spec).
-        const personaBubble = personaBubbleAction(persona, nowMsForWalks);
+        // PERSONA-VISIT pass: a live-agent acknowledgement wins for its own
+        // short ~4s window (personaGreetingText, computed once above from
+        // real pulse-row evidence) -- otherwise the normal evidence-backed
+        // pill, unmodified. Content-only override (never touches walkKind/
+        // walkEventKey/any movement prop below), matching this task's own
+        // "only choose the TARGET node and add bubble content" boundary.
+        const personaBubble = personaGreetingText.get(persona.name as PersonaId) ?? personaBubbleAction(persona, nowMsForWalks);
         return (
           <group
             key={persona.name}
