@@ -458,16 +458,18 @@ def _handle_pre_tool(payload: dict) -> int:
                     f"{D.FREEZE_OVERRIDE_TOKEN} in the edit to record one.",
                 )
 
+    # L318 -- subagents cannot durably wait on their own background runs (only the
+    # orchestrator's session ever receives the completion notification). Re-violated
+    # 2026-09-15 x2 (HQ-PROBE, PERSONA-LATENCY); graduated from prose to this
+    # deterministic deny. Checked here, ahead of the tool-specific branches below, so
+    # it also covers Monitor -- a tool with no run_in_background key at all, where the
+    # call itself is the background-then-wait mechanism; nesting this only inside the
+    # Bash/PowerShell branch (as first shipped) silently never evaluated it.
+    if D.subagent_background_run_hit(str(payload.get("agent_id") or ""), tool, tin):
+        return _deny("PreToolUse", D.L318_BACKGROUND_DENY_MESSAGE)
+
     if tool in ("Bash", "PowerShell"):
         command = str(tin.get("command") or "")
-
-        # L318 -- subagents cannot durably wait on their own background runs (only the
-        # orchestrator's session ever receives the completion notification). Re-violated
-        # 2026-09-15 x2 (HQ-PROBE, PERSONA-LATENCY); graduated from prose to this
-        # deterministic deny. Checked first -- cheapest guard, no regex scan needed --
-        # and independent of every other check in this block.
-        if D.subagent_background_run_hit(str(payload.get("agent_id") or ""), tool, tin):
-            return _deny("PreToolUse", D.L318_BACKGROUND_DENY_MESSAGE)
 
         # Scan the RAW command -- deliberately BEFORE strip_heredocs/_strip_multiword_quoted
         # (those exist to avoid false-positiving the frozen-path/generated-surface guards on

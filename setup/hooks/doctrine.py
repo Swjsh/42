@@ -123,6 +123,20 @@ def credential_deny_message(tool: str, label: str, prefix: str, severity: str = 
 # run_in_background=true and ended its turn "waiting for the notification" that only
 # the orchestrator's session ever receives. Graduated from prose to a deterministic
 # PreToolUse deny per markdown/doctrine/LESSONS-LEARNED.md L318.
+#
+# WIDENED 2026-09-15 (same-day follow-up audit, agent ids a60d20a4b51728502 /
+# a8dff087a05e42e01): the run_in_background=true check alone left the Monitor tool
+# completely uncovered -- Monitor takes no run_in_background key at all, the call
+# itself IS the "stream events from a background process" shape the L318 lesson names,
+# and the PreToolUse matcher in .claude/settings.json did not even list "Monitor" as a
+# trigger, so a subagent's Monitor call never reached this hook to be evaluated.
+# Confirmed by direct log inspection (automation/state/hooks/pulse.jsonl,
+# doctrine-hooks.jsonl) that neither flagged incident actually called Monitor or
+# run_in_background=true -- both instead busy-polled with a string of trivial
+# foreground Bash echoes/sleeps narrating a fictitious background task id, which no
+# single tool-input key can distinguish from legitimate short foreground checks and is
+# therefore left as a behavioral gap, not a tool-signature one. The Monitor gap,
+# unlike that one, IS tool-signature detectable, so it is closed here.
 # --------------------------------------------------------------------------------------
 L318_BACKGROUND_DENY_MESSAGE = (
     "L318: subagents cannot wait on background runs -- rerun this command in the "
@@ -130,14 +144,23 @@ L318_BACKGROUND_DENY_MESSAGE = (
     "jobs, split them or return and let the orchestrator own the run."
 )
 
+# Tools that are inherently a background-then-wait mechanism regardless of their
+# input shape -- the call itself is the violation, there is no per-call flag to check
+# (unlike Bash/PowerShell run_in_background, which is opt-in per call).
+_L318_INHERENT_BACKGROUND_TOOLS = ("Monitor",)
+
 
 def subagent_background_run_hit(agent_id: str, tool: str, tool_input: dict) -> bool:
-    """True only for a SUBAGENT (non-empty agent_id) issuing Bash/PowerShell with
-    run_in_background=true. The main session (empty agent_id) is unaffected -- it CAN
-    durably receive a background-task notification; only a subagent cannot.
+    """True for a SUBAGENT (non-empty agent_id) issuing any background-then-wait
+    mechanism: Bash/PowerShell with run_in_background=true, or a tool (Monitor) that
+    is a background-then-wait mechanism by construction with no such key to check.
+    The main session (empty agent_id) is unaffected -- it CAN durably receive a
+    background-task notification; only a subagent cannot.
     """
     if not agent_id:
         return False
+    if tool in _L318_INHERENT_BACKGROUND_TOOLS:
+        return True
     if tool not in ("Bash", "PowerShell"):
         return False
     return bool(tool_input.get("run_in_background"))
@@ -169,7 +192,7 @@ Project Gamma operating facts (5 that carry the most weight):
 L318: a subagent cannot durably wait on its own background run -- run long commands in
 the foreground with a covering timeout (max 600000 ms), or split/return and let the
 orchestrator own it. A PreToolUse guard denies Bash/PowerShell run_in_background=true
-from a subagent.
+and the Monitor tool from a subagent.
 """
 
 # --------------------------------------------------------------------------------------

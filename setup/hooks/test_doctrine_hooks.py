@@ -672,6 +672,52 @@ def test_l318_malformed_tool_input_with_agent_id_fails_open(tool_input):
     assert "Traceback" not in stderr
 
 
+def test_l318_subagent_monitor_call_is_denied():
+    """Widened 2026-09-15 same-day audit: Monitor has no run_in_background key at all
+    -- the call itself is the background-then-wait mechanism the L318 lesson names.
+    A subagent calling Monitor must be denied exactly like run_in_background=true."""
+    code, stdout, stderr = run_hook(
+        {
+            "hook_event_name": "PreToolUse",
+            "tool_name": "Monitor",
+            "agent_id": "agent-abc",
+            "tool_input": {"description": "deploy events", "timeout_ms": 300000},
+        }
+    )
+    assert code == BLOCK
+    assert "L318" in (stdout + stderr)
+    assert "FOREGROUND" in (stdout + stderr)
+
+
+def test_l318_main_session_monitor_call_is_allowed():
+    """Empty agent_id == the main session, which CAN durably receive Monitor
+    notifications -- only a subagent cannot. The guard must not fire here."""
+    code, stdout, stderr = run_hook(
+        {
+            "hook_event_name": "PreToolUse",
+            "tool_name": "Monitor",
+            "agent_id": "",
+            "tool_input": {"description": "deploy events", "timeout_ms": 300000},
+        }
+    )
+    assert code == ALLOW
+
+
+def test_l318_subagent_other_foreground_tool_is_allowed():
+    """A subagent using an ordinary foreground tool (not Bash/PowerShell
+    background, not Monitor) must never be caught by this guard -- narrow denylist
+    only, per doctrine.py's own design contract."""
+    code, stdout, stderr = run_hook(
+        {
+            "hook_event_name": "PreToolUse",
+            "tool_name": "Grep",
+            "agent_id": "agent-abc",
+            "tool_input": {"pattern": "foo"},
+        }
+    )
+    assert code == ALLOW
+
+
 def test_l318_guard_respects_hooks_off_switch():
     code, stdout, stderr = run_hook(
         {
