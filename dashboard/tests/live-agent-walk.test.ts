@@ -39,13 +39,16 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
+  applyFollowCap,
   applyLaneOffsets,
   computeBatchOrder,
   computeBatchStaggerDelays,
   computeMaxPathDurationS,
   computeWaitPoint,
   ENTRY_NODE_ID,
+  findCarAhead,
   findWalkPath,
+  FOLLOW_GAP_U,
   laneIndexForId,
   laneValueForId,
   LANE_STEP_U,
@@ -67,6 +70,7 @@ import {
   WAIT_ALONG_STEP_U,
   WAIT_LANE_COUNT,
   WAIT_LANE_STEP_U,
+  type WalkerSnapshot,
   type WalkGraph,
 } from "../components/hq/liveAgentWalk.ts";
 import { ENTRY_NODE_ID as HQ_AGENTS_ENTRY_NODE_ID, ZONE_NODE_ID } from "../lib/hq-agents.ts";
@@ -831,7 +835,307 @@ test("SPAWN-WAIT->WALK: GREEN (the fix) -- starting the walk from the rendered w
   }
 });
 
-// ─── computeBatchOrder / computeBatchStaggerDelays (CONVOY-STACK v2/v3) ────
+// ─── findCarAhead / applyFollowCap (CONVOY-STACK v6, 2026-09-15) ──────────
+//
+// ROOT CAUSE (walker_separation FAIL, probe 20260915T101532Z): 66/147
+// multi-walker ticks (44.9%) under the required 0.7u bar, 64 of them ONE
+// pair, both leaving toward campus-gate, that walked the ENTIRE ~32s shared
+// corridor 0.18u apart in the SAME lane. liveAgentWalk.ts's own
+// `laneValueForId` (CONVOY-STACK v2/v3) chooses a walking lane from a
+// per-id hash into only 3 buckets -- two ids landing in the SAME bucket
+// (1-in-3 per pair) get an IDENTICAL lane on the SAME corridor, and the
+// batch stagger (`computeBatchStaggerDelays`) only covers agents starting
+// FROM THE SAME NODE in the SAME reconcile poll -- two leavers departing
+// from DIFFERENT stand slots (different zones, or the same zone at
+// different moments) merge onto the shared gate-bound corridor with no
+// timing relationship to each other, so the stagger cannot separate them.
+// The v5 build only "passed" because those two particular ids happened to
+// hash to different lanes -- a coincidence, not a guarantee.
+
+test("findCarAhead: an avatar directly ahead, same destination, same heading, same lane is found with the correct forward gap", () => {
+  const self: WalkerSnapshot = { id: "a", position: [0, 0], heading: [0, 1], destKey: "gate" };
+  const other: WalkerSnapshot = { id: "b", position: [0, 1.5], heading: [0, 1], destKey: "gate" };
+  const result = findCarAhead(self, [other]);
+  assert.ok(result, "expected b to be found as the car ahead of a");
+  assert.equal(result!.other.id, "b");
+  assert.ok(Math.abs(result!.forwardGap - 1.5) < 1e-9, `expected forwardGap 1.5, got ${result!.forwardGap}`);
+});
+
+test("findCarAhead: ignores a walker heading to a DIFFERENT destination (the cheap pre-filter)", () => {
+  const self: WalkerSnapshot = { id: "a", position: [0, 0], heading: [0, 1], destKey: "gate" };
+  const other: WalkerSnapshot = { id: "b", position: [0, 1.5], heading: [0, 1], destKey: "some-other-zone" };
+  assert.equal(findCarAhead(self, [other]), null);
+});
+
+test("findCarAhead: ignores a walker in a clearly DIFFERENT lane (large lateral offset)", () => {
+  const self: WalkerSnapshot = { id: "a", position: [0, 0], heading: [0, 1], destKey: "gate" };
+  // Lateral offset 0.45 -- exactly LANE_STEP_U, i.e. a genuinely different,
+  // already-adequately-separated lane -- must NEVER trigger following.
+  const other: WalkerSnapshot = { id: "b", position: [0.45, 1.5], heading: [0, 1], destKey: "gate" };
+  assert.equal(findCarAhead(self, [other]), null);
+});
+
+test("findCarAhead: ignores a walker heading in roughly the OPPOSITE direction", () => {
+  const self: WalkerSnapshot = { id: "a", position: [0, 0], heading: [0, 1], destKey: "gate" };
+  const other: WalkerSnapshot = { id: "b", position: [0, 1.5], heading: [0, -1], destKey: "gate" };
+  assert.equal(findCarAhead(self, [other]), null);
+});
+
+test("findCarAhead: ignores a walker BEHIND self", () => {
+  const self: WalkerSnapshot = { id: "a", position: [0, 0], heading: [0, 1], destKey: "gate" };
+  const other: WalkerSnapshot = { id: "b", position: [0, -1.5], heading: [0, 1], destKey: "gate" };
+  assert.equal(findCarAhead(self, [other]), null);
+});
+
+test("findCarAhead: at (near) equal progress, exactly one of a tied pair yields (deterministic by id), never both", () => {
+  const a: WalkerSnapshot = { id: "a", position: [0, 0], heading: [0, 1], destKey: "gate" };
+  const b: WalkerSnapshot = { id: "b", position: [0, 0], heading: [0, 1], destKey: "gate" };
+  const aSeesB = findCarAhead(a, [b]);
+  const bSeesA = findCarAhead(b, [a]);
+  // "a" < "b" lexicographically -- self.id > other.id is the yield
+  // condition, so b (the larger id) treats a as ahead; a does not treat b
+  // as ahead.
+  assert.equal(aSeesB, null, "a (smaller id) must not treat the tied b as ahead");
+  assert.ok(bSeesA, "b (larger id) must treat the tied a as ahead -- exactly one must yield");
+});
+
+test("findCarAhead: picks the NEAREST qualifying car ahead among several", () => {
+  const self: WalkerSnapshot = { id: "a", position: [0, 0], heading: [0, 1], destKey: "gate" };
+  const near: WalkerSnapshot = { id: "near", position: [0, 1.0], heading: [0, 1], destKey: "gate" };
+  const far: WalkerSnapshot = { id: "far", position: [0, 5.0], heading: [0, 1], destKey: "gate" };
+  const result = findCarAhead(self, [far, near]); // deliberately unsorted input
+  assert.equal(result!.other.id, "near");
+});
+
+test("applyFollowCap: no car ahead -- candidate distance applies unchanged (never less than prevApplied)", () => {
+  assert.equal(applyFollowCap(5, 3, null), 5);
+});
+
+test("applyFollowCap: gap already clears FOLLOW_GAP_U -- candidate applies unchanged", () => {
+  const carAhead = { other: { id: "b", position: [0, 0] as const, heading: [0, 1] as const, destKey: "gate" }, forwardGap: 2 };
+  assert.equal(applyFollowCap(5, 3, carAhead), 5);
+});
+
+test("applyFollowCap: gap under FOLLOW_GAP_U reduces the candidate by exactly the shortfall", () => {
+  const carAhead = { other: { id: "b", position: [0, 0] as const, heading: [0, 1] as const, destKey: "gate" }, forwardGap: 0.3 };
+  // shortfall = FOLLOW_GAP_U(0.8) - 0.3 = 0.5
+  assert.ok(Math.abs(applyFollowCap(5, 0, carAhead) - 4.5) < 1e-9);
+});
+
+test("applyFollowCap: never reverses -- holds at prevAppliedDistance rather than moving backward", () => {
+  const carAhead = { other: { id: "b", position: [0, 0] as const, heading: [0, 1] as const, destKey: "gate" }, forwardGap: 0.1 };
+  // shortfall = 0.7, candidate=1 -> capped would be 0.3, but prevApplied=2
+  // (this avatar already got further than that on an earlier frame) --
+  // must hold at 2, never step backward to 0.3.
+  assert.equal(applyFollowCap(1, 2, carAhead), 2);
+});
+
+// ─── THE REQUIRED PROOF: a 3-deep merge chain (CONVOY-STACK v6) ────────────
+//
+// Coordinator's own required test scenario: two agents entering the same
+// edge at the same time from different start points, and a third catching
+// up from behind. Modeled here as a pure per-frame simulation mirroring
+// LiveAgents.tsx's own useFrame exactly (distance-based progress,
+// one-frame-stale registry reads/writes using each avatar's own LAST
+// RENDERED pose for both sides of the comparison -- see that file's own
+// "SELF POSITION SOURCE" comment for why the candidate-vs-stale asymmetry
+// was rejected during this fix's own development).
+
+const CHAIN_DEST_KEY = "gate";
+const CHAIN_LANE_Z = -0.45; // the exact lane the real bug's own pair collided in
+const CHAIN_GATE_X = 21.6;
+// Deliberately bad starting gaps -- LEAD/MID already fine (1.0u, >=0.7), but
+// MID/TRAIL start only INITIAL_MID_TRAIL_GAP_U apart (well under the bar,
+// close to the reported bug's own 0.18u), simulating TRAIL having already
+// closed in on MID (e.g. during an earlier stagger/lane phase this fixture
+// does not itself model) right as all three enter the shared corridor.
+const INITIAL_MID_TRAIL_GAP_U = 0.15;
+const CHAIN_WALKERS: { id: string; startX: number }[] = [
+  { id: "lead", startX: 2.0 },
+  { id: "mid", startX: 1.0 },
+  { id: "trail", startX: 1.0 - INITIAL_MID_TRAIL_GAP_U },
+];
+// MERGE GRACE PERIOD: with BOTH walkers moving at the identical
+// SIM_WALK_SPEED, applyFollowCap's own "never reverse" floor means a
+// follower that starts too close cannot instantly jump backward to open
+// the gap -- it HOLDS (zero advance) while the leader pulls away at full
+// speed, until the gap naturally reaches FOLLOW_GAP_U on its own, THEN
+// proceeds in lockstep. That is correct, expected car-following behavior
+// (a real car brakes and waits for room, it doesn't teleport backward) --
+// but it bounds how quickly an under-the-bar START can resolve: at best,
+// (FOLLOW_GAP_U - initial gap) / SIM_WALK_SPEED seconds. Derived here
+// (+0.1s safety margin) rather than hand-picking a number, so this stays
+// correct if either constant changes. The coordinator's own spec allowed
+// "excluding the first 0.2s" -- a reasonable rough figure for a LESS severe
+// initial gap than this fixture's own deliberately bug-matching 0.15u.
+const MERGE_GRACE_S = (FOLLOW_GAP_U - INITIAL_MID_TRAIL_GAP_U) / SIM_WALK_SPEED + 0.1;
+
+// Internal simulation tick -- matches a REAL ~60fps animation frame, not
+// the probe's own coarser 0.5s sampling cadence (SIM_SAMPLE_DT_S, used
+// elsewhere in this file for OTHER simulations that don't need to resolve
+// sub-second convergence). The follow-distance cap converges the mid/trail
+// gap toward FOLLOW_GAP_U over a handful of REAL frames (a few tens of
+// milliseconds) -- sampling only every 0.5s would make that gradual,
+// perfectly smooth convergence look like it takes multiple SECONDS instead,
+// an artifact of the sampling rate, not the mechanism itself.
+const FOLLOW_TICK_DT_S = 1 / 60;
+
+interface ChainStep extends SimStep {
+  /** Whether THIS walker had already arrived (progress >= 1) as of this
+   * tick. Once arrived, an avatar is removed from the registry (mirrors
+   * LiveAgents.tsx's own arrival cleanup, and the wider DESPAWN-SCATTER
+   * design that every leaving avatar is EXPECTED to converge on the exact
+   * SAME terminal gate point right before vanishing -- see
+   * destinationPointFor's own `despawn: true` doc). Pairwise separation is
+   * therefore only a meaningful requirement (and only checked by the
+   * tests below) while BOTH members of a pair are still actively walking
+   * -- the reported bug was a MID-CORRIDOR overlap (x=10.46 vs 10.28),
+   * never a simultaneous-arrival convergence, which is separately
+   * accepted, by design, elsewhere in this codebase. */
+  arrived: boolean;
+}
+
+function simulateFollowChain(useFollow: boolean): Map<string, ChainStep[]> {
+  const paths = new Map(
+    CHAIN_WALKERS.map((w) => [w.id, [[w.startX, 0, CHAIN_LANE_Z], [CHAIN_GATE_X, 0, CHAIN_LANE_Z]] as [number, number, number][]]),
+  );
+  const appliedDistance = new Map(CHAIN_WALKERS.map((w) => [w.id, 0]));
+  // "Last rendered pose" registry, one-frame-stale by construction: read
+  // BEFORE this tick's writes, written only AFTER every walker this tick
+  // has computed its own new pose -- exactly LiveAgents.tsx's own
+  // walkerFollowRegistry contract.
+  let registry = new Map<string, WalkerSnapshot>();
+  const history = new Map<string, ChainStep[]>(CHAIN_WALKERS.map((w) => [w.id, []]));
+  const maxTicks = Math.ceil((CHAIN_GATE_X + 5) / SIM_WALK_SPEED / FOLLOW_TICK_DT_S);
+
+  for (let tick = 0; tick <= maxTicks; tick++) {
+    const tS = tick * FOLLOW_TICK_DT_S;
+    const nextRegistry = new Map<string, WalkerSnapshot>();
+    let allArrived = true;
+    for (const w of CHAIN_WALKERS) {
+      const wp = paths.get(w.id)!;
+      const total = pathDistance(wp);
+      // INCREMENTAL distance (mirrors LiveAgents.tsx's own v6 fix, same
+      // pass): at most one tick's worth of travel from wherever this
+      // walker ACTUALLY is (appliedDistance), never an absolute
+      // tS*speed formula -- an absolute formula lets a held-back walker
+      // accumulate "debt" that would snap-repay the instant the car ahead
+      // moves away, exactly the bug this incremental form removes.
+      const distanceTraveled = appliedDistance.get(w.id)! + SIM_WALK_SPEED * FOLLOW_TICK_DT_S;
+      const lastSelf = registry.get(w.id); // this walker's own last-rendered pose (undefined on tick 0)
+      const initialPose = poseAlongPath(wp, 0); // consistent facing convention for the tick-0 fallback
+      const selfSnapshot: WalkerSnapshot = lastSelf ?? {
+        id: w.id,
+        position: [initialPose.position[0], initialPose.position[2]],
+        heading: [Math.sin(initialPose.facing), Math.cos(initialPose.facing)],
+        destKey: CHAIN_DEST_KEY,
+      };
+      const others = Array.from(registry.values()).filter((s) => s.id !== w.id);
+      const carAhead = useFollow ? findCarAhead(selfSnapshot, others) : null;
+      const prevApplied = appliedDistance.get(w.id)!;
+      const newApplied = useFollow ? applyFollowCap(distanceTraveled, prevApplied, carAhead) : Math.max(prevApplied, distanceTraveled);
+      appliedDistance.set(w.id, newApplied);
+      const progress = Math.min(1, newApplied / total);
+      const pose = poseAlongPath(wp, progress);
+      history.get(w.id)!.push({ tS, position: pose.position, arrived: progress >= 1 });
+      // Mirrors LiveAgents.tsx's own useFrame exactly: an ARRIVED walker
+      // (progress >= 1) is never (re-)published to the registry -- without
+      // this, a walker that reached the gate and stopped would sit there
+      // forever as a permanent, immovable "car ahead", incorrectly
+      // blocking everyone still behind it from ever closing the last
+      // FOLLOW_GAP_U to the gate itself.
+      if (progress < 1) {
+        nextRegistry.set(w.id, {
+          id: w.id,
+          position: [pose.position[0], pose.position[2]],
+          heading: [Math.sin(pose.facing), Math.cos(pose.facing)],
+          destKey: CHAIN_DEST_KEY,
+        });
+        allArrived = false;
+      }
+    }
+    registry = nextRegistry;
+    if (allArrived) break;
+  }
+  return history;
+}
+
+function pairwiseDistancesAtStep(history: Map<string, ChainStep[]>, stepIdx: number): { pair: string; dist: number }[] {
+  const ids = Array.from(history.keys());
+  const out: { pair: string; dist: number }[] = [];
+  for (let i = 0; i < ids.length; i++) {
+    for (let j = i + 1; j < ids.length; j++) {
+      const a = history.get(ids[i])![stepIdx];
+      const b = history.get(ids[j])![stepIdx];
+      if (!a || !b) continue;
+      // Once either member of the pair has arrived, they are EXPECTED to
+      // converge on the shared terminal gate point (see ChainStep's own
+      // `arrived` doc) -- only an actively-walking pair is a meaningful
+      // "walker separation" check.
+      if (a.arrived || b.arrived) continue;
+      const dist = Math.hypot(a.position[0] - b.position[0], a.position[2] - b.position[2]);
+      out.push({ pair: `${ids[i]}/${ids[j]}`, dist });
+    }
+  }
+  return out;
+}
+
+test("FOLLOW-DISTANCE CHAIN: RED (documents the bug) -- without follow, the mid/trail pair NEVER separates (constant 0.15u gap forever)", () => {
+  const history = simulateFollowChain(false);
+  const steps = history.get("mid")!.length;
+  let sawViolationAfterGrace = false;
+  for (let i = 0; i < steps; i++) {
+    const tS = history.get("mid")![i].tS;
+    if (tS < MERGE_GRACE_S) continue;
+    const dists = pairwiseDistancesAtStep(history, i);
+    if (dists.some((d) => d.dist < 0.7 - 1e-9)) {
+      sawViolationAfterGrace = true;
+      break;
+    }
+  }
+  assert.ok(sawViolationAfterGrace, "expected the PRE-FIX (no follow-distance) behavior to keep violating the 0.7u bar past the grace period -- documents the reported walker_separation failure");
+});
+
+test("FOLLOW-DISTANCE CHAIN: GREEN (the fix) -- pairwise >=0.7u after the merge grace period, no snaps, and all three reach the gate", () => {
+  const history = simulateFollowChain(true);
+  const steps = history.get("mid")!.length;
+
+  // 1. Pairwise >=0.7u for every pair, at every step, after the grace period.
+  for (let i = 0; i < steps; i++) {
+    const tS = history.get("mid")![i].tS;
+    if (tS < MERGE_GRACE_S) continue;
+    for (const { pair, dist } of pairwiseDistancesAtStep(history, i)) {
+      assert.ok(dist >= 0.7 - 1e-9, `t=${tS}s: pair ${pair} only ${dist.toFixed(3)}u apart`);
+    }
+  }
+
+  // 2. Per-step displacement <= WALK_SPEED*dt+0.05 for every walker (no
+  // snaps -- the pose_jump invariant must still hold under following).
+  for (const w of CHAIN_WALKERS) {
+    const hist = history.get(w.id)!;
+    for (let i = 1; i < hist.length; i++) {
+      const a = hist[i - 1].position;
+      const b = hist[i].position;
+      const dist = Math.hypot(a[0] - b[0], a[2] - b[2]);
+      const dt = hist[i].tS - hist[i - 1].tS;
+      assert.ok(
+        dist <= SIM_WALK_SPEED * dt + 0.05 + 1e-9,
+        `${w.id} step ${i} (t=${hist[i - 1].tS}s -> ${hist[i].tS}s): displacement ${dist.toFixed(3)}u exceeds WALK_SPEED*dt+0.05`,
+      );
+    }
+  }
+
+  // 3. All three actually reach the gate (following slows, never permanently blocks).
+  for (const w of CHAIN_WALKERS) {
+    const hist = history.get(w.id)!;
+    const last = hist[hist.length - 1];
+    assert.ok(Math.abs(last.position[0] - CHAIN_GATE_X) < 1e-6, `${w.id} never reached the gate -- ended at x=${last.position[0]}`);
+  }
+});
+
+test("FOLLOW_GAP_U sanity: the configured gap itself clears the required 0.7u bar", () => {
+  assert.ok(FOLLOW_GAP_U >= 0.7, `FOLLOW_GAP_U (${FOLLOW_GAP_U}) must be >= the required 0.7u separation bar`);
+});
 
 test("computeBatchOrder: sorted-order ids get 0, 1, 2, ... -- the single source of truth computeBatchStaggerDelays scales by STAGGER_DELAY_S", () => {
   const order = computeBatchOrder(["zeta", "alpha", "mu"]);

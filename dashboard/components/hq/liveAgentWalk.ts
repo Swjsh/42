@@ -838,3 +838,134 @@ export function updateStableSlotAssignments(
   }
   return next;
 }
+
+// ─── Follow distance / car-following (CONVOY-STACK v6, 2026-09-15) ────────
+//
+// ROOT CAUSE (walker_separation FAIL, probe 20260915T101532Z): 66/147
+// multi-walker ticks (44.9%) under the required 0.7u bar, 64 of them ONE
+// pair (session:5385..., adf9d977a499f1486), both leaving toward
+// campus-gate, that walked the ENTIRE ~32s shared corridor 0.18u apart in
+// the SAME lane (z=-0.45 for both). The lane is still chosen from a
+// per-id hash (LANE_VALUES, 3 buckets -- see `laneValueForId` above) --
+// two ids landing in the same bucket (1-in-3 per pair) get IDENTICAL lane
+// offsets on the SAME corridor, and CONVOY-STACK v2/v3's batch stagger only
+// covers agents starting a walk from the SAME node in the SAME reconcile
+// poll -- two leavers departing from DIFFERENT stand slots (different
+// zones, or the same zone at different moments) merge onto the shared
+// gate-bound corridor with no timing relationship to each other at all, so
+// the stagger cannot separate them. The v5 build only "passed" because
+// those two particular ids happened to hash to different lanes -- a
+// coincidence, not a guarantee.
+//
+// FIX: FOLLOW DISTANCE (car-following), the general solution for a shared
+// corridor -- independent of lane assignment or batch timing, this holds
+// for ANY two walkers converging on the same lane at any time. Each
+// avatar, every frame, checks whether another currently-walking avatar
+// heading the SAME direction, toward the SAME destination, and in
+// (approximately) the SAME lane is AHEAD of it; if the gap to that walker
+// is under FOLLOW_GAP_U, this avatar's forward advance for the frame is
+// capped so the gap never drops below FOLLOW_GAP_U -- it slows or holds,
+// never teleports, never reverses (LiveAgents.tsx's own `applyFollowCap`
+// call site, in useFrame, is where this is wired to the live per-frame
+// position update).
+//
+// SIMPLIFICATION, stated plainly rather than left implicit: the spec's own
+// language ("whose current segment is the same graph edge") describes a
+// graph-edge-id-based check; `findWalkPath`'s own return type here is a
+// plain world-space waypoint list (positions only, no retained node ids --
+// see that function's own header), and threading node ids through the
+// whole per-avatar path/lane-offset pipeline to build a true edge-id match
+// would be a materially larger change. This implementation instead detects
+// "same corridor, same direction, ahead" purely geometrically -- same
+// eventual destination (`destKey`, a cheap pre-filter: every leaving
+// avatar already shares ENTRY_NODE_ID, exactly the reported bug's own
+// shape), heading vectors nearly parallel (FOLLOW_HEADING_COS_MIN), and a
+// small perpendicular ("lateral") distance from this avatar's own heading
+// line (FOLLOW_LANE_TOLERANCE_U, deliberately smaller than LANE_STEP_U/
+// WAIT_LANE_STEP_U so two walkers already in DIFFERENT, adequately-
+// separated lanes are never made to follow each other -- only a genuine
+// same-lane convergence, the actual bug, triggers this). This is provably
+// equivalent to the graph-edge check for two walkers who are, in fact, on
+// the same edge in the same direction (their positions and headings will
+// satisfy all three geometric conditions), and additionally, harmlessly,
+// covers a same-lane convergence that happens to occur off a formal edge
+// boundary (e.g. a merge just before or after a graph node).
+export const FOLLOW_GAP_U = 0.8;
+export const FOLLOW_LANE_TOLERANCE_U = 0.3; // < LANE_STEP_U (0.45) and < WAIT_LANE_STEP_U (0.73) on purpose -- see this section's own header
+export const FOLLOW_HEADING_COS_MIN = 0.7; // ~<=45 degrees off-heading still counts as "the same direction"
+
+export interface WalkerSnapshot {
+  id: string;
+  /** World-space XZ position. */
+  position: readonly [number, number];
+  /** Unit-length XZ heading (facing direction), matching poseAlongPath's
+   * own `facing` convention (atan2(dx, dz), i.e. this vector is
+   * [sin(facing), cos(facing)]). */
+  heading: readonly [number, number];
+  /** This walker's current walk destination (graph node id) -- the cheap
+   * "are we even converging on the same place" pre-filter. */
+  destKey: string;
+}
+
+export interface CarAheadResult {
+  other: WalkerSnapshot;
+  /** World-space distance `other` is ahead of `self`, projected onto
+   * self's own heading (always >= 0 -- see findCarAhead's own tie-break
+   * for the only case this is computed as exactly 0). */
+  forwardGap: number;
+}
+
+/** Finds the nearest "car ahead" of `self` among `others` -- see this
+ * section's own header for the full geometric definition (same `destKey`,
+ * near-parallel heading, small lateral offset, positive forward
+ * projection). Ties at (near) equal forward progress are broken
+ * deterministically by id -- the lexicographically LARGER id treats the
+ * smaller as "ahead" -- so exactly one of a tied pair ever yields, never
+ * both (which could otherwise have both slow down for nothing, or neither
+ * yield at all). Returns null if nobody currently qualifies. */
+export function findCarAhead(self: WalkerSnapshot, others: readonly WalkerSnapshot[]): CarAheadResult | null {
+  let best: CarAheadResult | null = null;
+  for (const other of others) {
+    if (other.id === self.id) continue;
+    if (other.destKey !== self.destKey) continue;
+    const headingDot = self.heading[0] * other.heading[0] + self.heading[1] * other.heading[1];
+    if (headingDot < FOLLOW_HEADING_COS_MIN) continue;
+    const dx = other.position[0] - self.position[0];
+    const dz = other.position[1] - self.position[1];
+    const forward = dx * self.heading[0] + dz * self.heading[1];
+    const isAhead = forward > 1e-6 || (Math.abs(forward) <= 1e-6 && self.id > other.id);
+    if (!isAhead) continue;
+    const lateral = Math.abs(dx * -self.heading[1] + dz * self.heading[0]);
+    if (lateral > FOLLOW_LANE_TOLERANCE_U) continue;
+    const forwardGap = Math.max(0, forward);
+    if (!best || forwardGap < best.forwardGap) best = { other, forwardGap };
+  }
+  return best;
+}
+
+/** Given this avatar's UNCAPPED candidate cumulative distance-traveled for
+ * this frame (elapsed*WALK_SPEED, before any following logic), the
+ * distance it was ACTUALLY at as of the previous frame
+ * (`prevAppliedDistance` -- the "never reverse" floor), and the car ahead
+ * (if any, from `findCarAhead`), returns this frame's ACTUAL distance to
+ * advance to. If there is no car ahead, or the gap already clears
+ * `gapU`, this is just the candidate (never less than `prevAppliedDistance`
+ * -- time only moves forward). If the gap is under `gapU`, the candidate is
+ * reduced by exactly the shortfall (`gapU - forwardGap`) -- a local-linear
+ * approximation that is exact for a straight corridor segment and a very
+ * close approximation for the small per-frame deltas this runs at -- and
+ * still never allowed to fall below `prevAppliedDistance` (holds in place
+ * rather than reversing if the car ahead is already too close to fully
+ * satisfy the gap this frame). */
+export function applyFollowCap(
+  candidateDistance: number,
+  prevAppliedDistance: number,
+  carAhead: CarAheadResult | null,
+  gapU: number = FOLLOW_GAP_U,
+): number {
+  if (!carAhead || carAhead.forwardGap >= gapU) {
+    return Math.max(prevAppliedDistance, candidateDistance);
+  }
+  const reduction = gapU - carAhead.forwardGap;
+  return Math.max(prevAppliedDistance, candidateDistance - reduction);
+}

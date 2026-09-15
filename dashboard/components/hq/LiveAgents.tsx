@@ -56,9 +56,10 @@ import { CHARACTER_SCALE, CHARACTER_TARGET_HEIGHT } from "./SetKit";
 import type { LiveAgent } from "./types";
 import type { LiveAgentState } from "@/lib/hq-agents";
 import {
-  applyLaneOffsets, computeBatchOrder, computeBatchStaggerDelays, computeMaxPathDurationS, computeWaitPoint,
-  decideNextWalk, ENTRY_NODE_ID, LEAVE_TIMEOUT_MARGIN_S, pathDistance, poseAlongPath, reconcileLiveAgentRoster,
-  shouldWriteLiveAgentDiag, stableSlotOffset, STAND_BUBBLE_Y_STEP, updateStableSlotAssignments,
+  applyFollowCap, applyLaneOffsets, computeBatchOrder, computeBatchStaggerDelays, computeMaxPathDurationS,
+  computeWaitPoint, decideNextWalk, ENTRY_NODE_ID, findCarAhead, LEAVE_TIMEOUT_MARGIN_S, pathDistance, poseAlongPath,
+  reconcileLiveAgentRoster, shouldWriteLiveAgentDiag, stableSlotOffset, STAND_BUBBLE_Y_STEP,
+  updateStableSlotAssignments, type WalkerSnapshot,
 } from "./liveAgentWalk";
 
 // 8 distinct, saturated hues, cycled by arrival order -- deliberately NOT
@@ -130,6 +131,22 @@ declare global {
 
 const diagStore = new Map<string, LiveAgentDiagEntry>();
 let diagIntervalStarted = false;
+
+// FOLLOW DISTANCE / car-following (CONVOY-STACK v6, 2026-09-15) -- a
+// module-level shared registry, same convention as `diagStore` above: every
+// ACTIVELY WALKING (not waiting, not despawned) avatar publishes its own
+// pose here each frame, and reads every OTHER avatar's LAST frame's entry
+// to find a "car ahead" (liveAgentWalk.ts#findCarAhead) before committing
+// this frame's own position. Reading last frame's values (rather than this
+// frame's, which may or may not have been written yet depending on sibling
+// mount/render order) is intentional -- it removes any same-frame
+// write/read ordering dependency between sibling avatar components; one
+// frame of staleness (~16ms) is imperceptible against the 0.8u gap this
+// mechanism maintains. Scoped to WALKING avatars only (never a resting or
+// waiting one) -- the reported bug (probe 20260915T101532Z) was walker-vs-
+// walker on a shared corridor; a resting avatar's own stand-slot separation
+// is CONVOY-STACK v5's job, not this one's.
+const walkerFollowRegistry = new Map<string, WalkerSnapshot>();
 
 function ensureDiagInterval(): void {
   if (diagIntervalStarted || typeof window === "undefined") return;
@@ -262,6 +279,19 @@ function LiveAgentAvatar({
   // (visibly progressing) -- cosmetic/diagnostic only, does not affect any
   // position math.
   const waitingForSlot = useRef(false);
+  // FOLLOW DISTANCE (v6): this avatar's own cumulative distance-traveled AS
+  // ACTUALLY APPLIED (i.e. post-follow-cap) for its CURRENT walk -- the
+  // "never reverse" floor liveAgentWalk.ts#applyFollowCap needs every
+  // frame. Reset to 0 whenever a new walk is kicked off (see the decision
+  // effect below); never touched while resting/waiting.
+  const appliedDistanceRef = useRef(0);
+  // LEAVE-TIMEOUT EXTENSION guardrail (v6): cumulative extra seconds to add
+  // on top of leaveHardTimeoutS -- incremented by this frame's own delta
+  // every frame this avatar's forward advance was actually reduced by
+  // following (see useFrame below), so a leaving avatar that's slowed
+  // behind another leaver is never despawned mid-corridor just because
+  // following made its walk take longer than the un-crowded estimate.
+  const leaveTimeoutExtensionS = useRef(0);
   const [animState, setAnimState] = useState<KitAnimState>(WALK_ANIM);
   const [walkable, setWalkable] = useState(true);
   const despawned = useRef(false);
@@ -284,9 +314,28 @@ function LiveAgentAvatar({
     group.current?.position.set(...entryPos);
   }, [entryPos]);
 
+  // FOLLOW DISTANCE (v6): defensive unmount cleanup -- the normal despawn
+  // path already frees this id via fireDespawn's own registry delete, but
+  // an unmount that bypasses that (a dev-mode remount, a future code path)
+  // must never leave a stale, frozen-in-place entry for another avatar to
+  // read as a permanent "car ahead".
+  useEffect(() => {
+    return () => {
+      walkerFollowRegistry.delete(liveAgentId);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   function fireDespawn(): void {
     if (despawned.current) return;
     despawned.current = true;
+    // FOLLOW DISTANCE (v6): a single choke point for leaving the walker
+    // registry, regardless of WHICH path triggered despawn (normal
+    // arrival, the leave hard-timeout backstop, or reduced-motion's
+    // immediate settle) -- a stale entry here would otherwise freeze in
+    // place and get read as a permanent "car ahead" by whoever's actually
+    // still walking.
+    walkerFollowRegistry.delete(liveAgentId);
     onDespawnedRef.current();
   }
 
@@ -456,6 +505,10 @@ function LiveAgentAvatar({
     path.current = wp;
     walkDest.current = decision.dest;
     walkDespawnsOnArrival.current = decision.despawn;
+    // FOLLOW DISTANCE (v6): a brand-new walk starts its own distance
+    // accounting fresh -- never carries over a "never reverse" floor from
+    // whatever walk (if any) preceded it.
+    appliedDistanceRef.current = 0;
     needsWalkStart.current = true;
     phase.current = "walking";
     setAnimState(WALK_ANIM);
@@ -510,7 +563,7 @@ function LiveAgentAvatar({
   // `despawn: true` branch, which intentionally has NO stand-slot ring
   // offset at all -- see that function's own doc above).
 
-  useFrame((state) => {
+  useFrame((state, delta) => {
     const g = group.current;
     if (!g) return;
     const t = state.clock.elapsedTime;
@@ -534,6 +587,11 @@ function LiveAgentAvatar({
         // stacking every same-batch sibling that is ALSO still waiting).
         g.position.set(waitPoint.current[0], waitPoint.current[1], waitPoint.current[2]);
         waitingForSlot.current = true;
+        // FOLLOW DISTANCE (v6): a waiting avatar isn't actively walking --
+        // out of scope for this pass (see walkerFollowRegistry's own
+        // header) -- so make sure a STALE entry from an earlier walk never
+        // lingers and gets read as "a car ahead" by someone else.
+        walkerFollowRegistry.delete(liveAgentId);
       } else {
         waitingForSlot.current = false;
         // MID-WALK SLOT DRIFT fix (v5 addendum, probe 20260915T095436Z's
@@ -559,16 +617,33 @@ function LiveAgentAvatar({
         // DISTANCE-BASED PROGRESS (v5 addendum, same pass): swapping the
         // endpoint changes the path's OWN total length -- a progress
         // fraction computed against a duration baked from the ORIGINAL
-        // total (`elapsed / (originalTotal / WALK_SPEED)`) would then feed
-        // poseAlongPath a fraction of a DIFFERENT total than the one it was
-        // measured against, producing exactly the kind of discontinuity
-        // this fix exists to remove. Deriving `progress` fresh, every
-        // frame, from actual DISTANCE TRAVELED (`elapsed * WALK_SPEED`)
+        // total would then feed poseAlongPath a fraction of a DIFFERENT
+        // total than the one it was measured against, producing exactly
+        // the kind of discontinuity this fix exists to remove. Deriving
+        // `progress` fresh, every frame, from actual DISTANCE TRAVELED
         // divided by the CURRENT path's own live length keeps the avatar's
         // physical walking speed constant and continuous regardless of when
         // or how much the endpoint moves. `MIN_WALK_S` still floors the
         // effective total so a near-zero-length path doesn't "arrive"
         // instantly within a single frame.
+        //
+        // INCREMENTAL distance accumulation (v6, found while building the
+        // follow-distance fix's own 3-deep-chain test): v5 computed this
+        // distance as `elapsed * WALK_SPEED` -- an ABSOLUTE value that
+        // grows with wall-clock time regardless of what actually happened
+        // in between. That is exactly wrong once an avatar can be held
+        // back by CONVOY-STACK v6's own follow-cap below: an avatar slowed
+        // behind a car ahead accumulates "debt" between its actual
+        // (capped) position and where the absolute formula says it should
+        // be: the INSTANT the car ahead pulls away and the cap releases,
+        // the absolute formula would try to pay off that whole debt in one
+        // frame -- a real snap, the same class of bug this whole pass
+        // exists to remove. Accumulating INCREMENTALLY instead --
+        // `appliedDistanceRef.current + WALK_SPEED * delta`, at most one
+        // frame's worth of travel from wherever this avatar ACTUALLY is --
+        // makes a stretch of following simply cost that much real time,
+        // with no debt to ever snap-repay. `elapsed` is still used above,
+        // unchanged, to gate the stagger WAIT itself (elapsed < 0).
         if (!walkDespawnsOnArrival.current) {
           const liveFinal = standPointFor(walkDest.current);
           const wpNow = path.current;
@@ -578,14 +653,68 @@ function LiveAgentAvatar({
             path.current = [...wpNow.slice(0, lastIdx), liveFinal];
           }
         }
-        const distanceTraveled = elapsed * WALK_SPEED;
+        const distanceTraveled = appliedDistanceRef.current + WALK_SPEED * delta;
         const liveTotal = Math.max(MIN_WALK_S * WALK_SPEED, pathDistance(path.current));
-        const progress = Math.min(1, distanceTraveled / liveTotal);
+
+        // FOLLOW DISTANCE / car-following (CONVOY-STACK v6, probe
+        // 20260915T101532Z): before committing to this frame's advance,
+        // check whether another currently-walking avatar is a "car ahead"
+        // on the same shared corridor (liveAgentWalk.ts#findCarAhead --
+        // same destination, near-parallel heading, small lateral offset)
+        // and, if the gap is under FOLLOW_GAP_U, cap this frame's forward
+        // advance so the gap never drops below it.
+        //
+        // SELF POSITION SOURCE: deliberately `g.position`/`g.rotation.y` AS
+        // THEY STAND right now -- i.e. LAST FRAME's actual rendered pose,
+        // not a fresh "candidate" computed from this frame's UNCAPPED
+        // distance. Using the uncapped candidate here would compare THIS
+        // avatar's fastest-possible, not-yet-applied position against
+        // every OTHER avatar's own one-frame-stale (already-applied)
+        // registry entry -- an asymmetric comparison that can let a
+        // fast-closing avatar's candidate momentarily read as "ahead" of a
+        // slower one it hasn't actually reached yet, disengaging the cap
+        // at exactly the wrong moment (a real failure mode found while
+        // building this fix's own 3-deep-chain test). Reading the avatar's
+        // OWN last-rendered pose keeps both sides of every comparison on
+        // the same one-frame-stale footing.
+        const carAhead = findCarAhead(
+          {
+            id: liveAgentId,
+            position: [g.position.x, g.position.z],
+            heading: [Math.sin(g.rotation.y), Math.cos(g.rotation.y)],
+            destKey: walkDest.current,
+          },
+          Array.from(walkerFollowRegistry.values()),
+        );
+        const appliedDistance = applyFollowCap(distanceTraveled, appliedDistanceRef.current, carAhead);
+        appliedDistanceRef.current = appliedDistance;
+        // LEAVE-TIMEOUT EXTENSION guardrail: this frame's advance fell
+        // short of what an un-crowded walk would have covered -- extend
+        // the hard-timeout backstop by exactly the time this frame cost,
+        // so a leaving avatar slowed behind another leaver is never
+        // despawned mid-corridor purely because following made its walk
+        // take longer than the solo estimate.
+        if (leavingRef.current && appliedDistance < distanceTraveled - 1e-6) {
+          leaveTimeoutExtensionS.current += delta;
+        }
+
+        const progress = Math.min(1, appliedDistance / liveTotal);
         const { position, facing } = poseAlongPath(path.current, progress);
         g.position.set(position[0], position[1], position[2]);
         g.rotation.y = facing;
+        // Publish THIS frame's own final (possibly capped) pose for other
+        // avatars' NEXT frame -- see walkerFollowRegistry's own header for
+        // why this is deliberately one-frame-stale from a reader's
+        // perspective.
+        walkerFollowRegistry.set(liveAgentId, {
+          id: liveAgentId,
+          position: [position[0], position[2]],
+          heading: [Math.sin(facing), Math.cos(facing)],
+          destKey: walkDest.current,
+        });
         if (progress >= 1) {
           currentNode.current = walkDest.current;
+          walkerFollowRegistry.delete(liveAgentId); // no longer actively walking
           if (walkDespawnsOnArrival.current) {
             fireDespawn();
           } else {
@@ -611,9 +740,13 @@ function LiveAgentAvatar({
     // Hard backstop (see this file's own leaveHardTimeoutS comment above):
     // if this avatar has been leaving for too long without despawning -- any
     // mechanism, known or not -- force it out rather than stranding it in
-    // the world.
+    // the world. LEAVE-TIMEOUT EXTENSION guardrail (v6): `+
+    // leaveTimeoutExtensionS.current` -- additive only, accumulated above
+    // whenever following actually slowed this avatar's own advance -- so a
+    // leaver that's legitimately still progressing, just more slowly than
+    // the solo estimate assumed, is never despawned mid-corridor.
     if (leavingRef.current && !despawned.current && leaveStartedAtT.current !== null) {
-      if (performance.now() / 1000 - leaveStartedAtT.current > leaveHardTimeoutS) {
+      if (performance.now() / 1000 - leaveStartedAtT.current > leaveHardTimeoutS + leaveTimeoutExtensionS.current) {
         fireDespawn();
       }
     }
