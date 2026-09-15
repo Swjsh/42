@@ -28,8 +28,22 @@
 # without killing/respawning anything -- for manual verification against a live
 # server nobody wants disrupted. Comment-only lines may precede a param() block in
 # PowerShell; this one line must stay the first EXECUTABLE statement in the file.
+#
+# OWNERSHIP HANDSHAKE (2026-09-15, self-deadlock fix): dashboard_deploy.ps1 holds
+# dashboard/.build.lock for its own entire run (STEP 2-4) and, while still holding
+# it, invokes THIS script to perform the restart onto the new build. The
+# STALE-BUILD GUARD below was written to give an IN-FLIGHT deploy priority over
+# the 5-min scheduled keepalive -- but deploy's own restart call IS that in-flight
+# deploy, so the guard was blocking the exact restart deploy asked for, producing
+# "OK dashboard alive" while deploy polled forever and failed stage=restart. Fix:
+# -LockOwnerPid lets the caller identify itself as the lock's owner; when the lock
+# file's own `pid=<n>` token matches, the lock is NOT treated as fresh (ownership
+# implies "I already accounted for this lock, go ahead and restart"). A lock owned
+# by a DIFFERENT pid (a different session's in-flight deploy) still blocks, exactly
+# as before.
 param(
-    [switch]$DryRun
+    [switch]$DryRun,
+    [int]$LockOwnerPid = 0
 )
 
 . "$PSScriptRoot\_shared.ps1"
@@ -109,6 +123,18 @@ if ($alive) {
             if (Test-Path $lockPath) {
                 $lockAgeMin = (New-TimeSpan -Start (Get-Item $lockPath).LastWriteTime -End (Get-Date)).TotalMinutes
                 if ($lockAgeMin -lt 15) { $lockIsFresh = $true }
+                # Ownership bypass: if the caller passed -LockOwnerPid and it matches
+                # the pid= token recorded in the lock file, the caller IS the lock
+                # holder asking for its own restart -- don't block it on its own lock.
+                if ($lockIsFresh -and $LockOwnerPid -gt 0) {
+                    $lockOwnerMatch = Select-String -Path $lockPath -Pattern "pid=$LockOwnerPid(\s|$)" -Quiet -ErrorAction SilentlyContinue
+                    if ($lockOwnerMatch) {
+                        $lockIsFresh = $false
+                        $ownMsg = "build lock owned by caller pid=$LockOwnerPid -- restart allowed"
+                        if ($DryRun) { $ownMsg = "[DryRun] " + $ownMsg }
+                        Write-TaskLog -TaskName $task -Message $ownMsg
+                    }
+                }
             }
             $proc = Get-Process -Id $existingPid -ErrorAction SilentlyContinue
             if ($proc -and $buildIdTime -gt $proc.StartTime -and $buildIdAgeSec -gt 30 -and (-not $lockIsFresh)) {

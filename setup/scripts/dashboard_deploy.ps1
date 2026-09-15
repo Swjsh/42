@@ -86,6 +86,19 @@
 #      the keepalive immediately instead of after 60s of actual polling.
 #      FIX: polling now has its own $pollStartTime and both the re-run point
 #      and the deadline are measured from it.
+#
+# 2026-09-15 incident #2 (verified 04:14 ET, self-deadlock) -- this script's own
+# STEP 2 lock (dashboard/.build.lock, held for the whole run) was being read by
+# run-dashboard-keepalive.ps1's STALE-BUILD GUARD as "another deploy is already
+# mid-flight, don't race it" -- but the "other deploy" WAS this script, calling
+# keepalive itself to do the restart it had just built for. The guard refused to
+# restart ("OK dashboard alive"), so /api/hq kept answering the OLD build_id until
+# -RestartWaitSec ran out -> exit 31 stage=restart. FIX: an ownership handshake --
+# this script passes -LockOwnerPid $PID to every Invoke-KeepaliveHidden call, and
+# the keepalive only lets the lock through as "not fresh" when that pid matches
+# the pid= token IN the lock file (so a genuinely different session's fresh lock
+# still blocks, as designed). See run-dashboard-keepalive.ps1's own header for the
+# other half of this fix.
 
 param(
     [string]$Tag = "",
@@ -171,7 +184,7 @@ if ($DryRun) {
     Emit-Log "[DryRun] would atomically create $lockPath with pid=$PID tag=$Tag start=$(Get-Date -Format o)"
     Emit-Log "[DryRun] would run: npm run build (cwd=$dashDir), log -> $buildLogPath"
     Emit-Log "[DryRun] would remove lock in finally"
-    Emit-Log "[DryRun] would wait for BUILD_ID age > 35s, then run $keepaliveScriptPath hidden"
+    Emit-Log "[DryRun] would wait for BUILD_ID age > 35s, then run $keepaliveScriptPath hidden -LockOwnerPid $PID (so keepalive's stale-build guard doesn't block on our own lock)"
     Emit-Log "[DryRun] would poll $ApiUrl for up to ${RestartWaitSec}s for build_id match, re-running keepalive once if not matched by $([math]::Max(5,[int]([math]::Floor($RestartWaitSec/2))))s"
     Finish 0 "DEPLOY OK (dry-run, nothing built/written) elapsed_s=$([int]((Get-Date) - $startTime).TotalSeconds)"
 }
@@ -260,8 +273,14 @@ function Invoke-BuildAndRestart {
     }
 
     function Invoke-KeepaliveHidden {
+        # -LockOwnerPid $PID (this deploy script's own pid, matching the pid= token
+        # this same process wrote into $lockPath in STEP 2) tells the keepalive's
+        # STALE-BUILD GUARD that WE are the lock holder asking for the restart --
+        # otherwise the guard sees dashboard/.build.lock < 15 min old (our own lock,
+        # still held) and refuses to restart, and this deploy polls until it times
+        # out at stage=restart (the 2026-09-15 self-deadlock, see file header).
         Start-Process -FilePath "powershell.exe" `
-            -ArgumentList "-NonInteractive", "-WindowStyle", "Hidden", "-File", "`"$KeepaliveScriptPath`"" `
+            -ArgumentList "-NonInteractive", "-WindowStyle", "Hidden", "-File", "`"$KeepaliveScriptPath`"", "-LockOwnerPid", "$PID" `
             -WindowStyle Hidden | Out-Null
     }
 
