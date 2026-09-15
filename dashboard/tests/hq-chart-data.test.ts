@@ -27,6 +27,9 @@ import {
   computeSessionStatusLabel,
   buildIntradayCandles,
   isStaleCarryoverTick,
+  deriveTradeArmLabel,
+  groupTradesByBarAndSide,
+  formatGroupedTradeLabel,
   type HoloLevel,
   type IntradayTick,
 } from "../lib/hq-chart-pure.ts";
@@ -427,4 +430,105 @@ test("buildIntradayCandles + isStaleCarryoverTick pipeline on today's REAL first
   assert.equal(bars[0].open, 758.925);
   assert.equal(bars[0].close, 758.925);
   assert.notEqual(bars[0].open, 761.27); // the old (pre-fix) fabricated-first-candle price
+});
+
+// ─── deriveTradeArmLabel (HQ-CHART-MARKERS naming fix, 2026-09-15) ─────────
+// Real evidence (this session, journal/trades.csv 2026-09-15 rows via
+// account_id column + archetype_match_json.arm cross-check): account_id is
+// literally "safe"/"bold" for the two CORE accounts while trade-data.ts's
+// own note builder already writes "CORE ACCOUNT safe-2 (account_id=safe,
+// ...)" / "FLEET ARM safe-3 (...)" text into the marker's `note` field.
+
+test("deriveTradeArmLabel: prefers the real arm id from a 'CORE ACCOUNT X' note prefix", () => {
+  assert.equal(
+    deriveTradeArmLabel(null, "CORE ACCOUNT bold-2 (account_id=bold, mcp_heartbeat live engine). Entry reason: ..."),
+    "bold-2",
+  );
+});
+
+test("deriveTradeArmLabel: prefers the real arm id from a 'FLEET ARM X' note prefix", () => {
+  assert.equal(
+    deriveTradeArmLabel("safe-3", "FLEET ARM safe-3 (safe x tight). Entry reason: ribbon_ride P (ELITE); ..."),
+    "safe-3",
+  );
+});
+
+test("deriveTradeArmLabel: falls back to the legacy account_id map when note carries no recognizable prefix", () => {
+  assert.equal(deriveTradeArmLabel("safe", null), "safe-2");
+  assert.equal(deriveTradeArmLabel("bold", "some unrelated free-text note"), "bold-2");
+});
+
+test("deriveTradeArmLabel: an already-correct fleet arm id passes through verbatim", () => {
+  assert.equal(deriveTradeArmLabel("safe-3", null), "safe-3");
+  assert.equal(deriveTradeArmLabel("risky-1", null), "risky-1");
+  assert.equal(deriveTradeArmLabel("risky-3", null), "risky-3");
+});
+
+test("deriveTradeArmLabel: never fabricates an arm id when both account and note are unusable", () => {
+  assert.equal(deriveTradeArmLabel(null, null), "?");
+  assert.equal(deriveTradeArmLabel(null, "no prefix here at all"), "?");
+});
+
+// ─── groupTradesByBarAndSide / formatGroupedTradeLabel (MARKER-MISSING fix,
+// 2026-09-15) -- real shape from today's own trades.csv: 5 entries at bar
+// 14, one lone exit at bar 17, 4 exits at bar 27. ─────────────────────────
+
+interface TestTrade { barIndex: number | null; side: "entry" | "exit"; label: string }
+
+test("groupTradesByBarAndSide: groups same-bar/same-side trades, keeps a lone trade in its own group of 1", () => {
+  const trades: TestTrade[] = [
+    { barIndex: 14, side: "entry", label: "bold" },
+    { barIndex: 17, side: "exit", label: "bold" },
+    { barIndex: 14, side: "entry", label: "safe-3" },
+    { barIndex: 14, side: "entry", label: "risky-1" },
+    { barIndex: 27, side: "exit", label: "safe-3" },
+    { barIndex: 14, side: "entry", label: "risky-3" },
+    { barIndex: 27, side: "exit", label: "risky-1" },
+    { barIndex: 14, side: "entry", label: "safe" },
+    { barIndex: 27, side: "exit", label: "risky-3" },
+    { barIndex: 27, side: "exit", label: "safe" },
+  ];
+  const groups = groupTradesByBarAndSide(trades);
+  const entryGroup = groups.find((g) => g.key === "14:entry")!;
+  const exit17Group = groups.find((g) => g.key === "17:exit")!;
+  const exit27Group = groups.find((g) => g.key === "27:exit")!;
+  assert.equal(entryGroup.items.length, 5, "all 5 bar-14 entries must group together");
+  assert.equal(exit17Group.items.length, 1, "the lone bar-17 exit stays its own group");
+  assert.equal(exit27Group.items.length, 4, "all 4 bar-27 exits must group together");
+  // Order-preserving within a group, and nothing lost.
+  assert.deepEqual(entryGroup.items.map((t) => t.label), ["bold", "safe-3", "risky-1", "risky-3", "safe"]);
+});
+
+test("groupTradesByBarAndSide: a trade with barIndex null is excluded, never crashes", () => {
+  const trades: TestTrade[] = [{ barIndex: null, side: "entry", label: "x" }, { barIndex: 5, side: "entry", label: "y" }];
+  const groups = groupTradesByBarAndSide(trades);
+  assert.equal(groups.length, 1);
+  assert.equal(groups[0].items.length, 1);
+  assert.equal(groups[0].items[0].label, "y");
+});
+
+test("formatGroupedTradeLabel: matches this task's own real-shape example verbatim", () => {
+  const text = formatGroupedTradeLabel("entry", "put", [
+    { account: "safe", note: null, price: 1.08, pnl: null },
+    { account: "bold", note: null, price: 0.47, pnl: null },
+    { account: "safe-3", note: null, price: 1.12, pnl: null },
+    { account: "risky-1", note: null, price: 1.13, pnl: null },
+    { account: "risky-3", note: null, price: 1.12, pnl: null },
+  ]);
+  assert.equal(text, "ENTER put · safe-2 1.08 · bold-2 0.47 · safe-3 1.12 · risky-1 1.13 · risky-3 1.12");
+});
+
+test("formatGroupedTradeLabel: an exit group includes each real P&L, never drops a fill", () => {
+  const text = formatGroupedTradeLabel("exit", "put", [
+    { account: "safe-3", note: null, price: 0.74, pnl: -114 },
+    { account: "risky-1", note: null, price: 0.74, pnl: -195 },
+  ]);
+  assert.equal(text, "EXIT put · safe-3 0.74 (-114) · risky-1 0.74 (-195)");
+  assert.match(text, /safe-3/);
+  assert.match(text, /risky-1/);
+});
+
+test("formatGroupedTradeLabel: a single-item group renders the same 'ARM SIDE $price' shape a lone marker would", () => {
+  const text = formatGroupedTradeLabel("exit", "put", [{ account: "bold", note: null, price: 0.62, pnl: 75 }]);
+  assert.equal(text, "EXIT put · bold-2 0.62 (+75)");
 });

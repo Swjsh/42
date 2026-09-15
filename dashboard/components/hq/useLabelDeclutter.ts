@@ -53,6 +53,13 @@ export interface RegisteredLabel {
    * literal for a static plaque). Never cached across ticks by the
    * registry itself, since walking characters move continuously. */
   getWorldPos: () => THREE.Vector3 | [number, number, number];
+  /** LEVEL-ORDER fix (2026-09-15) -- optional order-preservation group/rank,
+   * forwarded verbatim to `LabelRect.orderGroup`/`orderKey` (see that
+   * field's own comment in labelDeclutter.ts for the real-capture bug this
+   * fixes). Undefined for the overwhelming majority of labels, which carry
+   * no such constraint. */
+  orderGroup?: string;
+  orderKey?: number;
   /** Local, per-label smoothing state -- the manager owns writing this, no
    * caller ever reads or sets it. Kept ON the registry entry (not a
    * separate Map keyed by id) so a label that unmounts and remounts under
@@ -90,6 +97,7 @@ export function useLabelDeclutter(
   id: string,
   priority: number,
   getWorldPos: () => THREE.Vector3 | [number, number, number],
+  order?: { orderGroup: string; orderKey: number },
 ): { wrapperRef: RefObject<HTMLDivElement | null>; measureRef: RefObject<HTMLDivElement | null> } {
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const measureRef = useRef<HTMLDivElement | null>(null);
@@ -101,12 +109,20 @@ export function useLabelDeclutter(
   getWorldPosRef.current = getWorldPos;
   const priorityRef = useRef(priority);
   priorityRef.current = priority;
+  const orderRef = useRef(order);
+  orderRef.current = order;
 
   useEffect(() => {
     const entry: RegisteredLabel = {
       id,
       get priority() {
         return priorityRef.current;
+      },
+      get orderGroup() {
+        return orderRef.current?.orderGroup;
+      },
+      get orderKey() {
+        return orderRef.current?.orderKey;
       },
       wrapperRef,
       measureRef,

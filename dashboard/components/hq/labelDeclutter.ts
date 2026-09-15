@@ -61,6 +61,23 @@ export interface LabelRect {
   y: number;
   width: number;
   height: number;
+  /** Optional order-preservation group (LEVEL-ORDER fix, 2026-09-15). Labels
+   * sharing the same `orderGroup` carry a real, meaningful vertical rank
+   * (e.g. a SPY price -- a level plaque and the last-close plaque both
+   * belong to the same "things positioned by price" family) that the
+   * collision-avoidance nudge below must never invert: a real capture
+   * (hq-close-1653.png) showed "757.44 RESISTANCE" pushed BELOW "757.38 ·
+   * last close" even though 757.44 > 757.38 -- the generic resolver has no
+   * notion of price, only of pixel overlap, so a same-priority nudge could
+   * freely reorder two plaques whose relative position the viewer reads as
+   * meaningful. Omit both `orderGroup` and `orderKey` for a label with no
+   * such constraint (every existing caller/behavior is unchanged). */
+  orderGroup?: string;
+  /** Rank within `orderGroup` -- SMALLER orderKey must never end up with a
+   * LARGER final screen-space y (further down) than a label with a LARGER
+   * orderKey in the same group, after collision offsets are applied. See
+   * `enforceGroupOrder` below for the exact guarantee. */
+  orderKey?: number;
 }
 
 /** A fixed DOM rect the resolver must never place a label on top of, but
@@ -348,5 +365,44 @@ export function resolveLabelOffsets(
     out.set(rect.id, { dx, dy, opacity: chosen.cleared ? 1 : fadeOpacity });
   }
 
+  enforceGroupOrder(rects, out);
   return out;
+}
+
+/** LEVEL-ORDER fix (2026-09-15) -- see `LabelRect.orderGroup`'s own comment
+ * for the real-capture evidence this patches. Pure post-pass over the
+ * collision resolver's own output: within each `orderGroup`, walks labels
+ * ascending by `orderKey` and clamps each one's final screen-space top (`y +
+ * dy`) to never sit above (i.e. never end up with a SMALLER y than) the
+ * previous, lower-ranked label's own final top -- a monotonic floor, exactly
+ * mirroring how `resolveAxis` already only ever pushes a label AWAY (never
+ * pulls one closer), so this never fights the collision-avoidance nudges,
+ * only tops them up when the two passes would otherwise disagree on order.
+ * Mutates nothing outside the group; a label with no orderGroup/orderKey (or
+ * a NaN/undefined key) is left exactly as the collision pass already set it.
+ */
+function enforceGroupOrder(rects: readonly LabelRect[], out: Map<string, LabelOffset>): void {
+  const groups = new Map<string, LabelRect[]>();
+  for (const r of rects) {
+    if (r.orderGroup === undefined || r.orderKey === undefined || !Number.isFinite(r.orderKey)) continue;
+    const arr = groups.get(r.orderGroup);
+    if (arr) arr.push(r);
+    else groups.set(r.orderGroup, [r]);
+  }
+  for (const arr of groups.values()) {
+    const ordered = [...arr].sort((a, b) => {
+      if (a.orderKey !== b.orderKey) return (a.orderKey as number) - (b.orderKey as number);
+      return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
+    });
+    let floor = -Infinity;
+    for (const r of ordered) {
+      const off = out.get(r.id) ?? { dx: 0, dy: 0, opacity: 1 };
+      const finalY = r.y + off.dy;
+      if (finalY < floor) {
+        out.set(r.id, { ...off, dy: off.dy + (floor - finalY) });
+      } else {
+        floor = finalY;
+      }
+    }
+  }
 }

@@ -180,7 +180,10 @@ export default function LabelDeclutterManager(): null {
       const distance = scratch.current.distanceTo(camPos);
 
       measured.set(entry.id, { naturalX, naturalY, width: measureRect.width, height: measureRect.height, scale: ancestorScale });
-      rects.push({ id: entry.id, priority: entry.priority, distance, x: naturalX, y: naturalY, width: measureRect.width, height: measureRect.height });
+      rects.push({
+        id: entry.id, priority: entry.priority, distance, x: naturalX, y: naturalY, width: measureRect.width, height: measureRect.height,
+        orderGroup: entry.orderGroup, orderKey: entry.orderKey,
+      });
     }
 
     if (rects.length === 0) {

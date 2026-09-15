@@ -70,8 +70,14 @@ import { PALETTE } from "./palette";
 import { PRIORITY } from "./labelDeclutter";
 import { useLabelDeclutter } from "./useLabelDeclutter";
 import { bubbleCounterScale } from "./bubbleText";
+import { deriveTradeArmLabel, formatGroupedTradeLabel, groupTradesByBarAndSide } from "@/lib/hq-chart-pure";
 import type { HoloChartData, HoloLevel, HoloTradeMarker } from "@/lib/hq-chart-data";
 import type { ChartBar } from "@/lib/chart-data";
+
+// Shared order-preservation group for every label positioned by a real SPY
+// price (level plaques + the last-close plaque) -- see labelDeclutter.ts's
+// own `LabelRect.orderGroup` header for the LEVEL-ORDER fix this powers.
+const PRICE_PLAQUE_ORDER_GROUP = "holo-price-plaques";
 
 const FETCH_INTERVAL_MS = 60_000;
 
@@ -440,6 +446,7 @@ function LevelLabelItem({
     `holo-level:${level.type}:${level.price}`,
     PRIORITY.PLAQUE,
     () => worldPos,
+    { orderGroup: PRICE_PLAQUE_ORDER_GROUP, orderKey: -level.price },
   );
   return (
     <Html position={[localX, localY, 0]} center distanceFactor={7} style={{ pointerEvents: "none" }}>
@@ -557,27 +564,60 @@ function TradeMarkers({
     if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
   }, [positioned]);
 
+  // MARKER-MISSING fix (HQ-CHART-MARKERS, 2026-09-15): a real capture
+  // (hq-close-1653.png) showed only 4 of today's 10 real trade-marker labels
+  // -- the other 6 (5 bar-14 entries + the lone bar-17 bold exit, all
+  // nearly co-located on screen since they share bar x-positions a
+  // TRADE_STACK_STEP world-Y spread apart) never cleared the shared
+  // declutter resolver's nudge cap and faded to near-invisible against this
+  // scene's dark background. See groupTradesByBarAndSide's own header in
+  // lib/hq-chart-pure.ts for the full root-cause writeup. Grouping same-bar/
+  // same-side markers into ONE plaque (rather than one per trade) removes
+  // the crowding at its source -- every real fill stays listed (never
+  // dropped, see formatGroupedTradeLabel), just combined into fewer labels
+  // competing for screen space. The label's own anchor position is the
+  // OUTERMOST stacked marker in the group (last in `positioned`'s own
+  // stacking order, see `positioned`'s comment) so the plaque sits clear of
+  // the ribbon/cones rather than on top of the innermost one.
+  const labelGroups = useMemo(() => {
+    // groupTradesByBarAndSide needs barIndex/side directly on each item
+    // (its own GroupableTrade contract) -- PositionedTrade nests them under
+    // `.trade`, so this thin per-item wrapper exposes them without losing
+    // anything (`...p` keeps `trade`/`x`/`y` intact for every consumer
+    // below). Reuses the SAME unit-tested grouping key (lib/hq-chart-pure.ts)
+    // the real-fills evidence in this fix's own header was verified against,
+    // rather than a second, untested reimplementation of "${barIndex}:
+    // ${side}" here.
+    const withKeys = positioned.map((p) => ({ ...p, barIndex: p.trade.barIndex, side: p.trade.side }));
+    return groupTradesByBarAndSide(withKeys).map(({ key, items }) => [key, items] as [string, PositionedTrade[]]);
+  }, [positioned]);
+
   return (
     <>
       <instancedMesh ref={meshRef} args={[geo, undefined, MAX_TRADES]} frustumCulled={false}>
         <meshBasicMaterial toneMapped={false} transparent opacity={0.95 * dimFactor} />
       </instancedMesh>
-      {positioned.map((p) => (
-        <TradeMarkerLabel key={`${p.trade.side}-${p.trade.atIso}-${p.trade.price}`} positioned={p} dimFactor={dimFactor} origin={origin} facingYaw={facingYaw} />
-      ))}
+      {labelGroups.map(([key, group]) =>
+        group.length === 1 ? (
+          <TradeMarkerLabel key={key} positioned={group[0]} dimFactor={dimFactor} origin={origin} facingYaw={facingYaw} />
+        ) : (
+          <GroupedTradeMarkerLabel key={key} groupKey={key} group={group} dimFactor={dimFactor} origin={origin} facingYaw={facingYaw} />
+        ),
+      )}
     </>
   );
 }
 
 /** One trade tooltip -- a standalone component (same rules-of-hooks reason
  * as LevelLabelItem above) so it can register with the shared
- * label-declutter system. MARKER-COLLIDE fix: prefixes the account (e.g.
- * "safe · EXIT ..." / "bold · EXIT ...") whenever `trade.account` is known
- * (journal/trades.csv's real `account_id` column, see chart-data.ts's own
- * comment -- never fabricated when absent on an older row), so two
- * accounts' labels read as distinct events even after the shared resolver
- * nudges them apart, not just visually separated with no way to tell them
- * apart. */
+ * label-declutter system. NAMING fix (HQ-CHART-MARKERS, 2026-09-15):
+ * prefixes the real FLEET ARM id (e.g. "safe-2 · EXIT ..." / "bold-2 ·
+ * EXIT ...") via deriveTradeArmLabel, never the raw `trade.account` --
+ * journal/trades.csv's own `account_id` column still carries the legacy
+ * CORE-account spellings ("safe"/"bold") for the two CORE accounts, which
+ * read as a different, smaller account than "safe-3"/"risky-1"/"risky-3"
+ * even though "safe" IS "safe-2" (see deriveTradeArmLabel's own header in
+ * lib/hq-chart-pure.ts for the full root-cause + real-data evidence). */
 function TradeMarkerLabel({
   positioned, dimFactor, origin, facingYaw,
 }: { positioned: PositionedTrade; dimFactor: number; origin: [number, number, number]; facingYaw: number }) {
@@ -590,6 +630,7 @@ function TradeMarkerLabel({
     () => worldPos,
   );
   const color = t.direction === "call" ? "#22ff88" : "#ff3b3b";
+  const arm = deriveTradeArmLabel(t.account, t.note);
   return (
     <Html position={[x, localY, 0]} center distanceFactor={7} style={{ pointerEvents: "none" }}>
       <div ref={wrapperRef}>
@@ -601,9 +642,50 @@ function TradeMarkerLabel({
             fontSize: 13, fontWeight: 600, border: `1px solid ${color}`, opacity: dimFactor,
           }}
         >
-          {t.account ? `${t.account} · ` : ""}{t.side === "entry" ? "ENTER" : "EXIT"} {t.setup} ${t.price.toFixed(2)}
+          {arm} · {t.side === "entry" ? "ENTER" : "EXIT"} {t.setup} ${t.price.toFixed(2)}
           {t.count > 1 ? ` ×${t.count}` : ""}
           {t.pnl !== null ? ` (${t.pnl >= 0 ? "+" : ""}${t.pnl.toFixed(0)})` : ""}
+        </div>
+      </div>
+    </Html>
+  );
+}
+
+/** ONE combined plaque for a same-bar/same-side group of >=2 real trades --
+ * see TradeMarkers' own `labelGroups` comment for the root cause this fixes
+ * (crowded same-priority labels fading past the declutter resolver's nudge
+ * cap). Text comes from formatGroupedTradeLabel (lib/hq-chart-pure.ts,
+ * unit-tested) so every account+price+P&L stays listed, never dropped --
+ * this component only owns POSITIONING (the outermost stacked marker in the
+ * group) and registration with the shared declutter system, identically to
+ * a lone TradeMarkerLabel. */
+function GroupedTradeMarkerLabel({
+  groupKey, group, dimFactor, origin, facingYaw,
+}: { groupKey: string; group: PositionedTrade[]; dimFactor: number; origin: [number, number, number]; facingYaw: number }) {
+  const outer = group[group.length - 1]; // furthest from the bar's own high/low -- see this function's own header
+  const first = group[0].trade;
+  const localY = outer.y + (first.side === "entry" ? 0.16 : -0.16);
+  const x = outer.x;
+  const worldPos = useMemo(() => chartLocalToWorld(origin, facingYaw, x, localY), [origin, facingYaw, x, localY]);
+  const { wrapperRef, measureRef } = useLabelDeclutter(`holo-trade-group:${groupKey}`, PRIORITY.PLAQUE, () => worldPos);
+  const color = first.direction === "call" ? "#22ff88" : "#ff3b3b";
+  const text = formatGroupedTradeLabel(
+    first.side,
+    first.direction,
+    group.map((p) => ({ account: p.trade.account, note: p.trade.note, price: p.trade.price, pnl: p.trade.pnl })),
+  );
+  return (
+    <Html position={[x, localY, 0]} center distanceFactor={7} style={{ pointerEvents: "none" }}>
+      <div ref={wrapperRef}>
+        <div
+          ref={measureRef}
+          style={{
+            fontFamily: "system-ui, sans-serif", whiteSpace: "nowrap", color: "#dff3ff",
+            background: "rgba(3,4,10,0.78)", padding: "2px 7px", borderRadius: 5,
+            fontSize: 13, fontWeight: 600, border: `1px solid ${color}`, opacity: dimFactor,
+          }}
+        >
+          {text}
         </div>
       </div>
     </Html>
@@ -652,7 +734,22 @@ function LastPriceMarker({
   // when there's nothing real yet" shape this file's own session-label
   // registration already uses.
   const worldPos = useMemo(() => chartLocalToWorld(origin, facingYaw, x + 0.18, y), [origin, facingYaw, x, y]);
-  const { wrapperRef, measureRef } = useLabelDeclutter("holo-last-price", PRIORITY.PLAQUE, () => worldPos);
+  // LEVEL-ORDER fix (2026-09-15): joins the SAME orderGroup as every level
+  // plaque (LevelLabelItem) so the shared resolver can never place this
+  // plaque's screen position out of price order relative to a level -- see
+  // labelDeclutter.ts's own `LabelRect.orderGroup` header for the exact real
+  // capture this fixes ("757.44 RESISTANCE" landing below "757.38 · last
+  // close"). orderKey uses the SAME -price convention LevelLabelItem uses;
+  // `data.lastClose?.price ?? 0` is a harmless placeholder for the one tick
+  // this hook is called before `hasData` is known true (rules-of-hooks --
+  // see this function's own pre-existing comment on `worldPos` for the same
+  // "compute a harmless value before the early return" pattern).
+  const { wrapperRef, measureRef } = useLabelDeclutter(
+    "holo-last-price",
+    PRIORITY.PLAQUE,
+    () => worldPos,
+    { orderGroup: PRICE_PLAQUE_ORDER_GROUP, orderKey: -(data.lastClose?.price ?? 0) },
+  );
   if (!hasData || !data.lastClose) return null;
   const priceText = data.live ? `${data.live.price.toFixed(2)} · LIVE` : `${data.lastClose.price.toFixed(2)} · last close`;
   return (

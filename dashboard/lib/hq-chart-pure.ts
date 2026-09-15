@@ -131,6 +131,129 @@ export function dedupeTradeMarkers(trades: ChartTradeMarker[]): Array<ChartTrade
   });
 }
 
+// --- trade account/arm naming (HQ-CHART-MARKERS, 2026-09-15) ---------------
+//
+// ROOT CAUSE this fixes: journal/trades.csv's own `account_id` column still
+// carries the legacy CORE-account names ("safe"/"bold") for the two CORE
+// accounts, while the fleet arms already write their real arm id directly
+// ("safe-3"/"risky-1"/"risky-3") -- verified this session by reading today's
+// real trades.csv rows: account_id="safe" for the safe-2 CORE account,
+// account_id="bold" for bold-2, vs. account_id="safe-3" (already correct) for
+// the FLEET arm. Mixing "safe" next to "safe-3" on the same chart reads as
+// two different sizes of the SAME account, which they are not (CLAUDE.md's
+// own account_context table: `PA3POKNV46VG`=safe-2, `PA3WEBXJU67N`=bold-2).
+//
+// Two independent sources agree on the REAL arm id and are checked in order:
+//   1. The trade's own `note` field, when it starts with "CORE ACCOUNT X" or
+//      "FLEET ARM X" (X = the real arm id) -- this is the SAME text
+//      chart-data.ts's own note-builder already writes from
+//      analysis/pnl-statement.json's real per-arm attribution, verified this
+//      session against today's real API response (e.g. "CORE ACCOUNT bold-2
+//      (account_id=bold, mcp_heartbeat live engine)."). Preferred because
+//      it's the freshest, most specific real read.
+//   2. A small static map for the two known legacy CORE-account spellings,
+//      when no note (or a note without the prefix) is available. Never
+//      guesses for an arm id this map doesn't recognize -- falls through to
+//      the raw account_id verbatim (already correct for every FLEET arm),
+//      never fabricates a made-up arm.
+
+const LEGACY_ACCOUNT_ARM_MAP: Readonly<Record<string, string>> = {
+  safe: "safe-2",
+  bold: "bold-2",
+};
+
+const NOTE_ARM_PREFIX_RE = /^(?:CORE ACCOUNT|FLEET ARM)\s+([a-z]+-\d+)/i;
+
+/** Resolves the real fleet arm id (e.g. "safe-2", "bold-2", "safe-3",
+ * "risky-1", "risky-3") a trade marker should display, per this section's
+ * own header. Never throws; falls back to `account` verbatim when nothing
+ * more specific is recognized, and to "?" only when there is truly nothing
+ * to go on (both `account` and `note` are null/unrecognized). */
+export function deriveTradeArmLabel(account: string | null, note: string | null): string {
+  if (note) {
+    const m = NOTE_ARM_PREFIX_RE.exec(note.trim());
+    if (m) return m[1].toLowerCase();
+  }
+  if (account) return LEGACY_ACCOUNT_ARM_MAP[account] ?? account;
+  return "?";
+}
+
+// --- trade marker grouping for legibility (HQ-CHART-MARKERS, 2026-09-15) ---
+//
+// ROOT CAUSE this fixes: a real capture (hq-close-1653.png, read at 1:1)
+// showed only 4 of today's 10 real trade-marker labels -- the 4 bar-27 exits
+// that landed far enough apart from everything else to clear the shared
+// screen-space declutter resolver (labelDeclutter.ts). The 5 bar-14 entries
+// (all in the SAME priority tier, nearly co-located on screen since they
+// share one bar's x-position and a small TRADE_STACK_STEP world-Y spread)
+// plus the lone bar-17 bold exit sitting right next to them never cleared
+// the resolver's nudge cap and faded to DEFAULT_FADE_OPACITY (0.35) against
+// this scene's near-black background -- visually indistinguishable from
+// "missing" in a screenshot, even though every fill is still a REAL row in
+// journal/trades.csv. Grouping same-bar/same-side markers into ONE plaque
+// (this function) removes the crowding at its source: 5 competing labels
+// become 1, so the resolver never needs to push anyone past the cap.
+
+export interface GroupableTrade {
+  barIndex: number | null;
+  side: "entry" | "exit";
+}
+
+/** Groups trades sharing the same (barIndex, side) -- the same real-world
+ * "N accounts filled the identical setup in the same 5-minute bar" shape
+ * dedupeTradeMarkers already merges identical (side,direction,price,minute,
+ * account) rows for, one level up: DIFFERENT accounts/prices in the same bar
+ * stay as distinct rows (never silently merged/lost, see dedupeTradeMarkers'
+ * own header) but now share one display group. `barIndex === null` (a trade
+ * that couldn't be anchored to a visible bar) is excluded -- nothing to
+ * group by. Order-preserving: each group's array keeps the input's own
+ * relative order, and groups appear in first-occurrence order. */
+export function groupTradesByBarAndSide<T extends GroupableTrade>(trades: readonly T[]): Array<{ key: string; items: T[] }> {
+  const groups = new Map<string, T[]>();
+  const order: string[] = [];
+  for (const t of trades) {
+    if (t.barIndex === null) continue;
+    const key = `${t.barIndex}:${t.side}`;
+    const existing = groups.get(key);
+    if (existing) {
+      existing.push(t);
+    } else {
+      groups.set(key, [t]);
+      order.push(key);
+    }
+  }
+  return order.map((key) => ({ key, items: groups.get(key)! }));
+}
+
+export interface GroupLabelItem {
+  account: string | null;
+  note: string | null;
+  price: number;
+  pnl: number | null;
+}
+
+/** Renders ONE combined plaque's text for a same-bar/same-side group of
+ * trades, e.g. "ENTER put · safe-2 1.08 · bold-2 0.47 · safe-3 1.12 ·
+ * risky-1 1.13 · risky-3 1.12" -- the exact shape named in this task's own
+ * brief, so every real fill stays individually readable (account + price +
+ * P&L) even when several land in the same bar. A single-item group renders
+ * identically to what TradeMarkerLabel already shows for a lone marker
+ * (same "ARM SIDE setup $price (pnl)" shape), so callers may use this for
+ * groups of any size >= 1 without a separate single-marker code path. */
+export function formatGroupedTradeLabel(
+  side: "entry" | "exit",
+  direction: "call" | "put",
+  items: readonly GroupLabelItem[],
+): string {
+  const verb = side === "entry" ? "ENTER" : "EXIT";
+  const parts = items.map((it) => {
+    const arm = deriveTradeArmLabel(it.account, it.note);
+    const pnlStr = it.pnl !== null ? ` (${it.pnl >= 0 ? "+" : ""}${it.pnl.toFixed(0)})` : "";
+    return `${arm} ${it.price.toFixed(2)}${pnlStr}`;
+  });
+  return `${verb} ${direction} · ${parts.join(" · ")}`;
+}
+
 // --- session status/label (HOLOCHART-TRUTH, 2026-09-15) --------------------
 //
 // ROOT CAUSE this fixes (dashboard/lib/hq-chart-data.ts:200, pre-fix): session

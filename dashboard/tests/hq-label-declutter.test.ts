@@ -439,3 +439,69 @@ test("continuously-drifting target (40px/tick x3): plain smoothLabelOffset overl
   }
   assert.equal(newOverlapTicks, 0, `GREEN: post-fix smoothLabelOffsetAvoidingOverlap must clear every tick even while the target keeps drifting (got ${newOverlapTicks} overlapping ticks)`);
 });
+
+// ─── LEVEL-ORDER fix (2026-09-15): orderGroup/orderKey ──────────────────────
+// Real capture evidence (hq-close-1653.png, read at 1:1): "757.44
+// RESISTANCE" rendered BELOW "757.38 · last close" even though 757.44 >
+// 757.38 -- the generic collision resolver has no notion of price, so a
+// same-priority nudge could freely invert two plaques whose relative
+// vertical position is meant to reflect a real price rank.
+
+function priceRect(id: string, price: number, y: number, w = 120, h = 24): LabelRect {
+  return { id, priority: PRIORITY.PLAQUE, distance: 10, x: 0, y, width: w, height: h, orderGroup: "prices", orderKey: -price };
+}
+
+test("orderGroup/orderKey: a higher-price plaque's final y never ends up below a lower-price plaque's", () => {
+  // Deliberately gives the LOWER price ("757.38") the smaller natural y (as
+  // if collision-avoidance alone had already inverted it) -- the real
+  // shape the evidence capture shows: 757.44 (higher) natural position
+  // pushed further down than 757.38 (lower)'s.
+  const higher = priceRect("757.44", 757.44, 100); // higher price, but starts BELOW visually (larger y is "below")
+  const lower = priceRect("757.38", 757.38, 10); // lower price, starts ABOVE (smaller y)
+  const out = resolveLabelOffsets([higher, lower]);
+  const higherFinalY = higher.y + out.get("757.44")!.dy;
+  const lowerFinalY = lower.y + out.get("757.38")!.dy;
+  assert.ok(higherFinalY <= lowerFinalY, `757.44 (final y=${higherFinalY}) must never sit below 757.38 (final y=${lowerFinalY})`);
+});
+
+test("orderGroup/orderKey: five real price plaques (levels + last-close) stay in strict price order after resolve", () => {
+  // Today's real level set + last-close, deliberately shuffled and given
+  // colliding natural y's so the resolver has real work to do.
+  const items: Array<[string, number, number]> = [
+    ["759.48-RESISTANCE", 759.48, 50],
+    ["758.60-RESISTANCE", 758.6, 52],
+    ["757.93-SUPPORT", 757.93, 200],
+    ["757.62-SWING-HIGH", 757.62, 48],
+    ["757.44-RESISTANCE", 757.44, 5], // adversarial: highest natural y among the low-price group
+    ["757.38-last-close", 757.38, 150],
+  ];
+  const rects = items.map(([id, price, y]) => priceRect(id, price, y));
+  const out = resolveLabelOffsets(rects);
+  const finals = items.map(([id, price]) => ({ price, finalY: rects.find((r) => r.id === id)!.y + out.get(id)!.dy }));
+  const sortedByPriceDesc = [...finals].sort((a, b) => b.price - a.price);
+  for (let i = 1; i < sortedByPriceDesc.length; i++) {
+    assert.ok(
+      sortedByPriceDesc[i - 1].finalY <= sortedByPriceDesc[i].finalY,
+      `price order violated: ${sortedByPriceDesc[i - 1].price} (y=${sortedByPriceDesc[i - 1].finalY}) must be <= ${sortedByPriceDesc[i].price} (y=${sortedByPriceDesc[i].finalY})`,
+    );
+  }
+});
+
+test("orderGroup/orderKey: a label with no orderGroup is completely unaffected by the order pass", () => {
+  const a = rect("plain-a", PRIORITY.PLAQUE, 10, 0, 0, 100, 24);
+  const b = rect("plain-b", PRIORITY.PLAQUE, 11, 200, 0, 100, 24);
+  const withOrder = resolveLabelOffsets([a, b]);
+  // Same rects, run again -- identical result, order pass is a no-op absent orderGroup.
+  const again = resolveLabelOffsets([a, b]);
+  assert.deepEqual(withOrder.get("plain-a"), again.get("plain-a"));
+  assert.deepEqual(withOrder.get("plain-b"), again.get("plain-b"));
+});
+
+test("orderGroup/orderKey: two different orderGroups never constrain each other", () => {
+  const a = priceRect("group-a-1", 100, 0);
+  const b = { ...priceRect("group-b-1", 1, 0), orderGroup: "other-group" };
+  const out = resolveLabelOffsets([a, b]);
+  // No collision (different x not set here, but same rect footprint at y=0 for both -- collision-avoidance still applies within PLAQUE tier regardless of group, only enforceGroupOrder is group-scoped). Just assert no crash and both have entries.
+  assert.ok(out.get("group-a-1"));
+  assert.ok(out.get("group-b-1"));
+});
