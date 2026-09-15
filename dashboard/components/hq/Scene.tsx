@@ -1799,6 +1799,12 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
         // the old modelName-presence "BRAIN IDLE" fallback.
         lastRow={data?.brainVitals.lastRow ?? null}
         nextLine={managerNextLine}
+        // BRAIN-TRUTH fix (2026-09-15) -- the Ollama-`ollama ps`-verified
+        // truth Hud.tsx's side panel already reads (data.runtime.brain
+        // .busy), now the plaque's own sole "thinking" source too. See
+        // BrainCore.tsx's own `brainBusy` prop comment for the full
+        // root-cause this replaces.
+        brainBusy={data?.runtime.brain.busy ?? false}
         gaming={gaming}
         dimFactor={dimFactor}
         reducedMotion={reducedMotion}
@@ -1856,6 +1862,7 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
             utilPct={data?.brainVitals.gpu.util_pct ?? null}
             modelName={data?.brainVitals.models[0]?.name ?? null}
             gaming={gaming}
+            brainBusy={data?.runtime.brain.busy ?? false}
           />
         </group>
         );

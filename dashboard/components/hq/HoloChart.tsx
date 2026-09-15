@@ -167,6 +167,25 @@ function yForPrice(price: number, domain: { low: number; high: number }): number
   return ((price - domain.low) / (domain.high - domain.low)) * RIBBON_MAX_HEIGHT;
 }
 
+const _localVec = new THREE.Vector3();
+const _yAxis = new THREE.Vector3(0, 1, 0);
+
+/** Converts a point in this component's own local space (pre the outer
+ * `<group position={origin} rotation={[0,facingYaw,0]} scale=
+ * {HOLO_CHART_SCALE}>`, see the default export below) to world space --
+ * needed so LevelLabels/TradeMarkers items can register a real world
+ * position with the shared label-declutter registry (useLabelDeclutter.ts),
+ * the same registry BrainCore.tsx/GammaCharacter.tsx/Agent.tsx/LiveAgents.tsx
+ * already join, so a level plaque or trade pin correctly nudges clear of
+ * (or yields to) a desk/persona label it would otherwise sit under. Cheap
+ * (one scratch-vector rotate+scale+translate), called at most once per
+ * throttled declutter tick per label (useLabelDeclutter's own
+ * `getWorldPos` contract), never per-frame. */
+function chartLocalToWorld(origin: [number, number, number], facingYaw: number, x: number, y: number): [number, number, number] {
+  _localVec.set(x, y, 0).applyAxisAngle(_yAxis, facingYaw).multiplyScalar(HOLO_CHART_SCALE);
+  return [_localVec.x + origin[0], _localVec.y + origin[1], _localVec.z + origin[2]];
+}
+
 interface GrowState {
   index: number;
   startMs: number;
@@ -383,35 +402,97 @@ function layoutLabelYs(levels: HoloLevel[], domain: { low: number; high: number 
   return displayY;
 }
 
-function LevelLabels({ levels, domain, dimFactor }: { levels: HoloLevel[]; domain: { low: number; high: number }; dimFactor: number }) {
+/** One level plaque -- a standalone component (not a `.map()` body inside
+ * LevelLabels) specifically so it can call useLabelDeclutter itself
+ * (rules-of-hooks: a hook can't be called from inside a loop/callback in
+ * the parent). LEVEL-OVERLAP fix (2026-09-15, real capture at 16:37 ET:
+ * "758.60 RESISTANCE"/"757.93 SUPPORT"/"757.62 SWING HIGH"/"757.44
+ * RESISTANCE" overlapping each other, and "759.48 RESISTANCE" covering the
+ * "Station (local loop)" desk label). ROOT CAUSE: `layoutLabelYs` only
+ * spaces labels along the WORLD-Y axis by a fixed `MIN_LABEL_GAP` -- it has
+ * no idea what any OTHER on-screen label (a desk/persona plaque from a
+ * totally different component) occupies, and world-Y spacing degrades at
+ * long camera distance anyway (drei's own distanceFactor scaling grows
+ * on-screen text size well past what a fixed world-space gap accounts for
+ * -- the same mechanism LevelLabels' own historical comment already names
+ * for why it needed ANY decluttering at all). Registering each plaque with
+ * the SAME shared screen-space resolver every other hub label already uses
+ * (labelDeclutter.ts) fixes both: it measures the REAL on-screen rect, and
+ * it sees every other registered label (including desk/persona plaques),
+ * not just its level siblings -- `layoutLabelYs`' own coarse world-Y spread
+ * is kept as the STARTING position (never removed: it's still the honest,
+ * price-true placement `getWorldPos` reports as this label's un-nudged
+ * spot, and gives the resolver a head start with less overlap to resolve
+ * per level cluster), the screen-space nudge/fade is what now GUARANTEES
+ * legibility. */
+function LevelLabelItem({
+  level, localX, localY, worldPos, dimFactor,
+}: { level: HoloLevel; localX: number; localY: number; worldPos: [number, number, number]; dimFactor: number }) {
+  // `getWorldPos` returns the REAL world position (origin+rotation+scale
+  // already applied by chartLocalToWorld, computed once by the parent) --
+  // only used by the declutter registry's own distance tie-break, never for
+  // rendering. The <Html> itself stays positioned in LOCAL space
+  // (`localX`/`localY`), same as every other Html in this file -- it is
+  // still inside this component's own outer `<group position={origin}
+  // rotation=... scale=...>`, so a world-space position here would be
+  // double-transformed.
+  const { wrapperRef, measureRef } = useLabelDeclutter(
+    `holo-level:${level.type}:${level.price}`,
+    PRIORITY.PLAQUE,
+    () => worldPos,
+  );
+  return (
+    <Html position={[localX, localY, 0]} center distanceFactor={7} style={{ pointerEvents: "none" }}>
+      <div ref={wrapperRef}>
+        <div
+          ref={measureRef}
+          style={{
+            fontFamily: "system-ui, sans-serif", whiteSpace: "nowrap",
+            color: level.type === "support" ? PALETTE.hubCore : PALETTE.warmAccent,
+            background: "rgba(3,4,10,0.72)", padding: "2px 8px", borderRadius: 5,
+            fontSize: 15, fontWeight: 700, letterSpacing: 0.3, opacity: dimFactor,
+          }}
+        >
+          {level.price.toFixed(2)} <span style={{ opacity: 0.75, fontWeight: 600 }}>{level.tag}</span>
+        </div>
+      </div>
+    </Html>
+  );
+}
+
+function LevelLabels({
+  levels, domain, dimFactor, origin, facingYaw,
+}: { levels: HoloLevel[]; domain: { low: number; high: number }; dimFactor: number; origin: [number, number, number]; facingYaw: number }) {
   const labelYs = useMemo(() => layoutLabelYs(levels, domain), [levels, domain]);
+  const localX = RIBBON_WIDTH / 2 + BASE_PLATE_MARGIN * 0.55;
   return (
     <>
-      {levels.map((l, i) => (
-        <Html
-          key={`${l.type}-${l.price}`}
-          position={[RIBBON_WIDTH / 2 + BASE_PLATE_MARGIN * 0.55, labelYs[i], 0]}
-          center
-          distanceFactor={7}
-          style={{ pointerEvents: "none" }}
-        >
-          <div
-            style={{
-              fontFamily: "system-ui, sans-serif", whiteSpace: "nowrap",
-              color: l.type === "support" ? PALETTE.hubCore : PALETTE.warmAccent,
-              background: "rgba(3,4,10,0.72)", padding: "2px 8px", borderRadius: 5,
-              fontSize: 15, fontWeight: 700, letterSpacing: 0.3, opacity: dimFactor,
-            }}
-          >
-            {l.price.toFixed(2)} <span style={{ opacity: 0.75, fontWeight: 600 }}>{l.tag}</span>
-          </div>
-        </Html>
-      ))}
+      {levels.map((l, i) => {
+        const worldPos = chartLocalToWorld(origin, facingYaw, localX, labelYs[i]);
+        return (
+          <LevelLabelItem
+            key={`${l.type}-${l.price}`}
+            level={l} localX={localX} localY={labelYs[i]} worldPos={worldPos} dimFactor={dimFactor}
+          />
+        );
+      })}
     </>
   );
 }
 
 const MAX_TRADES = 24; // headroom above any realistic single-session trade-marker count
+// MARKER-COLLIDE fix (2026-09-15): world-Y step applied to the 2nd+ marker
+// sharing the same (barIndex, side) bucket -- see `positioned`'s own
+// comment for why two different accounts trading the same setup in the
+// same 5-minute bar previously landed on the EXACT same cone position (y
+// was a function of the bar's own high/low, never the individual trade),
+// not just an unlucky label overlap. 0.1 world units is comfortably more
+// than the label's own subsequent screen-space declutter nudge needs to
+// start from a non-identical position (the shared resolver still runs on
+// top of this and is what GUARANTEES the final on-screen legibility --
+// this stacking step is the geometry-level half of the fix, not a
+// substitute for it).
+const TRADE_STACK_STEP = 0.1;
 
 interface PositionedTrade {
   trade: HoloTradeMarker;
@@ -427,22 +508,38 @@ interface PositionedTrade {
  * would scale linearly on a heavier trading day. Html tooltips stay
  * per-marker (DOM, zero WebGL draw-call cost either way). */
 function TradeMarkers({
-  trades, bars, domain, dimFactor,
-}: { trades: HoloTradeMarker[]; bars: ChartBar[]; domain: { low: number; high: number }; dimFactor: number }) {
+  trades, bars, domain, dimFactor, origin, facingYaw,
+}: { trades: HoloTradeMarker[]; bars: ChartBar[]; domain: { low: number; high: number }; dimFactor: number; origin: [number, number, number]; facingYaw: number }) {
   const meshRef = useRef<THREE.InstancedMesh>(null);
   const geo = useMemo(() => new THREE.ConeGeometry(0.045, 0.11, 5), []);
 
-  const positioned: PositionedTrade[] = useMemo(
-    () => trades
+  const positioned: PositionedTrade[] = useMemo(() => {
+    // MARKER-COLLIDE fix: real capture evidence (2026-09-15 16:37 ET) --
+    // safe-2's ENTER $1.08 and bold-2's ENTER $0.47 both fell in the SAME
+    // 5-minute bar; `y` was `yForPrice(bar.high/low, domain) + a fixed
+    // offset`, a function of the BAR alone, never each trade's own price or
+    // account -- so both markers rendered at the literal same (x,y),
+    // producing one visible pin for two real fills. Bucket by
+    // (barIndex, side) and stack the 2nd+ occupant `TRADE_STACK_STEP`
+    // further from the bar's own high/low, in the same direction its side
+    // already offsets (up for entries, down for exits) -- keeps every
+    // marker individually clickable/hoverable and gives the label
+    // declutter pass below a genuinely distinct starting position per
+    // trade instead of an identical one.
+    const stackCount = new Map<string, number>();
+    return trades
       .filter((t) => t.barIndex !== null && bars[t.barIndex])
       .map((t) => {
         const bar = bars[t.barIndex as number];
         const x = xForBarIndex(t.barIndex as number, bars.length);
-        const y = yForPrice(t.side === "entry" ? bar.high : bar.low, domain) + (t.side === "entry" ? 0.14 : -0.1);
+        const bucketKey = `${t.barIndex}:${t.side}`;
+        const stackIndex = stackCount.get(bucketKey) ?? 0;
+        stackCount.set(bucketKey, stackIndex + 1);
+        const baseY = yForPrice(t.side === "entry" ? bar.high : bar.low, domain) + (t.side === "entry" ? 0.14 : -0.1);
+        const y = baseY + (t.side === "entry" ? 1 : -1) * stackIndex * TRADE_STACK_STEP;
         return { trade: t, x, y };
-      }),
-    [trades, bars, domain],
-  );
+      });
+  }, [trades, bars, domain]);
 
   useEffect(() => {
     const mesh = meshRef.current;
@@ -465,29 +562,51 @@ function TradeMarkers({
       <instancedMesh ref={meshRef} args={[geo, undefined, MAX_TRADES]} frustumCulled={false}>
         <meshBasicMaterial toneMapped={false} transparent opacity={0.95 * dimFactor} />
       </instancedMesh>
-      {positioned.map(({ trade: t, x, y }) => {
-        const color = t.direction === "call" ? "#22ff88" : "#ff3b3b";
-        return (
-          <Html
-            key={`${t.side}-${t.atIso}-${t.price}`}
-            position={[x, y + (t.side === "entry" ? 0.16 : -0.16), 0]}
-            center distanceFactor={7} style={{ pointerEvents: "none" }}
-          >
-            <div
-              style={{
-                fontFamily: "system-ui, sans-serif", whiteSpace: "nowrap", color: "#dff3ff",
-                background: "rgba(3,4,10,0.78)", padding: "2px 7px", borderRadius: 5,
-                fontSize: 13, fontWeight: 600, border: `1px solid ${color}`, opacity: dimFactor,
-              }}
-            >
-              {t.side === "entry" ? "ENTER" : "EXIT"} {t.setup} ${t.price.toFixed(2)}
-              {t.count > 1 ? ` ×${t.count}` : ""}
-              {t.pnl !== null ? ` (${t.pnl >= 0 ? "+" : ""}${t.pnl.toFixed(0)})` : ""}
-            </div>
-          </Html>
-        );
-      })}
+      {positioned.map((p) => (
+        <TradeMarkerLabel key={`${p.trade.side}-${p.trade.atIso}-${p.trade.price}`} positioned={p} dimFactor={dimFactor} origin={origin} facingYaw={facingYaw} />
+      ))}
     </>
+  );
+}
+
+/** One trade tooltip -- a standalone component (same rules-of-hooks reason
+ * as LevelLabelItem above) so it can register with the shared
+ * label-declutter system. MARKER-COLLIDE fix: prefixes the account (e.g.
+ * "safe · EXIT ..." / "bold · EXIT ...") whenever `trade.account` is known
+ * (journal/trades.csv's real `account_id` column, see chart-data.ts's own
+ * comment -- never fabricated when absent on an older row), so two
+ * accounts' labels read as distinct events even after the shared resolver
+ * nudges them apart, not just visually separated with no way to tell them
+ * apart. */
+function TradeMarkerLabel({
+  positioned, dimFactor, origin, facingYaw,
+}: { positioned: PositionedTrade; dimFactor: number; origin: [number, number, number]; facingYaw: number }) {
+  const { trade: t, x, y } = positioned;
+  const localY = y + (t.side === "entry" ? 0.16 : -0.16);
+  const worldPos = useMemo(() => chartLocalToWorld(origin, facingYaw, x, localY), [origin, facingYaw, x, localY]);
+  const { wrapperRef, measureRef } = useLabelDeclutter(
+    `holo-trade:${t.side}:${t.atIso}:${t.price}`,
+    PRIORITY.PLAQUE,
+    () => worldPos,
+  );
+  const color = t.direction === "call" ? "#22ff88" : "#ff3b3b";
+  return (
+    <Html position={[x, localY, 0]} center distanceFactor={7} style={{ pointerEvents: "none" }}>
+      <div ref={wrapperRef}>
+        <div
+          ref={measureRef}
+          style={{
+            fontFamily: "system-ui, sans-serif", whiteSpace: "nowrap", color: "#dff3ff",
+            background: "rgba(3,4,10,0.78)", padding: "2px 7px", borderRadius: 5,
+            fontSize: 13, fontWeight: 600, border: `1px solid ${color}`, opacity: dimFactor,
+          }}
+        >
+          {t.account ? `${t.account} · ` : ""}{t.side === "entry" ? "ENTER" : "EXIT"} {t.setup} ${t.price.toFixed(2)}
+          {t.count > 1 ? ` ×${t.count}` : ""}
+          {t.pnl !== null ? ` (${t.pnl >= 0 ? "+" : ""}${t.pnl.toFixed(0)})` : ""}
+        </div>
+      </div>
+    </Html>
   );
 }
 
@@ -514,15 +633,27 @@ function BasePlate({ dimFactor }: { dimFactor: number }) {
  * the live sight-beacon's own freshness (a data readout: dim = stale, bright
  * = fresh), never a decorative pulse. */
 function LastPriceMarker({
-  data, domain, dimFactor,
-}: { data: HoloChartData; domain: { low: number; high: number }; dimFactor: number }) {
+  data, domain, dimFactor, origin, facingYaw,
+}: { data: HoloChartData; domain: { low: number; high: number }; dimFactor: number; origin: [number, number, number]; facingYaw: number }) {
   const matRef = useRef<THREE.MeshBasicMaterial>(null);
   useFrame(() => {
     if (matRef.current) matRef.current.opacity = (data.live ? 1 : 0.55) * dimFactor;
   });
-  if (!data.lastClose || data.bars.length === 0) return null;
-  const x = xForBarIndex(data.bars.length - 1, data.bars.length) + RIBBON_WIDTH / (data.bars.length * 2) + 0.16;
-  const y = yForPrice(data.lastClose.price, domain);
+  const hasData = data.lastClose !== null && data.bars.length > 0;
+  const x = hasData ? xForBarIndex(data.bars.length - 1, data.bars.length) + RIBBON_WIDTH / (data.bars.length * 2) + 0.16 : 0;
+  const y = hasData && data.lastClose ? yForPrice(data.lastClose.price, domain) : 0;
+  // LEVEL-OVERLAP fix follow-up (2026-09-15, real post-deploy capture: this
+  // marker's own "757.38 · last close" plaque was STILL covering
+  // "757.44 RESISTANCE" even after LevelLabelItem joined the shared
+  // declutter registry -- this marker itself had never joined, so the
+  // resolver had no rect for it to nudge either one clear of the other.
+  // Hooks called unconditionally (before the `!hasData` return below) per
+  // rules-of-hooks -- same "compute a harmless [0,0,0]-anchored world pos
+  // when there's nothing real yet" shape this file's own session-label
+  // registration already uses.
+  const worldPos = useMemo(() => chartLocalToWorld(origin, facingYaw, x + 0.18, y), [origin, facingYaw, x, y]);
+  const { wrapperRef, measureRef } = useLabelDeclutter("holo-last-price", PRIORITY.PLAQUE, () => worldPos);
+  if (!hasData || !data.lastClose) return null;
   const priceText = data.live ? `${data.live.price.toFixed(2)} · LIVE` : `${data.lastClose.price.toFixed(2)} · last close`;
   return (
     <group position={[x, y, 0]}>
@@ -531,15 +662,21 @@ function LastPriceMarker({
         <meshBasicMaterial ref={matRef} color="#ffffff" toneMapped={false} transparent opacity={1} />
       </mesh>
       <Html position={[0.18, 0, 0]} distanceFactor={7} style={{ pointerEvents: "none" }}>
-        <div className="hq-beam" style={{ ["--beam-color" as string]: PALETTE.hubCore, borderRadius: 6, opacity: dimFactor }}>
-          <div
-            style={{
-              fontFamily: "system-ui, sans-serif", whiteSpace: "nowrap", color: "#dff3ff",
-              background: "rgba(3,4,10,0.8)", padding: "3px 9px", borderRadius: 5,
-              fontSize: 16, fontWeight: 700,
-            }}
-          >
-            {priceText}
+        {/* DECLUTTER pass follow-up -- outer plain wrapper the shared
+            resolver writes transform/opacity onto, same convention as
+            every other .hq-beam-wrapped declutter registrant in this tree
+            (BrainCore.tsx's own plaque/pulse). */}
+        <div ref={wrapperRef}>
+          <div ref={measureRef} className="hq-beam" style={{ ["--beam-color" as string]: PALETTE.hubCore, borderRadius: 6, opacity: dimFactor }}>
+            <div
+              style={{
+                fontFamily: "system-ui, sans-serif", whiteSpace: "nowrap", color: "#dff3ff",
+                background: "rgba(3,4,10,0.8)", padding: "3px 9px", borderRadius: 5,
+                fontSize: 16, fontWeight: 700,
+              }}
+            >
+              {priceText}
+            </div>
           </div>
         </div>
       </Html>
@@ -644,9 +781,9 @@ export default function HoloChart({ origin, facingYaw, dimFactor }: HoloChartPro
         <group position={[0, 0.02, 0]} visible={dimFactor > 0.02}>
           <BarsRibbon bars={data.bars} domain={domain} opacity={dimFactor} />
           <LevelPlanes levels={data.levels} domain={domain} bars={data.bars} opacity={dimFactor} />
-          <LevelLabels levels={data.levels} domain={domain} dimFactor={dimFactor} />
-          <TradeMarkers trades={data.trades} bars={data.bars} domain={domain} dimFactor={dimFactor} />
-          <LastPriceMarker data={data} domain={domain} dimFactor={dimFactor} />
+          <LevelLabels levels={data.levels} domain={domain} dimFactor={dimFactor} origin={origin} facingYaw={facingYaw} />
+          <TradeMarkers trades={data.trades} bars={data.bars} domain={domain} dimFactor={dimFactor} origin={origin} facingYaw={facingYaw} />
+          <LastPriceMarker data={data} domain={domain} dimFactor={dimFactor} origin={origin} facingYaw={facingYaw} />
           <Html position={[0, -0.22, 0]} center distanceFactor={7} style={{ pointerEvents: "none" }}>
             {/* DECLUTTER pass (POLISH-2): outer wrapper the shared resolver
                 owns, kept separate from this div's own opacity/dimFactor

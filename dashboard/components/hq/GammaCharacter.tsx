@@ -57,9 +57,13 @@ interface GammaCharacterProps {
    * cycle below -- still exactly one bubble at her desk, never two. Null the
    * rest of the time (her own status/brief text shows as before). */
   ackOverride: string | null;
+  /** BRAIN-TRUTH fix (2026-09-15) -- see BrainCore.tsx's own `brainBusy`
+   * prop comment for the full root-cause. Same field (`data.runtime.brain
+   * .busy`), same Ollama-`ollama ps`-verified truth, now the sole source
+   * for this bubble's own "thinking" text too, replacing the local
+   * gpu_util_pct-vs-THINKING_UTIL_THRESHOLD re-derivation below. */
+  brainBusy: boolean;
 }
-
-const THINKING_UTIL_THRESHOLD = 30;
 // PEOPLE pass (P2): same "little bubble" char budget spirit as Agent.tsx's
 // own BUBBLE_ACTION_MAX_CHARS, sized a bit larger since "Gamma" (5 chars) is
 // shorter than this roster's longest name ("Treasurer") -- leaves the same
@@ -92,15 +96,15 @@ function hhmmEt(ms: number): string {
  * her desk looks like a real desk among the others, not a bespoke prop.
  */
 export default function GammaCharacter({
-  deskCenter, rotationY, accentColor, briefText, briefMtimeMs, utilPct, modelName, gaming,
-  lastRow, nextLine, ackOverride,
+  deskCenter, rotationY, accentColor, briefText, briefMtimeMs, utilPct: _utilPct, modelName, gaming,
+  lastRow, nextLine, ackOverride, brainBusy,
 }: GammaCharacterProps) {
-  // World-2 coordinator review: "thinking" now requires BOTH a genuinely
-  // busy GPU AND the ledger's own last row being "ok" -- the old
-  // util-only check could read "thinking" during a YIELDED window (RTH,
-  // this session's own reported bug) purely because SOMETHING ELSE on the
-  // GPU was busy, contradicting the loop's own real state.
-  const thinking = lastRow?.status === "ok" && (utilPct ?? 0) > THINKING_UTIL_THRESHOLD;
+  // BRAIN-TRUTH fix (2026-09-15) -- see this file's own `brainBusy` prop
+  // comment. No longer a local gpu_util_pct-vs-threshold re-derivation;
+  // `brainBusy` IS `data.runtime.brain.busy`, the Ollama-`ollama ps`-
+  // verified truth Hud.tsx's side panel already reads, so the two can no
+  // longer disagree the way the real capture caught them doing.
+  const thinking = brainBusy;
   const animState: KitAnimState = thinking ? "thinking" : "resting-working";
 
   // Item 2d (LIVE-1, 2026-09-14, J: "it still a 'Dead' world"): cycle EVERY

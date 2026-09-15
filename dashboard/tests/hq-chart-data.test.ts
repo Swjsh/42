@@ -112,7 +112,7 @@ test("nearestBarIndex returns null for an empty bar list", () => {
 // ─── dedupeTradeMarkers ──────────────────────────────────────────────────────
 
 function trade(atIso: string, overrides: Partial<ChartTradeMarker> = {}): ChartTradeMarker {
-  return { atIso, side: "entry", direction: "call", price: 0.39, setup: "ribbon_ride", note: null, pnl: null, ...overrides };
+  return { atIso, side: "entry", direction: "call", price: 0.39, setup: "ribbon_ride", note: null, pnl: null, account: null, ...overrides };
 }
 
 test("dedupeTradeMarkers collapses same-minute/side/direction/price rows into one, counting them", () => {
@@ -138,6 +138,20 @@ test("dedupeTradeMarkers keeps distinct minutes/sides/directions separate", () =
   const out = dedupeTradeMarkers(rows);
   assert.equal(out.length, 3);
   assert.ok(out.every((m) => m.count === 1));
+});
+
+test("dedupeTradeMarkers never merges two different accounts' same-minute/side/direction/price rows", () => {
+  // Real shape 2026-09-15: safe-2 and bold-2 both traded
+  // BEARISH_REJECTION_RIDE_THE_RIBBON within the same 5-minute bar --
+  // account must be part of the bucket key or one account's marker silently
+  // swallows the other's (MARKER-COLLIDE fix).
+  const rows: ChartTradeMarker[] = [
+    trade("2026-09-15T14:38:03.000Z", { account: "safe", price: 1.08 }),
+    trade("2026-09-15T14:38:06.000Z", { account: "bold", price: 1.08 }),
+  ];
+  const out = dedupeTradeMarkers(rows);
+  assert.equal(out.length, 2);
+  assert.deepEqual(out.map((m) => m.account).sort(), ["bold", "safe"]);
 });
 
 // ─── filterLevelsNearRange ───────────────────────────────────────────────────

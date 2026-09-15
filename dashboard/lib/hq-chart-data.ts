@@ -93,6 +93,9 @@ export interface HoloTradeMarker {
    * the same trigger filling across safe-3/risky-1/risky-3 within the same
    * minute) -- see dedupeTradeMarkers' own header. Never fewer than 1. */
   count: number;
+  /** journal/trades.csv's own `account_id` -- see ChartTradeMarker.account's
+   * own comment. Null for pre-account-column rows. */
+  account: string | null;
 }
 
 export interface HoloChartData {
@@ -369,6 +372,7 @@ export async function getHoloChartData(): Promise<HoloChartData> {
           note: t.note,
           pnl: t.pnl,
           count: t.count,
+          account: t.account,
         };
       })
       .filter((t): t is HoloTradeMarker => t !== null);

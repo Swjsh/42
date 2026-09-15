@@ -48,6 +48,15 @@ export interface ChartTradeMarker {
   note: string | null;
   /** Only ever populated on the "exit" side -- an entry hasn't resolved yet. */
   pnl: number | null;
+  /** journal/trades.csv's own `account_id` column verbatim (e.g. "safe",
+   * "bold", "safe-3", "risky-1") -- null when the row predates that column
+   * or left it blank (never guessed). MARKER-COLLIDE fix (2026-09-15): two
+   * different accounts trading the identical setup in the same 5-minute
+   * bar previously rendered as visually IDENTICAL, unlabeled pins (see
+   * HoloChart.tsx's own TradeMarkers header for why bar-anchored Y position
+   * alone can't distinguish them) -- this field is what lets the chart
+   * prefix each label ("safe · EXIT ...") instead. */
+  account: string | null;
 }
 
 export interface ChartData {
@@ -269,6 +278,7 @@ async function loadTodaysTrades(): Promise<ChartTradeMarker[]> {
     const iExitPx = col("exit_px");
     const iPnl = col("dollar_pnl");
     const iNotes = col("notes_short");
+    const iAccount = col("account_id");
     if ([iDate, iTimeEntry, iTimeExit, iSetup, iCorP, iEntryPx, iExitPx, iPnl].some((i) => i === -1)) return [];
 
     const today = todayET(); // real ET-aware "today" -- this box runs Mountain time
@@ -285,13 +295,14 @@ async function loadTodaysTrades(): Promise<ChartTradeMarker[]> {
 
       const setup = humanizeIdentifier(cells[iSetup]) || "a setup";
       const note = iNotes >= 0 ? sanitizeText(cells[iNotes], 240, "") || null : null;
+      const account = iAccount >= 0 ? (cells[iAccount]?.trim() || null) : null;
 
       const timeEntry = cells[iTimeEntry]?.trim();
       const entryPx = Number(cells[iEntryPx]);
       if (timeEntry && Number.isFinite(entryPx)) {
         const entryAt = parseBareTimestampInZone(`${date} ${timeEntry}`);
         if (entryAt) {
-          markers.push({ atIso: entryAt.toISOString(), side: "entry", direction, price: entryPx, setup, note, pnl: null });
+          markers.push({ atIso: entryAt.toISOString(), side: "entry", direction, price: entryPx, setup, note, pnl: null, account });
         }
       }
 
@@ -309,6 +320,7 @@ async function loadTodaysTrades(): Promise<ChartTradeMarker[]> {
             setup,
             note,
             pnl: Number.isFinite(pnl) ? pnl : null,
+            account,
           });
         }
       }

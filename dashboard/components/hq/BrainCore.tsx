@@ -42,6 +42,24 @@ interface BrainCoreProps {
    * different truth than the bubble two meters away from it. */
   lastRow: GammaLoopRow | null;
   nextLine: string | null;
+  /** BRAIN-TRUTH fix (2026-09-15, real-capture mismatch: the plaque said
+   * "BRAIN · thinking..." while Hud.tsx's side panel read "brain:
+   * gamma-planner-fast local GPU · idle (no model currently loaded in
+   * Ollama)" in the SAME frame). ROOT CAUSE: this component's own
+   * `thinking` gate re-derived busy-ness from `gpu_util_pct >
+   * THINKING_UTIL_THRESHOLD(30)` + the loop-ledger's last row alone --
+   * `hq-runtime.ts#isBrainBusy` (the side panel's real source, gated on
+   * BOTH a >50% util AND Ollama's own `ollama ps` reporting a loaded
+   * model, verified live this session: GET 127.0.0.1:11434/api/ps ->
+   * `{"models":[]}`) never entered this calculation, so a GPU-util spike
+   * from something OTHER than an actual Ollama inference call (this
+   * scene's own render load is the textbook case -- see isBrainBusy's own
+   * header) could flip this plaque to "thinking" while Ollama genuinely had
+   * no model loaded. Fix: `data.runtime.brain.busy` (Scene.tsx's own
+   * `data` already carries it) is now the SOLE truth for this plaque's own
+   * "thinking" state -- same field Hud.tsx's panel already reads, so the
+   * two surfaces can no longer disagree. */
+  brainBusy: boolean;
   gaming: boolean;
   dimFactor: number;
   reducedMotion: boolean;
@@ -68,11 +86,9 @@ interface BrainCoreProps {
 
 const GAUGE_WIDTH = 1.8;
 const PULSE_DURATION_MS = 10_000;
-// Same threshold + gate GammaCharacter.tsx uses for its own "thinking"
-// bubble -- see that file's own comment on why BOTH a busy GPU and the
-// ledger's `status==="ok"` are required (a util spike alone, during a
-// yielded/RTH window, must never read as "thinking").
-const THINKING_UTIL_THRESHOLD = 30;
+// THINKING_UTIL_THRESHOLD removed (BRAIN-TRUTH fix, 2026-09-15) -- this
+// component's own "thinking" gate no longer re-derives a util threshold
+// locally; see the `brainBusy` prop's own comment.
 
 // ─── Plaque on-screen size (2026-09-15, worker fix -- overview-read.png
 // capture: the "BRAIN · wrote brief" plaque measured ~5px tall at the
@@ -202,7 +218,7 @@ export default function BrainCore({
   // builder): HubInterior's own second wall panel (VitalsPanel) shows it --
   // real data this component already receives, reused rather than
   // threading a new prop through Scene.tsx for it.
-  utilPct, memUsedMib, memTotalMib, modelName, manager, briefMtimeMs, lastRow, nextLine, gaming, dimFactor, reducedMotion: _reducedMotion,
+  utilPct, memUsedMib, memTotalMib, modelName, manager, briefMtimeMs, lastRow, nextLine, brainBusy, gaming, dimFactor, reducedMotion: _reducedMotion,
   ultra = false, coreMeshRef, sectorsSnapshot = null, trading = null,
 }: BrainCoreProps) {
   const coreMat = useRef<THREE.MeshMatcapMaterial | THREE.MeshPhysicalMaterial>(null);
@@ -276,8 +292,11 @@ export default function BrainCore({
 
   const utilFrac = clamp01((utilPct ?? 0) / 100);
   const memFrac = memUsedMib && memTotalMib ? clamp01(memUsedMib / memTotalMib) : 0;
-  // Same gate as GammaCharacter.tsx's own `thinking` -- see THINKING_UTIL_THRESHOLD's comment.
-  const thinking = lastRow?.status === "ok" && (utilPct ?? 0) > THINKING_UTIL_THRESHOLD;
+  // BRAIN-TRUTH fix -- see the `brainBusy` prop's own comment. No longer a
+  // local re-derivation off gpu_util_pct; `brainBusy` IS `data.runtime.brain
+  // .busy`, the same Ollama-`ollama ps`-verified truth Hud.tsx's side panel
+  // reads.
+  const thinking = brainBusy;
   const wallStatusLine = brainWallStatusLine(lastRow, nextLine, thinking, briefMtimeMs);
 
   // All-hands pulse (Company Mode step 6, 2026-09-13): fires ~10s of

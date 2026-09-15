@@ -106,7 +106,17 @@ export function dedupeTradeMarkers(trades: ChartTradeMarker[]): Array<ChartTrade
   for (const t of trades) {
     const ms = Date.parse(t.atIso);
     const minuteBucket = Number.isFinite(ms) ? Math.floor(ms / 60_000) : t.atIso;
-    const key = `${t.side}:${t.direction}:${t.price}:${minuteBucket}`;
+    // MARKER-COLLIDE fix (2026-09-15): `account` joined the bucket key so
+    // two DIFFERENT accounts filling the same setup/price/minute (a real
+    // shape today: safe-2 and bold-2 both traded BEARISH_REJECTION_RIDE_THE
+    // _RIBBON in the same 5-minute bar) are never merged into one marker --
+    // merging them would erase exactly the per-account distinction
+    // HoloChart.tsx's own TradeMarkers now needs to label/stack each one
+    // separately. A missing/null account still dedupes against other
+    // missing/null-account rows exactly as before (pre-account-column
+    // journal rows), so this is additive, not a behavior change for that
+    // case -- see the "keeps distinct accounts separate" test below.
+    const key = `${t.side}:${t.direction}:${t.price}:${minuteBucket}:${t.account ?? ""}`;
     const existing = buckets.get(key);
     if (existing) {
       existing.count += 1;
