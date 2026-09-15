@@ -788,10 +788,12 @@ def test_label_overlap_ignores_low_opacity_pair():
         _s(0,
             page=[],
             label_rects=[
-                _label("fading A", 0, 0, 10, 10, opacity=0.2),
-                _label("fading B", 0, 0, 10, 10, opacity=0.2),
-                _label("visible C", 100, 100, 10, 10, opacity=1.0),
-                _label("visible D", 200, 200, 10, 10, opacity=1.0),
+                # Both label-sized (w>=40, h>=12) -- opacity is the ONLY
+                # axis under test here.
+                _label("fading A", 0, 0, 80, 20, opacity=0.2),
+                _label("fading B", 0, 0, 80, 20, opacity=0.2),
+                _label("visible C", 100, 100, 80, 20, opacity=1.0),
+                _label("visible D", 200, 200, 80, 20, opacity=1.0),
             ],
         ),
     ]
@@ -818,6 +820,59 @@ def test_label_overlap_below_intersection_threshold_not_a_violation():
     assert v["verdict"] == "PASS", v
     assert v["detail"]["violating_ticks"] == 0
     assert LABEL_OVERLAP_MIN_INTERSECTION_FRAC > 0.05  # sanity: threshold is above this pair's overlap
+
+
+def test_label_overlap_ignores_tiny_ticker_plaque_under_a_bubble():
+    # PROBE-13 (coordinator, 2026-09-15): rescore of 20260915T090312Z was
+    # dominated by HoloChart.tsx's "760.78 · last close" ticker plaque
+    # (21.9x4.6px, a real captured size) sitting fully under a real
+    # ~22px-tall bubble. The ticker plaque must be excluded by the size
+    # gate (LABEL_MIN_HEIGHT_PX=12) so this pair never counts as a
+    # violation, and the exclusion must be visible in detail.excluded_count
+    # without reprocessing.
+    samples = [
+        _s(0,
+            page=[_agent("a1", "working", [0, 0], bubble="wrapping up · running a command", raw="wrapping up · running a command")],
+            label_rects=[
+                _label("general-purpose · wrapping up · running a command", 468, 463, 300.6, 22.1),
+                _label("760.78 · last close", 487, 474, 21.9, 4.6),  # HoloChart ticker plaque
+                # A second REAL, disjoint label so the tick still has >=2
+                # label-sized rects to judge (excluding the ticker plaque
+                # alone would otherwise starve the tick to NO-DATA, hiding
+                # the exclusion rather than proving it harmless).
+                _label("Gamma · Nothing new.", 742, 442, 130.1, 21.2),
+            ],
+        ),
+    ]
+    v = check_label_overlap(samples)
+    assert v["verdict"] == "PASS", v
+    assert v["detail"]["violating_ticks"] == 0
+    assert v["detail"]["pair_counts"] == {}
+    assert v["detail"]["excluded_count"] == 1
+
+
+def test_label_overlap_fail_two_real_bubbles_still_caught_after_size_gate():
+    # The size gate must not swallow a genuine collision between two
+    # real-sized labels -- companion to the ticker-plaque exclusion test
+    # above, proving the fix is a size filter, not an accidental "always
+    # PASS" regression.
+    samples = [
+        _s(0,
+            page=[
+                _agent("a1", "working", [0, 0], bubble="reviewing PR", raw="reviewing PR"),
+                _agent("a2", "working", [1, 0], bubble="writing tests", raw="writing tests"),
+            ],
+            label_rects=[
+                _label("Coach · reviewing PR", 100, 100, 80, 20),
+                _label("Chef · writing tests", 105, 102, 80, 20),
+            ],
+        ),
+    ]
+    v = check_label_overlap(samples)
+    assert v["verdict"] == "FAIL", v
+    assert v["detail"]["violating_ticks"] == 1
+    assert v["detail"]["excluded_count"] == 0
+    assert list(v["detail"]["pair_counts"].values())[0] == 1
 
 
 # 5. page == API parity -------------------------------------------------------------

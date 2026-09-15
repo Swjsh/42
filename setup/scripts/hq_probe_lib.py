@@ -827,6 +827,38 @@ LABEL_OVERLAP_MIN_INTERSECTION_FRAC = 0.15
 LABEL_OVERLAP_FAIL_FRAC = 0.05
 LABEL_OVERLAP_WORST_PAIRS_CAP = 5
 
+# PROBE-13 (coordinator, 2026-09-15): rescore of 20260915T090312Z showed
+# label_overlap dominated by a FALSE-POSITIVE source -- HoloChart.tsx's
+# LastPriceMarker ("760.78 · last close") also renders a `.hq-beam` box
+# (fontSize 16, padding "3px 9px" -- HoloChart.tsx:531) but is NOT a
+# declutter-registered label (no useLabelDeclutter call anywhere in that
+# file); it measured 21.9x4.6px on screen. `.hq-beam` is confirmed NOT
+# exclusive to labels (SAMPLE_SCRIPT's own comment), so a structural size
+# rule is the fix: every REAL bubble/plaque this check has captured so far
+# (LiveAgents.tsx fontSize 24 padding "3px 10px", Agent.tsx/
+# GammaCharacter.tsx same, BrainCore.tsx's plaque) renders at >=21px tall
+# once padding/line-height are included -- 20260915T090312Z's own captured
+# rects: "Gamma · Nothing new." 130.1x21.2, "SPY 0DTE core..." 248.7x22.0,
+# "general-purpose · wrapping up..." 300.8x22.1, "BRAIN · wrote brief..."
+# 217.3x49.2 (2-line). The ticker plaque's 4.6px height is a full order of
+# magnitude below the SHORTEST real label captured -- height is the
+# discriminating dimension (the ticker plaque is comparably WIDE to a short
+# real label, so a width-only cutoff would not separate them). Width stays
+# a secondary floor only to reject degenerate/zero-ish rects, set well
+# under the shortest real label's own width (130px) so it never excludes a
+# real one. No ancestor-selector alternative exists: HoloChart's Html tree
+# has no distinguishing class/attribute either (same `.hq-beam` convention
+# every other file uses), so this is a size rule, not a container rule --
+# stated per the coordinator's own "prefer a structural rule you can
+# justify" instruction. KNOWN RESIDUAL: Scene.tsx's Pilot trade-action
+# strip and StationModule.tsx's bay labels are also non-declutter-registered
+# `.hq-beam` boxes at REAL-label-scale font sizes (16px+) -- this size rule
+# does not exclude them, since no evidence yet shows them causing a false
+# positive the way the ticker plaque did; revisit if a future rescore shows
+# them dominating pair_counts the way the ticker plaque did here.
+LABEL_MIN_HEIGHT_PX = 12.0
+LABEL_MIN_WIDTH_PX = 40.0
+
 
 def _rect_area(r: Dict[str, Any]) -> float:
     return max(0.0, r.get("w", 0.0)) * max(0.0, r.get("h", 0.0))
@@ -876,17 +908,38 @@ def _live_agent_state_for_label(label: Dict[str, Any], page_agents: List[Dict[st
     return None
 
 
+def _is_label_sized(r: Dict[str, Any]) -> bool:
+    """PROBE-13's size gate -- see LABEL_MIN_HEIGHT_PX's own header for the
+    measured evidence behind the thresholds."""
+    return r.get("h", 0.0) >= LABEL_MIN_HEIGHT_PX and r.get("w", 0.0) >= LABEL_MIN_WIDTH_PX
+
+
+def _pair_key(text_a: Optional[str], text_b: Optional[str]) -> str:
+    """Stable, order-independent key for detail.pair_counts -- collapses
+    "A ~ B" and "B ~ A" ticks into one bucket so the dominant offending
+    pair is visible without reprocessing. Newlines collapsed to spaces
+    (captured `innerText` from a multi-line label carries them raw) so the
+    key reads as one line in a JSON report."""
+    a = (text_a or "").replace("\n", " ").strip()
+    b = (text_b or "").replace("\n", " ").strip()
+    return " ~ ".join(sorted([a, b]))
+
+
 def check_label_overlap(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
     any_rects_captured = False
     ticks_with_2plus_visible = 0
     violating_ticks = 0
+    excluded_count = 0
     all_pairs: List[Dict[str, Any]] = []
+    pair_counts: Dict[str, int] = {}
 
     for s in samples:
         rects = s.get("label_rects") or []
         if rects:
             any_rects_captured = True
-        visible = [r for r in rects if (r.get("opacity") or 0) >= LABEL_OVERLAP_MIN_OPACITY and _rect_area(r) > 0]
+        opacity_visible = [r for r in rects if (r.get("opacity") or 0) >= LABEL_OVERLAP_MIN_OPACITY and _rect_area(r) > 0]
+        visible = [r for r in opacity_visible if _is_label_sized(r)]
+        excluded_count += len(opacity_visible) - len(visible)
         if len(visible) < 2:
             continue
         ticks_with_2plus_visible += 1
@@ -897,6 +950,8 @@ def check_label_overlap(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
                 frac = _rect_intersection_frac(visible[i], visible[j])
                 if frac < LABEL_OVERLAP_MIN_INTERSECTION_FRAC:
                     continue
+                text_a, text_b = visible[i].get("text"), visible[j].get("text")
+                pair_counts[_pair_key(text_a, text_b)] = pair_counts.get(_pair_key(text_a, text_b), 0) + 1
                 state_a = _live_agent_state_for_label(visible[i], page_agents)
                 state_b = _live_agent_state_for_label(visible[j], page_agents)
                 involves_live_agent = state_a is not None or state_b is not None
@@ -904,7 +959,7 @@ def check_label_overlap(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
                     tick_has_live_violation = True
                 all_pairs.append({
                     "t": s.get("t_ms"),
-                    "texts": [visible[i].get("text"), visible[j].get("text")],
+                    "texts": [text_a, text_b],
                     "rects": [
                         {k: visible[i].get(k) for k in ("x", "y", "w", "h")},
                         {k: visible[j].get(k) for k in ("x", "y", "w", "h")},
@@ -928,13 +983,19 @@ def check_label_overlap(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
     if ticks_with_2plus_visible == 0:
         return {
             "verdict": "NO-DATA",
-            "detail": {"reason": "never >=2 visible (opacity >= {:.1f}) labels captured in the same tick".format(LABEL_OVERLAP_MIN_OPACITY)},
+            "detail": {
+                "reason": "never >=2 visible (opacity >= {:.1f}, label-sized) labels captured in the same tick".format(LABEL_OVERLAP_MIN_OPACITY),
+                "excluded_count": excluded_count,
+            },
         }
 
     violating_frac = violating_ticks / ticks_with_2plus_visible
     live_pairs = [p for p in all_pairs if p["involves_live_agent"]]
     worst_pairs = sorted(live_pairs or all_pairs, key=lambda p: -p["overlap_frac"])[:LABEL_OVERLAP_WORST_PAIRS_CAP]
     verdict = "FAIL" if violating_frac > LABEL_OVERLAP_FAIL_FRAC else "PASS"
+    # Sorted descending so the dominant offending pair is first without the
+    # reader re-sorting a JSON dict themselves.
+    sorted_pair_counts = dict(sorted(pair_counts.items(), key=lambda kv: -kv[1]))
     return {
         "verdict": verdict,
         "detail": {
@@ -942,6 +1003,15 @@ def check_label_overlap(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
             "violating_ticks": violating_ticks,
             "violating_frac": round(violating_frac, 4),
             "worst_pairs": worst_pairs,
+            # PROBE-13: text-pair -> tick count, across ALL intersecting
+            # pairs (not only ones involving a live agent) -- surfaces the
+            # dominant offender (e.g. a persona/persona pair) without
+            # reprocessing raw samples.
+            "pair_counts": sorted_pair_counts,
+            # Rects that passed the opacity/area gate but were dropped by
+            # the LABEL_MIN_HEIGHT_PX/LABEL_MIN_WIDTH_PX size gate (e.g.
+            # HoloChart's ticker plaque) -- see that constant's own header.
+            "excluded_count": excluded_count,
         },
     }
 
