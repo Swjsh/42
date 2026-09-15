@@ -253,15 +253,33 @@ export async function readGpuVitals(): Promise<GpuVitals> {
   }
 }
 
+// PERF FIX (perf/hq-api pass, 2026-09-15, coordinator-measured): this reader
+// had no cache at all -- every /api/hq poll spawned a fresh `ollama ps`
+// process (measured ~40-65ms per call, one of this route's top-5 costs).
+// Same TTL-cache shape as readGpuVitals's own gpuCache immediately above
+// (this file's own established convention for a shell-out), just a shorter
+// TTL since `ollama ps`'s own output (which model is loaded, its idle
+// countdown) changes less often than GPU load but a stale answer here is
+// more visible (J watching the brain-vitals panel).
+let ollamaCache: { data: { ok: boolean; models: OllamaPsRow[]; say: string }; at: number } | null = null;
+const OLLAMA_CACHE_MS = 2000;
+
 /** `ollama ps` -- a tabwriter-aligned table (NAME ID SIZE PROCESSOR CONTEXT
  * UNTIL, columns separated by 2+ spaces, the same convention `ollama list`
  * uses). No CSV/JSON mode exists for this command. Empty (no models loaded)
- * is a normal, valid state, not an error. */
+ * is a normal, valid state, not an error. Cached OLLAMA_CACHE_MS so the
+ * page's poll (or multiple simultaneous viewers) never spawns `ollama ps`
+ * more than once every 2s. */
 export async function readOllamaPs(): Promise<{ ok: boolean; models: OllamaPsRow[]; say: string }> {
+  if (ollamaCache && Date.now() - ollamaCache.at < OLLAMA_CACHE_MS) return ollamaCache.data;
   try {
     const { stdout } = await execFileAsync("ollama", ["ps"], { timeout: 3000, windowsHide: true });
     const lines = stdout.split("\n").map((l) => l.trimEnd()).filter(Boolean);
-    if (lines.length === 0) return { ok: true, models: [], say: "no models loaded" };
+    if (lines.length === 0) {
+      const data = { ok: true, models: [], say: "no models loaded" };
+      ollamaCache = { data, at: Date.now() };
+      return data;
+    }
     const dataLines = lines.slice(1); // drop the header row
     const models: OllamaPsRow[] = dataLines.map((line) => {
       const cols = line.split(/\s{2,}/).map((c) => c.trim()).filter(Boolean);
@@ -270,9 +288,13 @@ export async function readOllamaPs(): Promise<{ ok: boolean; models: OllamaPsRow
         processor: cols[3] ?? "", context: cols[4] ?? "", until: cols[5] ?? "",
       };
     });
-    return { ok: true, models, say: `${models.length} model(s) loaded` };
+    const data = { ok: true, models, say: `${models.length} model(s) loaded` };
+    ollamaCache = { data, at: Date.now() };
+    return data;
   } catch {
-    return { ok: false, models: [], say: "NO DATA, ollama ps failed (is Ollama running?)" };
+    const data = { ok: false, models: [], say: "NO DATA, ollama ps failed (is Ollama running?)" };
+    ollamaCache = { data, at: Date.now() };
+    return data;
   }
 }
 

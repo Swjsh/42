@@ -75,24 +75,62 @@ export interface CryptoTwinTail {
   last_ts: string | null;
 }
 
+// PERF FIX (perf/hq-api pass, 2026-09-15, coordinator-measured): this file's
+// own doc comment above called a full-file read "an acceptable cost" on the
+// premise the file "has no fixed-width line index to seek from" -- true, but
+// the premise that made it cheap ("60s-poll") no longer holds (/api/hq is
+// polled far more often than every 60s by every HQ viewer + the TV kiosk) and
+// the file itself has grown to 147MB+ (verified this session: `ls -la
+// automation/state/crypto-twin/decisions.jsonl`). A full fs.readFile of a
+// 147MB file on EVERY poll was measured as the single largest cost in this
+// route's Promise.all (~110-150ms of a ~110ms total warm request -- i.e. it
+// alone accounted for the majority of the route's latency, and plausibly
+// starved node's libuv threadpool (default size 4) enough to slow down every
+// other fs-based reader running in the same Promise.all). Fixed the same way
+// readCoreDecisionsLatest below already handles its own large append-only
+// ledger: a byte-offset tail read (last CRYPTO_TWIN_TAIL_BYTES only, never
+// the whole file) via a raw FileHandle, plus a cache keyed on the file's own
+// (mtimeMs, size) so a request that lands between writes (the twin ticks
+// ~1/min) skips the disk read entirely instead of re-reading the same tail
+// bytes. One row of this file is small (a single JSON object), so 8 KiB is
+// comfortably enough to always contain at least the last complete line.
+const CRYPTO_TWIN_TAIL_BYTES = 8 * 1024;
+let cryptoTwinCache: { key: string; data: CryptoTwinTail } | null = null;
+
 /** automation/state/crypto-twin/decisions.jsonl tail : action/ts_et of the
  * twin's most recent tick (~1/min, 24/7 -- see sector_rows.py's crypto-twin
- * row for the same file read the same way). Reads the whole file since it has
- * no fixed-width line index to seek from; the file is a research ledger, not
- * a hot path, so one full read per 60s-poll is an acceptable cost here. */
+ * row for the same file read the same way). Reads only the last
+ * CRYPTO_TWIN_TAIL_BYTES bytes (never the whole file -- see this function's
+ * own PERF FIX comment above), cached per (mtime, size) so an unchanged file
+ * between polls costs one stat(), not a read. Fail-open: a missing/unreadable
+ * file or a malformed tail line degrades to nulls, never a throw. */
 export async function readCryptoTwinTail(): Promise<CryptoTwinTail> {
+  let handle: FileHandle | undefined;
   try {
-    const text = await fs.readFile(paths.cryptoTwinDecisions, "utf-8");
+    handle = await fs.open(paths.cryptoTwinDecisions, "r");
+    const stat = await handle.stat();
+    const cacheKey = `${stat.mtimeMs}:${stat.size}`;
+    if (cryptoTwinCache && cryptoTwinCache.key === cacheKey) return cryptoTwinCache.data;
+    const start = Math.max(0, stat.size - CRYPTO_TWIN_TAIL_BYTES);
+    const length = stat.size - start;
+    if (length <= 0) return { last_action: null, last_ts: null };
+    const buffer = Buffer.alloc(length);
+    await handle.read(buffer, 0, length, start);
+    const text = buffer.toString("utf-8");
     const lines = text.trim().split("\n").filter(Boolean);
     const lastLine = lines[lines.length - 1];
     if (!lastLine) return { last_action: null, last_ts: null };
     const row = JSON.parse(lastLine) as { action?: unknown; ts_et?: unknown };
-    return {
+    const data: CryptoTwinTail = {
       last_action: typeof row.action === "string" ? row.action : null,
       last_ts: typeof row.ts_et === "string" ? row.ts_et : null,
     };
+    cryptoTwinCache = { key: cacheKey, data };
+    return data;
   } catch {
     return { last_action: null, last_ts: null };
+  } finally {
+    await handle?.close();
   }
 }
 

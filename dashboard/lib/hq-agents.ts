@@ -592,17 +592,38 @@ export function buildLiveAgents(rows: PulseRow[], nowMs: number = Date.now()): L
  * parsePulseLines both already handle an empty/partial-first-line input
  * gracefully, so an empty string here degrades to an empty roster, never a
  * throw. */
+// PERF FIX (perf/hq-api pass, 2026-09-15, coordinator-measured): this reader
+// did a fresh 1.2MB byte-offset read on EVERY /api/hq poll (measured ~30-45ms,
+// one of this route's top-5 costs) with no cache at all -- under multiple
+// simultaneous viewers polling the same tail, most of those reads returned
+// bytes identical to the previous poll (pulse.jsonl only grows between real
+// tool-call events, which are far less frequent than a page's own poll
+// interval). Cached per (mtime, size) so an unchanged file between polls
+// costs one stat(), not a 1.2MB read -- same convention as lib/hq.ts's own
+// readCryptoTwinTail cache (this session's other perf fix) and
+// lib/station.ts's gpuCache/ollamaCache. A cache MISS (file grew/shrank,
+// or this is the first read) still does the real read; nothing here ever
+// serves fabricated data, only a byte-for-byte-identical previous read.
+let pulseTailCache: { key: string; text: string } | null = null;
+
 export async function readPulseTail(): Promise<string> {
   let fh: FileHandle | null = null;
   try {
     const stat = await fs.stat(PULSE_PATH);
+    const cacheKey = `${stat.mtimeMs}:${stat.size}`;
+    if (pulseTailCache && pulseTailCache.key === cacheKey) return pulseTailCache.text;
     const start = Math.max(0, stat.size - TAIL_READ_BYTES);
     const length = stat.size - start;
-    if (length <= 0) return "";
+    if (length <= 0) {
+      pulseTailCache = { key: cacheKey, text: "" };
+      return "";
+    }
     fh = await fs.open(PULSE_PATH, "r");
     const buf = Buffer.alloc(length);
     await fh.read(buf, 0, length, start);
-    return buf.toString("utf-8");
+    const text = buf.toString("utf-8");
+    pulseTailCache = { key: cacheKey, text };
+    return text;
   } catch {
     return "";
   } finally {
