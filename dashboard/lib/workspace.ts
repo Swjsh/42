@@ -95,6 +95,10 @@ export const paths = {
   // its `[~]` line marks the SINGLE currently-active goal (no active-
   // goal.json exists on disk; LADDER.md's own marker is authoritative).
   goalLadder: st("goals", "LADDER.md"),
+  // "NEEDS J" 5th source (2026-09-15): setup/scripts/claude_auth_canary.py's
+  // daily verdict file -- surfaces an expired Claude CLI login on the TV
+  // instead of J discovering it when a scheduled job silently degrades.
+  claudeAuthCanary: st("claude-auth-canary.json"),
 
   // --- LIVE-1 item 5 (2026-09-14, coordinator-directed): HQ trading status
   // strip -- "are we ready to trade today?" All read-only. ---

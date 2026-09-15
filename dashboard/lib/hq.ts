@@ -262,7 +262,7 @@ export async function readLatestHqPerf(): Promise<{ perf: TvPerfRow | null; perf
 //     nothing, never a 500 for the whole card. ─────────────────────────────
 
 export interface BlockedItem {
-  source: "discord" | "conductor_proposal" | "queue_escalation" | "goal_blocked";
+  source: "discord" | "conductor_proposal" | "queue_escalation" | "goal_blocked" | "claude_auth_canary";
   ts: string | null;
   age: string;
   text: string;
@@ -524,20 +524,97 @@ export async function readCompanyAudit(): Promise<CompanyAudit | null> {
   }
 }
 
-/** Merges all four sources, dedupes by exact text (keeping the first/
- * newest occurrence), sorts newest-first (rows with a ts sort before rows
- * without one), caps at 8. Each per-source reader is independently
- * fail-open, so one bad file degrades to "contributes nothing", never a 500
- * for the whole card. */
+// ─── Claude CLI auth canary (5th "NEEDS J" source, 2026-09-15): setup/
+//     scripts/claude_auth_canary.py runs daily at 18:00 ET (Gamma_ClaudeAuth
+//     Canary) and writes automation/state/claude-auth-canary.json. Without
+//     this, an expired CLI login was invisible until a scheduled AI job
+//     (premarket read, conductor, EOD summary) silently degraded. Read-only,
+//     mtime/size-cached the same way readCryptoTwinTail above caches its own
+//     small state file. ─────────────────────────────────────────────────────
+
+export interface ClaudeAuthCanary {
+  verdict: "OK" | "EXPIRING" | "LOGGED_OUT" | "UNKNOWN" | string;
+  ts_et: string | null;
+  hours_left: number | null;
+}
+
+const CLAUDE_AUTH_CANARY_MAX_AGE_HOURS = 48;
+let claudeAuthCanaryCache: { key: string; data: ClaudeAuthCanary | null } | null = null;
+
+async function readClaudeAuthCanary(): Promise<ClaudeAuthCanary | null> {
+  try {
+    const stat = await fs.stat(paths.claudeAuthCanary);
+    const cacheKey = `${stat.mtimeMs}:${stat.size}`;
+    if (claudeAuthCanaryCache && claudeAuthCanaryCache.key === cacheKey) return claudeAuthCanaryCache.data;
+    const text = await fs.readFile(paths.claudeAuthCanary, "utf-8");
+    const row = JSON.parse(text) as { verdict?: unknown; ts_et?: unknown; hours_left?: unknown };
+    const data: ClaudeAuthCanary = {
+      verdict: typeof row.verdict === "string" ? row.verdict : "UNKNOWN",
+      ts_et: typeof row.ts_et === "string" ? row.ts_et : null,
+      hours_left: typeof row.hours_left === "number" ? row.hours_left : null,
+    };
+    claudeAuthCanaryCache = { key: cacheKey, data };
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+/** "2026-09-15 08:52:29 ET" -> epoch ms. Not full ET-DST-aware parsing (see
+ * CLAUDE.md's "TIME = et_clock, NEVER Bash TZ" rule) -- this value only
+ * feeds a coarse 48h staleness gate below, never a market-hours decision, so
+ * a few hours of ET/local skew from dropping the zone label is immaterial. */
+function parseCanaryTsEt(tsEt: string | null): number | null {
+  if (!tsEt) return null;
+  const cleaned = tsEt.replace(/\s*ET\s*$/, "").replace(" ", "T");
+  const t = Date.parse(cleaned);
+  return Number.isNaN(t) ? null : t;
+}
+
+/** Pure core: verdict OK/UNKNOWN or a canary reading older than
+ * CLAUDE_AUTH_CANARY_MAX_AGE_HOURS (canary hasn't run in >48h -- the
+ * scheduled task itself died) both contribute nothing, never a fabricated
+ * item. LOGGED_OUT and EXPIRING are the only verdicts that produce a card
+ * row. Exported (and `nowMs` parameterized) so this decision is testable
+ * against fixture JSON with no filesystem involved -- readClaudeAuthCanary
+ * above is the only fs-touching half of this producer. */
+export function claudeAuthCanaryToBlockedItem(
+  canary: ClaudeAuthCanary | null,
+  nowMs: number = Date.now(),
+): BlockedItem | null {
+  if (!canary) return null;
+  if (canary.verdict !== "LOGGED_OUT" && canary.verdict !== "EXPIRING") return null;
+  const tsMs = parseCanaryTsEt(canary.ts_et);
+  if (tsMs !== null && (nowMs - tsMs) / 3_600_000 > CLAUDE_AUTH_CANARY_MAX_AGE_HOURS) return null;
+  const isoTs = tsMs !== null ? new Date(tsMs).toISOString() : null;
+  const text = canary.verdict === "LOGGED_OUT"
+    ? "[Rig] Claude CLI logged out — scheduled AI jobs (premarket read, conductor, EOD summary) are degraded. Fix: run `claude` then /login (30 s)."
+    : `[Rig] Claude CLI login expires in ${Math.max(0, Math.round(canary.hours_left ?? 0))}h — run \`claude\` then /login`;
+  return { source: "claude_auth_canary", ts: isoTs, age: formatAge(isoTs), text };
+}
+
+async function readClaudeAuthCanaryBlocked(): Promise<BlockedItem[]> {
+  const canary = await readClaudeAuthCanary();
+  const item = claudeAuthCanaryToBlockedItem(canary);
+  return item ? [item] : [];
+}
+
+/** Merges all five sources, dedupes by exact text (keeping the first/
+ * newest occurrence), caps at 8. The Claude auth canary source is always
+ * placed FIRST (ahead of the ts-sorted rest) -- an expired CLI login is the
+ * most actionable item this card can show, not just the most recent one.
+ * Each per-source reader is independently fail-open, so one bad file
+ * degrades to "contributes nothing", never a 500 for the whole card. */
 export async function readBlocked(): Promise<BlockedItem[]> {
-  const [discord, proposals, escalations, goalItems] = await Promise.all([
+  const [claudeAuth, discord, proposals, escalations, goalItems] = await Promise.all([
+    readClaudeAuthCanaryBlocked(),
     readDiscordBlocked(),
     readConductorProposalsBlocked(),
     readQueueEscalations(),
     readGoalBlocked(),
   ]);
-  const all = [...goalItems, ...discord, ...proposals, ...escalations];
-  all.sort((a, b) => {
+  const rest = [...goalItems, ...discord, ...proposals, ...escalations];
+  rest.sort((a, b) => {
     if (a.ts && b.ts) return b.ts.localeCompare(a.ts);
     if (a.ts) return -1;
     if (b.ts) return 1;
@@ -545,7 +622,7 @@ export async function readBlocked(): Promise<BlockedItem[]> {
   });
   const seenText = new Set<string>();
   const deduped: BlockedItem[] = [];
-  for (const item of all) {
+  for (const item of [...claudeAuth, ...rest]) {
     if (seenText.has(item.text)) continue;
     seenText.add(item.text);
     deduped.push(item);
