@@ -876,23 +876,45 @@ export function updateStableSlotAssignments(
 // see that function's own header), and threading node ids through the
 // whole per-avatar path/lane-offset pipeline to build a true edge-id match
 // would be a materially larger change. This implementation instead detects
-// "same corridor, same direction, ahead" purely geometrically -- same
-// eventual destination (`destKey`, a cheap pre-filter: every leaving
-// avatar already shares ENTRY_NODE_ID, exactly the reported bug's own
-// shape), heading vectors nearly parallel (FOLLOW_HEADING_COS_MIN), and a
-// small perpendicular ("lateral") distance from this avatar's own heading
-// line (FOLLOW_LANE_TOLERANCE_U, deliberately smaller than LANE_STEP_U/
-// WAIT_LANE_STEP_U so two walkers already in DIFFERENT, adequately-
-// separated lanes are never made to follow each other -- only a genuine
-// same-lane convergence, the actual bug, triggers this). This is provably
-// equivalent to the graph-edge check for two walkers who are, in fact, on
-// the same edge in the same direction (their positions and headings will
-// satisfy all three geometric conditions), and additionally, harmlessly,
-// covers a same-lane convergence that happens to occur off a formal edge
-// boundary (e.g. a merge just before or after a graph node).
+// "same corridor, same direction, ahead-or-level" purely geometrically --
+// same eventual destination (`destKey`, a cheap pre-filter: every leaving
+// avatar already shares ENTRY_NODE_ID, exactly the original bug's own
+// shape), heading vectors nearly parallel (FOLLOW_HEADING_COS_MIN -- this
+// is ALSO the head-on-pass guardrail: two walkers moving in roughly
+// OPPOSITE directions, e.g. one arriving and one leaving, never satisfy
+// this and so never yield to each other, by construction, regardless of
+// how close they pass), and Euclidean proximity.
+//
+// CONVOY-STACK v7 (2026-09-15, probe 20260915T113020Z): v6's own first cut
+// additionally required a small LATERAL offset from self's own heading
+// line (a "same lane" check) before two walkers would follow each other at
+// all -- but LANE_VALUES (0, +-0.45u) puts adjacent lanes only 0.45u apart,
+// BELOW the 0.7u bar, and two walkers in ADJACENT lanes (a legitimate,
+// frequent outcome of the lane hash) never triggered following at all,
+// so they walked the entire corridor ABREAST, 0.45-0.68u apart -- the v6
+// build only "passed" its own narrower probe runs by lane-assignment luck,
+// the same class of false confidence v6 itself replaced (the id-hash
+// lane's own near-miss problem, one level up).
+//
+// FIX (coordinator's own option (A), chosen because it guarantees the bar
+// regardless of geometry -- a lane-based tolerance is only ever as good as
+// the lane math it depends on, and option (B), widening the lanes, still
+// requires per-corridor floor-width verification that shifts with every
+// future layout change): drop the lateral/lane check entirely. A walker
+// now counts as "the car ahead" whenever it is ahead-or-level (the
+// existing `forward >= 0` tie-break, unchanged) AND currently within
+// FOLLOW_GAP_U of `self` in straight Euclidean distance -- regardless of
+// which lane either one is nominally on. The practical effect is
+// single-file-on-approach: two walkers converging within the gap radius
+// fall into a queue (one slows until the gap opens along its OWN heading,
+// exactly `applyFollowCap`'s existing mechanism, unchanged) rather than
+// two parallel, permanently-too-close lanes. Lane assignment
+// (`laneValueForId`/`applyLaneOffsets`) is kept for its own cosmetic
+// value (a converging queue still reads as "lanes" visually thanks to the
+// path-level nudge) but no longer does any of the SEPARATION-GUARANTEE
+// work -- that is now this function's job alone, unconditionally.
 export const FOLLOW_GAP_U = 0.8;
-export const FOLLOW_LANE_TOLERANCE_U = 0.3; // < LANE_STEP_U (0.45) and < WAIT_LANE_STEP_U (0.73) on purpose -- see this section's own header
-export const FOLLOW_HEADING_COS_MIN = 0.7; // ~<=45 degrees off-heading still counts as "the same direction"
+export const FOLLOW_HEADING_COS_MIN = 0.7; // ~<=45 degrees off-heading still counts as "the same direction"; opposite-direction (head-on) pairs sit at dot ~= -1, far below this, and so never yield to each other -- see this section's own header
 
 export interface WalkerSnapshot {
   id: string;
@@ -916,13 +938,17 @@ export interface CarAheadResult {
 }
 
 /** Finds the nearest "car ahead" of `self` among `others` -- see this
- * section's own header for the full geometric definition (same `destKey`,
- * near-parallel heading, small lateral offset, positive forward
- * projection). Ties at (near) equal forward progress are broken
+ * section's own header for the full geometric definition and the v6->v7
+ * change (same `destKey`, near-parallel heading, ahead-or-level, and
+ * -- v7 -- within FOLLOW_GAP_U in straight Euclidean distance,
+ * REGARDLESS of lane). Ties at (near) equal forward progress are broken
  * deterministically by id -- the lexicographically LARGER id treats the
  * smaller as "ahead" -- so exactly one of a tied pair ever yields, never
  * both (which could otherwise have both slow down for nothing, or neither
- * yield at all). Returns null if nobody currently qualifies. */
+ * yield at all). Returns null if nobody currently qualifies -- in
+ * particular, two walkers heading in roughly OPPOSITE directions (a
+ * head-on pass) never qualify, no matter how close, because
+ * `headingDot < FOLLOW_HEADING_COS_MIN` rejects them first. */
 export function findCarAhead(self: WalkerSnapshot, others: readonly WalkerSnapshot[]): CarAheadResult | null {
   let best: CarAheadResult | null = null;
   for (const other of others) {
@@ -935,8 +961,13 @@ export function findCarAhead(self: WalkerSnapshot, others: readonly WalkerSnapsh
     const forward = dx * self.heading[0] + dz * self.heading[1];
     const isAhead = forward > 1e-6 || (Math.abs(forward) <= 1e-6 && self.id > other.id);
     if (!isAhead) continue;
-    const lateral = Math.abs(dx * -self.heading[1] + dz * self.heading[0]);
-    if (lateral > FOLLOW_LANE_TOLERANCE_U) continue;
+    // v7: Euclidean proximity, not lane membership -- an adjacent-lane
+    // walker (0.45u lateral, LANE_VALUES's own step) that is level with or
+    // just ahead of self is exactly the reported bug (two walkers abreast,
+    // 0.45-0.68u apart, NEVER triggering the v6 lane-tolerance check) and
+    // must qualify here.
+    const euclideanDist = Math.hypot(dx, dz);
+    if (euclideanDist >= FOLLOW_GAP_U) continue;
     const forwardGap = Math.max(0, forward);
     if (!best || forwardGap < best.forwardGap) best = { other, forwardGap };
   }

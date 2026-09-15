@@ -852,13 +852,30 @@ test("SPAWN-WAIT->WALK: GREEN (the fix) -- starting the walk from the rendered w
 // The v5 build only "passed" because those two particular ids happened to
 // hash to different lanes -- a coincidence, not a guarantee.
 
-test("findCarAhead: an avatar directly ahead, same destination, same heading, same lane is found with the correct forward gap", () => {
+test("findCarAhead: an avatar directly ahead, within FOLLOW_GAP_U, same destination, same heading, same lane is found with the correct forward gap", () => {
   const self: WalkerSnapshot = { id: "a", position: [0, 0], heading: [0, 1], destKey: "gate" };
-  const other: WalkerSnapshot = { id: "b", position: [0, 1.5], heading: [0, 1], destKey: "gate" };
+  const other: WalkerSnapshot = { id: "b", position: [0, 0.5], heading: [0, 1], destKey: "gate" };
   const result = findCarAhead(self, [other]);
   assert.ok(result, "expected b to be found as the car ahead of a");
   assert.equal(result!.other.id, "b");
-  assert.ok(Math.abs(result!.forwardGap - 1.5) < 1e-9, `expected forwardGap 1.5, got ${result!.forwardGap}`);
+  assert.ok(Math.abs(result!.forwardGap - 0.5) < 1e-9, `expected forwardGap 0.5, got ${result!.forwardGap}`);
+});
+
+test("findCarAhead (v7): an avatar directly ahead but BEYOND FOLLOW_GAP_U is not a car ahead -- proximity, not mere same-lane alignment, is what triggers following", () => {
+  const self: WalkerSnapshot = { id: "a", position: [0, 0], heading: [0, 1], destKey: "gate" };
+  const other: WalkerSnapshot = { id: "b", position: [0, 1.5], heading: [0, 1], destKey: "gate" };
+  assert.equal(findCarAhead(self, [other]), null);
+});
+
+test("findCarAhead (v7): an ADJACENT-lane walker (0.45u lateral, LANE_VALUES's own step), level with self, IS found -- the exact reported bug (two walkers abreast on adjacent lanes)", () => {
+  // self.id ("z") > other.id ("a") -- the tie-break at exactly-level
+  // progress (forward ~= 0): the LARGER id yields, so "z" must treat "a"
+  // as the car ahead here.
+  const self: WalkerSnapshot = { id: "z", position: [0, 0], heading: [0, 1], destKey: "gate" };
+  const other: WalkerSnapshot = { id: "a", position: [0.45, 0], heading: [0, 1], destKey: "gate" }; // level, adjacent lane
+  const result = findCarAhead(self, [other]);
+  assert.ok(result, "expected the adjacent-lane, level walker to be found as a car ahead under v7 (never was under v6's own lane-tolerance gate)");
+  assert.equal(result!.other.id, "a");
 });
 
 test("findCarAhead: ignores a walker heading to a DIFFERENT destination (the cheap pre-filter)", () => {
@@ -867,10 +884,11 @@ test("findCarAhead: ignores a walker heading to a DIFFERENT destination (the che
   assert.equal(findCarAhead(self, [other]), null);
 });
 
-test("findCarAhead: ignores a walker in a clearly DIFFERENT lane (large lateral offset)", () => {
+test("findCarAhead: ignores a walker far enough away that Euclidean distance alone excludes it, even in an adjacent lane", () => {
   const self: WalkerSnapshot = { id: "a", position: [0, 0], heading: [0, 1], destKey: "gate" };
-  // Lateral offset 0.45 -- exactly LANE_STEP_U, i.e. a genuinely different,
-  // already-adequately-separated lane -- must NEVER trigger following.
+  // 0.45u lateral (LANE_STEP_U) + 1.5u forward -> Euclidean ~1.566u, well
+  // outside FOLLOW_GAP_U -- v7 no longer gates on lane at all (see
+  // findCarAhead's own v7 header), only on this Euclidean distance.
   const other: WalkerSnapshot = { id: "b", position: [0.45, 1.5], heading: [0, 1], destKey: "gate" };
   assert.equal(findCarAhead(self, [other]), null);
 });
@@ -899,11 +917,11 @@ test("findCarAhead: at (near) equal progress, exactly one of a tied pair yields 
   assert.ok(bSeesA, "b (larger id) must treat the tied a as ahead -- exactly one must yield");
 });
 
-test("findCarAhead: picks the NEAREST qualifying car ahead among several", () => {
+test("findCarAhead: picks the NEAREST qualifying car ahead among several (both within FOLLOW_GAP_U)", () => {
   const self: WalkerSnapshot = { id: "a", position: [0, 0], heading: [0, 1], destKey: "gate" };
-  const near: WalkerSnapshot = { id: "near", position: [0, 1.0], heading: [0, 1], destKey: "gate" };
-  const far: WalkerSnapshot = { id: "far", position: [0, 5.0], heading: [0, 1], destKey: "gate" };
-  const result = findCarAhead(self, [far, near]); // deliberately unsorted input
+  const near: WalkerSnapshot = { id: "near", position: [0, 0.5], heading: [0, 1], destKey: "gate" };
+  const far: WalkerSnapshot = { id: "far", position: [0, 0.75], heading: [0, 1], destKey: "gate" };
+  const result = findCarAhead(self, [far, near]); // deliberately unsorted input, both within FOLLOW_GAP_U
   assert.equal(result!.other.id, "near");
 });
 
@@ -1135,6 +1153,212 @@ test("FOLLOW-DISTANCE CHAIN: GREEN (the fix) -- pairwise >=0.7u after the merge 
 
 test("FOLLOW_GAP_U sanity: the configured gap itself clears the required 0.7u bar", () => {
   assert.ok(FOLLOW_GAP_U >= 0.7, `FOLLOW_GAP_U (${FOLLOW_GAP_U}) must be >= the required 0.7u separation bar`);
+});
+
+// ─── CONVOY-STACK v7 (2026-09-15): adjacent-lane walkers must ALSO follow ──
+//
+// ROOT CAUSE (walker_separation FAIL, probe 20260915T113020Z): v6's
+// findCarAhead additionally required a small LATERAL offset from self's
+// own heading line (a "same lane" check, FOLLOW_LANE_TOLERANCE_U=0.3)
+// before two walkers would follow each other at all. LANE_VALUES (0,
+// +-0.45u) puts ADJACENT lanes only 0.45u apart -- above that 0.3u
+// tolerance -- so two walkers the lane hash happened to place in adjacent
+// lanes NEVER triggered following, and walked the entire corridor abreast,
+// 0.45-0.68u apart (55/57 multi-walker ticks under the bar, min 0.42u).
+// v6 only "passed" its own earlier probe runs by lane-assignment luck --
+// the exact same class of false confidence v6 itself was built to remove
+// from the id-hash lane assignment one level below it.
+//
+// FIX (coordinator's own option (A)): findCarAhead now triggers on
+// Euclidean proximity alone (within FOLLOW_GAP_U), regardless of lane --
+// see that function's own v7 header for the full reasoning and the
+// deliberate lanes-become-cosmetic-only tradeoff.
+//
+// This models the coordinator's own exact reported shape: 3 agents
+// starting the SAME corridor at the SAME time, on lanes 0, +0.45, -0.45
+// (LANE_VALUES itself) -- no forward offset between them at all, purely a
+// lateral-only starting configuration.
+
+const LANE_MERGE_DEST_KEY = "ambient-core";
+const LANE_MERGE_START_X = 0;
+const LANE_MERGE_END_X = 21.6;
+const LANE_MERGE_WALKERS: { id: string; laneZ: number }[] = [
+  { id: "a", laneZ: 0 },
+  { id: "b", laneZ: 0.45 },
+  { id: "c", laneZ: -0.45 },
+];
+
+function simulateLaneMerge(useFollow: boolean): Map<string, ChainStep[]> {
+  const paths = new Map(
+    LANE_MERGE_WALKERS.map((w) => [w.id, [[LANE_MERGE_START_X, 0, w.laneZ], [LANE_MERGE_END_X, 0, w.laneZ]] as [number, number, number][]]),
+  );
+  const appliedDistance = new Map(LANE_MERGE_WALKERS.map((w) => [w.id, 0]));
+  let registry = new Map<string, WalkerSnapshot>();
+  const history = new Map<string, ChainStep[]>(LANE_MERGE_WALKERS.map((w) => [w.id, []]));
+  const maxTicks = Math.ceil((LANE_MERGE_END_X - LANE_MERGE_START_X + 5) / SIM_WALK_SPEED / FOLLOW_TICK_DT_S);
+
+  for (let tick = 0; tick <= maxTicks; tick++) {
+    const tS = tick * FOLLOW_TICK_DT_S;
+    const nextRegistry = new Map<string, WalkerSnapshot>();
+    let allArrived = true;
+    for (const w of LANE_MERGE_WALKERS) {
+      const wp = paths.get(w.id)!;
+      const total = pathDistance(wp);
+      const distanceTraveled = appliedDistance.get(w.id)! + SIM_WALK_SPEED * FOLLOW_TICK_DT_S;
+      const lastSelf = registry.get(w.id);
+      const initialPose = poseAlongPath(wp, 0);
+      const selfSnapshot: WalkerSnapshot = lastSelf ?? {
+        id: w.id,
+        position: [initialPose.position[0], initialPose.position[2]],
+        heading: [Math.sin(initialPose.facing), Math.cos(initialPose.facing)],
+        destKey: LANE_MERGE_DEST_KEY,
+      };
+      const others = Array.from(registry.values()).filter((s) => s.id !== w.id);
+      const carAhead = useFollow ? findCarAhead(selfSnapshot, others) : null;
+      const prevApplied = appliedDistance.get(w.id)!;
+      const newApplied = useFollow ? applyFollowCap(distanceTraveled, prevApplied, carAhead) : Math.max(prevApplied, distanceTraveled);
+      appliedDistance.set(w.id, newApplied);
+      const progress = Math.min(1, newApplied / total);
+      const pose = poseAlongPath(wp, progress);
+      history.get(w.id)!.push({ tS, position: pose.position, arrived: progress >= 1 });
+      if (progress < 1) {
+        nextRegistry.set(w.id, {
+          id: w.id,
+          position: [pose.position[0], pose.position[2]],
+          heading: [Math.sin(pose.facing), Math.cos(pose.facing)],
+          destKey: LANE_MERGE_DEST_KEY,
+        });
+        allArrived = false;
+      }
+    }
+    registry = nextRegistry;
+    if (allArrived) break;
+  }
+  return history;
+}
+
+// MERGE GRACE PERIOD: all three start perfectly LEVEL (zero forward
+// offset, purely lateral) -- the worst case for `applyFollowCap`'s own
+// "never reverse" floor, which means a yielding walker holds at zero
+// advance until the LEADER alone has pulled the gap open to FOLLOW_GAP_U
+// (see the CHAIN test's own identical reasoning above). Derived, not
+// hand-picked, for the same reason: (FOLLOW_GAP_U - 0) / SIM_WALK_SPEED,
+// +0.15s safety margin for the 3-way (not just pairwise) interaction.
+const LANE_MERGE_GRACE_S = FOLLOW_GAP_U / SIM_WALK_SPEED + 0.15;
+
+test("LANE-MERGE 3-WAY: RED (documents the bug) -- without follow (equivalent to v6's own lane-tolerance check in this exact abreast shape), no pair ever separates", () => {
+  // Note on equivalence: v6's OLD findCarAhead required lateral <=
+  // FOLLOW_LANE_TOLERANCE_U (0.3u); every pair here starts and stays at
+  // 0.45u lateral (LANE_VALUES's own adjacent-lane step), which ALREADY
+  // exceeds 0.3u -- so v6's own check would have rejected every pair here
+  // too, for the entire walk (heading never changes on a straight
+  // corridor). Passing `useFollow=false` reproduces that exact outcome
+  // without needing to keep a second, parallel implementation of the old
+  // (now-replaced) lane-gated function around just to document it.
+  const history = simulateLaneMerge(false);
+  const steps = history.get("a")!.length;
+  let sawViolationAfterGrace = false;
+  for (let i = 0; i < steps; i++) {
+    const tS = history.get("a")![i].tS;
+    if (tS < LANE_MERGE_GRACE_S) continue;
+    const dists = pairwiseDistancesAtStep(history, i);
+    if (dists.some((d) => d.dist < 0.7 - 1e-9)) {
+      sawViolationAfterGrace = true;
+      break;
+    }
+  }
+  assert.ok(sawViolationAfterGrace, "expected the PRE-FIX (lane-gated) behavior to keep violating the 0.7u bar for this abreast shape -- documents the reported walker_separation failure");
+});
+
+test("LANE-MERGE 3-WAY: GREEN (the fix) -- pairwise >=0.7u after the merge grace period, no snaps, and all three arrive", () => {
+  const history = simulateLaneMerge(true);
+  const steps = history.get("a")!.length;
+
+  for (let i = 0; i < steps; i++) {
+    const tS = history.get("a")![i].tS;
+    if (tS < LANE_MERGE_GRACE_S) continue;
+    for (const { pair, dist } of pairwiseDistancesAtStep(history, i)) {
+      assert.ok(dist >= 0.7 - 1e-9, `t=${tS}s: pair ${pair} only ${dist.toFixed(3)}u apart`);
+    }
+  }
+
+  for (const w of LANE_MERGE_WALKERS) {
+    const hist = history.get(w.id)!;
+    for (let i = 1; i < hist.length; i++) {
+      const a = hist[i - 1].position;
+      const b = hist[i].position;
+      const dist = Math.hypot(a[0] - b[0], a[2] - b[2]);
+      const dt = hist[i].tS - hist[i - 1].tS;
+      assert.ok(
+        dist <= SIM_WALK_SPEED * dt + 0.05 + 1e-9,
+        `${w.id} step ${i} (t=${hist[i - 1].tS}s -> ${hist[i].tS}s): displacement ${dist.toFixed(3)}u exceeds WALK_SPEED*dt+0.05`,
+      );
+    }
+    const last = hist[hist.length - 1];
+    assert.ok(Math.abs(last.position[0] - LANE_MERGE_END_X) < 1e-6, `${w.id} never reached the destination -- ended at x=${last.position[0]}`);
+  }
+});
+
+// ─── Head-on pass (no deadlock) -- coordinator's own guardrail ────────────
+//
+// Two walkers heading in roughly OPPOSITE directions (one arriving, one
+// leaving the same corridor) must pass through each other's vicinity
+// without either one yielding -- findCarAhead's own FOLLOW_HEADING_COS_MIN
+// gate rejects a near-opposite heading BEFORE the Euclidean-proximity
+// check ever runs, so this must hold regardless of how close they get.
+
+test("HEAD-ON PASS: two opposite-direction walkers never yield to each other, even at zero distance -- no deadlock", () => {
+  const inbound: WalkerSnapshot = { id: "inbound", position: [5, 0], heading: [0, 1], destKey: "hub" }; // heading +Z
+  const outbound: WalkerSnapshot = { id: "outbound", position: [5, 0], heading: [0, -1], destKey: "gate" }; // heading -Z, same point, opposite direction
+  assert.equal(findCarAhead(inbound, [outbound]), null, "inbound must never treat a head-on walker as a car ahead");
+  assert.equal(findCarAhead(outbound, [inbound]), null, "outbound must never treat a head-on walker as a car ahead");
+});
+
+test("HEAD-ON PASS: a simulated approach-and-pass never slows either walker (full WALK_SPEED throughout, no capped advance)", () => {
+  // Two walkers on the SAME line, opposite headings, starting apart and
+  // walking toward (then past) each other -- destKey is deliberately
+  // DIFFERENT (an arriving vs a leaving avatar realistically target
+  // different nodes) as an extra, independent guard on top of the heading
+  // check, matching how a real arrival/departure pair would actually be
+  // classified.
+  const laneZ = 0;
+  const pathA: [number, number, number][] = [[0, 0, laneZ], [10, 0, laneZ]]; // walks +X
+  const pathB: [number, number, number][] = [[10, 0, laneZ], [0, 0, laneZ]]; // walks -X, starts where A ends
+  const appliedA = { value: 0 };
+  const appliedB = { value: 0 };
+  let registry = new Map<string, WalkerSnapshot>();
+  const ticks = Math.ceil(10 / SIM_WALK_SPEED / FOLLOW_TICK_DT_S) + 5;
+
+  for (let tick = 0; tick <= ticks; tick++) {
+    const totalA = pathDistance(pathA);
+    const totalB = pathDistance(pathB);
+    const candidateA = appliedA.value + SIM_WALK_SPEED * FOLLOW_TICK_DT_S;
+    const candidateB = appliedB.value + SIM_WALK_SPEED * FOLLOW_TICK_DT_S;
+    const initA = poseAlongPath(pathA, 0);
+    const initB = poseAlongPath(pathB, 0);
+    const selfA: WalkerSnapshot = registry.get("a") ?? { id: "a", position: [initA.position[0], initA.position[2]], heading: [Math.sin(initA.facing), Math.cos(initA.facing)], destKey: "hub" };
+    const selfB: WalkerSnapshot = registry.get("b") ?? { id: "b", position: [initB.position[0], initB.position[2]], heading: [Math.sin(initB.facing), Math.cos(initB.facing)], destKey: "gate" };
+    const carAheadA = findCarAhead(selfA, [selfB]);
+    const carAheadB = findCarAhead(selfB, [selfA]);
+    assert.equal(carAheadA, null, `tick ${tick}: A must never see B as a car ahead (head-on)`);
+    assert.equal(carAheadB, null, `tick ${tick}: B must never see A as a car ahead (head-on)`);
+    const newA = applyFollowCap(candidateA, appliedA.value, carAheadA);
+    const newB = applyFollowCap(candidateB, appliedB.value, carAheadB);
+    // Full, uncapped speed every tick -- no deadlock, no slowdown at all.
+    assert.ok(Math.abs(newA - candidateA) < 1e-9, `tick ${tick}: A's advance was capped despite a head-on (non-yielding) pass`);
+    assert.ok(Math.abs(newB - candidateB) < 1e-9, `tick ${tick}: B's advance was capped despite a head-on (non-yielding) pass`);
+    appliedA.value = newA;
+    appliedB.value = newB;
+    const progressA = Math.min(1, newA / totalA);
+    const progressB = Math.min(1, newB / totalB);
+    const poseA = poseAlongPath(pathA, progressA);
+    const poseB = poseAlongPath(pathB, progressB);
+    const next = new Map<string, WalkerSnapshot>();
+    if (progressA < 1) next.set("a", { id: "a", position: [poseA.position[0], poseA.position[2]], heading: [Math.sin(poseA.facing), Math.cos(poseA.facing)], destKey: "hub" });
+    if (progressB < 1) next.set("b", { id: "b", position: [poseB.position[0], poseB.position[2]], heading: [Math.sin(poseB.facing), Math.cos(poseB.facing)], destKey: "gate" });
+    registry = next;
+    if (progressA >= 1 && progressB >= 1) break;
+  }
 });
 
 test("computeBatchOrder: sorted-order ids get 0, 1, 2, ... -- the single source of truth computeBatchStaggerDelays scales by STAGGER_DELAY_S", () => {
