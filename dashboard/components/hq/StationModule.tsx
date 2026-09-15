@@ -7,7 +7,7 @@ import { Html } from "@react-three/drei";
 import * as THREE from "three";
 import type { SectorRow } from "./types";
 import type { AgentBehavior } from "./Agent";
-import { healthColor, isParkedState, lerp, localToWorld, makeToonGradientTexture, PALETTE, truncateOneLine, type ScreenLine } from "./palette";
+import { healthColor, isParkedState, lerp, makeToonGradientTexture, PALETTE, truncateOneLine, type ScreenLine } from "./palette";
 import { BAY_CEILING_Y, BAY_DESK_OFFSET_Z, BAY_HALF_DEPTH, DepartmentBayShell, DeskCluster } from "./SetKit";
 import BaySign from "./BaySign";
 import BayInterior from "./BayInterior";
@@ -93,17 +93,18 @@ export default function StationModule({
   const bayHalfDepth = BAY_HALF_DEPTH;
   // World-4 fix (P2, 2026-09-14): the in-world sign's anchor -- the SAME
   // spot "above the doorway" the old always-visible Html label already used
-  // (see that block's own comment below) -- plus its WORLD-space twin so
-  // BaySign's own useFrame distance check never has to allocate. Memoized
-  // on the SAME referentially-stable `position`/`rotationY`/`bayHalfDepth`
-  // Scene.tsx's own geometry memo already guarantees stay stable across
-  // polls (see Scene.tsx's own comment on why that stability matters).
+  // (see that block's own comment below). Memoized on the SAME
+  // referentially-stable `bayHalfDepth` Scene.tsx's own geometry memo
+  // already guarantees stays stable across polls (see Scene.tsx's own
+  // comment on why that stability matters).
+  // POLISH-1 P2 fix (2026-09-14): the WORLD-space twin this used to also
+  // compute (`signWorldPos`) fed ONLY BaySign's own close-up Html detail
+  // label's distance-fade check -- removed there (see BaySign.tsx's own P2
+  // header: that label duplicated the wall sign's own text AND the head
+  // bubble's, "three copies of the same name" in a real capture tonight),
+  // so `localToWorld`/`rotationY`/`position` are no longer needed here for
+  // this purpose.
   const signLocalPos = useMemo<[number, number, number]>(() => [0, 2.3, -bayHalfDepth + 0.4], [bayHalfDepth]);
-  const signWorldPos = useMemo(
-    () => localToWorld(position, rotationY, signLocalPos),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [position[0], position[1], position[2], rotationY, signLocalPos],
-  );
 
   // Bay desk screen (Pass B, 2026-09-13): "each bay screen=lane name+window
   // P&L+health" -- real canvas texture on the DeskCluster's computer-screen
@@ -230,11 +231,9 @@ export default function StationModule({
       {ultra && (
         <BaySign
           position={signLocalPos}
-          worldPosition={signWorldPos}
           laneName={row.lane}
           stateWord={row.state}
           color={color}
-          parked={parked}
           dimFactor={dimFactor}
         />
       )}
