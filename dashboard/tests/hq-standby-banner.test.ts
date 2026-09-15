@@ -18,8 +18,12 @@ import {
   computeStandbyBannerLayout,
   STANDBY_BANNER_SIDEBAR_WIDTH,
   STANDBY_BANNER_RIGHT_PX,
+  STANDBY_BANNER_TOP_PX,
+  HUD_TITLE_ROW_BOTTOM_PX,
+  STANDBY_BANNER_CLEAR_MARGIN_PX,
   LEFT_MARGIN_PX,
 } from "../components/hq/standbyBannerLayout.ts";
+import { rectsOverlap } from "../components/hq/labelDeclutter.ts";
 
 // NOT importing Hud.tsx here -- it's a large "use client" component with a
 // heavy react-three-fiber/drei import graph that plain `node --test` (no
@@ -82,3 +86,47 @@ test("computeStandbyBannerLayout: floors maxWidth at 160px on a viewport narrowe
 });
 
 void LEFT_MARGIN_PX; // imported for readability at call sites elsewhere; unused directly here
+
+// ─── POLISH-2 (2026-09-15): chip-row vs banner non-intersection ───────────
+// Real-capture regression (07:33:21 ET): the banner (top:24) landed ON TOP
+// of Hud.tsx's own title/chip row (data-hq-obstacle="title-block"), whose
+// tallest real-observed extent (brain-busy chip present) is y~18-70. The
+// fix moved the banner to STANDBY_BANNER_TOP_PX (chip-row bottom + margin)
+// -- these tests assert the two rects can never overlap, at 1280/1920/2560,
+// using labelDeclutter.ts's own `rectsOverlap` (the same pure overlap check
+// the rest of this HUD tree already relies on) rather than a bespoke one.
+// Width-independent by construction: the check only needs the chip row's
+// real observed y-range and the banner's real y-range, since a disjoint
+// y-range makes the x-range irrelevant -- but this still runs it per named
+// width, with the banner given a generously wide worst-case rect (its own
+// STANDBY_BANNER_MAX_WIDTH_CSS cap, evaluated numerically here) so the test
+// stays meaningful even if a future edit reintroduces horizontal overlap.
+function chipRowRect() {
+  // Left-anchored at Hud.tsx's own title-block position (left:20); real
+  // capture (1920w, brain-busy chip present) measured its right edge at
+  // x~868 -- used as a viewport-independent worst case since this content
+  // doesn't reflow with viewport width (it's a fixed-content left cluster,
+  // never centered/stretched).
+  return { x: 20, y: 18, width: 868 - 20, height: HUD_TITLE_ROW_BOTTOM_PX - 18 };
+}
+
+function bannerRectWorstCase(viewportWidth: number) {
+  const { maxWidth } = computeStandbyBannerLayout(viewportWidth);
+  const rightEdgeX = viewportWidth - STANDBY_BANNER_RIGHT_PX;
+  return { x: rightEdgeX - maxWidth, y: STANDBY_BANNER_TOP_PX, width: maxWidth, height: 40 };
+}
+
+for (const viewportWidth of [1280, 1920, 2560]) {
+  test(`chip row vs standby banner: never overlap at ${viewportWidth}px (worst-case banner width)`, () => {
+    const chip = chipRowRect();
+    const banner = bannerRectWorstCase(viewportWidth);
+    assert.equal(
+      rectsOverlap(chip.x, chip.y, chip.width, chip.height, banner.x, banner.y, banner.width, banner.height),
+      false,
+    );
+  });
+}
+
+test("STANDBY_BANNER_TOP_PX clears HUD_TITLE_ROW_BOTTOM_PX by at least STANDBY_BANNER_CLEAR_MARGIN_PX", () => {
+  assert.ok(STANDBY_BANNER_TOP_PX >= HUD_TITLE_ROW_BOTTOM_PX + STANDBY_BANNER_CLEAR_MARGIN_PX);
+});

@@ -44,6 +44,42 @@ export const STANDBY_BANNER_RIGHT_PX = STANDBY_BANNER_SIDEBAR_WIDTH + SIDEBAR_MA
  * whatever `window.innerWidth` currently is. */
 export const STANDBY_BANNER_MAX_WIDTH_CSS = `max(160px, calc(100vw - ${STANDBY_BANNER_RIGHT_PX + LEFT_MARGIN_PX}px))`;
 
+// ─── POLISH-2 (2026-09-15, real-screen 1920x1080 kiosk capture, 07:33:21 ET,
+// gpu 95%/busy=true) ─────────────────────────────────────────────────────
+// The x-axis fix above (right/maxWidth) cleared the RIGHT sidebar, but
+// during a real brain burst the pill (now correctly clear of the sidebar)
+// sat at top:24 and landed ON TOP of Hud.tsx's own top-left title/chip row
+// (`data-hq-obstacle="title-block"`, Hud.tsx ~line 969) -- specifically its
+// "brain thinking -- HQ paused" chip, which says the SAME thing the pill
+// does. Two fixes, both applied:
+//   1. DEDUPE (preferred, per the coordinator's own instruction): Hud.tsx's
+//      title row already carries an equivalent chip for BOTH pause causes
+//      this panel distinguishes -- "GPU RESERVED" for gaming (Hud.tsx
+//      ~line 989) and "brain thinking -- HQ paused" for brainBusy (~line
+//      1004) -- confirmed by reading Hud.tsx directly, not assumed. So
+//      StandbyPanel now renders its OWN banner only for the residual paused
+//      cause with no HUD equivalent (`hidden` -- the tab/document not
+//      visible, per UltraCanvasRoot.tsx's `paused = gaming || hidden ||
+//      brainBusy`), never when gaming or brainBusy are the cause.
+//   2. VERTICAL CLEARANCE (defense in depth, independent of #1's dedupe
+//      logic ever having a bug): the remaining banner is moved BELOW the
+//      chip row instead of beside it, using the coordinator's own real
+//      capture numbers (chip observed at y~18-70) rather than a code-
+//      comment estimate, so a pure y-range test can assert non-intersection
+//      without depending on x-axis chip-content geometry at all.
+/** Real-capture evidence (POLISH-2, 07:33:21 ET): Hud.tsx's title/chip row
+ * spans y~18-70 at its tallest (brain-busy chip present). Padded down from
+ * Hud.tsx's own code-comment estimate (~41px from top:14, i.e. bottom~55)
+ * to the larger REAL observed value -- real screen evidence wins over a
+ * comment when they disagree. */
+export const HUD_TITLE_ROW_BOTTOM_PX = 70;
+/** Minimum gap kept between the chip row's own bottom edge and the standby
+ * banner's top edge. */
+export const STANDBY_BANNER_CLEAR_MARGIN_PX = 8;
+/** CSS `top` (px) for the standby banner -- constant, not viewport-width-
+ * dependent (the chip row's height doesn't change with viewport width). */
+export const STANDBY_BANNER_TOP_PX = HUD_TITLE_ROW_BOTTOM_PX + STANDBY_BANNER_CLEAR_MARGIN_PX;
+
 export interface StandbyBannerLayout {
   /** CSS `right` (px) for a `position:fixed` element. */
   right: number;

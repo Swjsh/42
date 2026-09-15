@@ -67,6 +67,8 @@ import { Html } from "@react-three/drei";
 import * as THREE from "three";
 import useSWR from "swr";
 import { PALETTE } from "./palette";
+import { PRIORITY } from "./labelDeclutter";
+import { useLabelDeclutter } from "./useLabelDeclutter";
 import type { HoloChartData, HoloLevel, HoloTradeMarker } from "@/lib/hq-chart-data";
 import type { ChartBar } from "@/lib/chart-data";
 
@@ -567,6 +569,32 @@ export default function HoloChart({ origin, facingYaw, dimFactor }: HoloChartPro
 
   const domain = data ? computeDomain(data) : null;
 
+  // POLISH-2 (2026-09-15, real-capture regression, camdist=36, 07:34:21 ET):
+  // a tiny label was drawn over the "general-purpose" live-agent bubble near
+  // the hub, just under Gamma's own bubble -- neither registered with the
+  // shared declutter system (BrainCore.tsx's plaque/gauge and GammaCharacter
+  // .tsx's bubble already are; nothing in this file was). This table sits at
+  // HubInterior.tsx#TABLE_CENTER, radius 2.5 from the hub -- close enough to
+  // the hub-center cluster (Gamma's desk + live-agent bubbles) to plausibly
+  // be the culprit, and the session-label caption below the ribbon
+  // (`fontSize 13`, one short line, unconditionally rendered whenever real
+  // chart data exists) is the smallest/most caption-like Html this component
+  // renders -- the best match for "tiny label" of the several candidates
+  // here (LevelLabels/TradeMarkers/LastPriceMarker all render larger,
+  // bordered tag-style boxes closer to a real bubble's own footprint).
+  // Registered at PRIORITY.LANE (lowest precedence -- an ambient caption,
+  // not a conversation bubble) so it yields/fades instead of sitting under
+  // one. `getWorldPos` uses the table-center `origin` prop directly (already
+  // world-space, passed in by HubInterior.tsx) -- close enough for the
+  // resolver's own distance tie-break, which doesn't need pixel accuracy
+  // (actual on-screen rect comes from `measureRef`'s real DOM measurement,
+  // same convention as every other declutter-registered label in this tree).
+  const { wrapperRef: sessionLabelDeclutterRef, measureRef: sessionLabelMeasureRef } = useLabelDeclutter(
+    "holo-session-label",
+    PRIORITY.LANE,
+    () => origin,
+  );
+
   return (
     <group position={origin} rotation={[0, facingYaw, 0]} scale={HOLO_CHART_SCALE}>
       <BasePlate dimFactor={dimFactor} />
@@ -594,7 +622,13 @@ export default function HoloChart({ origin, facingYaw, dimFactor }: HoloChartPro
           <TradeMarkers trades={data.trades} bars={data.bars} domain={domain} dimFactor={dimFactor} />
           <LastPriceMarker data={data} domain={domain} dimFactor={dimFactor} />
           <Html position={[0, -0.22, 0]} center distanceFactor={7} style={{ pointerEvents: "none" }}>
+            {/* DECLUTTER pass (POLISH-2): outer wrapper the shared resolver
+                owns, kept separate from this div's own opacity/dimFactor
+                styling -- see GammaCharacter.tsx/BrainCore.tsx's identical
+                two-wrapper convention/comment. */}
+            <div ref={sessionLabelDeclutterRef} style={{ transformOrigin: "50% 100%" }}>
             <div
+              ref={sessionLabelMeasureRef}
               style={{
                 color: PALETTE.textDim, fontFamily: "system-ui, sans-serif", fontSize: 13, fontWeight: 600,
                 background: "rgba(3,4,10,0.65)", padding: "2px 10px", borderRadius: 5, whiteSpace: "nowrap",
@@ -602,6 +636,7 @@ export default function HoloChart({ origin, facingYaw, dimFactor }: HoloChartPro
               }}
             >
               {data.session.label}
+            </div>
             </div>
           </Html>
         </group>

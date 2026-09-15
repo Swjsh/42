@@ -2,7 +2,7 @@
 
 import type { HqApiResponse } from "./types";
 import { personaStatusColor, rosterEvidenceText } from "./palette";
-import { STANDBY_BANNER_MAX_WIDTH_CSS, STANDBY_BANNER_RIGHT_PX } from "./standbyBannerLayout";
+import { STANDBY_BANNER_MAX_WIDTH_CSS, STANDBY_BANNER_RIGHT_PX, STANDBY_BANNER_TOP_PX } from "./standbyBannerLayout";
 
 interface StandbyPanelProps {
   data: HqApiResponse | undefined;
@@ -49,24 +49,38 @@ export default function StandbyPanel({ data }: StandbyPanelProps) {
         color: "#dff3ff", fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, sans-serif",
       }}
     >
-      <div
-        // Queue item h (2026-09-15, real-screen capture): was pinned at
-        // `right: 32`, which at 1920px put its left edge around x=1160 --
-        // inside Hud.tsx's fixed right column (starts at x=1420, see
-        // standbyBannerLayout.ts's own header for the full evidence + why
-        // this fix keeps the banner's geometry structurally clear of that
-        // column rather than depending on stacking order). `maxWidth` +
-        // `whiteSpace: "normal"` let the text wrap onto a second line
-        // instead of ever being clipped, at any viewport width.
-        style={{
-          position: "fixed", top: 24, right: STANDBY_BANNER_RIGHT_PX, maxWidth: STANDBY_BANNER_MAX_WIDTH_CSS,
-          padding: "8px 22px", borderRadius: 16,
-          background: "rgba(255,176,32,0.12)", border: "1px solid #ffb020", color: "#ffb020",
-          fontSize: 20, fontWeight: 700, letterSpacing: 0.3, whiteSpace: "normal", textAlign: "right",
-        }}
-      >
-        {standbyText}
-      </div>
+      {/* POLISH-2 (2026-09-15, real-capture regression): Hud.tsx's own
+          title/chip row already carries an equivalent message for BOTH
+          `gaming` ("GPU RESERVED") and `brainBusy` ("brain thinking -- HQ
+          paused") -- see standbyBannerLayout.ts's own header for the full
+          evidence read. Rendering this banner too, for either cause, is a
+          same-message duplicate that visually overlapped that chip row in
+          the real capture. Only render for the residual paused cause with
+          no HUD equivalent (`hidden` -- see UltraCanvasRoot.tsx's own
+          `paused = gaming || hidden || brainBusy`). */}
+      {!gaming && !brainBusy && (
+        <div
+          // Queue item h (2026-09-15, real-screen capture): was pinned at
+          // `right: 32`, which at 1920px put its left edge around x=1160 --
+          // inside Hud.tsx's fixed right column (starts at x=1420, see
+          // standbyBannerLayout.ts's own header for the full evidence + why
+          // this fix keeps the banner's geometry structurally clear of that
+          // column rather than depending on stacking order). `maxWidth` +
+          // `whiteSpace: "normal"` let the text wrap onto a second line
+          // instead of ever being clipped, at any viewport width. `top`
+          // clears Hud.tsx's own title/chip row (see the dedupe comment
+          // above) rather than sitting beside it -- defense in depth,
+          // independent of the dedupe condition above ever having a bug.
+          style={{
+            position: "fixed", top: STANDBY_BANNER_TOP_PX, right: STANDBY_BANNER_RIGHT_PX, maxWidth: STANDBY_BANNER_MAX_WIDTH_CSS,
+            padding: "8px 22px", borderRadius: 16,
+            background: "rgba(255,176,32,0.12)", border: "1px solid #ffb020", color: "#ffb020",
+            fontSize: 20, fontWeight: 700, letterSpacing: 0.3, whiteSpace: "normal", textAlign: "right",
+          }}
+        >
+          {standbyText}
+        </div>
+      )}
 
       <div style={{ maxWidth: 2560, margin: "0 auto", padding: "96px 60px 60px", display: "grid", gridTemplateColumns: "1.1fr 1fr 1fr", gap: 48 }}>
         {/* Column 1: roster, real status lines only */}
