@@ -120,14 +120,37 @@ function Resolve-BrainModel {
             if ($canLog) { Write-TaskLog -TaskName $TaskName -Message "BRAIN=local requested but Ollama is down -> Claude path (fail-open)" }
             return $Tier
         }
-        if (-not (Start-NoThinkProxy -Port $cfg.proxy_port -OllamaPort $cfg.ollama_port)) {
-            if ($canLog) { Write-TaskLog -TaskName $TaskName -Message "BRAIN=local: no-think proxy failed to start -> Claude path (fail-open)" }
-            return $Tier
-        }
 
         $model = $cfg.map[$Tier.ToLower()]
         if (-not $model) { $model = $cfg.map["sonnet"] }
         if (-not $model) { return $Tier }
+
+        # Empty/partial model-store guard (2026-09-14 incident): /api/version answered 200
+        # even though Ollama's model store was completely empty (the desktop app launched
+        # against C:\Users\jackw\.ollama\models, ignoring OLLAMA_MODELS=E:\Gamma\models, before
+        # the coordinator's junction fix) -- a fire proceeded straight to a 404 on the actual
+        # chat call. Fail open exactly like the Ollama-down check above, but name the reason.
+        $storeNames = @()
+        $tagsOk = $false
+        try {
+            $tags = Invoke-RestMethod -Uri ("http://localhost:" + $cfg.ollama_port + "/api/tags") -TimeoutSec 5
+            if ($tags -and $tags.models) { $storeNames = @($tags.models | ForEach-Object { [string]$_.name }) }
+            $tagsOk = $true
+        } catch { }
+        if (-not $tagsOk) {
+            if ($canLog) { Write-TaskLog -TaskName $TaskName -Message "BRAIN=local: /api/tags unreachable -> Claude path (fail-open)" }
+            return $Tier
+        }
+        $found = $storeNames | Where-Object { $_ -eq $model -or $_ -eq ($model + ":latest") -or $_.Split(":")[0] -eq $model }
+        if (-not $found) {
+            if ($canLog) { Write-TaskLog -TaskName $TaskName -Message ("BRAIN=local: model_missing:" + $model + " (store has " + $storeNames.Count + " models) -> Claude path (fail-open)") }
+            return $Tier
+        }
+
+        if (-not (Start-NoThinkProxy -Port $cfg.proxy_port -OllamaPort $cfg.ollama_port)) {
+            if ($canLog) { Write-TaskLog -TaskName $TaskName -Message "BRAIN=local: no-think proxy failed to start -> Claude path (fail-open)" }
+            return $Tier
+        }
 
         $env:CLAUDE_CONFIG_DIR = Join-Path $Global:WorkDir "setup\ollama\cfg"
         $env:ANTHROPIC_BASE_URL = "http://localhost:" + $cfg.proxy_port

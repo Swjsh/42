@@ -150,6 +150,7 @@ def test_decide_action_yields_on_weekend_too():
 def test_decide_action_ok_outside_rth_when_nothing_else_trips():
     status, reason = sl.decide_action(_TUE_AFTERHOURS_UTC, _cfg(), gpu_util_fn=lambda: 10,
                                        process_table_fn=lambda: {}, ollama_reachable_fn=lambda u: True,
+                                       model_tags_fn=lambda u: ["gamma-planner"],
                                        station_mode_fn=lambda: "work")
     assert (status, reason) == ("ok", "")
 
@@ -167,6 +168,7 @@ def test_decide_action_ok_when_gpu_below_threshold():
     status, reason = sl.decide_action(_TUE_AFTERHOURS_UTC, _cfg(gpu_util_yield_pct=50),
                                        gpu_util_fn=lambda: 49, process_table_fn=lambda: {},
                                        ollama_reachable_fn=lambda u: True,
+                                       model_tags_fn=lambda u: ["gamma-planner"],
                                        station_mode_fn=lambda: "work")
     assert status == "ok"
 
@@ -175,6 +177,7 @@ def test_decide_action_gpu_unmeasurable_fails_open():
     # nvidia-smi missing/erroring returns None -- that is "no signal," never a yield.
     status, reason = sl.decide_action(_TUE_AFTERHOURS_UTC, _cfg(), gpu_util_fn=lambda: None,
                                        process_table_fn=lambda: {}, ollama_reachable_fn=lambda u: True,
+                                       model_tags_fn=lambda u: ["gamma-planner"],
                                        station_mode_fn=lambda: "work")
     assert status == "ok"
 
@@ -194,6 +197,7 @@ def test_decide_action_ok_when_no_denylisted_process():
     table = {1234: "C:\\Windows\\explorer.exe"}
     status, reason = sl.decide_action(_TUE_AFTERHOURS_UTC, cfg, gpu_util_fn=lambda: 0,
                                        process_table_fn=lambda: table, ollama_reachable_fn=lambda u: True,
+                                       model_tags_fn=lambda u: ["gamma-planner"],
                                        station_mode_fn=lambda: "work")
     assert status == "ok"
 
@@ -204,6 +208,7 @@ def test_decide_action_process_table_unreadable_fails_open():
     cfg = _cfg(yield_processes=["steam.exe"])
     status, reason = sl.decide_action(_TUE_AFTERHOURS_UTC, cfg, gpu_util_fn=lambda: 0,
                                        process_table_fn=_boom, ollama_reachable_fn=lambda u: True,
+                                       model_tags_fn=lambda u: ["gamma-planner"],
                                        station_mode_fn=lambda: "work")
     assert status == "ok"
 
@@ -221,13 +226,74 @@ def test_decide_action_force_skips_rth_gpu_denylist_but_not_ollama():
     cfg = _cfg(yield_processes=["steam.exe"])
     status_ok, _ = sl.decide_action(_TUE_RTH_UTC, cfg, force=True, gpu_util_fn=lambda: 99,
                                     process_table_fn=lambda: {1: "steam.exe"},
-                                    ollama_reachable_fn=lambda u: True)
+                                    ollama_reachable_fn=lambda u: True,
+                                    model_tags_fn=lambda u: ["gamma-planner"])
     assert status_ok == "ok"
 
     status_err, reason_err = sl.decide_action(_TUE_RTH_UTC, cfg, force=True, gpu_util_fn=lambda: 99,
                                               process_table_fn=lambda: {1: "steam.exe"},
                                               ollama_reachable_fn=lambda u: False)
     assert (status_err, reason_err) == ("error", "ollama_down")
+
+
+# ============================================================================
+# decide_action -- model-store check (2026-09-14 incident: /api/version answered 200
+# against an empty Ollama model store, so a fire proceeded straight into an /api/chat
+# 404 that only ever logged a generic model_call_failed reason). Ollama reachable is a
+# separate, prior condition from "the configured model is actually in the store" --
+# these three tests lock present / missing / tags-endpoint-down as distinct outcomes.
+# ============================================================================
+
+def test_decide_action_ok_when_model_present_in_store():
+    status, reason = sl.decide_action(_TUE_AFTERHOURS_UTC, _cfg(model="gamma-planner-fast"),
+                                      gpu_util_fn=lambda: 0, process_table_fn=lambda: {},
+                                      ollama_reachable_fn=lambda u: True,
+                                      model_tags_fn=lambda u: ["gamma-planner-fast:latest", "qwen3:14b"],
+                                      station_mode_fn=lambda: "work")
+    assert (status, reason) == ("ok", "")
+
+
+def test_decide_action_error_when_model_missing_from_empty_store():
+    # The exact 2026-09-14 shape: Ollama up, /api/tags answers, but the store is empty
+    # (the desktop app launched against the un-junctioned .ollama\models directory).
+    status, reason = sl.decide_action(_TUE_AFTERHOURS_UTC, _cfg(model="gamma-planner-fast"),
+                                      gpu_util_fn=lambda: 0, process_table_fn=lambda: {},
+                                      ollama_reachable_fn=lambda u: True,
+                                      model_tags_fn=lambda u: [],
+                                      station_mode_fn=lambda: "work")
+    assert status == "error"
+    assert reason == "model_store_missing:gamma-planner-fast store_models=0"
+
+
+def test_decide_action_error_when_model_missing_from_nonempty_store():
+    status, reason = sl.decide_action(_TUE_AFTERHOURS_UTC, _cfg(model="gamma-planner-fast"),
+                                      gpu_util_fn=lambda: 0, process_table_fn=lambda: {},
+                                      ollama_reachable_fn=lambda u: True,
+                                      model_tags_fn=lambda u: ["qwen3:14b", "llama3:8b"],
+                                      station_mode_fn=lambda: "work")
+    assert status == "error"
+    assert reason == "model_store_missing:gamma-planner-fast store_models=2"
+
+
+def test_decide_action_error_when_tags_endpoint_down():
+    # /api/version can pass while /api/tags itself errors/times out -- a distinct
+    # failure from both ollama_down and model_store_missing, named as such.
+    def _boom(base_url):
+        raise TimeoutError("tags timed out")
+    status, reason = sl.decide_action(_TUE_AFTERHOURS_UTC, _cfg(model="gamma-planner-fast"),
+                                      gpu_util_fn=lambda: 0, process_table_fn=lambda: {},
+                                      ollama_reachable_fn=lambda u: True,
+                                      model_tags_fn=_boom,
+                                      station_mode_fn=lambda: "work")
+    assert status == "error"
+    assert reason.startswith("tags_endpoint_down:")
+
+
+def test_model_in_store_matches_tag_variants():
+    assert sl._model_in_store("gamma-planner-fast", ["gamma-planner-fast:latest"])
+    assert sl._model_in_store("gamma-planner-fast", ["gamma-planner-fast"])
+    assert not sl._model_in_store("gamma-planner-fast", ["gamma-planner:latest"])
+    assert not sl._model_in_store("gamma-planner-fast", [])
 
 
 # ============================================================================
@@ -494,6 +560,23 @@ def test_run_once_ollama_down_logs_error_row_and_main_exits_zero(monkeypatch, ca
     assert printed["status"] == "error"
 
 
+def test_run_once_model_store_missing_logs_named_error_row_and_main_exits_zero(monkeypatch, capsys):
+    # Full end-to-end of the 2026-09-14 incident shape through main(): Ollama reachable,
+    # but /api/tags comes back empty -- the ledger row must name it, not a bare 404.
+    monkeypatch.setattr(sl, "_ollama_reachable", lambda base_url: True)
+    monkeypatch.setattr(sl, "_list_models", lambda base_url: [])
+
+    exit_code = sl.main(["--once", "--force"])
+
+    assert exit_code == 0
+    ledger_lines = sl.LEDGER_PATH.read_text(encoding="utf-8").strip().splitlines()
+    row = json.loads(ledger_lines[-1])
+    assert row["status"] == "error"
+    assert row["reason"] == f"model_store_missing:{sl.DEFAULT_CONFIG['model']} store_models=0"
+    printed = json.loads(capsys.readouterr().out.strip())
+    assert printed["status"] == "error"
+
+
 def test_run_once_bad_model_output_logs_error_row_not_a_crash(monkeypatch):
     _stub_ok_decision(monkeypatch)
     monkeypatch.setattr(sl, "call_ollama_chat", lambda *a, **kw: {"message": {"content": "not json"}})
@@ -732,6 +815,7 @@ def test_decide_action_yields_for_off_mode():
 def test_decide_action_ok_for_work_mode():
     status, reason = sl.decide_action(_TUE_AFTERHOURS_UTC, _cfg(), gpu_util_fn=lambda: 0,
                                       process_table_fn=lambda: {}, ollama_reachable_fn=lambda u: True,
+                                      model_tags_fn=lambda u: ["gamma-planner"],
                                       station_mode_fn=lambda: "work")
     assert (status, reason) == ("ok", "")
 
@@ -741,6 +825,7 @@ def test_decide_action_force_still_bypasses_station_mode():
     # confirms station_mode_fn is read inside the `if not force:` branch, not before it.
     status, _ = sl.decide_action(_TUE_RTH_UTC, _cfg(), force=True, gpu_util_fn=lambda: 0,
                                  process_table_fn=lambda: {}, ollama_reachable_fn=lambda u: True,
+                                 model_tags_fn=lambda u: ["gamma-planner"],
                                  station_mode_fn=lambda: "gaming")
     assert status == "ok"
 

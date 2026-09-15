@@ -230,6 +230,34 @@ def _ollama_reachable(base_url: str) -> bool:
         return False
 
 
+def _list_models(base_url: str) -> list:
+    """GET /api/tags -> list of model name strings currently in the Ollama store.
+    Raises on any failure (network, timeout, bad JSON) -- the caller distinguishes
+    "tags endpoint down" from "reachable but the model is missing" by catching this
+    itself; there is no fail-open default baked in here, unlike _ollama_reachable
+    (which fails open to False on purpose since it feeds a hard yield/error branch).
+
+    2026-09-14 incident: /api/version answered 200 even when Ollama's model store was
+    completely empty (the desktop app launched against C:\\Users\\jackw\\.ollama\\models,
+    ignoring OLLAMA_MODELS=E:\\Gamma\\models, before the junction fix) -- the actual
+    /api/chat call then 404'd with only a generic model_call_failed in the ledger. This
+    is the check that would have named it: model_store_missing:<name> store_models=0."""
+    req = urllib.request.Request(f"{base_url.rstrip('/')}/api/tags")
+    with urllib.request.urlopen(req, timeout=5) as resp:  # noqa: S310 -- localhost only
+        data = json.loads(resp.read().decode("utf-8"))
+    return [str(m.get("name", "")) for m in (data.get("models") or []) if isinstance(m, dict)]
+
+
+def _model_in_store(model: str, store_names: list) -> bool:
+    """True if `model` (e.g. "gamma-planner-fast", no tag) matches one of Ollama's
+    /api/tags names, which normally carry a ":tag" suffix (e.g. "gamma-planner-fast:latest").
+    Matches on exact name, "<model>:latest", or the name's own tag-stripped prefix."""
+    for name in store_names:
+        if name == model or name == f"{model}:latest" or name.split(":", 1)[0] == model:
+            return True
+    return False
+
+
 def _station_mode() -> str:
     """J's switch: automation/state/station/mode.json written by setup/scripts/gamma_mode.ps1
     ("gaming" / "off" -> the loop yields; missing or garbled file -> "work")."""
@@ -268,13 +296,23 @@ def decide_action(
     process_table_fn: Optional[Callable[[], dict]] = None,
     ollama_reachable_fn: Optional[Callable[[str], bool]] = None,
     station_mode_fn: Optional[Callable[[], str]] = None,
+    model_tags_fn: Optional[Callable[[str], list]] = None,
 ) -> tuple:
     """Returns (status, reason). status in {"ok", "yielded", "error"}; proceed to the
     model call only when status == "ok". Every check is injectable so tests never shell
-    out or hit the network -- the clock (`now_utc`) is always injected."""
+    out or hit the network -- the clock (`now_utc`) is always injected.
+
+    model_tags_fn (2026-09-14 incident fix) hits /api/tags AFTER /api/version passes --
+    an empty or partial model store still answers /api/version 200, so that check alone
+    let a fire through to an /api/chat call that 404'd with only a generic
+    "model_call_failed" in the ledger. Both failure shapes here are named explicitly:
+    the tags endpoint itself erroring ("tags_endpoint_down") vs. it answering but the
+    configured model not being in the list ("model_store_missing:<name> store_models=N").
+    Fail-open in neither case -- both are real prerequisite misses, same as ollama_down."""
     gpu_util_fn = gpu_util_fn or _gpu_util_pct
     process_table_fn = process_table_fn or _read_process_table
     ollama_reachable_fn = ollama_reachable_fn or _ollama_reachable
+    model_tags_fn = model_tags_fn or _list_models
 
     if not force:
         mode = (station_mode_fn or _station_mode)()
@@ -295,8 +333,17 @@ def decide_action(
         if gpu is not None and gpu > threshold:
             return "yielded", f"gpu_util {gpu:.0f}% > {threshold}%"
 
-    if not ollama_reachable_fn(config.get("ollama_base_url", DEFAULT_CONFIG["ollama_base_url"])):
+    base_url = config.get("ollama_base_url", DEFAULT_CONFIG["ollama_base_url"])
+    if not ollama_reachable_fn(base_url):
         return "error", "ollama_down"
+
+    model = config.get("model", DEFAULT_CONFIG["model"])
+    try:
+        store_names = model_tags_fn(base_url)
+    except Exception as exc:  # noqa: BLE001 -- the tags endpoint itself is unreachable/erroring
+        return "error", f"tags_endpoint_down: {exc!r}"[:200]
+    if not _model_in_store(model, store_names):
+        return "error", f"model_store_missing:{model} store_models={len(store_names)}"
 
     return "ok", ""
 
