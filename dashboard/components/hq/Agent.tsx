@@ -244,7 +244,18 @@ const BUBBLE_ACTION_MAX_CHARS = 26;
 // Beyond this camera distance a bubble fades to opacity 0 (never unmounts --
 // see updateBubbleFade below) so a wide overview never turns into a text
 // cloud, matching the brief's own "nearest bubbles always readable" rule.
-const BUBBLE_FADE_DISTANCE = 42;
+const BUBBLE_FADE_DISTANCE = 80;
+// Coordinator fix (2026-09-14 19:5x ET, read off ux1-reframe-default.png at
+// 1:1): UX-1's overview re-frame moved the default camera to ~45-58 u, past
+// the old 42 u fade, so EVERY head bubble vanished at the view J lands on --
+// the fade is now 80 u, and below the reference distance where 24 px text
+// measured ~9-10 px on J's 2560x1440 (the 19:26 ET frame, camera ~38 u) the
+// bubble keeps drei's distanceFactor scaling, while beyond it a CSS
+// counter-scale of dist/38 (capped) holds the text at that readable floor
+// instead of letting it shrink into a dot. Transform-only, per the TV
+// compositor rule; applied to the wrapper drei does not own.
+const BUBBLE_MIN_SCALE_REF_DISTANCE = 38;
+const BUBBLE_MAX_COUNTER_SCALE = 1.7;
 type WalkPhase = "resting" | "toHub" | "atHub" | "toHome" | "arriving";
 type AlertPacePhase = "toDoor" | "atDoor" | "toDesk" | "atDesk";
 
@@ -1097,7 +1108,10 @@ export default function Agent({
     const el = bubbleWrapRef.current;
     if (!el) return;
     bubbleDelta.set(g.position.x - camera.position.x, g.position.y - camera.position.y, g.position.z - camera.position.z);
-    el.style.opacity = bubbleDelta.length() > BUBBLE_FADE_DISTANCE ? "0" : "1";
+    const dist = bubbleDelta.length();
+    el.style.opacity = dist > BUBBLE_FADE_DISTANCE ? "0" : "1";
+    const k = Math.min(BUBBLE_MAX_COUNTER_SCALE, Math.max(1, dist / BUBBLE_MIN_SCALE_REF_DISTANCE));
+    el.style.transform = k > 1.01 ? `scale(${k.toFixed(3)})` : "";
   }
 
   // PEOPLE pass (P2): while a walk carries its own real reason, that reason
@@ -1179,7 +1193,7 @@ export default function Agent({
           null) -- never a fabricated line, never an empty bubble. */}
       {bubbleActionTrunc && (
         <Html position={[0, bubbleY, 0]} center distanceFactor={9} style={{ pointerEvents: "none" }}>
-          <div ref={bubbleWrapRef} style={{ position: "relative" }}>
+          <div ref={bubbleWrapRef} style={{ position: "relative", transformOrigin: "50% 100%" }}>
             <div className="hq-beam" style={{ "--beam-color": accentColor, borderRadius: 6 } as CSSProperties}>
               <div
                 style={{
