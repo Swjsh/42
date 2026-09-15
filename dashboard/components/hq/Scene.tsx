@@ -1981,6 +1981,16 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
                 facingYaw={i === nearestLaneIndex ? greeterFacingYaw : undefined}
                 ultra={ultra}
                 bubbleText={laneBubble}
+                // WALK-ROUTING pass (2026-09-15): every walk this agent
+                // queues is now routed through the real hallway/door graph
+                // (`walkGraph`, already memoized above for LiveAgents.tsx);
+                // `alertPacePoint` = this bay's own door (layout.ts
+                // #computeBaySlot's `doorWorldPos`), replacing the old
+                // toward-hub-center pace point that cut straight through
+                // this bay's own side wall on a red-health ("alert") lane --
+                // the reported "Futures ran through walls" bug.
+                walkGraph={walkGraph}
+                alertPacePoint={slot.doorWorldPos}
               />
             </group>
           </group>
@@ -2251,6 +2261,16 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
                 bubbleText={personaBubble}
                 auditVerdict={auditByName.get(persona.name)?.verdict}
                 bubblePriority={PRIORITY.PERSONA}
+                // WALK-ROUTING pass (2026-09-15): personas are hub-interior
+                // (home->hub/ambient-point lines never cross a wall today),
+                // so this doesn't fix a visible bug for them the way the bay
+                // agent's `alertPacePoint` above does -- but it makes the
+                // no-wall invariant STRUCTURAL rather than "happens to be
+                // true of today's hub layout", per this pass's actual scope
+                // ("every resident-agent walk ... follow the walk graph").
+                // No `alertPacePoint` override -- personas never go
+                // "alert" (only lane bays derive that behavior).
+                walkGraph={walkGraph}
               />
             )}
             {/* Item 2c (LIVE-1): Pilot's desk pulse -- RTH-only (CLAUDE.md's

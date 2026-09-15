@@ -324,6 +324,80 @@ export function pathDistance(wp: ReadonlyArray<readonly [number, number, number]
   return total;
 }
 
+// ─── Graph-routed helper for legacy/persona walks (WALK-ROUTING pass, 2026-09-15) ──
+//
+// ROOT CAUSE this fixes (established by reading Agent.tsx/Scene.tsx this
+// pass): every walk this file's own findWalkPath/WalkGraph machinery was
+// built for is used by LiveAgents.tsx (live Claude subagents) only.
+// Agent.tsx's OWN walk kinds (roundtrip/arrival/allhands/purposeful/
+// eventWalk, plus the "alert" pacing branch) all still build a raw 2-point
+// `[home, legTo]` straight-line leg (see that file's own "toHub" branch and
+// the module-scope alert-phase math) -- correct only when home/hub/legTo
+// happen to sit on a line that never crosses a wall, which is NOT true for
+// a bay agent whose "alert" pace point was computed straight toward the hub
+// center rather than toward its own bay door (the reported "Futures" bug:
+// a lane bay agent pacing clean through its own bay's side wall). This
+// helper gives Agent.tsx a single, tested way to turn ANY (from, to) pair
+// into a real graph-routed waypoint list, exactly the same graph/algorithm
+// LiveAgents.tsx already trusts -- never a second, hand-rolled router.
+/** Routes from `from` to `to` via the walk graph: finds the graph node
+ * nearest each endpoint, runs `findWalkPath` between those two nodes, and
+ * returns `[from, ...pathNodes, to]` with any duplicate consecutive point
+ * (within 0.05 world units -- the same "already there" tolerance this
+ * file's own retarget/reconcile logic uses elsewhere) collapsed. If both
+ * endpoints round to the SAME nearest node, this returns `[from, to]`
+ * directly rather than `[from, node, to]` -- inserting the node in that
+ * case would be a needless mid-air detour through a single point that is
+ * not actually between `from` and `to` (e.g. both endpoints are already
+ * inside the same bay, near the same bay-desk node); the two-point result
+ * is a straight local hop, which is the correct, wall-safe behavior for
+ * "already in the same room" since Agent.tsx only ever calls this for
+ * pairs whose own within-room straight line was already known-safe (the
+ * caller decides room-safety; this function only decides GRAPH TRAVERSAL
+ * between different rooms/nodes). Falls back to the direct 2-point leg
+ * `[from, to]` if either endpoint has no nearest node at all (an empty
+ * graph) or `findWalkPath` cannot connect the two nodes -- fails open,
+ * never throws, matching this file's own findWalkPath convention. */
+export function routeViaGraph(
+  graph: WalkGraph,
+  from: readonly [number, number, number],
+  to: readonly [number, number, number],
+): [number, number, number][] {
+  const fallback: [number, number, number][] = [[...from] as [number, number, number], [...to] as [number, number, number]];
+  if (graph.nodes.size === 0) return fallback;
+
+  const nearestNode = (p: readonly [number, number, number]): string | null => {
+    let bestId: string | null = null;
+    let bestDist = Infinity;
+    for (const node of graph.nodes.values()) {
+      const d = Math.hypot(node.position[0] - p[0], node.position[2] - p[2]);
+      if (d < bestDist) { bestDist = d; bestId = node.id; }
+    }
+    return bestId;
+  };
+
+  const fromNode = nearestNode(from);
+  const toNode = nearestNode(to);
+  if (!fromNode || !toNode) return fallback;
+  if (fromNode === toNode) return fallback;
+
+  const graphPath = findWalkPath(graph, fromNode, toNode);
+  if (!graphPath) return fallback;
+
+  const near = (a: readonly [number, number, number], b: readonly [number, number, number]): boolean =>
+    Math.hypot(a[0] - b[0], a[2] - b[2]) < 0.05;
+
+  const full: [number, number, number][] = [[...from] as [number, number, number]];
+  for (const p of graphPath) {
+    const last = full[full.length - 1];
+    if (!near(last, p)) full.push([...p] as [number, number, number]);
+  }
+  const toPoint: [number, number, number] = [...to] as [number, number, number];
+  if (!near(full[full.length - 1], toPoint)) full.push(toPoint);
+
+  return full.length >= 2 ? full : fallback;
+}
+
 /** Position + facing at fractional progress `t` (0..1) along a multi-leg
  * path -- a simplified sibling of Agent.tsx#resolvePathPose (no corner-yaw-
  * slerp blend; a live-agent worker's path is short enough that a small

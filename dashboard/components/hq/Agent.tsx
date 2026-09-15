@@ -15,6 +15,12 @@ import { recordAgentSample } from "@/lib/hq-motion-diag";
 // (types.ts re-exports several other modules' types but no runtime code of
 // its own), so this cannot create a circular runtime dependency.
 import type { WalkPlan } from "./types";
+// WALK-ROUTING pass (2026-09-15): same type-only + pure-function import
+// discipline as the WalkPlan import above -- liveAgentWalk.ts is
+// react/three-free (see that file's own header), so this cannot create a
+// circular or SSR-unsafe dependency. `routeViaGraph` is the one new runtime
+// import; `WalkGraph` is type-only (the prop's own declared type below).
+import { routeViaGraph, type WalkGraph } from "./liveAgentWalk";
 import { bubbleCounterScale } from "./bubbleText";
 import { PRIORITY } from "./labelDeclutter";
 import { mergeRefs, useLabelDeclutter } from "./useLabelDeclutter";
@@ -178,6 +184,33 @@ interface AgentProps {
    * matching this component's own dual persona/lane use (see this file's
    * own header). */
   bubblePriority?: number;
+  /** WALK-ROUTING pass (2026-09-15, J: an alert lane agent was seen "running
+   * from the middle straight to its cube through walls, no walkway, no
+   * doors"): the walk graph (Scene.tsx's own `walkGraph`, built once via
+   * layout.ts#buildWalkGraph -- the SAME graph LiveAgents.tsx already
+   * trusts) -- when provided, every walk this component queues (the legacy
+   * 2-point roundtrip/allhands/purposeful/eventWalk kinds, AND the one-way
+   * "arriving" hub->home leg) is routed THROUGH it via
+   * liveAgentWalk.ts#routeViaGraph instead of a raw straight line, so no
+   * walk can cut through a wall the graph itself routes around doors/
+   * hallways for. Omitted (undefined) preserves the exact old straight-line
+   * behavior -- every caller that has not been updated yet (there should be
+   * none after this pass, but the fallback costs nothing) keeps working
+   * unchanged. */
+  walkGraph?: WalkGraph;
+  /** WALK-ROUTING pass: overrides the `alert` behavior's own pace point
+   * (see that branch below). The OLD formula paced along the straight
+   * home->hub line, 40% of the way (capped 3.4u) -- correct only for a
+   * persona pacing inside the open hub interior, but WRONG for a lane bay
+   * agent, whose real "step outside and pace by the door" point is the
+   * bay's own doorWorldPos (layout.ts#computeBaySlot), which sits along the
+   * bay's SIDE-HALLWAY axis, not the home->hub diagonal -- pacing toward
+   * the hub center from a bay desk walks straight through that bay's own
+   * side wall (the exact bug reported live: "Futures is running... through
+   * walls"). Scene.tsx passes `slot.doorWorldPos` for every bay agent;
+   * persona agents (already hub-interior, home->hub line never crosses a
+   * wall) omit this and keep the original formula. */
+  alertPacePoint?: [number, number, number];
 }
 
 const HUB_PAUSE = 1.5;
@@ -431,6 +464,7 @@ export default function Agent({
   ultra = false,
   bubbleText, purposefulReason, eventWalkReason, auditVerdict,
   bubblePriority = PRIORITY.LANE,
+  walkGraph, alertPacePoint,
 }: AgentProps) {
   const group = useRef<THREE.Group>(null);
   const legL = useRef<THREE.Mesh>(null);
@@ -506,16 +540,19 @@ export default function Agent({
   // cover the SAME total path distance (the same waypoints, reversed -- see
   // `outboundPath`/`returnPath` below), and "arriving" is a single leg, so
   // one duration value covers whichever leg(s) a given walk actually plays.
-  // walkFacing is used ONLY by "arriving" now (toHub/toHome get their facing
-  // from resolvePathPose every frame instead, corner-slerp included) -- kept
-  // as a ref rather than inlined since "arriving" still needs the ORIGINAL
-  // "turn before moving" trick: rotation snaps to the new heading the
-  // instant that leg starts, and since easedWalkProgress's ramp-up keeps
-  // actual translation near-zero for the first fraction of a second, the
-  // visible result reads as "turns, then departs" without a separate
-  // turn-only sub-phase.
+  // WALK-ROUTING pass (2026-09-15): "arriving" now shares the SAME
+  // outboundPath/resolvePathPose machinery as "toHub" (see the pendingWalk
+  // consumption block below) instead of its own fixed-facing single lerp --
+  // routed through `walkGraph` when provided, so a hub->home arrival can no
+  // longer cut through a wall either. resolvePathPose's own "first leg has
+  // no previous heading to blend from" behavior (see that function's own
+  // comment) reproduces the exact old "turn before moving" feel for free:
+  // facing snaps to the new leg's heading immediately, and
+  // easedWalkProgress's ramp-up keeps actual translation near-zero for the
+  // first fraction of a second regardless. The old `walkFacing` ref this
+  // comment used to describe is gone -- there is no longer a second,
+  // separate facing mechanism to keep in sync with resolvePathPose's.
   const walkLegDuration = useRef(MIN_WALK_LEG_S);
-  const walkFacing = useRef(0);
   // World-2 item 5: independent state machine for the alert pace (door <->
   // desk) -- separate from `phase` above (the roundtrip/arrival/allhands/
   // purposeful machine), never active at the same time since the alert
@@ -764,8 +801,13 @@ export default function Agent({
       // flip `alertPhase.current`/fire `setAlertPaused`. Distance/pace-
       // duration formulas duplicated from the per-frame hook ON PURPOSE
       // (see this hook's own class comment) -- cheap trig, executed 20x/s.
-      const homeToHubDist = Math.hypot(hub[0] - home[0], hub[2] - home[2]) || 0.001;
-      const paceDist = Math.min(3.4, homeToHubDist * 0.4);
+      // WALK-ROUTING pass: same `alertPacePoint` override as the per-frame
+      // hook below -- duplicated formula, so this MUST stay in sync with
+      // that hook's own paceDist/paceDuration derivation or the two halves
+      // disagree about when a pace leg ends.
+      const paceTarget = alertPacePoint ?? hub;
+      const homeToTargetDist = Math.hypot(paceTarget[0] - home[0], paceTarget[2] - home[2]) || 0.001;
+      const paceDist = alertPacePoint ? homeToTargetDist : Math.min(3.4, homeToTargetDist * 0.4);
       const paceDuration = Math.max(0.6, paceDist / ALERT_PACE_SPEED);
       if (alertPhaseStart.current < 0) alertPhaseStart.current = t;
       const elapsed = t - alertPhaseStart.current;
@@ -853,13 +895,13 @@ export default function Agent({
         setDwelling(null);
         nodded.current = false;
         if (startPhase === "arriving") {
-          // Unchanged from before V2 -- "arriving" is a one-way hub->home
-          // trip with no dwell/return, kept as its own direct leg rather
-          // than routed through resolvePathPose (zero new capability needed
-          // there, so zero risk taken there).
-          const dist = Math.hypot(home[0] - hub[0], home[2] - hub[2]);
-          walkLegDuration.current = Math.max(MIN_WALK_LEG_S, dist / WALK_SPEED);
-          walkFacing.current = Math.atan2(home[0] - hub[0], home[2] - hub[2]);
+          // WALK-ROUTING pass: "arriving" is still a one-way hub->home trip
+          // with no dwell/return, but now routed through `walkGraph` (when
+          // provided) via the SAME resolvePathPose machinery "toHub" uses --
+          // see resolvePathPose's own comment for why this is provably a
+          // no-op for the un-routed (walkGraph undefined) 2-point case.
+          outboundPath.current = walkGraph ? routeViaGraph(walkGraph, hub, home) : [hub, home];
+          walkLegDuration.current = Math.max(MIN_WALK_LEG_S, pathTotalDistance(outboundPath.current) / WALK_SPEED);
         } else if (activeWalkKind.current === "waypoints" && activePlan.current) {
           // MOTION-2 V2: a real N-point path (LAYOUT's own walk-graph
           // route) instead of a single straight leg -- see resolvePathPose's
@@ -876,12 +918,17 @@ export default function Agent({
           // Legacy 2-point kinds (roundtrip/allhands/purposeful/eventWalk) --
           // "a straight line IS a 2-waypoint plan" (spec): routed through the
           // SAME resolvePathPose machinery below, mathematically identical
-          // to the old direct-lerp behavior (see that function's own
-          // no-op-for-2-points proof).
+          // to the old direct-lerp behavior when `walkGraph` is absent (see
+          // that function's own no-op-for-2-points proof). WALK-ROUTING pass
+          // (2026-09-15): when `walkGraph` IS provided, the raw `[home,
+          // legTo]` 2-point leg is replaced by `routeViaGraph`'s real
+          // hallway/door route -- this is the fix for the reported "Futures
+          // ran straight through its own wall" bug (that walk is this exact
+          // kind, "purposeful"/"roundtrip"/allhands all sharing this one
+          // branch).
           const legTo = activeWalkKind.current === "purposeful" && activeTarget.current ? activeTarget.current : approach;
-          outboundPath.current = [home, legTo];
-          const dist = Math.hypot(legTo[0] - home[0], legTo[2] - home[2]);
-          walkLegDuration.current = Math.max(MIN_WALK_LEG_S, dist / WALK_SPEED);
+          outboundPath.current = walkGraph ? routeViaGraph(walkGraph, home, legTo) : [home, legTo];
+          walkLegDuration.current = Math.max(MIN_WALK_LEG_S, pathTotalDistance(outboundPath.current) / WALK_SPEED);
         }
       }
     }
@@ -964,10 +1011,20 @@ export default function Agent({
     const t = state.clock.elapsedTime;
 
     if (behavior === "alert") {
-      const homeToHubDist = Math.hypot(hub[0] - home[0], hub[2] - home[2]) || 0.001;
-      const paceDist = Math.min(3.4, homeToHubDist * 0.4);
-      const dirX = (hub[0] - home[0]) / homeToHubDist;
-      const dirZ = (hub[2] - home[2]) / homeToHubDist;
+      // WALK-ROUTING pass (2026-09-15): `alertPacePoint` (Scene.tsx passes
+      // `slot.doorWorldPos` for bay agents) overrides the pace target and
+      // its facing direction -- see this prop's own doc comment on
+      // AgentProps for the full root-cause writeup (a bay agent's real
+      // "step to the door" point sits along its own side-hallway axis, not
+      // the straight home->hub diagonal, which used to pace it through the
+      // bay's own side wall). Personas (no override) keep the exact
+      // original toward-hub formula -- always safe there since the hub
+      // interior has no wall between a persona desk and the hub center.
+      const paceTarget = alertPacePoint ?? hub;
+      const homeToTargetDist = Math.hypot(paceTarget[0] - home[0], paceTarget[2] - home[2]) || 0.001;
+      const paceDist = alertPacePoint ? homeToTargetDist : Math.min(3.4, homeToTargetDist * 0.4);
+      const dirX = (paceTarget[0] - home[0]) / homeToTargetDist;
+      const dirZ = (paceTarget[2] - home[2]) / homeToTargetDist;
       const doorPos: [number, number, number] = [home[0] + dirX * paceDist, home[1], home[2] + dirZ * paceDist];
       const paceDuration = Math.max(0.6, paceDist / ALERT_PACE_SPEED);
       // alertPhaseStart.current is seeded by the throttled hook above on the
@@ -976,22 +1033,25 @@ export default function Agent({
       // throttled tick fires) falls back to elapsed=0 rather than a bogus
       // negative-infinity gap.
       const elapsed = alertPhaseStart.current < 0 ? 0 : t - alertPhaseStart.current;
-      const facingHub = Math.atan2(dirX, dirZ);
+      // WALK-ROUTING pass: renamed from `facingHub` -- with `alertPacePoint`
+      // set, this points toward the bay's own door, not the hub; the
+      // geometry (atan2 of the same dirX/dirZ) is otherwise unchanged.
+      const facingPaceTarget = Math.atan2(dirX, dirZ);
 
       if (alertPhase.current === "toDoor") {
         const p = easedWalkProgress(elapsed, paceDuration, WALK_EASE_S);
         g.position.set(home[0] + (doorPos[0] - home[0]) * p, home[1], home[2] + (doorPos[2] - home[2]) * p);
-        g.rotation.y = facingHub;
+        g.rotation.y = facingPaceTarget;
       } else if (alertPhase.current === "atDoor") {
         g.position.set(doorPos[0], doorPos[1], doorPos[2]);
-        g.rotation.y = facingHub; // "looking toward the hub" -- doorPos sits ON the home->hub line
+        g.rotation.y = facingPaceTarget; // "looking toward the hub/door" -- doorPos sits ON the home->target line
       } else if (alertPhase.current === "toDesk") {
         const p = easedWalkProgress(elapsed, paceDuration, WALK_EASE_S);
         g.position.set(doorPos[0] + (home[0] - doorPos[0]) * p, home[1], doorPos[2] + (home[2] - doorPos[2]) * p);
-        g.rotation.y = facingHub + Math.PI; // facing the direction of travel (away from hub, back toward the desk)
+        g.rotation.y = facingPaceTarget + Math.PI; // facing the direction of travel (away from the target, back toward the desk)
       } else {
         g.position.set(home[0], home[1], home[2]);
-        g.rotation.y = facingHub; // pause at the desk end, turned back to look toward the hub
+        g.rotation.y = facingPaceTarget; // pause at the desk end, turned back to look toward the hub/door
       }
 
       const moving = alertPhase.current === "toDoor" || alertPhase.current === "toDesk";
@@ -1008,14 +1068,17 @@ export default function Agent({
     if (phase.current === "arriving") {
       // One-way hub -> home (a persona that just fired, walking in from the
       // manager and sitting down to work) -- ends in "resting", never
-      // returns to the hub the way a roundtrip does.
+      // returns to the hub the way a roundtrip does. WALK-ROUTING pass:
+      // routed via `outboundPath.current` (set to the graph-routed leg, or
+      // the raw [hub, home] fallback, at walk-start above) through the SAME
+      // resolvePathPose machinery "toHub" uses just below -- see that
+      // function's own comment for why this reproduces the exact old
+      // "turn before moving, constant facing for the whole leg" feel when
+      // the path is still just 2 points.
       const p = easedWalkProgress(t - phaseStart.current, walkLegDuration.current, WALK_EASE_S);
-      g.rotation.y = walkFacing.current; // "turn before moving" -- see the ref's own comment
-      g.position.set(
-        hub[0] + (home[0] - hub[0]) * p,
-        home[1],
-        hub[2] + (home[2] - hub[2]) * p,
-      );
+      const pose = resolvePathPose(outboundPath.current, p, WALK_SPEED);
+      g.rotation.y = pose.facing;
+      g.position.set(...pose.position);
     } else if (phase.current === "toHub") {
       // MOTION-2 V2: resolvePathPose walks the (possibly multi-leg) outbound
       // path -- see that function's own comment; reduces to exactly today's
