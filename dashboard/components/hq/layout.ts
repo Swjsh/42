@@ -335,6 +335,39 @@ export function computeBrainWallMount(armIndex: number): WallMount {
   // screen-space band. Reads as a screen mounted up near the wall's own top
   // rather than a floor-level panel -- verify via a fresh
   // hq_capture.ps1 pass if this segment's wall/ceiling geometry ever changes.
+  // DECLUTTER builder pass (2026-09-14, real captures boardfit-close/
+  // overview.png, read at 1:1): the board at radius 6.3 / y 2.6, paired
+  // with SmartBoard.tsx's since-reduced BOARD_SCALE=11, had a horizontal
+  // extent (raw width 0.685 * scale, ~6.85u at 11x) FAR past this
+  // segment's own WallMount.width=3.3, spilling into the neighboring
+  // persona-desk segments ("covers the back half of the hub"), and its
+  // bottom-anchored top edge (mount y + raw height*scale) landed roughly
+  // 4.8u above SetKit.tsx#HUB_CEILING_Y ("rises above the hub walls into
+  // the sky"). SmartBoard.tsx's own BOARD_SCALE=9.6 comment has the full
+  // math/trade-off writeup for the scale cut; this radius/y stayed put --
+  // see the self-correction note right below for why.
+  // SELF-CORRECTION (same session, caught by this pass's own required
+  // real-capture verification, per OP-33): a first attempt here moved BOTH
+  // radius (6.3->6.6, toward the wall) AND y (2.6->1.1, much lower) at
+  // once. The resulting declutter-close.png/declutter-overview.png
+  // captures showed the board GONE ENTIRELY -- and re-reading this
+  // function's OWN comment above explains exactly why: it's the identical
+  // failure mode already diagnosed here once ("a target close to the near
+  // wall sits almost entirely in its shadow... radius 6.8 showed NO board
+  // visible at all... line-of-sight height at the wall's own radius, for a
+  // target at radius 6.8, computes to ~3.3"). Pushing radius toward the
+  // wall WHILE ALSO dropping y put the board below that same LOS floor a
+  // second time. Reverted radius/y to the values THIS FILE already proved
+  // render correctly from the close-cam preset (6.3 / 2.6, unchanged from
+  // before this pass) -- only BOARD_SCALE/BOARD_PITCH change now (see
+  // SmartBoard.tsx's own comment). This keeps the board visibly LARGER
+  // than the original 8x (9.6x) and modestly reduces the ceiling overshoot
+  // (~4.8u -> ~3.7u, from the smaller raw height alone), but does NOT
+  // achieve full ceiling containment -- see this pass's own capture
+  // verification/report for the measured top-edge number. Full containment
+  // at a "clearly bigger than 8x" scale needs either a taller hub ceiling
+  // or a mount radius/y combination nobody has found yet that stays above
+  // this camera's own LOS floor -- out of this pass's scope.
   const radius = 6.3;
   const position: [number, number, number] = [Math.cos(segCenterAngle) * radius, 2.6, Math.sin(segCenterAngle) * radius];
   return { position, yaw: rotationYFacing(position, HUB) + Math.PI, width: 3.3 };

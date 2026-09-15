@@ -8,6 +8,8 @@ import { bubbleCounterScale } from "./bubbleText";
 import { KitAgentBody, type KitAnimState } from "./KitAgent";
 import { BAY_DESK_OFFSET_Z, BAY_SEAT_LOCAL, CHARACTER_TARGET_HEIGHT, DeskCluster } from "./SetKit";
 import { localToWorld, splitBriefSentences, truncateOneLine, type ScreenLine } from "./palette";
+import { PRIORITY } from "./labelDeclutter";
+import { useLabelDeclutter } from "./useLabelDeclutter";
 
 interface GammaLoopRow {
   ts_et: string;
@@ -148,6 +150,10 @@ export default function GammaCharacter({
 
   const seatWorld = localToWorld(deskCenter, rotationY, BAY_SEAT_LOCAL);
   const bubbleWorld: [number, number, number] = [seatWorld[0], seatWorld[1] + CHARACTER_TARGET_HEIGHT + 0.4, seatWorld[2]];
+  // DECLUTTER pass: Gamma never walks -- bubbleWorld is stable per render,
+  // so the getter can just close over it directly (no ref indirection
+  // needed the way a moving Agent/LiveAgentAvatar requires).
+  const declutterRef = useLabelDeclutter("gamma", PRIORITY.GAMMA, () => bubbleWorld);
   // Same on-screen size policy as every other head bubble (bubbleText.ts#
   // bubbleCounterScale): ref mutation in useFrame, never React state.
   const bubbleWrapRef = useRef<HTMLDivElement>(null);
@@ -210,6 +216,10 @@ export default function GammaCharacter({
         const line = truncateOneLine(bubbleText, GAMMA_BUBBLE_ACTION_MAX_CHARS);
         return (
         <Html position={bubbleWorld} center distanceFactor={9} style={{ pointerEvents: "none" }}>
+          {/* DECLUTTER pass: outer wrapper the shared resolver owns, kept
+              separate from `bubbleWrapRef`'s own camera-distance scale --
+              see Agent.tsx's identical convention/comment. */}
+          <div ref={declutterRef} style={{ transformOrigin: "50% 100%" }}>
           <div ref={bubbleWrapRef} style={{ position: "relative", transformOrigin: "50% 100%" }}>
             <div className="hq-beam" style={{ "--beam-color": accentColor, borderRadius: 6 } as CSSProperties}>
               <div
@@ -234,6 +244,7 @@ export default function GammaCharacter({
                 borderRight: `1px solid ${accentColor}`, borderBottom: `1px solid ${accentColor}`,
               }}
             />
+          </div>
           </div>
         </Html>
         );

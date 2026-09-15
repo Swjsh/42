@@ -46,6 +46,8 @@ import { KitAgentBody, WALK_SPEED, type KitAnimState } from "./KitAgent";
 import { findWalkPath, type WalkGraph } from "./layout";
 import { truncateOneLine } from "./palette";
 import { bubbleCounterScale } from "./bubbleText";
+import { PRIORITY } from "./labelDeclutter";
+import { useLabelDeclutter } from "./useLabelDeclutter";
 import { CHARACTER_SCALE, CHARACTER_TARGET_HEIGHT } from "./SetKit";
 import type { LiveAgent } from "./types";
 import type { LiveAgentState } from "@/lib/hq-agents";
@@ -342,6 +344,21 @@ function LiveAgentAvatar({
   // shared head height so 2+ overlapping bubbles read as a short stack
   // instead of one illegible smear of text.
   const bubbleY = BUBBLE_HEAD_Y + standIndex * STAND_BUBBLE_Y_STEP;
+  // DECLUTTER pass: registers with the SHARED screen-space resolver (this
+  // avatar's own group ref moves every frame -- see Agent.tsx's identical
+  // "pure Y-offset survives Y-axis rotation exactly" reasoning for why
+  // group.position + [0, bubbleY, 0] is the real Html world position, not
+  // an approximation). Live agents + Gamma are the top declutter tier per
+  // the brief ("live-agent bubbles and Gamma > persona bubbles > plaque >
+  // lane labels").
+  const declutterWorldPos = useMemo(
+    () => (): [number, number, number] => {
+      const g = group.current;
+      return g ? [g.position.x, g.position.y + bubbleY, g.position.z] : [0, bubbleY, 0];
+    },
+    [bubbleY],
+  );
+  const declutterRef = useLabelDeclutter(`live:${liveAgentId}`, PRIORITY.LIVE_AGENT, declutterWorldPos);
 
   return (
     <group ref={group}>
@@ -349,6 +366,10 @@ function LiveAgentAvatar({
         <KitAgentBody laneSeed={liveAgentId} animState={animState} accentColor={accentColor} />
       </Suspense>
       <Html position={[0, bubbleY, 0]} center distanceFactor={9} style={{ pointerEvents: "none" }}>
+        {/* DECLUTTER pass: outer wrapper the shared resolver owns, kept
+            separate from `bubbleWrapRef`'s own camera-distance fade/scale --
+            see Agent.tsx's identical convention/comment. */}
+        <div ref={declutterRef} style={{ transformOrigin: "50% 100%" }}>
         <div ref={bubbleWrapRef} style={{ position: "relative", transformOrigin: "50% 100%" }}>
           <div className="hq-beam" style={{ "--beam-color": accentColor, borderRadius: 6 } as CSSProperties}>
             <div
@@ -373,6 +394,7 @@ function LiveAgentAvatar({
               borderRight: `1px solid ${accentColor}`, borderBottom: `1px solid ${accentColor}`,
             }}
           />
+        </div>
         </div>
       </Html>
     </group>

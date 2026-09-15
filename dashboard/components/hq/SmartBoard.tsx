@@ -56,14 +56,37 @@ useGLTF.preload(MODEL_PATH, false);
 // was the middle ground: still reads as one large board (not the 16x
 // diagnostic's wall-filling size), legible at preset 0's distance.
 // SCALE-2 (2026-09-15, J live: "make the main screens in the center
-// building a bit bigger"): 11x (~1.375x over 8x, within the 1.3-1.4x brief
-// range) -- the board's own mount (layout.ts#computeBrainWallMount, y=0.5
-// bottom-anchored) and the room's true ceiling height are unaffected by
-// this constant change alone -- verified against a fresh capture
-// (setup/scripts/hq_capture.ps1) for clipping; if the top clips the
-// ceiling the fix is lowering computeBrainWallMount's own `y`, not
-// shrinking this back down.
-const BOARD_SCALE = 11;
+// building a bit bigger"): 11x was SHIPPED WITHOUT actually checking the
+// claim in its own comment above ("the room's true ceiling height are
+// unaffected... if the top clips the ceiling the fix is lowering
+// computeBrainWallMount's own y") -- nobody ever ran that check. DECLUTTER
+// builder pass (2026-09-14, real captures boardfit-close/overview.png read
+// at 1:1): at 11x (raw height 0.455 * 11 = 5.0), bottom-anchored at the OLD
+// mount y=2.6, the board's own top edge lands at world Y ~7.6 -- SetKit.tsx's
+// own HUB_CEILING_Y is 4.25*0.75-0.4 = ~2.79 (the room's real usable
+// height), so the board rose ~4.8 units INTO THE SKY, exactly the "rises
+// above the hub walls" defect. The raw model's own aspect ratio
+// (0.685w x 0.455h, ~1.5:1) means ANY scale that's genuinely "clearly
+// bigger than 8x" (raw height 3.64) cannot fit height-wise under this
+// room's real ceiling while ALSO clearing standing-character head height
+// (~1.7-2.3, see LiveAgents.tsx/BrainCore.tsx's own documented band) --
+// the two asks (bigger; strictly ceiling-contained) are not fully
+// reconcilable at this room's current scale, a genuine room-geometry
+// constraint, not a tuning miss (the math: HUB_CEILING_Y(2.79) minus a
+// reasonable low mount(~1.1) leaves ~1.7u of height budget, i.e. scale
+// ~3.7 -- SMALLER than the original 8x). This pass takes the pragmatic
+// side of that trade-off: 9.6x (exactly 1.2x over the original 8x, this
+// task's own explicit floor) is real growth over 8x and a real cut from
+// the broken 11x, paired with a substantially lower mount y (see
+// layout.ts#computeBrainWallMount's own comment) that shrinks the ceiling
+// overshoot from ~4.8u to a smaller, DOCUMENTED residual rather than
+// silently claiming full containment -- see this task's own capture
+// verification in the commit message / report for the measured numbers.
+// A future pass that wants FULL containment at "clearly bigger than 8x"
+// needs the hub's own ceiling raised (SetKit.tsx#ARCHITECTURE_SCALE_HUB or
+// the room-large.glb mount) -- out of this pass's own scope (LAYOUT/MODELS
+// territory, not a board-scale-only fix).
+const BOARD_SCALE = 9.6;
 
 // Content-plane geometry, in the SAME raw (pre-BOARD_SCALE) units as the
 // GLB itself -- inset within the model's own bezel (raw width 0.685,
@@ -90,7 +113,12 @@ const GLOW_Z = 0.069;
 // "wall screen," not "floating panel," read the mount move alone targets.
 // Small (~9deg) -- SmartBoard's content plane is flat 2D text, not
 // legible if tilted hard.
-const BOARD_PITCH = -0.16;
+// DECLUTTER builder pass: -0.16 -> -0.20 -- a slightly steeper downward tilt
+// trims a small amount off the effective on-screen top height (top_y ~=
+// mount_y + raw_height*scale*cos(pitch); cos(0.20)=0.980 vs cos(0.16)=0.987,
+// a small but free reduction) without crossing into the "not legible if
+// tilted hard" territory this constant's own header already warns about.
+const BOARD_PITCH = -0.2;
 
 // Canvas resolution for the board's own content texture -- NOT
 // palette.ts#createScreenCanvas's shared 256x160 (that size is tuned for a

@@ -41,6 +41,8 @@ import GammaCharacter from "./GammaCharacter";
 // jsonl, via lib/hq-agents.ts server-side) walking the SAME walk graph
 // personas already use -- see that file's own header.
 import LiveAgents from "./LiveAgents";
+import LabelDeclutterManager from "./LabelDeclutterManager";
+import { PRIORITY } from "./labelDeclutter";
 import { laneBubbleAction, personaBubbleAction } from "./bubbleText";
 import { computePurposefulWalk, dayNightFactor, healthColor, hhmmFromEtIso, isParkedState, isRegularTradingHours, lerp, localToWorld, minutesSinceEvidence, nowEtDayOfWeek, nowEtMinutes, PALETTE, personaStatusColor, scheduleOnShift, truncateOneLine, type ScreenLine } from "./palette";
 import { BAY_DESK_OFFSET_Z, BAY_SEAT_LOCAL, CHARACTER_SCALE, CHARACTER_TARGET_HEIGHT, CorridorRun, DeskCluster, HubRoom, HUB_WALL_RADIUS, Plaza, TJunction } from "./SetKit";
@@ -1658,6 +1660,15 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
           LAYOUT builder pass (campus-cross rebuild): now a union footprint
           (central hub circle + 4 arm slabs), sized from layout.ts's own
           exported dimensions -- all three already apron-inclusive. */}
+      {/* DECLUTTER pass (2026-09-14): mounted EXACTLY ONCE, anywhere inside
+          this <Canvas> tree -- resolves screen-space overlaps for every
+          registered label (persona/lane bubbles, Gamma, live agents, the
+          BrainCore plaque) via the shared registry (useLabelDeclutter.ts).
+          Renders nothing (`return null`), tier-agnostic (registration is a
+          no-op with zero visible labels on the TV tier, so this is safe to
+          always mount). */}
+      <LabelDeclutterManager />
+
       {ultra && (
         <Plaza
           centerRadius={PLAZA_CENTER_RADIUS}
@@ -2072,6 +2083,7 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
                 // JSX bolds it for free, no separate prop needed).
                 bubbleText={personaBubble}
                 auditVerdict={auditByName.get(persona.name)?.verdict}
+                bubblePriority={PRIORITY.PERSONA}
               />
             )}
             {/* Item 2c (LIVE-1): Pilot's desk pulse -- RTH-only (CLAUDE.md's

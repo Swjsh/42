@@ -10,6 +10,8 @@ import type { SectorsSnapshot, TradingStatus } from "@/lib/hq";
 import { clamp01, lerp, makeMatcapTexture, PALETTE, personaStatusColor } from "./palette";
 import { ReactorGreeble } from "./SetKit";
 import HubInterior from "./HubInterior";
+import { PRIORITY } from "./labelDeclutter";
+import { useLabelDeclutter } from "./useLabelDeclutter";
 
 /** Mirrors GammaCharacter.tsx's own local `GammaLoopRow` shape (that file's
  * own comment: "the SAME loop-ledger row the crew panel's own pill
@@ -223,6 +225,18 @@ export default function BrainCore({
   const plaqueRef = useRef<HTMLDivElement>(null);
   const pulseRef = useRef<HTMLDivElement>(null);
   const gamingRef = useRef<HTMLDivElement>(null);
+  // DECLUTTER pass (2026-09-14): only the main status plaque registers --
+  // it's the one the real captures (boardfit-overview/close.png) showed
+  // cutting into "Coach"/"general-purpose" bubbles at the hub center; the
+  // pulse/gaming plaques are rare/conditional overlays, out of this pass's
+  // own scope (smallest-correct-change). World position is static (PLAQUE_Y
+  // scaled by this component's own outer CORE_GROUP_SCALE, matching
+  // presetZeroClampFactor's own worldY convention just above).
+  const declutterRef = useLabelDeclutter(
+    "brain-plaque",
+    PRIORITY.PLAQUE,
+    () => [0, PLAQUE_Y * CORE_GROUP_SCALE, 0] as [number, number, number],
+  );
 
   const utilFrac = clamp01((utilPct ?? 0) / 100);
   const memFrac = memUsedMib && memTotalMib ? clamp01(memUsedMib / memTotalMib) : 0;
@@ -399,6 +413,11 @@ export default function BrainCore({
           panel. Wrapped in .hq-beam (Border Beam, see Hud.tsx's shared
           <style>) since this is the hub's own HUD-adjacent plaque. */}
       <Html position={[0, PLAQUE_Y, 0]} center distanceFactor={9} style={{ pointerEvents: "none" }}>
+        {/* DECLUTTER pass: outer wrapper the shared resolver owns (vertical
+            nudge + fade-beyond-cap), kept separate from `plaqueRef`'s own
+            existing presetZeroClampFactor close-camera scale-clamp -- see
+            Agent.tsx's identical two-wrapper convention/comment. */}
+        <div ref={declutterRef} style={{ transformOrigin: "50% 100%" }}>
         <div ref={plaqueRef} className="hq-beam" style={{ "--beam-color": "#7ad9ff", borderRadius: 8 } as CSSProperties}>
           <div
             style={{
@@ -424,6 +443,7 @@ export default function BrainCore({
               </div>
             )}
           </div>
+        </div>
         </div>
       </Html>
 

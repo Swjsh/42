@@ -16,6 +16,8 @@ import { recordAgentSample } from "@/lib/hq-motion-diag";
 // its own), so this cannot create a circular runtime dependency.
 import type { WalkPlan } from "./types";
 import { bubbleCounterScale } from "./bubbleText";
+import { PRIORITY } from "./labelDeclutter";
+import { useLabelDeclutter } from "./useLabelDeclutter";
 
 export type AgentBehavior = "working" | "idle" | "alert" | "frozen";
 // MOTION-2 V2: "waypoints" added -- a walk driven by a real LAYOUT-supplied
@@ -168,6 +170,14 @@ interface AgentProps {
    * PASS/WARN/FAIL colored via auditVerdictColor). Undefined renders no
    * chip (a lane agent, or a persona /api/hq predates the audit for). */
   auditVerdict?: string;
+  /** DECLUTTER pass (2026-09-14): which precedence tier this agent's own
+   * head bubble registers at with the shared screen-space declutter system
+   * (labelDeclutter.ts's own PRIORITY -- "persona bubbles > lane labels" per
+   * the brief). Scene.tsx passes PRIORITY.PERSONA for the 6 hub personas;
+   * every lane/bay caller omits this and gets the default (PRIORITY.LANE),
+   * matching this component's own dual persona/lane use (see this file's
+   * own header). */
+  bubblePriority?: number;
 }
 
 const HUB_PAUSE = 1.5;
@@ -420,6 +430,7 @@ export default function Agent({
   scheduleDim = 1,
   ultra = false,
   bubbleText, purposefulReason, eventWalkReason, auditVerdict,
+  bubblePriority = PRIORITY.LANE,
 }: AgentProps) {
   const group = useRef<THREE.Group>(null);
   const legL = useRef<THREE.Mesh>(null);
@@ -1129,6 +1140,25 @@ export default function Agent({
   const bubbleActionTrunc = bubbleAction ? truncateOneLine(bubbleAction, BUBBLE_ACTION_MAX_CHARS) : null;
   const bubbleY = (ultra ? ULTRA_HEAD_Y : TV_HEAD_Y) + BUBBLE_HEAD_GAP;
 
+  // DECLUTTER pass: registers this agent's own bubble anchor (group position
+  // + the fixed vertical bubbleY offset -- exact, not approximate, since a
+  // pure Y-axis rotation never moves a point already offset only along Y --
+  // see useLabelDeclutter.ts's own call-site convention) with the shared
+  // resolver. `laneSeed` is stable for the lifetime of this mounted agent
+  // (a lane name or persona name never changes underneath the same slot),
+  // so it's a safe declutter id. Registered unconditionally (cheap -- a
+  // `useEffect` + module Map write) even on ticks with no visible bubble;
+  // the manager itself skips any wrapperRef whose element isn't mounted.
+  const declutterId = `${bubblePriority === PRIORITY.PERSONA ? "persona" : "lane"}:${laneSeed}`;
+  const declutterWorldPos = useMemo(
+    () => (): [number, number, number] => {
+      const g = group.current;
+      return g ? [g.position.x, g.position.y + bubbleY, g.position.z] : [0, 0, 0];
+    },
+    [bubbleY],
+  );
+  const declutterRef = useLabelDeclutter(declutterId, bubblePriority, declutterWorldPos);
+
   return (
     <group ref={group}>
       {ultra ? (
@@ -1199,6 +1229,13 @@ export default function Agent({
           null) -- never a fabricated line, never an empty bubble. */}
       {bubbleActionTrunc && (
         <Html position={[0, bubbleY, 0]} center distanceFactor={9} style={{ pointerEvents: "none" }}>
+          {/* DECLUTTER pass: a NEW outer wrapper the shared resolver owns
+              (transform/opacity only, vertical-nudge + fade-beyond-cap) --
+              deliberately separate from `bubbleWrapRef` just inside it,
+              which keeps doing its own camera-distance scale/fade exactly
+              as before (see labelDeclutter.ts's own header for why these
+              must be two different DOM nodes). */}
+          <div ref={declutterRef} style={{ transformOrigin: "50% 100%" }}>
           <div ref={bubbleWrapRef} style={{ position: "relative", transformOrigin: "50% 100%" }}>
             <div className="hq-beam" style={{ "--beam-color": accentColor, borderRadius: 6 } as CSSProperties}>
               <div
@@ -1242,6 +1279,7 @@ export default function Agent({
                 borderRight: `1px solid ${accentColor}`, borderBottom: `1px solid ${accentColor}`,
               }}
             />
+          </div>
           </div>
         </Html>
       )}
