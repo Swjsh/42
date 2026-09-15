@@ -70,7 +70,11 @@ import { PALETTE } from "./palette";
 import { PRIORITY } from "./labelDeclutter";
 import { useLabelDeclutter } from "./useLabelDeclutter";
 import { bubbleCounterScale } from "./bubbleText";
-import { deriveTradeArmLabel, formatGroupedTradeLines, groupTradesByBarAndSide } from "@/lib/hq-chart-pure";
+import {
+  deriveTradeArmLabel, formatGroupedTradeLines, groupTradesByBarAndSide,
+  computeLevelInteraction, formatLevelInteractionText, isLevelLive,
+  type LevelInteraction,
+} from "@/lib/hq-chart-pure";
 import type { HoloChartData, HoloLevel, HoloTradeMarker } from "@/lib/hq-chart-data";
 import type { ChartBar } from "@/lib/chart-data";
 
@@ -323,14 +327,29 @@ interface LevelPlanesProps {
   domain: { low: number; high: number };
   bars: ChartBar[];
   opacity: number;
+  /** Real price interaction (HQ-LEVEL-TOUCHES, 2026-09-15) -- true while the
+   * live sight-beacon point sits inside this level's own zone band during
+   * RTH; drives a brighter plane color. Calm (base color) whenever false,
+   * including after hours -- see isLevelLive's own header. */
+  liveFlags: boolean[];
 }
+
+const WHITE = new THREE.Color("#ffffff");
+// How far the live-intensified color blends toward white -- bright enough to
+// read as "active" next to the calm base tone without washing out the
+// support/resistance color coding this scene already relies on.
+const LIVE_INTENSITY_MIX = 0.35;
+const _brightColor = new THREE.Color();
 
 /** Thin glowing horizontal planes, one per real key level -- ONE
  * InstancedMesh draw call regardless of level count. Flashes white once when
  * the session's newest bar crosses/touches a level it wasn't already
  * touching (see checkLevelTouches) -- inert (no-op every frame) whenever no
- * flash is active, which is the steady-state case. */
-function LevelPlanes({ levels, domain, bars, opacity }: LevelPlanesProps) {
+ * flash is active, which is the steady-state case. Also intensifies (blends
+ * toward white) for whichever levels `liveFlags` marks as currently being
+ * tested by the live price -- a data readout like the flash, not a
+ * decorative loop (recomputed on data change, never per-frame). */
+function LevelPlanes({ levels, domain, bars, opacity, liveFlags }: LevelPlanesProps) {
   const meshRef = useRef<THREE.InstancedMesh>(null);
   const flashUntilRef = useRef<Float64Array>(new Float64Array(MAX_LEVELS));
   const prevLastBarRef = useRef<ChartBar | null>(null);
@@ -340,7 +359,12 @@ function LevelPlanes({ levels, domain, bars, opacity }: LevelPlanesProps) {
     const mesh = meshRef.current;
     if (!mesh) return;
     const flashing = flashUntilRef.current[i] > nowMs;
-    mesh.setColorAt(i, flashing ? COLOR_FLASH : base);
+    if (flashing) {
+      mesh.setColorAt(i, COLOR_FLASH);
+      return;
+    }
+    const live = liveFlags[i] === true;
+    mesh.setColorAt(i, live ? _brightColor.copy(base).lerp(WHITE, LIVE_INTENSITY_MIX) : base);
   };
 
   useEffect(() => {
@@ -363,7 +387,7 @@ function LevelPlanes({ levels, domain, bars, opacity }: LevelPlanesProps) {
     }
     prevLastBarRef.current = newLast;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [levels, domain.low, domain.high, bars]);
+  }, [levels, domain.low, domain.high, bars, liveFlags]);
 
   useFrame(() => {
     const mesh = meshRef.current;
@@ -431,9 +455,23 @@ function layoutLabelYs(levels: HoloLevel[], domain: { low: number; high: number 
  * spot, and gives the resolver a head start with less overlap to resolve
  * per level cluster), the screen-space nudge/fade is what now GUARANTEES
  * legibility. */
+/** LEVEL-TOUCHES (2026-09-15): plaque now carries the level's real today's
+ * interaction (touches, rejection vs break, first/last touch time -- see
+ * computeLevelInteraction's own header in lib/hq-chart-pure.ts) instead of
+ * sitting as a static price+tag forever. An untested level (touches===0,
+ * `interactionText === ""`) renders IDENTICALLY to the pre-existing look
+ * (price + tag only) -- per this task's own "no new design language"
+ * instruction, only a level price has actually reacted to gets the extra
+ * line. `isLive` (true while the fresh live price sits inside this level's
+ * own zone band during RTH) brightens the border/background the same way a
+ * "currently active" state reads elsewhere in this scene -- calm (identical
+ * to the pre-existing style) whenever false, including after hours. */
 function LevelLabelItem({
-  level, localX, localY, worldPos, dimFactor,
-}: { level: HoloLevel; localX: number; localY: number; worldPos: [number, number, number]; dimFactor: number }) {
+  level, localX, localY, worldPos, dimFactor, interaction, isLive,
+}: {
+  level: HoloLevel; localX: number; localY: number; worldPos: [number, number, number]; dimFactor: number;
+  interaction: LevelInteraction; isLive: boolean;
+}) {
   // `getWorldPos` returns the REAL world position (origin+rotation+scale
   // already applied by chartLocalToWorld, computed once by the parent) --
   // only used by the declutter registry's own distance tie-break, never for
@@ -448,6 +486,8 @@ function LevelLabelItem({
     () => worldPos,
     { orderGroup: PRICE_PLAQUE_ORDER_GROUP, orderKey: -level.price },
   );
+  const interactionText = formatLevelInteractionText(interaction);
+  const accentColor = level.type === "support" ? PALETTE.hubCore : PALETTE.warmAccent;
   return (
     <Html position={[localX, localY, 0]} center distanceFactor={7} style={{ pointerEvents: "none" }}>
       <div ref={wrapperRef}>
@@ -455,12 +495,18 @@ function LevelLabelItem({
           ref={measureRef}
           style={{
             fontFamily: "system-ui, sans-serif", whiteSpace: "nowrap",
-            color: level.type === "support" ? PALETTE.hubCore : PALETTE.warmAccent,
-            background: "rgba(3,4,10,0.72)", padding: "2px 8px", borderRadius: 5,
+            color: accentColor,
+            background: isLive ? "rgba(3,4,10,0.55)" : "rgba(3,4,10,0.72)",
+            padding: "2px 8px", borderRadius: 5,
             fontSize: 15, fontWeight: 700, letterSpacing: 0.3, opacity: dimFactor,
+            border: isLive ? `1px solid ${accentColor}` : "1px solid transparent",
+            boxShadow: isLive ? `0 0 6px ${accentColor}` : "none",
           }}
         >
           {level.price.toFixed(2)} <span style={{ opacity: 0.75, fontWeight: 600 }}>{level.tag}</span>
+          {interactionText && (
+            <span style={{ opacity: 0.85, fontWeight: 600, color: PALETTE.textDim }}> · {interactionText}</span>
+          )}
         </div>
       </div>
     </Html>
@@ -468,18 +514,23 @@ function LevelLabelItem({
 }
 
 function LevelLabels({
-  levels, domain, dimFactor, origin, facingYaw,
-}: { levels: HoloLevel[]; domain: { low: number; high: number }; dimFactor: number; origin: [number, number, number]; facingYaw: number }) {
+  levels, domain, dimFactor, origin, facingYaw, bars, live,
+}: {
+  levels: HoloLevel[]; domain: { low: number; high: number }; dimFactor: number; origin: [number, number, number];
+  facingYaw: number; bars: ChartBar[]; live: { price: number; ageSeconds: number } | null;
+}) {
   const labelYs = useMemo(() => layoutLabelYs(levels, domain), [levels, domain]);
   const localX = RIBBON_WIDTH / 2 + BASE_PLATE_MARGIN * 0.55;
   return (
     <>
       {levels.map((l, i) => {
         const worldPos = chartLocalToWorld(origin, facingYaw, localX, labelYs[i]);
+        const interaction = computeLevelInteraction(l, bars);
         return (
           <LevelLabelItem
             key={`${l.type}-${l.price}`}
             level={l} localX={localX} localY={labelYs[i]} worldPos={worldPos} dimFactor={dimFactor}
+            interaction={interaction} isLive={isLevelLive(l.price, live)}
           />
         );
       })}
@@ -830,6 +881,17 @@ export default function HoloChart({ origin, facingYaw, dimFactor }: HoloChartPro
 
   const domain = data ? computeDomain(data) : null;
 
+  // LEVEL-TOUCHES (2026-09-15): one boolean per level, true while the fresh
+  // live price sits inside that level's own zone band -- feeds LevelPlanes'
+  // brighten-while-active color. Recomputed each SWR poll (60s cadence,
+  // same as every other data-driven visual in this component), never a
+  // per-frame animation -- see isLevelLive's own header for the RTH/
+  // freshness gate that keeps this calm after hours.
+  const levelLiveFlags = useMemo(
+    () => (data ? data.levels.map((l) => isLevelLive(l.price, data.live)) : []),
+    [data],
+  );
+
   // POLISH-2 (2026-09-15, real-capture regression, camdist=36, 07:34:21 ET):
   // a tiny label was drawn over the "general-purpose" live-agent bubble near
   // the hub, just under Gamma's own bubble -- neither registered with the
@@ -903,8 +965,11 @@ export default function HoloChart({ origin, facingYaw, dimFactor }: HoloChartPro
       ) : (
         <group position={[0, 0.02, 0]} visible={dimFactor > 0.02}>
           <BarsRibbon bars={data.bars} domain={domain} opacity={dimFactor} />
-          <LevelPlanes levels={data.levels} domain={domain} bars={data.bars} opacity={dimFactor} />
-          <LevelLabels levels={data.levels} domain={domain} dimFactor={dimFactor} origin={origin} facingYaw={facingYaw} />
+          <LevelPlanes levels={data.levels} domain={domain} bars={data.bars} opacity={dimFactor} liveFlags={levelLiveFlags} />
+          <LevelLabels
+            levels={data.levels} domain={domain} dimFactor={dimFactor} origin={origin} facingYaw={facingYaw}
+            bars={data.bars} live={data.live}
+          />
           <TradeMarkers trades={data.trades} bars={data.bars} domain={domain} dimFactor={dimFactor} origin={origin} facingYaw={facingYaw} />
           <LastPriceMarker data={data} domain={domain} dimFactor={dimFactor} origin={origin} facingYaw={facingYaw} />
           <Html position={[0, -0.22, 0]} center distanceFactor={7} style={{ pointerEvents: "none" }}>

@@ -546,6 +546,117 @@ export interface IntradayCandleResult {
  * 570), used ONLY to decide `lastBarPartial` -- never to filter which
  * ticks/buckets are included.
  */
+// --- level interaction (HQ-LEVEL-TOUCHES, 2026-09-15) ----------------------
+//
+// GOAL: levels on HoloChart react to REAL price interaction (touches,
+// rejections vs breaks) instead of sitting as static plaques -- see this
+// task's own brief. "Levels are ZONES not prices" (J 2026-07-17, memory
+// feedback_levels_are_zones_2026_07_17): a level is never a penny-exact
+// price, so "touch" here means the bar's [low,high] range ENTERED the
+// level's zone band, not an exact price match.
+//
+// ZONE WIDTH SOURCE (do not invent a width silently, per this task's own
+// brief): backtest/lib/filters.py#PULLBACK_HOLD_ZONE_BAND_DOLLARS = 0.30,
+// itself pre-registered at the SAME $0.30 width as that file's own
+// CONFLUENCE_TOLERANCE_DOLLARS ("an existing, already-doctrine-sanctioned
+// band width" -- filters.py's own comment) under the levels-are-zones
+// doctrine. This module duplicates the bare number (not the Python constant
+// itself -- no cross-language import exists) rather than re-deriving a new
+// width, so the dashboard's zone reacts identically to the engine's own.
+export const LEVEL_ZONE_BAND_DOLLARS = 0.3;
+
+/** Same "ET wall-clock digits stored AS a UTCTimestamp" encoding every other
+ * helper in this file uses (see chartTimeToEtDateStr's own header) -- reads
+ * back just the HH:MM portion via UTC getters, never a real timezone
+ * conversion. Used for the level-interaction plaque's "broke HH:MM" text. */
+export function chartTimeToEtHHMM(time: number): string {
+  const d = new Date(time * 1000);
+  const hh = String(d.getUTCHours()).padStart(2, "0");
+  const mm = String(d.getUTCMinutes()).padStart(2, "0");
+  return `${hh}:${mm}`;
+}
+
+export interface LevelInteraction {
+  /** Number of today's bars whose [low,high] range entered this level's
+   * zone band -- never a penny-exact touch. */
+  touches: number;
+  /** "untested" (zero touches today), "holding" (last touch closed back on
+   * the level's own origin side -- a rejection), or "broke" (last touch
+   * closed through the level). Reflects the MOST RECENT touch's outcome,
+   * not "ever broke" -- a level broken then reclaimed later the same day
+   * reads as "holding" again, matching how a trader would describe it now. */
+  state: "untested" | "holding" | "broke";
+  /** chartTime (ChartBar.time encoding) of the first bar that touched the
+   * zone today, or null if never touched. */
+  firstTouchTime: number | null;
+  /** chartTime of the most recent touch, or null if never touched. */
+  lastTouchTime: number | null;
+}
+
+/** Computes a level's real interaction with today's bars, per this
+ * section's own header. Pure -- no I/O, deterministic given (level, bars,
+ * zoneBand). `bars` need not be sorted (defensively scans in the order
+ * given, matching ChartBar[]'s own chronological-ascending contract from
+ * the caller), but a chronologically-ascending array (the norm everywhere
+ * else in this codebase) is required for `state` to reflect the true LATEST
+ * touch. */
+export function computeLevelInteraction(
+  level: Pick<HoloLevel, "price" | "type">,
+  bars: readonly ChartBar[],
+  zoneBand: number = LEVEL_ZONE_BAND_DOLLARS,
+): LevelInteraction {
+  const zoneLow = level.price - zoneBand;
+  const zoneHigh = level.price + zoneBand;
+  let touches = 0;
+  let firstTouchTime: number | null = null;
+  let lastTouchTime: number | null = null;
+  let lastBroke = false;
+  for (const bar of bars) {
+    const entered = bar.high >= zoneLow && bar.low <= zoneHigh;
+    if (!entered) continue;
+    touches += 1;
+    if (firstTouchTime === null) firstTouchTime = bar.time;
+    lastTouchTime = bar.time;
+    lastBroke = level.type === "resistance" ? bar.close > level.price : bar.close < level.price;
+  }
+  const state: LevelInteraction["state"] = touches === 0 ? "untested" : lastBroke ? "broke" : "holding";
+  return { touches, state, firstTouchTime, lastTouchTime };
+}
+
+/** Renders a level's real interaction as the short plaque suffix this
+ * task's own brief specifies, e.g. "3 touches · held" or "5 touches · broke
+ * 13:05" -- empty string for an untested level (the plaque then shows just
+ * the price + tag, exactly the pre-existing look, per this task's own "no
+ * new design language" instruction: an untouched level looks like it always
+ * did). Never fabricates a time for a level with zero touches. */
+export function formatLevelInteractionText(interaction: LevelInteraction): string {
+  if (interaction.touches === 0) return "";
+  const plural = interaction.touches === 1 ? "touch" : "touches";
+  if (interaction.state === "broke" && interaction.lastTouchTime !== null) {
+    return `${interaction.touches} ${plural} · broke ${chartTimeToEtHHMM(interaction.lastTouchTime)}`;
+  }
+  return `${interaction.touches} ${plural} · held`;
+}
+
+/** True when the live sight-beacon point is fresh enough AND sitting inside
+ * this level's own zone band -- drives the plaque/plane's visual
+ * intensification while RTH price is actually testing the level, per this
+ * task's own brief ("intensifies while live price is inside its zone
+ * during RTH ... calm after hours"). `maxAgeSeconds` defaults to 120s, a
+ * tighter bar than the server's own general STALE_AFTER_S=180s freshness
+ * gate (hq-chart-data.ts) -- intentional: "reacting to price" should look
+ * calm the moment the tick goes stale-ish, not wait for the outer gate. */
+export function isLevelLive(
+  levelPrice: number,
+  live: { price: number; ageSeconds: number } | null,
+  zoneBand: number = LEVEL_ZONE_BAND_DOLLARS,
+  maxAgeSeconds = 120,
+): boolean {
+  if (!live) return false;
+  if (live.ageSeconds >= maxAgeSeconds) return false;
+  return live.price >= levelPrice - zoneBand && live.price <= levelPrice + zoneBand;
+}
+
 export function buildIntradayCandles(ticks: IntradayTick[], nowMinutesOfDay: number): IntradayCandleResult {
   interface Parsed {
     chartTime: number;

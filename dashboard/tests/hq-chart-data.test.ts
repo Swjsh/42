@@ -31,6 +31,11 @@ import {
   groupTradesByBarAndSide,
   formatGroupedTradeLabel,
   formatGroupedTradeLines,
+  LEVEL_ZONE_BAND_DOLLARS,
+  chartTimeToEtHHMM,
+  computeLevelInteraction,
+  formatLevelInteractionText,
+  isLevelLive,
   type HoloLevel,
   type IntradayTick,
 } from "../lib/hq-chart-pure.ts";
@@ -585,4 +590,138 @@ test("formatGroupedTradeLines: no single line is anywhere near as wide as the ol
 test("formatGroupedTradeLines: a single-item group is still a 2-line plaque (header + the one account)", () => {
   const lines = formatGroupedTradeLines("exit", "put", [{ account: "bold", note: null, price: 0.62, pnl: 75 }]);
   assert.deepEqual(lines, ["EXIT put", "bold-2 0.62 (+75)"]);
+});
+
+// ─── computeLevelInteraction / formatLevelInteractionText / isLevelLive
+//     (HQ-LEVEL-TOUCHES, 2026-09-15) ────────────────────────────────────────
+
+test("LEVEL_ZONE_BAND_DOLLARS matches backtest/lib/filters.py#PULLBACK_HOLD_ZONE_BAND_DOLLARS ($0.30, levels-are-zones doctrine)", () => {
+  assert.equal(LEVEL_ZONE_BAND_DOLLARS, 0.3);
+});
+
+test("chartTimeToEtHHMM reads the ET digits encoded as UTC", () => {
+  const t = Date.UTC(2026, 8, 15, 13, 5, 0) / 1000;
+  assert.equal(chartTimeToEtHHMM(t), "13:05");
+});
+
+test("computeLevelInteraction: zero bars entering the zone -> untested, zero touches", () => {
+  const level = { price: 757.44, type: "resistance" as const };
+  const bars = [bar(1000, { high: 756.0, low: 755.0, close: 755.5 })];
+  const out = computeLevelInteraction(level, bars);
+  assert.deepEqual(out, { touches: 0, state: "untested", firstTouchTime: null, lastTouchTime: null });
+});
+
+test("computeLevelInteraction: a bar whose high/low enters the zone band (not the exact price) counts as a touch -- levels are zones, J 2026-07-17", () => {
+  const level = { price: 757.44, type: "resistance" as const };
+  // High reaches 757.20 -- within the $0.30 zone band (757.14-757.74) but
+  // never actually pierces 757.44 itself. Zone doctrine: this MUST count.
+  const bars = [bar(1000, { high: 757.2, low: 756.9, close: 757.0 })];
+  const out = computeLevelInteraction(level, bars);
+  assert.equal(out.touches, 1);
+  assert.equal(out.state, "holding");
+});
+
+test("computeLevelInteraction: resistance rejected (close back below the level) -> holding", () => {
+  const level = { price: 757.44, type: "resistance" as const };
+  const bars = [bar(1000, { high: 757.6, low: 757.1, close: 757.3 })];
+  const out = computeLevelInteraction(level, bars);
+  assert.equal(out.touches, 1);
+  assert.equal(out.state, "holding");
+  assert.equal(out.firstTouchTime, 1000);
+  assert.equal(out.lastTouchTime, 1000);
+});
+
+test("computeLevelInteraction: resistance broken (close above the level) -> broke", () => {
+  const level = { price: 757.44, type: "resistance" as const };
+  const bars = [bar(1000, { high: 757.9, low: 757.3, close: 757.8 })];
+  const out = computeLevelInteraction(level, bars);
+  assert.equal(out.touches, 1);
+  assert.equal(out.state, "broke");
+});
+
+test("computeLevelInteraction: support mirrors resistance (close below the level breaks it)", () => {
+  const level = { price: 747.88, type: "support" as const };
+  const rejected = computeLevelInteraction(level, [bar(1000, { high: 748.1, low: 747.7, close: 748.0 })]);
+  assert.equal(rejected.state, "holding");
+  const broken = computeLevelInteraction(level, [bar(1000, { high: 747.9, low: 747.5, close: 747.6 })]);
+  assert.equal(broken.state, "broke");
+});
+
+test("computeLevelInteraction: state reflects the MOST RECENT touch, not 'ever broke' -- a break then a later reclaim reads as holding again", () => {
+  const level = { price: 757.44, type: "resistance" as const };
+  const bars = [
+    bar(1000, { high: 757.9, low: 757.3, close: 757.8 }), // broke
+    bar(1300, { high: 756.5, low: 755.9, close: 756.2 }), // no touch (outside zone)
+    bar(1600, { high: 757.6, low: 757.1, close: 757.2 }), // touched again, rejected
+  ];
+  const out = computeLevelInteraction(level, bars);
+  assert.equal(out.touches, 2);
+  assert.equal(out.state, "holding");
+  assert.equal(out.firstTouchTime, 1000);
+  assert.equal(out.lastTouchTime, 1600);
+});
+
+test("computeLevelInteraction: counts every touching bar, not just the last", () => {
+  const level = { price: 757.44, type: "resistance" as const };
+  const bars = [
+    bar(1000, { high: 757.6, low: 757.1, close: 757.3 }),
+    bar(1300, { high: 757.55, low: 757.05, close: 757.2 }),
+    bar(1600, { high: 757.5, low: 757.0, close: 757.35 }),
+  ];
+  const out = computeLevelInteraction(level, bars);
+  assert.equal(out.touches, 3);
+});
+
+test("computeLevelInteraction: a custom zoneBand widens/narrows what counts as a touch", () => {
+  const level = { price: 757.44, type: "resistance" as const };
+  const bars = [bar(1000, { high: 757.0, low: 756.8, close: 756.9 })]; // 0.44 shy of the level
+  assert.equal(computeLevelInteraction(level, bars, 0.3).touches, 0, "default $0.30 band: too far to touch");
+  assert.equal(computeLevelInteraction(level, bars, 0.5).touches, 1, "wider $0.50 band: now touches");
+});
+
+test("formatLevelInteractionText: untested level renders empty (no new design language for an untouched level)", () => {
+  assert.equal(formatLevelInteractionText({ touches: 0, state: "untested", firstTouchTime: null, lastTouchTime: null }), "");
+});
+
+test("formatLevelInteractionText: holding level renders 'N touches · held'", () => {
+  assert.equal(
+    formatLevelInteractionText({ touches: 3, state: "holding", firstTouchTime: 1000, lastTouchTime: 1600 }),
+    "3 touches · held",
+  );
+});
+
+test("formatLevelInteractionText: singular 'touch' for exactly one", () => {
+  assert.equal(
+    formatLevelInteractionText({ touches: 1, state: "holding", firstTouchTime: 1000, lastTouchTime: 1000 }),
+    "1 touch · held",
+  );
+});
+
+test("formatLevelInteractionText: broke level renders 'N touches · broke HH:MM' using the ET time of the last touch", () => {
+  const lastTouchTime = Date.UTC(2026, 8, 15, 13, 5, 0) / 1000;
+  assert.equal(
+    formatLevelInteractionText({ touches: 5, state: "broke", firstTouchTime: 1000, lastTouchTime }),
+    "5 touches · broke 13:05",
+  );
+});
+
+test("isLevelLive: null live tick -> never live", () => {
+  assert.equal(isLevelLive(757.44, null), false);
+});
+
+test("isLevelLive: fresh live price inside the zone band -> live", () => {
+  assert.equal(isLevelLive(757.44, { price: 757.6, ageSeconds: 10 }), true);
+});
+
+test("isLevelLive: fresh live price outside the zone band -> not live", () => {
+  assert.equal(isLevelLive(757.44, { price: 758.5, ageSeconds: 10 }), false);
+});
+
+test("isLevelLive: stale tick (>=120s) inside the zone band -> not live (calm after hours/on staleness)", () => {
+  assert.equal(isLevelLive(757.44, { price: 757.6, ageSeconds: 121 }), false);
+});
+
+test("isLevelLive: right at the 120s boundary is NOT live (exclusive)", () => {
+  assert.equal(isLevelLive(757.44, { price: 757.44, ageSeconds: 120 }), false);
+  assert.equal(isLevelLive(757.44, { price: 757.44, ageSeconds: 119 }), true);
 });

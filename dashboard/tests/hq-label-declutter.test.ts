@@ -538,3 +538,47 @@ test("orderGroup/orderKey: a level plaque and a taller last-close plaque of simi
   );
   assert.ok(levelFinal.y <= lastCloseFinal.y, "757.44 (higher price) must stay above 757.38 · last close");
 });
+
+// ─── HQ-LEVEL-TOUCHES (2026-09-15): longer plaque text ─────────────────────
+// LevelLabelItem's plaque now appends real interaction text ("3 touches ·
+// held" / "5 touches · broke 13:05") to the price+tag it already showed --
+// wider on-screen rects than before. Reproduces a realistic crowded cluster
+// (today's real level set) at the new, longer widths and asserts the
+// existing guarantees (strict price order, zero overlap) still hold.
+test("orderGroup/orderKey: longer level-interaction plaque text ('N touches · held'/'broke HH:MM') still resolves in strict price order with zero overlap", () => {
+  const items: Array<[string, number, number, number]> = [
+    ["759.48-RESISTANCE", 759.48, 50, 230], // "759.48 RESISTANCE · 3 touches · held"
+    ["758.60-RESISTANCE", 758.6, 52, 245], // "758.60 RESISTANCE · 5 touches · broke 13:05"
+    ["757.93-SUPPORT", 757.93, 200, 150], // untested -- stays at the pre-existing short width
+    ["757.62-SWING-HIGH", 757.62, 48, 235],
+    ["757.44-RESISTANCE", 757.44, 5, 250], // adversarial: highest natural y among the low-price group
+    ["757.38-last-close", 757.38, 150, 190],
+  ];
+  const rects = items.map(([id, price, y, w]) => priceRect(id, price, y, w));
+  const out = resolveLabelOffsets(rects);
+
+  // Strict price order (same guarantee the shorter-label test above checks).
+  const finals = items.map(([id, price]) => ({ id, price, finalY: rects.find((r) => r.id === id)!.y + out.get(id)!.dy }));
+  const sortedByPriceDesc = [...finals].sort((a, b) => b.price - a.price);
+  for (let i = 1; i < sortedByPriceDesc.length; i++) {
+    assert.ok(
+      sortedByPriceDesc[i - 1].finalY <= sortedByPriceDesc[i].finalY,
+      `price order violated: ${sortedByPriceDesc[i - 1].price} (y=${sortedByPriceDesc[i - 1].finalY}) must be <= ${sortedByPriceDesc[i].price} (y=${sortedByPriceDesc[i].finalY})`,
+    );
+  }
+
+  // Zero overlap between every pair's final rects, not just individually-clamped positions.
+  for (let i = 0; i < rects.length; i++) {
+    for (let j = i + 1; j < rects.length; j++) {
+      const ri = rects[i];
+      const rj = rects[j];
+      const oi = out.get(ri.id)!;
+      const oj = out.get(rj.id)!;
+      const overlap = rectsOverlap(
+        ri.x + oi.dx, ri.y + oi.dy, ri.width, ri.height,
+        rj.x + oj.dx, rj.y + oj.dy, rj.width, rj.height,
+      );
+      assert.ok(!overlap, `${ri.id} and ${rj.id} still overlap at the new longer widths (${ri.width}px/${rj.width}px)`);
+    }
+  }
+});
