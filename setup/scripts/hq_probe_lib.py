@@ -25,7 +25,21 @@ from __future__ import annotations
 import re
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
-RAW_SHELL_LEAK_RE = re.compile(r"Ran:|\\\\|/c/Users|&&")
+# PROBE-16 addendum (coordinator, 2026-09-15): missed a real leak -- a
+# live-agent hover tooltip (LiveAgents.tsx's `taskDetail`, NOT captured by
+# this probe today -- see check_bubbles's own comment) showed
+# `python "C:/Users/jackw/AppData/Local/Temp/claude/..."`, a drive-letter
+# absolute path with FORWARD slashes and the username, neither of which
+# the old pattern (backslash-only "/c/Users" mount-style path) caught.
+# Widened with: [A-Za-z]:[\\/] (a drive letter followed by EITHER slash
+# form -- "C:\" or "C:/"), /Users/ (mac/WSL-style absolute home, no drive
+# letter), ~/ (shell home-shorthand), and the literal username "jackw" as
+# a whole word in a path (case-insensitive -- scoped inline so it doesn't
+# loosen the other alternatives). Kept narrow: a plain filename like
+# "editing test_hq_probe_lib.py" or "editing hq-agents.ts" has no
+# colon-slash, no /Users/, no ~/, and no "jackw" substring, so it still
+# never matches.
+RAW_SHELL_LEAK_RE = re.compile(r"Ran:|\\\\|/c/Users|&&|[A-Za-z]:[\\/]|/Users/|~/|(?i:\bjackw\b)")
 
 # dashboard/components/hq/KitAgent.tsx:85 sets WALK_SPEED = 0.7 u/s -- this
 # is the design speed check_walk_speed judges the STEADY walking/leaving
@@ -280,6 +294,74 @@ GAP_MIN_S = 1.0
 # run where windowing alone looks fine yet the whole-path number disagrees.
 AVG_SPEED_REGRESSION_TOL = 0.05
 
+# PROBE-16 (coordinator, 2026-09-15): check_walk_speed counted intentional
+# stillness as slow walking. Run 20260915T130317Z had 521 "frozen"
+# walking/leaving samples (pos unchanged tick-to-tick) that drove
+# out_of_band_frac to 0.37 -- none of them a real motion bug
+# (teleport_count 0, pose_jump 0 jumps): 308 during an actual HQ render
+# PAUSE (the orchestrator's own Ollama burst made UltraCanvasRoot.tsx's
+# `paused = gaming || hidden || brainBusy` true, commit 79ace8d4 --
+# frameloop="never" while paused, so NOTHING moved, correctly), 152 are
+# 'leaving' agents holding their CONVOY v4/v9 stagger wait (by design), the
+# rest 1-tick diag-publish-cadence duplicates. "Not walking at all, on
+# purpose or because rendering itself stopped" is not "walking too slowly".
+#
+# PAUSE signal (two, layered): frame_timestamps_ms (this run's own
+# window.__probeRaf capture, RAF_HOOK_SCRIPT -- ALREADY recorded, no new
+# field needed) is the PRIMARY signal -- it works retroactively on samples
+# files captured before this fix existed (20260915T130317Z included). A
+# gap > PAUSE_FRAME_GAP_MAX_S between consecutive GLOBAL
+# requestAnimationFrame callbacks means nothing on the page called rAF for
+# that long -- exactly what frameloop="never" produces, since r3f's Canvas
+# is this page's only rAF scheduler. A more precise, forward-only
+# per-sample signal is ALSO now captured when present (SAMPLE_SCRIPT's own
+# 'paused' field, hq_live_probe.py) -- the exact boolean
+# UltraCanvasRoot.tsx computes (mode==='gaming' || document.hidden ||
+# runtime.brain.busy===true), read from the SAME /api/hq JSON SAMPLE_SCRIPT
+# already fetches every tick (zero extra network cost). Used together --
+# neither alone is authoritative on every samples file this function might
+# see (a pre-fix file has no 'paused' field; a hypothetical page with some
+# OTHER rAF consumer would blind the frame-gap signal alone).
+PAUSE_FRAME_GAP_MAX_S = 1.0
+
+# HOLD: a window/run of consecutive same-agent ticks with (near) zero
+# displacement is intentional stillness (a CONVOY stagger wait, a
+# follow-cap yield), not "walking at 0 u/s" -- excluded from the speed
+# band entirely (counted as held_windows), never treated as a teleport.
+# Epsilon, not bit-exact 0.0, for the same float-noise reason
+# STAND_SLOT_DUPLICATE_EPS exists.
+HOLD_ZERO_DISPLACEMENT_EPS = 1e-6
+# A SINGLE continuous hold this long, while walking/leaving and NOT
+# paused, has no known legitimate cause (the CONVOY stagger wait itself is
+# only 1-1.5s) -- flagged as a POTENTIAL stuck agent, not auto-failed
+# (unconfirmed cause), so a human/future check can investigate.
+LONG_HOLD_THRESHOLD_S = 10.0
+
+
+def _paused_frame_gaps(frame_timestamps_ms: Optional[Sequence[float]], gap_s: float = PAUSE_FRAME_GAP_MAX_S) -> List[Tuple[float, float]]:
+    """Returns [(gap_start_ms, gap_end_ms), ...] for every >gap_s gap
+    between consecutive (sorted) global requestAnimationFrame timestamps --
+    see PAUSE_FRAME_GAP_MAX_S's own header for why a gap this large means
+    the renderer was paused. Empty/None input (a samples file with no
+    frame_timestamps_ms at all, or an in-process caller that never passed
+    one) returns no gaps -- NOT the same as "never paused"; callers must
+    treat that as "no pause signal available", not "no pause happened"."""
+    if not frame_timestamps_ms or len(frame_timestamps_ms) < 2:
+        return []
+    ts = sorted(frame_timestamps_ms)
+    gaps: List[Tuple[float, float]] = []
+    for i in range(1, len(ts)):
+        if ts[i] - ts[i - 1] > gap_s * 1000.0:
+            gaps.append((ts[i - 1], ts[i]))
+    return gaps
+
+
+def _overlaps_any(t_start: float, t_end: float, intervals: List[Tuple[float, float]]) -> bool:
+    for a, b in intervals:
+        if t_start < b and t_end > a:
+            return True
+    return False
+
 
 def _resolved_t_ms(s: Dict[str, Any]) -> Tuple[float, bool]:
     """Resolves a sample tick's timestamp for speed/teleport measurement.
@@ -320,6 +402,7 @@ def check_walk_speed(
     design_speed: float = WALK_SPEED_DEFAULT,
     tol: float = WALK_SPEED_TOL_DEFAULT,
     speed_window_s: float = SPEED_WINDOW_S_DEFAULT,
+    frame_timestamps_ms: Optional[Sequence[float]] = None,
 ) -> Dict[str, Any]:
     by_id: Dict[str, List[Dict[str, Any]]] = {}
     used_host_fallback = False
@@ -327,16 +410,26 @@ def check_walk_speed(
         t_ms, is_host = _resolved_t_ms(s)
         used_host_fallback = used_host_fallback or is_host
         for a in s.get("page_agents", []):
-            by_id.setdefault(a["id"], []).append({"t_ms": t_ms, **a})
+            # 'paused' is a SAMPLE-level field (SAMPLE_SCRIPT's own
+            # runtime.brain.busy/gaming/document.hidden read) -- merged onto
+            # every agent-tick record here purely for this function's own
+            # per-pair convenience below. Absent (None) on samples files
+            # captured before PROBE-16 -- _paused_frame_gaps is the signal
+            # that still works there.
+            by_id.setdefault(a["id"], []).append({"t_ms": t_ms, "paused": s.get("paused"), **a})
 
     median_dt_s = _median_dt_s(samples)
     gap_threshold_s = max(GAP_MULTIPLIER * median_dt_s, GAP_MIN_S)
+    paused_intervals = _paused_frame_gaps(frame_timestamps_ms)
 
     window_speeds_by_agent: Dict[str, List[float]] = {}
     avg_speed_by_agent: Dict[str, float] = {}
     unwalkable_hits = 0
     walking_samples = 0
     teleport_events: List[Dict[str, Any]] = []
+    paused_windows = 0
+    held_windows = 0
+    long_holds: List[Dict[str, Any]] = []
 
     for agent_id, seq in by_id.items():
         # Unwalkable hits are a real placement bug regardless of transition
@@ -358,19 +451,44 @@ def check_walk_speed(
         # individually.
         cum_dist = 0.0
         cum_time = 0.0
+        window_paused = False
         total_dist = 0.0
         total_time = 0.0
+        # PROBE-16 HOLD tracking -- a CONTINUOUS run of near-zero
+        # displacement, independent of speed_window_s's own boundaries (a
+        # 10s hold split across 5 two-second windows must still be caught
+        # as one long hold, not five separately-innocuous ones).
+        hold_start_t: Optional[float] = None
+        hold_start_pos: Optional[List[float]] = None
+
+        def _close_hold(end_t: float) -> None:
+            nonlocal hold_start_t, hold_start_pos
+            if hold_start_t is not None:
+                duration = (end_t - hold_start_t) / 1000.0
+                if duration >= LONG_HOLD_THRESHOLD_S:
+                    long_holds.append({
+                        "id": agent_id, "t": hold_start_t,
+                        "duration": round(duration, 4), "pos": hold_start_pos,
+                    })
+            hold_start_t = None
+            hold_start_pos = None
 
         for i in range(1, len(seq)):
             cur, prev = seq[i], seq[i - 1]
             dt_s = (cur["t_ms"] - prev["t_ms"]) / 1000.0
             both_walking = cur.get("state") in WALKING_STATES and prev.get("state") in WALKING_STATES
+            pair_paused = bool(cur.get("paused")) or bool(prev.get("paused")) or _overlaps_any(prev["t_ms"], cur["t_ms"], paused_intervals)
+
             if not both_walking or dt_s <= 0 or dt_s > gap_threshold_s:
                 # transition tick or sampling gap -- flush whatever window
                 # was accumulating (discarded if still short of
-                # speed_window_s) and start clean on the other side.
+                # speed_window_s) and start clean on the other side. Also
+                # ends any open hold run -- a state change or sampling gap
+                # is itself evidence the "hold" wasn't a stuck agent.
+                _close_hold(prev["t_ms"])
                 cum_dist = 0.0
                 cum_time = 0.0
+                window_paused = False
                 continue
 
             d = _dist(cur["pos"], prev["pos"])
@@ -388,22 +506,52 @@ def check_walk_speed(
                     "threshold": round(threshold, 4),
                 })
                 # A teleport corrupts whatever window it landed in -- don't
-                # blend it into a speed reading, just drop the window.
+                # blend it into a speed reading, just drop the window. Also
+                # ends any hold run WITHOUT flagging it long -- a jump away
+                # from a hold is a placement bug already caught above, not
+                # a separately-reportable stuck agent.
+                hold_start_t, hold_start_pos = None, None
                 cum_dist = 0.0
                 cum_time = 0.0
+                window_paused = False
                 continue
 
+            # HOLD: near-zero displacement while NOT paused is intentional
+            # stillness (stagger wait / follow-cap yield) -- track the
+            # continuous run for long_holds regardless of window boundaries.
+            if d < HOLD_ZERO_DISPLACEMENT_EPS and not pair_paused:
+                if hold_start_t is None:
+                    hold_start_t, hold_start_pos = prev["t_ms"], prev["pos"]
+            else:
+                _close_hold(prev["t_ms"])
+
+            if pair_paused:
+                window_paused = True
             cum_dist += d
             cum_time += dt_s
             total_dist += d
             total_time += dt_s
             if cum_time >= speed_window_s:
-                window_speeds_by_agent.setdefault(agent_id, []).append(cum_dist / cum_time)
+                if window_paused:
+                    # Render itself was stopped for some/all of this window
+                    # -- not evidence of slow walking either way, excluded
+                    # entirely (see PAUSE_FRAME_GAP_MAX_S's own header).
+                    paused_windows += 1
+                elif cum_dist < HOLD_ZERO_DISPLACEMENT_EPS:
+                    # The WHOLE window never moved -- intentional stillness,
+                    # not a "0 u/s" walking sample.
+                    held_windows += 1
+                else:
+                    window_speeds_by_agent.setdefault(agent_id, []).append(cum_dist / cum_time)
                 cum_dist = 0.0
                 cum_time = 0.0
+                window_paused = False
             # else: keep accumulating -- a trailing partial window shorter
             # than speed_window_s at the end of a run is simply discarded
             # (never flushed, since it never reaches the >= check above).
+
+        if len(seq) > 0:
+            _close_hold(seq[-1]["t_ms"])
 
         if total_time > 0:
             avg_speed_by_agent[agent_id] = total_dist / total_time
@@ -412,9 +560,20 @@ def check_walk_speed(
     all_window_speeds = [v for vs in window_speeds_by_agent.values() for v in vs]
 
     if not all_window_speeds and teleport_count == 0 and unwalkable_hits == 0:
+        long_holds.sort(key=lambda h: -h["duration"])
         return {
             "verdict": "NO-DATA",
-            "detail": {"reason": f"no walking/leaving window >= {speed_window_s:.1f}s observed"},
+            "detail": {
+                "reason": f"no walking/leaving window >= {speed_window_s:.1f}s observed",
+                # PROBE-16: still reported here even though the run is
+                # otherwise unjudged -- a NO-DATA verdict must never hide a
+                # long_holds entry (a potential stuck agent) just because
+                # nothing else was measurable this window.
+                "measured_windows": 0,
+                "paused_windows": paused_windows,
+                "held_windows": held_windows,
+                "long_holds": long_holds,
+            },
         }
 
     # Judge the steady pace against the CONFIGURED design speed, not a fixed
@@ -444,10 +603,21 @@ def check_walk_speed(
         and out_of_band_frac <= 0.05
         and teleport_count == 0
     ) else "FAIL"
+    long_holds.sort(key=lambda h: -h["duration"])
     return {
         "verdict": verdict,
         "detail": {
+            # PROBE-16: window_count/out_of_band_frac are already MEASURED-
+            # windows-only (paused_windows/held_windows are excluded before
+            # a window is ever appended to window_speeds_by_agent) --
+            # measured_windows is the same number under the coordinator's
+            # own requested name, so a reader never has to infer that from
+            # window_count's own (unrenamed, for backward compat) meaning.
             "window_count": len(all_window_speeds),
+            "measured_windows": len(all_window_speeds),
+            "paused_windows": paused_windows,
+            "held_windows": held_windows,
+            "long_holds": long_holds,
             "speed_window_s": speed_window_s,
             "min_speed": min(all_window_speeds) if all_window_speeds else None,
             "max_speed": max(all_window_speeds) if all_window_speeds else None,
@@ -1273,12 +1443,26 @@ def check_bubbles(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
             if m and _is_junk_target(m.group(1)):
                 junk_targets.append({"bubble": b, "target": m.group(1)})
 
+    # PROBE-16 addendum: informational-only widened-pattern scan over
+    # rawDetail -- does NOT gate the verdict (the 2026-09-14 fix that made
+    # rawDetail leak-scan-but-not-verdict-gating is preserved deliberately;
+    # see test_bubbles_pass_when_only_rawdetail_leaks). The tooltip text
+    # that actually leaked (LiveAgents.tsx's `taskDetail`) isn't captured
+    # by this probe at all -- it's never written to window.__hqLiveAgents
+    # (diagStore.set only carries `rawDetail`, see LiveAgents.tsx:1027-1034)
+    # -- so rawDetail is the closest available signal, reported here so a
+    # human reviewing a run can see it without it silently reappearing as
+    # a false-FAIL regression the way the 2026-09-14 fix was written to
+    # prevent.
+    raw_detail_leak_matches = sorted(r for r in raw_detail_samples if RAW_SHELL_LEAK_RE.search(r))
+
     if not distinct_bubbles:
         return {
             "verdict": "NO-DATA",
             "detail": {
                 "reason": "no bubble text observed",
                 "raw_detail_samples": sorted(raw_detail_samples),
+                "raw_detail_leak_matches": raw_detail_leak_matches,
             },
         }
 
@@ -1292,8 +1476,13 @@ def check_bubbles(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
             "junk_target_count": len(junk_targets),
             "junk_targets": junk_targets,
             # informational only -- rawDetail is deliberately raw (debug
-            # field) and never judged for leaks/junk.
+            # field) and never judged for leaks/junk (verdict-gating,
+            # 2026-09-14 fix). raw_detail_leak_matches is likewise
+            # informational -- see this function's own PROBE-16 addendum
+            # comment above.
             "raw_detail_samples": sorted(raw_detail_samples),
+            "raw_detail_leak_count": len(raw_detail_leak_matches),
+            "raw_detail_leak_matches": raw_detail_leak_matches,
         },
     }
 
@@ -1536,7 +1725,8 @@ def build_verdicts(
         "invalid_reasons": [],
         "spawn_latency": check_spawn_latency(samples, page_refresh_ms=effective_page_refresh_ms),
         "walk_speed": _motion_no_data() if motion_gated else check_walk_speed(
-            samples, design_speed=walk_speed, tol=walk_speed_tol, speed_window_s=speed_window_s
+            samples, design_speed=walk_speed, tol=walk_speed_tol, speed_window_s=speed_window_s,
+            frame_timestamps_ms=frame_timestamps_ms,
         ),
         "stand_slots": _motion_no_data() if motion_gated else check_stand_slots(samples),
         "walker_separation": _motion_no_data() if motion_gated else check_walker_separation(samples),

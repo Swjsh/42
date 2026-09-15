@@ -154,12 +154,23 @@ async () => {
   let apiAgents = [];
   let apiError = null;
   let buildId = null;
+  // PROBE-16 (coordinator, 2026-09-15): mirrors UltraCanvasRoot.tsx's own
+  // `paused = gaming || hidden || brainBusy` byte-for-byte (that component
+  // sets frameloop="never" and hides the canvas exactly when this is
+  // true -- see hq_probe_lib.py's PAUSE_FRAME_GAP_MAX_S header for the
+  // full PROBE-16 writeup). Sourced from the SAME /api/hq JSON this
+  // function already fetches for apiAgents -- zero extra network cost.
+  // null (not false) when the fetch itself failed, so a caller can tell
+  // "known not paused" from "unknown" (never silently read as un-paused).
+  let paused = null;
   try {
     const r = await fetch('/api/hq', { cache: 'no-store' });
     const j = await r.json();
     apiAgents = j.liveAgents || [];
     apiError = j.liveAgentsError || null;
     buildId = j.build_id || null;
+    const brainBusy = !!(j.runtime && j.runtime.brain && j.runtime.brain.busy === true);
+    paused = j.mode === 'gaming' || document.hidden || brainBusy;
   } catch (e) {
     apiError = String(e);
   }
@@ -245,6 +256,7 @@ async () => {
     calls,
     buildId,
     documentHidden: document.hidden,
+    paused,
     labelRects,
     // In-page timestamp, captured in the SAME evaluate() call that reads
     // window.__hqLiveAgents -- used by check_walk_speed instead of the
@@ -618,7 +630,7 @@ def launch_and_probe(
                 except Exception as exc:  # noqa: BLE001
                     result = {
                         "pageAgents": [], "apiAgents": [], "apiError": str(exc), "calls": None,
-                        "buildId": None, "labelRects": [],
+                        "buildId": None, "labelRects": [], "paused": None,
                     }
                 bid = result.get("buildId")
                 build_ids.append(bid)
@@ -640,6 +652,14 @@ def launch_and_probe(
                     "calls": result.get("calls"),
                     "document_hidden": result.get("documentHidden"),
                     "api_error": result.get("apiError"),
+                    # PROBE-16: mirrors UltraCanvasRoot.tsx's own `paused`
+                    # boolean -- see SAMPLE_SCRIPT's own comment. None
+                    # (not False) on any samples file captured before this
+                    # field existed, or on a tick where the /api/hq fetch
+                    # itself failed -- check_walk_speed's frame-timestamp
+                    # pause signal (_paused_frame_gaps) is what still works
+                    # on those.
+                    "paused": result.get("paused"),
                     # PROBE-11: '.hq-beam' rects captured the SAME
                     # evaluate() call as pageAgents -- see SAMPLE_SCRIPT's
                     # own comment for the DOM-hook and opacity caveats.

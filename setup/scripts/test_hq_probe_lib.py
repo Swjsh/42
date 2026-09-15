@@ -10,6 +10,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from hq_probe_lib import (  # noqa: E402
     LABEL_OVERLAP_FAIL_FRAC,
+    RAW_SHELL_LEAK_RE,
     LABEL_OVERLAP_MIN_INTERSECTION_FRAC,
     LABEL_OVERLAP_PERSISTENT_MIN_S,
     LABEL_OVERLAP_PERSISTENT_MIN_TICKS,
@@ -380,6 +381,112 @@ def test_walk_speed_avg_speed_by_agent_regression_flags_wrong_pace():
 
 
 # --speed-window-s parameter ---------------------------------------------------------
+
+# PROBE-16: PAUSE / HOLD exclusion --------------------------------------------------
+
+def test_walk_speed_pause_excludes_frame_gap_and_still_passes():
+    # PROBE-16 (coordinator, 2026-09-15): the probe keeps sampling through
+    # a render pause at its own normal cadence (only global rAF itself
+    # stops -- see PAUSE_FRAME_GAP_MAX_S's own header), so frozen samples
+    # keep arriving. A 47s gap in frame_timestamps_ms (this run's own
+    # window.__probeRaf capture) marks that whole span paused -- those
+    # windows must be excluded, not read as "walking at 0 u/s". Real
+    # motion before and (generously, well past the pause) after must still
+    # PASS.
+    samples = [
+        _s(0, page=[_agent("a1", "walking", [0.0, 0])]),
+        _s(500, page=[_agent("a1", "walking", [0.35, 0])]),
+        _s(1000, page=[_agent("a1", "walking", [0.7, 0])]),
+    ]
+    # Frozen through the pause: t=1500..48000 at 500ms cadence, pos fixed.
+    t = 1500
+    while t <= 48000:
+        samples.append(_s(t, page=[_agent("a1", "walking", [0.7, 0])]))
+        t += 500
+    # Resume real walking well past the pause -- generous tail so at least
+    # one FULL speed_window_s window forms entirely from non-paused pairs
+    # regardless of exactly where the last paused window happened to flush.
+    pos = 0.7
+    t = 48500
+    while t <= 53000:
+        pos = round(pos + 0.35, 4)
+        samples.append(_s(t, page=[_agent("a1", "walking", [pos, 0])]))
+        t += 500
+
+    # rAF ran densely up to t=1000, then NOTHING called it again until
+    # t=48000 (the pause) -- a 47s gap, and only there.
+    frame_timestamps_ms = list(range(0, 1001, 100)) + list(range(48000, 49001, 100))
+
+    v = check_walk_speed(samples, frame_timestamps_ms=frame_timestamps_ms)
+    assert v["verdict"] == "PASS", v
+    assert v["detail"]["paused_windows"] > 0
+    assert v["detail"]["measured_windows"] >= 1
+    assert v["detail"]["long_holds"] == []  # a PAUSE, never a "hold"
+
+
+def test_walk_speed_short_leave_hold_excluded_not_faulted():
+    # A CONVOY v4/v9 stagger wait at leave start (1-1.5s, "by design") --
+    # zero displacement, well under LONG_HOLD_THRESHOLD_S -- must be
+    # excluded as a held window, never counted as slow walking or flagged
+    # as a potential stuck agent. The hold spans exactly one full
+    # speed_window_s(2.0s) window (0..2000ms) so it flushes clean, rather
+    # than blending with the real motion that resumes in the NEXT window
+    # (2000ms is a boundary point either window can claim).
+    samples = [
+        _s(0, page=[_agent("a1", "leaving", [5.0, 0])]),
+        _s(500, page=[_agent("a1", "leaving", [5.0, 0])]),
+        _s(1000, page=[_agent("a1", "leaving", [5.0, 0])]),
+        _s(1500, page=[_agent("a1", "leaving", [5.0, 0])]),
+        _s(2000, page=[_agent("a1", "leaving", [5.0, 0])]),
+        # Real motion resumes after the stagger hold -- a full clean
+        # window of its own.
+        _s(2500, page=[_agent("a1", "leaving", [5.35, 0])]),
+        _s(3000, page=[_agent("a1", "leaving", [5.7, 0])]),
+        _s(3500, page=[_agent("a1", "leaving", [6.05, 0])]),
+        _s(4000, page=[_agent("a1", "leaving", [6.4, 0])]),
+    ]
+    v = check_walk_speed(samples)
+    assert v["detail"]["held_windows"] == 1
+    assert v["detail"]["measured_windows"] == 1
+    assert v["detail"]["long_holds"] == []
+
+
+def test_walk_speed_long_hold_flagged_not_failed():
+    # A 15s CONTINUOUS hold while walking and not paused has no known
+    # legitimate cause (the stagger wait itself is only 1-1.5s) -- flagged
+    # as a potential stuck agent via long_holds, but NOT auto-failed
+    # (unconfirmed cause) -- verdict stays whatever the rest of the
+    # evidence says (here: NO-DATA, since nothing else was measurable).
+    samples = [_s(0, page=[_agent("a1", "walking", [3.0, 0])])]
+    t = 500
+    while t <= 15000:
+        samples.append(_s(t, page=[_agent("a1", "walking", [3.0, 0])]))
+        t += 500
+    v = check_walk_speed(samples)
+    assert len(v["detail"]["long_holds"]) == 1
+    hold = v["detail"]["long_holds"][0]
+    assert hold["id"] == "a1"
+    assert hold["duration"] >= 15.0
+    assert hold["pos"] == [3.0, 0]
+
+
+def test_walk_speed_real_slow_walk_still_fails():
+    # A genuinely slow, STEADY 0.3 u/s walk (well under the 0.7 u/s design
+    # speed) is a real motion bug -- PAUSE/HOLD exclusion must never mask
+    # actual out-of-band motion, only intentional stillness.
+    samples = [
+        _s(0, page=[_agent("a1", "walking", [0.0, 0])]),
+        _s(500, page=[_agent("a1", "walking", [0.15, 0])]),
+        _s(1000, page=[_agent("a1", "walking", [0.3, 0])]),
+        _s(1500, page=[_agent("a1", "walking", [0.45, 0])]),
+        _s(2000, page=[_agent("a1", "walking", [0.6, 0])]),
+    ]
+    v = check_walk_speed(samples)
+    assert v["verdict"] == "FAIL", v
+    assert v["detail"]["held_windows"] == 0
+    assert v["detail"]["paused_windows"] == 0
+    assert abs(v["detail"]["median_speed_by_agent"]["a1"] - 0.3) < 1e-9
+
 
 def test_walk_speed_window_s_param_overrides_default():
     # With a 1.0s window, the same 1.0s run that was NO-DATA against the
@@ -1078,6 +1185,58 @@ def test_bubbles_pass_when_only_rawdetail_leaks():
     assert "Ran: cd /c/Users/jackw && ls" in v["detail"]["raw_detail_samples"]
 
 
+# PROBE-16 addendum: widened RAW_SHELL_LEAK_RE ---------------------------------------
+# Missed leak: a hover-tooltip showed a drive-letter FORWARD-slash absolute
+# path with the username -- the old pattern only caught the backslash-only
+# "/c/Users" mount-style shape.
+
+def test_raw_shell_leak_re_catches_forward_slash_drive_path_with_username():
+    assert RAW_SHELL_LEAK_RE.search(
+        'python "C:/Users/jackw/AppData/Local/Temp/claude/..."'
+    ) is not None
+
+
+def test_raw_shell_leak_re_catches_backslash_drive_path():
+    assert RAW_SHELL_LEAK_RE.search("C:\\Users\\x") is not None
+
+
+def test_raw_shell_leak_re_no_match_on_clean_bubble_text():
+    assert RAW_SHELL_LEAK_RE.search("running a command") is None
+    assert RAW_SHELL_LEAK_RE.search("editing hq-agents.ts") is None
+    assert RAW_SHELL_LEAK_RE.search("editing test_hq_probe_lib.py") is None
+
+
+def test_bubbles_fail_on_widened_drive_path_leak_in_bubble():
+    # The widened pattern must actually gate the verdict when the leak is
+    # in the RENDERED bubble (not just rawDetail) -- same rule
+    # test_bubbles_fail_shell_leak already established, now for the new
+    # drive-letter-forward-slash shape.
+    samples = [_s(0, page=[_agent(
+        "a1", "working", [0, 0],
+        bubble='python "C:/Users/jackw/AppData/Local/Temp/claude/x.py"',
+        raw='python "C:/Users/jackw/AppData/Local/Temp/claude/x.py"',
+    )])]
+    v = check_bubbles(samples)
+    assert v["verdict"] == "FAIL", v
+    assert v["detail"]["leak_count"] == 1
+
+
+def test_bubbles_reports_widened_rawdetail_leak_matches_informationally():
+    # rawDetail still never gates the verdict (preserved 2026-09-14 policy)
+    # but a widened-pattern match there is now surfaced informationally so
+    # a human reviewing a run can see it.
+    samples = [_s(0, page=[_agent(
+        "a1", "working", [0, 0],
+        bubble="working · editing Agent.tsx",
+        raw='python "C:/Users/jackw/AppData/Local/Temp/claude/x.py"',
+    )])]
+    v = check_bubbles(samples)
+    assert v["verdict"] == "PASS", v
+    assert v["detail"]["leak_count"] == 0
+    assert v["detail"]["raw_detail_leak_count"] == 1
+    assert 'python "C:/Users/jackw/AppData/Local/Temp/claude/x.py"' in v["detail"]["raw_detail_leak_matches"]
+
+
 def test_bubbles_fail_on_junk_target():
     # Observed 2026-09-14 artifact: "working · reading |<Htm" -- a
     # target string containing shell/markup-only characters is junk even
@@ -1388,12 +1547,18 @@ def test_motion_checks_ungated_when_no_frame_data():
 # below -- that scenario belongs to the separate MOTION_MIN_FPS_P50 gate
 # one layer up in build_verdicts, not to windowed averaging here.
 
-def test_walk_speed_fails_when_position_never_changes_across_a_full_window():
-    # A walking/leaving agent that never actually moves for a whole
-    # speed_window_s window is a real stuck-agent bug (or a render rate so
-    # slow it should have been caught by the MOTION_MIN_FPS_P50 gate one
-    # layer up in build_verdicts) -- must FAIL on 0 u/s, not be silently
-    # swallowed as NO-DATA.
+def test_walk_speed_short_full_window_hold_is_no_data_not_fail():
+    # SUPERSEDED by PROBE-16 (coordinator, 2026-09-15): this test used to
+    # assert FAIL here, on the premise that any window that never moves is
+    # a stuck-agent bug. Live evidence (run 20260915T130317Z) proved that
+    # premise wrong -- a short full-window hold is indistinguishable from a
+    # legitimate CONVOY v4/v9 stagger wait (1-1.5s, "by design"), and
+    # treating it as "walking at 0 u/s" is exactly the false-FAIL pattern
+    # PROBE-16 fixed. A 2s hold is now correctly excluded (held_windows),
+    # leaving NO-DATA when it's the run's only evidence -- NOT auto-FAIL.
+    # The old test's own worry (a truly stuck agent must never be silently
+    # swallowed) is now covered correctly by long_holds -- see
+    # test_walk_speed_long_hold_flagged_not_failed below for that case.
     samples = [
         _s(0, page=[_agent("a1", "walking", [0.0, 0])]),
         _s(500, page=[_agent("a1", "walking", [0.0, 0])]),
@@ -1402,9 +1567,9 @@ def test_walk_speed_fails_when_position_never_changes_across_a_full_window():
         _s(2000, page=[_agent("a1", "walking", [0.0, 0])]),
     ]
     v = check_walk_speed(samples)
-    assert v["verdict"] == "FAIL", v
-    assert v["detail"]["window_count"] == 1
-    assert v["detail"]["median_speed_by_agent"]["a1"] == 0.0
+    assert v["verdict"] == "NO-DATA", v
+    assert v["detail"]["held_windows"] == 1
+    assert v["detail"]["long_holds"] == []
 
 
 # stand_slots: only 'working' agents count, walking/leaving are transit -----------
