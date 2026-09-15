@@ -86,6 +86,27 @@ const RIBBON_WIDTH = 4.4;
 // chart's tallest bars visually collided with BrainCore's plaque text.
 // 0.8 keeps the ribbon's top at ~1.51, comfortably under 2.01.
 const RIBBON_MAX_HEIGHT = 0.8;
+// SCALE-2 (2026-09-15, J live: "make the main screens in the center
+// building a bit bigger"): applied as a uniform scale on the component's
+// own outer <group> (below) rather than hand-scaling RIBBON_WIDTH/
+// RIBBON_MAX_HEIGHT/BASE_PLATE_MARGIN individually -- growing those raw
+// constants would also change the price-domain-to-world-Y mapping's
+// absolute scale (yForPrice) and every downstream position that reads it
+// (level labels, trade markers), multiplying the risk of something drifting
+// out of alignment. A group scale keeps every one of those relationships
+// (bar width vs. gap, level line vs. label position, base-plate ring vs.
+// ribbon extent) identical in proportion, just larger. Html labels
+// (LevelLabels, price/time readouts) are NOT re-sized by this -- drei's
+// Html only reprojects an element's screen POSITION off the group's world
+// matrix unless a `transform` prop is passed (none here), so their CSS
+// font-size stays exactly as tuned regardless of this constant, keeping
+// text readable per this task's own requirement. 1.25x: with the ribbon's
+// own top landing at ~1.51 world-Y pre-scale (RIBBON_MAX_HEIGHT's own
+// comment, tuned to clear BrainCore's plaque at ~2.01), 1.25x moves that to
+// origin_y(0.71) + 0.8*1.25 = ~1.71 -- still ~0.3 under the plaque, verified
+// against a fresh capture (setup/scripts/hq_capture.ps1) rather than left
+// as an unverified math claim.
+const HOLO_CHART_SCALE = 1.25;
 const BODY_DEPTH = 0.09;
 const WICK_SIZE = 0.02;
 const BASE_PLATE_MARGIN = 0.4;
@@ -547,7 +568,7 @@ export default function HoloChart({ origin, facingYaw, dimFactor }: HoloChartPro
   const domain = data ? computeDomain(data) : null;
 
   return (
-    <group position={origin} rotation={[0, facingYaw, 0]}>
+    <group position={origin} rotation={[0, facingYaw, 0]} scale={HOLO_CHART_SCALE}>
       <BasePlate dimFactor={dimFactor} />
       {!data ? (
         <Html position={[0, 0.5, 0]} center distanceFactor={7} style={{ pointerEvents: "none" }}>

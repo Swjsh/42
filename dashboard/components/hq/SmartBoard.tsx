@@ -53,9 +53,17 @@ useGLTF.preload(MODEL_PATH, false);
 // OTHER, more explicit requirement -- "legible from preset 0" (this task's
 // own PROOF line, and J's own "make it legible") -- wins over the softer
 // "3-4u" sizing suggestion where the two are in tension. 8x (~5.5u wide)
-// is the middle ground: still reads as one large board (not the 16x
+// was the middle ground: still reads as one large board (not the 16x
 // diagnostic's wall-filling size), legible at preset 0's distance.
-const BOARD_SCALE = 8;
+// SCALE-2 (2026-09-15, J live: "make the main screens in the center
+// building a bit bigger"): 11x (~1.375x over 8x, within the 1.3-1.4x brief
+// range) -- the board's own mount (layout.ts#computeBrainWallMount, y=0.5
+// bottom-anchored) and the room's true ceiling height are unaffected by
+// this constant change alone -- verified against a fresh capture
+// (setup/scripts/hq_capture.ps1) for clipping; if the top clips the
+// ceiling the fix is lowering computeBrainWallMount's own `y`, not
+// shrinking this back down.
+const BOARD_SCALE = 11;
 
 // Content-plane geometry, in the SAME raw (pre-BOARD_SCALE) units as the
 // GLB itself -- inset within the model's own bezel (raw width 0.685,

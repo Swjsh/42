@@ -107,15 +107,25 @@ export const CHARACTER_TARGET_HEIGHT = 1.8;
 // LIVE-1 item 1 (2026-09-14, J: "i cant really see"): the closer default
 // camera (Scene.tsx#CAMERA_DIST_ULTRA/CAMERA_HEIGHT_ULTRA) still left
 // characters reading small against the real kit furniture/architecture --
-// 1.25x lands every body at 2.25 world units standing height, legible at the
-// new ~16-unit overview distance without dwarfing the (unchanged) desk/chair
-// furniture scale (FURNITURE_SCALE=2.0 is independent of this). Ultra tier
-// only in EFFECT (characterScale() is the ONLY place either tier computes a
-// character's world scale, and only KitAgent.tsx/GammaCharacter.tsx -- both
-// ultra-only callers, see Agent.tsx's own `ultra` branch -- ever call it; the
-// TV tier's procedural capsule body in Agent.tsx has its own hardcoded
-// geometry args, untouched by this constant).
-export const CHARACTER_SCALE = 1.25;
+// 1.25x landed every body at 2.25 world units standing height, legible at
+// the ~16-unit overview distance without dwarfing the (unchanged) desk/chair
+// furniture scale (FURNITURE_SCALE=2.0 is independent of this).
+// SCALE-2 (2026-09-15, J live: "make the characters a bit smaller"): 1.25
+// read as oversized next to the enlarged hub screens (SmartBoard.tsx's
+// BOARD_SCALE, HoloChart.tsx's HOLO_CHART_SCALE, same pass) -- 1.0 puts
+// every body back at its CHARACTER_TARGET_HEIGHT (1.8) exactly, still well
+// clear of the old pre-LIVE-1 dwarfed look this constant was introduced to
+// fix. Every consumer (ULTRA_HEAD_Y, Scene.tsx's headOffset, KitAgent.tsx's
+// characterScale() call) reads this constant, never a second hardcoded
+// 1.25/1.0 literal, so nothing else needed a manual edit for this change --
+// see this file's own git history if a future pass needs the derivation
+// chain re-verified. Ultra tier only in EFFECT (characterScale() is the
+// ONLY place either tier computes a character's world scale, and only
+// KitAgent.tsx/GammaCharacter.tsx -- both ultra-only callers, see Agent.tsx's
+// own `ultra` branch -- ever call it; the TV tier's procedural capsule body
+// in Agent.tsx has its own hardcoded geometry args, untouched by this
+// constant).
+export const CHARACTER_SCALE = 1.0;
 
 export function characterScale(bodyId: CharacterBodyId): number {
   return (CHARACTER_TARGET_HEIGHT * CHARACTER_SCALE) / CHARACTER_RAW_HEIGHT[bodyId];
