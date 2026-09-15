@@ -96,8 +96,16 @@ a held-item mesh in the Kenney GLB. Inspect the GLB node tree before blaming the
 - Pushed through `0c2bc5bc`: position truth, intraday candles, all 10 trade markers with arm ids,
   brain plaque truth, level-label declutter, last-close occlusion fix `dac624a6` (**visual
   UNVERIFIED**; J was present).
-- In flight in the previous session (check goal-log entries before touching those files):
-  **HQ-TRADE-MOMENTS** (Pilot bubble per real fill, per-arm P&L panel, 16:00 day-close summary;
-  touches Scene/Hud/HubInterior/hq-positions*) and **HQ-LEVEL-EPISODES** (level touches counted as
-  episodes, not bars; follow-up to local commit `df21ffed`, not yet pushed).
+- Finished and pushed by the previous session (through `7a9d036f`), **data verified, visuals
+  UNVERIFIED** (J present, no capture):
+  - **HQ-TRADE-MOMENTS** `ee70175b`: Pilot bubble per real fill (75 s window keyed on
+    fills-ledger `activity_id`), FLEET P&L panel for all active arms from `accounts.json`, day-close
+    clause in the MARKET CLOSED banner. `/api/hq` checked: book −529, 1W/4L.
+    **Design follow-ups:** label P&L as **gross** (journal net of fees is −530.05); check the
+    panel/banner fit in the new compact-label layout.
+  - **HQ-LEVEL-EPISODES** `df21ffed` + `7a9d036f`: level plaques show touch episodes + held/broke/
+    testing; `/api/hq-chart` levels carry `interaction` (757.44 = 6 episodes, testing).
+    **Design follow-up:** after the close, "testing" is misleading. Show a final state such as
+    "closed in zone".
+  - First job of the design session: take a J-away capture to verify these plus `dac624a6`.
 - STATION-ORDER live proof pending on the ~00:37 ET 09-16 Gamma_Station cron.
