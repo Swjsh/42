@@ -82,14 +82,23 @@ def _ledger_bytes(trips: int) -> bytes:
     return ("\n".join(json.dumps(r) for r in rows) + "\n").encode("utf-8")
 
 
-def _fake_repo(tmp: Path, *, trips: int, claim_rows: int, claim_gross: float) -> Path:
-    """A minimal repo tree: a fills ledger plus the canonical table the drill compares to."""
+def _fake_repo(tmp: Path, *, trips: int, claim_rows: int, claim_gross: float,
+               date_range: tuple[str, str] | None = None) -> Path:
+    """A minimal repo tree: a fills ledger plus the canonical table the drill compares to.
+
+    `date_range` defaults to a window wide enough to cover every trip `_ledger_bytes` can
+    generate, so callers that don't care about window-bounding keep getting the unbounded
+    comparison (i.e. no behavior change from before the 2026-09-15 window-bounding fix).
+    Pass an explicit narrower `date_range` to exercise the bounded comparison itself.
+    """
     repo = tmp / "repo"
     (repo / "automation" / "state").mkdir(parents=True, exist_ok=True)
     (repo / al.CRITICAL).write_bytes(_ledger_bytes(trips))
     tm = repo / "analysis" / "recommendations" / "trade-matrix.json"
     tm.parent.mkdir(parents=True, exist_ok=True)
-    tm.write_text(json.dumps({"row_count": claim_rows, "totals": {"gross": claim_gross}}),
+    lo, hi = date_range if date_range else ("2026-01-01", "2026-12-31")
+    tm.write_text(json.dumps({"row_count": claim_rows, "totals": {"gross": claim_gross},
+                              "date_range": [lo, hi]}),
                   encoding="utf-8")
     return repo
 
@@ -349,6 +358,76 @@ def test_drill_reads_the_archive_not_the_live_file(tmp_path):
                for c in drill["checks"]), drill["checks"]
 
 
+# ─────────────────────────────────────────── restore_drill window-bounding (2026-09-15)
+def test_restore_drill_windows_out_trades_after_canonical_snapshot(tmp_path):
+    """The false-FAILED this fix removes: real trading after the canonical snapshot's
+    date_range must NOT fail the drill. Ported from
+    test_live_ledger_still_reproduces_the_canonical_book's 2026-08-21 fix, which had never
+    been applied to restore_drill() itself -- so the drill fired FAILED every day trades
+    happened after 2026-08-19 even though the archive was perfectly healthy.
+
+    5 round trips exist (2026-06-26..06-30); the canonical only covers the first 3
+    (06-26..06-28) and claims exactly those 3. Before this fix, restore_drill compared the
+    UNBOUNDED 5-trip reconstruction against the 3-trip claim and FAILED. After this fix it
+    compares the WINDOWED 3-trip reconstruction and PASSES, while still surfacing the 2
+    out-of-window trips as INFO.
+    """
+    repo = _fake_repo(tmp_path, trips=5, claim_rows=3, claim_gross=300.0,
+                      date_range=("2026-06-26", "2026-06-28"))
+    root = tmp_path / "arch"
+    _write_snapshot(root, _capture(repo, root))
+
+    drill = al.restore_drill(root, repo, deep=False)
+
+    # unbounded reconstruction still reports the true full-ledger numbers
+    assert drill["rebuilt_from_archive"]["round_trips"] == 5
+    assert drill["rebuilt_from_archive"]["gross_pnl"] == 500.0
+
+    # THE FIX: the windowed reconstruction -- what the verdict is actually judged on --
+    # matches the canonical's own window, and the drill PASSES.
+    win = drill["rebuilt_from_archive_windowed"]
+    assert win["round_trips"] == 3
+    assert win["gross_pnl"] == 300.0
+    assert win["out_of_window"] == {"round_trips": 2, "gross_pnl": 200.0}
+    assert drill["status"] == "PASS", (
+        "trading after the canonical's date_range must never fail the drill -- "
+        f"checks: {drill['checks']}")
+    assert all(c["pass"] for c in drill["checks"]
+               if c["check"] in ("fifo_round_trips_vs_canonical", "fifo_gross_vs_canonical"))
+
+    # and the out-of-window trades are visible, not silently dropped
+    assert drill["info"] == [{
+        "info": "trades_after_canonical_window", "round_trips": 2, "gross_pnl": 200.0,
+        "note": drill["info"][0]["note"],  # exact wording isn't load-bearing, presence is
+    }]
+
+
+def test_restore_drill_still_fails_a_dropped_in_window_fill(tmp_path):
+    """Window-bounding must not blunt the real tripwire. A round trip missing from INSIDE
+    the canonical's own window is genuine corruption (or a truncated/rewritten ledger) and
+    must still FAIL -- window-bounding only excuses trades AFTER the window, never a
+    mismatch WITHIN it."""
+    # Only 2 round trips actually exist (06-26, 06-27), both inside the claimed window, but
+    # the canonical claims 3 rows for that same window -- i.e. one in-window fill is missing.
+    repo = _fake_repo(tmp_path, trips=2, claim_rows=3, claim_gross=300.0,
+                      date_range=("2026-06-26", "2026-06-28"))
+    root = tmp_path / "arch"
+    _write_snapshot(root, _capture(repo, root))
+
+    drill = al.restore_drill(root, repo, deep=False)
+
+    win = drill["rebuilt_from_archive_windowed"]
+    assert win["round_trips"] == 2, "windowed reconstruction should still see only 2 trips"
+    assert win["out_of_window"] == {"round_trips": 0, "gross_pnl": 0.0}, (
+        "nothing here is out-of-window -- this is a real in-window shortfall, not trading "
+        "after the snapshot")
+    assert drill["status"] == "FAILED", (
+        "a dropped in-window fill must still fail the drill -- window-bounding is not a "
+        f"free pass for real corruption: {drill['checks']}")
+    assert any(c["check"] == "fifo_round_trips_vs_canonical" and not c["pass"]
+               for c in drill["checks"]), drill["checks"]
+
+
 # ────────────────────────────────────────────────────────────── retention + idempotency
 def test_second_capture_writes_no_new_blobs(tmp_path):
     """Idempotent by construction: re-running costs zero bytes and destroys nothing."""
@@ -430,20 +509,16 @@ def test_live_ledger_still_reproduces_the_canonical_book():
     tm = json.loads(tm_path.read_text(encoding="utf-8"))
     lo, hi = tm["date_range"]
 
-    sys.path.insert(0, str(REPO / "automation" / "state" / "fleet"))
-    import fills_fifo  # noqa: E402
-
-    trips, gross = 0, 0.0
-    for arm in al.ACTIVE_ARMS:
-        for t in fills_fifo.mine_real_arm_fills(arm, REPO / al.CRITICAL):
-            if lo <= t["date"] <= hi:          # the snapshot's OWN window, not a copy of it
-                trips += 1
-                gross += float(t["real_pnl"])
-    gross = round(gross, 2)
+    # Shared with restore_drill()'s own window-bounded comparison (2026-09-15 port) so the
+    # windowing logic lives in exactly ONE place (C14) -- see archive_ledgers.ledger_semantics_windowed.
+    sem = al.ledger_semantics_windowed(REPO / al.CRITICAL, lo, hi)
+    trips, gross = sem["round_trips"], sem["gross_pnl"]
 
     assert trips == tm["row_count"], (
         f"over the canonical window {lo}..{hi} the ledger reconstructs {trips} round trips "
         f"but the table claims {tm['row_count']} -- the ledger may have been truncated or "
-        "rewritten. (Trades AFTER that window are expected and are excluded here.)")
+        "rewritten. (Trades AFTER that window are expected and are excluded here: "
+        f"{sem['out_of_window']['round_trips']} round trips / "
+        f"${sem['out_of_window']['gross_pnl']:,.2f} gross.)")
     assert abs(gross - tm["totals"]["gross"]) < 0.005, (
         f"over {lo}..{hi} ledger gross {gross} != canonical {tm['totals']['gross']}")

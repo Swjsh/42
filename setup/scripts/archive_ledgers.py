@@ -301,6 +301,45 @@ def ledger_semantics(ledger_path: Path) -> dict:
     }
 
 
+def ledger_semantics_windowed(ledger_path: Path, lo: str, hi: str) -> dict:
+    """Same FIFO reconstruction as `ledger_semantics`, but the round-trip count and gross
+    P&L used for comparison are restricted to a canonical snapshot's OWN declared
+    `date_range` [lo, hi] (inclusive, YYYY-MM-DD strings) -- exactly the fix already applied
+    to test_live_ledger_still_reproduces_the_canonical_book() on 2026-08-21.
+
+    The ledger is append-only and grows every trading day; a dated snapshot (trade-matrix.json)
+    does not. Comparing the WHOLE live reconstruction against a dated snapshot is guaranteed to
+    go FAILED on the very next trading day, and that failure is indistinguishable from real
+    corruption -- so it fires constantly and means nothing. Trades after the snapshot's window
+    are evidence of trading, not evidence of a dropped or duplicated fill; they are reported
+    back separately under "out_of_window" as INFO, never folded into the pass/fail comparison.
+    """
+    per_arm: dict[str, dict] = {}
+    total_trips = 0
+    total_gross = 0.0
+    extra_trips = 0
+    extra_gross = 0.0
+    for arm in ACTIVE_ARMS:
+        trips = fills_fifo.mine_real_arm_fills(arm, ledger_path)
+        in_window = [t for t in trips if lo <= t["date"] <= hi]
+        out_window = [t for t in trips if not (lo <= t["date"] <= hi)]
+        gross = round(sum(float(t["real_pnl"]) for t in in_window), 2)
+        per_arm[arm] = {"round_trips": len(in_window), "gross": gross}
+        total_trips += len(in_window)
+        total_gross += gross
+        extra_trips += len(out_window)
+        extra_gross += sum(float(t["real_pnl"]) for t in out_window)
+    return {
+        "arms_counted": list(ACTIVE_ARMS),
+        "excluded_arms": ["safe-1"],
+        "date_range": [lo, hi],
+        "round_trips": total_trips,
+        "gross_pnl": round(total_gross, 2),
+        "per_arm": per_arm,
+        "out_of_window": {"round_trips": extra_trips, "gross_pnl": round(extra_gross, 2)},
+    }
+
+
 # ---------------------------------------------------------------- capture
 def capture(repo: Path, root: Path, *, today: str, now_iso: str) -> dict:
     """Read every source ONCE, hash those exact bytes, store them, return the manifest."""
@@ -530,6 +569,19 @@ def restore_drill(root: Path, repo: Path, *, deep: bool = False,
             live_tm = json.loads(tm.read_text(encoding="utf-8"))
             result["live_canonical"] = {"row_count": live_tm["row_count"],
                                         "gross": live_tm["totals"]["gross"]}
+            date_range = live_tm.get("date_range")
+            if date_range and len(date_range) == 2 and all(date_range):
+                lo, hi = date_range
+                result["live_canonical"]["date_range"] = [lo, hi]
+                # WINDOW-BOUNDED (ported from test_live_ledger_still_reproduces_the_canonical_book,
+                # fixed 2026-08-21): the canonical is a DATED SNAPSHOT, the ledger is
+                # append-only, so comparing the whole live reconstruction against it goes
+                # FAILED on every trading day after the snapshot's window -- indistinguishable
+                # from real corruption. Bound the reconstruction to the canonical's OWN
+                # date_range instead. (A canonical with no date_range falls back to the
+                # unbounded comparison below, same as before this fix.)
+                result["rebuilt_from_archive_windowed"] = ledger_semantics_windowed(
+                    ledger, lo, hi)
         else:
             result["live_canonical"] = None
 
@@ -547,6 +599,16 @@ def restore_drill(root: Path, repo: Path, *, deep: bool = False,
                 result["deep_build"] = {"status": "FAILED",
                                         "reason": f"missing code {missing_code}"}
             else:
+                lc_for_deep = result.get("live_canonical") or {}
+                if lc_for_deep.get("date_range"):
+                    # Same window-bound as the shallow check, applied at the SOURCE so the
+                    # real trade_matrix_build.py (never modified here) naturally produces a
+                    # row_count/gross comparable to the canonical's own date_range. Trims the
+                    # COPY inside the temp restore tree only -- never the archive or the repo.
+                    lo, hi = lc_for_deep["date_range"]
+                    kept = [line for line in ledger.read_text(encoding="utf-8").splitlines(True)
+                            if line.strip() and lo <= json.loads(line).get("date_et", "") <= hi]
+                    ledger.write_text("".join(kept), encoding="utf-8")
                 out_json = Path(td) / "rebuilt-trade-matrix.json"
                 proc = subprocess.run(
                     [sys.executable, str(tree / "setup/scripts/trade_matrix_build.py"),
@@ -570,15 +632,29 @@ def restore_drill(root: Path, repo: Path, *, deep: bool = False,
 
     # ---- verdict -------------------------------------------------------------
     checks: list[dict] = []
+    info: list[dict] = []
     lc = result.get("live_canonical")
     rb = result["rebuilt_from_archive"]
+    rbw = result.get("rebuilt_from_archive_windowed")
     if lc:
+        # Window-bound comparison when the canonical's date_range is known (falls back to the
+        # unbounded reconstruction only if windowing somehow wasn't computed).
+        cmp_rb = rbw or rb
         checks.append({"check": "fifo_round_trips_vs_canonical",
-                       "expected": lc["row_count"], "actual": rb["round_trips"],
-                       "pass": rb["round_trips"] == lc["row_count"]})
+                       "expected": lc["row_count"], "actual": cmp_rb["round_trips"],
+                       "pass": cmp_rb["round_trips"] == lc["row_count"]})
         checks.append({"check": "fifo_gross_vs_canonical",
-                       "expected": lc["gross"], "actual": rb["gross_pnl"],
-                       "pass": abs(rb["gross_pnl"] - lc["gross"]) < 0.005})
+                       "expected": lc["gross"], "actual": cmp_rb["gross_pnl"],
+                       "pass": abs(cmp_rb["gross_pnl"] - lc["gross"]) < 0.005})
+        if rbw:
+            oow = rbw["out_of_window"]
+            info.append({
+                "info": "trades_after_canonical_window",
+                "round_trips": oow["round_trips"], "gross_pnl": oow["gross_pnl"],
+                "note": f"{oow['round_trips']} round trips / ${oow['gross_pnl']:,.2f} gross "
+                        f"fall after the canonical's date_range {lc['date_range']} -- "
+                        "trading, not corruption. Never folded into pass/fail.",
+            })
     db = result.get("deep_build")
     if db and db.get("status") == "OK" and lc:
         checks.append({"check": "rebuilt_matrix_row_count",
@@ -591,6 +667,8 @@ def restore_drill(root: Path, repo: Path, *, deep: bool = False,
         checks.append({"check": "deep_build_ran", "expected": "OK",
                        "actual": db.get("status"), "pass": False})
     result["checks"] = checks
+    if info:
+        result["info"] = info
     if not checks:
         result["status"] = "INCONCLUSIVE"
         result["reason"] = "no canonical trade-matrix.json to compare against"
@@ -781,6 +859,8 @@ def _print(payload: dict) -> None:
         for c in d.get("checks", []):
             flag = "PASS" if c["pass"] else "FAIL"
             print(f"[drill  ] {flag} {c['check']}: expected {c['expected']} got {c['actual']}")
+        for i in d.get("info", []):
+            print(f"[drill  ] INFO {i['info']}: {i['note']}")
         if d.get("reason"):
             print(f"[drill  ] reason: {d['reason']}")
 
