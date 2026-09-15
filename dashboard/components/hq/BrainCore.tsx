@@ -219,6 +219,24 @@ export default function BrainCore({
     PRIORITY.PLAQUE,
     () => [0, PLAQUE_Y * CORE_GROUP_SCALE, 0] as [number, number, number],
   );
+  // Queue item h (2026-09-15, real-screen 1920x1080 capture): the MEM gauge
+  // readout (below the core, GAUGE_GROUP_Y+GAUGE_LABEL_Y) sat directly under
+  // a persona speech bubble ("Scout -- scanning 5 feeds...") near the hub --
+  // it never joined the declutter system the plaque above already uses, so
+  // the resolver had no idea it existed and never nudged either label clear.
+  // PRIORITY.LANE (lowest precedence) -- it is a minor ambient readout, not
+  // a plaque or a live conversation bubble, so it should be the one that
+  // yields/fades if the hub gets crowded, matching the tier ordering
+  // labelDeclutter.ts's own header documents ("live-agent bubbles and Gamma
+  // > persona bubbles > plaque > lane labels"). NOT wrapped in .hq-beam --
+  // that class is reserved for the Border Beam treatment on real plaques;
+  // this stays the plain text node it always was, per the task's own "don't
+  // add hq-beam to tiny ticks" guidance.
+  const { wrapperRef: gaugeDeclutterRef, measureRef: gaugeDeclutterMeasureRef } = useLabelDeclutter(
+    "brain-gauge",
+    PRIORITY.LANE,
+    () => [0, (GAUGE_GROUP_Y + GAUGE_LABEL_Y) * CORE_GROUP_SCALE, 0] as [number, number, number],
+  );
 
   const utilFrac = clamp01((utilPct ?? 0) / 100);
   const memFrac = memUsedMib && memTotalMib ? clamp01(memUsedMib / memTotalMib) : 0;
@@ -390,8 +408,10 @@ export default function BrainCore({
           <meshBasicMaterial color={gaugeColor} toneMapped={false} />
         </mesh>
         <Html position={[0, GAUGE_LABEL_Y, 0]} center distanceFactor={9} style={{ pointerEvents: "none" }}>
-          <div ref={gaugeLabelRef} style={{ color: "#7f93b0", fontSize: 26, fontFamily: "system-ui, sans-serif", whiteSpace: "nowrap" }}>
-            MEM {memUsedMib ?? "?"}/{memTotalMib ?? "?"} MiB
+          <div ref={gaugeDeclutterRef} style={{ transformOrigin: "50% 100%" }}>
+            <div ref={mergeRefs(gaugeLabelRef, gaugeDeclutterMeasureRef)} style={{ color: "#7f93b0", fontSize: 26, fontFamily: "system-ui, sans-serif", whiteSpace: "nowrap" }}>
+              MEM {memUsedMib ?? "?"}/{memTotalMib ?? "?"} MiB
+            </div>
           </div>
         </Html>
       </group>

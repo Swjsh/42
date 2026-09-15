@@ -2,6 +2,7 @@
 
 import type { HqApiResponse } from "./types";
 import { personaStatusColor, rosterEvidenceText } from "./palette";
+import { STANDBY_BANNER_MAX_WIDTH_CSS, STANDBY_BANNER_RIGHT_PX } from "./standbyBannerLayout";
 
 interface StandbyPanelProps {
   data: HqApiResponse | undefined;
@@ -49,10 +50,19 @@ export default function StandbyPanel({ data }: StandbyPanelProps) {
       }}
     >
       <div
+        // Queue item h (2026-09-15, real-screen capture): was pinned at
+        // `right: 32`, which at 1920px put its left edge around x=1160 --
+        // inside Hud.tsx's fixed right column (starts at x=1420, see
+        // standbyBannerLayout.ts's own header for the full evidence + why
+        // this fix keeps the banner's geometry structurally clear of that
+        // column rather than depending on stacking order). `maxWidth` +
+        // `whiteSpace: "normal"` let the text wrap onto a second line
+        // instead of ever being clipped, at any viewport width.
         style={{
-          position: "fixed", top: 24, right: 32, padding: "8px 22px", borderRadius: 999,
+          position: "fixed", top: 24, right: STANDBY_BANNER_RIGHT_PX, maxWidth: STANDBY_BANNER_MAX_WIDTH_CSS,
+          padding: "8px 22px", borderRadius: 16,
           background: "rgba(255,176,32,0.12)", border: "1px solid #ffb020", color: "#ffb020",
-          fontSize: 20, fontWeight: 700, letterSpacing: 0.3,
+          fontSize: 20, fontWeight: 700, letterSpacing: 0.3, whiteSpace: "normal", textAlign: "right",
         }}
       >
         {standbyText}
