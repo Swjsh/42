@@ -80,3 +80,6 @@ export function laneBubbleAction(row: { state: string; evidence: string; health:
 
 export { crewNowLine, deriveCrewPill };
 export type { CrewPill };
+
+// Head-bubble on-screen size policy lives in bubbleScale.ts (import-free so node --test can load it).
+export { BUBBLE_FAR_REF_DISTANCE, BUBBLE_MAX_COUNTER_SCALE, BUBBLE_NEAR_HOLD_DISTANCE, bubbleCounterScale } from "./bubbleScale";

@@ -15,6 +15,7 @@ import { recordAgentSample } from "@/lib/hq-motion-diag";
 // (types.ts re-exports several other modules' types but no runtime code of
 // its own), so this cannot create a circular runtime dependency.
 import type { WalkPlan } from "./types";
+import { bubbleCounterScale } from "./bubbleText";
 
 export type AgentBehavior = "working" | "idle" | "alert" | "frozen";
 // MOTION-2 V2: "waypoints" added -- a walk driven by a real LAYOUT-supplied
@@ -254,8 +255,7 @@ const BUBBLE_FADE_DISTANCE = 80;
 // counter-scale of dist/38 (capped) holds the text at that readable floor
 // instead of letting it shrink into a dot. Transform-only, per the TV
 // compositor rule; applied to the wrapper drei does not own.
-const BUBBLE_MIN_SCALE_REF_DISTANCE = 38;
-const BUBBLE_MAX_COUNTER_SCALE = 1.7;
+// Size policy constants + bubbleCounterScale live in bubbleText.ts (shared with GammaCharacter).
 type WalkPhase = "resting" | "toHub" | "atHub" | "toHome" | "arriving";
 type AlertPacePhase = "toDoor" | "atDoor" | "toDesk" | "atDesk";
 
@@ -1110,8 +1110,14 @@ export default function Agent({
     bubbleDelta.set(g.position.x - camera.position.x, g.position.y - camera.position.y, g.position.z - camera.position.z);
     const dist = bubbleDelta.length();
     el.style.opacity = dist > BUBBLE_FADE_DISTANCE ? "0" : "1";
-    const k = Math.min(BUBBLE_MAX_COUNTER_SCALE, Math.max(1, dist / BUBBLE_MIN_SCALE_REF_DISTANCE));
-    el.style.transform = k > 1.01 ? `scale(${k.toFixed(3)})` : "";
+    // Coordinator follow-up (read off polish1-p1-camclose.png, 20:11 ET):
+    // inside the hub (~3-4 u) drei's 1/dist scaling blew a "little" bubble up
+    // to ~75 px. Piecewise counter-scale: beyond the far reference the floor
+    // above; between BUBBLE_MAX_SIZE_DISTANCE and the reference, natural
+    // scaling (9.5 -> 19 px on J's 1440p); closer than that, hold ~19 px --
+    // twice the far floor, never a banner.
+    const k = bubbleCounterScale(dist);
+    el.style.transform = Math.abs(k - 1) > 0.01 ? `scale(${k.toFixed(3)})` : "";
   }
 
   // PEOPLE pass (P2): while a walk carries its own real reason, that reason

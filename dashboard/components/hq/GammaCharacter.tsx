@@ -1,8 +1,10 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { Html } from "@react-three/drei";
+import { useFrame } from "@react-three/fiber";
+import { bubbleCounterScale } from "./bubbleText";
 import { KitAgentBody, type KitAnimState } from "./KitAgent";
 import { BAY_DESK_OFFSET_Z, BAY_SEAT_LOCAL, CHARACTER_TARGET_HEIGHT, DeskCluster } from "./SetKit";
 import { localToWorld, splitBriefSentences, truncateOneLine, type ScreenLine } from "./palette";
@@ -146,6 +148,17 @@ export default function GammaCharacter({
 
   const seatWorld = localToWorld(deskCenter, rotationY, BAY_SEAT_LOCAL);
   const bubbleWorld: [number, number, number] = [seatWorld[0], seatWorld[1] + CHARACTER_TARGET_HEIGHT + 0.4, seatWorld[2]];
+  // Same on-screen size policy as every other head bubble (bubbleText.ts#
+  // bubbleCounterScale): ref mutation in useFrame, never React state.
+  const bubbleWrapRef = useRef<HTMLDivElement>(null);
+  useFrame((state) => {
+    const el = bubbleWrapRef.current;
+    if (!el) return;
+    const c = state.camera.position;
+    const dist = Math.hypot(bubbleWorld[0] - c.x, bubbleWorld[1] - c.y, bubbleWorld[2] - c.z);
+    const k = bubbleCounterScale(dist);
+    el.style.transform = Math.abs(k - 1) > 0.01 ? `scale(${k.toFixed(3)})` : "";
+  });
 
   // Gamma's own desk screen -- station-brief metadata (mtime -> "updated
   // Xm ago" reads better here than raw text, which the speech bubble
@@ -197,7 +210,7 @@ export default function GammaCharacter({
         const line = truncateOneLine(bubbleText, GAMMA_BUBBLE_ACTION_MAX_CHARS);
         return (
         <Html position={bubbleWorld} center distanceFactor={9} style={{ pointerEvents: "none" }}>
-          <div style={{ position: "relative" }}>
+          <div ref={bubbleWrapRef} style={{ position: "relative", transformOrigin: "50% 100%" }}>
             <div className="hq-beam" style={{ "--beam-color": accentColor, borderRadius: 6 } as CSSProperties}>
               <div
                 style={{

@@ -19,6 +19,20 @@ param(
     [int]$IntervalMs = 0
 )
 $ErrorActionPreference = "Continue"
+# Gaming guard (J 2026-09-14 20:5x ET: "stop opening it up on microsoft edge so you dont steal focus ...
+# go silent so i can game"): when automation/state/station/mode.json says gaming/off, a kiosk Edge on
+# J's own monitor is exactly the focus theft he banned. Refuse loudly unless HQ_CAPTURE_FORCE=1 marks a
+# deliberate exception. Verification while J games goes through the Claude desktop Browser pane / DOM.
+$stationModeFile = Join-Path (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent) "automation\state\station\mode.json"
+if ((Test-Path $stationModeFile) -and (-not $env:HQ_CAPTURE_FORCE)) {
+    try {
+        $stationMode = (Get-Content $stationModeFile -Raw | ConvertFrom-Json).mode
+        if ($stationMode -eq "gaming" -or $stationMode -eq "off") {
+            Write-Output "REFUSED: station mode is '$stationMode' (J is gaming) -- no kiosk capture on J's monitor; verify via the Claude desktop Browser pane instead"
+            exit 2
+        }
+    } catch { }
+}
 if ($Out -eq "") { $Out = Join-Path (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent) ("automation\state\station\captures\hq-" + (Get-Date -Format "yyyyMMdd-HHmm") + ".png") }
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
