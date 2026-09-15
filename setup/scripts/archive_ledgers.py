@@ -157,6 +157,37 @@ SOURCE_SPECS: tuple[str, ...] = (
     # compressed today) -- confirmed via `_gym-log` style spot check before adding, not
     # assumed; 30-day projected cost is ~112 MB against 875 GB free on D: (~0.013%).
     "automation/state/crypto-twin/decisions.jsonl",
+    # -- remaining crypto twin live state -- same gap as decisions.jsonl, closed the same
+    # night (2026-09-15). All are written by the resident crypto_twin_health.py --loop
+    # process, gitignored + untracked, and had NO durable copy anywhere before this. Sizes
+    # measured this session (gzip -c | wc -c), against 875 GB free on D:GammaArchive:
+    #   journal.jsonl            23.4 MB -> 0.97 MB gz (24x)  -- broker-confirmed fill/event
+    #                            ledger, HIGHEST priority of this batch, append-only so no
+    #                            cross-day dedup (same shape as decisions.jsonl above)
+    #   soak-log.jsonl          244 KB -> 17.6 KB gz (14x)  -- append-only
+    #   sim-bear-journal.jsonl  157 KB -> 7.3 KB gz (21x)   -- append-only
+    #   challenger-h1.jsonl     42 KB -> 4.0 KB gz (10x)    -- append-only
+    #   incidents.jsonl         13.9 KB -> 2.1 KB gz (7x)   -- append-only
+    #   resilience-ledger.jsonl 11.9 KB -> 2.0 KB gz (6x)   -- append-only
+    #   challenger-h1-summary.json, challenger-watermark.json, soak-watermark.json,
+    #   path-coverage.json -- all <2.2 KB, rewritten-in-place so they DO benefit from
+    #   content-addressed dedup on days their value doesn't change.
+    # Daily custody cost (append-only files only, since the *.json snapshots cost ~0 extra
+    # once unchanged): ~1.0 MB/day today, growing with the live files; over 30 days that is
+    # well under 50 MB against 875 GB free (~0.006%). Storage was never the constraint here.
+    "automation/state/crypto-twin/journal.jsonl",
+    "automation/state/crypto-twin/soak-log.jsonl",
+    "automation/state/crypto-twin/soak-watermark.json",
+    "automation/state/crypto-twin/sim-bear-journal.jsonl",
+    "automation/state/crypto-twin/challenger-h1.jsonl",
+    "automation/state/crypto-twin/challenger-h1-summary.json",
+    "automation/state/crypto-twin/challenger-watermark.json",
+    "automation/state/crypto-twin/resilience-ledger.jsonl",
+    "automation/state/crypto-twin/path-coverage.json",
+    "automation/state/crypto-twin/incidents.jsonl",
+    # -- rotation archives ARE the history: immutable once written, so content-addressed
+    # dedup makes repeat captures of the same file free. 41 files / 2.7 MB today.
+    "automation/state/crypto-twin/archive/decisions-*.jsonl.gz",
 )
 
 # Hard deny-list. A match is a CRASH, not a skip: the whole point of a second volume is

@@ -208,6 +208,89 @@ def test_twin_ledger_capture_reads_source_read_only_and_checksum_matches(tmp_pat
     assert twin_bad == []
 
 
+# ─────────────────────────── remaining crypto-twin live state (added 2026-09-15, mirrors
+# the decisions.jsonl entry above: journal.jsonl (broker-confirmed fills, HIGHEST priority
+# of this batch) + 8 smaller sidecar ledgers/watermarks + the rotation archive glob.
+TWIN_EXPLICIT_SPECS = (
+    "automation/state/crypto-twin/journal.jsonl",
+    "automation/state/crypto-twin/soak-log.jsonl",
+    "automation/state/crypto-twin/soak-watermark.json",
+    "automation/state/crypto-twin/sim-bear-journal.jsonl",
+    "automation/state/crypto-twin/challenger-h1.jsonl",
+    "automation/state/crypto-twin/challenger-h1-summary.json",
+    "automation/state/crypto-twin/challenger-watermark.json",
+    "automation/state/crypto-twin/resilience-ledger.jsonl",
+    "automation/state/crypto-twin/path-coverage.json",
+    "automation/state/crypto-twin/incidents.jsonl",
+)
+TWIN_ARCHIVE_GLOB = "automation/state/crypto-twin/archive/decisions-*.jsonl.gz"
+
+
+@pytest.mark.parametrize("spec", TWIN_EXPLICIT_SPECS)
+def test_twin_sidecar_spec_is_registered(spec):
+    """Each sidecar ledger/watermark file must be a source -- same gap as decisions.jsonl:
+    absent from git, absent from .gitignore coverage that matters, absent from this module."""
+    assert spec in al.SOURCE_SPECS, (
+        f"{spec} is missing from SOURCE_SPECS -- it has no durable copy anywhere")
+
+
+def test_twin_archive_rotation_glob_is_registered():
+    """The rotation archives ARE the history and must be captured too."""
+    assert TWIN_ARCHIVE_GLOB in al.SOURCE_SPECS, (
+        "the crypto-twin rotation archive glob is missing from SOURCE_SPECS")
+
+
+def test_twin_sidecar_specs_capture_read_only_and_checksum_matches(tmp_path):
+    """Same read-only + checksum proof as the decisions.jsonl guard above, extended to
+    every new sidecar spec plus the rotation-archive glob, all on a synthetic tmp_path
+    fixture -- never the real files."""
+    repo = tmp_path / "repo"
+    twin_dir = repo / "automation" / "state" / "crypto-twin"
+    twin_dir.mkdir(parents=True)
+    archive_dir = twin_dir / "archive"
+    archive_dir.mkdir()
+
+    originals: dict[str, bytes] = {}
+    for spec in TWIN_EXPLICIT_SPECS:
+        rel_name = spec.rsplit("/", 1)[-1]
+        data = f"synthetic-{rel_name}-payload\n".encode("utf-8") * 3
+        (twin_dir / rel_name).write_bytes(data)
+        originals[spec] = data
+
+    archived_rotation = archive_dir / "decisions-2026-09-01.jsonl.gz"
+    archived_rotation.write_bytes(gzip.compress(b'{"synthetic": "rotation-row"}\n'))
+    originals["automation/state/crypto-twin/archive/decisions-2026-09-01.jsonl.gz"] = (
+        archived_rotation.read_bytes())
+
+    # satisfy the CRITICAL fills-ledger source so capture() has its usual anchor
+    (repo / "automation" / "state" / "fills-ledger.jsonl").write_bytes(_ledger_bytes(1))
+
+    original_mtimes = {spec: (twin_dir / spec.rsplit("/", 1)[-1]).stat().st_mtime
+                        for spec in TWIN_EXPLICIT_SPECS}
+
+    root = tmp_path / "arch"
+    manifest = al.capture(repo, root, today="2026-09-15", now_iso="2026-09-15T00:00:00")
+
+    entries = {f["rel"]: f for f in manifest["files"]}
+    for spec, data in originals.items():
+        entry = entries.get(spec)
+        assert entry is not None, f"{spec} was added to SOURCE_SPECS but not picked up by capture()"
+        expected_sha = hashlib.sha256(data).hexdigest()
+        assert entry["sha256"] == expected_sha
+        stored = gzip.decompress((root / entry["blob"]).read_bytes())
+        assert hashlib.sha256(stored).hexdigest() == expected_sha
+
+    # read-only: source bytes and mtimes untouched by the archive run
+    for spec in TWIN_EXPLICIT_SPECS:
+        p = twin_dir / spec.rsplit("/", 1)[-1]
+        assert p.read_bytes() == originals[spec]
+        assert p.stat().st_mtime == original_mtimes[spec]
+
+    verify = al.verify_manifest(root, manifest, repo=repo)
+    bad = [c for c in verify["corruption"] if c["rel"] in entries]
+    assert bad == []
+
+
 # ────────────────────────────────────────────────────────────── secrets never get archived
 @pytest.mark.parametrize("rel", [
     ".mcp.json",
