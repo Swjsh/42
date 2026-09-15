@@ -397,6 +397,112 @@ def test_perf_real_gpu_no_data_still_no_data():
     assert v2["verdict"] == "NO-DATA", v2
 
 
+# motion-check fps gating -----------------------------------------------------------
+# 2026-09-15: fps_p50 0.71 (headless SwiftShader) produced walk_speed FAIL
+# (143/150 out-of-band), stand_slots FAIL (walking agents counted as slot
+# occupants), and an unjudgeable walk_out FAIL -- all measurement artifacts
+# of a too-slow renderer, not real bugs. Below MOTION_MIN_FPS_P50 these three
+# checks must report NO-DATA instead of PASS/FAIL/whatever they'd otherwise
+# compute. spawn_latency, page_api_parity, and bubbles are NOT position-based
+# and must NOT be gated.
+
+def _low_fps_frames():
+    # ~0.7 fps: 1400ms between frames.
+    return [i * 1400.0 for i in range(10)]
+
+
+def _high_fps_frames():
+    return [i * 16.667 for i in range(120)]  # steady 60fps
+
+
+def test_motion_checks_no_data_below_fps_gate():
+    samples = [
+        _s(0, page=[_agent("a1", "walking", [0, 0])], api=[{"id": "a1"}]),
+        _s(500, page=[_agent("a1", "walking", [5, 0])], api=[{"id": "a1"}]),  # 10 u/s -- would FAIL walk_speed ungated
+    ]
+    out = build_verdicts(samples, _low_fps_frames(), calls_samples=[100, 100], scene_ready=True, build_ids=["b", "b"])
+    assert out["run_valid"] is True, out
+    for key in ("walk_speed", "stand_slots", "walk_out"):
+        assert out[key]["verdict"] == "NO-DATA", (key, out[key])
+        assert "fps too low" in out[key]["detail"]["reason"]
+    # not gated -- these have nothing to do with position/motion sampling
+    assert out["page_api_parity"]["verdict"] in ("PASS", "FAIL", "NO-DATA")
+
+
+def test_motion_checks_run_normally_above_fps_gate():
+    samples = [
+        _s(0, page=[_agent("a1", "walking", [0, 0])], api=[{"id": "a1"}]),
+        _s(500, page=[_agent("a1", "walking", [0.5, 0])], api=[{"id": "a1"}]),
+    ]
+    out = build_verdicts(samples, _high_fps_frames(), calls_samples=[100, 100], scene_ready=True, build_ids=["b", "b"])
+    assert out["walk_speed"]["verdict"] == "PASS", out["walk_speed"]
+    assert "reason" not in out["walk_speed"]["detail"] or "fps too low" not in out["walk_speed"]["detail"].get("reason", "")
+
+
+def test_motion_checks_ungated_when_no_frame_data():
+    # No frame_timestamps_ms at all -- fps_p50 is unknown (None), not "low".
+    # Must NOT gate (an unknown fps is not evidence it was too low); the
+    # individual checks run on their own NO-DATA/PASS/FAIL logic.
+    samples = [
+        _s(0, page=[_agent("a1", "walking", [0, 0])], api=[{"id": "a1"}]),
+        _s(500, page=[_agent("a1", "walking", [0.5, 0])], api=[{"id": "a1"}]),
+    ]
+    out = build_verdicts(samples, [], calls_samples=[None, None], scene_ready=True, build_ids=["b", "b"])
+    assert out["walk_speed"]["verdict"] == "PASS", out["walk_speed"]
+
+
+# walk_speed: measure across real position changes, not sample ticks --------------
+
+def test_walk_speed_ignores_repeated_position_between_ticks():
+    # Agent's rendered position only actually updates every 3rd sample tick
+    # (a slow-renderer artifact) -- must NOT score the flat ticks as 0 u/s,
+    # and must NOT score the jump-tick's speed over just that one tick's dt;
+    # it should measure the true elapsed time since the last real move.
+    samples = [
+        _s(0, page=[_agent("a1", "walking", [0.0, 0])]),
+        _s(500, page=[_agent("a1", "walking", [0.0, 0])]),    # same pos -- renderer hasn't ticked yet
+        _s(1000, page=[_agent("a1", "walking", [0.0, 0])]),   # same pos again
+        _s(1500, page=[_agent("a1", "walking", [0.75, 0])]),  # moved 0.75u over the full 1.5s = 0.5 u/s
+    ]
+    v = check_walk_speed(samples)
+    assert v["verdict"] == "PASS", v
+    assert v["detail"]["sample_count"] == 1
+    assert abs(v["detail"]["min_speed"] - 0.5) < 1e-9
+
+
+def test_walk_speed_no_data_when_position_never_changes():
+    samples = [
+        _s(0, page=[_agent("a1", "walking", [0.0, 0])]),
+        _s(500, page=[_agent("a1", "walking", [0.0, 0])]),
+        _s(1000, page=[_agent("a1", "walking", [0.0, 0])]),
+    ]
+    v = check_walk_speed(samples)
+    assert v["verdict"] == "NO-DATA", v
+
+
+# stand_slots: only 'working' agents count, walking/leaving are transit -----------
+
+def test_stand_slots_ignores_walking_agent_mid_step():
+    # a1 settled at zone-a ("working"); a2 is still walking toward zone-a
+    # and happens to be very close to a1 mid-step -- this must NOT count as
+    # a slot collision, it's transit.
+    samples = [_s(0, page=[
+        _agent("a1", "working", [0, 0], target="zone-a"),
+        _agent("a2", "walking", [0.05, 0], target="zone-a"),
+    ])]
+    v = check_stand_slots(samples)
+    assert v["verdict"] == "NO-DATA", v  # only 1 'working' agent at this target
+
+
+def test_stand_slots_still_fails_two_working_agents_too_close():
+    samples = [_s(0, page=[
+        _agent("a1", "working", [0, 0], target="zone-a"),
+        _agent("a2", "working", [0.05, 0], target="zone-a"),
+    ])]
+    v = check_stand_slots(samples)
+    assert v["verdict"] == "FAIL", v
+
+
 # run validity ----------------------------------------------------------------------
 
 def test_run_validity_pass_stable_build():
@@ -583,6 +689,116 @@ def test_retention_keeps_newest_20(tmp_path):
         assert f"file-{i:02d}.samples.json.gz" not in remaining_names
     for i in range(5, 25):
         assert f"file-{i:02d}.samples.json.gz" in remaining_names
+
+
+# run_started_utc bookkeeping: filename stamp must equal the JSON's value ----------
+
+def test_launch_and_probe_run_started_utc_matches_samples_filename(tmp_path, monkeypatch):
+    """2026-09-15 bug: the samples.json.gz filename stamp (20260915T064629Z)
+    and the final report's run_started_utc (2026-09-15T06:50:37Z) were 4+
+    minutes apart for the SAME run, because main() re-captured its own
+    timestamp AFTER the run finished instead of reusing the one
+    launch_and_probe captured at the start (and used for the filename).
+    Fakes out playwright entirely -- no real browser -- to exercise
+    launch_and_probe's actual timestamp plumbing end to end."""
+    import importlib
+    import sys as _sys
+    from pathlib import Path as _Path
+
+    _sys.path.insert(0, str(_Path(__file__).resolve().parent))
+    hq_live_probe = importlib.import_module("hq_live_probe")
+    importlib.reload(hq_live_probe)
+
+    class _FakePage:
+        def evaluate(self, script, *a, **kw):
+            if "pageAgents" in script:  # SAMPLE_SCRIPT
+                return {"pageAgents": [], "apiAgents": [], "apiError": None, "calls": 100, "buildId": "fake-build-id", "documentHidden": False}
+            if "UNMASKED_RENDERER" in script:
+                return "NVIDIA GeForce RTX 5080/PCIe/SSE2"
+            if "build_id" in script:  # FETCH_BUILD_ID_SCRIPT
+                return "fake-build-id"
+            if "webgl2" in script:
+                return True
+            if "__hqGl" in script:
+                return True
+            if "document.hidden" in script:
+                return False
+            if "mode" in script:
+                return "diag"
+            if "__probeRaf" in script:
+                return [i * 16.667 for i in range(30)]
+            return None
+
+        def add_init_script(self, *a, **kw):
+            pass
+
+        def on(self, *a, **kw):
+            pass
+
+        def goto(self, *a, **kw):
+            pass
+
+        def wait_for_function(self, *a, **kw):
+            pass
+
+        def wait_for_timeout(self, *a, **kw):
+            pass
+
+    class _FakeContext:
+        def new_page(self):
+            return _FakePage()
+
+        def close(self):
+            pass
+
+    class _FakeBrowser:
+        def new_context(self, *a, **kw):
+            return _FakeContext()
+
+        def close(self):
+            pass
+
+    class _FakeChromium:
+        def launch(self, *a, **kw):
+            return _FakeBrowser()
+
+    class _FakePlaywrightCtx:
+        chromium = _FakeChromium()
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+    monkeypatch.setattr(hq_live_probe, "SAMPLE_RUNS_DIR", tmp_path)
+    _orig_gz_path = hq_live_probe.samples_gz_path_for_run
+    monkeypatch.setattr(
+        hq_live_probe, "samples_gz_path_for_run",
+        lambda fs_safe, build_id, runs_dir=tmp_path: _orig_gz_path(fs_safe, build_id, runs_dir=tmp_path),
+    )
+
+    import types as _types
+    fake_sync_api = _types.SimpleNamespace(sync_playwright=lambda: _FakePlaywrightCtx())
+    monkeypatch.setitem(_sys.modules, "playwright.sync_api", fake_sync_api)
+
+    out_path = tmp_path / "hq-probe-latest.json"
+    run = hq_live_probe.launch_and_probe(
+        "http://127.0.0.1:3000/hq?diag=1&tier=ultra", seconds=1, interval_ms=500,
+        out_path=out_path, scene_wait_ms=1000,
+    )
+
+    assert "run_started_utc" in run
+    gz_files = list(tmp_path.glob("*.samples.json.gz"))
+    assert len(gz_files) == 1, gz_files
+    fs_safe_from_filename = gz_files[0].name.split("-")[0]
+    fs_safe_from_run = __import__("time").strftime(
+        "%Y%m%dT%H%M%SZ",
+        __import__("time").strptime(run["run_started_utc"], "%Y-%m-%dT%H:%M:%SZ"),
+    )
+    assert fs_safe_from_filename == fs_safe_from_run, (fs_safe_from_filename, fs_safe_from_run, run["run_started_utc"])
+    assert run["diag"]["gl_is_hardware"] is True
+    assert "NVIDIA" in run["diag"]["gl_renderer"]
 
 
 def test_retention_noop_when_under_cap(tmp_path):

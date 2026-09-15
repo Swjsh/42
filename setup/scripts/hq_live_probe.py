@@ -99,6 +99,50 @@ FETCH_BUILD_ID_SCRIPT = (
     "const j = await r.json(); return j.build_id ?? null; } catch (e) { return null; } }"
 )
 
+# Attempt 1: new-headless Chromium with real GPU access via ANGLE/D3D11 (this
+# box has an NVIDIA RTX 5080 -- hardware GL is available if Chromium is
+# allowed to use it). Attempt 2 (fallback only) is the old SwiftShader
+# software-rasterizer path. Never render a visible window either way.
+HARDWARE_GL_ARGS = [
+    "--headless=new",
+    "--use-angle=d3d11",
+    "--enable-gpu",
+    "--ignore-gpu-blocklist",
+    "--disable-gpu-sandbox",
+    "--no-sandbox",
+]
+
+SOFTWARE_GL_ARGS = [
+    "--headless=new",
+    "--use-gl=angle",
+    "--use-angle=swiftshader",
+    "--enable-webgl",
+    "--enable-webgl2",
+    "--ignore-gpu-blocklist",
+    "--enable-unsafe-swiftshader",
+    "--disable-gpu-sandbox",
+    "--no-sandbox",
+]
+
+# Reads the UNMASKED_RENDERER string via WEBGL_debug_renderer_info -- the
+# only reliable way to tell "real NVIDIA GPU" apart from "SwiftShader
+# pretending to be a GL context" (both create a context successfully;
+# only the renderer string tells them apart).
+GL_RENDERER_SCRIPT = """
+() => {
+  try {
+    const c = document.createElement('canvas');
+    const gl = c.getContext('webgl2') || c.getContext('webgl');
+    if (!gl) return null;
+    const ext = gl.getExtension('WEBGL_debug_renderer_info');
+    if (!ext) return gl.getParameter(gl.RENDERER);
+    return gl.getParameter(ext.UNMASKED_RENDERER_WEBGL);
+  } catch (e) {
+    return null;
+  }
+}
+"""
+
 SAMPLE_SCRIPT = """
 async () => {
   let apiAgents = [];
@@ -295,6 +339,7 @@ def launch_and_probe(
                 calls_samples=[s.get("calls") for s in samples],
                 scene_ready=diag.get("scene_ready", False),
                 build_ids=build_ids,
+                headless=not diag.get("gl_is_hardware", False),
             )
             report = {
                 "run_started_utc": run_started_utc,
@@ -304,7 +349,6 @@ def launch_and_probe(
                 "sample_count": len(samples),
                 "environment": {
                     "headless": True,
-                    "gl_backend": "swiftshader (software) -- NOT the real GPU",
                     **diag,
                 },
                 "verdicts": verdicts,
@@ -330,7 +374,6 @@ def launch_and_probe(
                 url,
                 {
                     "headless": True,
-                    "gl_backend": "swiftshader (software) -- NOT the real GPU",
                     **diag,
                 },
                 samples,
@@ -357,21 +400,46 @@ def launch_and_probe(
     context = None
     try:
         with sync_playwright() as pw:
-            browser = pw.chromium.launch(
-                headless=True,
-                args=[
-                    "--use-gl=angle",
-                    "--use-angle=swiftshader",
-                    "--enable-webgl",
-                    "--enable-webgl2",
-                    "--ignore-gpu-blocklist",
-                    "--enable-unsafe-swiftshader",
-                    "--disable-gpu-sandbox",
-                    "--no-sandbox",
-                ],
+            # Try hardware GL first (this box has an NVIDIA RTX 5080).
+            # Verify via UNMASKED_RENDERER on a throwaway blank-page canvas
+            # BEFORE navigating to the real app -- if it doesn't report
+            # NVIDIA, tear down and relaunch with SwiftShader rather than
+            # silently sampling perf off a software rasterizer.
+            gl_renderer: Optional[str] = None
+            gl_is_hardware = False
+            gl_fallback_reason: Optional[str] = None
+            try:
+                browser = pw.chromium.launch(headless=True, args=HARDWARE_GL_ARGS)
+                context = browser.new_context(viewport={"width": 1600, "height": 900})
+                page = context.new_page()
+                gl_renderer = page.evaluate(GL_RENDERER_SCRIPT)
+                gl_is_hardware = bool(gl_renderer) and "nvidia" in gl_renderer.lower()
+            except Exception as exc:  # noqa: BLE001
+                gl_fallback_reason = f"hardware GL launch raised {exc!r}"
+                gl_is_hardware = False
+
+            if not gl_is_hardware:
+                if gl_fallback_reason is None:
+                    gl_fallback_reason = (
+                        f"hardware GL probe did not report an NVIDIA renderer "
+                        f"(got {gl_renderer!r}) -- falling back to SwiftShader"
+                    )
+                _close_quietly(context)
+                _close_quietly(browser)
+                browser = pw.chromium.launch(headless=True, args=SOFTWARE_GL_ARGS)
+                context = browser.new_context(viewport={"width": 1600, "height": 900})
+                page = context.new_page()
+                gl_renderer = page.evaluate(GL_RENDERER_SCRIPT)
+
+            diag["gl_renderer"] = gl_renderer
+            diag["gl_is_hardware"] = gl_is_hardware
+            diag["gl_backend"] = (
+                "hardware (ANGLE/D3D11, NVIDIA)" if gl_is_hardware
+                else "swiftshader (software) -- NOT the real GPU"
             )
-            context = browser.new_context(viewport={"width": 1600, "height": 900})
-            page = context.new_page()
+            if gl_fallback_reason:
+                diag["gl_fallback_reason"] = gl_fallback_reason
+
             page.add_init_script(RAF_HOOK_SCRIPT)
 
             console_errors: List[str] = []
@@ -381,8 +449,8 @@ def launch_and_probe(
             page.goto(url, wait_until="load", timeout=60000)
 
             # WebGL2 sanity: verify a real WebGL2 context is actually creatable
-            # in this headless page (the swiftshader-flags concern from the
-            # task brief), independent of whether the app itself managed to use it.
+            # in this headless page, independent of whether the app itself
+            # managed to use it.
             webgl2_ok = page.evaluate(
                 "() => { const c = document.createElement('canvas'); "
                 "const gl = c.getContext('webgl2'); return !!gl; }"
@@ -485,6 +553,13 @@ def launch_and_probe(
             "frame_timestamps_ms": frame_timestamps_ms,
             "diag": diag,
             "build_ids": build_ids,
+            # Captured ONCE at the top of this function and reused for both
+            # the samples.json.gz filename stamp and the final report below
+            # -- previously main() re-stamped its own run_started_utc AFTER
+            # the run finished (a 2026-09-15 bookkeeping bug: the filename
+            # said 06:46:29Z, the JSON said 06:50:37Z, 4+ minutes apart for
+            # the SAME run).
+            "run_started_utc": run_started_utc,
         }
     finally:
         # Every exit path -- normal return, exception, KeyboardInterrupt --
@@ -538,11 +613,19 @@ def main() -> int:
     scene_ready = diag.get("scene_ready", False)
     calls_samples = [s.get("calls") for s in samples]
     verdicts = build_verdicts(
-        samples, frame_ts, calls_samples=calls_samples, scene_ready=scene_ready, build_ids=build_ids
+        samples,
+        frame_ts,
+        calls_samples=calls_samples,
+        scene_ready=scene_ready,
+        build_ids=build_ids,
+        headless=not diag.get("gl_is_hardware", False),
     )
 
     report = {
-        "run_started_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        # Same run_started_utc launch_and_probe stamped its samples.json.gz
+        # filename with -- see that function's return dict for why this must
+        # not be re-captured here.
+        "run_started_utc": run.get("run_started_utc"),
         "partial": False,
         "url": args.url,
         "requested_seconds": args.seconds,
@@ -554,7 +637,6 @@ def main() -> int:
         "build_id_distinct": sorted({b for b in build_ids if b}),
         "environment": {
             "headless": True,
-            "gl_backend": "swiftshader (software) -- NOT the real GPU",
             **diag,
         },
         "verdicts": verdicts,

@@ -32,6 +32,14 @@ WALK_SPEED_MAX = 1.0
 STAND_SLOT_MIN_DIST = 0.7
 WALK_OUT_MAX_S = 15.0
 
+# Below this measured fps, position samples update in jumps rather than
+# smooth motion (headless SwiftShader fps_p50 0.71 was the observed
+# 2026-09-14/09-15 case: 143/150 walk_speed samples read as out-of-band, a
+# measurement artifact of the renderer, not a real speed bug). Any motion
+# check (walk_speed, stand_slots, walk_out) is unjudgeable below this rate
+# and must report NO-DATA rather than PASS/FAIL.
+MOTION_MIN_FPS_P50 = 20.0
+
 
 def _page_ids(sample: Dict[str, Any]) -> set:
     return {a["id"] for a in sample.get("page_agents", [])}
@@ -115,18 +123,29 @@ def check_walk_speed(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
     unwalkable_hits = 0
     walking_samples = 0
     for _agent_id, seq in by_id.items():
+        if seq and not seq[0].get("onWalkable", False):
+            unwalkable_hits += 1
+            walking_samples += 1
+        # Measure speed only between the tick where a position was last
+        # observed to actually move and the next tick where it moves again
+        # -- NOT between every consecutive sample tick. At a low sample-vs-
+        # render ratio the same position repeats across several ticks, and
+        # scoring those as "0 u/s" (or the jump when it finally does move,
+        # scored over just one tick's dt) is a measurement artifact, not a
+        # real speed reading (this was the 2026-09-14/09-15 walk_speed FAIL:
+        # 143/150 out-of-band at fps_p50 0.71).
+        last_move_idx = 0
         for i in range(1, len(seq)):
             walking_samples += 1
             if not seq[i].get("onWalkable", False):
                 unwalkable_hits += 1
-            dt_s = (seq[i]["t_ms"] - seq[i - 1]["t_ms"]) / 1000.0
-            if dt_s <= 0:
-                continue
-            d = _dist(seq[i]["pos"], seq[i - 1]["pos"])
-            speeds.append(d / dt_s)
-        if seq and not seq[0].get("onWalkable", False):
-            unwalkable_hits += 1
-            walking_samples += 1
+            d = _dist(seq[i]["pos"], seq[last_move_idx]["pos"])
+            if d <= 1e-9:
+                continue  # position hasn't actually updated yet -- wait for the next real move
+            dt_s = (seq[i]["t_ms"] - seq[last_move_idx]["t_ms"]) / 1000.0
+            if dt_s > 0:
+                speeds.append(d / dt_s)
+            last_move_idx = i
 
     if not speeds:
         return {"verdict": "NO-DATA", "detail": {"reason": "no walking agent observed"}}
@@ -156,7 +175,13 @@ def check_stand_slots(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
     for s in samples:
         by_target: Dict[str, List[Dict[str, Any]]] = {}
         for a in s.get("page_agents", []):
-            if a.get("state") == "leaving":
+            # Only agents actually settled at a slot ("working") are judged
+            # for slot spacing -- a walking/leaving agent mid-step toward or
+            # away from the same target is not a slot-collision, it's transit
+            # (the 2026-09-14/09-15 stand_slots FAIL at min pairwise 0.28u was
+            # unjudgeable for exactly this reason: walking agents mid-step
+            # were being counted alongside settled ones).
+            if a.get("state") != "working":
                 continue
             by_target.setdefault(a.get("target"), []).append(a)
         for _target, group in by_target.items():
@@ -494,6 +519,26 @@ def check_run_validity(build_ids: Sequence[Optional[str]], scene_ready: bool) ->
     return {"valid": not reasons, "reasons": reasons, "distinct_build_ids": distinct}
 
 
+def _fps_p50_from_frames(frame_timestamps_ms: List[float]) -> Optional[float]:
+    """Same fps_p50 math check_perf uses, exposed standalone so build_verdicts
+    can gate the motion checks on it without duplicating check_perf's
+    scene_ready/draw-call NO-DATA branches (which don't apply here -- this
+    is purely "was the renderer fast enough to trust position deltas")."""
+    if len(frame_timestamps_ms) < 2:
+        return None
+    frame_deltas = [
+        frame_timestamps_ms[i] - frame_timestamps_ms[i - 1]
+        for i in range(1, len(frame_timestamps_ms))
+        if frame_timestamps_ms[i] > frame_timestamps_ms[i - 1]
+    ]
+    if not frame_deltas:
+        return None
+    fps_samples = [1000.0 / d for d in frame_deltas if d > 0]
+    if not fps_samples:
+        return None
+    return round(_percentile(fps_samples, 50), 2)
+
+
 def build_verdicts(
     samples: List[Dict[str, Any]],
     frame_timestamps_ms: List[float],
@@ -529,13 +574,25 @@ def build_verdicts(
             },
         }
 
+    fps_p50 = _fps_p50_from_frames(frame_timestamps_ms)
+    motion_gated = fps_p50 is not None and fps_p50 < MOTION_MIN_FPS_P50
+
+    def _motion_no_data() -> Dict[str, Any]:
+        return {
+            "verdict": "NO-DATA",
+            "detail": {
+                "reason": f"fps too low for motion checks (<{MOTION_MIN_FPS_P50:.0f})",
+                "fps_p50": fps_p50,
+            },
+        }
+
     return {
         "run_valid": True,
         "invalid_reasons": [],
         "spawn_latency": check_spawn_latency(samples),
-        "walk_speed": check_walk_speed(samples),
-        "stand_slots": check_stand_slots(samples),
-        "walk_out": check_walk_out(samples),
+        "walk_speed": _motion_no_data() if motion_gated else check_walk_speed(samples),
+        "stand_slots": _motion_no_data() if motion_gated else check_stand_slots(samples),
+        "walk_out": _motion_no_data() if motion_gated else check_walk_out(samples),
         "page_api_parity": check_page_api_parity(samples),
         "bubbles": check_bubbles(samples),
         "perf": check_perf(frame_timestamps_ms, calls_samples, scene_ready=scene_ready, headless=headless),
