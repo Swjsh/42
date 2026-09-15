@@ -166,3 +166,11 @@ setting would be a risk reduction.**
 
 No `params.json` value, no `strategies.py` value, no code behavior. This is a documentation-only
 correction of what CLAUDE.md's prose claims about an already-live exit shape.
+
+## Evidence 2026-09-15: pre-TP1 ladder rung-1 dead zone (study, not a change)
+
+Trigger: safe-2 peaked +45.4% MFE and closed −$105 on structure_stop with rung 1 (+50%) never armed; bold-2 reached +57%, rung 1 armed, and it closed +$75.
+Study ([[analysis/deep-research/2026-09-15-ladder-rung1-mfe-study|ladder rung-1 MFE study]]), n=221 ribbon_ride real-fill trades on 4 arms since 2026-08-10:
+- 91/221 (41%) never reached +50% MFE. 86 of them lost, −$8,351 in total, 74% via structure_stop.
+- Simulated on logged ticks (not real fills): a first rung at +30% nets +$1,424 and at +40% nets +$1,267. That is +$4,583/+$2,680 on trades that never hit TP1, minus −$3,159/−$1,413 on TP1 winners stopped early.
+- **Not prereg-ready.** No OOS/WF/sub-window/anchor checks. Effective n is distinct signals, not arm-rows. A $460 study-vs-ledger P&L gap is unreconciled. No change before the 2026-09-29 checkpoint.
