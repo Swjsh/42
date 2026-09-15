@@ -112,6 +112,67 @@ export const DEFAULT_MAX_NUDGE_PX = 60;
 export const DEFAULT_FADE_OPACITY = 0.35;
 const NUDGE_STEP_PX = 6;
 
+// COLD-START SNAP FIX (2026-09-15, real-GPU probe evidence: samples file
+// 20260915T090312Z-Da6D81TEcI6kH8JvM85Db.samples.json.gz). Root cause: the
+// manager (LabelDeclutterManager.tsx) unconditionally lerps a label's
+// applied on-screen offset toward this tick's resolved target by
+// SMOOTH_FACTOR (0.4) EVERY tick, including the very first tick a label
+// goes from "not colliding" (applied offset ~0) to "needs a nudge" (a fresh,
+// non-zero target). On that first tick only 40% of the needed separation is
+// actually applied -- e.g. a target dy of 22px (a typical bubble height)
+// only moves 8.8px, which is not enough to clear the probe's 15%-of-
+// smaller-rect overlap threshold, so the pair stays visibly overlapping
+// on-screen for 1-2 more ticks (100-200ms) until the lerp converges.
+// Evidence this is the mechanism, not a resolver bug or a scale/back-calc
+// error: every overlap in the probe run is a single- or double-tick
+// transient (run lengths [1,2,1,1,1,1] across 120 ticks, never a sustained
+// run) and every one lines up with a tick where the label's natural
+// position jumped 400+ CSS px between samples (the scene's own opening
+// camera flythrough) -- exactly the "went from clear to colliding in one
+// tick" case this smoothing under-applies for. Measured label width was
+// stable to +/-0.04px across all 120 ticks, ruling out an ancestor-scale
+// back-calculation error as the driver (that would show up as width churn
+// correlated with the overlap ticks; it doesn't).
+//
+// Fix: smoothLabelOffset (below) snaps straight to the full target on a
+// label's first nudging tick (previous applied offset ~0, new target
+// non-zero) instead of lerping from zero -- eliminates the under-applied-
+// offset window entirely for brand-new collisions. Once a label already
+// carries a non-zero offset, smoothing still applies exactly as before (an
+// already-nudged label's target drifting a little, e.g. a neighbor walking,
+// still lerps instead of snapping) -- this preserves the ORIGINAL reason
+// smoothing exists (never snap an already-placed stack for a 1px jitter),
+// it only removes the lag on the transition INTO a collision.
+const SMOOTH_SNAP_EPSILON_PX = 0.5;
+
+export interface SmoothedOffset {
+  dx: number;
+  dy: number;
+}
+
+/**
+ * Blends a label's previously-applied screen-space offset toward this
+ * tick's resolved target. Pure function -- see this file's own
+ * "COLD-START SNAP FIX" note above for why a brand-new collision (no prior
+ * offset) snaps straight to `targetDx/targetDy` instead of lerping by
+ * `smoothFactor` like every subsequent tick does.
+ */
+export function smoothLabelOffset(
+  prevDx: number,
+  prevDy: number,
+  targetDx: number,
+  targetDy: number,
+  smoothFactor: number,
+): SmoothedOffset {
+  const hadPriorOffset = Math.abs(prevDx) > SMOOTH_SNAP_EPSILON_PX || Math.abs(prevDy) > SMOOTH_SNAP_EPSILON_PX;
+  const needsOffset = Math.abs(targetDx) > SMOOTH_SNAP_EPSILON_PX || Math.abs(targetDy) > SMOOTH_SNAP_EPSILON_PX;
+  const factor = !hadPriorOffset && needsOffset ? 1 : smoothFactor;
+  return {
+    dx: prevDx + (targetDx - prevDx) * factor,
+    dy: prevDy + (targetDy - prevDy) * factor,
+  };
+}
+
 function rectsOverlap(
   ax: number, ay: number, aw: number, ah: number,
   bx: number, by: number, bw: number, bh: number,

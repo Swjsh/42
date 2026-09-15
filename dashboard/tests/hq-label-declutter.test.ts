@@ -26,6 +26,7 @@ import {
   DEFAULT_MAX_NUDGE_PX,
   PRIORITY,
   resolveLabelOffsets,
+  smoothLabelOffset,
   type LabelRect,
   type ObstacleRect,
 } from "../components/hq/labelDeclutter.ts";
@@ -297,4 +298,80 @@ test("stable order across frames: identical input always yields identical output
       assert.equal(again.get(r.id)!.opacity, first.get(r.id)!.opacity, `opacity for ${r.id} drifted on rerun ${i}`);
     }
   }
+});
+
+// ─── COLD-START SNAP FIX (2026-09-15) ───────────────────────────────────
+// Root cause reproduced at the manager-loop level (see labelDeclutter.ts's
+// own "COLD-START SNAP FIX" comment for the full evidence from the
+// real-GPU probe run 20260915T090312Z-Da6D81TEcI6kH8JvM85Db.samples.json.gz):
+// LabelDeclutterManager.tsx used to lerp a label's applied on-screen offset
+// toward the resolved target by SMOOTH_FACTOR (0.4) unconditionally, so a
+// label going from "not colliding" (0 applied offset) to "needs a nudge"
+// (the scene's opening camera flythrough moving a natural position 400+px
+// in one 0.5s probe tick) only got 40% of the needed separation applied
+// that tick -- still overlapping on screen. `simulateManagerTick` below
+// mirrors exactly the two lines LabelDeclutterManager.tsx runs per label
+// per tick (resolve a target via resolveLabelOffsets, then blend the
+// previous applied offset toward it) so this test exercises the real
+// bug/fix through the same two functions the manager calls, without
+// needing React/DOM/three.js.
+function overlapFraction(
+  ax: number, ay: number, aw: number, ah: number,
+  bx: number, by: number, bw: number, bh: number,
+): number {
+  const ox = Math.max(0, Math.min(ax + aw, bx + bw) - Math.max(ax, bx));
+  const oy = Math.max(0, Math.min(ay + ah, by + bh) - Math.max(ay, by));
+  const smaller = Math.min(aw * ah, bw * bh);
+  return smaller > 0 ? (ox * oy) / smaller : 0;
+}
+
+/** Old (buggy) behavior: plain unconditional lerp, no cold-start snap. */
+function plainLerp(prevDx: number, prevDy: number, targetDx: number, targetDy: number, factor: number) {
+  return { dx: prevDx + (targetDx - prevDx) * factor, dy: prevDy + (targetDy - prevDy) * factor };
+}
+
+test("cold-start collision: plain lerp leaves the pair overlapping for one tick; smoothLabelOffset snaps clear immediately", () => {
+  const SMOOTH_FACTOR = 0.4;
+  const OVERLAP_THRESHOLD = 0.15; // matches the probe's own collision definition
+
+  // "a" outranks "b" (lower priority wins) and stays at dy=0. Both start
+  // with zero applied offset -- a brand-new collision, exactly the probe's
+  // camera-flythrough case (natural positions suddenly coincide).
+  const a = rect("a", PRIORITY.GAMMA, 5, 100, 100, 150, 22);
+  const b = rect("b", PRIORITY.PERSONA, 5, 100, 100, 150, 22);
+  const targets = resolveLabelOffsets([a, b]);
+  const targetB = targets.get("b")!;
+  assert.ok(Math.abs(targetB.dy) > 0, "b must need a real nudge to clear a's identical rect");
+
+  // OLD behavior: one tick of plain lerp from a 0 prior offset.
+  const buggy = plainLerp(0, 0, targetB.dx, targetB.dy, SMOOTH_FACTOR);
+  const buggyOverlap = overlapFraction(
+    a.x, a.y, a.width, a.height,
+    b.x + buggy.dx, b.y + buggy.dy, b.width, b.height,
+  );
+  assert.ok(buggyOverlap >= OVERLAP_THRESHOLD, `pre-fix: expected the pair to STILL overlap after one smoothed tick (got ${buggyOverlap.toFixed(2)}) -- this is the reproduced bug`);
+
+  // NEW behavior: smoothLabelOffset snaps to the full target on the
+  // cold-start tick instead of lerping from zero.
+  const fixed = smoothLabelOffset(0, 0, targetB.dx, targetB.dy, SMOOTH_FACTOR);
+  assert.equal(fixed.dx, targetB.dx);
+  assert.equal(fixed.dy, targetB.dy);
+  const fixedOverlap = overlapFraction(
+    a.x, a.y, a.width, a.height,
+    b.x + fixed.dx, b.y + fixed.dy, b.width, b.height,
+  );
+  assert.ok(fixedOverlap < OVERLAP_THRESHOLD, `post-fix: pair must clear the overlap threshold on the very first tick (got ${fixedOverlap.toFixed(2)})`);
+});
+
+test("smoothLabelOffset still lerps (no snap) once a label already carries a non-zero offset -- preserves the original no-snap-the-stack behavior for small target drift", () => {
+  const prevDx = 0, prevDy = 24; // already nudged from a prior tick
+  const targetDx = 0, targetDy = 30; // small further drift (e.g. a walking neighbor)
+  const out = smoothLabelOffset(prevDx, prevDy, targetDx, targetDy, 0.4);
+  assert.equal(out.dy, prevDy + (targetDy - prevDy) * 0.4, "must still lerp, not snap, when a prior offset already exists");
+});
+
+test("smoothLabelOffset is a no-op when neither prev nor target carries an offset", () => {
+  const out = smoothLabelOffset(0, 0, 0, 0, 0.4);
+  assert.equal(out.dx, 0);
+  assert.equal(out.dy, 0);
 });

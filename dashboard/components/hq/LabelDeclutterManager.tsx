@@ -25,7 +25,7 @@ import { useThrottledFrame } from "./useThrottledFrame";
 import { useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { useRef } from "react";
-import { resolveLabelOffsets, DEFAULT_MAX_NUDGE_PX, DEFAULT_FADE_OPACITY, type LabelRect, type ObstacleRect } from "./labelDeclutter";
+import { resolveLabelOffsets, smoothLabelOffset, DEFAULT_MAX_NUDGE_PX, DEFAULT_FADE_OPACITY, type LabelRect, type ObstacleRect } from "./labelDeclutter";
 import { getLabelRegistry } from "./useLabelDeclutter";
 
 // HUD-OBSTACLE (2026-09-15): fixed HUD DOM overlays (help bar, title block,
@@ -175,8 +175,9 @@ export default function LabelDeclutterManager(): null {
       const target = offsets.get(entry.id) ?? { dx: 0, dy: 0, opacity: 1 };
       const prevScreenDx = entry.lastLocalDx * m.scale;
       const prevScreenDy = entry.lastLocalDy * m.scale;
-      const smoothedScreenDx = prevScreenDx + (target.dx - prevScreenDx) * SMOOTH_FACTOR;
-      const smoothedScreenDy = prevScreenDy + (target.dy - prevScreenDy) * SMOOTH_FACTOR;
+      const { dx: smoothedScreenDx, dy: smoothedScreenDy } = smoothLabelOffset(
+        prevScreenDx, prevScreenDy, target.dx, target.dy, SMOOTH_FACTOR,
+      );
       const localDx = m.scale > 0 ? smoothedScreenDx / m.scale : 0;
       const localDy = m.scale > 0 ? smoothedScreenDy / m.scale : 0;
       entry.lastLocalDx = localDx;
