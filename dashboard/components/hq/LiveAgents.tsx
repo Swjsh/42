@@ -28,8 +28,14 @@
 // Client-only, never imports lib/hq-agents.ts BY VALUE -- that module reads
 // node:fs for its own pulse.jsonl tail reader, which must never enter a
 // client bundle. Only its `LiveAgentState` TYPE (fully erased at compile
-// time) is imported; `ENTRY_NODE_ID` is re-declared here as a plain string
-// literal matching that module's own export (see the constant's own comment).
+// time) is imported.
+//
+// COORDINATOR FIX (2026-09-14, browser verification of e990319f found 2
+// defects): the walk-decision math (DEFECT 2, stuck leave) and the stand-
+// slot ring math (DEFECT 1, stacking) both moved into liveAgentWalk.ts, a
+// pure react/three-free sibling module -- see that file's own header for
+// the root-cause writeup and the fix each pure function encodes. This file
+// now only wires those pure decisions to real refs/THREE objects/r3f hooks.
 
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties } from "react";
@@ -42,12 +48,10 @@ import { truncateOneLine } from "./palette";
 import { bubbleCounterScale } from "./bubbleText";
 import type { LiveAgent } from "./types";
 import type { LiveAgentState } from "@/lib/hq-agents";
-
-// Mirrors lib/hq-agents.ts#ENTRY_NODE_ID exactly (hub-center, layout.ts's own
-// HUB origin) -- re-declared as a plain literal rather than a value import,
-// see this file's own header for why that module can never be imported by
-// value from a client component.
-const ENTRY_NODE_ID = "hub-center";
+import {
+  computeStandSlot, decideNextWalk, ENTRY_NODE_ID, pathDistance, poseAlongPath,
+  STAND_BUBBLE_Y_STEP, STAND_RING_RADIUS,
+} from "./liveAgentWalk";
 
 // 8 distinct, saturated hues, cycled by arrival order -- deliberately NOT
 // HEALTH_COLOR/PERSONA_STATUS_COLOR (palette.ts's own orthogonal-axes rule:
@@ -62,55 +66,14 @@ const WALK_ANIM: KitAnimState = "walking";
 const MIN_WALK_S = 0.5;
 const BUBBLE_HEAD_Y = 1.95; // matches Agent.tsx's ULTRA_HEAD_Y (CHARACTER_TARGET_HEIGHT*CHARACTER_SCALE*0.95) + BUBBLE_HEAD_GAP, re-derived as a plain constant here (small, self-contained component -- see this file's own header on why it does not import Agent.tsx's internals)
 const BUBBLE_FADE_DISTANCE = 80; // same floor Agent.tsx's own bubble fade uses
-
-function pathDistance(wp: ReadonlyArray<readonly [number, number, number]>): number {
-  let total = 0;
-  for (let i = 0; i < wp.length - 1; i++) {
-    total += Math.hypot(wp[i + 1][0] - wp[i][0], wp[i + 1][2] - wp[i][2]);
-  }
-  return total;
-}
-
-/** Position + facing at fractional progress `t` (0..1) along a multi-leg
- * path -- a simplified sibling of Agent.tsx#resolvePathPose (no corner-yaw-
- * slerp blend; a live-agent worker's path is at most hub-center -> a couple
- * of corridor nodes -> its desk, so a small facing snap at a corner is an
- * acceptable, honest simplification for this new, separate component). */
-function poseAlongPath(
-  waypoints: ReadonlyArray<readonly [number, number, number]>,
-  t: number,
-): { position: [number, number, number]; facing: number } {
-  if (waypoints.length === 0) return { position: [0, 0, 0], facing: 0 };
-  if (waypoints.length === 1) return { position: [...waypoints[0]], facing: 0 };
-  const legDist: number[] = [];
-  let total = 0;
-  for (let i = 0; i < waypoints.length - 1; i++) {
-    const d = Math.hypot(waypoints[i + 1][0] - waypoints[i][0], waypoints[i + 1][2] - waypoints[i][2]);
-    legDist.push(d);
-    total += d;
-  }
-  const targetDist = Math.min(1, Math.max(0, t)) * total;
-  let cum = 0;
-  let legIndex = legDist.length - 1;
-  for (let i = 0; i < legDist.length; i++) {
-    if (targetDist <= cum + legDist[i] || i === legDist.length - 1) {
-      legIndex = i;
-      break;
-    }
-    cum += legDist[i];
-  }
-  const d = legDist[legIndex] || 0.0001;
-  const localT = Math.min(1, Math.max(0, (targetDist - cum) / d));
-  const from = waypoints[legIndex];
-  const to = waypoints[legIndex + 1];
-  const position: [number, number, number] = [
-    from[0] + (to[0] - from[0]) * localT,
-    from[1],
-    from[2] + (to[2] - from[2]) * localT,
-  ];
-  const facing = Math.atan2(to[0] - from[0], to[2] - from[2]);
-  return { position, facing };
-}
+// DEFECT 2 fix, defense in depth: a hard ceiling on how long an avatar may
+// stay in "leaving" without despawning. liveAgentWalk.ts#decideNextWalk's
+// own fix (leaving is now decided independently of the ordinary-retargeting
+// latch) should make this unreachable in practice -- this is a second,
+// independent backstop so no OTHER, yet-undiscovered stall can strand an
+// avatar in the world forever (this codebase's own "no silent stuck state"
+// convention -- see CLAUDE.md's OP-25/failure-honesty rules).
+const LEAVE_HARD_TIMEOUT_S = 12;
 
 // ─── Diagnostics (task's own contract: window.__hqLiveAgents, <=4x/s) ──────
 
@@ -155,22 +118,36 @@ interface AvatarProps {
   serverState: LiveAgentState;
   leaving: boolean;
   reducedMotion: boolean;
+  /** DEFECT 1 fix: this avatar's own [x,z] nudge off the bare node position,
+   * and its stable slot index within the group of agents sharing that same
+   * destination -- see liveAgentWalk.ts#computeStandSlot. Recomputed by the
+   * parent every time the roster/leaving-set changes; read fresh each time
+   * a walk is (re)decided, never snapshotted early. */
+  standOffset: [number, number];
+  standIndex: number;
   onDespawned: () => void;
 }
 
+function nodePosition(walkGraph: WalkGraph, id: string, fallback: [number, number, number]): [number, number, number] {
+  return (walkGraph.nodes.get(id)?.position as [number, number, number] | undefined) ?? fallback;
+}
+
 function LiveAgentAvatar({
-  liveAgentId, label, accentColor, bubble, walkGraph, targetNodeId, serverState, leaving, reducedMotion, onDespawned,
+  liveAgentId, label, accentColor, bubble, walkGraph, targetNodeId, serverState, leaving, reducedMotion,
+  standOffset, standIndex, onDespawned,
 }: AvatarProps) {
   const group = useRef<THREE.Group>(null);
   const bubbleWrapRef = useRef<HTMLDivElement>(null);
   const bubbleDelta = useMemo(() => new THREE.Vector3(), []);
   const entryPos = useMemo<[number, number, number]>(
-    () => (walkGraph.nodes.get(ENTRY_NODE_ID)?.position as [number, number, number] | undefined) ?? [0, 0, 0],
+    () => nodePosition(walkGraph, ENTRY_NODE_ID, [0, 0, 0]),
     [walkGraph],
   );
 
   const currentNode = useRef(ENTRY_NODE_ID);
   const path = useRef<[number, number, number][]>([entryPos, entryPos]);
+  const walkDest = useRef(ENTRY_NODE_ID);
+  const walkDespawnsOnArrival = useRef(false);
   const walkDuration = useRef(MIN_WALK_S);
   const needsWalkStart = useRef(true); // first frame: begin the spawn->zone walk
   const walkStartT = useRef(0);
@@ -179,61 +156,104 @@ function LiveAgentAvatar({
   const [walkable, setWalkable] = useState(true);
   const despawned = useRef(false);
 
-  const activeDest = leaving ? ENTRY_NODE_ID : targetNodeId;
-  const seenDest = useRef<string | null>(null);
+  // DEFECT 2 fix: `seenTarget` is used ONLY for ordinary (non-leaving)
+  // retargeting; `leaveTriggered` is a wholly separate one-shot latch for
+  // the final leave-to-entry walk, so the two can never collide on a
+  // coincidental shared string value -- see liveAgentWalk.ts's own header.
+  const seenTarget = useRef<string | null>(null);
+  const leaveTriggered = useRef(false);
   const leavingRef = useRef(leaving);
   leavingRef.current = leaving;
+  const leaveStartedAtT = useRef<number | null>(null);
   const onDespawnedRef = useRef(onDespawned);
   onDespawnedRef.current = onDespawned;
+  const standOffsetRef = useRef(standOffset);
+  standOffsetRef.current = standOffset;
 
   useEffect(() => {
     group.current?.position.set(...entryPos);
   }, [entryPos]);
 
+  function fireDespawn(): void {
+    if (despawned.current) return;
+    despawned.current = true;
+    onDespawnedRef.current();
+  }
+
+  /** Resolves a walk-graph node id to its actual STAND point -- the bare
+   * node position plus this avatar's own current ring offset (DEFECT 1
+   * fix). Reads `standOffsetRef` live (not a snapshot) so a mid-walk group
+   * change (another agent arriving/leaving the same zone) still lands this
+   * avatar on its most current slot once it actually arrives. */
+  function standPointFor(nodeId: string): [number, number, number] {
+    const base = nodePosition(walkGraph, nodeId, entryPos);
+    const [ox, oz] = standOffsetRef.current;
+    return [base[0] + ox, base[1], base[2] + oz];
+  }
+
   // Kicks a new walk whenever the destination genuinely changes (a fresh
   // zone from a new tool call, or the server dropping this agent -> leaving
-  // flips true) -- same seen-value-diff convention Agent.tsx's own trigger
-  // channels use, just one channel here since a live agent has exactly one
-  // destination concept at a time (no roundtrip/allhands/purposeful variety).
+  // flips true). Uses liveAgentWalk.ts#decideNextWalk (pure, unit-tested)
+  // for the actual decision -- this effect only carries out whatever that
+  // function says.
   useEffect(() => {
     if (reducedMotion) {
-      currentNode.current = activeDest;
-      const pos = (walkGraph.nodes.get(activeDest)?.position as [number, number, number] | undefined) ?? entryPos;
-      group.current?.position.set(...pos);
+      const dest = leaving ? ENTRY_NODE_ID : targetNodeId;
+      currentNode.current = dest;
+      group.current?.position.set(...standPointFor(dest));
       phase.current = "working";
       setAnimState(WORK_DWELL_ANIM);
-      if (leaving && !despawned.current) {
-        despawned.current = true;
-        onDespawnedRef.current();
-      }
+      if (leaving) fireDespawn();
       return;
     }
-    if (seenDest.current === activeDest) return;
-    seenDest.current = activeDest;
-    if (currentNode.current === activeDest) {
-      // Already standing at the requested node (e.g. spawned straight into
-      // the hub zone) -- settle immediately, no walk needed.
+
+    const decision = decideNextWalk({
+      leaving,
+      targetNodeId,
+      currentNode: currentNode.current,
+      seenTarget: seenTarget.current,
+      leaveTriggered: leaveTriggered.current,
+    });
+    if (decision.action === "none") return;
+    if (leaving) {
+      leaveTriggered.current = true;
+      if (leaveStartedAtT.current === null) leaveStartedAtT.current = performance.now() / 1000;
+    } else {
+      seenTarget.current = targetNodeId;
+    }
+
+    if (decision.action === "settle") {
+      currentNode.current = decision.dest;
+      group.current?.position.set(...standPointFor(decision.dest));
       phase.current = "working";
       setAnimState(WORK_DWELL_ANIM);
-      if (leaving && !despawned.current) {
-        despawned.current = true;
-        onDespawnedRef.current();
-      }
+      if (decision.despawn) fireDespawn();
       return;
     }
-    const found = findWalkPath(walkGraph, currentNode.current, activeDest);
+
+    // decision.action === "walk"
+    const found = findWalkPath(walkGraph, currentNode.current, decision.dest);
     setWalkable(found !== null);
-    const wp: [number, number, number][] = found ?? [
-      (walkGraph.nodes.get(currentNode.current)?.position as [number, number, number] | undefined) ?? entryPos,
-      (walkGraph.nodes.get(activeDest)?.position as [number, number, number] | undefined) ?? entryPos,
+    const rawPath: [number, number, number][] = found ?? [
+      nodePosition(walkGraph, currentNode.current, entryPos),
+      nodePosition(walkGraph, decision.dest, entryPos),
     ];
+    // Only the FINAL waypoint gets the stand-offset nudge -- every earlier
+    // corridor/doorway waypoint stays exactly on the real walk-graph node so
+    // the route itself is unaffected, and only the arrival point spreads
+    // agents apart (DEFECT 1's own fix target).
+    const wp = rawPath.length > 0
+      ? [...rawPath.slice(0, -1), standPointFor(decision.dest)]
+      : [standPointFor(decision.dest)];
     path.current = wp;
+    walkDest.current = decision.dest;
+    walkDespawnsOnArrival.current = decision.despawn;
     walkDuration.current = Math.max(MIN_WALK_S, pathDistance(wp) / WALK_SPEED);
     needsWalkStart.current = true;
     phase.current = "walking";
     setAnimState(WALK_ANIM);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeDest, reducedMotion, walkGraph]);
+  }, [leaving, targetNodeId, reducedMotion, walkGraph]);
 
   useFrame((state) => {
     const g = group.current;
@@ -250,16 +270,22 @@ function LiveAgentAvatar({
       g.position.set(position[0], position[1], position[2]);
       g.rotation.y = facing;
       if (progress >= 1) {
-        currentNode.current = activeDest;
-        if (leavingRef.current) {
-          if (!despawned.current) {
-            despawned.current = true;
-            onDespawnedRef.current();
-          }
+        currentNode.current = walkDest.current;
+        if (walkDespawnsOnArrival.current) {
+          fireDespawn();
         } else {
           phase.current = "working";
           setAnimState(WORK_DWELL_ANIM);
         }
+      }
+    }
+
+    // Hard backstop (see LEAVE_HARD_TIMEOUT_S's own comment): if this avatar
+    // has been leaving for too long without despawning -- any mechanism,
+    // known or not -- force it out rather than stranding it in the world.
+    if (leavingRef.current && !despawned.current && leaveStartedAtT.current !== null) {
+      if (performance.now() / 1000 - leaveStartedAtT.current > LEAVE_HARD_TIMEOUT_S) {
+        fireDespawn();
       }
     }
 
@@ -285,7 +311,7 @@ function LiveAgentAvatar({
       label,
       state: diagState,
       pos: [g.position.x, g.position.z],
-      target: activeDest,
+      target: leaving ? ENTRY_NODE_ID : targetNodeId,
       bubble,
       bubbleOpacity,
       onWalkable: walkable,
@@ -293,13 +319,17 @@ function LiveAgentAvatar({
   });
 
   const bubbleTrunc = truncateOneLine(bubble, 44);
+  // DEFECT 1 fix (bubble half): a small per-slot Y stagger on top of the
+  // shared head height so 2+ overlapping bubbles read as a short stack
+  // instead of one illegible smear of text.
+  const bubbleY = BUBBLE_HEAD_Y + standIndex * STAND_BUBBLE_Y_STEP;
 
   return (
     <group ref={group}>
       <Suspense fallback={null}>
         <KitAgentBody laneSeed={liveAgentId} animState={animState} accentColor={accentColor} />
       </Suspense>
-      <Html position={[0, BUBBLE_HEAD_Y, 0]} center distanceFactor={9} style={{ pointerEvents: "none" }}>
+      <Html position={[0, bubbleY, 0]} center distanceFactor={9} style={{ pointerEvents: "none" }}>
         <div ref={bubbleWrapRef} style={{ position: "relative", transformOrigin: "50% 100%" }}>
           <div className="hq-beam" style={{ "--beam-color": accentColor, borderRadius: 6 } as CSSProperties}>
             <div
@@ -403,6 +433,29 @@ export default function LiveAgents({ agents, walkGraph, ultra, reducedMotion }: 
     });
   }, [agents]);
 
+  // DEFECT 1 fix: group every currently-displayed agent by its EFFECTIVE
+  // destination (the entry gate while leaving, its zone otherwise) and hand
+  // each one a stable ring slot -- see liveAgentWalk.ts#computeStandSlot.
+  // Recomputed whenever the displayed set (or any agent's leaving flag)
+  // changes; cheap at this roster's own 8-agent cap.
+  const standSlots = useMemo(() => {
+    const groups = new Map<string, string[]>();
+    for (const d of displayed.values()) {
+      const key = d.leaving ? "hub-center" : d.targetNodeId;
+      const ids = groups.get(key) ?? [];
+      ids.push(d.id);
+      groups.set(key, ids);
+    }
+    const out = new Map<string, { offset: [number, number]; index: number }>();
+    for (const ids of groups.values()) {
+      for (const id of ids) {
+        out.set(id, computeStandSlot(ids, id, STAND_RING_RADIUS));
+      }
+    }
+    return out;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [displayed]);
+
   const handleDespawned = (id: string) => {
     diagStore.delete(id);
     colorIdx.current.delete(id);
@@ -418,21 +471,26 @@ export default function LiveAgents({ agents, walkGraph, ultra, reducedMotion }: 
 
   return (
     <>
-      {Array.from(displayed.values()).map((d) => (
-        <LiveAgentAvatar
-          key={d.id}
-          liveAgentId={d.id}
-          label={d.label}
-          accentColor={d.accentColor}
-          bubble={d.bubble}
-          walkGraph={walkGraph}
-          targetNodeId={d.targetNodeId}
-          serverState={d.serverState}
-          leaving={d.leaving}
-          reducedMotion={reducedMotion}
-          onDespawned={() => handleDespawned(d.id)}
-        />
-      ))}
+      {Array.from(displayed.values()).map((d) => {
+        const slot = standSlots.get(d.id) ?? { offset: [0, 0] as [number, number], index: 0 };
+        return (
+          <LiveAgentAvatar
+            key={d.id}
+            liveAgentId={d.id}
+            label={d.label}
+            accentColor={d.accentColor}
+            bubble={d.bubble}
+            walkGraph={walkGraph}
+            targetNodeId={d.targetNodeId}
+            serverState={d.serverState}
+            leaving={d.leaving}
+            reducedMotion={reducedMotion}
+            standOffset={slot.offset}
+            standIndex={slot.index}
+            onDespawned={() => handleDespawned(d.id)}
+          />
+        );
+      })}
     </>
   );
 }
