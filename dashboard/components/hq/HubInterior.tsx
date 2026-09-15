@@ -104,7 +104,19 @@ const TABLE_TOP_Y = 0.4 * TABLE_SCALE;
  * parsing the GLB directly) reads as conduit junctions, not a continuous
  * cable run, at any radius -- moving inward changes nothing about what the
  * asset itself looks like. */
-const CABLE_ANGLES_DEG = [12, 45, 78];
+// TWIN-MONITORS pass (2026-09-15, BUILD worker): collision found this pass
+// -- the new floor-standing monitor stand (layout.ts#MONITOR_MOUNT) sits at
+// the SAME 45deg segment-center angle as this file's own middle cable
+// cluster, at almost the same radius (stand 5.6 vs this cluster's 5.5), and
+// the screen pair's angular half-width there (~11deg either side of 45deg,
+// see layout.ts#MONITOR_STAND_RADIUS's own comment) fully swallows a cable
+// cluster sitting dead-center at 45deg. Moved the CABLE (decorative
+// greeble, no fixed semantic angle) to 28deg rather than the stand (which
+// must stay at the segment's true 45deg center to sit "in the corner" per
+// spec) -- 28deg sits outside the screen pair's ~34-56deg span with margin,
+// and stays >=8deg clear of the other two clusters (12deg/78deg) so none of
+// the three overlap each other either.
+const CABLE_ANGLES_DEG = [12, 28, 78];
 const CABLE_RADIUS = 5.5;
 const CABLE_SCALE = 0.34;
 

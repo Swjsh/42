@@ -583,3 +583,12 @@ and a character-pack swap (Candidate 1/2/3 above) is the only real fix.
 
 ### Pathing pass references (WALK-ROUTING worker)
 Waypoint graphs (points of interest connected by edges, A*/Dijkstra) are the classic pre-NavMesh approach used by management/strategy sims for door-aware routing — see [Pathfinding in Video Games: A*, Dijkstra and NavMesh](https://www.udit.es/en/pathfinding-en-videojuegos-a-a-estrella-dijkstra-y-navmesh-con-ejemplos-paso-a-paso/) and [Navigation mesh (Wikipedia)](https://en.wikipedia.org/wiki/Navigation_mesh) on off-mesh links/dynamic obstacles for door interactions specifically. This matches this codebase's own choice (layout.ts#buildWalkGraph + liveAgentWalk.ts#findWalkPath) over a full navmesh, given the small (~30) fixed node count.
+
+### Twin-monitors + desk-ring pass references (BUILD worker)
+
+Timestamp: 2026-09-15 18:50 ET. Implements the Design pass 2026-09-15 (RESEARCH worker)
+decisions above: section A's Option 1 (persona table center -> radius 5.5, layout.ts's
+own header has the exact 4.1 PERSONA_WALL_RADIUS derivation) and section B's flat
+(0deg-tilt) two-panel monitor spec, adapted to a billboarded floor stand (see
+TwinMonitors.tsx's own header for why a fixed wall-pitch can't serve both the default
+orbit camera and the top-down preset J asked for at once).

@@ -348,7 +348,32 @@ export function minClearRadius(azimuth: number, margin: number): number {
 // roster order collectCompany() already guarantees (so a persona never
 // jumps segments between polls).
 
-export const PERSONA_WALL_RADIUS = 6.5; // unchanged from the old PERSONA_RING_RADIUS
+// DESK-RING pass (2026-09-15, BUILD worker, J top-down feedback -- "desks
+// sit inside the walls"): PERSONA_WALL_RADIUS is the persona SLOT/chair-side
+// point (where Scene.tsx's personaGeometry places the seated agent, seat
+// offset BAY_SEAT_LOCAL applied on top of this), NOT the visible table's own
+// center -- SetKit.tsx#DeskCluster mounts the table a further
+// `BAY_DESK_OFFSET_Z + 0.3*FURNITURE_SCALE` = 0.8 + 0.6 = 1.4u outward along
+// the slot's own radial-facing axis (verified by reading DeskCluster's
+// tablePlacements localToWorld call directly, not assumed from
+// ENVIRONMENT-PLAN.md's own coarser "5.5 - BAY_DESK_OFFSET_Z" estimate,
+// which only subtracted the outer 0.8 and missed DeskCluster's own inner
+// 0.6). Target (ENVIRONMENT-PLAN.md Design pass 2026-09-15, Option 1): table
+// CENTER at radius 5.5 -- so PERSONA_WALL_RADIUS = 5.5 - 1.4 = 4.1. Table
+// raw footprint (kenney-space-station-kit/table.glb, parsed directly via
+// scripts/glb_extents.mjs this pass) is X=1.100/Z=0.600 at FURNITURE_SCALE=2
+// -> world 2.2w x 1.2d; back edge (the +Z-outward face, half-depth 0.6
+// beyond center) then sits at radius 5.5+0.6=6.1, 1.4u clear of
+// HUB_WALL_RADIUS=7.5 (>= the 1.0u minimum this pass's own clearance rule
+// requires) -- see tests/hq-hub-layout.test.ts for the corner-radius
+// assertion this derivation is pinned against. Persona desks only ever
+// occupy segments 1-3 (BRAIN_WALL_ARM_INDEX's own segment 0 is reserved,
+// see this file's header above) -- segment 0 is the ONLY segment carrying
+// fixed hub furniture (BrainCore r2.24, meeting table+chairs r<=~4.0 at
+// 45deg, Gamma's desk r3.4 at ~61deg, cables r5.5 at 12/28/78deg -- see
+// HubInterior.tsx), so this radius change cannot collide with any of it by
+// construction, regardless of the exact number chosen here.
+export const PERSONA_WALL_RADIUS = 4.1;
 const WALL_SEGMENT_SPREAD = (18 * Math.PI) / 180; // +-18deg off a segment's own center -- clear of both flanking doorways (each segment spans 90deg)
 
 // ─── Brain wall mount (2026-09-14, MODELS builder, coordinator-authorized
@@ -472,8 +497,74 @@ export function computeBrainWallMount(armIndex: number): WallMount {
 }
 
 /** armIndex=0 -- today's BRAIN_WALL_ARM_INDEX (Scene.tsx). See this
- * section's own header for the sync contract. */
+ * section's own header for the sync contract. Kept exported (still imported
+ * by SmartBoard.tsx's own header comments) even though IdeasWall.tsx no
+ * longer mounts SmartBoard -- see TWIN-MONITORS pass below. */
 export const BRAIN_WALL_MOUNT: WallMount = computeBrainWallMount(0);
+
+// ─── TWIN-MONITORS pass (2026-09-15, BUILD worker, J top-down feedback:
+// "two large flat monitors, side by side... facing the camera and
+// readable") -- replaces the pitched televisionModern.glb smart board
+// (SmartBoard.tsx, still on disk/git-history, just unmounted) with a
+// floor-standing pair of flat screens that re-orients to face whichever
+// camera is active every frame (Scene.tsx's default orbit AND the top-down
+// preset both need to read it, which a fixed wall-pitch angle structurally
+// cannot do for both at once -- see ENVIRONMENT-PLAN.md's own "Design pass
+// 2026-09-15" section B for why a flat, camera-facing pair beats a pitched
+// wall mount here). Same brain-wall corner (segment center 45deg, armIndex
+// 0 today) the old board used.
+export interface MonitorMount {
+  /** Floor point the stand's own base sits on (y=0). */
+  standPosition: [number, number, number];
+  /** Yaw applied ONCE to orient the stand's base toward the room (the
+   * screens themselves re-orient to the camera every frame via
+   * TwinMonitors.tsx's own <Billboard>, independent of this value -- this
+   * only rotates the non-billboarded stand/pedestal geometry). */
+  standYaw: number;
+  /** World point ~1.2u toward the hub from the stand -- the walk
+   * destination for "visit the ideas wall" (replaces the old board's own
+   * near-wall spot, which sat right up against the wall's own LOS-shadow
+   * zone -- see computeBrainWallMount's header). y=0 (floor), matches
+   * every other walk-graph node in this file. */
+  walkTarget: [number, number, number];
+}
+
+/** Stand radius, pulled in from the old board's 6.3 (still "near the wall,
+ * inside the wall-clearance band" per ENVIRONMENT-PLAN.md section A) to 5.6
+ * so a floor-standing pedestal (unlike the old wall-hung board, this one has
+ * a real floor footprint) has headroom before HUB_WALL_RADIUS=7.5 for its
+ * own base plus the two screens' combined ~2.2u width without any part
+ * clipping the wall mesh. COLLISION FOUND + RESOLVED this pass: the hub's
+ * existing cable greeble (HubInterior.tsx#CABLE_ANGLES_DEG) placed one
+ * cluster at the SAME 45deg/~5.5 radius -- angular half-width of a screen
+ * pair here (atan(1.1/5.6) ~= 11deg either side of center, screens spanning
+ * the raw 2.0u-wide pair + 0.2u gap = 2.2u total) fully swallows a cable
+ * cluster sitting dead-center at 45deg. Resolved by moving THAT cable
+ * (HubInterior.tsx) from 45deg to 28deg, not the stand -- the stand must
+ * stay at the segment's true 45deg center to sit "in the corner" as
+ * specified, while the cable greeble is decorative and has no fixed
+ * semantic angle. */
+const MONITOR_STAND_RADIUS = 5.6;
+/** How far toward the hub (radially inward) the walk-target floor point
+ * sits from the stand -- "close enough to read the screens, not standing
+ * inside the pedestal." */
+const MONITOR_WALK_INSET = 1.2;
+
+export function computeMonitorMount(armIndex: number): MonitorMount {
+  const segCenterAngle = armAngle(armIndex) + Math.PI / 4;
+  const standPosition: [number, number, number] = [
+    Math.cos(segCenterAngle) * MONITOR_STAND_RADIUS, 0, Math.sin(segCenterAngle) * MONITOR_STAND_RADIUS,
+  ];
+  const walkRadius = MONITOR_STAND_RADIUS - MONITOR_WALK_INSET;
+  const walkTarget: [number, number, number] = [
+    Math.cos(segCenterAngle) * walkRadius, 0, Math.sin(segCenterAngle) * walkRadius,
+  ];
+  return { standPosition, standYaw: rotationYFacing(standPosition, HUB) + Math.PI, walkTarget };
+}
+
+/** armIndex=0 -- today's BRAIN_WALL_ARM_INDEX, same sync contract as
+ * BRAIN_WALL_MOUNT above. */
+export const MONITOR_MOUNT: MonitorMount = computeMonitorMount(0);
 
 export interface PersonaWallSlot {
   position: [number, number, number];

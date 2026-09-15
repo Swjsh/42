@@ -69,8 +69,8 @@ import { BAY_DESK_OFFSET_Z, BAY_SEAT_LOCAL, CampusGate, CHARACTER_SCALE, CHARACT
 // SetKit.tsx's raw-kit constants), never the reverse.
 import {
   ARM_HALF_WIDTH, ARM_LEN, armAngle, buildWalkGraph, CAMPUS_GATE_POSITION, CAMPUS_GATE_ROTATION_Y, CAMPUS_GATE_SCALE,
-  computeAllBaySlots, computeArmLayout, computePersonaWallSlots, findWalkPath, PLAZA_APRON, PLAZA_CENTER_RADIUS, type ArmLayout,
-  type WalkGraph,
+  computeAllBaySlots, computeArmLayout, computePersonaWallSlots, findWalkPath, MONITOR_MOUNT, PLAZA_APRON, PLAZA_CENTER_RADIUS,
+  type ArmLayout, type WalkGraph,
 } from "./layout";
 // World-2 coordinator review (2026-09-14, "GAMMA'S BUBBLE... must derive it
 // from the same truth as the panel"): the SAME pure function Hud.tsx's own
@@ -404,14 +404,15 @@ const GAMMA_CREW_ACK: Record<string, string> = {
 // BrainCore's center. "core"/"lounge" are distinct hub-interior points, clear
 // of BrainCore's ring geometry (~2.58 world radius) and Gamma's own desk
 // (radius 3.4, angle ARC_CENTER).
-// "ideas-wall" (2026-09-14, MODELS builder, coordinator-authorized edit):
-// re-pointed from the old ring layout's near-center approximation to ~1u in
-// front of the smart board's REAL position (layout.ts#BRAIN_WALL_MOUNT,
-// radius HUB_WALL_RADIUS-0.7=6.8 at the brain-wall segment's own center
-// angle 45deg -- [cos45,0,sin45]*5.8, one unit closer to hub-center along
-// the same radial line the board itself sits on).
+// "ideas-wall" (TWIN-MONITORS pass, 2026-09-15, BUILD worker): re-pointed
+// again, from the old SmartBoard's own near-wall spot to
+// layout.ts#MONITOR_MOUNT.walkTarget -- the new floor-standing twin-monitor
+// stand's own pre-computed "stand toward the hub by MONITOR_WALK_INSET"
+// point, so a persona visiting "the ideas wall" still ends up standing in
+// front of whichever real display currently occupies that corner (never a
+// re-typed literal that could drift from the stand's own position).
 const PURPOSEFUL_TARGETS: Record<"ideas-wall" | "core" | "lounge", [number, number, number]> = {
-  "ideas-wall": [4.10, 0, 4.10],
+  "ideas-wall": MONITOR_MOUNT.walkTarget,
   core: [-1.2, 0, -1.6],
   lounge: [-2.2, 0, 1.7],
 };
@@ -1267,10 +1268,15 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
   const personaSlotCount = Math.max(innerPersonas.length, 1);
   // LAYOUT builder pass (2026-09-14): "Persona desks stay in the hub along
   // the 4 wall segments between doors" -- see BRAIN_WALL_ARM_INDEX's own
-  // comment above for the segment-picking logic. PERSONA_WALL_RADIUS (from
-  // layout.ts) is the SAME 6.5 the old PERSONA_RING_RADIUS used, so the
-  // camera-preset "pull" math further down (deskRadius/outwardRoom, keyed
-  // off this exact radius) needs no changes at all.
+  // comment above for the segment-picking logic. DESK-RING pass (2026-09-15,
+  // BUILD worker): PERSONA_WALL_RADIUS moved 6.5 -> 4.1 (layout.ts's own
+  // header has the full derivation -- the table's VISIBLE center now lands
+  // at radius 5.5, clear of HUB_WALL_RADIUS=7.5) -- the camera-preset "pull"
+  // math further down (deskRadius/outwardRoom) is a generic function of
+  // whatever this radius is, so it still needs no manual change, just a
+  // smaller `outwardRoom` input; verified the branch/clamp still keeps the
+  // camera well inside the wall at the new radius (see that math's own
+  // inline comment).
   const personaGeometry = useMemo(
     () =>
       computePersonaWallSlots(personaSlotCount, BRAIN_WALL_ARM_INDEX).map((slot) => ({
@@ -1342,7 +1348,14 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
           position: (personaGeometry[i] ?? personaGeometry[0]).agentHome,
         })),
         gammaDeskPos: gammaHubMeet,
-        smartBoardPos: WALL_POS,
+        // TWIN-MONITORS pass (2026-09-15): the "smart-board" walk-graph node
+        // (lib/hq-agents.ts#ZONE_NODE_ID's "build" zone target) used to sit
+        // at WALL_POS itself (y=3.4 -- a point up on the wall, not a floor
+        // position an agent can stand at). Re-pointed to the new stand's own
+        // walk target (layout.ts#MONITOR_MOUNT.walkTarget, y=0, ~1.2u toward
+        // the hub from the stand) so a "build zone" walk actually lands on
+        // real floor in front of whichever display now occupies the corner.
+        smartBoardPos: MONITOR_MOUNT.walkTarget,
         ambientPoints: PURPOSEFUL_TARGETS,
       }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1500,8 +1513,11 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
   // Bug fix (real capture layout-hall0-1758.png, UNVERIFIED past this point
   // -- this session's 7-capture budget was spent, see this pass' own final
   // report): looking back toward the hub doorway put the hub's own OPEN
-  // interior (persona desks sit just inside it, PERSONA_WALL_RADIUS=6.5
-  // vs the wall at HUB_WALL_RADIUS=7.5, only 1u past the threshold) in the
+  // interior (persona desks sat just inside it at the time, PERSONA_WALL_
+  // RADIUS=6.5 vs the wall at HUB_WALL_RADIUS=7.5, only 1u past the
+  // threshold -- DESK-RING pass 2026-09-15 later moved this to 4.1, see
+  // layout.ts's own header; the "open interior visible through a doorway"
+  // finding this comment documents is unaffected either way) in the
   // sightline beyond that opening -- an open doorway doesn't block the
   // view, so the shot read as "inside the hub" rather than "a hallway."
   // Flipped to look the OTHER way (toward the T-junction, away from the
@@ -2309,7 +2325,7 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
         resolvePosition={resolveHandoffPosition}
       />
 
-      <IdeasWall cards={data?.ideas.cards ?? []} position={WALL_POS} dimFactor={dimFactor} />
+      <IdeasWall cards={data?.ideas.cards ?? []} fleetPnl={data?.trading?.fleetPnl ?? null} position={WALL_POS} dimFactor={dimFactor} />
 
       {/* LIVE-AGENTS pass (2026-09-14) -- real Claude Code sessions/
           subagents, up to 8, walking the SAME walk graph (`walkGraph`,
