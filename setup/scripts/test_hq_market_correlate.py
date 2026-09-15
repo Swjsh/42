@@ -188,7 +188,8 @@ def _row(ts_et: str, spy: float | None, safe_action: str | None, bold_action: st
          hq_safe_ts: str | None = None, hq_safe_spy: float | None = None,
          last_tick_ts: str | None = None,
          hq_live_spy: float | None = None, hq_live_age_s: float | None = 10.0,
-         safe_ledger_spy: float | None = None, hq_safe_engine_bar: float | None = None) -> dict:
+         safe_ledger_spy: float | None = None, hq_safe_engine_bar: float | None = None,
+         safe_age_s: float | None = None) -> dict:
     # hq_safe_spy is kept as a back-compat alias feeding BOTH hq.market.safe.engineBarSpy
     # (rule b2's own field) and, when hq_live_spy is not given, hq.market_live.spy (rule
     # b1) -- callers that only cared about the OLD single price field keep working with
@@ -202,7 +203,7 @@ def _row(ts_et: str, spy: float | None, safe_action: str | None, bold_action: st
         "engine": {
             "last_tick_ts": last_tick_ts or ts_et,
             "per_account": {
-                "safe-2": {"action": safe_action, "spy": ledger_spy} if safe_action is not None else None,
+                "safe-2": {"action": safe_action, "spy": ledger_spy, "age_s": safe_age_s} if safe_action is not None else None,
                 "bold-2": {"action": bold_action, "spy": spy} if bold_action is not None else None,
             },
         },
@@ -282,6 +283,28 @@ def test_check_hq_engine_bar_mismatch_flags():
     # dashboard read/parse bug, not the expected engine-vs-live lag.
     rows = [_row("2026-09-15T09:36:00", 758.925, "HOLD", "HOLD", "HOLD", "HOLD",
                   hq_safe_engine_bar=760.755, safe_ledger_spy=760.90)]
+    mismatches = hmc.check_hq_engine_bar_vs_ledger(rows)
+    assert any(m["rule"] == "b2_engine_bar_mismatch" and m["arm"] == "safe-2" for m in mismatches)
+
+
+def test_check_hq_engine_bar_ok_on_stale_ledger_row_sampling_race():
+    # THE EXACT RACE from evidence 2026-09-15: sampled 15:41:02, this script's own
+    # engine row is the 15:40:03 tick (spy=756.925, age_s=59.5 -- > B2_LEDGER_STALE_S)
+    # while HQ's independent ledger read already picked up the 15:41:02 row
+    # (engineBarSpy=756.66, written in the same second). HQ was correct; this
+    # script's read was one tick stale -- must NOT fire.
+    rows = [_row("2026-09-15T15:41:02", 756.925, "HOLD", "HOLD", "HOLD", "HOLD",
+                  hq_safe_engine_bar=756.66, safe_ledger_spy=756.925, safe_age_s=59.5)]
+    mismatches = hmc.check_hq_engine_bar_vs_ledger(rows)
+    assert not any(m["rule"] == "b2_engine_bar_mismatch" for m in mismatches)
+
+
+def test_check_hq_engine_bar_still_flags_genuine_mismatch_on_fresh_row():
+    # Same price gap as the race case, but the ledger row is FRESH (age_s=5, well
+    # under B2_LEDGER_STALE_S) -- this is a real dashboard read/parse drift, not a
+    # tick-boundary race, and must still fire.
+    rows = [_row("2026-09-15T15:41:02", 756.925, "HOLD", "HOLD", "HOLD", "HOLD",
+                  hq_safe_engine_bar=756.66, safe_ledger_spy=756.925, safe_age_s=5.0)]
     mismatches = hmc.check_hq_engine_bar_vs_ledger(rows)
     assert any(m["rule"] == "b2_engine_bar_mismatch" and m["arm"] == "safe-2" for m in mismatches)
 

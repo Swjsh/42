@@ -478,6 +478,18 @@ def check_action_not_reflected(rows: list[dict[str, Any]]) -> list[dict[str, Any
 
 HQ_LIVE_PRICE_TOL = 0.05  # rule (b1): HQ live vs beacon must match tightly (same source, ~1 poll apart)
 HQ_ENGINE_BAR_TOL = 1e-6  # rule (b2): HQ engineBarSpy vs the SAME ledger row's spy -- exact by construction
+B2_LEDGER_STALE_S = 50  # rule (b2): skip when this script's own engine row is this old --
+                        # HQ's independent ledger read (dashboard/lib/hq.ts) and this
+                        # script's read_engine() each tail core-decisions.jsonl at a
+                        # DIFFERENT instant, so near a tick boundary they can legitimately
+                        # land on adjacent rows (evidence 2026-09-15: sampled 15:41:02,
+                        # this script's row ts 15:40:03 spy=756.925 age=59.5s, while HQ had
+                        # already read the 15:41:02 row spy=756.66 written in the same
+                        # second -- HQ was correct, this script's read was one tick stale).
+                        # A row this old relative to the sample means a newer row likely
+                        # exists that this script simply hasn't picked up yet, so a diff
+                        # against it is not evidence of a real HQ/ledger drift -- skip it.
+                        # A fresh row (age_s <= this) still fires on any real diff.
 
 
 def check_hq_live_vs_beacon(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -548,6 +560,9 @@ def check_hq_engine_bar_vs_ledger(rows: list[dict[str, Any]]) -> list[dict[str, 
             engine_info = per_acct.get(arm)
             if not isinstance(hq_info, dict) or not isinstance(engine_info, dict):
                 continue
+            engine_age_s = engine_info.get("age_s")
+            if isinstance(engine_age_s, (int, float)) and engine_age_s > B2_LEDGER_STALE_S:
+                continue  # sampling race at a tick boundary -- see B2_LEDGER_STALE_S docstring
             hq_bar = hq_info.get("engineBarSpy")
             ledger_bar = engine_info.get("spy")
             if isinstance(hq_bar, (int, float)) and isinstance(ledger_bar, (int, float)):
