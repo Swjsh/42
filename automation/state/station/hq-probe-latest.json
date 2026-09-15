@@ -1,0 +1,77 @@
+{
+  "run_started_utc": "2026-09-15T05:18:30Z",
+  "url": "http://127.0.0.1:3000/hq?diag=1&tier=ultra",
+  "requested_seconds": 260,
+  "interval_ms": 500,
+  "sample_count": 520,
+  "frame_count": 901,
+  "environment": {
+    "headless": true,
+    "gl_backend": "swiftshader (software) -- NOT the real GPU",
+    "webgl2_context_creatable": true,
+    "scene_ready_wait_error": "Page.wait_for_function: Timeout 15000ms exceeded.",
+    "scene_ready": false,
+    "hq_gl_exposed": false,
+    "hq_gl_note": "window.__hqGl is never set on tier=ultra -- UltraCanvasRoot.tsx's onCreated does not call hq-motion-diag.ts#exposeSceneForDiag (CanvasRoot.tsx's TV tier does). draw-call sampling is NO-DATA for this reason, not a probe defect. App code not touched (read-only).",
+    "document_hidden_at_start": false,
+    "mode_at_start": "work",
+    "console_error_count": 2,
+    "console_errors_sample": [
+      "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+      "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+    ]
+  },
+  "verdicts": {
+    "spawn_latency": {
+      "verdict": "NO-DATA",
+      "detail": {
+        "reason": "no spawn observed this window"
+      }
+    },
+    "walk_speed": {
+      "verdict": "NO-DATA",
+      "detail": {
+        "reason": "no walking agent observed"
+      }
+    },
+    "stand_slots": {
+      "verdict": "NO-DATA",
+      "detail": {
+        "reason": "never >=2 agents shared a target"
+      }
+    },
+    "walk_out": {
+      "verdict": "NO-DATA",
+      "detail": {
+        "reason": "no agent observed leaving this window"
+      }
+    },
+    "page_api_parity": {
+      "verdict": "FAIL",
+      "detail": {
+        "best_consecutive_match_run": 1,
+        "total_samples": 520,
+        "mismatch_count": 519,
+        "replacement_observed": true
+      }
+    },
+    "bubbles": {
+      "verdict": "NO-DATA",
+      "detail": {
+        "reason": "no bubble text observed"
+      }
+    },
+    "perf": {
+      "verdict": "PASS",
+      "detail": {
+        "headless": true,
+        "note": "SwiftShader/software-GL numbers -- NOT representative of real-GPU perf",
+        "fps_p50": 59.88,
+        "fps_p95": 60.24,
+        "frame_count": 901,
+        "mean_draw_calls": null,
+        "draw_call_samples": 0
+      }
+    }
+  }
+}
