@@ -139,7 +139,8 @@ export function computeClosedToday(
       while (remaining > 0 && buyQueue.length > 0) {
         const lot = buyQueue[0];
         const matchQty = Math.min(remaining, lot.qty);
-        const pnl = (row.price - lot.price) * matchQty * multiplier;
+        // Round to cents: float premiums (0.62-0.47)*500 = 75.00000000000001.
+        const pnl = Math.round((row.price - lot.price) * matchQty * multiplier * 100) / 100;
         realizedUsd += pnl;
         closed.push({
           symbol,
