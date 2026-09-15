@@ -76,6 +76,13 @@ WALK_OUT_MAX_S = (
 # not a slow-but-correct walk-out.
 WALK_OUT_GATE_RADIUS = 1.0
 
+# Diag-publish lag budget for per_agent's max_walk_between_last_seen_and_gone_u
+# (coordinator note, 2nd 2026-09-15 GPU probe comparison across
+# 20260915T081521Z and 20260915T082114Z runs -- despawn positions scatter
+# around the gate: 0.94u short, 0.30u short, 0.79u PAST it). Diagnostic-only,
+# does not gate PASS/FAIL -- see per_agent's own comment above.
+WALK_OUT_DIAG_LAG_SLACK_U = 0.175
+
 # Below this measured fps, position samples update in jumps rather than
 # smooth motion (headless SwiftShader fps_p50 0.71 was the observed
 # 2026-09-14/09-15 case: 143/150 walk_speed samples read as out-of-band, a
@@ -134,6 +141,12 @@ def check_spawn_latency(
         return {"verdict": "NO-DATA", "detail": {"reason": "fewer than 2 samples"}}
 
     latencies_ms: List[float] = []
+    # prev_api seeds from samples[0]'s own api_agents -- so any agent ALREADY
+    # present when the page/probe first loaded is never in a later tick's
+    # `newly_spawned` set below (coordinator note, 2026-09-15 2nd GPU probe:
+    # every agent on both runs already existed at page-load, all appearing
+    # together at [18.25, 0] mid-walk -- a page-load reconcile, not a live
+    # spawn, and must not be judged as one here or in spawn_gate_by_agent).
     prev_api: set = _api_ids(samples[0])
     seen_on_page_by: Dict[str, Optional[float]] = {}
     # Detail-only, per commit 6249eaf3 (campus-gate spawn/despawn): first
@@ -501,8 +514,10 @@ WALK_OUT_WINDOW_END_GRACE_S = 20.0
 def check_walk_out(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
     leaving_start: Dict[str, float] = {}
     leaving_last_pos: Dict[str, List[float]] = {}
+    leaving_last_seen_t: Dict[str, float] = {}
     moved_while_leaving: Dict[str, bool] = {}
     despawn_ms: Dict[str, float] = {}
+    gone_at_by_agent: Dict[str, float] = {}
     ever_leaving: set = set()
 
     # Resolve timestamps the same way check_walk_speed does -- prefer the
@@ -527,6 +542,7 @@ def check_walk_out(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
                 if _dist(a["pos"], leaving_last_pos[aid]) > 1e-6:
                     moved_while_leaving[aid] = True
                 leaving_last_pos[aid] = a["pos"]
+            leaving_last_seen_t[aid] = resolved_t_ms[i]
 
     for aid, start_t in leaving_start.items():
         gone_at = None
@@ -536,6 +552,7 @@ def check_walk_out(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
                 break
         if gone_at is not None:
             despawn_ms[aid] = gone_at - start_t
+            gone_at_by_agent[aid] = gone_at
 
     if not ever_leaving:
         return {"verdict": "NO-DATA", "detail": {"reason": "no agent observed leaving this window"}}
@@ -562,6 +579,22 @@ def check_walk_out(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
             status = "NO-DATA"
         else:
             status = "FAIL"
+        # How far a correct walk COULD have moved in the gap between the
+        # last observed "leaving" position and the tick it was confirmed
+        # gone -- design_speed * gap_s + WALK_OUT_DIAG_LAG_SLACK_U (the
+        # 250ms diag-publish lag a coordinator probe-run comparison flagged
+        # 2026-09-15: LiveAgents.tsx publishes window.__hqLiveAgents on a
+        # 250ms cadence, see WALK-SPEED-DIAG above, so the true despawn
+        # position can sit up to one publish tick beyond the last SAMPLED
+        # position even on a correct walk). Lets a reader judge whether a
+        # last-seen-to-gate gap is normal sampling slack or a real jump,
+        # without itself gating PASS/FAIL.
+        gone_t = gone_at_by_agent.get(aid)
+        last_seen_t = leaving_last_seen_t.get(aid)
+        max_walk_u = None
+        if gone_t is not None and last_seen_t is not None:
+            gap_s = max(0.0, (gone_t - last_seen_t) / 1000.0)
+            max_walk_u = round(WALK_SPEED_DEFAULT * gap_s + WALK_OUT_DIAG_LAG_SLACK_U, 4)
         per_agent[aid] = {
             "status": status,
             "despawn_ms": despawn_ms.get(aid),
@@ -570,6 +603,7 @@ def check_walk_out(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
             "last_pos": last_pos,
             "dist_to_gate": round(dist_to_gate, 4) if dist_to_gate is not None else None,
             "despawned_at_gate": despawned_at_gate,
+            "max_walk_between_last_seen_and_gone_u": max_walk_u,
         }
 
     statuses = [v["status"] for v in per_agent.values()]
