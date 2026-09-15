@@ -25,8 +25,41 @@ import { useThrottledFrame } from "./useThrottledFrame";
 import { useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { useRef } from "react";
-import { resolveLabelOffsets, type LabelRect } from "./labelDeclutter";
+import { resolveLabelOffsets, DEFAULT_MAX_NUDGE_PX, type LabelRect } from "./labelDeclutter";
 import { getLabelRegistry } from "./useLabelDeclutter";
+
+// OVERVIEW-FLOOR fix (2026-09-15): bubbleScale.ts's own fix roughly doubles
+// every hub-center label's real on-screen size (the ~6px overview floor
+// this pass targets was undersized by ~1.9x). A label that is bigger also
+// needs MORE room to nudge clear of a same-priority neighbor -- the old
+// fixed DEFAULT_MAX_NUDGE_PX(60) cap is exactly why Coach's bubble (read at
+// 1:1 from declutter-overview.png) gave up and faded instead of clearing
+// Gamma's: at the bigger post-fix label size, 60px of travel is no longer
+// enough headroom for two ~28px-tall boxes to fully separate plus margin.
+// Scale the cap by the tallest measured rect THIS TICK against the
+// original ~15px baseline height the 60px default was tuned against (a
+// 24px-font single-line bubble's own line-height at the OLD, undersized
+// ~6-8px rendered scale) -- never shrinks below the default, only grows
+// when labels render bigger than that baseline.
+const NUDGE_BASELINE_HEIGHT_PX = 15;
+
+// SECOND FIX (same pass, read live from overview-read.png at 1:1 after the
+// first height-only cap landed): Coach/Chef/the BRAIN plaque were STILL
+// faded. Root cause -- the height-only formula only budgets for a SINGLE
+// same-priority neighbor to clear, but labelDeclutter.ts's own worst case
+// (see its "chain of 4" test) is every LOWER-precedence label needing to
+// clear EVERY already-placed one stacked before it: the i-th label (0-
+// indexed within its collision) needs dy up to i*height. The real overview
+// hub crowds up to ~9 labels at once (Gamma + up to 3 live-agent bubbles +
+// 4 persona desks [Chef/Scout/Coach/Treasurer] + 1 BRAIN plaque), so the
+// LAST one in priority order can need up to 8*height of travel -- the
+// height-only cap (a small constant multiple of ONE label's height) was
+// never going to cover that. Budget by both dimensions: height (bigger
+// label = more per-step room needed) AND how many labels are actually
+// registered this tick (more labels = a longer worst-case chain), so a
+// quiet scene keeps the tight, unchanged-close-cam-friendly default while
+// a crowded hub actually gets enough room for every label to clear.
+const NUDGE_CHAIN_MARGIN = 1.25; // headroom above the exact worst-case chain length
 
 const TICK_HZ = 10;
 // Smoothing factor per tick (not per second -- ticks are already fixed at
@@ -92,7 +125,19 @@ export default function LabelDeclutterManager(): null {
     }
 
     if (rects.length === 0) return;
-    const offsets = resolveLabelOffsets(rects);
+    // See this file's own header (NUDGE_BASELINE_HEIGHT_PX + the SECOND FIX
+    // note above it): grow the nudge cap by BOTH how much bigger the
+    // tallest label this tick is than the tuned baseline, AND how many
+    // labels are actually registered (the real worst-case chain length,
+    // since labelDeclutter.ts's own resolver can need the LAST label in
+    // priority order to clear every one placed before it). Never shrinks
+    // below the default -- a quiet scene with 1-2 labels keeps the exact
+    // close-camera behavior this pass must not regress.
+    const tallestHeight = rects.reduce((max, r) => Math.max(max, r.height), 0);
+    const heightRatio = tallestHeight > NUDGE_BASELINE_HEIGHT_PX ? tallestHeight / NUDGE_BASELINE_HEIGHT_PX : 1;
+    const worstCaseChainPx = tallestHeight * rects.length * NUDGE_CHAIN_MARGIN;
+    const maxNudgePx = Math.max(DEFAULT_MAX_NUDGE_PX * heightRatio, worstCaseChainPx, DEFAULT_MAX_NUDGE_PX);
+    const offsets = resolveLabelOffsets(rects, maxNudgePx);
 
     for (const entry of registry.values()) {
       const m = measured.get(entry.id);

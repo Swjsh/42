@@ -151,6 +151,70 @@ test("a side-by-side overlap at overview-camera (0.5x) scale resolves via the ch
   assert.ok(clear, "coach and general-purpose still overlap after resolve");
 });
 
+test("the real hub crowd (9 labels) at post-OVERVIEW-FLOOR-fix size: height-only cap still fades Coach, the two-factor cap (LabelDeclutterManager.tsx's own formula) clears every label (2026-09-15)", () => {
+  // bubbleScale.ts's OVERVIEW-FLOOR fix roughly doubles every hub-center
+  // label's real on-screen size (~6px -> ~11.6px text, and the bubble box
+  // along with it: ~14px -> ~28px tall for a typical persona/live-agent
+  // bubble). Reproduces declutter-overview.png's own hub-center crowd,
+  // read at 1:1 after the FIRST (height-only) cap fix still left Coach/
+  // Chef/the BRAIN plaque faded: Gamma + 3 general-purpose live-agent
+  // bubbles + 4 persona desks (Chef/Scout/Coach/Treasurer) + the BRAIN
+  // plaque, all anchored at ~the same hub-center point -- 9 labels total.
+  // The LAST one in priority order must clear all 8 placed before it:
+  // dy = 8*height = 224px of vertical travel.
+  const HEIGHT = 28;
+  const rects = [
+    rect("gamma", PRIORITY.GAMMA, 30, 200, 200, 150, HEIGHT),
+    rect("live-1", PRIORITY.LIVE_AGENT, 31, 200, 200, 150, HEIGHT),
+    rect("live-2", PRIORITY.LIVE_AGENT, 32, 200, 200, 150, HEIGHT),
+    rect("live-3", PRIORITY.LIVE_AGENT, 33, 200, 200, 150, HEIGHT),
+    rect("chef", PRIORITY.PERSONA, 34, 200, 200, 150, HEIGHT),
+    rect("scout", PRIORITY.PERSONA, 35, 200, 200, 150, HEIGHT),
+    rect("coach", PRIORITY.PERSONA, 36, 200, 200, 150, HEIGHT),
+    rect("treasurer", PRIORITY.PERSONA, 37, 200, 200, 150, HEIGHT),
+    rect("brain-plaque", PRIORITY.PLAQUE, 38, 200, 200, 150, HEIGHT),
+  ];
+
+  // Height-only cap (this pass's FIRST fix, insufficient on its own): grows
+  // with label size but not with how many labels are actually crowded.
+  const NUDGE_BASELINE_HEIGHT_PX = 15;
+  const heightOnlyCap = DEFAULT_MAX_NUDGE_PX * (HEIGHT / NUDGE_BASELINE_HEIGHT_PX);
+  const withHeightOnlyCap = resolveLabelOffsets(rects, heightOnlyCap);
+  const coachHeightOnly = withHeightOnlyCap.get("coach")!;
+  const brainHeightOnly = withHeightOnlyCap.get("brain-plaque")!;
+  assert.ok(coachHeightOnly.opacity < 1 || brainHeightOnly.opacity < 1, "with only the height-factor cap, this 9-label crowd still clamps and fades someone -- reproduces the still-faded Coach/BRAIN read from overview-read.png after the first fix alone");
+
+  // Two-factor cap: LabelDeclutterManager.tsx's own formula --
+  // max(height-ratio * default, height * count * margin, default).
+  const NUDGE_CHAIN_MARGIN = 1.25;
+  const twoFactorCap = Math.max(
+    DEFAULT_MAX_NUDGE_PX * (HEIGHT / NUDGE_BASELINE_HEIGHT_PX),
+    HEIGHT * rects.length * NUDGE_CHAIN_MARGIN,
+    DEFAULT_MAX_NUDGE_PX,
+  );
+  assert.ok(twoFactorCap > heightOnlyCap, "the count-aware cap must exceed the height-only cap for a 9-label crowd");
+
+  const withTwoFactorCap = resolveLabelOffsets(rects, twoFactorCap);
+  for (const r of rects) {
+    const o = withTwoFactorCap.get(r.id)!;
+    assert.equal(o.opacity, 1, `${r.id} must render at full opacity -- no label may be left faded/hidden in the real hub crowd`);
+  }
+  // Every pair must be genuinely clear on WHICHEVER axis the resolver chose
+  // (a label may clear via dx instead of dy if that's the cheaper axis --
+  // see labelDeclutter.ts's own "smaller displacement wins" rule), not just
+  // individually under-cap.
+  for (let i = 0; i < rects.length; i++) {
+    for (let j = i + 1; j < rects.length; j++) {
+      const oi = withTwoFactorCap.get(rects[i].id)!;
+      const oj = withTwoFactorCap.get(rects[j].id)!;
+      const xi = 200 + oi.dx, yi = 200 + oi.dy;
+      const xj = 200 + oj.dx, yj = 200 + oj.dy;
+      const clear = xi + 150 <= xj || xj + 150 <= xi || yi + HEIGHT <= yj || yj + HEIGHT <= yi;
+      assert.ok(clear, `${rects[i].id} and ${rects[j].id} still overlap after the two-factor-cap resolve`);
+    }
+  }
+});
+
 test("stable order across frames: identical input always yields identical output (no jitter)", () => {
   const rects = [
     rect("live-1", PRIORITY.LIVE_AGENT, 12.3, 400, 300, 140, 26),
