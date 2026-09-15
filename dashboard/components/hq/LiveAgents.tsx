@@ -52,6 +52,7 @@ import { truncateOneLine } from "./palette";
 import { bubbleCounterScale } from "./bubbleText";
 import { PRIORITY } from "./labelDeclutter";
 import { mergeRefs, useLabelDeclutter } from "./useLabelDeclutter";
+import { liveAgentIdentity } from "./liveAgentIdentity";
 import { CHARACTER_SCALE, CHARACTER_TARGET_HEIGHT } from "./SetKit";
 import type { LiveAgent } from "./types";
 import type { LiveAgentState } from "@/lib/hq-agents";
@@ -62,13 +63,39 @@ import {
   updateStableSlotAssignments, type WalkerSnapshot,
 } from "./liveAgentWalk";
 
-// 8 distinct, saturated hues, cycled by arrival order -- deliberately NOT
+// AGENT-IDENTITY pass (2026-09-15): color used to cycle by ARRIVAL ORDER
+// (an 8-hue palette indexed by a per-mount counter) -- deliberately replaced
+// with liveAgentIdentity.ts's own TYPE-keyed tint so the look means "what
+// kind of agent this is" (main session / general-purpose worker / Explore /
+// other), not "which Nth agent joined" -- still deliberately NOT
 // HEALTH_COLOR/PERSONA_STATUS_COLOR (palette.ts's own orthogonal-axes rule:
-// a live agent's color means "which worker," never a health/status
-// semantic) so these never get mistaken for a persona or a lane's own
-// status glow ("distinct, readable look... so they don't read as personas"
-// per this task's own brief).
-const ACCENT_PALETTE = ["#ff6b6b", "#4ecdc4", "#ffe66d", "#a78bfa", "#38bdf8", "#fb923c", "#34d399", "#f472b6"];
+// a live agent's color must never get mistaken for a health/status glow or
+// a persona's own color).
+
+// AGENT-IDENTITY pass: hover tooltip visibility -- same hostname/`?kiosk=1`
+// check app/hq/page.tsx's own `lanKiosk`/`kiosk` derive from, kept as a
+// self-contained hook here rather than threading a `kiosk` prop through
+// Scene.tsx/CanvasRoot.tsx/UltraCanvasRoot.tsx (out of this task's touch
+// list, and the TV kiosk has no pointer anyway -- onMouseEnter below would
+// simply never fire there; this is belt-and-suspenders so a tooltip box
+// can never appear on a LAN glance screen even if some future input method
+// did fire a hover event). Decided after mount (useEffect, not read at
+// render time) so the server-rendered HTML never mismatches on hydration --
+// same convention as page.tsx's own `lanKiosk` state.
+function useIsKiosk(): boolean {
+  const [kiosk, setKiosk] = useState(false);
+  useEffect(() => {
+    try {
+      const host = window.location.hostname;
+      const lan = !(host === "localhost" || host === "127.0.0.1" || host === "::1");
+      const param = new URLSearchParams(window.location.search).get("kiosk") === "1";
+      setKiosk(param || lan);
+    } catch {
+      // best-effort -- default false (tooltip enabled) if location is ever unavailable
+    }
+  }, []);
+  return kiosk;
+}
 
 const WORK_DWELL_ANIM: KitAnimState = "resting-working-type";
 const WALK_ANIM: KitAnimState = "walking";
@@ -162,9 +189,15 @@ function ensureDiagInterval(): void {
 interface AvatarProps {
   liveAgentId: string;
   label: string;
+  /** AGENT-IDENTITY pass: short human name (liveAgentIdentity.ts) shown in
+   * the bubble header instead of the raw server `label` string. */
+  displayName: string;
   accentColor: string;
   bubble: string;
   rawDetail: string;
+  /** AGENT-IDENTITY pass: full, leak-sanitized task text for the hover
+   * tooltip (lib/hq-agents.ts#sanitizeTaskText, server-computed). */
+  taskDetail: string;
   walkGraph: WalkGraph;
   targetNodeId: string;
   serverState: LiveAgentState;
@@ -201,12 +234,18 @@ function nodePosition(walkGraph: WalkGraph, id: string, fallback: [number, numbe
 }
 
 function LiveAgentAvatar({
-  liveAgentId, label, accentColor, bubble, rawDetail, walkGraph, targetNodeId, serverState, leaving, reducedMotion,
+  liveAgentId, label, displayName, accentColor, bubble, rawDetail, taskDetail, walkGraph, targetNodeId, serverState, leaving, reducedMotion,
   standOffset, standIndex, spawnDelayS, leaveDelayS, spawnIndex, leaveIndex, onDespawned,
 }: AvatarProps) {
   const group = useRef<THREE.Group>(null);
   const bubbleWrapRef = useRef<HTMLDivElement>(null);
   const bubbleDelta = useMemo(() => new THREE.Vector3(), []);
+  // AGENT-IDENTITY pass: hover -> full-task tooltip. A plain useState (not
+  // a ref) -- hover start/stop are discrete pointer events and the tooltip
+  // itself must re-render when this flips, same "state for discrete
+  // moments" convention Scene.tsx's own hoveredTarget comment documents.
+  const [hovered, setHovered] = useState(false);
+  const isKiosk = useIsKiosk();
   const entryPos = useMemo<[number, number, number]>(
     () => nodePosition(walkGraph, ENTRY_NODE_ID, [0, 0, 0]),
     [walkGraph],
@@ -835,7 +874,12 @@ function LiveAgentAvatar({
             separate from `bubbleWrapRef`'s own camera-distance fade/scale --
             see Agent.tsx's identical convention/comment. */}
         <div ref={declutterRef} style={{ transformOrigin: "50% 100%" }}>
-        <div ref={mergeRefs(bubbleWrapRef, declutterMeasureRef)} style={{ position: "relative", transformOrigin: "50% 100%" }}>
+        <div
+          ref={mergeRefs(bubbleWrapRef, declutterMeasureRef)}
+          style={{ position: "relative", transformOrigin: "50% 100%", pointerEvents: isKiosk ? "none" : "auto" }}
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+        >
           <div className="hq-beam" style={{ "--beam-color": accentColor, borderRadius: 6 } as CSSProperties}>
             <div
               style={{
@@ -846,7 +890,7 @@ function LiveAgentAvatar({
               }}
             >
               <span key={bubbleTrunc} className="hq-shine" />
-              <b style={{ fontWeight: 800 }}>{label}</b>
+              <b style={{ fontWeight: 800 }}>{displayName}</b>
               <span style={{ color: "#7f93b0" }}>·</span>
               <span>{bubbleTrunc}</span>
             </div>
@@ -859,6 +903,36 @@ function LiveAgentAvatar({
               borderRight: `1px solid ${accentColor}`, borderBottom: `1px solid ${accentColor}`,
             }}
           />
+          {/* AGENT-IDENTITY pass: hover tooltip -- the FULL, un-truncated
+              (vs. bubbleTrunc's 44-char cut) sanitized task text
+              (taskDetail, server-computed by lib/hq-agents.ts#sanitizeTaskText).
+              Kiosk-hidden (pointerEvents "none" above means onMouseEnter can
+              never fire there anyway; `hovered` also just never becomes true
+              on a kiosk with no pointer -- this `!isKiosk` check is
+              belt-and-suspenders, matching this file's existing "no silent
+              stuck state" convention). `position: absolute` and therefore
+              taken out of flow -- appearing/disappearing on hover can never
+              change declutterMeasureRef's own getBoundingClientRect() (an
+              absolutely-positioned child never contributes to its static-
+              positioned parent's layout box), so a hover never perturbs the
+              declutter collision box the manager already computed for the
+              bubble. pointerEvents "none" so the tooltip itself can never
+              steal the mouseleave that should close it. */}
+          {hovered && !isKiosk && taskDetail ? (
+            <div
+              style={{
+                position: "absolute", left: "50%", bottom: "calc(100% + 10px)",
+                transform: "translateX(-50%)", pointerEvents: "none",
+                maxWidth: 340, width: "max-content",
+                fontFamily: "system-ui, sans-serif", color: "#dff3ff", fontSize: 20,
+                background: "rgba(3,4,10,0.92)", border: `1px solid ${accentColor}`,
+                borderRadius: 6, padding: "6px 10px",
+                whiteSpace: "normal", wordBreak: "break-word", lineHeight: 1.35,
+              }}
+            >
+              {taskDetail}
+            </div>
+          ) : null}
         </div>
         </div>
       </Html>
@@ -877,6 +951,15 @@ interface DisplayedAgent {
   targetNodeId: string;
   leaving: boolean;
   accentColor: string;
+  /** AGENT-IDENTITY pass: short human name for the bubble header (see
+   * liveAgentIdentity.ts) -- replaces the raw server `label` string so the
+   * header and any future name label can never show two different things
+   * for the same agent. */
+  displayName: string;
+  /** AGENT-IDENTITY pass: full, leak-sanitized task text for the hover
+   * tooltip (lib/hq-agents.ts#sanitizeTaskText, computed server-side --
+   * see that field's own doc comment for why). */
+  taskDetail: string;
   /** CONVOY-STACK v2 (2026-09-15): this id's own stable-order stagger delay
    * (seconds) -- assigned ONCE, the moment this id is first added
    * (spawnDelayS) or first flips to leaving (leaveDelayS), and preserved
@@ -915,8 +998,6 @@ export interface LiveAgentsProps {
  */
 export default function LiveAgents({ agents, walkGraph, ultra, reducedMotion }: LiveAgentsProps) {
   const [displayed, setDisplayed] = useState<Map<string, DisplayedAgent>>(new Map());
-  const colorIdx = useRef(new Map<string, number>());
-  const nextColorIdx = useRef(0);
   // STAND-SLOT SHUFFLE-SNAP fix (CONVOY-STACK v5, 2026-09-15, all-state
   // displacement audit on probe 20260915T095436Z): persistent, STABLE
   // per-zone slot assignment (liveAgentWalk.ts#updateStableSlotAssignments)
@@ -962,11 +1043,7 @@ export default function LiveAgents({ agents, walkGraph, ultra, reducedMotion }: 
 
       const next = reconcileLiveAgentRoster(prev, agents, (a, existing) => {
         const bubble = `${a.state === "spawning" ? "arrived" : a.state === "cooling" ? "wrapping up" : "working"} · ${a.lastDetail}`;
-        if (!colorIdx.current.has(a.id)) {
-          colorIdx.current.set(a.id, nextColorIdx.current);
-          nextColorIdx.current += 1;
-        }
-        const accentColor = ACCENT_PALETTE[colorIdx.current.get(a.id)! % ACCENT_PALETTE.length];
+        const identity = liveAgentIdentity(a.label, a.id);
         return {
           id: a.id,
           label: a.label,
@@ -975,7 +1052,9 @@ export default function LiveAgents({ agents, walkGraph, ultra, reducedMotion }: 
           rawDetail: a.rawDetail,
           targetNodeId: a.targetZone,
           leaving: false,
-          accentColor,
+          accentColor: identity.tint,
+          displayName: identity.displayName,
+          taskDetail: a.taskDetail || bubble,
           spawnDelayS: existing ? existing.spawnDelayS : (spawnDelays.get(a.id) ?? 0),
           leaveDelayS: existing ? existing.leaveDelayS : 0,
           spawnIndex: existing ? existing.spawnIndex : (spawnOrder.get(a.id) ?? 0),
@@ -1034,7 +1113,6 @@ export default function LiveAgents({ agents, walkGraph, ultra, reducedMotion }: 
 
   const handleDespawned = (id: string) => {
     diagStore.delete(id);
-    colorIdx.current.delete(id);
     // CONVOY-STACK v5: free this id's stable stand-slot immediately, rather
     // than waiting for the next reconcile poll to notice it's gone -- purely
     // an efficiency nicety (a departed id's slot is a no-op reservation
@@ -1042,7 +1120,7 @@ export default function LiveAgents({ agents, walkGraph, ultra, reducedMotion }: 
     // would drop it on the very next poll regardless), but it lets a
     // newcomer reuse the freed index right away instead of a poll interval
     // later. Refs are this tree's own accepted mutable-bookkeeping
-    // convention (see colorIdx.current.delete just above).
+    // convention (see diagStore.delete just above).
     for (const zoneAssign of slotAssignmentsRef.current.values()) {
       zoneAssign.delete(id);
     }
@@ -1065,9 +1143,11 @@ export default function LiveAgents({ agents, walkGraph, ultra, reducedMotion }: 
             key={d.id}
             liveAgentId={d.id}
             label={d.label}
+            displayName={d.displayName}
             accentColor={d.accentColor}
             bubble={d.bubble}
             rawDetail={d.rawDetail}
+            taskDetail={d.taskDetail}
             walkGraph={walkGraph}
             targetNodeId={d.targetNodeId}
             serverState={d.serverState}

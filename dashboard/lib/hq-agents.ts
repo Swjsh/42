@@ -105,6 +105,13 @@ export interface LiveAgent {
    * short classified human phrase (bubbleText.ts#liveAgentBubbleAction).
    * Flattened to one line but otherwise exactly what pulse.py wrote. */
   rawDetail: string;
+  /** Full, un-truncated (up to TOOLTIP_MAX_CHARS), leak-sanitized task text
+   * for the hover tooltip (AGENT-IDENTITY pass, 2026-09-15) --
+   * sanitizeTaskText(rawDetail) above, computed here (not client-side) so
+   * the sanitizer stays inside this fs-importing module (LiveAgents.tsx's
+   * own header: never a BY-VALUE import of this file into the client
+   * bundle) and the client only ever consumes the already-safe string. */
+  taskDetail: string;
   state: LiveAgentState;
   /** A real walk-graph node id from dashboard/components/hq/layout.ts
    * (buildWalkGraph's own node-id convention) -- never an invented place.
@@ -298,7 +305,7 @@ function basenameOf(p: string): string {
  * happens there is nothing left to strip and no verb to see, so this
  * returns the (still cd-prefixed) string unchanged and the caller below
  * honestly falls through to "running a command" rather than guessing. */
-function stripLeadingCd(cmd: string): string {
+export function stripLeadingCd(cmd: string): string {
   let s = cmd;
   for (;;) {
     const m = /^cd\s+\S+\s*&&\s*/.exec(s);
@@ -454,6 +461,50 @@ function rawDetailFor(row: PulseRow): string {
   return raw.replace(/\s+/g, " ").trim();
 }
 
+// ─── Tooltip task text (HQ AGENT-IDENTITY pass, 2026-09-15) ────────────────
+//
+// The hover tooltip needs the FULL current task (unlike the bubble's own
+// classified-and-60-char-capped shortDetail), but rawDetail is a straight,
+// un-sanitized flatten of pulse.py's own row text -- the SAME shape that
+// motivated BUBBLE-FIX above ("Ran: cd C:\...\42 && grep ..."). This reuses
+// this file's OWN existing leak knowledge (RAN_PREFIX, stripLeadingCd)
+// rather than inventing a second set of rules, and is verified by
+// dashboard/tests/hq-agents.test.ts to never match
+// setup/scripts/hq_probe_lib.py's own RAW_SHELL_LEAK_RE
+// (`Ran:|\\|/c/Users|&&`) -- the probe only scans the rendered `bubble`
+// field today (that file's own comment: "rawDetail is deliberately RAW ...
+// must never feed the leak scan"), but the tooltip renders taskDetail
+// on-screen too, so it must clear the exact same bar.
+const TOOLTIP_MAX_CHARS = 200;
+// This box's own absolute workspace path (WORKSPACE_ROOT above), in both
+// its native Windows form and the git-bash "/c/Users/..." form a Bash tool
+// row's own command text can carry -- stripped so a tooltip never leaks the
+// operator's local machine path, matching RAW_SHELL_LEAK_RE's own
+// "/c/Users" check.
+const WORKSPACE_PATH_RE = /\/?[Cc]:?\/Users\/[^/]+\/Desktop\/42\/?/g;
+
+/** Sanitizes a live agent's full raw row text (`rawDetail`) into tooltip-
+ * safe display text: strips the "Ran: " prefix and any leading `cd ... &&`
+ * chain (stripLeadingCd, the same helper classifyCommand above uses),
+ * normalizes backslashes to forward slashes, strips this box's own
+ * absolute workspace path, and replaces any remaining `&&` chain operator
+ * with a plain word -- never truncates the VERB/TARGET the way the 60-char
+ * shortDetail cap can, only caps at TOOLTIP_MAX_CHARS as a defensive
+ * ceiling (this task's own "~200 chars" spec). Never throws on empty/
+ * malformed input -- degrades to "" (caller falls back to the classified
+ * bubble text) rather than showing an ellipsis-only tooltip. */
+export function sanitizeTaskText(raw: string): string {
+  let text = (raw || "").replace(/\s+/g, " ").trim();
+  if (!text) return "";
+  if (text.startsWith(RAN_PREFIX)) text = text.slice(RAN_PREFIX.length);
+  text = text.replace(/\\/g, "/");
+  text = stripLeadingCd(text);
+  text = text.replace(WORKSPACE_PATH_RE, "");
+  text = text.replace(/\s*&&\s*/g, " then ").trim();
+  if (!text) return "";
+  return text.length > TOOLTIP_MAX_CHARS ? `${text.slice(0, TOOLTIP_MAX_CHARS - 1)}…` : text;
+}
+
 // ─── Pure combiner (fixture-tested: dashboard/tests/hq-agents.test.ts) ─────
 
 interface AgentAcc {
@@ -589,6 +640,7 @@ export function buildLiveAgents(rows: PulseRow[], nowMs: number = Date.now()): L
       lastTs: a.lastTs,
       lastDetail: a.lastDetail,
       rawDetail: a.lastRawDetail,
+      taskDetail: sanitizeTaskText(a.lastRawDetail),
       state,
       targetZone: ZONE_NODE_ID[a.zone],
     };
