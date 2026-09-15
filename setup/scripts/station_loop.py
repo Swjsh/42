@@ -753,6 +753,21 @@ def run_once(*, force: bool = False, now_utc: Optional[datetime] = None) -> dict
     except Exception as exc:  # noqa: BLE001
         _log(f"coach_notes.run_once failed (non-fatal): {exc!r}")
 
+    # ROOT CAUSE (coordinator-verified 2026-09-15 02:05 ET, loop-ledger 00:21/01:21 ET
+    # yields): hq_self_review.review_once's OPTIONAL capture path can run
+    # hq_capture.ps1 -- a ~40s kiosk Edge WebGL render -- and when that ran BEFORE
+    # decide_action's GPU sample, the Station read its own rendering as "J is using the
+    # GPU" and yielded on its own capture. FIX: sample gpu/process state via
+    # decide_action FIRST, then run review_once on every path (ok/yielded/error alike,
+    # same every-fire + fail-open contract as before) -- chosen over a separate
+    # snapshot-and-pass-in helper because decide_action already owns the injectable
+    # sampling fns and this keeps the fix to a call-order swap, no new plumbing. Because
+    # run_once is single-threaded, review_once here still runs strictly before
+    # call_ollama_chat below -- sequential, never concurrent, so review_once's own
+    # (optional) vision pass and the station model call never fight over the GPU/model
+    # at the same instant.
+    status, reason = decide_action(now_utc, config, force=force)
+
     # C9/C10 (2026-09-14, coordinator-directed): Gamma's own HQ self-review -- same
     # every-fire spot, same fail-open contract. hq_self_review.review_once's fast path
     # (payload fetch + grading) is bounded by its own 5s HTTP timeout; the OPTIONAL
@@ -763,7 +778,6 @@ def run_once(*, force: bool = False, now_utc: Optional[datetime] = None) -> dict
     except Exception as exc:  # noqa: BLE001
         _log(f"hq_self_review.review_once failed (non-fatal): {exc!r}")
 
-    status, reason = decide_action(now_utc, config, force=force)
     if status != "ok":
         row = _ledger_row(ts_et, model, status, reason, t0)
         if reason.startswith("denylisted_process:"):

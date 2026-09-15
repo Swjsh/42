@@ -642,6 +642,98 @@ def test_run_once_never_exceeds_max_new_cards_per_fire(monkeypatch):
 
 
 # ============================================================================
+# 2026-09-15 fix: decide_action's GPU/process sample must happen BEFORE
+# hq_self_review.review_once's capture path -- otherwise the Station reads its own
+# ~40s kiosk-capture GPU load as "J is using the GPU" and yields on itself
+# (loop-ledger 00:21:01 ET + 01:21:00 ET, coordinator-verified 2026-09-15 02:05 ET).
+# ============================================================================
+
+def test_run_once_gpu_sample_precedes_review_once_so_capture_load_never_causes_a_yield(monkeypatch):
+    # review_once's stub simulates hq_capture.ps1's real effect: it raises gpu_util to
+    # 95% (as observed in the incident) the instant it runs. If decide_action's GPU
+    # sample were taken AFTER review_once (the pre-fix ordering), this fire would read
+    # 95% > 50% threshold and yield on its own capture. With the fix, decide_action
+    # samples first (state["gpu"] == 10 at that point) and the fire completes "ok".
+    order = []
+    state = {"gpu": 10}
+
+    def gpu_fn():
+        order.append("gpu_sample")
+        return state["gpu"]
+
+    def review_stub(*a, **kw):
+        order.append("review_once")
+        state["gpu"] = 95  # the self-inflicted spike, as if hq_capture.ps1 just rendered
+        return {"stubbed": True}
+
+    monkeypatch.setattr(sl, "_gpu_util_pct", gpu_fn)
+    monkeypatch.setattr(sl, "_station_mode", lambda: "work")
+    monkeypatch.setattr(sl, "_read_process_table", lambda: {})
+    monkeypatch.setattr(sl, "_ollama_reachable", lambda base_url: True)
+    monkeypatch.setattr(sl, "_list_models", lambda base_url: ["gamma-planner"])
+    monkeypatch.setattr(sl.hq_self_review, "review_once", review_stub)
+    monkeypatch.setattr(sl, "call_ollama_chat", lambda *a, **kw: _fake_ollama_response())
+
+    row = sl.run_once(now_utc=_TUE_AFTERHOURS_UTC, force=False)
+
+    assert order == ["gpu_sample", "review_once"], (
+        "decide_action's GPU sample must be taken strictly before hq_self_review.review_once runs"
+    )
+    assert row["status"] == "ok", (
+        "the fire must survive on the pre-review (10%) GPU sample, not the post-review (95%) one"
+    )
+
+
+@pytest.mark.parametrize("clock,extra_stubs,expected_status", [
+    (_TUE_RTH_UTC, {"_station_mode": lambda: "work"}, "yielded"),
+    (_TUE_AFTERHOURS_UTC, {
+        "_station_mode": lambda: "work", "_read_process_table": lambda: {},
+        "_gpu_util_pct": lambda: 10, "_ollama_reachable": lambda base_url: False,
+    }, "error"),
+])
+def test_run_once_review_once_still_runs_on_yielded_and_error_fires(monkeypatch, clock, extra_stubs, expected_status):
+    # review_once's "runs every fire" contract predates this ordering fix and must survive
+    # it: a yielded or error fire still must not go dark on the self-review capture.
+    for name, fn in extra_stubs.items():
+        monkeypatch.setattr(sl, name, fn)
+    called = {"n": 0}
+    monkeypatch.setattr(sl.hq_self_review, "review_once", lambda *a, **kw: called.__setitem__("n", called["n"] + 1))
+
+    row = sl.run_once(now_utc=clock, force=False)
+
+    assert row["status"] == expected_status
+    assert called["n"] == 1, "hq_self_review.review_once must still run on a non-ok fire"
+
+
+@pytest.mark.parametrize("clock,extra_stubs", [
+    (_TUE_RTH_UTC, {"_station_mode": lambda: "work"}),
+    (_TUE_AFTERHOURS_UTC, {
+        "_station_mode": lambda: "work", "_read_process_table": lambda: {},
+        "_gpu_util_pct": lambda: 10, "_ollama_reachable": lambda base_url: False,
+    }),
+    (_TUE_AFTERHOURS_UTC, {
+        "_station_mode": lambda: "work", "_read_process_table": lambda: {},
+        "_gpu_util_pct": lambda: 10, "_ollama_reachable": lambda base_url: True,
+        "_list_models": lambda base_url: ["gamma-planner"],
+    }),
+])
+def test_run_once_review_once_raising_never_crashes_run_once(monkeypatch, clock, extra_stubs):
+    for name, fn in extra_stubs.items():
+        monkeypatch.setattr(sl, name, fn)
+    if "_list_models" in extra_stubs:  # the "ok" case in the matrix above -- let the fire complete
+        monkeypatch.setattr(sl, "call_ollama_chat", lambda *a, **kw: _fake_ollama_response())
+
+    def _boom(*a, **kw):
+        raise RuntimeError("hq_capture.ps1 blew up")
+
+    monkeypatch.setattr(sl.hq_self_review, "review_once", _boom)
+
+    row = sl.run_once(now_utc=clock, force=False)  # must not raise
+
+    assert row["status"] in {"ok", "yielded", "error"}
+
+
+# ============================================================================
 # GOAL-GAMMA-STATION item 12 -- the closed idea loop wiring in run_once()
 # ============================================================================
 
