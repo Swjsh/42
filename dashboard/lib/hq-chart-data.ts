@@ -37,8 +37,9 @@
 // pulling in lib/chart-data.ts's own extensionless "./workspace" chain).
 
 import { promises as fs } from "node:fs";
+import type { FileHandle } from "node:fs/promises";
 import { paths } from "./workspace";
-import { todayET, isMarketHoursET } from "./time";
+import { todayET, isMarketHoursET, formatET } from "./time";
 import { getChartData, type ChartBar, type ChartTradeMarker } from "./chart-data";
 import {
   chartTimeToEtDateStr,
@@ -49,7 +50,9 @@ import {
   filterLevelsNearRange,
   isWeekdayEt,
   computeSessionStatusLabel,
+  buildIntradayCandles,
   type HoloLevel,
+  type IntradayTick,
 } from "./hq-chart-pure";
 
 // Same threshold setup/scripts/sight_beacon.py itself documents
@@ -171,6 +174,71 @@ async function readKeyLevels(): Promise<HoloLevel[]> {
   }
 }
 
+// ─── automation/state/core-decisions.jsonl (today's engine ticks) ─────────
+//
+// See hq-chart-pure.ts's own "today's intraday 5m candle builder" header for
+// the full root-cause + source-choice reasoning (survey done this session:
+// no persisted intraday-bars cache exists anywhere on disk; core-decisions
+// is the one file with real per-minute history for today). This reader is
+// intentionally separate from lib/hq.ts's own readCoreDecisionsToday() --
+// that function's `trades` array holds ONLY genuine ENTER/EXIT rows (see its
+// own comment), which is exactly the wrong subset here: we need every tick's
+// `spy` read (mostly HOLD rows) to reconstruct a price series, not just the
+// rare trade rows. Same bounded-tail-read convention as that function (never
+// a full fs.readFile of this large, continuously-growing file).
+const CORE_DECISIONS_TICKS_TAIL_BYTES = 4 * 1024 * 1024; // 4 MiB -- same size hq.ts's readCoreDecisionsToday uses
+
+/** Reads automation/state/core-decisions.jsonl, keeps only today's (ET
+ * calendar date) rows, and collapses the two accounts' rows down to ONE tick
+ * per engine core_tick_id (both accounts share the same `spy` read for a
+ * shared tick -- see hq-chart-pure.ts's own header). Fail-open: a
+ * missing/unreadable file or a malformed line degrades to [], never throws. */
+async function readTodayEngineTicks(): Promise<IntradayTick[]> {
+  let handle: FileHandle | undefined;
+  try {
+    handle = await fs.open(paths.coreDecisions, "r");
+    const stat = await handle.stat();
+    const start = Math.max(0, stat.size - CORE_DECISIONS_TICKS_TAIL_BYTES);
+    const length = stat.size - start;
+    if (length <= 0) return [];
+    const buffer = Buffer.alloc(length);
+    await handle.read(buffer, 0, length, start);
+    const text = buffer.toString("utf-8");
+    // Same "drop the first line if we seeked mid-file" rule as hq.ts's own
+    // core-decisions readers -- a seeked chunk's first line is very likely a
+    // truncated partial row.
+    const lines = text.split("\n").slice(start > 0 ? 1 : 0).filter((l) => l.trim().length > 0);
+    const today = todayET(new Date());
+    const seenTickIds = new Set<string>();
+    const ticks: IntradayTick[] = [];
+    for (const line of lines) {
+      let row: Record<string, unknown>;
+      try {
+        row = JSON.parse(line);
+      } catch {
+        continue; // one malformed/truncated line never blocks the rest
+      }
+      const tsEt = typeof row.ts_et === "string" ? row.ts_et : "";
+      if (!tsEt.startsWith(today)) continue; // only today's rows
+      const price = typeof row.spy === "number" && Number.isFinite(row.spy) ? row.spy : null;
+      if (price === null) continue;
+      // Dedupe by core_tick_id (shared across accounts for the same engine
+      // tick) when present; falls back to the (tsEt, price) pair itself so a
+      // row missing core_tick_id still contributes rather than being
+      // silently dropped.
+      const tickId = typeof row.core_tick_id === "string" ? row.core_tick_id : `${tsEt}:${price}`;
+      if (seenTickIds.has(tickId)) continue;
+      seenTickIds.add(tickId);
+      ticks.push({ tsEt, price });
+    }
+    return ticks;
+  } catch {
+    return [];
+  } finally {
+    await handle?.close();
+  }
+}
+
 // ─── assembly ────────────────────────────────────────────────────────────
 
 /** Everything HoloChart.tsx needs, assembled server-side. Never throws --
@@ -182,7 +250,7 @@ export async function getHoloChartData(): Promise<HoloChartData> {
   const emptySession: HoloChartData["session"] = { date: null, status: "no-data", label: "SPY · no local session data" };
   try {
     const [chart, levelsAll] = await Promise.all([getChartData(), readKeyLevels()]);
-    const { date, bars } = filterToLatestSessionDate(chart.bars);
+    const { date: csvDate, bars: csvBars } = filterToLatestSessionDate(chart.bars);
 
     const now = new Date();
     const today = todayET(now);
@@ -201,11 +269,33 @@ export async function getHoloChartData(): Promise<HoloChartData> {
     const liveFresh = chart.live !== null && chart.live.ageSeconds < STALE_AFTER_S && liveEtDate === today;
     const live = liveFresh ? { price: chart.live!.price, ageSeconds: chart.live!.ageSeconds } : null;
 
+    // ── today's REAL intraday candles (HOLOCHART-INTRADAY, 2026-09-15) ──
+    // Only attempted during RTH -- outside RTH the CSV (written once, after
+    // close) already has today's full session by the time anyone's asking,
+    // and pre/post-market engine ticks outside 09:30-16:00 ET are excluded
+    // by buildIntradayCandles anyway. See hq-chart-pure.ts's own header for
+    // the full source-choice reasoning.
+    let intradayBars: ChartBar[] = [];
+    let intradayPartialLast = false;
+    if (isRth) {
+      const ticks = await readTodayEngineTicks();
+      if (ticks.length > 0) {
+        const [hh, mm] = formatET(now).split(":").map(Number);
+        const nowMinutesOfDay = hh * 60 + mm;
+        const built = buildIntradayCandles(ticks, nowMinutesOfDay);
+        intradayBars = built.bars;
+        intradayPartialLast = built.lastBarPartial;
+      }
+    }
+    const usingIntraday = intradayBars.length > 0;
+    const date = usingIntraday ? today : csvDate;
+    const bars = usingIntraday ? intradayBars : csvBars;
+
     if (bars.length === 0) {
       const { status, label } = computeSessionStatusLabel(null, today, isRth, liveFresh);
       return {
         ok: true,
-        error: "no local SPY bars found (backtest/data/spy_5m_*.csv missing or empty)",
+        error: "no local SPY bars found (backtest/data/spy_5m_*.csv missing or empty, and no today's engine ticks in core-decisions.jsonl)",
         session: { date: null, status, label },
         bars: [],
         priceRange: null,
@@ -217,7 +307,14 @@ export async function getHoloChartData(): Promise<HoloChartData> {
       };
     }
 
-    const { status, label } = computeSessionStatusLabel(date, today, isRth, liveFresh);
+    // A genuine today's-intraday series overrides the honest-but-stale
+    // "SPY · live (no intraday bars)" caption computeSessionStatusLabel
+    // would otherwise compute from the (stale) CSV date -- this label is
+    // truthful precisely because `bars` really are today's, built moments
+    // ago from the engine's own ticks, never fabricated.
+    const { status, label } = usingIntraday
+      ? { status: "open" as const, label: `SPY · today · live${intradayPartialLast ? " (forming)" : ""}` }
+      : computeSessionStatusLabel(date, today, isRth, liveFresh);
     const session = { date, status, label };
 
     let low = Infinity;

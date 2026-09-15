@@ -216,3 +216,195 @@ export function filterLevelsNearRange(levels: HoloLevel[], low: number, high: nu
   const pad = band ?? Math.max(2, (high - low) * 0.6);
   return levels.filter((l) => l.price >= low - pad && l.price <= high + pad);
 }
+
+// --- today's intraday 5m candle builder (HOLOCHART-INTRADAY, 2026-09-15) ---
+//
+// ROOT CAUSE this fixes: HoloChart plots backtest/data/spy_5m_*.csv, which
+// (per findNewestBarsFile's own comment in lib/chart-data.ts) is written
+// ONCE per day, after the close -- so during live RTH it is always showing
+// YESTERDAY's candles, even though commit cc8261bd made the session LABEL
+// honest about it ("SPY · live (no intraday bars)"). Survey this session
+// found no persisted intraday-bars cache anywhere on disk (heartbeat_core.py
+// fetches Alpaca 5Min bars fresh over REST every tick but never writes them
+// out; automation/state/sight-beacon.json holds only the latest single
+// tick, overwritten in place, zero history). The one on-disk source with
+// real per-minute history for today is automation/state/core-decisions.jsonl
+// -- one row per account per engine tick (~1/min/account during RTH), each
+// carrying `spy` (the engine's current SPY read at that tick) and `ts_et`
+// (bare ET digits, e.g. "2026-09-15T10:52:03", NO zone suffix -- same
+// convention BARE_TS_RE below and chart-data.ts's own parseWallClockDigits
+// already assume elsewhere in this codebase). Two accounts ("safe"/"bold")
+// share the SAME engine tick (same core_tick_id, same `spy` value) roughly
+// once a minute -- the caller (hq-chart-data.ts) dedupes by core_tick_id
+// before calling buildIntradayCandles, but this function also defensively
+// collapses back-to-back identical (tsEt, price) pairs so a caller that
+// forgets to dedupe still gets a sane result rather than a doubled-up bar.
+//
+// This is TICK data (one point per minute-ish), not true 5m OHLCV bars --
+// each candle's open/high/low/close are honestly the open/high/low/close of
+// the *engine-tick samples that landed in that 5-minute window*, not of
+// every second of real intra-bar price action. That is the correct honest
+// reading of what this source actually is (never fabricated finer-grained
+// movement); a bucket with only one tick in it necessarily has
+// open===high===low===close.
+
+/** One engine-tick sample: a bare ET timestamp + the SPY read at that tick.
+ * `tsEt` uses the exact bare-digits convention core-decisions.jsonl's own
+ * ts_et field already writes (no zone suffix -- the digits ARE ET). */
+export interface IntradayTick {
+  tsEt: string;
+  price: number;
+}
+
+interface BareEtDigits {
+  y: number;
+  mo: number;
+  d: number;
+  hh: number;
+  mm: number;
+  ss: number;
+}
+
+// Deliberately the SAME shape/behavior as chart-data.ts's own (unexported)
+// parseWallClockDigits -- duplicated rather than imported because this
+// module is intentionally import-free of chart-data.ts's VALUE exports (see
+// this file's own header: a value import would pull in chart-data.ts's
+// extensionless "./workspace" chain, breaking `node --test`).
+const BARE_ET_TS_RE = /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2}):(\d{2})/;
+
+/** Parses a "YYYY-MM-DD[T ]HH:MM:SS" prefix as literal ET wall-clock digits
+ * -- NEVER routes through `new Date(str)` (which would parse against this
+ * process's OWN local timezone -- Mountain on this box per CLAUDE.md's
+ * "Bash TZ broken" lesson -- silently skewing every bucket by 1-2h). Pure
+ * string/regex digit extraction is what makes this DST-safe: there is no
+ * timezone conversion step for a DST boundary to corrupt. Never throws;
+ * returns null on anything that doesn't match (fail-open, matches every
+ * other timestamp helper in this file). */
+function parseBareEtDigits(raw: string): BareEtDigits | null {
+  const m = BARE_ET_TS_RE.exec(raw.trim());
+  if (!m) return null;
+  const [, y, mo, d, hh, mm, ss] = m.map(Number);
+  return { y, mo, d, hh, mm, ss };
+}
+
+/** Same encoding chart-data.ts's own etDigitsToChartTime uses: the literal
+ * ET wall-clock digits, stored AS a UTCTimestamp (a *display* timestamp,
+ * directly comparable against every other ChartBar.time in this codebase --
+ * never a real UTC instant). */
+function bareEtDigitsToChartTime(w: BareEtDigits): number {
+  return Math.floor(Date.UTC(w.y, w.mo - 1, w.d, w.hh, w.mm, w.ss) / 1000);
+}
+
+function minutesOfDay(w: BareEtDigits): number {
+  return w.hh * 60 + w.mm;
+}
+
+const RTH_OPEN_MIN = 9 * 60 + 30; // 09:30 ET
+const RTH_CLOSE_MIN = 16 * 60; // 16:00 ET (exclusive)
+const BUCKET_MIN = 5;
+
+export interface IntradayCandleResult {
+  bars: ChartBar[];
+  /** True when `bars[bars.length - 1]` is still an OPEN (accumulating) 5m
+   * window as of `nowMinutesOfDay` -- i.e. fewer than 5 minutes have
+   * elapsed since that bucket's start. Callers should render this bar
+   * distinctly (e.g. a lighter/hollow candle) rather than as a closed bar.
+   * False when there are no bars at all. */
+  lastBarPartial: boolean;
+}
+
+/**
+ * Buckets a chronologically-ordered (or unordered -- this function sorts
+ * defensively) series of per-tick SPY samples into today's 09:30-16:00 ET
+ * 5-minute candles. Only emits a bar for a bucket that actually has >=1
+ * tick in it -- a quiet stretch with no engine ticks produces a GAP in the
+ * output array, never a fabricated flat candle carried forward from the
+ * prior bucket's close (this codebase's standing "never fabricate" rule).
+ *
+ * `nowMinutesOfDay` is the caller's current ET minutes-of-day (09:30 ET =
+ * 570), used ONLY to decide `lastBarPartial` -- never to filter which
+ * ticks/buckets are included.
+ */
+export function buildIntradayCandles(ticks: IntradayTick[], nowMinutesOfDay: number): IntradayCandleResult {
+  interface Parsed {
+    chartTime: number;
+    bucketStartMin: number;
+    /** This tick's own ET calendar date (y/mo/d only), used to derive its
+     * bucket's ChartBar.time directly -- never back-computed from chartTime
+     * via modulo (which would need explicit negative-remainder handling to
+     * be correct, and duplicates work this already-parsed data has). */
+    y: number;
+    mo: number;
+    d: number;
+    price: number;
+  }
+  const parsed: Parsed[] = [];
+  for (const t of ticks) {
+    if (!Number.isFinite(t.price)) continue;
+    const w = parseBareEtDigits(t.tsEt);
+    if (!w) continue;
+    const min = minutesOfDay(w);
+    if (min < RTH_OPEN_MIN || min >= RTH_CLOSE_MIN) continue; // outside the RTH session -- never plotted
+    const bucketStartMin = min - (min % BUCKET_MIN);
+    parsed.push({ chartTime: bareEtDigitsToChartTime(w), bucketStartMin, y: w.y, mo: w.mo, d: w.d, price: t.price });
+  }
+  // Sort ascending by real chart time -- core-decisions.jsonl rows arrive in
+  // append order (already ascending) but this defends against a caller
+  // handing an unsorted or multi-account-interleaved slice.
+  parsed.sort((a, b) => a.chartTime - b.chartTime);
+
+  // Defensive dedupe of exact back-to-back (time, price) duplicates -- the
+  // caller is expected to already dedupe by core_tick_id, but a caller that
+  // doesn't should still get a correct result, not a doubled first/last tick.
+  const deduped: Parsed[] = [];
+  for (const p of parsed) {
+    const prev = deduped[deduped.length - 1];
+    if (prev && prev.chartTime === p.chartTime && prev.price === p.price) continue;
+    deduped.push(p);
+  }
+
+  interface Bucket {
+    startMin: number;
+    open: number;
+    high: number;
+    low: number;
+    close: number;
+  }
+  const buckets = new Map<number, Bucket>();
+  const order: number[] = [];
+  for (const p of deduped) {
+    let b = buckets.get(p.bucketStartMin);
+    if (!b) {
+      b = { startMin: p.bucketStartMin, open: p.price, high: p.price, low: p.price, close: p.price };
+      buckets.set(p.bucketStartMin, b);
+      order.push(p.bucketStartMin);
+    } else {
+      if (p.price > b.high) b.high = p.price;
+      if (p.price < b.low) b.low = p.price;
+      b.close = p.price; // deduped array is time-ascending, so last write wins honestly
+    }
+  }
+  // order[] was built in first-seen order, which (since `deduped` is
+  // time-ascending) is already ascending by startMin -- no extra sort needed.
+
+  // A bucket's own ChartBar.time is derived from its startMin against
+  // TODAY's own calendar date -- taken from the first tick that landed in
+  // it (all ticks in one session share the same ET calendar date by
+  // construction, since RTH never crosses midnight ET).
+  const bars: ChartBar[] = order.map((startMin) => {
+    const b = buckets.get(startMin)!;
+    // Any tick that fell in this bucket carries the right ET calendar date
+    // (bucket counts top out around 78/day, so this small scan is
+    // irrelevant cost) -- the bucket's own display time is that date at
+    // startMin, encoded via the SAME digits-as-UTCTimestamp convention
+    // bareEtDigitsToChartTime uses everywhere else in this file.
+    const anyTick = deduped.find((p) => p.bucketStartMin === startMin)!;
+    const bucketTime = Math.floor(
+      Date.UTC(anyTick.y, anyTick.mo - 1, anyTick.d, Math.floor(startMin / 60), startMin % 60, 0) / 1000,
+    );
+    return { time: bucketTime, open: b.open, high: b.high, low: b.low, close: b.close };
+  });
+
+  const lastBarPartial = order.length > 0 && nowMinutesOfDay < order[order.length - 1] + BUCKET_MIN;
+  return { bars, lastBarPartial };
+}

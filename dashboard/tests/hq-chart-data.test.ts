@@ -25,7 +25,9 @@ import {
   filterLevelsNearRange,
   isWeekdayEt,
   computeSessionStatusLabel,
+  buildIntradayCandles,
   type HoloLevel,
+  type IntradayTick,
 } from "../lib/hq-chart-pure.ts";
 import type { ChartBar, ChartTradeMarker } from "../lib/chart-data.ts";
 // Extensionless (not "../lib/time.ts") -- lib/time.ts has zero imports of
@@ -244,4 +246,106 @@ test("computeSessionStatusLabel: no bars at all and no live -> honest no-data", 
   const { status, label } = computeSessionStatusLabel(null, "2026-09-15", true, false);
   assert.equal(status, "no-data");
   assert.equal(label, "SPY · no local session data");
+});
+
+// ─── buildIntradayCandles ───────────────────────────────────────────────────
+
+function tick(hh: number, mm: number, ss: number, price: number, date = "2026-09-15"): IntradayTick {
+  return { tsEt: `${date}T${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}:${String(ss).padStart(2, "0")}`, price };
+}
+
+test("buildIntradayCandles: empty input -> no bars, not partial", () => {
+  const { bars, lastBarPartial } = buildIntradayCandles([], 600);
+  assert.equal(bars.length, 0);
+  assert.equal(lastBarPartial, false);
+});
+
+test("buildIntradayCandles: first bar -- single tick at session open becomes an O=H=L=C candle", () => {
+  const { bars } = buildIntradayCandles([tick(9, 30, 5, 600)], 600);
+  assert.equal(bars.length, 1);
+  assert.deepEqual(bars[0], {
+    time: Math.floor(Date.UTC(2026, 8, 15, 9, 30, 0) / 1000),
+    open: 600,
+    high: 600,
+    low: 600,
+    close: 600,
+  });
+});
+
+test("buildIntradayCandles: multiple ticks in one 5m window fold into one OHLC bar", () => {
+  const ticks = [
+    tick(9, 30, 5, 600), // open
+    tick(9, 31, 0, 602), // high
+    tick(9, 32, 0, 598), // low
+    tick(9, 34, 30, 601), // close
+  ];
+  const { bars } = buildIntradayCandles(ticks, 600);
+  assert.equal(bars.length, 1);
+  assert.equal(bars[0].open, 600);
+  assert.equal(bars[0].high, 602);
+  assert.equal(bars[0].low, 598);
+  assert.equal(bars[0].close, 601);
+});
+
+test("buildIntradayCandles: gaps -- a quiet bucket with zero ticks is OMITTED, never fabricated", () => {
+  const ticks = [
+    tick(9, 30, 0, 600), // bucket 09:30
+    // bucket 09:35 has no ticks at all
+    tick(9, 41, 0, 605), // bucket 09:40
+  ];
+  const { bars } = buildIntradayCandles(ticks, 650);
+  assert.equal(bars.length, 2); // NOT 3 -- no fabricated 09:35 bar
+  const times = bars.map((b) => b.time - Math.floor(Date.UTC(2026, 8, 15, 0, 0, 0) / 1000));
+  assert.equal(times[0], 9 * 3600 + 30 * 60);
+  assert.equal(times[1], 9 * 3600 + 40 * 60);
+});
+
+test("buildIntradayCandles: dedupe -- exact duplicate (tsEt, price) ticks (e.g. two accounts sharing a core_tick_id) count once", () => {
+  const ticks = [tick(9, 30, 5, 600), tick(9, 30, 5, 600), tick(9, 30, 5, 600)];
+  const { bars } = buildIntradayCandles(ticks, 600);
+  assert.equal(bars.length, 1);
+  assert.equal(bars[0].open, 600);
+  assert.equal(bars[0].close, 600);
+});
+
+test("buildIntradayCandles: ticks outside 09:30-16:00 ET (pre-market/post-close) are excluded", () => {
+  const ticks = [tick(8, 0, 0, 590), tick(9, 30, 0, 600), tick(16, 5, 0, 620)];
+  const { bars } = buildIntradayCandles(ticks, 600);
+  assert.equal(bars.length, 1);
+  assert.equal(bars[0].open, 600);
+});
+
+test("buildIntradayCandles: last bar is partial when now is still inside its 5m window", () => {
+  const ticks = [tick(9, 30, 0, 600), tick(9, 52, 0, 610)];
+  // now = 09:53 -- still inside the 09:50-09:55 bucket
+  const { lastBarPartial } = buildIntradayCandles(ticks, 9 * 60 + 53);
+  assert.equal(lastBarPartial, true);
+});
+
+test("buildIntradayCandles: last bar is NOT partial once its 5m window has fully elapsed", () => {
+  const ticks = [tick(9, 30, 0, 600), tick(9, 52, 0, 610)];
+  // now = 09:56 -- the 09:50-09:55 bucket has closed even with no new tick
+  const { lastBarPartial } = buildIntradayCandles(ticks, 9 * 60 + 56);
+  assert.equal(lastBarPartial, false);
+});
+
+test("buildIntradayCandles: DST-safe -- bare ET digits parse identically regardless of the calendar date's own DST state (no Date-timezone conversion involved)", () => {
+  // 2026-11-01 is the Sunday DST-fallback date in the US; using it here
+  // proves the bucketer never routes through a real timezone conversion
+  // that a DST boundary could corrupt -- it is pure digit arithmetic.
+  const ticks = [tick(9, 30, 0, 600, "2026-11-02"), tick(9, 33, 0, 603, "2026-11-02")];
+  const { bars } = buildIntradayCandles(ticks, 600);
+  assert.equal(bars.length, 1);
+  assert.equal(bars[0].time, Math.floor(Date.UTC(2026, 10, 2, 9, 30, 0) / 1000));
+  assert.equal(bars[0].high, 603);
+});
+
+test("buildIntradayCandles: sample matching core-decisions.jsonl's real ts_et shape ('YYYY-MM-DDTHH:MM:SS', no zone) parses correctly", () => {
+  const ticks: IntradayTick[] = [
+    { tsEt: "2026-09-15T10:51:04", price: 756.925 },
+    { tsEt: "2026-09-15T10:52:03", price: 756.925 }, // different account, same tick's spy -- caller dedupes by core_tick_id upstream
+  ];
+  const { bars } = buildIntradayCandles(ticks, 660);
+  assert.equal(bars.length, 1); // both land in the 10:50-10:55 bucket
+  assert.equal(bars[0].close, 756.925);
 });
