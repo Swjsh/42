@@ -106,6 +106,30 @@ export interface WalkDecisionInput {
   /** Whether the one-shot leave-walk (or immediate leave-settle) has
    * already been kicked off for this avatar's CURRENT leaving episode. */
   leaveTriggered: boolean;
+  /** TELEPORT FIX (2026-09-15, coordinator probe 20260915T070024Z):
+   * whether this avatar is still mid-walk (has not yet physically arrived
+   * at `currentNode`) at the moment this decision is made. `currentNode`
+   * only ever advances to a walk's destination ON ARRIVAL (LiveAgents.tsx's
+   * own useFrame) -- while a walk is in flight it still names the ORIGIN
+   * the avatar departed from. Probe evidence: two sessions each walking
+   * away from a node had their server-reported target flip back to that
+   * SAME origin node before arrival (a real target-classifier flap, not a
+   * client bug) -- e.g. tick 298->299 (dt 0.48s): session
+   * a06954b44dcea322f was mid-walk toward "ambient-core" (pos [15.24,0],
+   * still short of arrival) when its target flipped back to "bay-desk-0",
+   * the node `currentNode` had NEVER left (the walk toward ambient-core
+   * hadn't completed) -- pos jumped straight to bay-desk-0's stand point
+   * [18.30,8.20], 8.75u in 0.48s (18.2 u/s vs. the ~0.7 u/s WALK_SPEED
+   * band). Same tick, session:dcc3d160...a8b2 mid-walk toward "bay-desk-0"
+   * (pos [17.40,3.47]) had ITS target flip back to "ambient-core"
+   * (currentNode, never having left it) and jumped 17.8u in 0.48s (35.4
+   * u/s) straight to [-0.03,-0.09]. Without `isWalking`, the `currentNode
+   * === targetNodeId` check below can't distinguish "genuinely resting
+   * there already" (safe to snap in place) from "mid-flight from there,
+   * about to be told to go right back" (must walk, not snap) -- defaulting
+   * to false preserves every existing settle/walk call site that only
+   * ever decided while at rest. */
+  isWalking?: boolean;
 }
 
 export type WalkDecision =
@@ -120,14 +144,20 @@ export type WalkDecision =
  * absorbed by a coincidental destination-string match (DEFECT 2's exact
  * mechanism). */
 export function decideNextWalk(input: WalkDecisionInput): WalkDecision {
-  const { leaving, targetNodeId, currentNode, seenTarget, leaveTriggered } = input;
+  const { leaving, targetNodeId, currentNode, seenTarget, leaveTriggered, isWalking = false } = input;
   if (leaving) {
     if (leaveTriggered) return { action: "none" };
-    if (currentNode === ENTRY_NODE_ID) return { action: "settle", dest: ENTRY_NODE_ID, despawn: true };
+    if (currentNode === ENTRY_NODE_ID && !isWalking) return { action: "settle", dest: ENTRY_NODE_ID, despawn: true };
     return { action: "walk", dest: ENTRY_NODE_ID, despawn: true };
   }
   if (seenTarget === targetNodeId) return { action: "none" };
-  if (currentNode === targetNodeId) return { action: "settle", dest: targetNodeId, despawn: false };
+  // TELEPORT FIX: `currentNode === targetNodeId` alone used to mean "already
+  // there, just snap" -- but while mid-walk, `currentNode` still names the
+  // ORIGIN of the in-flight walk (it only advances on arrival), so this was
+  // true whenever the target flipped back to where the avatar departed from
+  // moments ago, snapping it across the map instead of walking it back. Only
+  // take the instant-settle shortcut when truly at rest.
+  if (currentNode === targetNodeId && !isWalking) return { action: "settle", dest: targetNodeId, despawn: false };
   return { action: "walk", dest: targetNodeId, despawn: false };
 }
 

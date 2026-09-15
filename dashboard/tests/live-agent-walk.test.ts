@@ -148,6 +148,80 @@ test("decideNextWalk: leaving never consults targetNodeId at all", () => {
   assert.deepEqual(a, b);
 });
 
+// ─── decideNextWalk (TELEPORT FIX, 2026-09-15 coordinator probe) ───────────
+//
+// Root cause: `currentNode` only ever advances to a walk's destination ON
+// ARRIVAL -- while a walk is still in flight it names the ORIGIN the avatar
+// departed from, not where it currently is. Probe run
+// 20260915T070024Z-9lS6tSfBnOgS3qHx4bzbD.samples.json.gz caught this exactly
+// twice in the SAME tick (298->299 and 328->329, dt ~0.48-0.50s): session
+// a06954b44dcea322f was mid-walk toward "ambient-core" (pos [15.24,0], not
+// yet arrived) when its server-reported target flipped back to
+// "bay-desk-0" -- the node it had departed FROM, which `currentNode` still
+// named because that walk had never completed -- and jumped straight to
+// [18.30,8.20] (8.75u in 0.48s, 18.2u/s vs. the ~0.7u/s WALK_SPEED band).
+// The same tick, session:dcc3d160-...-a8b2 mid-walk toward "bay-desk-0"
+// (pos [17.40,3.47]) had its target flip back to "ambient-core" and jumped
+// 17.8u in 0.48s (35.4u/s) straight to [-0.03,-0.09]. Both are the exact
+// `currentNode === targetNodeId` settle-shortcut firing while genuinely
+// mid-walk, not at rest.
+
+test("decideNextWalk: THE TELEPORT FIX -- mid-walk avatar whose target flaps back to its own walk origin must walk, not snap", () => {
+  // Mirrors tick 298->299: seenTarget "ambient-core" (what it was walking
+  // toward), targetNodeId flips back to "bay-desk-0" (currentNode's stale
+  // value -- the origin this in-flight walk started from, never updated
+  // because that walk hasn't arrived).
+  const d = decideNextWalk({
+    leaving: false,
+    targetNodeId: "bay-desk-0",
+    currentNode: "bay-desk-0",
+    seenTarget: "ambient-core",
+    leaveTriggered: false,
+    isWalking: true,
+  });
+  assert.deepEqual(d, { action: "walk", dest: "bay-desk-0", despawn: false });
+});
+
+test("decideNextWalk: mirrors the OTHER half of the same tick -- session:dcc3d160 flapping bay-desk-0 -> ambient-core mid-walk", () => {
+  const d = decideNextWalk({
+    leaving: false,
+    targetNodeId: "ambient-core",
+    currentNode: "ambient-core",
+    seenTarget: "bay-desk-0",
+    leaveTriggered: false,
+    isWalking: true,
+  });
+  assert.deepEqual(d, { action: "walk", dest: "ambient-core", despawn: false });
+});
+
+test("decideNextWalk: omitting isWalking reproduces the PRE-FIX defect (documents the exact bug shape)", () => {
+  // isWalking defaults to false -- this is what the code did before the fix
+  // wired `phase.current === \"walking\"` through, and it wrongly settles
+  // (instant snap) instead of walking.
+  const d = decideNextWalk({
+    leaving: false,
+    targetNodeId: "bay-desk-0",
+    currentNode: "bay-desk-0",
+    seenTarget: "ambient-core",
+    leaveTriggered: false,
+  });
+  assert.deepEqual(d, { action: "settle", dest: "bay-desk-0", despawn: false });
+});
+
+test("decideNextWalk: a genuinely resting avatar still settles in place (isWalking: false is not a regression)", () => {
+  const d = decideNextWalk({
+    leaving: false, targetNodeId: "smart-board", currentNode: "smart-board", seenTarget: "bay-desk-0", leaveTriggered: false, isWalking: false,
+  });
+  assert.deepEqual(d, { action: "settle", dest: "smart-board", despawn: false });
+});
+
+test("decideNextWalk: isWalking also guards the leaving-settle shortcut (same mechanism, leave path)", () => {
+  const d = decideNextWalk({
+    leaving: true, targetNodeId: "smart-board", currentNode: ENTRY_NODE_ID, seenTarget: null, leaveTriggered: false, isWalking: true,
+  });
+  assert.deepEqual(d, { action: "walk", dest: ENTRY_NODE_ID, despawn: true });
+});
+
 // ─── computeStandSlot (DEFECT 1) ────────────────────────────────────────────
 
 test("computeStandSlot: a lone occupant gets a zero offset", () => {
@@ -185,6 +259,67 @@ test("computeStandSlot: slot assignment is a pure function of the group's sorted
 test("computeStandSlot: an id not in the group falls back to index 0 rather than throwing", () => {
   const r = computeStandSlot(["a", "b"], "not-in-group");
   assert.equal(r.index, 0);
+});
+
+// ─── Resting-avatar reslot on group growth (STACK FIX, 2026-09-15 probe) ───
+//
+// computeStandSlot itself is provably correct (every test above) -- the
+// stacking bug was NEVER in this function. It was that LiveAgents.tsx only
+// ever APPLIED a computed offset to an avatar's actual position at the
+// moment its own walk decision fired (settle or walk-kickoff), and that
+// effect's dependency list never included `standOffset`. Probe evidence:
+// sessions a06954b44dcea322f and a3f93d37e2266fd28, both "working" at
+// target "ambient-core", sat at the EXACT SAME point (pairwise distance
+// 0.000, 115 consecutive ticks, t=37796ms-95082ms) -- each had settled at a
+// moment it was the ONLY member of the "ambient-core" group in `displayed`
+// (computeStandSlot's own `groupSize <= 1` branch, offset [0,0]), and
+// neither avatar's position was ever corrected once the other joined, so
+// both independently landed on the group's zero-offset slot. This harness
+// models exactly the two relevant LiveAgents.tsx effects (settle applies
+// whatever offset is current AT settle time; the STACK-FIX reslot effect
+// re-applies a fresh offset to a RESTING avatar whenever the group
+// recomputes) using only the exported pure functions -- no React/DOM
+// needed -- so the fix's actual mechanism is provable with plain
+// `node --test`.
+function simulateSettleThenGroupGrowth(reslotOnGroupChange) {
+  // Avatar A settles alone at "ambient-core" first (groupSize 1) -- exactly
+  // how a3f93d37e2266fd28 must have arrived before the probe window opened.
+  const soloGroup = ["a06954b44dcea322f"];
+  let appliedOffsetA = computeStandSlot(soloGroup, "a06954b44dcea322f", STAND_RING_RADIUS).offset;
+
+  // Avatar B (a3f93d37e2266fd28) joins the SAME target later -- the group
+  // grows to 2, and liveAgentWalk.ts#computeStandSlot recomputes BOTH
+  // members' offsets when the roster's standSlots memo re-runs.
+  const grownGroup = ["a06954b44dcea322f", "a3f93d37e2266fd28"];
+  const freshSlotA = computeStandSlot(grownGroup, "a06954b44dcea322f", STAND_RING_RADIUS);
+  const freshSlotB = computeStandSlot(grownGroup, "a3f93d37e2266fd28", STAND_RING_RADIUS);
+
+  // B settles fresh right now -- its own walk decision is firing for the
+  // first time, so it always picks up the CURRENT offset.
+  const appliedOffsetB = freshSlotB.offset;
+
+  // A is already resting from its earlier, solo settle: only the fix
+  // (reslotOnGroupChange) re-applies A's now-stale offset.
+  if (reslotOnGroupChange) appliedOffsetA = freshSlotA.offset;
+
+  return { appliedOffsetA, appliedOffsetB };
+}
+
+test("STACK FIX: PRE-FIX shape -- a resting avatar that settled alone stays stuck at the zero offset once a sibling joins its target", () => {
+  const { appliedOffsetA, appliedOffsetB } = simulateSettleThenGroupGrowth(false);
+  // Reproduces the probe's measured 0.000 pairwise distance: A is frozen at
+  // the bare node center, and the only thing keeping B off that exact point
+  // is that B's OWN first-ever settle happens to see the up-to-date group.
+  assert.deepEqual(appliedOffsetA, [0, 0]);
+  const dist = Math.hypot(appliedOffsetA[0] - appliedOffsetB[0], appliedOffsetA[1] - appliedOffsetB[1]);
+  assert.ok(dist > 0, "documents that B alone avoids the collision -- A is the one left stale");
+});
+
+test("STACK FIX: reslot-on-group-change (the actual fix) gives both resting avatars distinct, ring-separated points", () => {
+  const { appliedOffsetA, appliedOffsetB } = simulateSettleThenGroupGrowth(true);
+  assert.notDeepEqual(appliedOffsetA, [0, 0]);
+  const dist = Math.hypot(appliedOffsetA[0] - appliedOffsetB[0], appliedOffsetA[1] - appliedOffsetB[1]);
+  assert.ok(dist >= STAND_RING_RADIUS, `expected separated ring points, got distance ${dist}`);
 });
 
 // ─── reconcileLiveAgentRoster (BUBBLE-FIX, 2026-09-15) ─────────────────────

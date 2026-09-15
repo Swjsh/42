@@ -233,6 +233,14 @@ function LiveAgentAvatar({
       currentNode: currentNode.current,
       seenTarget: seenTarget.current,
       leaveTriggered: leaveTriggered.current,
+      // TELEPORT FIX (2026-09-15): `currentNode.current` only advances on
+      // arrival, so while `phase.current === "walking"` it still names the
+      // ORIGIN of the in-flight walk, not where the avatar physically is.
+      // Passing that through tells decideNextWalk it must never take the
+      // instant-settle shortcut for a still-in-flight avatar -- see
+      // liveAgentWalk.ts#WalkDecisionInput.isWalking for the tick-by-tick
+      // probe evidence.
+      isWalking: phase.current === "walking",
     });
     if (decision.action === "none") return;
     if (leaving) {
@@ -258,13 +266,25 @@ function LiveAgentAvatar({
       nodePosition(walkGraph, currentNode.current, entryPos),
       nodePosition(walkGraph, decision.dest, entryPos),
     ];
-    // Only the FINAL waypoint gets the stand-offset nudge -- every earlier
-    // corridor/doorway waypoint stays exactly on the real walk-graph node so
-    // the route itself is unaffected, and only the arrival point spreads
-    // agents apart (DEFECT 1's own fix target).
+    // TELEPORT FIX: the FIRST waypoint used to always be
+    // `nodePosition(currentNode.current)` -- correct when starting a walk
+    // from rest, but WRONG when this walk supersedes one already in flight
+    // (retargeting mid-walk, or a target that flapped back to the walk's
+    // own origin before arrival): `currentNode.current` still names that
+    // stale origin node, not wherever the avatar has actually walked to
+    // since. Starting the new path from the avatar's real, live position
+    // (its current rendered group position) instead means the walk always
+    // continues smoothly from wherever it visually is, never snaps across
+    // the map. Only the FINAL waypoint gets the stand-offset nudge -- every
+    // corridor/doorway waypoint in between stays exactly on the real
+    // walk-graph node so the route itself is unaffected (DEFECT 1's own fix
+    // target).
+    const livePos: [number, number, number] = group.current
+      ? [group.current.position.x, group.current.position.y, group.current.position.z]
+      : nodePosition(walkGraph, currentNode.current, entryPos);
     const wp = rawPath.length > 0
-      ? [...rawPath.slice(0, -1), standPointFor(decision.dest)]
-      : [standPointFor(decision.dest)];
+      ? [livePos, ...rawPath.slice(1, -1), standPointFor(decision.dest)]
+      : [livePos, standPointFor(decision.dest)];
     path.current = wp;
     walkDest.current = decision.dest;
     walkDespawnsOnArrival.current = decision.despawn;
@@ -274,6 +294,33 @@ function LiveAgentAvatar({
     setAnimState(WALK_ANIM);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [leaving, targetNodeId, reducedMotion, walkGraph]);
+
+  // STACK FIX (2026-09-15, coordinator probe 20260915T070024Z): a resting
+  // avatar's ring offset was previously ONLY ever applied at the moment its
+  // walk decision fired above (settle or walk-kickoff) -- that effect never
+  // re-runs on a bare `standOffset` change, so once an avatar settled, a
+  // LATER sibling joining/leaving the same target (which reassigns every
+  // member's slot via liveAgentWalk.ts#computeStandSlot) never moved it.
+  // Probe evidence: sessions a06954b44dcea322f and a3f93d37e2266fd28, both
+  // "working" at target "ambient-core", sat at the EXACT SAME point
+  // (pairwise distance 0.000, 115 consecutive ticks, t=37796ms-95082ms) --
+  // each had settled at a moment it was the ONLY member of the
+  // "ambient-core" group in `displayed` (computeStandSlot's own
+  // `groupSize <= 1` branch, offset [0,0]), and neither was ever corrected
+  // once the other joined, so both independently "considered themselves
+  // index 0" of a group of one. This effect re-snaps a RESTING avatar
+  // (phase.current === "working") to its current node's up-to-date stand
+  // point whenever the ring offset itself changes, independent of whether
+  // targetNodeId/leaving changed -- the redistribution the header comment
+  // on liveAgentWalk.ts#computeStandSlot already says is the correct,
+  // expected behavior. A walking avatar is left alone here; it already picks
+  // up the latest offset for its own walk the next time ITS OWN decision
+  // effect fires (arrival, or a fresh retarget).
+  useEffect(() => {
+    if (phase.current !== "working") return;
+    group.current?.position.set(...standPointFor(currentNode.current));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [standOffset[0], standOffset[1]]);
 
   useFrame((state) => {
     const g = group.current;
