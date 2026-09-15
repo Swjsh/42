@@ -50,11 +50,13 @@ import {
   findCarAhead,
   clampFrameDelta,
   findOncoming,
+  findRetargetPath,
   findWalkPath,
   FOLLOW_GAP_U,
   HEAD_ON_COS_MAX,
   isPointOccupied,
   MAX_FRAME_DT_S,
+  rampVectorOffset,
   resolveMutualHoldWinner,
   shouldBreakStarvation,
   STARVATION_HOLD_S,
@@ -3104,5 +3106,190 @@ test("shouldBreakStarvation: false at/under the threshold, true once strictly pa
   assert.equal(shouldBreakStarvation(STARVATION_HOLD_S), false);
   assert.equal(shouldBreakStarvation(STARVATION_HOLD_S - 0.01), false);
   assert.equal(shouldBreakStarvation(STARVATION_HOLD_S + 0.01), true);
+});
+
+// ─── CONVOY-STACK v13 (2026-09-15): LANE SNAP ON A U-TURN ──────────────────
+//
+// ROOT CAUSE (pose_jump 1 + teleport_count 1, probe 20260915T140056Z):
+// verified by direct numerical reproduction against this module's own real
+// functions (not just reasoned about) -- LiveAgents.tsx's useFrame
+// recomputed its render-time lateral (sidestep) nudge EVERY frame as
+// `rightOf([sin(facing), cos(facing)]) * sidestepOffsetRef.current` -- a
+// FRESH direction (`rightOf(facing)`) times a ramped SCALAR magnitude.
+// `facing` is piecewise-constant within a path segment and jumps instantly
+// the moment `progress` crosses into the next one -- normal at any corner,
+// but while a sidestep offset is active (nonzero) a near-180-degree
+// reversal (the coordinator's own suspected RETARGET OUT-AND-BACK shape,
+// findWalkPath routing from the walk's stale ORIGIN node rather than the
+// avatar's real current position) flips `rightOf(facing)` to point almost
+// the OPPOSITE way, snapping the render-time nudge by up to 2x the
+// magnitude in a SINGLE frame -- confirmed: a reversal plus a held 0.4u
+// sidestep magnitude produced an ~0.80u one-frame jump under the OLD
+// scalar-then-direction approach, closely matching the probe's own
+// reported snap, even though the underlying walked `position` itself
+// (from `poseAlongPath`) never jumps at all -- a purely RENDER-layer
+// discontinuity.
+//
+// FIX (liveAgentWalk.ts): (1) `rampVectorOffset` -- the render-time nudge
+// is now a full 2D vector, Euclidean-rate-limited toward its own target
+// vector every frame (reusing `SIDESTEP_RATE_U_PER_S`, the coordinator's
+// own "reuse rampSidestepOffset's rate" instruction) -- this is what
+// actually closes the reported per-frame displacement bound, regardless of
+// what causes `right` to flip. (2) `applyLaneOffsets` ALSO now uses a
+// corner-safe miter/bisector direction (clamped to LANE magnitude,
+// collapsing to 0 on a >150-degree reversal) rather than each interior
+// waypoint's own single-chord perpendicular, so the offset PATH geometry
+// itself no longer folds sharply across a reversal either -- complementary
+// hygiene, even though (1) alone is what the numerical repro shows closes
+// the actual bug. (3) `findRetargetPath` -- see its own header (this file,
+// above findWalkPath) for the separate out-and-back path-finding fix.
+
+const CORNER_TEST_ID = "b"; // laneValueForId("b") = -LANE_STEP_U, verified nonzero below
+const CORNER_REVERSAL_PATH: [number, number, number][] = [
+  [16.0, 0, -0.9], // start (unaffected by lane offset -- index 0)
+  [16.4, 0, -0.6], // interior: mild corner
+  [17.2, 0, -0.15], // interior: apex (~t-0 junction-ish)
+  [16.9, 0, -0.45], // interior: the reversal (turn angle ~164 degrees at this vertex)
+  [16.5, 0, -0.45], // interior: settling back onto a forward heading
+  [16.0, 0, -0.45], // final target (unaffected -- last index)
+];
+
+/** Reproduces the PRE-v13 applyLaneOffsets exactly (each interior
+ * waypoint's own single-chord `next-prev` perpendicular) -- documents the
+ * OLD waypoint geometry without a second permanent copy of production code
+ * hanging around past this fix. */
+function applyLaneOffsetsPreV13(waypoints: ReadonlyArray<readonly [number, number, number]>, id: string): [number, number, number][] {
+  if (waypoints.length < 3) return waypoints.map((wp) => [...wp] as [number, number, number]);
+  const offset = laneValueForId(id);
+  return waypoints.map((wp, i) => {
+    if (i === 0 || i === waypoints.length - 1) return [...wp] as [number, number, number];
+    const prev = waypoints[i - 1];
+    const next = waypoints[i + 1];
+    const dx = next[0] - prev[0];
+    const dz = next[2] - prev[2];
+    const len = Math.hypot(dx, dz) || 1;
+    const perpX = -dz / len;
+    const perpZ = dx / len;
+    return [wp[0] + perpX * offset, wp[1], wp[2] + perpZ * offset];
+  });
+}
+
+/** Mirrors LiveAgents.tsx's own useFrame render-time accounting exactly for
+ * a walker on `wp` with a CONSTANTLY-HELD sidestep magnitude (modeling an
+ * active head-on pass whose own ramp already reached its target, so the
+ * only thing changing frame to frame is `facing`/`right`, not the
+ * magnitude) -- `useVectorRamp` toggles the v13 fix. Returns the largest
+ * single-frame displacement observed anywhere along the walk. */
+function maxRenderedStep(
+  wp: [number, number, number][],
+  sidestepMagnitude: number,
+  useVectorRamp: boolean,
+): number {
+  const total = pathDistance(wp);
+  let dist = 0;
+  let scalarOffset = sidestepMagnitude; // already ramped up, per this fixture's own "active pass" framing
+  let vectorOffset: [number, number] = [0, 0];
+  let prevRendered: [number, number] | null = null;
+  let maxStep = 0;
+  for (;;) {
+    dist = Math.min(total, dist + SIM_WALK_SPEED * FOLLOW_TICK_DT_S);
+    const progress = total > 0 ? dist / total : 1;
+    const { position, facing } = poseAlongPath(wp, progress);
+    const right = rightOf([Math.sin(facing), Math.cos(facing)]);
+    let rendered: [number, number];
+    if (useVectorRamp) {
+      const targetVec: [number, number] = [right[0] * sidestepMagnitude, right[1] * sidestepMagnitude];
+      vectorOffset = rampVectorOffset(vectorOffset, targetVec, SIDESTEP_RATE_U_PER_S, FOLLOW_TICK_DT_S);
+      rendered = [position[0] + vectorOffset[0], position[2] + vectorOffset[1]];
+    } else {
+      scalarOffset = rampSidestepOffset(scalarOffset, sidestepMagnitude, SIDESTEP_RATE_U_PER_S, FOLLOW_TICK_DT_S);
+      rendered = [position[0] + right[0] * scalarOffset, position[2] + right[1] * scalarOffset];
+    }
+    if (prevRendered) {
+      const step = Math.hypot(rendered[0] - prevRendered[0], rendered[1] - prevRendered[1]);
+      if (step > maxStep) maxStep = step;
+    }
+    prevRendered = rendered;
+    if (progress >= 1) break;
+  }
+  return maxStep;
+}
+
+test("applyLaneOffsets: sanity -- laneValueForId(CORNER_TEST_ID) is really nonzero (otherwise this whole fixture proves nothing)", () => {
+  assert.notEqual(laneValueForId(CORNER_TEST_ID), 0);
+});
+
+test("LANE SNAP ON A U-TURN: RED (documents the bug) -- a reversal plus an active sidestep offset produces a one-frame displacement exceeding WALK_SPEED*dt+0.05", () => {
+  const maxStep = maxRenderedStep(CORNER_REVERSAL_PATH, SIDESTEP_TARGET_U, false);
+  const bound = SIM_WALK_SPEED * FOLLOW_TICK_DT_S + 0.05;
+  assert.ok(maxStep > bound, `expected the PRE-FIX scalar-magnitude/fresh-direction approach to produce a step (${maxStep.toFixed(3)}u) exceeding WALK_SPEED*dt+0.05 (${bound.toFixed(3)}u) at the reversal -- documents the reported lane snap`);
+});
+
+test("LANE SNAP ON A U-TURN: GREEN (the fix) -- the vector-ramped nudge keeps every step within WALK_SPEED*dt+0.05 through the 90deg corner AND the reversal, with an active sidestep offset held throughout", () => {
+  const maxStep = maxRenderedStep(CORNER_REVERSAL_PATH, SIDESTEP_TARGET_U, true);
+  const bound = SIM_WALK_SPEED * FOLLOW_TICK_DT_S + 0.05;
+  assert.ok(maxStep <= bound + 1e-9, `step displacement ${maxStep.toFixed(3)}u exceeds WALK_SPEED*dt+0.05 (${bound.toFixed(3)}u) even after the vector-ramp fix`);
+});
+
+test("LANE SNAP ON A U-TURN: GREEN, corner-safe applyLaneOffsets -- the corridor-offset PATH geometry itself also stays within the same per-step bound (walking the offset waypoints alone, no sidestep at all)", () => {
+  const offsetPath = applyLaneOffsets(CORNER_REVERSAL_PATH, CORNER_TEST_ID);
+  const total = pathDistance(offsetPath);
+  let dist = 0;
+  let prev = poseAlongPath(offsetPath, 0).position;
+  let maxStep = 0;
+  for (;;) {
+    dist = Math.min(total, dist + SIM_WALK_SPEED * FOLLOW_TICK_DT_S);
+    const progress = total > 0 ? dist / total : 1;
+    const pos = poseAlongPath(offsetPath, progress).position;
+    const step = Math.hypot(pos[0] - prev[0], pos[2] - prev[2]);
+    if (step > maxStep) maxStep = step;
+    prev = pos;
+    if (progress >= 1) break;
+  }
+  const bound = SIM_WALK_SPEED * FOLLOW_TICK_DT_S + 0.05;
+  assert.ok(maxStep <= bound + 1e-9, `offset-path-only displacement ${maxStep.toFixed(3)}u exceeds WALK_SPEED*dt+0.05 (${bound.toFixed(3)}u)`);
+});
+
+// ─── Retarget out-and-back path-finding ─────────────────────────────────────
+
+test("findRetargetPath: mid-corridor retarget to a target BEHIND the avatar does not detour through the 'ahead' node", () => {
+  const graph = buildFixtureGraph();
+  // This avatar's walk started at hub-center (currentNode), heading out
+  // toward bay-desk-0 (walkDest) through hub-door-0 -> t-0 -> bay-door-0 --
+  // already well past hub-center, near bay-door-0, when it retargets to
+  // ambient-core: a hub-center-only branch, genuinely BEHIND the avatar's
+  // current position along the direction it's been walking.
+  const currentNode = "hub-center";
+  const walkDest = "bay-desk-0";
+  const livePos: [number, number, number] = [17.4, 0, 5.0]; // just short of bay-door-0
+  const target = "ambient-core";
+  const found = findRetargetPath(graph, currentNode, walkDest, livePos, target, true);
+  const expectedBehind = findWalkPath(graph, currentNode, target);
+  assert.deepEqual(found, expectedBehind, "retargeting to a target behind the avatar must use the BEHIND (origin) route, not detour via the ahead/walkDest node");
+});
+
+test("findRetargetPath: mid-corridor retarget to a target reachable by continuing AHEAD does not detour back through the origin", () => {
+  const graph = buildFixtureGraph();
+  // Same walk as above (hub-center -> bay-desk-0), now retargeting to
+  // campus-gate: reachable by continuing FORWARD through t-0 (the walk's
+  // own `walkDest` side), never by backtracking to hub-center.
+  const currentNode = "hub-center";
+  const walkDest = "bay-desk-0";
+  const livePos: [number, number, number] = [17.4, 0, 5.0]; // just short of bay-door-0
+  const target = "campus-gate";
+  const found = findRetargetPath(graph, currentNode, walkDest, livePos, target, true);
+  const expectedAhead = findWalkPath(graph, walkDest, target);
+  assert.deepEqual(found, expectedAhead, "retargeting to a target reachable by continuing forward must use the AHEAD (walkDest) route, not detour back through the origin -- this is the exact reported out-and-back bug");
+});
+
+test("findRetargetPath: a RESTING avatar (not actively walking) always uses the BEHIND (currentNode) route -- no ambiguity when truly at that node", () => {
+  const graph = buildFixtureGraph();
+  const currentNode = "hub-center";
+  const walkDest = "hub-center"; // resting: origin and dest agree
+  const livePos: [number, number, number] = [0, 0, 0]; // exactly at hub-center
+  const target = "ambient-core";
+  const found = findRetargetPath(graph, currentNode, walkDest, livePos, target, false);
+  const expectedBehind = findWalkPath(graph, currentNode, target);
+  assert.deepEqual(found, expectedBehind);
 });
 

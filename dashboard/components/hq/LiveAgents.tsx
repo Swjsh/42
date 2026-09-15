@@ -47,7 +47,7 @@ import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import { KitAgentBody, WALK_SPEED, type KitAnimState } from "./KitAgent";
-import { findWalkPath, type WalkGraph } from "./layout";
+import type { WalkGraph } from "./layout";
 import { truncateOneLine } from "./palette";
 import { bubbleCounterScale } from "./bubbleText";
 import { PRIORITY } from "./labelDeclutter";
@@ -58,9 +58,9 @@ import type { LiveAgent } from "./types";
 import type { LiveAgentState } from "@/lib/hq-agents";
 import {
   applyFollowCap, applyLaneOffsets, clampFrameDelta, computeBatchOrder, computeBatchStaggerDelays, computeMaxPathDurationS,
-  computeSidestepPlan, computeWaitPoint, decideNextWalk, ENTRY_NODE_ID, findCarAhead, FOLLOW_GAP_U,
+  computeSidestepPlan, computeWaitPoint, decideNextWalk, ENTRY_NODE_ID, findCarAhead, findRetargetPath, FOLLOW_GAP_U,
   isPointOccupied, LEAVE_TIMEOUT_MARGIN_S,
-  pathDistance, poseAlongPath, rampSidestepOffset, reconcileLiveAgentRoster, resolveMutualHoldWinner, rightOf,
+  pathDistance, poseAlongPath, rampVectorOffset, reconcileLiveAgentRoster, resolveMutualHoldWinner, rightOf,
   shouldBreakStarvation, shouldWriteLiveAgentDiag,
   stableSlotOffset, STAND_BUBBLE_Y_STEP, updateStableSlotAssignments, type WalkerSnapshot,
 } from "./liveAgentWalk";
@@ -361,7 +361,18 @@ function LiveAgentAvatar({
   // between walks the way appliedDistanceRef is, since drifting smoothly
   // back to 0 (rather than snapping) is exactly the point when a walk ends
   // mid-sidestep.
-  const sidestepOffsetRef = useRef(0);
+  //
+  // SIDESTEP-ON-REVERSAL SNAP fix (CONVOY-STACK v13): this ref holds the
+  // full 2D RENDER-TIME lateral nudge vector (world XZ), not a scalar
+  // magnitude -- see liveAgentWalk.ts#rampVectorOffset's own header for the
+  // full root-cause writeup. A scalar magnitude, recombined with a fresh
+  // `rightOf(facing)` direction every frame, can snap by up to 2x the
+  // magnitude the instant `facing` itself jumps (any corner, worst-case a
+  // near-180 reversal) while a sidestep is active; ramping the full vector
+  // instead means the applied nudge can only ever move a bounded Euclidean
+  // distance per frame, regardless of how sharply the target DIRECTION
+  // changes.
+  const sidestepOffsetRef = useRef<[number, number]>([0, 0]);
   const [animState, setAnimState] = useState<KitAnimState>(WALK_ANIM);
   const [walkable, setWalkable] = useState(true);
   const despawned = useRef(false);
@@ -531,12 +542,6 @@ function LiveAgentAvatar({
     }
 
     // decision.action === "walk"
-    const found = findWalkPath(walkGraph, currentNode.current, decision.dest);
-    setWalkable(found !== null);
-    const rawPath: [number, number, number][] = found ?? [
-      nodePosition(walkGraph, currentNode.current, entryPos),
-      nodePosition(walkGraph, decision.dest, entryPos),
-    ];
     // TELEPORT FIX: the FIRST waypoint used to always be
     // `nodePosition(currentNode.current)` -- correct when starting a walk
     // from rest, but WRONG when this walk supersedes one already in flight
@@ -549,10 +554,42 @@ function LiveAgentAvatar({
     // the map. Only the FINAL waypoint gets the stand-offset nudge -- every
     // corridor/doorway waypoint in between stays exactly on the real
     // walk-graph node so the route itself is unaffected (DEFECT 1's own fix
-    // target).
+    // target). Computed BEFORE the path lookup below (moved up from its
+    // original position) so RETARGET OUT-AND-BACK's own AHEAD-vs-BEHIND
+    // comparison can use the avatar's true live position too.
     const livePos: [number, number, number] = group.current
       ? [group.current.position.x, group.current.position.y, group.current.position.z]
       : nodePosition(walkGraph, currentNode.current, entryPos);
+    // RETARGET OUT-AND-BACK fix (CONVOY-STACK v13, 2026-09-15, probe
+    // 20260915T140056Z): a plain `findWalkPath(walkGraph, currentNode
+    // .current, decision.dest)` always routes from this walk's ORIGIN node
+    // -- correct for a fresh walk from rest, but for a MID-WALK retarget it
+    // can send the avatar back out through a junction it already passed,
+    // then back in the new direction (an "out-and-back" detour that is a
+    // real shortest path FROM THE ORIGIN, just not from where the avatar
+    // actually is now) -- see liveAgentWalk.ts#findRetargetPath's own
+    // header for the full root-cause writeup and why this caused the
+    // reported lane-offset snap (applyLaneOffsets's per-segment
+    // perpendicular flips sign across the reversal). findRetargetPath also
+    // tries the route from `walkDest.current` (the walk's own NOT-YET-
+    // REACHED destination, i.e. the next real node ahead) and picks
+    // whichever total (straight-line prefix + graph route) is shorter --
+    // unchanged behavior (the existing BEHIND-only route) whenever the
+    // avatar isn't actively walking, or the AHEAD route is objectively no
+    // better.
+    const found = findRetargetPath(
+      walkGraph,
+      currentNode.current,
+      walkDest.current,
+      livePos,
+      decision.dest,
+      phase.current === "walking",
+    );
+    setWalkable(found !== null);
+    const rawPath: [number, number, number][] = found ?? [
+      nodePosition(walkGraph, currentNode.current, entryPos),
+      nodePosition(walkGraph, decision.dest, entryPos),
+    ];
     const finalPoint = destinationPointFor(decision.dest, decision.despawn);
     // CONVOY-STACK FIX (2026-09-15): nudge every INTERIOR hallway waypoint
     // sideways by this avatar's own deterministic lane offset, so two agents
@@ -923,10 +960,18 @@ function LiveAgentAvatar({
         // (SIDESTEP_TARGET_U / SIDESTEP_RATE_U_PER_S ~= 0.67s) for the ramp
         // to settle back to 0 first.
         const sidestepTarget = progress >= 0.95 ? 0 : sidestepPlan.offsetTargetU;
-        sidestepOffsetRef.current = rampSidestepOffset(sidestepOffsetRef.current, sidestepTarget, undefined, delta);
+        // SIDESTEP-ON-REVERSAL SNAP fix (CONVOY-STACK v13): ramp the FULL 2D
+        // nudge vector toward `right(facing) * sidestepTarget`, never just a
+        // scalar magnitude recombined with a fresh direction every frame --
+        // see liveAgentWalk.ts#rampVectorOffset's own header for the
+        // verified root cause (a facing jump at a sharp corner/reversal
+        // while a sidestep is active flips `right`, and the OLD
+        // scalar-then-direction approach let that flip apply INSTANTLY).
         const right = rightOf([Math.sin(facing), Math.cos(facing)]);
-        const renderedX = position[0] + right[0] * sidestepOffsetRef.current;
-        const renderedZ = position[2] + right[1] * sidestepOffsetRef.current;
+        const sidestepTargetVec: [number, number] = [right[0] * sidestepTarget, right[1] * sidestepTarget];
+        sidestepOffsetRef.current = rampVectorOffset(sidestepOffsetRef.current, sidestepTargetVec, undefined, delta);
+        const renderedX = position[0] + sidestepOffsetRef.current[0];
+        const renderedZ = position[2] + sidestepOffsetRef.current[1];
         g.position.set(renderedX, position[1], renderedZ);
         g.rotation.y = facing;
         // Publish THIS frame's own final (possibly capped, possibly

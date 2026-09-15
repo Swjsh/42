@@ -209,6 +209,75 @@ export function findWalkPath(graph: WalkGraph, fromId: string, toId: string): [n
   return path.map((id) => graph.nodes.get(id)!.position);
 }
 
+// ─── Retarget out-and-back fix (CONVOY-STACK v13, 2026-09-15) ─────────────
+//
+// ROOT CAUSE (lane snap, probe 20260915T140056Z): a mid-walk retarget
+// (LiveAgents.tsx's own decision effect) has always called
+// `findWalkPath(walkGraph, currentNode.current, decision.dest)` --
+// `currentNode.current` names this WALK's own ORIGIN node (only ever
+// advances on arrival, per the TELEPORT FIX comment right above that call
+// site), never wherever the avatar has actually walked to SINCE. On a
+// walk-graph that is a tree (this module's own findWalkPath header), the
+// unique path from that stale origin to a NEW target can require walking
+// back out to a shared junction (t-0 in the probe's own report) the avatar
+// had ALREADY passed on its way to the OLD target, then back in the other
+// direction -- an out-and-back detour that is, from the graph's point of
+// view, perfectly correct (it IS the shortest path from the ORIGIN node),
+// but wrong for an avatar that is no longer AT that origin. Splicing the
+// avatar's real `livePos` in as waypoint 0 (the existing TELEPORT FIX)
+// keeps the RENDERED start point correct, but every INTERIOR waypoint
+// after it still reflects the origin-relative route -- so the avatar
+// visually walks forward, then reverses hard through the very corridor
+// segment it just came from. `applyLaneOffsets`'s own per-segment
+// perpendicular (this file, below) flips sign across that reversal,
+// producing the reported ~0.71u lateral snap on top of the direction
+// reversal itself.
+//
+// FIX: `findRetargetPath` considers TWO candidate routes whenever the
+// avatar is actively walking (not resting) at retarget time -- the
+// existing "BEHIND" route (unchanged: from `currentNode`, the walk's
+// origin) and a new "AHEAD" route (from `walkDest`, the walk's own
+// NOT-YET-REACHED destination, i.e. the next real graph node in the
+// avatar's current direction of travel) -- and picks whichever gives the
+// SHORTER TOTAL distance once each is prefixed by the avatar's own
+// straight-line distance from its live position to that route's starting
+// node. A target genuinely behind the avatar (on the arc it already
+// walked) still correctly routes back through `currentNode`; a target
+// reachable by continuing forward (or through a junction ahead) no longer
+// detours through where the avatar already was. This is a bounded,
+// two-candidate comparison, not a general replan -- `findWalkPath` itself
+// is unmodified and still the single source of truth for any given
+// origin->target route.
+export function findRetargetPath(
+  graph: WalkGraph,
+  currentNode: string,
+  walkDest: string,
+  livePos: readonly [number, number, number],
+  target: string,
+  isWalking: boolean,
+): [number, number, number][] | null {
+  const behindPath = findWalkPath(graph, currentNode, target);
+  // Resting (not actively walking), or already at/approaching the same
+  // node the walk's own origin and destination agree on -- no ambiguity,
+  // the existing behind-only route is correct and the only one meaningful.
+  if (!isWalking || walkDest === currentNode) return behindPath;
+
+  const aheadPath = findWalkPath(graph, walkDest, target);
+  if (!aheadPath) return behindPath;
+  if (!behindPath) return aheadPath;
+
+  const currentNodePos = graph.nodes.get(currentNode)?.position;
+  const walkDestPos = graph.nodes.get(walkDest)?.position;
+  if (!currentNodePos || !walkDestPos) return behindPath; // defensive -- an unknown node id fails open to the existing route
+
+  const straightLineDist = (a: readonly [number, number, number], b: readonly [number, number, number]): number =>
+    Math.hypot(a[0] - b[0], a[2] - b[2]);
+
+  const totalBehind = straightLineDist(livePos, currentNodePos) + pathDistance(behindPath);
+  const totalAhead = straightLineDist(livePos, walkDestPos) + pathDistance(aheadPath);
+  return totalAhead < totalBehind ? aheadPath : behindPath;
+}
+
 // ─── Leave-timeout derivation (CAMPUS-GATE pass, 2026-09-15) ───────────────
 //
 // LiveAgents.tsx's own LEAVE_HARD_TIMEOUT_S is a defense-in-depth backstop
@@ -578,6 +647,65 @@ export function laneValueForId(id: string): number {
  * raw XZ footprint (layout.ts#buildWalkGraph's own corridor.glb/
  * corridor-intersection.glb footprint comment), so a nudged waypoint always
  * stays on walkable floor. */
+// CORNER-SAFE LANE OFFSET fix (CONVOY-STACK v13, 2026-09-15, probe
+// 20260915T140056Z): the ORIGINAL perpendicular here was derived from the
+// single chord `next - prev` spanning EACH waypoint -- correct and
+// continuous on an ordinary corridor (consecutive chords barely rotate
+// between waypoints), but on a sharp corner or a near-180-degree reversal
+// (RETARGET OUT-AND-BACK's own out-and-back shape, findRetargetPath's own
+// header above), that chord's direction can itself flip by close to 180
+// degrees between one interior waypoint and the next -- its perpendicular
+// flips sign right along with it, so the offset point jumps from one side
+// of the centerline to the other in a SINGLE waypoint step (the reported
+// ~0.71u lateral snap). `poseAlongPath` interpolates LINEARLY between
+// waypoints by arc-length progress, so a discontinuity baked into the
+// waypoints themselves becomes a real per-frame rendered displacement
+// spike the instant a walker's progress crosses that vertex.
+//
+// FIX: each interior waypoint's offset direction is now the MITER
+// BISECTOR of its own INCOMING (`wp - prev`) and OUTGOING (`next - wp`)
+// segment directions (their two individual perpendiculars, summed and
+// re-normalized) rather than either chord alone -- this varies smoothly as
+// the local turn angle varies smoothly, so an ordinary shallow corridor
+// bend (where incoming and outgoing directions are close) looks nearly
+// identical to the old chord-based result, but a sharp corner no longer
+// flips instantly: it rotates continuously through the turn instead. The
+// offset MAGNITUDE is always exactly `laneValueForId(id)` (never scaled
+// up, satisfying "clamped to LANE magnitude" verbatim -- no miter-length
+// blowup at a sharp angle). For a genuine REVERSAL (incoming and outgoing
+// directions more than ~150 degrees apart -- the bisector itself becomes
+// numerically unstable there, since the two perpendiculars nearly cancel),
+// the offset collapses to exactly 0 at that one waypoint: the walker
+// passes directly through the centerline at the turn's own apex and
+// re-expands to the full lane offset on the segments either side of it,
+// rather than attempting any sided offset through a point where "which
+// side" isn't well-defined.
+const CORNER_REVERSAL_COS_MAX = -Math.cos(Math.PI / 6); // -150 degrees from straight-ahead (cos(180-150)=cos30)
+
+function laneOffsetDirection(prev: readonly [number, number, number], wp: readonly [number, number, number], next: readonly [number, number, number]): [number, number] {
+  const inX = wp[0] - prev[0];
+  const inZ = wp[2] - prev[2];
+  const inLen = Math.hypot(inX, inZ) || 1;
+  const outX = next[0] - wp[0];
+  const outZ = next[2] - wp[2];
+  const outLen = Math.hypot(outX, outZ) || 1;
+  const dirInX = inX / inLen;
+  const dirInZ = inZ / inLen;
+  const dirOutX = outX / outLen;
+  const dirOutZ = outZ / outLen;
+  const turnCos = dirInX * dirOutX + dirInZ * dirOutZ; // 1 = straight, -1 = full reversal
+  if (turnCos < CORNER_REVERSAL_COS_MAX) return [0, 0]; // near-reversal: collapse to the centerline
+  const perpInX = -dirInZ;
+  const perpInZ = dirInX;
+  const perpOutX = -dirOutZ;
+  const perpOutZ = dirOutX;
+  const bisectorX = perpInX + perpOutX;
+  const bisectorZ = perpInZ + perpOutZ;
+  const bisectorLen = Math.hypot(bisectorX, bisectorZ);
+  if (bisectorLen < 1e-6) return [0, 0]; // the two perpendiculars nearly cancel -- same near-reversal case, guarded independently of the angle check above for numerical safety
+  return [bisectorX / bisectorLen, bisectorZ / bisectorLen];
+}
+
 export function applyLaneOffsets(
   waypoints: ReadonlyArray<readonly [number, number, number]>,
   id: string,
@@ -586,14 +714,8 @@ export function applyLaneOffsets(
   const offset = laneValueForId(id);
   return waypoints.map((wp, i) => {
     if (i === 0 || i === waypoints.length - 1) return [...wp] as [number, number, number];
-    const prev = waypoints[i - 1];
-    const next = waypoints[i + 1];
-    const dx = next[0] - prev[0];
-    const dz = next[2] - prev[2];
-    const len = Math.hypot(dx, dz) || 1;
-    const perpX = -dz / len;
-    const perpZ = dx / len;
-    return [wp[0] + perpX * offset, wp[1], wp[2] + perpZ * offset];
+    const [dirX, dirZ] = laneOffsetDirection(waypoints[i - 1], wp, waypoints[i + 1]);
+    return [wp[0] + dirX * offset, wp[1], wp[2] + dirZ * offset];
   });
 }
 
@@ -1317,4 +1439,53 @@ export function rampSidestepOffset(current: number, target: number, rateUPerS: n
   const delta = target - current;
   if (Math.abs(delta) <= maxStep) return target;
   return current + Math.sign(delta) * maxStep;
+}
+
+// SIDESTEP-ON-REVERSAL SNAP fix (CONVOY-STACK v13, 2026-09-15, probe
+// 20260915T140056Z, verified by direct numerical reproduction against this
+// module's own real functions before this fix, not just reasoned about):
+// LiveAgents.tsx's own useFrame recomputes its render-time lateral nudge
+// EVERY frame as `rightOf([sin(facing), cos(facing)]) * sidestepOffsetRef
+// .current` -- a fresh DIRECTION (`right`, perpendicular to THIS frame's
+// `facing`) times a ramped MAGNITUDE (`rampSidestepOffset`, a scalar).
+// `facing` is piecewise-constant within a path segment and jumps
+// instantly the moment `progress` crosses from one segment to the next
+// (an unavoidable, normal property of polyline interpolation, true at
+// every corner, not just a reversal) -- ordinarily harmless, since an
+// ordinary corner only rotates `right` by a modest angle and
+// `sidestepOffsetRef.current` is usually 0 (no active head-on pass). But
+// on a near-180-degree reversal (RETARGET OUT-AND-BACK's own out-and-back
+// shape) WHILE `sidestepOffsetRef.current` is nonzero (an active pass, or
+// mid-ramp toward/away from one), `right` itself flips to point almost
+// the OPPOSITE way -- the render-time nudge, `right * magnitude`, jumps
+// discontinuously by up to `2 * magnitude` in a SINGLE frame (confirmed:
+// a reversal + a held 0.4u sidestep magnitude produces an ~0.80u one-frame
+// jump under the OLD scalar-magnitude/fresh-direction approach, closely
+// matching the probe's own reported ~0.71-0.9u snap), even though the
+// underlying `position` (from `poseAlongPath`) itself never jumps at
+// all -- this is a purely RENDER-layer discontinuity, layered on top of an
+// already-continuous walk.
+//
+// FIX: track the render-time nudge as a full 2D VECTOR, rate-limited by
+// EUCLIDEAN distance toward its own target vector (`right(facing) *
+// magnitude`) every frame -- reusing the exact same `SIDESTEP_RATE_U_PER_S`
+// rate `rampSidestepOffset` already uses, per the coordinator's own "reuse
+// rampSidestepOffset's rate" instruction. Whatever CAUSES `right` to flip
+// (a reversal, a sharp corner, an ordinary sidestep engaging or
+// disengaging) no longer matters: the applied vector can only ever move a
+// bounded EUCLIDEAN distance per frame, so it takes real time to swing
+// from one side to the other instead of teleporting across.
+export function rampVectorOffset(
+  current: readonly [number, number],
+  target: readonly [number, number],
+  rateUPerS: number = SIDESTEP_RATE_U_PER_S,
+  dt: number = 0,
+): [number, number] {
+  const dx = target[0] - current[0];
+  const dz = target[1] - current[1];
+  const dist = Math.hypot(dx, dz);
+  const maxStep = rateUPerS * dt;
+  if (dist <= maxStep || dist === 0) return [target[0], target[1]];
+  const scale = maxStep / dist;
+  return [current[0] + dx * scale, current[1] + dz * scale];
 }
