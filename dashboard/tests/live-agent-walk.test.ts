@@ -445,6 +445,126 @@ test("WAIT-POINT PROOF: an 8-member batch (roster cap, spanning 2 overflow rows)
   assert.equal(checked, 28, "sanity: C(8,2) = 28 pairs must all have been checked");
 });
 
+// ─── TELEPORT-ON-LEAVE fix (CONVOY-STACK v4, 2026-09-15) ───────────────────
+//
+// ROOT CAUSE (probe 20260915T094248Z, a3db17263aa046509): a mass-leave batch
+// applied computeWaitPoint's gate-shaped zigzag lane AROUND the avatar's
+// CURRENT zone position the instant `leaving` flipped true -- instantly
+// relocating a RESTING avatar (already on its own distinct stand slot, no
+// separation needed) up to WAIT_LANE_STEP_U away from where it was actually
+// rendered a frame earlier (the reported 0.73u snap). Then, when the
+// stagger delay elapsed, the walk resumed from `wp[0]` = the avatar's TRUE
+// rest position (`livePos`, captured correctly at decision time) -- NOT
+// from the gate-lane point it had been visually sitting at during the wait
+// -- producing a SECOND snap back (the reported 0.87u jump) the moment
+// motion resumed. Two symptoms, one root cause: the wait-point render and
+// the walk's own first waypoint disagreed about where the avatar actually
+// was. Fix (LiveAgents.tsx's own `pendingWaitUsesGateLane` ref): a SPAWN
+// wait still uses the gate lane (invisible -- the avatar is being CREATED,
+// no prior pose to jump from); a LEAVE wait now holds `livePos` exactly, so
+// both endpoints of the wait agree with the walk's own first waypoint.
+//
+// This is a PURE simulation of LiveAgentAvatar's own per-frame position
+// update (settle -> leave decision -> stagger wait -> walk), built only
+// from this module's exported functions, sampled at the probe's own 0.5s
+// cadence -- run once against the PRE-FIX gate-lane-during-leave behavior
+// (documents the reported bug, RED) and once against the FIXED
+// hold-livePos-during-leave behavior (GREEN), both checked against the
+// coordinator's own invariant: no rendered position may change by more than
+// WALK_SPEED*dt + 0.05 between consecutive samples once an avatar exists.
+
+const SIM_WALK_SPEED = 0.7; // KitAgent.tsx#WALK_SPEED's own real value
+const SIM_SAMPLE_DT_S = 0.5; // the probe's own sampling cadence
+
+interface SimStep {
+  tS: number;
+  position: [number, number, number];
+}
+
+/** Models LiveAgentAvatar's settle -> leave -> stagger-wait -> walk
+ * sequence for ONE avatar, sampled every `SIM_SAMPLE_DT_S`. `useGateLaneOnLeave`
+ * toggles the exact behavior under test: true reproduces the PRE-FIX bug
+ * (computeWaitPoint applied to the leave wait), false is the FIXED
+ * behavior (hold `livePos`). */
+function simulateSettleLeaveWalk(useGateLaneOnLeave: boolean): SimStep[] {
+  const zoneNode: [number, number, number] = [0, 0, 0];
+  const standOffset: [number, number] = [-1.65, -0.82]; // this avatar's own real, already-settled stand slot
+  const settledPos: [number, number, number] = [zoneNode[0] + standOffset[0], 0, zoneNode[2] + standOffset[1]];
+  const gateNode: [number, number, number] = [21.6, 0, 0];
+  const hallwayNode: [number, number, number] = [17.4, 0, 0];
+  const leaveIndex = 1; // a same-batch leave with a nonzero gate lane, per the bug report
+
+  // decision time: livePos is READ from wherever the avatar is actually
+  // rendered right now (settledPos, correct per CONVOY-STACK v3's own
+  // continuous stand-slot correction).
+  const livePos = settledPos;
+  const finalPoint = gateNode; // destinationPointFor(dest, despawn=true) -- raw node, no ring offset
+  const rawPath = [livePos, hallwayNode, finalPoint];
+  const wp = applyLaneOffsets(rawPath, "a3db17263aa046509");
+  const duration = Math.max(0.5, pathDistance(wp) / SIM_WALK_SPEED);
+  const delayS = leaveIndex * STAGGER_DELAY_S;
+
+  const waitPoint: [number, number, number] = useGateLaneOnLeave
+    ? computeWaitPoint(livePos, wp[1] ?? finalPoint, leaveIndex)
+    : livePos;
+
+  const steps: SimStep[] = [{ tS: 0, position: settledPos }]; // last "working" sample, pre-transition
+  const walkStartT = 0; // the transition happens at t=0 in this simulation's own clock
+  for (let tS = SIM_SAMPLE_DT_S; tS <= delayS + duration + SIM_SAMPLE_DT_S; tS += SIM_SAMPLE_DT_S) {
+    const elapsed = tS - walkStartT - delayS;
+    if (elapsed < 0) {
+      steps.push({ tS, position: waitPoint });
+    } else {
+      const progress = Math.min(1, elapsed / duration);
+      steps.push({ tS, position: poseAlongPath(wp, progress).position });
+    }
+  }
+  return steps;
+}
+
+function maxStepDisplacement(steps: SimStep[]): { maxDist: number; atIndex: number } {
+  let maxDist = 0;
+  let atIndex = -1;
+  for (let i = 1; i < steps.length; i++) {
+    const a = steps[i - 1].position;
+    const b = steps[i].position;
+    const dist = Math.hypot(a[0] - b[0], a[2] - b[2]);
+    if (dist > maxDist) {
+      maxDist = dist;
+      atIndex = i;
+    }
+  }
+  return { maxDist, atIndex };
+}
+
+test("TELEPORT-ON-LEAVE: RED (documents the reported bug) -- gate-lane-during-leave violates the WALK_SPEED*dt+0.05 displacement invariant", () => {
+  const steps = simulateSettleLeaveWalk(true);
+  const bound = SIM_WALK_SPEED * SIM_SAMPLE_DT_S + 0.05;
+  const { maxDist, atIndex } = maxStepDisplacement(steps);
+  assert.ok(
+    maxDist > bound,
+    `expected the PRE-FIX behavior to violate the ${bound.toFixed(3)}u bound (documenting the real teleport) -- got max displacement ${maxDist.toFixed(3)}u at step ${atIndex}, t=${steps[atIndex]?.tS}s`,
+  );
+});
+
+test("TELEPORT-ON-LEAVE: GREEN (the actual fix) -- holding livePos during a leave wait keeps every step within WALK_SPEED*dt+0.05", () => {
+  const steps = simulateSettleLeaveWalk(false);
+  for (let i = 1; i < steps.length; i++) {
+    const a = steps[i - 1].position;
+    const b = steps[i].position;
+    const dist = Math.hypot(a[0] - b[0], a[2] - b[2]);
+    const dt = steps[i].tS - steps[i - 1].tS;
+    assert.ok(
+      dist <= SIM_WALK_SPEED * dt + 0.05 + 1e-9,
+      `step ${i} (t=${steps[i - 1].tS}s -> ${steps[i].tS}s): displacement ${dist.toFixed(3)}u exceeds WALK_SPEED*dt+0.05 = ${(SIM_WALK_SPEED * dt + 0.05).toFixed(3)}u`,
+    );
+  }
+  // Sanity: this scenario actually exercises real motion (the walk itself),
+  // not a degenerate all-zero trajectory that would make the bound trivial.
+  const totalDist = Math.hypot(steps[steps.length - 1].position[0] - steps[0].position[0], steps[steps.length - 1].position[2] - steps[0].position[2]);
+  assert.ok(totalDist > 5, `sanity: the avatar should have travelled meaningfully toward the gate, only moved ${totalDist.toFixed(2)}u total`);
+});
+
 // ─── computeBatchOrder / computeBatchStaggerDelays (CONVOY-STACK v2/v3) ────
 
 test("computeBatchOrder: sorted-order ids get 0, 1, 2, ... -- the single source of truth computeBatchStaggerDelays scales by STAGGER_DELAY_S", () => {

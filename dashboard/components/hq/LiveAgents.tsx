@@ -235,6 +235,21 @@ function LiveAgentAvatar({
   // pendingStartDelayS is 0, so `elapsed` is never negative and
   // `waitPoint.current` is simply never rendered.
   const pendingWaitIndex = useRef(spawnIndex);
+  // TELEPORT-ON-LEAVE fix (2026-09-15, probe 20260915T094248Z): whether the
+  // NEXT wait (elapsed < 0, see useFrame below) should render at a
+  // computeWaitPoint-derived gate lane (true, spawn only) or simply HOLD the
+  // avatar's actual current pose (false, leave). Seeded true for this
+  // avatar's very first walk (a brand-new avatar is being CREATED at the
+  // entry node right now -- there is no prior visible pose to jump away
+  // from, so nudging it onto a gate lane is invisible and correctly
+  // separates same-batch spawns). Set false right before the leave walk
+  // kicks off (see the decision effect below): a leaving avatar is already
+  // RESTING at its own distinct stand-slot position (CONVOY-STACK v3's own
+  // continuous per-frame correction), so relocating it onto a gate-shaped
+  // lane before it even starts walking is a real, visible teleport -- see
+  // this file's own CONVOY-STACK v4 header below the leaving branch for the
+  // full root-cause writeup.
+  const pendingWaitUsesGateLane = useRef(true);
   // The point to render this avatar AT while it is still waiting out its
   // own stagger delay (elapsed < 0, see useFrame below) -- its own batch-
   // order-derived lane/row offset off the true origin (liveAgentWalk.ts
@@ -351,6 +366,10 @@ function LiveAgentAvatar({
       // been consumed by now.
       pendingStartDelayS.current = leaveDelayS;
       pendingWaitIndex.current = leaveIndex;
+      // TELEPORT-ON-LEAVE fix (CONVOY-STACK v4): a leave wait must HOLD this
+      // avatar's actual current pose, never a gate-shaped lane -- see this
+      // avatar's own `pendingWaitUsesGateLane` declaration above.
+      pendingWaitUsesGateLane.current = false;
     } else {
       seenTarget.current = targetNodeId;
     }
@@ -405,12 +424,29 @@ function LiveAgentAvatar({
     walkDest.current = decision.dest;
     walkDespawnsOnArrival.current = decision.despawn;
     walkDuration.current = Math.max(MIN_WALK_S, pathDistance(wp) / WALK_SPEED);
-    // CONVOY-STACK v2: while this walk's own start delay (pendingStartDelayS,
-    // seeded above) hasn't elapsed yet, useFrame renders this avatar at
-    // `waitPoint` instead of progressing along `wp` -- its own lane offset
-    // off the true origin, so same-batch siblings waiting out THEIR OWN
-    // delay don't stack on the shared node either.
-    waitPoint.current = computeWaitPoint(livePos, wp[1] ?? finalPoint, pendingWaitIndex.current);
+    // CONVOY-STACK v2/v4: while this walk's own start delay
+    // (pendingStartDelayS, seeded above) hasn't elapsed yet, useFrame
+    // renders this avatar at `waitPoint` instead of progressing along `wp`.
+    //
+    // TELEPORT-ON-LEAVE fix (v4, probe 20260915T094248Z): a SPAWN wait uses
+    // a computeWaitPoint gate lane (correctly separates same-batch spawns,
+    // and is invisible -- the avatar is being CREATED right now, so there is
+    // no prior on-screen pose to jump away from). A LEAVE wait must instead
+    // HOLD this avatar's own real `livePos` exactly -- root cause of the
+    // reported teleport: v3 applied the SAME gate-lane math to a leaving
+    // avatar's CURRENT zone position, instantly relocating a RESTING avatar
+    // (already on its own distinct stand slot, per CONVOY-STACK v3's
+    // continuous correction -- no additional separation is needed) by up to
+    // WAIT_LANE_STEP_U the instant `leaving` flipped true (probe: a
+    // 0.73u snap at the leaving transition, then an 0.87u snap back when the
+    // stagger delay elapsed and the walk resumed from `livePos`, since `wp[0]`
+    // was always the avatar's TRUE rest position, never the gate-lane point
+    // it had been VISUALLY relocated to during the wait). Holding at
+    // `livePos` for the whole wait makes both waypoints agree -- no jump at
+    // either edge of the wait.
+    waitPoint.current = pendingWaitUsesGateLane.current
+      ? computeWaitPoint(livePos, wp[1] ?? finalPoint, pendingWaitIndex.current)
+      : livePos;
     needsWalkStart.current = true;
     phase.current = "walking";
     setAnimState(WALK_ANIM);
