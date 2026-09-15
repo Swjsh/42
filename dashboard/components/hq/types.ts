@@ -11,8 +11,11 @@ import type { HqRuntime } from "@/lib/hq-runtime";
 // PANEL-3 (2026-09-14): type-only, see lib/hq-learn.ts's own module header
 // for the 6 real files this turns into the LEARN tab's rows.
 import type { HqLearn } from "@/lib/hq-learn";
+// LIVE-AGENTS pass (2026-09-14): type-only, see lib/hq-agents.ts's own
+// module header for the pulse.jsonl tail this roster is built from.
+import type { LiveAgent } from "@/lib/hq-agents";
 
-export type { SectorRow, BlockedItem, PersonaState, Handoff, TradingStatus, CoreDecisionRow, CrewEvent, DeskPersonaName, DeskContent, HqBuildStatus, SectorsSnapshot, HqRuntime, HqLearn };
+export type { SectorRow, BlockedItem, PersonaState, Handoff, TradingStatus, CoreDecisionRow, CrewEvent, DeskPersonaName, DeskContent, HqBuildStatus, SectorsSnapshot, HqRuntime, HqLearn, LiveAgent };
 
 export interface HqBrainVitals {
   model: string | null;
@@ -140,6 +143,11 @@ export interface HqApiResponse {
   // LEARNING VISIBLE" (J's verbatim mandate): what Gamma's research board
   // learned today and what changed because of it, from 6 real files only.
   learn: HqLearn;
+  // LIVE-AGENTS pass (2026-09-14) -- additive, see lib/hq-agents.ts. Real
+  // Claude Code sessions/subagents from pulse.jsonl's own tool-call
+  // telemetry, up to 8, most recent first. Always an array (never undefined).
+  liveAgents: LiveAgent[];
+  liveAgentsError: string | null;
 }
 
 /** One module's derived (not server-sent) presentation state -- computed

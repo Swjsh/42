@@ -37,6 +37,10 @@ import BaseProps from "./BaseProps";
 import PmremEnvironment from "./PmremEnvironment";
 import EffectsStack from "./EffectsStack";
 import GammaCharacter from "./GammaCharacter";
+// LIVE-AGENTS pass (2026-09-14): real Claude Code sessions/subagents (pulse.
+// jsonl, via lib/hq-agents.ts server-side) walking the SAME walk graph
+// personas already use -- see that file's own header.
+import LiveAgents from "./LiveAgents";
 import { laneBubbleAction, personaBubbleAction } from "./bubbleText";
 import { computePurposefulWalk, dayNightFactor, healthColor, hhmmFromEtIso, isParkedState, isRegularTradingHours, lerp, localToWorld, minutesSinceEvidence, nowEtDayOfWeek, nowEtMinutes, PALETTE, personaStatusColor, scheduleOnShift, truncateOneLine, type ScreenLine } from "./palette";
 import { BAY_DESK_OFFSET_Z, BAY_SEAT_LOCAL, CHARACTER_SCALE, CHARACTER_TARGET_HEIGHT, CorridorRun, DeskCluster, HubRoom, HUB_WALL_RADIUS, Plaza, TJunction } from "./SetKit";
@@ -2105,6 +2109,13 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
       />
 
       <IdeasWall cards={data?.ideas.cards ?? []} position={WALL_POS} dimFactor={dimFactor} />
+
+      {/* LIVE-AGENTS pass (2026-09-14) -- real Claude Code sessions/
+          subagents, up to 8, walking the SAME walk graph (`walkGraph`,
+          built just above) the persona eventWalk/purposeful-walk machinery
+          already uses. Ultra tier only (real KitAgentBody characters, see
+          LiveAgents.tsx's own header); TV tier renders nothing here. */}
+      <LiveAgents agents={data?.liveAgents ?? []} walkGraph={walkGraph} ultra={ultra} reducedMotion={reducedMotion} />
       {/* PEOPLE pass (P3, 2026-09-14, J: "the traveling orbs can go too"):
           the hub's anonymous courier bot + the card-status "glowing orb up
           to the smart board" it used to fly are REMOVED -- Courier.tsx

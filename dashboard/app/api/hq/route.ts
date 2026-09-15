@@ -37,6 +37,11 @@ import { readHqRuntime } from "@/lib/hq-runtime";
 // -- see lib/hq-learn.ts's own header for the 6 real source files this
 // turns into the LEARN tab's rows. Additive only, 30s-cached internally.
 import { readHqLearn } from "@/lib/hq-learn";
+// LIVE-AGENTS pass (2026-09-14): "use it to build itself ... watch it spawn
+// up agents" -- see lib/hq-agents.ts's own header for the pulse.jsonl tail
+// this turns into a roster of real Claude Code sessions/subagents. Additive
+// only, fail-open (never a 500; degrades to an empty list + an error string).
+import { readLiveAgents } from "@/lib/hq-agents";
 
 /** Unlike every other reader in this route's Promise.all, collectCompany()
  * has no internal try/catch (personas/route.ts's OWN top-level GET() is
@@ -137,6 +142,7 @@ async function buildHqResponse() {
     build,
     sectorsSnapshot,
     learn,
+    liveAgents,
   ] = await Promise.all([
     readIdeasBoard(),
     readStationBrief(),
@@ -179,6 +185,9 @@ async function buildHqResponse() {
     // additive. See lib/hq-learn.ts for the 6 real files this reads and the
     // freeze-aware (to 2026-10-30) "changed" text each row carries.
     readHqLearn(),
+    // LIVE-AGENTS pass -- additive, see lib/hq-agents.ts. Own tail read (not
+    // dependent on any other reader's output), fail-open per its own header.
+    readLiveAgents(),
   ]);
 
   const lastRow = ledger.length > 0 ? ledger[ledger.length - 1] : null;
@@ -250,6 +259,13 @@ async function buildHqResponse() {
       // real files only; fail-open (an `error` field appears only if every
       // per-source reader's own fail-open guard was somehow bypassed).
       learn,
+      // LIVE-AGENTS pass (2026-09-14) -- additive, see lib/hq-agents.ts. Real
+      // Claude Code sessions/subagents (from pulse.jsonl's own tool-call
+      // telemetry), up to 8, most recent first. `agents` is always an array
+      // (never undefined) even on the fail-open path -- `error` is present
+      // only if readLiveAgents' own backstop caught an unexpected throw.
+      liveAgents: liveAgents.agents,
+      liveAgentsError: liveAgents.error ?? null,
       // I3: explicit alias for brief.mtime_ms -- surfaces the SAME real
       // mtime as a readable ISO string so the all-hands trigger has a
       // self-explanatory field name on the wire (brief.mtime_ms already
