@@ -68,6 +68,7 @@ test("a malformed entry (missing symbol/entry_premium/total_qty) is skipped, not
 
 function fill(overrides: Partial<FillRow>): FillRow {
   return {
+    activityId: "test-activity-id",
     arm: "bold-2", symbol: "SPY260915P00755000", side: "buy", qty: 5, price: 0.47,
     multiplier: 100, ts_et: "2026-09-15T10:38:06", date_et: "2026-09-15",
     ...overrides,

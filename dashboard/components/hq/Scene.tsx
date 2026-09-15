@@ -27,6 +27,15 @@ import { reportAutoOrbitResumed } from "@/lib/hq-camera-mode";
 import { getHoveredPersonaIndex, subscribeHoveredPersonaIndex } from "@/lib/hq-hover-persona";
 import type { HqApiResponse, SectorRow, CoreDecisionRow } from "./types";
 import { formatPositionClause, type AccountPositions } from "@/lib/hq-positions-pure";
+// HQ-TRADE-MOMENTS (2026-09-15): "the world visibly REACTS to real trade
+// events" -- Pilot's desk screen (the one existing "speech bubble" surface
+// this persona already has, see the isPilot block below) shows the most
+// recent active trade moment when one exists, ahead of the SAFE/BOLD
+// decision lines it normally shows. data.trading.tradeMoments is already
+// server-side windowed (lib/hq-trade-moments-pure.ts#activeTradeMoments) --
+// this component never re-derives the window client-side, so a page reload
+// mid-window still shows it and a reload past it never resurrects it.
+import { formatTradeMomentLine, type TradeMomentEvent } from "@/lib/hq-trade-moments-pure";
 import type { PersonaId } from "@/lib/hq-agents";
 import type { PersonaState } from "@/lib/personas";
 import type { AgentBehavior } from "./Agent";
@@ -2082,8 +2091,22 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
             size: 15,
           };
         };
+        // HQ-TRADE-MOMENTS (2026-09-15): active trade moments (already
+        // windowed server-side) always outrank the generic SAFE/BOLD
+        // decision lines -- a real fill is the most material thing Pilot
+        // can be showing right now. Capped at 2 lines (this screen's own
+        // existing 2-line budget) newest-first; falls back to the
+        // pre-existing SAFE/BOLD lines the instant no fill is inside its
+        // own active window (never a stale trade moment held client-side).
+        const activeTradeMoments: TradeMomentEvent[] = isPilot ? (data?.trading?.tradeMoments ?? []) : [];
         const pilotScreenLines: ScreenLine[] | undefined = isPilot
-          ? [accountScreenLine("SAFE", safeDecision, safePosition), accountScreenLine("BOLD", boldDecision, boldPosition)]
+          ? activeTradeMoments.length > 0
+            ? activeTradeMoments.slice(0, 2).map((ev): ScreenLine => ({
+                text: truncateOneLine(formatTradeMomentLine(ev), 32),
+                color: ev.kind === "EXIT" && ev.realizedUsd !== null && ev.realizedUsd < 0 ? "#ff6b6b" : "#ffb020",
+                size: 15,
+              }))
+            : [accountScreenLine("SAFE", safeDecision, safePosition), accountScreenLine("BOLD", boldDecision, boldPosition)]
           : undefined;
         // INTERACT-2 (I1, 2026-09-14): every non-Pilot desk shows real work
         // too -- lib/desk-content.ts's own reader per role, keyed by the

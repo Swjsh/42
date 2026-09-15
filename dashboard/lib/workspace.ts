@@ -134,5 +134,16 @@ export const paths = {
     "safe-2": st("fleet", "safe-2", "exit-state.json"),
     "bold-2": st("fleet", "bold-2", "exit-state.json"),
   },
+  /** HQ-TRADE-MOMENTS (2026-09-15): generic per-arm exit-state.json path,
+   * for arms beyond the safe-2/bold-2 pair above (safe-3/risky-1/risky-3
+   * today, whichever else `automation/state/fleet/accounts.json` marks
+   * `status:"active"` tomorrow) -- same file shape, same producer
+   * (heartbeat_core.py's exit_manager), different arm id. */
+  fleetExitStateFor: (arm: string) => st("fleet", arm, "exit-state.json"),
+  /** Fleet arm registry -- the ONE place that knows which arms are live
+   * today, read fresh every /api/hq poll rather than hardcoded here (an
+   * arm's status flips active/retired on a real schedule, e.g. safe-1's
+   * 2026-07-11 retirement). See lib/hq-fleet-arms-pure.ts. */
+  fleetAccounts: st("fleet", "accounts.json"),
   fillsLedger: st("fills-ledger.jsonl"),
 };

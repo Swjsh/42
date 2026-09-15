@@ -14,6 +14,9 @@ import type { MotionEvent } from "@/lib/useMotionEvents";
 import { crewLastLine, crewNextLine, crewNowLine, deriveCrewPill, CREW_PILL_COLOR } from "@/lib/crew";
 import { formatLiveSpyLine } from "@/lib/hq-market-pure";
 import { formatPositionClause } from "@/lib/hq-positions-pure";
+// HQ-TRADE-MOMENTS (2026-09-15): real-fill world events (bubble + ticker)
+// and the per-arm live P&L panel -- see each pure module's own header.
+import { formatTradeMomentLine, type TradeMomentEvent } from "@/lib/hq-trade-moments-pure";
 
 const BLOCKED_SOURCE_LABEL: Record<string, string> = {
   discord: "Discord",
@@ -83,9 +86,18 @@ function buildTradingStrip(trading: TradingStatus | undefined): TradingStrip {
   if (!isRegularTradingHours(etMinutes, dayOfWeek)) {
     const safeV = core.safe?.verdict ?? "?";
     const boldV = core.bold?.verdict ?? "?";
+    // HQ-TRADE-MOMENTS (2026-09-15): the day-close summary rides in the SAME
+    // "market closed" banner -- trading.dayClose is already gated server-side
+    // (>=16:00 ET AND real fills today, see lib/hq-day-close-pure.ts), so
+    // this branch just renders it when present, appends nothing when null
+    // (before the cutoff, or a fill-less day -- never a fabricated summary).
+    const dc = trading.dayClose;
+    const dayCloseClause = dc
+      ? ` · CLOSE: book ${dc.bookRealizedUsd >= 0 ? "+" : "-"}$${Math.abs(Math.round(dc.bookRealizedUsd))} (${dc.wins}W/${dc.losses}L)${dc.setupNames.length ? ` · ${dc.setupNames.join(", ")}` : ""}`
+      : "";
     return {
       color: "grey",
-      text: `MARKET CLOSED · next open ${nextOpenText(etMinutes, dayOfWeek)} · last close: safe ${safeV} / bold ${boldV}`,
+      text: `MARKET CLOSED · next open ${nextOpenText(etMinutes, dayOfWeek)} · last close: safe ${safeV} / bold ${boldV}${dayCloseClause}`,
     };
   }
 
@@ -282,7 +294,13 @@ function formatRowStamp(ms: number, nowMs: number): string {
  * together by real timestamp rather than concatenated by source. Every
  * " -> " separator (both sources use plain ASCII arrows) renders as "→"
  * for handoff/interaction rows, uniformly. */
-function buildFeedRows(motionEvents: MotionEvent[], crewEvents: CrewEvent[], personas: PersonaState[], nowMs: number): FeedRow[] {
+function buildFeedRows(
+  motionEvents: MotionEvent[],
+  crewEvents: CrewEvent[],
+  personas: PersonaState[],
+  nowMs: number,
+  tradeMoments: TradeMomentEvent[] = [],
+): FeedRow[] {
   const personaByName = new Map(personas.map((p) => [p.name, p]));
   // Slicing each source to FEED_MAX_ROWS before the merge is a safe upper
   // bound (the final sorted+capped output can never need MORE than
@@ -309,7 +327,23 @@ function buildFeedRows(motionEvents: MotionEvent[], crewEvents: CrewEvent[], per
       text: ev.text.replace(/ -> /g, " → "),
     };
   });
-  return [...crewRows, ...motionRows].sort((a, b) => b.ms - a.ms).slice(0, FEED_MAX_ROWS);
+  // HQ-TRADE-MOMENTS (2026-09-15): the Pilot persona is the real actor on
+  // every trade-moment row -- these are already server-side windowed to
+  // their own active bubble window (lib/hq-trade-moments-pure.ts#
+  // activeTradeMoments), so this ticker and the Pilot bubble always agree
+  // on which real fills are "current" right now.
+  const pilot = personaByName.get("Pilot");
+  const tradeRows: FeedRow[] = tradeMoments.map((ev) => {
+    const ms = comparableMsFromEtString(ev.tsEt) ?? 0;
+    return {
+      key: `trade-${ev.activityId}`,
+      ms,
+      tsEt: formatRowStamp(ms, nowMs),
+      actor: pilot ? { emoji: pilot.emoji, color: pilot.color, name: pilot.name } : null,
+      text: formatTradeMomentLine(ev),
+    };
+  });
+  return [...crewRows, ...motionRows, ...tradeRows].sort((a, b) => b.ms - a.ms).slice(0, FEED_MAX_ROWS);
 }
 
 interface HudProps {
@@ -702,7 +736,7 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
   const nowMs = Date.now();
   // R3 (CREW-2): merged, capped, newest-first event feed -- see this file's
   // own buildFeedRows() header comment for the two sources it merges.
-  const feedRows = buildFeedRows(motionEvents, data?.crewEvents ?? [], personas, nowMs);
+  const feedRows = buildFeedRows(motionEvents, data?.crewEvents ?? [], personas, nowMs, data?.trading?.tradeMoments ?? []);
   // Company audit badge (commit 58d0b9c6, coordinator 2026-09-13: "the
   // roster must show ghosts as ghosts") -- matched by name, the same string
   // on both sides (PersonaState.name / PersonaAudit.name). `data.audit` is
@@ -1181,6 +1215,49 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
               <span style={{ color: "#dff3ff", fontSize: 13, fontFamily: HUD_FONT, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                 {strip.text}
               </span>
+            </div>
+          );
+        })()}
+
+        {/* HQ-TRADE-MOMENTS (2026-09-15): per-arm TODAY realized P&L, strictly
+            fills-ledger FIFO math (lib/hq-fleet-pnl-live-pure.ts) -- NOT the
+            /gamma app's separate trades.csv-based Money tile. One compact
+            row per active arm (accounts.json's own roster, never hardcoded
+            here) + a book total. Hidden only when the fleet roster itself
+            failed to resolve at all (arms.length===0, an adapter-level
+            failure) -- a quiet zero-trade day still renders every arm's own
+            real $0 row, per "sitting out is a valid day" doctrine. */}
+        {(data?.trading?.fleetPnl?.arms.length ?? 0) > 0 && (() => {
+          const fleetPnl = data!.trading.fleetPnl;
+          const bookColor = fleetPnl.bookRealizedUsd > 0 ? "#22ff88" : fleetPnl.bookRealizedUsd < 0 ? "#ff6b6b" : "#7f93b0";
+          return (
+            <div
+              style={{
+                background: "rgba(3,4,10,0.75)", border: "1px solid rgba(122,217,255,0.25)", borderRadius: 8,
+                padding: "8px 12px", flexShrink: 0,
+              }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 4 }}>
+                <span style={{ color: "#7ad9ff", fontSize: 12, fontWeight: 700, letterSpacing: 0.5, fontFamily: HUD_FONT }}>
+                  FLEET P&amp;L · TODAY
+                </span>
+                <span style={{ color: bookColor, fontSize: 14, fontWeight: 800, fontFamily: HUD_FONT }}>
+                  {fleetPnl.bookRealizedUsd >= 0 ? "+" : "-"}${Math.abs(Math.round(fleetPnl.bookRealizedUsd))}
+                </span>
+              </div>
+              {fleetPnl.arms.map((a) => {
+                const c = a.error ? "#7f93b0" : a.realizedUsd > 0 ? "#22ff88" : a.realizedUsd < 0 ? "#ff6b6b" : "#7f93b0";
+                return (
+                  <div key={a.armId} style={{ display: "flex", justifyContent: "space-between", fontSize: 12, fontFamily: HUD_FONT, lineHeight: 1.6 }}>
+                    <span style={{ color: "#a9c3d9" }}>
+                      {a.armId}{a.openQty > 0 ? ` (${a.openQty} open)` : ""}
+                    </span>
+                    <span style={{ color: c }}>
+                      {a.error ? "unavailable" : `${a.realizedUsd >= 0 ? "+" : "-"}$${Math.abs(Math.round(a.realizedUsd))} (${a.trades}t)`}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           );
         })()}

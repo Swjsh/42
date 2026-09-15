@@ -35,6 +35,13 @@ export interface ClosedPosition {
   exit: number;
   realizedUsd: number;
   exitTs: string;
+  /** HQ-TRADE-MOMENTS (2026-09-15): the SELL fill row's own activity_id --
+   * lets a caller (hq-trade-moments-pure.ts) map a closed round trip back
+   * to the exact real fill event that closed it, for a one-bubble-per-fill
+   * world event. A single sell fill that FIFO-splits across multiple buy
+   * lots produces multiple ClosedPosition rows sharing the SAME
+   * exitActivityId by design -- the caller sums them back into one event. */
+  exitActivityId: string;
 }
 
 /** Per-account position truth for /api/hq's `trading.position.<acct>` field. */
@@ -92,6 +99,11 @@ export function parseOpenPositions(exitState: unknown): OpenPosition[] {
 /** One row of fills-ledger.jsonl, already parsed + shape-checked by the fs
  * adapter (lib/hq-positions.ts#readFillsForArm). */
 export interface FillRow {
+  /** fills-ledger.jsonl's own `activity_id` -- the real, stable identity of
+   * this fill (never a synthetic/generated id). HQ-TRADE-MOMENTS
+   * (2026-09-15) keys world events off this so a bubble/ticker line fires
+   * once per real fill, never repeating on reload beyond its own window. */
+  activityId: string;
   arm: string;
   symbol: string;
   side: "buy" | "sell";
@@ -149,6 +161,7 @@ export function computeClosedToday(
           exit: row.price,
           realizedUsd: pnl,
           exitTs: row.ts_et,
+          exitActivityId: row.activityId,
         });
         lot.qty -= matchQty;
         remaining -= matchQty;

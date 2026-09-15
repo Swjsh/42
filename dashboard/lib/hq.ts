@@ -6,8 +6,16 @@ import path from "node:path";
 import { paths, WORKSPACE_ROOT } from "./workspace";
 import { getQuote } from "./quote";
 import { describeEngineAction } from "./engine-action-pure";
-import { readHqPositions } from "./hq-positions";
+import { readHqPositions, readHqPositionsForAllArms } from "./hq-positions";
 import type { AccountPositions } from "./hq-positions-pure";
+// HQ-TRADE-MOMENTS (2026-09-15): per-arm live P&L (fills-ledger FIFO math),
+// real-fill world events (bubble/ticker), and the post-close day summary --
+// see each pure module's own header for the "why a separate reader from
+// lib/fleet-pnl.ts's trades.csv-based Money tile" reasoning.
+import { buildFleetPnlLive, type FleetPnlLive } from "./hq-fleet-pnl-live-pure";
+import { buildTradeMomentEvents, activeTradeMoments, etTsToComparableMs, type TradeMomentEvent } from "./hq-trade-moments-pure";
+import { shouldShowDayClose, buildDayCloseSummary, type DayCloseSummary } from "./hq-day-close-pure";
+import { parseCsvLine } from "./activity-feed";
 
 const execFileAsync = promisify(execFile);
 
@@ -870,6 +878,61 @@ function todayEtDateStr(): string {
   return `${get("year")}-${get("month")}-${get("day")}`;
 }
 
+// HQ-TRADE-MOMENTS (2026-09-15): real ET wall-clock hour/minute (for
+// hq-day-close-pure.ts's 16:00 ET cutoff gate) + a "now" string in the SAME
+// "YYYY-MM-DDTHH:mm:ss" shape fills-ledger.jsonl's own ts_et field uses, so
+// hq-trade-moments-pure.ts#etTsToComparableMs can diff a fill's real
+// timestamp against "now" using one consistent convention.
+function nowEtParts(): { y: string; mo: string; d: string; hh: string; mm: string; ss: string } {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false,
+  }).formatToParts(new Date());
+  const get = (t: string) => parts.find((p) => p.type === t)?.value ?? "00";
+  return { y: get("year"), mo: get("month"), d: get("day"), hh: get("hour") === "24" ? "00" : get("hour"), mm: get("minute"), ss: get("second") };
+}
+
+function nowEtHourMinute(): { hour: number; minute: number } {
+  const p = nowEtParts();
+  return { hour: Number(p.hh), minute: Number(p.mm) };
+}
+
+function nowEtWallClockIso(): string {
+  const p = nowEtParts();
+  return `${p.y}-${p.mo}-${p.d}T${p.hh}:${p.mm}:${p.ss}`;
+}
+
+/** Distinct `setup` column values from journal/trades.csv for the given ET
+ * date -- the day-close summary's "the setup name" field. fills-ledger.jsonl
+ * carries no strategy/setup field (verified this session: activity_id,
+ * arm, order_id, symbol, side, qty, price, multiplier, is_crypto,
+ * is_option, ts_utc, ts_et, date_et, attribution -- no setup), so this is
+ * the ONE real source for that string; same file + same name-based column
+ * lookup lib/fleet-pnl.ts's getFleetPnl already uses (never positional).
+ * Fails open to [] on any read/parse problem -- a missing setup name never
+ * blocks the day-close summary's real P&L numbers from showing. */
+async function readTodaySetupNames(dateEt: string): Promise<string[]> {
+  try {
+    const text = await fs.readFile(paths.trades, "utf-8");
+    const lines = text.split(/\r?\n/).filter((l) => l.length > 0);
+    if (lines.length < 2) return [];
+    const header = parseCsvLine(lines[0]).map((h) => h.replace(/^﻿/, "").trim());
+    const iDate = header.indexOf("date");
+    const iSetup = header.indexOf("setup");
+    if (iDate === -1 || iSetup === -1) return [];
+    const names = new Set<string>();
+    for (const line of lines.slice(1)) {
+      const cells = parseCsvLine(line);
+      if (cells[iDate]?.trim() !== dateEt) continue;
+      const setup = cells[iSetup]?.trim();
+      if (setup) names.add(setup);
+    }
+    return [...names];
+  } catch {
+    return [];
+  }
+}
+
 // CREW-2 (roster) coordinator correction (2026-09-14): Pilot's roster card
 // was reading automation/state/loop-state.json (a stale side file the live
 // deterministic engine, heartbeat_core.py, doesn't write) for both its
@@ -994,6 +1057,26 @@ export interface TradingStatus {
    * HOLD/flat 2 minutes after entry once the engine stopped logging
    * ENTER_BEAR, even though the broker position stayed open for hours). */
   position: { safe: AccountPositions; bold: AccountPositions };
+  /** HQ-TRADE-MOMENTS (2026-09-15): the SAME position truth as `position`
+   * above, but for EVERY active SPY 0DTE arm (5 as of 2026-09-15: safe-3,
+   * safe-2, risky-1, bold-2, risky-3 -- arm roster read fresh from
+   * accounts.json, never hardcoded; see lib/hq-fleet-arms.ts), keyed by
+   * arm id. `position.safe`/`position.bold` stay as-is (unchanged callers,
+   * unchanged shape) -- this is the additive superset feeding the new
+   * per-arm P&L panel + trade-moment events. */
+  positionsByArm: Record<string, AccountPositions>;
+  /** Per-arm TODAY P&L, strictly fills-ledger FIFO math (never
+   * journal/trades.csv) -- see hq-fleet-pnl-live-pure.ts's own header. */
+  fleetPnl: FleetPnlLive;
+  /** Real fills, one event per fill (activity_id-keyed), windowed to the
+   * ones still "active" (60-90s from their own real ts_et) -- the world's
+   * trade-moment bubble/ticker source. Empty outside a fill's own window,
+   * by construction (age-filtered every poll, not client-remembered). */
+  tradeMoments: TradeMomentEvent[];
+  /** Post-close (>=16:00 ET) book + per-arm summary on a day that actually
+   * had fills; null before the cutoff or on a fill-less day (never a
+   * fabricated all-zero summary). See hq-day-close-pure.ts's own gate. */
+  dayClose: DayCloseSummary | null;
 }
 
 /** Combines every item-5 source into the ONE `trading` field /api/hq
@@ -1001,13 +1084,16 @@ export interface TradingStatus {
  * one missing file degrades that piece to null/UNKNOWN, never a 500 for
  * the whole payload. */
 export async function readTradingStatus(): Promise<TradingStatus> {
-  const [readiness, core, bias, openBellPingedToday, quote, positions] = await Promise.all([
+  const nowWallClockIso = nowEtWallClockIso();
+  const todayDateEt = todayEtDateStr();
+  const [readiness, core, bias, openBellPingedToday, quote, allArms, setupNames] = await Promise.all([
     readTradingReadiness(),
     readCoreDecisionsLatest(),
     readTodayBiasSummary(),
     readOpenBellPingedToday(),
     getQuote(),
-    readHqPositions(),
+    readHqPositionsForAllArms(),
+    readTodaySetupNames(todayDateEt),
   ]);
   // getQuote()'s own staleness ("unavailable"/"stale") is a DIFFERENT axis
   // than "do we have a number at all" -- market.live.spy is null only when
@@ -1017,9 +1103,41 @@ export async function readTradingStatus(): Promise<TradingStatus> {
   const live: LiveMarketQuote | null = quote.price === null
     ? null
     : { spy: quote.price, ts_et: quote.asOfEt, age_s: quote.ageSeconds, source: "sight-beacon" };
+
+  // HQ-TRADE-MOMENTS (2026-09-15): fleet P&L (fills-ledger FIFO math, one
+  // source shared by both the live panel and the day-close summary below),
+  // real-fill world events windowed to their own active bubble/ticker
+  // window, and the post-close gate -- all built off the SAME
+  // readHqPositionsForAllArms() read, no extra fs work.
+  const fleetPnl = buildFleetPnlLive(allArms.positions, allArms.arms);
+  const todaysFills = allArms.fills.filter((f) => f.date_et === todayDateEt);
+  const todaysClosed = Object.values(allArms.positions).flatMap((p) => p.closedToday);
+  const allEvents = buildTradeMomentEvents(todaysFills, todaysClosed);
+  const nowComparableMs = etTsToComparableMs(nowWallClockIso);
+  const tradeMoments = activeTradeMoments(allEvents, nowComparableMs);
+  const hasAnyFillsToday = todaysFills.length > 0;
+  const { hour, minute } = nowEtHourMinute();
+  const dayClose = shouldShowDayClose(hour, minute, hasAnyFillsToday)
+    ? buildDayCloseSummary(fleetPnl, setupNames)
+    : null;
+
+  // Type-safety floor only -- readActiveFleetArms' own FAIL_OPEN_FLOOR
+  // guarantees safe-2/bold-2 are always present in practice; this covers
+  // the theoretical case where accounts.json is read but its live roster
+  // no longer includes one of them, so `position.safe`/`.bold` (typed
+  // non-optional, matching every pre-existing consumer) never actually
+  // reads `undefined` off a Record index.
+  const emptyPositions = (error: string): AccountPositions => ({ open: [], closedToday: [], realizedTodayUsd: 0, error });
   return {
     readiness, core, bias, openBellPingedToday, market: { live },
-    position: { safe: positions["safe-2"], bold: positions["bold-2"] },
+    position: {
+      safe: allArms.positions["safe-2"] ?? emptyPositions("safe-2 not in active arm roster"),
+      bold: allArms.positions["bold-2"] ?? emptyPositions("bold-2 not in active arm roster"),
+    },
+    positionsByArm: allArms.positions,
+    fleetPnl,
+    tradeMoments,
+    dayClose,
   };
 }
 
