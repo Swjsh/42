@@ -15,9 +15,10 @@ Sample shape (one dict per poll tick, produced by hq_live_probe.py):
         "calls": int | None,          # window.__hqGl.info.render.calls
     }
 
-Every check returns a dict: {"verdict": "PASS"|"FAIL"|"NO-DATA", "detail": {...}}
+Every check returns a dict: {"verdict": "PASS"|"FAIL"|"NO-DATA"|"INFO", "detail": {...}}
 Never PASS without evidence -- a check with zero qualifying events is
-NO-DATA, not PASS.
+NO-DATA, not PASS. INFO is perf-only: headless/SwiftShader numbers with no
+PASS/FAIL threshold (see check_perf).
 """
 from __future__ import annotations
 
@@ -187,6 +188,14 @@ def check_stand_slots(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
 
 # 4. walk-out ------------------------------------------------------------------
 
+# An agent still "leaving" when the sampling window ends is ambiguous, not
+# broken -- the window may simply have closed on it mid-walk. Only call it
+# a FAIL once it has been leaving for at least this long without despawning;
+# below that it's NO-DATA (the window just didn't run long enough to judge
+# this particular agent).
+WALK_OUT_WINDOW_END_GRACE_S = 20.0
+
+
 def check_walk_out(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
     leaving_start: Dict[str, float] = {}
     leaving_last_pos: Dict[str, List[float]] = {}
@@ -223,9 +232,38 @@ def check_walk_out(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
     if not ever_leaving:
         return {"verdict": "NO-DATA", "detail": {"reason": "no agent observed leaving this window"}}
 
-    within_15s = [v for v in despawn_ms.values() if v <= WALK_OUT_MAX_S * 1000]
-    any_moved = any(moved_while_leaving.values())
-    verdict = "PASS" if within_15s and any_moved and len(within_15s) == len(despawn_ms) else "FAIL"
+    window_end_ms = samples[-1]["t_ms"] if samples else 0.0
+
+    per_agent: Dict[str, Dict[str, Any]] = {}
+    for aid, start_t in leaving_start.items():
+        moved = moved_while_leaving.get(aid, False)
+        # Offset of this agent's leave-start relative to the END of the
+        # sampling window -- how much window was left to observe it in.
+        leave_started_offset_s = (window_end_ms - start_t) / 1000.0
+        if aid in despawn_ms:
+            dur_ms = despawn_ms[aid]
+            status = "PASS" if (dur_ms <= WALK_OUT_MAX_S * 1000 and moved) else "FAIL"
+        elif leave_started_offset_s < WALK_OUT_WINDOW_END_GRACE_S:
+            # Started leaving too close to the window's end to judge --
+            # this is a probe-window artifact, not evidence of a stuck agent.
+            status = "NO-DATA"
+        else:
+            status = "FAIL"
+        per_agent[aid] = {
+            "status": status,
+            "despawn_ms": despawn_ms.get(aid),
+            "moved_while_leaving": moved,
+            "leave_started_offset_s": leave_started_offset_s,
+        }
+
+    statuses = [v["status"] for v in per_agent.values()]
+    if any(v == "FAIL" for v in statuses):
+        verdict = "FAIL"
+    elif all(v == "NO-DATA" for v in statuses):
+        verdict = "NO-DATA"
+    else:
+        verdict = "PASS"
+
     return {
         "verdict": verdict,
         "detail": {
@@ -233,6 +271,7 @@ def check_walk_out(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
             "despawned_agents": len(despawn_ms),
             "despawn_ms": despawn_ms,
             "moved_while_leaving": moved_while_leaving,
+            "per_agent": per_agent,
         },
     }
 
@@ -271,31 +310,68 @@ def check_page_api_parity(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
 
 # 6. bubbles ---------------------------------------------------------------------
 
+# Matches the target of a "reading <target>" / "editing <target>" bubble so
+# we can sanity-check it. rawDetail is deliberately RAW (kept for debugging
+# only) -- it must never feed the leak scan or the junk-target scan; only
+# `bubble` (what's actually rendered on screen) is judged.
+BUBBLE_TARGET_RE = re.compile(r"\b(?:reading|editing)\s+(\S+)", re.IGNORECASE)
+JUNK_TARGET_CHARS_RE = re.compile(r'[|<>"]')
+ANY_ALNUM_RE = re.compile(r"[A-Za-z0-9]")
+
+
+def _is_junk_target(target: str) -> bool:
+    """A target is junk if it has no alphanumeric content at all, or
+    contains characters that can never legitimately appear in a filename
+    ('working · reading |<Htm' was the observed 2026-09-14 artifact)."""
+    if not ANY_ALNUM_RE.search(target):
+        return True
+    if JUNK_TARGET_CHARS_RE.search(target):
+        return True
+    return False
+
+
 def check_bubbles(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
-    distinct: set = set()
+    distinct_bubbles: set = set()
+    raw_detail_samples: set = set()
     leaks: List[str] = []
+    junk_targets: List[Dict[str, str]] = []
+
     for s in samples:
         for a in s.get("page_agents", []):
             b = a.get("bubble", "")
             raw = a.get("rawDetail", "")
-            if b:
-                distinct.add(b)
             if raw:
-                distinct.add(raw)
-            for text in (b, raw):
-                if text and RAW_SHELL_LEAK_RE.search(text):
-                    leaks.append(text)
+                raw_detail_samples.add(raw)
+            if not b:
+                continue
+            distinct_bubbles.add(b)
+            if RAW_SHELL_LEAK_RE.search(b):
+                leaks.append(b)
+            m = BUBBLE_TARGET_RE.search(b)
+            if m and _is_junk_target(m.group(1)):
+                junk_targets.append({"bubble": b, "target": m.group(1)})
 
-    if not distinct:
-        return {"verdict": "NO-DATA", "detail": {"reason": "no bubble text observed"}}
+    if not distinct_bubbles:
+        return {
+            "verdict": "NO-DATA",
+            "detail": {
+                "reason": "no bubble text observed",
+                "raw_detail_samples": sorted(raw_detail_samples),
+            },
+        }
 
-    verdict = "FAIL" if leaks else "PASS"
+    verdict = "FAIL" if (leaks or junk_targets) else "PASS"
     return {
         "verdict": verdict,
         "detail": {
-            "distinct_bubbles": sorted(distinct),
+            "distinct_bubbles": sorted(distinct_bubbles),
             "leak_count": len(leaks),
             "leaked_strings": leaks,
+            "junk_target_count": len(junk_targets),
+            "junk_targets": junk_targets,
+            # informational only -- rawDetail is deliberately raw (debug
+            # field) and never judged for leaks/junk.
+            "raw_detail_samples": sorted(raw_detail_samples),
         },
     }
 
@@ -310,24 +386,39 @@ def _percentile(values: List[float], pct: float) -> float:
     return s[idx]
 
 
+# Real-GPU (non-headless) perf thresholds. There is NO threshold in headless/
+# SwiftShader mode -- software rasterizer numbers (fps_p50 0.71 was one
+# observed 2026-09-14 sample) don't mean anything relative to a real GPU, so
+# headless perf is reported as INFO with the numbers attached, never PASS/FAIL.
+PERF_FPS_P50_MIN = 58.0
+PERF_P95_FRAME_MS_MAX = 17.0
+
+
 def check_perf(
     frame_timestamps_ms: List[float],
     calls_samples: List[Optional[int]],
     scene_ready: bool = True,
+    headless: bool = True,
 ) -> Dict[str, Any]:
-    """PASS requires ALL THREE: scene_ready, >=2 measured frames, AND at
-    least one non-null draw-call sample -- perf on a scene that never
-    rendered (2026-09-14 INVALID run: window.__hqLiveAgents never appeared,
-    yet this used to PASS on frame timestamps alone) is not perf data, it's
-    noise. Every short-circuit below is labeled HEADLESS + NO-DATA, never
-    silently downgraded to PASS."""
+    """Verdict shape depends on environment:
+      - headless/SwiftShader (default, matches every hq_live_probe.py run
+        today -- Playwright always launches headless=True there): verdict
+        is NO-DATA while there's genuinely no data (scene not ready, too few
+        frames, no draw-call samples), otherwise INFO -- headless numbers
+        carry no PASS/FAIL threshold, they're for trend-watching only.
+      - real GPU (headless=False): NO-DATA for the same missing-data cases,
+        otherwise PASS only if fps_p50 >= 58, p95 frame time <= 17ms, AND
+        draw calls were sampled; FAIL otherwise.
+    Never PASS in headless mode -- that was the 2026-09-14 false-PASS bug
+    (fps_p50 0.71 on SwiftShader read as a passing perf number)."""
+    label = "HEADLESS" if headless else "GPU"
     if not scene_ready:
         return {
             "verdict": "NO-DATA",
-            "detail": {"reason": "scene_ready is false -- no real render loop to measure", "headless": True, "label": "HEADLESS"},
+            "detail": {"reason": "scene_ready is false -- no real render loop to measure", "headless": headless, "label": label},
         }
     if len(frame_timestamps_ms) < 2:
-        return {"verdict": "NO-DATA", "detail": {"reason": "fewer than 2 recorded frames", "headless": True, "label": "HEADLESS"}}
+        return {"verdict": "NO-DATA", "detail": {"reason": "fewer than 2 recorded frames", "headless": headless, "label": label}}
 
     frame_deltas = [
         frame_timestamps_ms[i] - frame_timestamps_ms[i - 1]
@@ -335,36 +426,52 @@ def check_perf(
         if frame_timestamps_ms[i] > frame_timestamps_ms[i - 1]
     ]
     if not frame_deltas:
-        return {"verdict": "NO-DATA", "detail": {"reason": "no positive frame deltas", "headless": True, "label": "HEADLESS"}}
+        return {"verdict": "NO-DATA", "detail": {"reason": "no positive frame deltas", "headless": headless, "label": label}}
 
     fps_samples = [1000.0 / d for d in frame_deltas if d > 0]
     calls_present = [c for c in calls_samples if c is not None]
+    fps_p50 = round(_percentile(fps_samples, 50), 2)
+    fps_p95 = round(_percentile(fps_samples, 95), 2)
+    p95_frame_time_ms = round(_percentile(frame_deltas, 95), 2)
+
     if not calls_present:
         return {
             "verdict": "NO-DATA",
             "detail": {
                 "reason": "frames were measured but zero draw-call samples were taken (window.__hqGl never populated)",
-                "headless": True,
-                "label": "HEADLESS",
-                "fps_p50": round(_percentile(fps_samples, 50), 2),
-                "fps_p95": round(_percentile(fps_samples, 95), 2),
+                "headless": headless,
+                "label": label,
+                "fps_p50": fps_p50,
+                "fps_p95": fps_p95,
+                "p95_frame_time_ms": p95_frame_time_ms,
                 "frame_count": len(frame_timestamps_ms),
             },
         }
 
-    return {
-        "verdict": "PASS",
-        "detail": {
-            "headless": True,
-            "label": "HEADLESS",
-            "note": "SwiftShader/software-GL numbers -- NOT representative of real-GPU perf",
-            "fps_p50": round(_percentile(fps_samples, 50), 2),
-            "fps_p95": round(_percentile(fps_samples, 95), 2),
-            "frame_count": len(frame_timestamps_ms),
-            "mean_draw_calls": round(sum(calls_present) / len(calls_present), 1),
-            "draw_call_samples": len(calls_present),
-        },
+    detail: Dict[str, Any] = {
+        "headless": headless,
+        "label": label,
+        "fps_p50": fps_p50,
+        "fps_p95": fps_p95,
+        "p95_frame_time_ms": p95_frame_time_ms,
+        "frame_count": len(frame_timestamps_ms),
+        "mean_draw_calls": round(sum(calls_present) / len(calls_present), 1),
+        "draw_call_samples": len(calls_present),
     }
+
+    if headless:
+        detail["note"] = (
+            "SwiftShader/software-GL numbers -- NOT representative of real-GPU perf; "
+            "no PASS/FAIL threshold applies in headless mode, numbers are informational only"
+        )
+        return {"verdict": "INFO", "detail": detail}
+
+    meets_threshold = (
+        fps_p50 >= PERF_FPS_P50_MIN
+        and p95_frame_time_ms <= PERF_P95_FRAME_MS_MAX
+        and len(calls_present) > 0
+    )
+    return {"verdict": "PASS" if meets_threshold else "FAIL", "detail": detail}
 
 
 # 8. run validity ---------------------------------------------------------------
@@ -393,10 +500,12 @@ def build_verdicts(
     calls_samples: Optional[List[Optional[int]]] = None,
     scene_ready: bool = True,
     build_ids: Optional[Sequence[Optional[str]]] = None,
+    headless: bool = True,
 ) -> Dict[str, Any]:
     if calls_samples is None:
         calls_samples = [s.get("calls") for s in samples]
     build_ids = build_ids or []
+    label = "HEADLESS" if headless else "GPU"
 
     run_check = check_run_validity(build_ids, scene_ready)
     if not run_check["valid"]:
@@ -416,7 +525,7 @@ def build_verdicts(
             "bubbles": _no_data(),
             "perf": {
                 "verdict": "NO-DATA",
-                "detail": {"reason": reason_str, "headless": True, "label": "HEADLESS"},
+                "detail": {"reason": reason_str, "headless": headless, "label": label},
             },
         }
 
@@ -429,5 +538,5 @@ def build_verdicts(
         "walk_out": check_walk_out(samples),
         "page_api_parity": check_page_api_parity(samples),
         "bubbles": check_bubbles(samples),
-        "perf": check_perf(frame_timestamps_ms, calls_samples, scene_ready=scene_ready),
+        "perf": check_perf(frame_timestamps_ms, calls_samples, scene_ready=scene_ready, headless=headless),
     }

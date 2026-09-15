@@ -162,6 +162,59 @@ def test_walk_out_no_data():
     assert v["verdict"] == "NO-DATA", v
 
 
+def test_walk_out_no_data_when_leave_started_near_window_end():
+    # 2026-09-14 false-FAIL artifact: 1 agent started leaving 10s before the
+    # probe window closed and simply hadn't despawned yet -- that's a probe
+    # cutoff, not a stuck agent. Must be NO-DATA, not FAIL.
+    samples = [
+        _s(0, page=[_agent("a1", "leaving", [5, 0])]),
+        _s(1000, page=[_agent("a1", "leaving", [3, 0])]),
+        _s(10000, page=[_agent("a1", "leaving", [3, 0])]),  # window ends here
+    ]
+    v = check_walk_out(samples)
+    assert v["verdict"] == "NO-DATA", v
+    assert v["detail"]["per_agent"]["a1"]["status"] == "NO-DATA"
+    assert v["detail"]["per_agent"]["a1"]["leave_started_offset_s"] == 10.0
+
+
+def test_walk_out_fail_when_leaving_at_least_20s_without_despawn():
+    # Same shape as the window-end case but past the 20s grace -- now a
+    # genuine FAIL, not an artifact.
+    samples = [
+        _s(0, page=[_agent("a1", "leaving", [5, 0])]),
+        _s(1000, page=[_agent("a1", "leaving", [3, 0])]),
+        _s(20000, page=[_agent("a1", "leaving", [3, 0])]),  # window ends here
+    ]
+    v = check_walk_out(samples)
+    assert v["verdict"] == "FAIL", v
+    assert v["detail"]["per_agent"]["a1"]["status"] == "FAIL"
+    assert v["detail"]["per_agent"]["a1"]["leave_started_offset_s"] == 20.0
+
+
+def test_walk_out_mixed_no_data_and_pass():
+    # One agent despawns cleanly (PASS), another starts leaving only 5s
+    # before the window ends (NO-DATA for that agent) -- overall verdict is
+    # PASS since nothing actually FAILed.
+    samples = [
+        _s(0, page=[
+            _agent("a1", "leaving", [5, 0]),
+        ]),
+        _s(1000, page=[
+            _agent("a1", "leaving", [3, 0]),
+        ]),
+        _s(2000, page=[
+            _agent("a2", "leaving", [5, 0]),
+        ]),
+        _s(7000, page=[
+            _agent("a2", "leaving", [5, 0]),
+        ]),  # window ends here: a1 despawned by t=2000, a2 started at t=2000 (5s offset)
+    ]
+    v = check_walk_out(samples)
+    assert v["detail"]["per_agent"]["a1"]["status"] == "PASS"
+    assert v["detail"]["per_agent"]["a2"]["status"] == "NO-DATA"
+    assert v["verdict"] == "PASS", v
+
+
 # 5. page == API parity -------------------------------------------------------------
 
 def test_parity_pass_ten_consecutive():
@@ -194,9 +247,16 @@ def test_bubbles_pass_clean_text():
 
 
 def test_bubbles_fail_shell_leak():
+    # Corrected 2026-09-14: the leak must be in `bubble` (what's actually
+    # rendered) to FAIL -- a leak confined to rawDetail alone must NOT fail
+    # the check (see test_bubbles_pass_when_only_rawdetail_leaks below).
+    # This test previously put the leak only in rawDetail and asserted
+    # FAIL, which was itself the probe artifact the coordinator flagged
+    # (rawDetail is deliberately raw/debug-only and was never meant to be
+    # judged for leaks).
     samples = [_s(0, page=[_agent(
         "a1", "working", [0, 0],
-        bubble="working · x", raw="Ran: cd /c/Users/jackw && ls",
+        bubble="Ran: cd /c/Users/jackw && ls", raw="Ran: cd /c/Users/jackw && ls",
     )])]
     v = check_bubbles(samples)
     assert v["verdict"] == "FAIL", v
@@ -209,15 +269,62 @@ def test_bubbles_no_data():
     assert v["verdict"] == "NO-DATA", v
 
 
+def test_bubbles_pass_when_only_rawdetail_leaks():
+    # 2026-09-14 false-FAIL artifact: rawDetail is a deliberate debug field
+    # and must never feed the leak scan. The on-screen bubble here is clean
+    # ("working · editing Agent.tsx") even though rawDetail is messy --
+    # verdict must be PASS, with the raw text reported separately.
+    samples = [_s(0, page=[_agent(
+        "a1", "working", [0, 0],
+        bubble="working · editing Agent.tsx",
+        raw="Ran: cd /c/Users/jackw && ls",
+    )])]
+    v = check_bubbles(samples)
+    assert v["verdict"] == "PASS", v
+    assert v["detail"]["leak_count"] == 0
+    assert "Ran: cd /c/Users/jackw && ls" in v["detail"]["raw_detail_samples"]
+
+
+def test_bubbles_fail_on_junk_target():
+    # Observed 2026-09-14 artifact: "working · reading |<Htm" -- a
+    # target string containing shell/markup-only characters is junk even
+    # though it also contains letters.
+    samples = [_s(0, page=[_agent(
+        "a1", "working", [0, 0],
+        bubble="working · reading |<Htm",
+        raw="working · reading |<Htm",
+    )])]
+    v = check_bubbles(samples)
+    assert v["verdict"] == "FAIL", v
+    assert v["detail"]["junk_target_count"] == 1
+    assert v["detail"]["junk_targets"][0]["target"] == "|<Htm"
+
+
+def test_bubbles_pass_on_clean_target():
+    samples = [_s(0, page=[_agent(
+        "a1", "working", [0, 0],
+        bubble="working · reading Agent.tsx",
+        raw="working · reading Agent.tsx",
+    )])]
+    v = check_bubbles(samples)
+    assert v["verdict"] == "PASS", v
+    assert v["detail"]["junk_target_count"] == 0
+
+
 # 7. perf -----------------------------------------------------------------------------
 
-def test_perf_pass_computes_fps():
-    # 60fps steady -> 16.67ms deltas
+def test_perf_headless_is_info_not_pass():
+    # 2026-09-14 false-PASS bug: headless/SwiftShader numbers (fps_p50 0.71
+    # in the real run) were read as a passing perf verdict. There is no
+    # threshold in headless mode -- verdict must be INFO, never PASS, even
+    # with a clean steady-60fps sample like this one.
     frames = [i * 16.667 for i in range(120)]
-    v = check_perf(frames, [100, 110, 105])
-    assert v["verdict"] == "PASS", v
+    v = check_perf(frames, [100, 110, 105])  # headless=True default
+    assert v["verdict"] == "INFO", v
+    assert v["verdict"] != "PASS"
     assert 55 <= v["detail"]["fps_p50"] <= 65
     assert v["detail"]["headless"] is True
+    assert v["detail"]["label"] == "HEADLESS"
 
 
 def test_perf_no_data_too_few_frames():
@@ -248,14 +355,46 @@ def test_perf_no_data_without_draw_calls():
     assert "draw-call" in v["detail"]["reason"]
 
 
-def test_perf_pass_requires_draw_calls_present():
+def test_perf_headless_info_requires_draw_calls_present():
     # Sanity companion to the above: with scene_ready + frames + at least
-    # one real draw-call sample, PASS still fires (draw-call reason above
-    # isn't just permanently disabling PASS).
+    # one real draw-call sample, verdict advances past NO-DATA to INFO
+    # (headless default) -- draw-call reason above isn't just permanently
+    # disabling the check.
     frames = [i * 16.667 for i in range(120)]
     v = check_perf(frames, [None, 100, None])
-    assert v["verdict"] == "PASS", v
+    assert v["verdict"] == "INFO", v
     assert v["detail"]["draw_call_samples"] == 1
+
+
+def test_perf_real_gpu_pass_meets_thresholds():
+    # Non-headless run: fps_p50 >= 58, p95 frame time <= 17ms, draw calls
+    # sampled -> PASS. 60fps steady (16.667ms deltas) clears both bars.
+    frames = [i * 16.667 for i in range(120)]
+    v = check_perf(frames, [100, 110, 105], headless=False)
+    assert v["verdict"] == "PASS", v
+    assert v["detail"]["headless"] is False
+    assert v["detail"]["label"] == "GPU"
+    assert v["detail"]["fps_p50"] >= 58
+    assert v["detail"]["p95_frame_time_ms"] <= 17
+
+
+def test_perf_real_gpu_fail_below_thresholds():
+    # Non-headless run well below the fps/frame-time bar -> FAIL, not the
+    # old unconditional PASS.
+    frames = [i * 100.0 for i in range(60)]  # 10fps steady, 100ms deltas
+    v = check_perf(frames, [100, 110, 105], headless=False)
+    assert v["verdict"] == "FAIL", v
+    assert v["detail"]["fps_p50"] < 58
+
+
+def test_perf_real_gpu_no_data_still_no_data():
+    # Missing-data short-circuits (scene not ready / too few frames / no
+    # draw calls) apply regardless of environment -- never FAIL on absence
+    # of data, and never PASS either.
+    v = check_perf([1.0], [10], headless=False)
+    assert v["verdict"] == "NO-DATA", v
+    v2 = check_perf([i * 16.667 for i in range(120)], [None, None, None], headless=False)
+    assert v2["verdict"] == "NO-DATA", v2
 
 
 # run validity ----------------------------------------------------------------------
@@ -316,7 +455,7 @@ def test_build_verdicts_shape():
     assert expected_keys <= set(out.keys())
     assert "run_valid" in out and "invalid_reasons" in out
     for key in expected_keys:
-        assert out[key]["verdict"] in ("PASS", "FAIL", "NO-DATA")
+        assert out[key]["verdict"] in ("PASS", "FAIL", "NO-DATA", "INFO")
 
 
 if __name__ == "__main__":
