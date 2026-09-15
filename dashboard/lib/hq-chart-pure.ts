@@ -26,6 +26,15 @@ export interface HoloLevel {
    * reads as noise at hologram-legible font sizes. */
   tag: string;
   source: string;
+  /** Real today's-price interaction (HQ-LEVEL-EPISODES, 2026-09-15) --
+   * computed server-side (hq-chart-data.ts#getHoloChartData) from the SAME
+   * bars this response's own `bars` array carries, so `curl /api/hq-chart`
+   * shows exactly what the plaque renders (single source of truth, never a
+   * client-only recompute that could silently drift from what's on screen).
+   * Optional only so a stale/pre-rollout HoloLevel shape (or a raw test
+   * fixture that doesn't care about interaction) still type-checks --
+   * always present on a real server response. */
+  interaction?: LevelInteraction;
 }
 
 /** ChartBar.time (see lib/chart-data.ts's own etDigitsToChartTime) encodes
@@ -576,30 +585,67 @@ export function chartTimeToEtHHMM(time: number): string {
   return `${hh}:${mm}`;
 }
 
+// EPISODES fix (HQ-LEVEL-EPISODES, 2026-09-15, orchestrator follow-up on
+// df21ffed): the first cut of this feature counted "touches" as the number
+// of BARS whose range entered the zone -- 757.44's own real number was 54
+// of 78 bars (69% of the whole session), because a level price does not
+// oscillate in and out of a $0.60-wide zone bar-to-bar, it sits inside it
+// for a long CONSECUTIVE stretch. A detector that fires on most of the
+// day's bars measures noise, not a discrete event (doctrine C27,
+// LESSONS-LEARNED.md: "pattern detectors firing >80% of days measure noise
+// not signal" -- the same shape, one level down: firing on most of a DAY's
+// own bars). The fix: count EPISODES (maximal runs of consecutive in-zone
+// bars) -- a new touch requires at least one bar fully outside the zone
+// first, so a level price sitting still against a level for 45 minutes
+// straight is honestly ONE touch, not nine.
+//
+// ZONE OVERLAP (task's own point 4): two levels close enough together
+// (e.g. 757.44 and 757.62, both +/-0.30 -> zones 757.14-757.74 and
+// 757.32-757.92 overlap in 757.32-757.74) are left as SEPARATE plaques,
+// each independently computing its own episodes -- a single bar CAN count
+// as a touch/episode for both. Deliberately NOT merged into one combined
+// plaque: automation/state/key-levels.json and level_memory track each
+// price as its own distinct, separately-decided entry trigger (a different
+// `source`/`tag`, often a different tier), so collapsing two real engine
+// levels into one display row would misrepresent which specific level an
+// entry decision was actually keyed off -- see the "two overlapping real
+// levels" test below for the exact real-data case this documents.
+
 export interface LevelInteraction {
-  /** Number of today's bars whose [low,high] range entered this level's
-   * zone band -- never a penny-exact touch. */
-  touches: number;
-  /** "untested" (zero touches today), "holding" (last touch closed back on
-   * the level's own origin side -- a rejection), or "broke" (last touch
-   * closed through the level). Reflects the MOST RECENT touch's outcome,
-   * not "ever broke" -- a level broken then reclaimed later the same day
-   * reads as "holding" again, matching how a trader would describe it now. */
-  state: "untested" | "holding" | "broke";
-  /** chartTime (ChartBar.time encoding) of the first bar that touched the
-   * zone today, or null if never touched. */
+  /** Number of EPISODES -- maximal runs of consecutive today's bars whose
+   * [low,high] range entered this level's zone band. This is the headline
+   * number (never a raw in-zone bar count, per this section's own header).
+   * Zero means the level was never tested today. */
+  episodes: number;
+  /** "untested" (zero episodes), "testing" (price is still inside the zone
+   * as of the LAST bar -- the current episode hasn't resolved yet),
+   * "holding" (the latest COMPLETED episode closed back on the level's own
+   * origin side -- a rejection), or "broke" (the latest completed episode
+   * closed through the level). "testing" always wins over a prior
+   * completed episode's outcome -- it describes what's happening RIGHT
+   * NOW, which a stale "held"/"broke" from an earlier episode would
+   * misrepresent. */
+  state: "untested" | "testing" | "holding" | "broke";
+  /** chartTime (ChartBar.time encoding) of the first bar of the FIRST
+   * episode today, or null if never touched. */
   firstTouchTime: number | null;
-  /** chartTime of the most recent touch, or null if never touched. */
+  /** chartTime of the last bar of the MOST RECENT episode (whether that
+   * episode has resolved or is still "testing"), or null if never touched. */
   lastTouchTime: number | null;
+  /** Total count of individual in-zone bars across every episode combined
+   * (i.e. the OLD pre-fix "touches" number) -- kept as a secondary,
+   * non-headline figure per this task's own "optionally add in-zone
+   * minutes" allowance (`inZoneBars * 5` minutes, this codebase's bars are
+   * always 5-minute). Never the headline text (see
+   * formatLevelInteractionText). */
+  inZoneBars: number;
 }
 
-/** Computes a level's real interaction with today's bars, per this
- * section's own header. Pure -- no I/O, deterministic given (level, bars,
- * zoneBand). `bars` need not be sorted (defensively scans in the order
- * given, matching ChartBar[]'s own chronological-ascending contract from
- * the caller), but a chronologically-ascending array (the norm everywhere
- * else in this codebase) is required for `state` to reflect the true LATEST
- * touch. */
+/** Computes a level's real interaction with today's bars as discrete
+ * EPISODES, per this section's own header. Pure -- no I/O, deterministic
+ * given (level, bars, zoneBand). Requires a chronologically-ascending
+ * `bars` array (this codebase's own universal contract for ChartBar[]) --
+ * episode grouping and "latest episode" both depend on real time order. */
 export function computeLevelInteraction(
   level: Pick<HoloLevel, "price" | "type">,
   bars: readonly ChartBar[],
@@ -607,35 +653,65 @@ export function computeLevelInteraction(
 ): LevelInteraction {
   const zoneLow = level.price - zoneBand;
   const zoneHigh = level.price + zoneBand;
-  let touches = 0;
+  let episodes = 0;
   let firstTouchTime: number | null = null;
   let lastTouchTime: number | null = null;
-  let lastBroke = false;
+  let inZoneBars = 0;
+  let inEpisode = false;
+  let lastCompletedOutcome: "holding" | "broke" | null = null;
+
   for (const bar of bars) {
-    const entered = bar.high >= zoneLow && bar.low <= zoneHigh;
-    if (!entered) continue;
-    touches += 1;
-    if (firstTouchTime === null) firstTouchTime = bar.time;
-    lastTouchTime = bar.time;
-    lastBroke = level.type === "resistance" ? bar.close > level.price : bar.close < level.price;
+    const inZone = bar.high >= zoneLow && bar.low <= zoneHigh;
+    if (inZone) {
+      inZoneBars += 1;
+      if (!inEpisode) {
+        episodes += 1;
+        inEpisode = true;
+        if (firstTouchTime === null) firstTouchTime = bar.time;
+      }
+      lastTouchTime = bar.time;
+    } else if (inEpisode) {
+      // This bar is the first bar AFTER the episode -- per the task's own
+      // brief, the episode's outcome is decided from this bar's close
+      // relative to the side the episode came from (never from the last
+      // in-zone bar's own close, which is still ambiguous by definition).
+      lastCompletedOutcome = level.type === "resistance"
+        ? (bar.close > level.price ? "broke" : "holding")
+        : (bar.close < level.price ? "broke" : "holding");
+      inEpisode = false;
+    }
   }
-  const state: LevelInteraction["state"] = touches === 0 ? "untested" : lastBroke ? "broke" : "holding";
-  return { touches, state, firstTouchTime, lastTouchTime };
+
+  const state: LevelInteraction["state"] = episodes === 0
+    ? "untested"
+    : inEpisode // still inside the zone at the very last bar -- undecided, not yet "held" or "broke"
+      ? "testing"
+      : (lastCompletedOutcome ?? "holding");
+
+  return { episodes, state, firstTouchTime, lastTouchTime, inZoneBars };
 }
 
-/** Renders a level's real interaction as the short plaque suffix this
- * task's own brief specifies, e.g. "3 touches · held" or "5 touches · broke
- * 13:05" -- empty string for an untested level (the plaque then shows just
- * the price + tag, exactly the pre-existing look, per this task's own "no
- * new design language" instruction: an untouched level looks like it always
- * did). Never fabricates a time for a level with zero touches. */
+/** Renders a level's real interaction as the short plaque suffix, e.g.
+ * "3 touches · held" / "6 touches · broke 13:05" / "2 touches · testing" --
+ * empty string for an untested level (the plaque then shows just the price
+ * + tag, exactly the pre-existing look). The headline number is ALWAYS
+ * `episodes` (never `inZoneBars`) per this task's own explicit requirement
+ * -- `inZoneBars`/minutes is deliberately omitted from this text entirely:
+ * this codebase's own MARKER-OFFSCREEN lesson (lib/hq-chart-pure.ts's trade-
+ * label section, same file) already proved that a wider plaque can get
+ * nudged fully off-screen by the shared declutter resolver, so an optional
+ * secondary figure is not worth that real risk for a "nice to have". Never
+ * fabricates a time for a level with zero episodes. */
 export function formatLevelInteractionText(interaction: LevelInteraction): string {
-  if (interaction.touches === 0) return "";
-  const plural = interaction.touches === 1 ? "touch" : "touches";
-  if (interaction.state === "broke" && interaction.lastTouchTime !== null) {
-    return `${interaction.touches} ${plural} · broke ${chartTimeToEtHHMM(interaction.lastTouchTime)}`;
+  if (interaction.episodes === 0) return "";
+  const plural = interaction.episodes === 1 ? "touch" : "touches";
+  if (interaction.state === "testing") {
+    return `${interaction.episodes} ${plural} · testing`;
   }
-  return `${interaction.touches} ${plural} · held`;
+  if (interaction.state === "broke" && interaction.lastTouchTime !== null) {
+    return `${interaction.episodes} ${plural} · broke ${chartTimeToEtHHMM(interaction.lastTouchTime)}`;
+  }
+  return `${interaction.episodes} ${plural} · held`;
 }
 
 /** True when the live sight-beacon point is fresh enough AND sitting inside

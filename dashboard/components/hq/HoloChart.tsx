@@ -525,7 +525,15 @@ function LevelLabels({
     <>
       {levels.map((l, i) => {
         const worldPos = chartLocalToWorld(origin, facingYaw, localX, labelYs[i]);
-        const interaction = computeLevelInteraction(l, bars);
+        // HQ-LEVEL-EPISODES (2026-09-15): the server (hq-chart-data.ts) now
+        // computes and attaches `interaction` to every level it returns, off
+        // the SAME bars array this component renders -- reading it directly
+        // here (rather than recomputing) guarantees the plaque can never
+        // drift from what `curl /api/hq-chart` reports. The local
+        // computeLevelInteraction(l, bars) fallback only covers an in-flight
+        // SWR-cached response from before this field existed (a `next start`
+        // that hasn't refetched yet) -- never the normal path post-deploy.
+        const interaction = l.interaction ?? computeLevelInteraction(l, bars);
         return (
           <LevelLabelItem
             key={`${l.type}-${l.price}`}

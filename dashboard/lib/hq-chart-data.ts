@@ -52,6 +52,7 @@ import {
   computeSessionStatusLabel,
   buildIntradayCandles,
   isStaleCarryoverTick,
+  computeLevelInteraction,
   type HoloLevel,
   type IntradayTick,
 } from "./hq-chart-pure";
@@ -342,7 +343,15 @@ export async function getHoloChartData(): Promise<HoloChartData> {
       if (b.high > high) high = b.high;
     }
     const priceRange = { low, high };
-    const levels = filterLevelsNearRange(levelsAll, low, high);
+    // HQ-LEVEL-EPISODES (2026-09-15): interaction is computed HERE, once,
+    // against the SAME `bars` this response's own `bars` field carries --
+    // never left client-only, so `curl /api/hq-chart` shows exactly the
+    // episodes/state the plaque renders (single source of truth, per this
+    // task's own explicit requirement).
+    const levels = filterLevelsNearRange(levelsAll, low, high).map((l) => ({
+      ...l,
+      interaction: computeLevelInteraction(l, bars),
+    }));
 
     const lastBar = bars[bars.length - 1];
     const lastClose = { price: lastBar.close, chartTime: lastBar.time, barIndex: bars.length - 1 };

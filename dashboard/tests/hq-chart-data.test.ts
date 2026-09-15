@@ -593,7 +593,10 @@ test("formatGroupedTradeLines: a single-item group is still a 2-line plaque (hea
 });
 
 // ─── computeLevelInteraction / formatLevelInteractionText / isLevelLive
-//     (HQ-LEVEL-TOUCHES, 2026-09-15) ────────────────────────────────────────
+//     (HQ-LEVEL-EPISODES, 2026-09-15 -- orchestrator follow-up on df21ffed:
+//     "touches" must count EPISODES, maximal runs of consecutive in-zone
+//     bars, never raw in-zone bar count -- see hq-chart-pure.ts's own
+//     "EPISODES fix" header for the full root-cause, doctrine C27) ─────────
 
 test("LEVEL_ZONE_BAND_DOLLARS matches backtest/lib/filters.py#PULLBACK_HOLD_ZONE_BAND_DOLLARS ($0.30, levels-are-zones doctrine)", () => {
   assert.equal(LEVEL_ZONE_BAND_DOLLARS, 0.3);
@@ -604,95 +607,170 @@ test("chartTimeToEtHHMM reads the ET digits encoded as UTC", () => {
   assert.equal(chartTimeToEtHHMM(t), "13:05");
 });
 
-test("computeLevelInteraction: zero bars entering the zone -> untested, zero touches", () => {
+test("computeLevelInteraction: zero bars entering the zone -> untested, zero episodes", () => {
   const level = { price: 757.44, type: "resistance" as const };
   const bars = [bar(1000, { high: 756.0, low: 755.0, close: 755.5 })];
   const out = computeLevelInteraction(level, bars);
-  assert.deepEqual(out, { touches: 0, state: "untested", firstTouchTime: null, lastTouchTime: null });
+  assert.deepEqual(out, { episodes: 0, state: "untested", firstTouchTime: null, lastTouchTime: null, inZoneBars: 0 });
 });
 
 test("computeLevelInteraction: a bar whose high/low enters the zone band (not the exact price) counts as a touch -- levels are zones, J 2026-07-17", () => {
   const level = { price: 757.44, type: "resistance" as const };
   // High reaches 757.20 -- within the $0.30 zone band (757.14-757.74) but
   // never actually pierces 757.44 itself. Zone doctrine: this MUST count.
+  // Only one bar total (no bar after it) -- the episode is still open, so
+  // this reads "testing", not resolved.
   const bars = [bar(1000, { high: 757.2, low: 756.9, close: 757.0 })];
   const out = computeLevelInteraction(level, bars);
-  assert.equal(out.touches, 1);
-  assert.equal(out.state, "holding");
+  assert.equal(out.episodes, 1);
+  assert.equal(out.state, "testing");
 });
 
-test("computeLevelInteraction: resistance rejected (close back below the level) -> holding", () => {
-  const level = { price: 757.44, type: "resistance" as const };
-  const bars = [bar(1000, { high: 757.6, low: 757.1, close: 757.3 })];
-  const out = computeLevelInteraction(level, bars);
-  assert.equal(out.touches, 1);
-  assert.equal(out.state, "holding");
-  assert.equal(out.firstTouchTime, 1000);
-  assert.equal(out.lastTouchTime, 1000);
-});
-
-test("computeLevelInteraction: resistance broken (close above the level) -> broke", () => {
-  const level = { price: 757.44, type: "resistance" as const };
-  const bars = [bar(1000, { high: 757.9, low: 757.3, close: 757.8 })];
-  const out = computeLevelInteraction(level, bars);
-  assert.equal(out.touches, 1);
-  assert.equal(out.state, "broke");
-});
-
-test("computeLevelInteraction: support mirrors resistance (close below the level breaks it)", () => {
-  const level = { price: 747.88, type: "support" as const };
-  const rejected = computeLevelInteraction(level, [bar(1000, { high: 748.1, low: 747.7, close: 748.0 })]);
-  assert.equal(rejected.state, "holding");
-  const broken = computeLevelInteraction(level, [bar(1000, { high: 747.9, low: 747.5, close: 747.6 })]);
-  assert.equal(broken.state, "broke");
-});
-
-test("computeLevelInteraction: state reflects the MOST RECENT touch, not 'ever broke' -- a break then a later reclaim reads as holding again", () => {
-  const level = { price: 757.44, type: "resistance" as const };
-  const bars = [
-    bar(1000, { high: 757.9, low: 757.3, close: 757.8 }), // broke
-    bar(1300, { high: 756.5, low: 755.9, close: 756.2 }), // no touch (outside zone)
-    bar(1600, { high: 757.6, low: 757.1, close: 757.2 }), // touched again, rejected
-  ];
-  const out = computeLevelInteraction(level, bars);
-  assert.equal(out.touches, 2);
-  assert.equal(out.state, "holding");
-  assert.equal(out.firstTouchTime, 1000);
-  assert.equal(out.lastTouchTime, 1600);
-});
-
-test("computeLevelInteraction: counts every touching bar, not just the last", () => {
+test("computeLevelInteraction: EPISODES not bars -- 3 consecutive in-zone bars are ONE touch, not three (the df21ffed bug this fixes)", () => {
   const level = { price: 757.44, type: "resistance" as const };
   const bars = [
     bar(1000, { high: 757.6, low: 757.1, close: 757.3 }),
     bar(1300, { high: 757.55, low: 757.05, close: 757.2 }),
     bar(1600, { high: 757.5, low: 757.0, close: 757.35 }),
+    bar(1900, { high: 756.0, low: 755.5, close: 755.8 }), // exits the zone, resolves the episode (close < level -> holding)
   ];
   const out = computeLevelInteraction(level, bars);
-  assert.equal(out.touches, 3);
+  assert.equal(out.episodes, 1, "one continuous run of in-zone bars is ONE episode");
+  assert.equal(out.inZoneBars, 3, "the secondary in-zone-bar count still reflects all 3 bars");
+  assert.equal(out.state, "holding");
+  assert.equal(out.firstTouchTime, 1000);
+  assert.equal(out.lastTouchTime, 1600, "lastTouchTime is the last bar OF the episode, not the resolving bar after it");
+});
+
+test("computeLevelInteraction: a bar fully outside the zone between two runs starts a NEW episode", () => {
+  const level = { price: 757.44, type: "resistance" as const };
+  const bars = [
+    bar(1000, { high: 757.6, low: 757.1, close: 757.3 }), // episode 1
+    bar(1300, { high: 756.5, low: 755.9, close: 756.2 }), // resolves episode 1 (holding), fully outside zone
+    bar(1600, { high: 757.55, low: 757.05, close: 757.2 }), // episode 2 starts
+    bar(1900, { high: 756.4, low: 755.8, close: 756.1 }), // resolves episode 2 (holding)
+  ];
+  const out = computeLevelInteraction(level, bars);
+  assert.equal(out.episodes, 2);
+  assert.equal(out.firstTouchTime, 1000);
+  assert.equal(out.lastTouchTime, 1600);
+});
+
+test("computeLevelInteraction: outcome is decided from the FIRST BAR AFTER the episode, not the episode's own last bar", () => {
+  const level = { price: 757.44, type: "resistance" as const };
+  // The episode's own last bar closed ABOVE the level (757.8), which would
+  // read as "broke" under the old touch-level logic -- but the very next
+  // bar (the resolving bar) closes back below it, so per this task's own
+  // spec the episode reads "holding", not "broke".
+  const bars = [
+    bar(1000, { high: 757.9, low: 757.3, close: 757.8 }),
+    bar(1300, { high: 757.0, low: 756.5, close: 756.9 }), // resolving bar: close < level -> holding
+  ];
+  const out = computeLevelInteraction(level, bars);
+  assert.equal(out.episodes, 1);
+  assert.equal(out.state, "holding");
+});
+
+test("computeLevelInteraction: resistance broken -- the resolving bar closes above the level", () => {
+  const level = { price: 757.44, type: "resistance" as const };
+  const bars = [
+    bar(1000, { high: 757.6, low: 757.1, close: 757.3 }),
+    bar(1300, { high: 758.2, low: 757.8, close: 758.0 }), // resolving bar: close > level -> broke
+  ];
+  const out = computeLevelInteraction(level, bars);
+  assert.equal(out.episodes, 1);
+  assert.equal(out.state, "broke");
+});
+
+test("computeLevelInteraction: support mirrors resistance (the resolving bar's close below the level breaks it)", () => {
+  const level = { price: 747.88, type: "support" as const }; // zone [747.58, 748.18]
+  const rejected = computeLevelInteraction(level, [
+    bar(1000, { high: 748.1, low: 747.7, close: 748.0 }),
+    bar(1300, { high: 748.5, low: 748.25, close: 748.3 }), // fully ABOVE the zone, close > level -> holding
+  ]);
+  assert.equal(rejected.state, "holding");
+  const broken = computeLevelInteraction(level, [
+    bar(1000, { high: 748.1, low: 747.7, close: 748.0 }),
+    bar(1300, { high: 747.5, low: 747.2, close: 747.3 }), // fully BELOW the zone, close < level -> broke
+  ]);
+  assert.equal(broken.state, "broke");
+});
+
+test("computeLevelInteraction: state reflects the LATEST COMPLETED episode, not the first -- a break then a later reclaim reads as holding again", () => {
+  const level = { price: 757.44, type: "resistance" as const };
+  const bars = [
+    bar(1000, { high: 757.6, low: 757.1, close: 757.5 }), // episode 1
+    bar(1300, { high: 758.2, low: 757.8, close: 758.0 }), // resolves episode 1: broke
+    bar(1600, { high: 757.55, low: 757.05, close: 757.3 }), // episode 2
+    bar(1900, { high: 756.5, low: 755.9, close: 756.2 }), // resolves episode 2: holding
+  ];
+  const out = computeLevelInteraction(level, bars);
+  assert.equal(out.episodes, 2);
+  assert.equal(out.state, "holding", "the LATEST completed episode (2) resolved holding, overriding episode 1's broke");
+});
+
+test("computeLevelInteraction: still inside the zone at the very last bar -> 'testing', even if an earlier episode already resolved", () => {
+  const level = { price: 757.44, type: "resistance" as const };
+  const bars = [
+    bar(1000, { high: 757.6, low: 757.1, close: 757.5 }), // episode 1
+    bar(1300, { high: 756.5, low: 755.9, close: 756.2 }), // resolves episode 1: holding
+    bar(1600, { high: 757.55, low: 757.05, close: 757.3 }), // episode 2 starts, session ends mid-episode
+  ];
+  const out = computeLevelInteraction(level, bars);
+  assert.equal(out.episodes, 2);
+  assert.equal(out.state, "testing", "an unresolved episode at the last bar always wins over a prior resolved one");
+  assert.equal(out.lastTouchTime, 1600);
 });
 
 test("computeLevelInteraction: a custom zoneBand widens/narrows what counts as a touch", () => {
   const level = { price: 757.44, type: "resistance" as const };
   const bars = [bar(1000, { high: 757.0, low: 756.8, close: 756.9 })]; // 0.44 shy of the level
-  assert.equal(computeLevelInteraction(level, bars, 0.3).touches, 0, "default $0.30 band: too far to touch");
-  assert.equal(computeLevelInteraction(level, bars, 0.5).touches, 1, "wider $0.50 band: now touches");
+  assert.equal(computeLevelInteraction(level, bars, 0.3).episodes, 0, "default $0.30 band: too far to touch");
+  assert.equal(computeLevelInteraction(level, bars, 0.5).episodes, 1, "wider $0.50 band: now touches");
+});
+
+// ZONE OVERLAP (task point 4): two real, distinct levels close enough that
+// their zones overlap are left as separate plaques, each independently
+// computing its own episodes -- deliberately NOT merged (see
+// hq-chart-pure.ts's own "ZONE OVERLAP" header for the one-sentence
+// rationale: merging would misrepresent which specific engine-tracked level
+// an entry decision was keyed off). This test documents that a single bar
+// CAN legitimately count as a touch for both.
+test("ZONE OVERLAP: a bar inside the shared band of two nearby levels (757.44 and 757.62, both +/-$0.30) counts as an episode for BOTH, independently -- levels are never merged", () => {
+  const resistanceLow = { price: 757.44, type: "resistance" as const };
+  const resistanceHigh = { price: 757.62, type: "resistance" as const };
+  // 757.50 sits inside BOTH zones: 757.44's zone is [757.14, 757.74], 757.62's
+  // is [757.32, 757.92] -- shared band is [757.32, 757.74].
+  const bars = [
+    bar(1000, { high: 757.55, low: 757.45, close: 757.5 }),
+    bar(1300, { high: 757.0, low: 756.8, close: 756.9 }), // resolves both: close below both levels -> holding
+  ];
+  const low = computeLevelInteraction(resistanceLow, bars);
+  const high = computeLevelInteraction(resistanceHigh, bars);
+  assert.equal(low.episodes, 1);
+  assert.equal(high.episodes, 1);
+  assert.equal(low.state, "holding");
+  assert.equal(high.state, "holding");
 });
 
 test("formatLevelInteractionText: untested level renders empty (no new design language for an untouched level)", () => {
-  assert.equal(formatLevelInteractionText({ touches: 0, state: "untested", firstTouchTime: null, lastTouchTime: null }), "");
-});
-
-test("formatLevelInteractionText: holding level renders 'N touches · held'", () => {
   assert.equal(
-    formatLevelInteractionText({ touches: 3, state: "holding", firstTouchTime: 1000, lastTouchTime: 1600 }),
-    "3 touches · held",
+    formatLevelInteractionText({ episodes: 0, state: "untested", firstTouchTime: null, lastTouchTime: null, inZoneBars: 0 }),
+    "",
   );
 });
 
-test("formatLevelInteractionText: singular 'touch' for exactly one", () => {
+test("formatLevelInteractionText: holding level renders 'N touches · held' -- N is EPISODES, never the raw in-zone bar count", () => {
   assert.equal(
-    formatLevelInteractionText({ touches: 1, state: "holding", firstTouchTime: 1000, lastTouchTime: 1000 }),
+    formatLevelInteractionText({ episodes: 1, state: "holding", firstTouchTime: 1000, lastTouchTime: 1600, inZoneBars: 3 }),
+    "1 touch · held",
+    "3 in-zone bars but ONE episode must render '1 touch', never '3 touches'",
+  );
+});
+
+test("formatLevelInteractionText: singular 'touch' for exactly one episode", () => {
+  assert.equal(
+    formatLevelInteractionText({ episodes: 1, state: "holding", firstTouchTime: 1000, lastTouchTime: 1000, inZoneBars: 1 }),
     "1 touch · held",
   );
 });
@@ -700,8 +778,15 @@ test("formatLevelInteractionText: singular 'touch' for exactly one", () => {
 test("formatLevelInteractionText: broke level renders 'N touches · broke HH:MM' using the ET time of the last touch", () => {
   const lastTouchTime = Date.UTC(2026, 8, 15, 13, 5, 0) / 1000;
   assert.equal(
-    formatLevelInteractionText({ touches: 5, state: "broke", firstTouchTime: 1000, lastTouchTime }),
+    formatLevelInteractionText({ episodes: 5, state: "broke", firstTouchTime: 1000, lastTouchTime, inZoneBars: 9 }),
     "5 touches · broke 13:05",
+  );
+});
+
+test("formatLevelInteractionText: testing level renders 'N touches · testing', never a stale held/broke", () => {
+  assert.equal(
+    formatLevelInteractionText({ episodes: 2, state: "testing", firstTouchTime: 1000, lastTouchTime: 1600, inZoneBars: 4 }),
+    "2 touches · testing",
   );
 });
 
