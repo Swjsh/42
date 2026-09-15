@@ -974,6 +974,58 @@ export function findCarAhead(self: WalkerSnapshot, others: readonly WalkerSnapsh
   return best;
 }
 
+/** GATE CO-SPAWN OVERLAP fix (CONVOY-STACK v10, 2026-09-15, probe
+ * 20260915T131840Z): true whenever some OTHER currently-walking avatar
+ * (`selfId` itself is always excluded) sits within `gapU` of `point` in
+ * straight Euclidean distance. Used to hold a freshly-spawning avatar at a
+ * wait-lane point rather than letting it start walking from the gate node
+ * itself while another walker is still right there.
+ *
+ * ROOT CAUSE this exists to cover: `computeBatchStaggerDelays` (this file,
+ * above) is computed separately per RECONCILE POLL over only that poll's
+ * own newly-spawning ids -- by design, so a later poll's roster diff can't
+ * retroactively renumber an earlier poll's already-running stagger. Two
+ * avatars that spawn in DIFFERENT (even directly consecutive) polls each
+ * land at batch-order index 0 of their own poll and so both get delay 0 --
+ * correct in isolation, but it means neither one carries any memory of the
+ * OTHER poll's spawn, so LiveAgents.tsx's own decision effect sends both
+ * straight into their walk from the identical unoffset gate point
+ * (`wp[0] = livePos = entryPos` when there is no stagger delay to hold
+ * against) with zero relative separation. `findCarAhead`'s own follow-cap
+ * would normally resolve this once both are registered and moving, but it
+ * cannot prevent the INITIAL overlap -- by the time both have published a
+ * frame to `walkerFollowRegistry`, they have already rendered on top of
+ * each other for at least that first frame, and if their real-world spawn
+ * moments are close enough, they can stay in a near-perfect lockstep tie
+ * for the whole corridor (findCarAhead's own tie-break, `self.id >
+ * other.id`, does resolve *which* of the two yields, but only once there is
+ * something measurable to resolve -- it can't retroactively un-overlap a
+ * frame that already rendered both at the same point).
+ *
+ * FIX (this function + its LiveAgents.tsx call site): pre-empt the overlap
+ * entirely rather than relying on the reactive follow-cap to clean it up --
+ * a spawning avatar checks, every frame it hasn't yet started moving,
+ * whether the gate point is still occupied by anyone else currently
+ * walking, and holds at its own wait-lane point (the existing
+ * `computeWaitPoint` zigzag, reused verbatim) for as long as it is. This is
+ * independent of, and in addition to, the existing per-poll stagger delay
+ * -- it is the general "queue at the gate" mechanism the per-poll stagger
+ * was never able to be on its own, since it has no visibility across polls. */
+export function isPointOccupied(
+  point: readonly [number, number],
+  selfId: string,
+  others: readonly WalkerSnapshot[],
+  gapU: number = FOLLOW_GAP_U,
+): boolean {
+  for (const other of others) {
+    if (other.id === selfId) continue;
+    const dx = other.position[0] - point[0];
+    const dz = other.position[1] - point[1];
+    if (Math.hypot(dx, dz) < gapU) return true;
+  }
+  return false;
+}
+
 /** Given this avatar's UNCAPPED candidate cumulative distance-traveled for
  * this frame (elapsed*WALK_SPEED, before any following logic), the
  * distance it was ACTUALLY at as of the previous frame

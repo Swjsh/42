@@ -52,6 +52,7 @@ import {
   findWalkPath,
   FOLLOW_GAP_U,
   HEAD_ON_COS_MAX,
+  isPointOccupied,
   laneIndexForId,
   laneValueForId,
   LANE_STEP_U,
@@ -2318,4 +2319,321 @@ test("path safety: every real zone's walk-out length stays within LEAVE_HARD_TIM
   console.log("[path-safety] campus-gate -> zone walk-out lengths:", JSON.stringify(
     Object.fromEntries(Object.entries(results).map(([k, v]) => [k, `${v.units.toFixed(2)}u / ${v.seconds.toFixed(2)}s`])),
   ), `derived LEAVE_HARD_TIMEOUT_S=${derivedTimeoutS.toFixed(2)}s`);
+});
+
+// ─── CONVOY-STACK v10 (2026-09-15): retarget flip snap + gate co-spawn ─────
+//
+// Bug 1 (RETARGET FLIP SNAP): the same flip-frame reslot mechanism as the
+// v9 MASS-LEAVE FLIP fix above, but triggered by `targetNodeId` changing
+// (a retarget, working -> walking) instead of `leaving`. LiveAgents.tsx's
+// STAND-SLOT COLLISION guard now additionally requires
+// `targetNodeIdRef.current === currentNode.current` -- i.e. no pending
+// transition of ANY kind, not just "not leaving" -- so it stops firing the
+// instant a retarget's props commit, exactly mirroring how it already
+// stopped firing the instant `leaving` flipped in v9.
+//
+// Bug 2 (GATE CO-SPAWN OVERLAP): two avatars spawning in CONSECUTIVE
+// reconcile polls each get their own poll's batch-order index (usually 0)
+// and so no relative stagger delay at all -- both start walking from the
+// identical gate point. Fixed by liveAgentWalk.ts#isPointOccupied: a
+// spawning avatar holds at its wait-lane point for as long as the gate
+// point is within FOLLOW_GAP_U of another currently-walking avatar,
+// independent of its own (possibly zero) stagger delay.
+
+interface RetargetFlipStep {
+  tS: number;
+  position: [number, number, number];
+}
+
+const RETARGET_OLD_ZONE: [number, number, number] = [-0.4, 0, 1.9]; // hub-center-ish
+const RETARGET_NEW_ZONE: [number, number, number] = [-1.2, 0, -1.6]; // ambient-core-ish
+const RETARGET_IDS = ["ad5f75bf", "a20e3e53", "ac7b6f59"]; // probe's own real ids
+
+/** Models the coordinator's own required scenario: 3 settled residents
+ * (phase "working", target already == currentNode == RETARGET_OLD_ZONE)
+ * retarget TOGETHER to RETARGET_NEW_ZONE. Ordinary retargets carry no
+ * stagger delay (`pendingStartDelayS` is only ever seeded for a spawn or a
+ * leave), so PRE-FIX every avatar hits the STAND-SLOT COLLISION block on
+ * the very flip frame while `phase.current` still reads "working" (the
+ * decision effect hasn't run yet) -- reading the OLD zone's node position
+ * together with the NEW zone group's already-recomputed stand offset. */
+function simulateMassRetargetFlip(applyFix: boolean): Map<string, RetargetFlipStep[]> {
+  // Deliberately NOT the sorted-newcomer order computeBatchOrder would
+  // produce (a20e3e53:0, ac7b6f59:1, ad5f75bf:2) -- swapped so the OLD
+  // historical assignment actually diverges from the fresh NEW-zone group
+  // assignment below (otherwise both resolve to the identical offset and
+  // the bug can't be observed at all).
+  const oldZoneIndex = new Map([["ad5f75bf", 0], ["a20e3e53", 2], ["ac7b6f59", 1]]);
+  const workingPos = new Map<string, [number, number, number]>(
+    RETARGET_IDS.map((id) => {
+      const off = stableSlotOffset(oldZoneIndex.get(id)!);
+      return [id, [RETARGET_OLD_ZONE[0] + off[0], 0, RETARGET_OLD_ZONE[2] + off[1]]];
+    }),
+  );
+
+  const newOrder = computeBatchOrder(RETARGET_IDS);
+
+  const steps = new Map<string, RetargetFlipStep[]>(RETARGET_IDS.map((id) => [id, []]));
+  for (const id of RETARGET_IDS) steps.get(id)!.push({ tS: 0, position: workingPos.get(id)! });
+
+  const livePos = new Map<string, [number, number, number]>();
+  for (const id of RETARGET_IDS) {
+    let pos: [number, number, number];
+    if (!applyFix) {
+      const newIdx = newOrder.get(id)!;
+      const off = stableSlotOffset(newIdx);
+      pos = [RETARGET_OLD_ZONE[0] + off[0], 0, RETARGET_OLD_ZONE[2] + off[1]];
+    } else {
+      pos = workingPos.get(id)!;
+    }
+    steps.get(id)!.push({ tS: FOLLOW_TICK_DT_S, position: pos });
+    livePos.set(id, pos);
+  }
+
+  const maxTicks = Math.ceil(30 / SIM_WALK_SPEED / FOLLOW_TICK_DT_S);
+  for (let tick = 2; tick <= maxTicks; tick++) {
+    const tS = tick * FOLLOW_TICK_DT_S;
+    for (const id of RETARGET_IDS) {
+      const idx = newOrder.get(id)!;
+      const off = stableSlotOffset(idx);
+      const finalPoint: [number, number, number] = [RETARGET_NEW_ZONE[0] + off[0], 0, RETARGET_NEW_ZONE[2] + off[1]];
+      const wp: [number, number, number][] = [livePos.get(id)!, finalPoint];
+      const total = pathDistance(wp);
+      const elapsed = tS - FOLLOW_TICK_DT_S;
+      const dist = Math.min(total, elapsed * SIM_WALK_SPEED);
+      const progress = total > 0 ? dist / total : 1;
+      const pos = poseAlongPath(wp, progress).position;
+      steps.get(id)!.push({ tS, position: pos });
+    }
+  }
+  return steps;
+}
+
+test("RETARGET FLIP: RED (documents the bug) -- the flip frame moves at least one avatar off its true resting pose", () => {
+  const steps = simulateMassRetargetFlip(false);
+  let sawJump = false;
+  for (const id of RETARGET_IDS) {
+    const hist = steps.get(id)!;
+    const dist = Math.hypot(hist[0].position[0] - hist[1].position[0], hist[0].position[2] - hist[1].position[2]);
+    if (dist > 1e-6) sawJump = true;
+  }
+  assert.ok(sawJump, "expected the PRE-FIX behavior to move at least one avatar on the retarget flip frame (documents the reported pose_jump)");
+});
+
+test("RETARGET FLIP: GREEN (the fix) -- every avatar holds EXACTLY its resting pose on the flip frame, then step bound <= 0.7*dt+0.05", () => {
+  const steps = simulateMassRetargetFlip(true);
+  for (const id of RETARGET_IDS) {
+    const hist = steps.get(id)!;
+    assert.deepEqual(hist[1].position, hist[0].position, `${id}: position changed on the retarget flip frame`);
+    for (let i = 1; i < hist.length; i++) {
+      const a = hist[i - 1].position;
+      const b = hist[i].position;
+      const dist = Math.hypot(a[0] - b[0], a[2] - b[2]);
+      const dt = hist[i].tS - hist[i - 1].tS;
+      assert.ok(
+        dist <= SIM_WALK_SPEED * dt + 0.05 + 1e-9,
+        `${id} step ${i} (t=${hist[i - 1].tS}s -> ${hist[i].tS}s): displacement ${dist.toFixed(3)}u exceeds WALK_SPEED*dt+0.05`,
+      );
+    }
+  }
+});
+
+// ─── Single retarget while a sibling joins its OLD zone ────────────────────
+//
+// Generalization check: the flip-frame snap can also be triggered by a
+// THIRD PARTY's group-membership change, not just the retargeting avatar's
+// own transition. X rests alone in zone A; on the SAME tick X retargets
+// away to zone B AND Y newly joins zone A (recomputing zone A's own
+// stand-slot assignment for a 2-member group). The actual fix
+// (`targetNodeIdRef.current === currentNode.current`) covers this directly,
+// since X's own target already differs from its currentNode the instant
+// the retarget commits, regardless of WHY `standOffsetRef.current` also
+// changed that same tick.
+
+const SIBLING_ZONE_A: [number, number, number] = [-0.4, 0, 1.9];
+const SIBLING_ZONE_B: [number, number, number] = [-1.2, 0, -1.6];
+const SIBLING_RETARGET_ID = "x-resident";
+// Lexicographically BEFORE "x-resident" so X's own 2-member sorted index
+// shifts from 0 (solo) to 1 (with Y) -- otherwise X keeps index 0 in both
+// the solo and 2-member group and the offset never actually changes.
+const SIBLING_JOIN_ID = "a-newcomer";
+
+function simulateSingleRetargetWithSiblingJoin(applyFix: boolean): RetargetFlipStep[] {
+  const soloOff = stableSlotOffset(0);
+  const restingPos: [number, number, number] = [SIBLING_ZONE_A[0] + soloOff[0], 0, SIBLING_ZONE_A[2] + soloOff[1]];
+
+  const steps: RetargetFlipStep[] = [{ tS: 0, position: restingPos }];
+
+  const zoneAOrder = computeBatchOrder([SIBLING_RETARGET_ID, SIBLING_JOIN_ID]);
+  let flipPos: [number, number, number];
+  if (!applyFix) {
+    const newIdx = zoneAOrder.get(SIBLING_RETARGET_ID)!;
+    const off = stableSlotOffset(newIdx);
+    flipPos = [SIBLING_ZONE_A[0] + off[0], 0, SIBLING_ZONE_A[2] + off[1]];
+  } else {
+    flipPos = restingPos;
+  }
+  steps.push({ tS: FOLLOW_TICK_DT_S, position: flipPos });
+
+  const finalPoint: [number, number, number] = [SIBLING_ZONE_B[0] + soloOff[0], 0, SIBLING_ZONE_B[2] + soloOff[1]];
+  const maxTicks = Math.ceil(20 / SIM_WALK_SPEED / FOLLOW_TICK_DT_S);
+  for (let tick = 2; tick <= maxTicks; tick++) {
+    const tS = tick * FOLLOW_TICK_DT_S;
+    const wp: [number, number, number][] = [flipPos, finalPoint];
+    const total = pathDistance(wp);
+    const elapsed = tS - FOLLOW_TICK_DT_S;
+    const dist = Math.min(total, elapsed * SIM_WALK_SPEED);
+    const progress = total > 0 ? dist / total : 1;
+    steps.push({ tS, position: poseAlongPath(wp, progress).position });
+  }
+  return steps;
+}
+
+test("SINGLE RETARGET + SIBLING JOIN: RED (documents the bug) -- a third party's group change also snaps the retargeting avatar", () => {
+  const hist = simulateSingleRetargetWithSiblingJoin(false);
+  const dist = Math.hypot(hist[0].position[0] - hist[1].position[0], hist[0].position[2] - hist[1].position[2]);
+  assert.ok(dist > 1e-6, "expected a sibling's zone-A join to also move the retargeting avatar on the flip frame pre-fix");
+});
+
+test("SINGLE RETARGET + SIBLING JOIN: GREEN (the fix) -- the general guard holds X's pose regardless of WHY standOffset changed", () => {
+  const hist = simulateSingleRetargetWithSiblingJoin(true);
+  assert.deepEqual(hist[1].position, hist[0].position, "X moved on the flip frame despite its own target already differing from currentNode");
+  for (let i = 1; i < hist.length; i++) {
+    const a = hist[i - 1].position;
+    const b = hist[i].position;
+    const dist = Math.hypot(a[0] - b[0], a[2] - b[2]);
+    const dt = hist[i].tS - hist[i - 1].tS;
+    assert.ok(dist <= SIM_WALK_SPEED * dt + 0.05 + 1e-9, `step ${i}: displacement ${dist.toFixed(3)}u exceeds WALK_SPEED*dt+0.05`);
+  }
+});
+
+// ─── Gate co-spawn overlap (two spawns in consecutive reconcile polls) ─────
+
+const COSPAWN_GATE: [number, number] = [21.6, 0];
+const COSPAWN_DEST: [number, number] = [12.0, -3.0];
+const COSPAWN_DEST_KEY = "hub-center";
+const COSPAWN_A_ID = "ad5f75bf";
+const COSPAWN_B_ID = "a20e3e53";
+/** How many ticks after A spawns that B's own reconcile poll (and thus its
+ * mount) lands -- "consecutive polls", soon enough that A hasn't yet
+ * cleared FOLLOW_GAP_U from the gate when B would otherwise start. */
+const COSPAWN_B_MOUNT_TICK = 6; // 0.1s @ FOLLOW_TICK_DT_S -- well inside FOLLOW_GAP_U/WALK_SPEED (~1.14s)
+
+interface CospawnStep {
+  tS: number;
+  position: [number, number] | null;
+}
+
+/** Mirrors LiveAgents.tsx's own useFrame contract (one-frame-stale
+ * registry, incremental distance, per-poll spawn with zero relative
+ * stagger) for two walkers spawning in consecutive polls at the SAME gate
+ * point, both heading to the SAME destination (destKey matches, so
+ * findCarAhead's own pre-filter passes). `applyGateHold` toggles the v10
+ * fix: when true, a spawning walker additionally holds at its wait-lane
+ * point for as long as isPointOccupied(gate, ...) says someone else is
+ * still there. */
+function simulateGateCospawn(applyGateHold: boolean): { history: Map<string, CospawnStep[]>; startTick: Map<string, number> } {
+  const waitLaneA = computeWaitPoint([COSPAWN_GATE[0], 0, COSPAWN_GATE[1]], [COSPAWN_DEST[0], 0, COSPAWN_DEST[1]], 0);
+  const waitLaneB = computeWaitPoint([COSPAWN_GATE[0], 0, COSPAWN_GATE[1]], [COSPAWN_DEST[0], 0, COSPAWN_DEST[1]], 0);
+
+  const appliedDistance = new Map<string, number>([[COSPAWN_A_ID, 0], [COSPAWN_B_ID, 0]]);
+  const spawningStill = new Map<string, boolean>([[COSPAWN_A_ID, true], [COSPAWN_B_ID, true]]);
+  let registry = new Map<string, WalkerSnapshot>();
+  const history = new Map<string, CospawnStep[]>([[COSPAWN_A_ID, []], [COSPAWN_B_ID, []]]);
+  // First tick each id was NOT held -- i.e. the tick it actually started
+  // moving away from the gate, whether or not that's the same as its own
+  // mount tick (it's the same when unheld -- RED's own case -- and later
+  // when the gate-occupancy hold makes it wait -- GREEN's own case).
+  const startTick = new Map<string, number>();
+
+  const maxTicks = COSPAWN_B_MOUNT_TICK + Math.ceil(40 / SIM_WALK_SPEED / FOLLOW_TICK_DT_S);
+  for (let tick = 0; tick <= maxTicks; tick++) {
+    const tS = tick * FOLLOW_TICK_DT_S;
+    const nextRegistry = new Map<string, WalkerSnapshot>();
+    for (const id of [COSPAWN_A_ID, COSPAWN_B_ID]) {
+      const spawnTick = id === COSPAWN_A_ID ? 0 : COSPAWN_B_MOUNT_TICK;
+      if (tick < spawnTick) {
+        history.get(id)!.push({ tS, position: null });
+        continue;
+      }
+      const waitLane = id === COSPAWN_A_ID ? waitLaneA : waitLaneB;
+      const others = Array.from(registry.values()).filter((s) => s.id !== id);
+      const gateOccupied = applyGateHold ? isPointOccupied(COSPAWN_GATE, id, others, FOLLOW_GAP_U) : false;
+      const held = spawningStill.get(id)! && appliedDistance.get(id)! === 0 && gateOccupied;
+      let pos: [number, number];
+      let heading: [number, number];
+      if (held) {
+        pos = [waitLane[0], waitLane[2]];
+        heading = [0, 1];
+      } else {
+        if (spawningStill.get(id)! && !startTick.has(id)) startTick.set(id, tick);
+        spawningStill.set(id, false);
+        const wp: [number, number, number][] = [
+          [COSPAWN_GATE[0], 0, COSPAWN_GATE[1]],
+          [COSPAWN_DEST[0], 0, COSPAWN_DEST[1]],
+        ];
+        const total = pathDistance(wp);
+        const candidate = appliedDistance.get(id)! + SIM_WALK_SPEED * FOLLOW_TICK_DT_S;
+        const initialPose = poseAlongPath(wp, 0);
+        const lastSelf = registry.get(id);
+        const selfSnapshot: WalkerSnapshot = lastSelf ?? {
+          id,
+          position: [initialPose.position[0], initialPose.position[2]],
+          heading: [Math.sin(initialPose.facing), Math.cos(initialPose.facing)],
+          destKey: COSPAWN_DEST_KEY,
+        };
+        const carAhead = findCarAhead(selfSnapshot, others);
+        const newApplied = applyFollowCap(candidate, appliedDistance.get(id)!, carAhead);
+        appliedDistance.set(id, newApplied);
+        const progress = Math.min(1, newApplied / total);
+        const pose = poseAlongPath(wp, progress);
+        pos = [pose.position[0], pose.position[2]];
+        heading = [Math.sin(pose.facing), Math.cos(pose.facing)];
+      }
+      history.get(id)!.push({ tS, position: pos });
+      nextRegistry.set(id, { id, position: pos, heading, destKey: COSPAWN_DEST_KEY });
+    }
+    registry = nextRegistry;
+  }
+  return { history, startTick };
+}
+
+test("GATE CO-SPAWN: RED (documents the bug) -- consecutive-poll spawns start on top of each other with zero relative separation", () => {
+  const { history } = simulateGateCospawn(false);
+  const aAt = history.get(COSPAWN_A_ID)![COSPAWN_B_MOUNT_TICK];
+  const bAt = history.get(COSPAWN_B_ID)![COSPAWN_B_MOUNT_TICK];
+  assert.ok(aAt.position && bAt.position, "both walkers should have spawned by B's own mount tick");
+  const dist = Math.hypot(aAt.position![0] - bAt.position![0], aAt.position![1] - bAt.position![1]);
+  assert.ok(dist < FOLLOW_GAP_U, `expected the PRE-FIX behavior to start B inside A's own FOLLOW_GAP_U (got ${dist.toFixed(3)}u) -- documents the reported walker_separation failure`);
+});
+
+test("GATE CO-SPAWN: GREEN (the fix) -- B is queued until the gate clears, pairwise >=0.7u from 0.5s after it actually starts, and it never starts inside A's gap", () => {
+  const { history, startTick } = simulateGateCospawn(true);
+  const aHist = history.get(COSPAWN_A_ID)!;
+  const bHist = history.get(COSPAWN_B_ID)!;
+  const n = Math.min(aHist.length, bHist.length);
+
+  // The fix must actually QUEUE B -- it should NOT start moving on its own
+  // mount tick the way the PRE-FIX RED case did, since A is still well
+  // within FOLLOW_GAP_U of the gate at that point.
+  const bStart = startTick.get(COSPAWN_B_ID)!;
+  assert.ok(bStart > COSPAWN_B_MOUNT_TICK, `expected B to be held past its own mount tick (${COSPAWN_B_MOUNT_TICK}) while the gate is occupied, but it started at tick ${bStart}`);
+
+  // Nobody ever starts (the tick it stops being held) inside another
+  // currently-walking avatar's own FOLLOW_GAP_U.
+  const aAtBStart = aHist[bStart];
+  const bAtBStart = bHist[bStart];
+  assert.ok(aAtBStart.position && bAtBStart.position, "both walkers should have a position at B's own start tick");
+  const startDist = Math.hypot(aAtBStart.position![0] - bAtBStart.position![0], aAtBStart.position![1] - bAtBStart.position![1]);
+  assert.ok(startDist >= FOLLOW_GAP_U - 1e-9, `B started ${startDist.toFixed(3)}u from A, inside FOLLOW_GAP_U (${FOLLOW_GAP_U}u)`);
+
+  // Pairwise >=0.7u for every tick from 0.5s after B actually starts onward.
+  const graceTicks = Math.round(0.5 / FOLLOW_TICK_DT_S);
+  for (let i = bStart + graceTicks; i < n; i++) {
+    const a = aHist[i];
+    const b = bHist[i];
+    if (!a.position || !b.position) continue;
+    const dist = Math.hypot(a.position[0] - b.position[0], a.position[1] - b.position[1]);
+    assert.ok(dist >= 0.7 - 1e-9, `t=${a.tS.toFixed(2)}s: A/B only ${dist.toFixed(3)}u apart`);
+  }
 });

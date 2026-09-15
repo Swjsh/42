@@ -58,7 +58,8 @@ import type { LiveAgent } from "./types";
 import type { LiveAgentState } from "@/lib/hq-agents";
 import {
   applyFollowCap, applyLaneOffsets, computeBatchOrder, computeBatchStaggerDelays, computeMaxPathDurationS,
-  computeSidestepPlan, computeWaitPoint, decideNextWalk, ENTRY_NODE_ID, findCarAhead, LEAVE_TIMEOUT_MARGIN_S,
+  computeSidestepPlan, computeWaitPoint, decideNextWalk, ENTRY_NODE_ID, findCarAhead, FOLLOW_GAP_U,
+  isPointOccupied, LEAVE_TIMEOUT_MARGIN_S,
   pathDistance, poseAlongPath, rampSidestepOffset, reconcileLiveAgentRoster, rightOf, shouldWriteLiveAgentDiag,
   stableSlotOffset, STAND_BUBBLE_Y_STEP, updateStableSlotAssignments, type WalkerSnapshot,
 } from "./liveAgentWalk";
@@ -357,6 +358,23 @@ function LiveAgentAvatar({
   onDespawnedRef.current = onDespawned;
   const standOffsetRef = useRef(standOffset);
   standOffsetRef.current = standOffset;
+  // RETARGET-FLIP SNAP fix (CONVOY-STACK v10): mirrors `leavingRef`'s own
+  // pattern -- updated in the render body, so it is guaranteed fresh on any
+  // useFrame tick that lands between this render's commit and the decision
+  // effect (`[leaving, targetNodeId, ...]` deps, below) actually running for
+  // that same prop change. See the STAND-SLOT COLLISION guard below for the
+  // full root-cause writeup this ref exists to support.
+  const targetNodeIdRef = useRef(targetNodeId);
+  targetNodeIdRef.current = targetNodeId;
+  // GATE CO-SPAWN OVERLAP fix (CONVOY-STACK v10): true only until this
+  // avatar's very first-ever walk (its spawn walk, gate -> first target) is
+  // actually allowed to start moving -- see liveAgentWalk.ts#isPointOccupied
+  // for the full root-cause writeup and this file's own useFrame call site
+  // for how it's consumed. Never reset back to true afterward: only the
+  // SPAWN walk needs gate-occupancy queueing (a leave walk ENDS at the gate,
+  // it doesn't start there; an ordinary retarget starts wherever the avatar
+  // already is, never the gate).
+  const isSpawningRef = useRef(true);
 
   useEffect(() => {
     group.current?.position.set(...entryPos);
@@ -454,6 +472,12 @@ function LiveAgentAvatar({
     });
     if (decision.action === "none") return;
     if (leaving) {
+      // GATE CO-SPAWN OVERLAP fix: an avatar that starts leaving before its
+      // own spawn walk ever got to run (edge case: despawn arrives in the
+      // very first reconcile poll this avatar exists in) is no longer a
+      // spawn for gate-occupancy purposes -- it never actually walked from
+      // the gate at all, so there is nothing left to hold.
+      isSpawningRef.current = false;
       leaveTriggered.current = true;
       if (leaveStartedAtT.current === null) leaveStartedAtT.current = performance.now() / 1000;
       // CONVOY-STACK v2/v3: this avatar's leave walk (if one is about to be
@@ -543,7 +567,19 @@ function LiveAgentAvatar({
     // path's own first waypoint with `waitPoint` itself, so the two can
     // never disagree -- the walk always resumes from EXACTLY where the
     // avatar was rendered a moment before.
-    const hasDelay = pendingStartDelayS.current > 0;
+    // GATE CO-SPAWN OVERLAP fix (CONVOY-STACK v10): a spawn walk (this
+    // avatar's very first, `isSpawningRef.current` still true) must ALWAYS
+    // be prepared to hold at its gate-lane wait point, even when this poll's
+    // own per-poll stagger delay came out to exactly 0 -- the useFrame loop
+    // below independently decides, every frame, whether the gate is still
+    // occupied by someone from a DIFFERENT poll's spawn and holds there for
+    // as long as it is (see liveAgentWalk.ts#isPointOccupied). Folding that
+    // into the same `wp[0] = waitPoint` mechanism the existing stagger-delay
+    // path already uses means there is only ever ONE start point for a
+    // spawn walk to resume from, so releasing the gate-occupancy hold can
+    // never produce the same class of snap the v5 TELEPORT-ON-SPAWN fix
+    // above exists to prevent.
+    const hasDelay = pendingStartDelayS.current > 0 || (isSpawningRef.current && !leaving);
     waitPoint.current = hasDelay
       ? (pendingWaitUsesGateLane.current
           ? computeWaitPoint(livePos, rawWp[1] ?? finalPoint, pendingWaitIndex.current)
@@ -627,7 +663,19 @@ function LiveAgentAvatar({
     }
     if (phase.current === "walking") {
       const elapsed = t - walkStartT.current;
-      if (elapsed < 0) {
+      // GATE CO-SPAWN OVERLAP fix (CONVOY-STACK v10): independent of the
+      // per-poll stagger delay (`elapsed < 0` above), a spawn walk that
+      // hasn't taken its first step yet (`appliedDistanceRef.current === 0`)
+      // ALSO holds for as long as some other currently-walking avatar is
+      // still within FOLLOW_GAP_U of the gate point (`entryPos`) -- see
+      // liveAgentWalk.ts#isPointOccupied for the full root-cause writeup.
+      // Gated on `isSpawningRef.current` so this can never affect a leave or
+      // an ordinary mid-life retarget, neither of which starts at the gate.
+      const gateHeld =
+        isSpawningRef.current &&
+        appliedDistanceRef.current === 0 &&
+        isPointOccupied([entryPos[0], entryPos[2]], liveAgentId, Array.from(walkerFollowRegistry.values()), FOLLOW_GAP_U);
+      if (elapsed < 0 || gateHeld) {
         // CONVOY-STACK v2: still waiting for this avatar's own stagger
         // slot -- render it standing at its lane-offset wait point (see
         // liveAgentWalk.ts#computeWaitPoint) rather than progressing along
@@ -642,6 +690,12 @@ function LiveAgentAvatar({
         walkerFollowRegistry.delete(liveAgentId);
       } else {
         waitingForSlot.current = false;
+        // GATE CO-SPAWN OVERLAP fix: the moment a spawn walk is actually
+        // allowed to move (gate no longer occupied, and any stagger delay
+        // has elapsed), it is no longer "spawning" for gate-occupancy
+        // purposes -- only the START of the very first walk needs this
+        // check.
+        isSpawningRef.current = false;
         // MID-WALK SLOT DRIFT fix (v5 addendum, probe 20260915T095436Z's
         // own pose_jump audit): even with STABLE slot assignment (this
         // avatar's own index no longer changes while it stays assigned to
@@ -845,7 +899,37 @@ function LiveAgentAvatar({
     // effect's own `livePos = group.current.position` read now always sees
     // the avatar's TRUE last-good resting pose, never a transiently
     // corrupted one, because nothing overwrote `g.position` in between.
-    if (phase.current === "working" && !despawned.current && !leavingRef.current) {
+    //
+    // RETARGET-FLIP SNAP fix (CONVOY-STACK v10, 2026-09-15, probe
+    // 20260915T130912Z): `!leavingRef.current` alone only covers ONE of the
+    // ways `phase.current` can still read "working" on the in-between frame
+    // -- a RETARGET (targetNodeId changing while leaving stays false) is the
+    // exact same mechanism, just triggered by a different prop. On that
+    // frame, `currentNode.current` still names the OLD (pre-retarget) zone
+    // node (only updated on walk ARRIVAL), while `standOffsetRef.current`
+    // has ALREADY been recomputed by the parent for this avatar's NEW target
+    // group's membership (props update before this avatar's own effects
+    // run) -- same "old node + new group's offset" collision as the v9 leave
+    // case, just for the other transition that can start a walk. A
+    // leaving-only guard doesn't cover it, and per the coordinator's own
+    // instruction this must be a GENERAL fix, not a second special case: the
+    // per-frame reslot must only run when the avatar is truly SETTLED, i.e.
+    // there is no pending transition of ANY kind (leave OR retarget) still
+    // waiting for the decision effect to process it. `targetNodeIdRef`
+    // mirrors `leavingRef`'s own render-body-assignment pattern (see this
+    // avatar's own declaration above) specifically so it is guaranteed fresh
+    // on this exact frame -- comparing it against `currentNode.current`
+    // (which only advances on arrival) is then a direct, general test of
+    // "no pending retarget": once a retarget lands, the two disagree
+    // immediately, before the decision effect has had a chance to run, and
+    // this correction stops firing on the very same frame `leaving` would
+    // have stopped it.
+    if (
+      phase.current === "working" &&
+      !despawned.current &&
+      !leavingRef.current &&
+      targetNodeIdRef.current === currentNode.current
+    ) {
       const p = standPointFor(currentNode.current);
       g.position.set(p[0], p[1], p[2]);
     }
