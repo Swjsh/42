@@ -2043,8 +2043,15 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
           if (!row) return { text: `${label}: no data`, color: "#5f7a99", size: 14 };
           const sideTxt = row.side === "C" ? " CALL" : row.side === "P" ? " PUT" : "";
           const rowIsTrade = !!row.verdict && /^(ENTER|EXIT)/.test(row.verdict);
+          // MARKET-TRUTH (2026-09-15): `verdict` alone (e.g. HOLD) hid WHY --
+          // a HOLD caused by SKIP_STALE_TRIGGER looks identical to a normal
+          // no-setup HOLD. Show the engine's real per-tick action code
+          // whenever it differs from the verdict, still inside the SAME
+          // 32-char budget truncateOneLine already enforced here (no new
+          // declutter exposure -- same box, denser truth).
+          const actionTxt = row.action && row.action !== row.verdict ? ` (${row.action})` : "";
           return {
-            text: truncateOneLine(`${label} ${row.verdict ?? "?"}${sideTxt} ${hhmmFromEtIso(row.tsEt)}`, 32),
+            text: truncateOneLine(`${label} ${row.verdict ?? "?"}${sideTxt}${actionTxt} ${hhmmFromEtIso(row.tsEt)}`, 32),
             color: rowIsTrade ? "#ffb020" : "#7ad9ff",
             size: 15,
           };

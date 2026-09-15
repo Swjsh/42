@@ -76,6 +76,7 @@ def test_read_engine_latest_per_account(tmp_path: Path):
     out = hmc.read_engine(now, ledger)
     assert out["per_account"]["safe-2"]["action"] == "ENTER"
     assert out["per_account"]["safe-2"]["reason_short"] == "trigger fired"
+    assert out["per_account"]["safe-2"]["spy"] == 761.5
     assert out["per_account"]["bold-2"]["action"] == "HOLD"
     assert out["last_tick_ts"] == "2026-09-15T09:59:00"
     assert out["last_tick_age_s"] == 60.0
@@ -171,23 +172,33 @@ def test_build_row_and_append(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
 def _row(ts_et: str, spy: float | None, safe_action: str | None, bold_action: str | None,
          hq_safe_verdict: str | None = None, hq_bold_verdict: str | None = None,
          hq_safe_ts: str | None = None, hq_safe_spy: float | None = None,
-         last_tick_ts: str | None = None) -> dict:
+         last_tick_ts: str | None = None,
+         hq_live_spy: float | None = None, hq_live_age_s: float | None = 10.0,
+         safe_ledger_spy: float | None = None, hq_safe_engine_bar: float | None = None) -> dict:
+    # hq_safe_spy is kept as a back-compat alias feeding BOTH hq.market.safe.engineBarSpy
+    # (rule b2's own field) and, when hq_live_spy is not given, hq.market_live.spy (rule
+    # b1) -- callers that only cared about the OLD single price field keep working with
+    # zero changes; callers exercising the NEW b1/b2 split pass the new params explicitly.
+    live_spy = hq_live_spy if hq_live_spy is not None else (hq_safe_spy if hq_safe_spy is not None else spy)
+    engine_bar = hq_safe_engine_bar if hq_safe_engine_bar is not None else (hq_safe_spy if hq_safe_spy is not None else spy)
+    ledger_spy = safe_ledger_spy if safe_ledger_spy is not None else spy
     return {
         "ts_et": ts_et,
         "market": {"spy_last": spy},
         "engine": {
             "last_tick_ts": last_tick_ts or ts_et,
             "per_account": {
-                "safe-2": {"action": safe_action} if safe_action is not None else None,
-                "bold-2": {"action": bold_action} if bold_action is not None else None,
+                "safe-2": {"action": safe_action, "spy": ledger_spy} if safe_action is not None else None,
+                "bold-2": {"action": bold_action, "spy": spy} if bold_action is not None else None,
             },
         },
         "hq": {
             "error": None,
             "market": {
-                "safe": {"verdict": hq_safe_verdict, "tsEt": hq_safe_ts or ts_et, "spy": hq_safe_spy if hq_safe_spy is not None else spy},
-                "bold": {"verdict": hq_bold_verdict, "tsEt": ts_et, "spy": spy},
+                "safe": {"verdict": hq_safe_verdict, "tsEt": hq_safe_ts or ts_et, "engineBarSpy": engine_bar},
+                "bold": {"verdict": hq_bold_verdict, "tsEt": ts_et, "engineBarSpy": spy},
             },
+            "market_live": {"spy": live_spy, "age_s": hq_live_age_s},
         },
     }
 
@@ -213,23 +224,52 @@ def test_check_action_not_reflected_ok_when_hq_catches_up():
     assert not any(m["arm"] == "safe-2" for m in mismatches)
 
 
-def test_check_hq_stale_flags_during_rth():
-    rows = [_row("2026-09-15T10:05:00", 761.0, "HOLD", "HOLD", "HOLD", "HOLD", hq_safe_ts="2026-09-15T09:55:00")]
-    mismatches = hmc.check_hq_stale_or_mismatched(rows)
-    assert any(m["rule"] == "b_hq_stale" for m in mismatches)
+def test_check_hq_live_stale_flags_during_rth():
+    rows = [_row("2026-09-15T10:05:00", 761.0, "HOLD", "HOLD", "HOLD", "HOLD", hq_live_age_s=200.0)]
+    mismatches = hmc.check_hq_live_vs_beacon(rows)
+    assert any(m["rule"] == "b1_stale" for m in mismatches)
 
 
-def test_check_hq_price_mismatch():
-    rows = [_row("2026-09-15T10:05:00", 761.0, "HOLD", "HOLD", "HOLD", "HOLD", hq_safe_spy=765.0)]
-    mismatches = hmc.check_hq_stale_or_mismatched(rows)
-    assert any(m["rule"] == "b_price_mismatch" for m in mismatches)
+def test_check_hq_live_price_mismatch():
+    # beacon says 761.0, HQ's live field disagrees by well over the 0.05 tolerance --
+    # a REAL bug in the dashboard's own live-quote read (not engine bar-lag, which
+    # this rule no longer looks at).
+    rows = [_row("2026-09-15T10:05:00", 761.0, "HOLD", "HOLD", "HOLD", "HOLD", hq_live_spy=765.0)]
+    mismatches = hmc.check_hq_live_vs_beacon(rows)
+    assert any(m["rule"] == "b1_price_mismatch" for m in mismatches)
 
 
-def test_check_hq_stale_ignored_outside_rth():
-    # 08:00 ET is before the 09:31 RTH window -- should not fire.
-    rows = [_row("2026-09-15T08:00:00", 761.0, "HOLD", "HOLD", "HOLD", "HOLD", hq_safe_ts="2026-09-15T07:00:00")]
-    mismatches = hmc.check_hq_stale_or_mismatched(rows)
+def test_check_hq_live_ok_when_engine_bar_lags_live():
+    # THE BUG THIS FIX CLOSES: engine bar (760.755) is genuinely behind the live
+    # tape (758.925) by design (no look-ahead) -- rule b1 must NOT flag this, since
+    # it only compares HQ's live field to the beacon, never to the engine bar.
+    rows = [_row("2026-09-15T09:36:00", 758.925, "HOLD", "HOLD", "HOLD", "HOLD",
+                  hq_live_spy=758.925, hq_safe_engine_bar=760.755, safe_ledger_spy=760.755)]
+    mismatches = hmc.check_hq_live_vs_beacon(rows)
     assert mismatches == []
+
+
+def test_check_hq_live_stale_ignored_outside_rth():
+    # 08:00 ET is before the 09:31 RTH window -- should not fire.
+    rows = [_row("2026-09-15T08:00:00", 761.0, "HOLD", "HOLD", "HOLD", "HOLD", hq_live_age_s=999.0)]
+    mismatches = hmc.check_hq_live_vs_beacon(rows)
+    assert mismatches == []
+
+
+def test_check_hq_engine_bar_matches_ledger_ok():
+    rows = [_row("2026-09-15T09:36:00", 758.925, "HOLD", "HOLD", "HOLD", "HOLD",
+                  hq_safe_engine_bar=760.755, safe_ledger_spy=760.755)]
+    mismatches = hmc.check_hq_engine_bar_vs_ledger(rows)
+    assert mismatches == []
+
+
+def test_check_hq_engine_bar_mismatch_flags():
+    # HQ's engineBarSpy has drifted from the SAME ledger row's own spy -- a real
+    # dashboard read/parse bug, not the expected engine-vs-live lag.
+    rows = [_row("2026-09-15T09:36:00", 758.925, "HOLD", "HOLD", "HOLD", "HOLD",
+                  hq_safe_engine_bar=760.755, safe_ledger_spy=760.90)]
+    mismatches = hmc.check_hq_engine_bar_vs_ledger(rows)
+    assert any(m["rule"] == "b2_engine_bar_mismatch" and m["arm"] == "safe-2" for m in mismatches)
 
 
 def test_check_engine_tick_gap_flags_during_rth():

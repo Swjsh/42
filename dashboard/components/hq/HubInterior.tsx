@@ -5,6 +5,7 @@ import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import type { SectorsSnapshot, TradingStatus } from "@/lib/hq";
 import { drawScreenLines, PALETTE, type ScreenLine } from "./palette";
+import { formatLiveSpyLine, formatEngineBarClause } from "@/lib/hq-market-pure";
 import { KIT_PATHS, KitProp, FURNITURE_SCALE, InstancedKitPool, usePooledKitProps } from "./SetKit";
 import HoloChart from "./HoloChart";
 
@@ -243,17 +244,26 @@ function SectorsTradingPanel({ sectorsSnapshot, trading }: SectorsTradingPanelPr
         color: READINESS_COLOR[trading.readiness.verdict] ?? "#7f93b0",
         size: 18,
       });
+      // MARKET-TRUTH (2026-09-15): the live tape (sight-beacon), not the
+      // engine's last-closed-bar price -- see lib/hq-market-pure.ts header.
+      // A second line contrasts the engine's own bar so the lag (up to
+      // ~$1-2 at the open) is visible rather than hidden behind one number.
       out.push({
-        text: core ? `SPY ${core.spy ?? "?"} · VIX ${core.vix ?? "?"}` : "SPY/VIX: no core tick yet",
+        text: `${formatLiveSpyLine(trading.market.live)} · VIX ${core?.vix ?? "?"}`,
         color: "#7ad9ff",
         size: 16,
+      });
+      out.push({
+        text: core ? formatEngineBarClause(core.engineBarSpy) : "no core tick yet",
+        color: "#5f7a99",
+        size: 13,
       });
     } else {
       out.push({ text: "trading: no data", color: "#7f93b0", size: 16 });
     }
     return out;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sectorsSnapshot?.ts_et, sectorsSnapshot?.summary_line, trading?.readiness.verdict, trading?.readiness.tsEt, core?.spy, core?.vix]);
+  }, [sectorsSnapshot?.ts_et, sectorsSnapshot?.summary_line, trading?.readiness.verdict, trading?.readiness.tsEt, trading?.market.live?.spy, trading?.market.live?.age_s, core?.engineBarSpy, core?.vix]);
 
   const contentKey = lines.map((l) => `${l.text}|${l.color ?? ""}`).join("~");
   useEffect(() => {

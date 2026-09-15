@@ -1,5 +1,5 @@
 import type { StationIdeaCard, StationPresence, StationFace, HqBuildStatus } from "@/lib/station";
-import type { SectorRow, TvPerfRow, BlockedItem, TradingStatus, CoreDecisionRow, CrewEvent, SectorsSnapshot } from "@/lib/hq";
+import type { SectorRow, TvPerfRow, BlockedItem, TradingStatus, CoreDecisionRow, CrewEvent, SectorsSnapshot, LiveMarketQuote } from "@/lib/hq";
 import type { PersonaState, Handoff } from "@/lib/personas";
 // INTERACT-2 (I1, 2026-09-14): per-desk real-work content -- type-only, see
 // lib/desk-content.ts's own module header for why this file must never take
@@ -15,7 +15,7 @@ import type { HqLearn } from "@/lib/hq-learn";
 // module header for the pulse.jsonl tail this roster is built from.
 import type { LiveAgent } from "@/lib/hq-agents";
 
-export type { SectorRow, BlockedItem, PersonaState, Handoff, TradingStatus, CoreDecisionRow, CrewEvent, DeskPersonaName, DeskContent, HqBuildStatus, SectorsSnapshot, HqRuntime, HqLearn, LiveAgent };
+export type { SectorRow, BlockedItem, PersonaState, Handoff, TradingStatus, CoreDecisionRow, CrewEvent, DeskPersonaName, DeskContent, HqBuildStatus, SectorsSnapshot, HqRuntime, HqLearn, LiveAgent, LiveMarketQuote };
 
 export interface HqBrainVitals {
   model: string | null;

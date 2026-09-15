@@ -36,10 +36,15 @@ SOURCES (read real paths from the writer, not memory -- verified 2026-09-15):
                         liveAgents, company.personas (Pilot/Gamma (Manager)/
                         Treasurer -- there is no "SPY-core" persona in the
                         roster; recorded as absent rather than invented),
-                        trading.core.{safe,bold} (spy/vix/ribbon/verdict/
-                        side/setup -- the SAME core-decisions.jsonl row this
-                        script also reads directly, via a different reader),
-                        trading.readiness.
+                        trading.core.{safe,bold} (spy/engineBarSpy/vix/
+                        ribbon/verdict/action/actionReason/side/setup -- the
+                        SAME core-decisions.jsonl row this script also reads
+                        directly, via a different reader), trading.readiness,
+                        trading.market.live (MARKET-TRUTH, 2026-09-15: the
+                        live sight-beacon quote, distinct from the engine's
+                        decision-bar price -- see check_hq_live_vs_beacon /
+                        check_hq_engine_bar_vs_ledger below for the two
+                        separate correctness checks this split enables).
 
 Every field read is wrapped so a missing/stale/malformed source degrades to
 null + an "error" string on that field alone -- this script NEVER crashes
@@ -203,6 +208,11 @@ def read_engine(now_et: datetime, ledger_path: Path = LEDGER_PATH) -> dict[str, 
             "ts_et": row.get("ts_et"),
             "age_s": age_s,
             "action": row.get("action") or row.get("verdict"),
+            # MARKET-TRUTH (2026-09-15): the row's own `spy` field IS the
+            # engine's decision-bar price (last CLOSED bar -- no look-ahead
+            # by design), needed here so rule (b2) below can compare it
+            # against HQ's engineBarSpy without a second ledger read.
+            "spy": row.get("spy"),
             "score": {"bear": row.get("bear_score"), "bull": row.get("bull_score")},
             "reason_short": reason_short,
         }
@@ -261,7 +271,8 @@ PERSONA_NAMES_OF_INTEREST = ("Pilot", "Gamma (Manager)", "SPY-core", "Treasurer"
 def fetch_hq(url: str = HQ_URL, timeout: float = 5.0) -> dict[str, Any]:
     out: dict[str, Any] = {
         "build_id": None, "brain_state": None, "live_agent_count": None,
-        "personas": {}, "market": {}, "trading_readiness": None, "error": None,
+        "personas": {}, "market": {}, "market_live": None,
+        "trading_readiness": None, "error": None,
     }
     try:
         req = urllib.request.Request(url, headers={"Accept": "application/json"})
@@ -301,6 +312,13 @@ def fetch_hq(url: str = HQ_URL, timeout: float = 5.0) -> dict[str, Any]:
             "safe": core.get("safe"),
             "bold": core.get("bold"),
         }
+        # MARKET-TRUTH (2026-09-15): the NEW top-level live field HQ's
+        # /api/hq trading payload now carries (dashboard/lib/hq.ts
+        # readTradingStatus's `market.live`, sourced from lib/quote.ts's
+        # getQuote() over the SAME sight-beacon.json this script also reads
+        # directly via read_beacon). This is what rule (b1) below checks
+        # against read_beacon's own independent read of that file.
+        out["market_live"] = (trading.get("market") or {}).get("live")
         out["trading_readiness"] = trading.get("readiness")
     except (AttributeError, TypeError) as e:
         # payload shape drifted from what this script expects -- fail open on
@@ -417,9 +435,26 @@ def check_action_not_reflected(rows: list[dict[str, Any]]) -> list[dict[str, Any
     return mismatches
 
 
-def check_hq_stale_or_mismatched(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """(b) the HQ-displayed price differs from the state files, or the HQ
-    market row is stale (> HQ_STALE_S) during RTH."""
+HQ_LIVE_PRICE_TOL = 0.05  # rule (b1): HQ live vs beacon must match tightly (same source, ~1 poll apart)
+HQ_ENGINE_BAR_TOL = 1e-6  # rule (b2): HQ engineBarSpy vs the SAME ledger row's spy -- exact by construction
+
+
+def check_hq_live_vs_beacon(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """(b1) FIXED price rule (2026-09-15, replaces the old single rule (b),
+    which compared the beacon's LIVE price against HQ's per-account `spy` --
+    that field is the ENGINE's decision-bar price (last closed bar, by
+    design lags live during RTH), so the old rule fired a false mismatch on
+    every normal tick where price moved between bar-close and now (the exact
+    09:30-09:36 evidence that motivated this fix: engine spy=760.755 vs
+    live spy=759.16, a real $1.59 lag, not a bug).
+
+    This rule instead checks HQ's NEW `market.live` field (dashboard/lib/hq.ts
+    readTradingStatus, sourced from the SAME sight-beacon.json this script's
+    own read_beacon() reads) against read_beacon()'s own reading: they must
+    match within HQ_LIVE_PRICE_TOL and HQ's live quote must be fresh
+    (age_s < HQ_STALE_S). A real mismatch here means the dashboard's OWN
+    live-quote read is broken or serving a different/stale beacon snapshot
+    -- not "the engine is lagging," which is expected and no longer flagged."""
     mismatches = []
     for row in rows:
         ts = _parse_ts_et(row.get("ts_et"))
@@ -427,26 +462,60 @@ def check_hq_stale_or_mismatched(rows: list[dict[str, Any]]) -> list[dict[str, A
             continue
         beacon_price = (row.get("market") or {}).get("spy_last")
         hq = row.get("hq") or {}
+        hq_live = hq.get("market_live")
+        if not isinstance(hq_live, dict):
+            # HQ payload predates this field, or /api/hq errored -- nothing
+            # to check this sample (other rules already flag hq.error).
+            continue
+        hq_live_price = hq_live.get("spy")
+        hq_live_age_s = hq_live.get("age_s")
+        if isinstance(hq_live_age_s, (int, float)) and hq_live_age_s > HQ_STALE_S:
+            mismatches.append({
+                "rule": "b1_stale", "ts_et": row.get("ts_et"),
+                "detail": f"HQ market.live is {hq_live_age_s:.0f}s stale (> {HQ_STALE_S}s)",
+            })
+        if isinstance(beacon_price, (int, float)) and isinstance(hq_live_price, (int, float)):
+            diff = abs(beacon_price - hq_live_price)
+            if diff > HQ_LIVE_PRICE_TOL:
+                mismatches.append({
+                    "rule": "b1_price_mismatch", "ts_et": row.get("ts_et"),
+                    "detail": f"HQ market.live.spy={hq_live_price} vs beacon spy={beacon_price} "
+                              f"(diff {diff:.3f} > {HQ_LIVE_PRICE_TOL})",
+                })
+    return mismatches
+
+
+def check_hq_engine_bar_vs_ledger(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """(b2) HQ's per-account engineBarSpy must match the SAME
+    core-decisions.jsonl row's own `spy` field EXACTLY -- both are supposed
+    to be the identical decision-bar price read two different ways
+    (dashboard/lib/hq.ts#readCoreDecisionsLatest vs this script's own
+    read_engine()). Any real diff here means the dashboard's ledger read
+    (tail window, parse, or field mapping) has drifted from the raw file --
+    a genuine bug, unlike the expected engine-vs-live lag rule (b1) covers."""
+    mismatches = []
+    for row in rows:
+        ts = _parse_ts_et(row.get("ts_et"))
+        if ts is None or not _in_rth(ts):
+            continue
+        engine = row.get("engine") or {}
+        per_acct = engine.get("per_account") or {}
+        hq = row.get("hq") or {}
         hq_market = hq.get("market") or {}
-        for hq_key in ("safe", "bold"):
-            info = hq_market.get(hq_key)
-            if not isinstance(info, dict):
+        for hq_key, arm in (("safe", "safe-2"), ("bold", "bold-2")):
+            hq_info = hq_market.get(hq_key)
+            engine_info = per_acct.get(arm)
+            if not isinstance(hq_info, dict) or not isinstance(engine_info, dict):
                 continue
-            hq_ts = _parse_ts_et(info.get("tsEt"))
-            if hq_ts is not None:
-                age_s = (ts - hq_ts).total_seconds()
-                if age_s > HQ_STALE_S:
+            hq_bar = hq_info.get("engineBarSpy")
+            ledger_bar = engine_info.get("spy")
+            if isinstance(hq_bar, (int, float)) and isinstance(ledger_bar, (int, float)):
+                diff = abs(hq_bar - ledger_bar)
+                if diff > HQ_ENGINE_BAR_TOL:
                     mismatches.append({
-                        "rule": "b_hq_stale", "ts_et": row.get("ts_et"), "arm": hq_key,
-                        "detail": f"HQ {hq_key} row is {age_s:.0f}s stale (> {HQ_STALE_S}s)",
-                    })
-            hq_price = info.get("spy")
-            if isinstance(beacon_price, (int, float)) and isinstance(hq_price, (int, float)):
-                if abs(beacon_price - hq_price) > 0.5:
-                    mismatches.append({
-                        "rule": "b_price_mismatch", "ts_et": row.get("ts_et"), "arm": hq_key,
-                        "detail": f"HQ {hq_key} spy={hq_price} vs beacon spy={beacon_price} "
-                                  f"(diff {abs(beacon_price - hq_price):.2f})",
+                        "rule": "b2_engine_bar_mismatch", "ts_et": row.get("ts_et"), "arm": arm,
+                        "detail": f"HQ {hq_key} engineBarSpy={hq_bar} vs ledger spy={ledger_bar} "
+                                  f"(diff {diff})",
                     })
     return mismatches
 
@@ -517,7 +586,8 @@ def cmd_report(args: argparse.Namespace) -> int:
 
     mismatches = (
         check_action_not_reflected(rows)
-        + check_hq_stale_or_mismatched(rows)
+        + check_hq_live_vs_beacon(rows)
+        + check_hq_engine_bar_vs_ledger(rows)
         + check_engine_tick_gap(rows)
         + check_hq_activity_no_engine(rows)
     )

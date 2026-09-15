@@ -12,6 +12,7 @@ import type { MotionEvent } from "@/lib/useMotionEvents";
 // -- see lib/crew.ts's own header for why this logic lives there (pure,
 // zero fs/fetch, ground truth stays in lib/personas.ts's PersonaState).
 import { crewLastLine, crewNextLine, crewNowLine, deriveCrewPill, CREW_PILL_COLOR } from "@/lib/crew";
+import { formatLiveSpyLine } from "@/lib/hq-market-pure";
 
 const BLOCKED_SOURCE_LABEL: Record<string, string> = {
   discord: "Discord",
@@ -90,10 +91,15 @@ function buildTradingStrip(trading: TradingStatus | undefined): TradingStrip {
   const lastTickIso = [core.safe?.tsEt ?? null, core.bold?.tsEt ?? null].filter((v): v is string => !!v).sort().pop() ?? null;
   const ageMin = minutesSinceEvidence(lastTickIso ?? "");
   const bothArmed = !!core.safe?.armed && !!core.bold?.armed;
-  const spy = core.safe?.spy ?? core.bold?.spy ?? null;
+  const engineBarSpy = core.safe?.engineBarSpy ?? core.bold?.engineBarSpy ?? null;
   const vix = core.safe?.vix ?? core.bold?.vix ?? null;
   const safeV = core.safe?.verdict ?? "?";
   const boldV = core.bold?.verdict ?? "?";
+  // Whichever account has an action string at all (both tick off the same
+  // trigger bar, so they're almost always identical -- prefer safe, same
+  // "first available" convention the rest of this function already uses).
+  const engineAction = core.safe?.action ?? core.bold?.action ?? null;
+  const engineActionReason = core.safe?.actionReason ?? core.bold?.actionReason ?? null;
 
   let color: TradingStripColor;
   if (readiness.verdict === "RED" || ageMin === null || ageMin > 3) {
@@ -110,8 +116,20 @@ function buildTradingStrip(trading: TradingStatus | undefined): TradingStrip {
     ? `readiness ${readiness.verdict} (${readiness.reasonDetail})`
     : `readiness ${readiness.verdict}`;
 
+  // "SPY" here is now the LIVE tape (sight-beacon, ~1min-fresh), not the
+  // engine's decision bar -- the whole point of this item: J was reading a
+  // 09:30 bar's close as "current price" while the tape had already moved
+  // up to $1.89. `engine <action-reason>` (only shown when the engine isn't
+  // simply holding on a fresh tick) makes the SKIP/HOLD distinction visible
+  // instead of collapsing everything into an undifferentiated "HOLD".
+  const liveLine = formatLiveSpyLine(trading.market.live);
+  const engineClause = engineAction && engineAction !== "HOLD" && engineActionReason
+    ? ` · engine: ${engineActionReason}`
+    : "";
+
   const text = `MARKET OPEN · engine ticking ${hhmmFromEtIso(lastTickIso)} ET · safe ${safeV} / bold ${boldV} · `
-    + `SPY ${spy !== null ? spy.toFixed(2) : "?"} · VIX ${vix !== null ? vix.toFixed(1) : "?"} · ${readinessPart}`;
+    + `${liveLine} (bar ${engineBarSpy !== null ? engineBarSpy.toFixed(2) : "?"}) · VIX ${vix !== null ? vix.toFixed(1) : "?"}`
+    + `${engineClause} · ${readinessPart}`;
 
   return { color, text };
 }

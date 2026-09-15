@@ -4,6 +4,8 @@ import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import path from "node:path";
 import { paths, WORKSPACE_ROOT } from "./workspace";
+import { getQuote } from "./quote";
+import { describeEngineAction } from "./engine-action-pure";
 
 const execFileAsync = promisify(execFile);
 
@@ -735,12 +737,31 @@ export interface CoreDecisionRow {
   tsEt: string;
   account: "safe" | "bold";
   armed: boolean;
+  /** BACK-COMPAT ALIAS of engineBarSpy below -- kept so existing consumers
+   * (Scene.tsx, HubInterior.tsx, Hud.tsx) that already read `.spy` keep
+   * working unchanged. This is the price of the LAST CLOSED bar the engine
+   * decided on, NOT a live tick -- by design (no look-ahead), it lags the
+   * real tape during RTH. Prefer trading.market.live.spy for "what is SPY
+   * doing right now" and engineBarSpy/action/actionReason for "what is the
+   * engine's own bar-close view and why did it (not) act". */
   spy: number | null;
+  /** Same value as `spy` above, explicitly named so a UI consumer can label
+   * it honestly ("engine bar SPY") instead of implying it's live. */
+  engineBarSpy: number | null;
   vix: number | null;
   ribbon: string | null;
   verdict: string | null;
   side: string | null;
   setup: string | null;
+  /** setup/scripts/heartbeat_core.py's per-tick ledger `action` field --
+   * the engine's ACTUAL disposition this tick (e.g. SKIP_STALE_TRIGGER),
+   * distinct from `verdict` (the raw gate/score verdict, e.g. HOLD) -- see
+   * that module's run_account() post-verdict ladder, ~L1857-1965. */
+  action: string | null;
+  /** Human-readable one-line explanation of `action`, from
+   * lib/engine-action-pure.ts#describeEngineAction -- computed here so
+   * every consumer gets the same wording without re-implementing the map. */
+  actionReason: string;
 }
 
 // automation/state/core-decisions.jsonl is a large, continuously-growing
@@ -786,16 +807,21 @@ export async function readCoreDecisionsLatest(): Promise<{ safe: CoreDecisionRow
       }
       const account = row.account === "safe" || row.account === "bold" ? row.account : null;
       if (!account) continue;
+      const engineBarSpy = typeof row.spy === "number" ? row.spy : null;
+      const action = typeof row.action === "string" ? row.action : null;
       const parsed: CoreDecisionRow = {
         tsEt: typeof row.ts_et === "string" ? row.ts_et : "",
         account,
         armed: row.armed === true,
-        spy: typeof row.spy === "number" ? row.spy : null,
+        spy: engineBarSpy,
+        engineBarSpy,
         vix: typeof row.vix === "number" ? row.vix : null,
         ribbon: typeof row.ribbon === "string" ? row.ribbon : null,
         verdict: typeof row.verdict === "string" ? row.verdict : null,
         side: typeof row.side === "string" ? row.side : null,
         setup: typeof row.setup === "string" ? row.setup : null,
+        action,
+        actionReason: describeEngineAction(action),
       };
       if (account === "safe") safe = parsed; else bold = parsed;
     }
@@ -897,16 +923,21 @@ export async function readCoreDecisionsToday(): Promise<CoreDecisionsToday> {
       if (!account) continue;
       const tsEt = typeof row.ts_et === "string" ? row.ts_et : "";
       if (!tsEt.startsWith(today)) continue; // only today's rows count toward "decisions today"
+      const todayEngineBarSpy = typeof row.spy === "number" ? row.spy : null;
+      const todayAction = typeof row.action === "string" ? row.action : null;
       const parsed: CoreDecisionRow = {
         tsEt,
         account,
         armed: row.armed === true,
-        spy: typeof row.spy === "number" ? row.spy : null,
+        spy: todayEngineBarSpy,
+        engineBarSpy: todayEngineBarSpy,
         vix: typeof row.vix === "number" ? row.vix : null,
         ribbon: typeof row.ribbon === "string" ? row.ribbon : null,
         verdict: typeof row.verdict === "string" ? row.verdict : null,
         side: typeof row.side === "string" ? row.side : null,
         setup: typeof row.setup === "string" ? row.setup : null,
+        action: todayAction,
+        actionReason: describeEngineAction(todayAction),
       };
       result[account].count += 1;
       if (parsed.verdict && /^(ENTER|EXIT)/.test(parsed.verdict)) result[account].trades.push(parsed);
@@ -933,11 +964,25 @@ async function readOpenBellPingedToday(): Promise<boolean> {
   }
 }
 
+/** Live (~1min-fresh, real broker/yfinance REST) SPY reading -- DISTINCT
+ * from CoreDecisionRow.engineBarSpy, which is the price of the last CLOSED
+ * bar the engine decided on (by design, lags live -- no look-ahead). Sourced
+ * from lib/quote.ts#getQuote (automation/state/sight-beacon.json), the SAME
+ * beacon setup/scripts/sight_beacon.py writes every ~1min during RTH. Null
+ * when the beacon is missing/unparseable (fail-open, never fabricated). */
+export interface LiveMarketQuote {
+  spy: number | null;
+  ts_et: string | null;
+  age_s: number | null;
+  source: "sight-beacon";
+}
+
 export interface TradingStatus {
   readiness: TradingReadiness;
   core: { safe: CoreDecisionRow | null; bold: CoreDecisionRow | null };
   bias: TodayBiasSummary | null;
   openBellPingedToday: boolean;
+  market: { live: LiveMarketQuote | null };
 }
 
 /** Combines every item-5 source into the ONE `trading` field /api/hq
@@ -945,13 +990,22 @@ export interface TradingStatus {
  * one missing file degrades that piece to null/UNKNOWN, never a 500 for
  * the whole payload. */
 export async function readTradingStatus(): Promise<TradingStatus> {
-  const [readiness, core, bias, openBellPingedToday] = await Promise.all([
+  const [readiness, core, bias, openBellPingedToday, quote] = await Promise.all([
     readTradingReadiness(),
     readCoreDecisionsLatest(),
     readTodayBiasSummary(),
     readOpenBellPingedToday(),
+    getQuote(),
   ]);
-  return { readiness, core, bias, openBellPingedToday };
+  // getQuote()'s own staleness ("unavailable"/"stale") is a DIFFERENT axis
+  // than "do we have a number at all" -- market.live.spy is null only when
+  // the beacon truly has no usable price; a stale-but-present price is still
+  // surfaced (with its real age_s) so the UI can label it "stale" itself
+  // rather than this reader silently hiding an old-but-real number.
+  const live: LiveMarketQuote | null = quote.price === null
+    ? null
+    : { spy: quote.price, ts_et: quote.asOfEt, age_s: quote.ageSeconds, source: "sight-beacon" };
+  return { readiness, core, bias, openBellPingedToday, market: { live } };
 }
 
 // CREW-2 (roster) -- automation/state/station/crew-events.jsonl : a NEW
