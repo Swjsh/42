@@ -147,3 +147,174 @@ test("readOllamaPs: caches inside the TTL window (same object), refetches once i
   const third = await readOllamaPs();
   assert.notStrictEqual(second, third, "past the TTL, the cache must refetch rather than serve a stale object forever");
 });
+
+// ─── perf/hq-api pass (2026-09-15) additions -- lib/personas.ts ────────────
+//
+// safeCollectCompany() (app/api/hq/route.ts) -> collectCompany() is /api/hq's
+// largest remaining warm-latency source after the fix above (measured this
+// pass: ~40-100ms of a ~56ms median poll). Profiling (temporary console.time
+// wraps, removed before commit) found the cost was NOT any one collector's
+// own logic -- collectScout/Coach/Analyst/Chef/Treasurer/GammaManager each
+// cost <1ms in isolation -- but two specific reads with no cache at all:
+//   1. computeHandoffs()'s dirListing() on strategy/candidates/_chef-inbox
+//      (200+ files): the original loop stat'd every file SEQUENTIALLY,
+//      ~12-18ms warm by itself -- the single largest cost found anywhere in
+//      the whole safeCollectCompany() graph.
+//   2. collectPilot()'s two calls into lib/hq.ts's readCoreDecisionsLatest/
+//      readCoreDecisionsToday, each an independent seeked read of a 120MB+
+//      append-only ledger with no cache in hq.ts (out of this pass's scope
+//      to edit) -- ~10-15ms warm.
+// Both are now (mtimeMs,size)-keyed caches, matching this file's own
+// pre-existing house pattern above. This section proves each, plus the
+// shared readJson/readJsonlTail/readText helpers every OTHER collector in
+// personas.ts routes through, all of which got the same treatment for free.
+//
+// Run: cd dashboard && node --import ./tests/resolve-ts-extensionless.loader.mjs --test tests/hq-perf-cache.test.ts
+
+// Reuses the SAME `workspace` this file already created at the top (and
+// already pointed GAMMA_WORKSPACE at) rather than a second temp dir --
+// lib/workspace.ts's WORKSPACE_ROOT is `process.env.GAMMA_WORKSPACE ?? ...`
+// evaluated ONCE at lib/hq.ts's own module-load time (already imported
+// above, before this section runs), so reassigning the env var here would
+// NOT repoint that already-frozen constant (same reasoning this file's own
+// header already gives for why every env var is set exactly once). lib/
+// personas.ts computes its OWN ROOT as path.join(process.cwd(), "..")
+// (deliberately independent of WORKSPACE_ROOT -- see that file's header) --
+// chdir'ing into a "dashboard" subdirectory of the SAME workspace, before
+// personas.ts is first imported, makes personas.ts's ROOT resolve to the
+// identical directory lib/hq.ts's readCoreDecisionsLatest/Today (called
+// THROUGH readCoreDecisionsCached, never re-implemented) already reads via
+// paths.coreDecisions.
+const personasWorkspace = workspace;
+const personasDashboardDir = path.join(personasWorkspace, "dashboard");
+await fs.mkdir(personasDashboardDir, { recursive: true });
+const originalCwd = process.cwd();
+process.chdir(personasDashboardDir);
+const {
+  readJson: personasReadJson,
+  readJsonlTail: personasReadJsonlTail,
+  readText: personasReadText,
+  dirListing: personasDirListing,
+  readCoreDecisionsCached,
+} = await import("../lib/personas.ts");
+process.chdir(originalCwd); // restore -- nothing else in this file depends on cwd
+
+// ─── readJson -- (mtime,size)-keyed cache ──────────────────────────────────
+
+test("personas readJson: unchanged file hits the cache (same object); a real change invalidates it", async () => {
+  const p = path.join(personasWorkspace, "readjson-fixture.json");
+  await fs.writeFile(p, JSON.stringify({ v: 1 }));
+
+  const first = await personasReadJson(p);
+  assert.deepEqual(first, { v: 1 });
+  const second = await personasReadJson(p);
+  assert.strictEqual(first, second, "unchanged (mtime,size) must hit the cache, not re-parse");
+
+  await fs.writeFile(p, JSON.stringify({ v: 2, extra: "padding-changes-size" }));
+  const third = await personasReadJson(p);
+  assert.notStrictEqual(second, third, "a changed file must never serve the stale cached object");
+  assert.deepEqual(third, { v: 2, extra: "padding-changes-size" }, "must reflect the NEW content, never fabricated/stale");
+});
+
+test("personas readJson: a missing file returns null every call and is never cached as a false negative", async () => {
+  const p = path.join(personasWorkspace, "readjson-missing.json");
+  const first = await personasReadJson(p);
+  assert.equal(first, null);
+  await fs.writeFile(p, JSON.stringify({ arrived: true }));
+  const second = await personasReadJson(p);
+  assert.deepEqual(second, { arrived: true }, "a file that shows up later must be read, never stuck on a cached miss");
+});
+
+// ─── readJsonlTail -- (mtime,size)-keyed cache, keyed per (path,n) ─────────
+
+test("personas readJsonlTail: unchanged file hits the cache; append invalidates it; distinct `n` values stay independent", async () => {
+  const p = path.join(personasWorkspace, "readjsonltail-fixture.jsonl");
+  await fs.writeFile(p, [{ i: 1 }, { i: 2 }, { i: 3 }].map((r) => JSON.stringify(r)).join("\n") + "\n");
+
+  const firstN2 = await personasReadJsonlTail(p, 2);
+  assert.deepEqual(firstN2, [{ i: 2 }, { i: 3 }]);
+  const secondN2 = await personasReadJsonlTail(p, 2);
+  assert.strictEqual(firstN2, secondN2, "unchanged (mtime,size) must hit the cache for the same n");
+
+  // A different `n` against the SAME unchanged file must not reuse the n=2
+  // cache entry -- proves the cache key includes n, not just the path.
+  const n3 = await personasReadJsonlTail(p, 3);
+  assert.deepEqual(n3, [{ i: 1 }, { i: 2 }, { i: 3 }]);
+
+  await fs.appendFile(p, JSON.stringify({ i: 4 }) + "\n");
+  const thirdN2 = await personasReadJsonlTail(p, 2);
+  assert.notStrictEqual(secondN2, thirdN2, "a grown file must be re-read, never serve a stale cached tail");
+  assert.deepEqual(thirdN2, [{ i: 3 }, { i: 4 }]);
+});
+
+// ─── readText -- (mtime,size)-keyed cache, keyed per (path,maxBytes) ───────
+
+test("personas readText: unchanged file hits the cache; a real change invalidates it", async () => {
+  const p = path.join(personasWorkspace, "readtext-fixture.md");
+  await fs.writeFile(p, "hello world");
+
+  const first = await personasReadText(p, 800);
+  assert.equal(first, "hello world");
+  const second = await personasReadText(p, 800);
+  assert.strictEqual(first, second, "unchanged (mtime,size) must hit the cache, not re-read the file");
+
+  await fs.writeFile(p, "goodbye world, now longer");
+  const third = await personasReadText(p, 800);
+  assert.notStrictEqual(second, third);
+  assert.equal(third, "goodbye world, now longer");
+});
+
+// ─── dirListing -- directory-(mtime,size)-keyed cache, PARALLEL stat ───────
+//
+// This is the fix for the ~12-18ms chef-inbox cost this pass profiled: the
+// original implementation stat'd every directory entry in a sequential
+// for-await loop; this proves BOTH halves -- the cache (repeat calls against
+// an unchanged directory return the identical array) AND correctness (a
+// newly-added file is picked up, never masked by a stale cached listing).
+
+test("personas dirListing: unchanged directory hits the cache (same array); adding a file invalidates it", async () => {
+  const dir = await fs.mkdtemp(path.join(personasWorkspace, "dirlisting-"));
+  await fs.writeFile(path.join(dir, "a.md"), "a");
+  await fs.writeFile(path.join(dir, "b.md"), "b");
+
+  const first = await personasDirListing(dir);
+  assert.equal(first.length, 2);
+  const second = await personasDirListing(dir);
+  assert.strictEqual(first, second, "an unchanged directory must hit the cache, not re-stat every entry");
+
+  await fs.writeFile(path.join(dir, "c.md"), "c");
+  const third = await personasDirListing(dir);
+  assert.notStrictEqual(second, third, "a directory that gained an entry must never serve a stale listing");
+  assert.equal(third.length, 3, "the newly-added file must actually appear, never silently dropped for cache freshness");
+});
+
+// ─── readCoreDecisionsCached -- wraps lib/hq.ts's own readCoreDecisionsLatest/
+//     readCoreDecisionsToday (never reimplemented) with a cache on THEIR
+//     source file's own (mtimeMs,size), since those two functions have no
+//     cache of their own and hq.ts is out of this pass's scope to edit. ────
+
+test("personas readCoreDecisionsCached: unchanged core-decisions.jsonl hits the cache; a new tick invalidates it and reflects the real new row", async () => {
+  const coreDecisionsPath = path.join(personasWorkspace, "automation", "state", "core-decisions.jsonl");
+  await fs.mkdir(path.dirname(coreDecisionsPath), { recursive: true });
+  const rowSafe1 = { ts_et: `${todayEtForCoreDecisions()}T10:00:00`, account: "safe", verdict: "HOLD" };
+  await fs.writeFile(coreDecisionsPath, JSON.stringify(rowSafe1) + "\n");
+
+  const first = await readCoreDecisionsCached();
+  assert.equal(first.core.safe?.verdict, "HOLD");
+  const second = await readCoreDecisionsCached();
+  assert.strictEqual(first, second, "unchanged (mtime,size) must hit the cache, not re-seek-and-reread the ledger");
+
+  const rowSafe2 = { ts_et: `${todayEtForCoreDecisions()}T10:01:00`, account: "safe", verdict: "ENTER" };
+  await fs.appendFile(coreDecisionsPath, JSON.stringify(rowSafe2) + "\n");
+  const third = await readCoreDecisionsCached();
+  assert.notStrictEqual(second, third, "a genuine new tick must never be masked by a stale cached read");
+  assert.equal(third.core.safe?.verdict, "ENTER", "must reflect the real newest row, never a fabricated/stale value");
+});
+
+function todayEtForCoreDecisions(): string {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit",
+  }).formatToParts(new Date());
+  const get = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
+  return `${get("year")}-${get("month")}-${get("day")}`;
+}

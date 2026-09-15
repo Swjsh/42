@@ -43,7 +43,56 @@ async function mtimeISO(p: string): Promise<string | null> {
   try { const s = await fs.stat(p); return s.mtime.toISOString(); } catch { return null; }
 }
 
-async function readText(p: string, maxBytes = 32 * 1024): Promise<string | null> {
+// ---------- perf: (mtime,size)-keyed read caches (perf/hq-api pass, 2026-09-15) ----------
+// House pattern already established for this exact problem elsewhere in the
+// project (lib/hq.ts#readCryptoTwinTail's cryptoTwinCache, lib/hq-agents.ts#
+// readPulseTail's pulseTailCache, lib/station.ts#gpuCache/ollamaCache):
+// key a cache entry on the SOURCE FILE's own (mtimeMs, size), not a wall-
+// clock TTL. safeCollectCompany() fires every /api/hq poll and re-reads +
+// re-JSON.parses the SAME ~15 small files every time even when nothing on
+// disk changed between polls (profiled this pass: collectScout/Coach/
+// Analyst/Chef/Treasurer/GammaManager collectively cost <1ms each in
+// isolation, but the *cumulative* redundant-read cost adds up, and two
+// collectors -- Coach and Chef -- both tail the SAME crew-events.jsonl file
+// every single call). Caching read-through at the shared helper level below
+// means every one of readJson/readText/readJsonlTail's ~20 call sites gets
+// this for free, and a cache HIT never returns fabricated or stale data --
+// the key IS freshness: any real write changes mtimeMs and/or size and
+// invalidates immediately, same guarantee the pre-existing caches already
+// give. A stat() failure (file missing/unreadable) is never cached, so a
+// file that doesn't exist YET is re-checked on every call, exactly as
+// before -- this only removes REDUNDANT reads of unchanged files, never
+// changes what a genuinely-changed or genuinely-missing file returns.
+interface KeyedCacheEntry<T> { key: string; data: T }
+
+async function statKey(p: string): Promise<string | null> {
+  try {
+    const s = await fs.stat(p);
+    return `${s.mtimeMs}:${s.size}`;
+  } catch {
+    return null;
+  }
+}
+
+const jsonReadCache = new Map<string, KeyedCacheEntry<unknown>>();
+const jsonlTailReadCache = new Map<string, KeyedCacheEntry<unknown[]>>();
+const textReadCache = new Map<string, KeyedCacheEntry<string | null>>();
+const dirListingCache = new Map<string, KeyedCacheEntry<Array<{ name: string; mtimeISO: string; sizeBytes: number }>>>();
+
+export async function readText(p: string, maxBytes = 32 * 1024): Promise<string | null> {
+  const key = await statKey(p);
+  if (key !== null) {
+    const cacheMapKey = `${p}::${maxBytes}`;
+    const cached = textReadCache.get(cacheMapKey);
+    if (cached && cached.key === key) return cached.data;
+    const data = await readTextUncached(p, maxBytes);
+    textReadCache.set(cacheMapKey, { key, data });
+    return data;
+  }
+  return readTextUncached(p, maxBytes);
+}
+
+async function readTextUncached(p: string, maxBytes: number): Promise<string | null> {
   try {
     const buf = await fs.readFile(p);
     if (buf.length <= maxBytes) return buf.toString("utf8");
@@ -70,31 +119,77 @@ async function readText(p: string, maxBytes = 32 * 1024): Promise<string | null>
   } catch { return null; }
 }
 
-async function readJson<T = unknown>(p: string): Promise<T | null> {
-  try { return JSON.parse(await fs.readFile(p, "utf8")) as T; } catch { return null; }
+export async function readJson<T = unknown>(p: string): Promise<T | null> {
+  const key = await statKey(p);
+  if (key === null) return null; // missing/unreadable -- never cache a miss, re-check every call
+  const cached = jsonReadCache.get(p);
+  if (cached && cached.key === key) return cached.data as T;
+  try {
+    const data = JSON.parse(await fs.readFile(p, "utf8")) as T;
+    jsonReadCache.set(p, { key, data });
+    return data;
+  } catch {
+    return null;
+  }
 }
 
-async function readJsonlTail<T = unknown>(p: string, n = 5): Promise<T[]> {
+export async function readJsonlTail<T = unknown>(p: string, n = 5): Promise<T[]> {
+  const key = await statKey(p);
+  if (key === null) return [];
+  const cacheMapKey = `${p}::${n}`;
+  const cached = jsonlTailReadCache.get(cacheMapKey);
+  if (cached && cached.key === key) return cached.data as T[];
   try {
     const text = await fs.readFile(p, "utf8");
-    return text.trim().split("\n").slice(-n).map((line) => {
+    const data = text.trim().split("\n").slice(-n).map((line) => {
       try { return JSON.parse(line) as T; } catch { return null as unknown as T; }
     }).filter(Boolean);
-  } catch { return []; }
+    jsonlTailReadCache.set(cacheMapKey, { key, data });
+    return data;
+  } catch {
+    return [];
+  }
 }
 
-async function dirListing(p: string): Promise<Array<{ name: string; mtimeISO: string; sizeBytes: number }>> {
+/** Directory-mtime-keyed cache -- adding/removing/renaming an entry bumps
+ * the DIRECTORY's own mtime on NTFS, so (dirMtimeMs, dirSize) is a valid
+ * invalidation key for "the listing changed," same contract as the file
+ * (mtimeMs,size) keys above. Also fixes the real cost here: the strategy/
+ * candidates/_chef-inbox directory this feeds (handoffs' Analyst->Chef row)
+ * holds 200+ files, and the original implementation stat'd each one in a
+ * SEQUENTIAL for-await loop -- profiled this pass at ~12-18ms warm just for
+ * that loop (the single largest cost found anywhere in safeCollectCompany's
+ * whole dependency graph). Parallelized below regardless of cache state, so
+ * even a genuine cache MISS (a file really was just added) is fast. */
+export async function dirListing(p: string): Promise<Array<{ name: string; mtimeISO: string; sizeBytes: number }>> {
+  let dirStat: { mtimeMs: number; size: number };
+  try {
+    const s = await fs.stat(p);
+    dirStat = { mtimeMs: s.mtimeMs, size: s.size };
+  } catch {
+    return [];
+  }
+  const key = `${dirStat.mtimeMs}:${dirStat.size}`;
+  const cached = dirListingCache.get(p);
+  if (cached && cached.key === key) return cached.data;
   try {
     const items = await fs.readdir(p);
-    const out = [];
-    for (const name of items) {
+    const stats = await Promise.all(items.map(async (name) => {
       try {
         const s = await fs.stat(path.join(p, name));
-        if (s.isFile()) out.push({ name, mtimeISO: s.mtime.toISOString(), sizeBytes: s.size });
-      } catch {}
-    }
-    return out.sort((a, b) => b.mtimeISO.localeCompare(a.mtimeISO));
-  } catch { return []; }
+        return s.isFile() ? { name, mtimeISO: s.mtime.toISOString(), sizeBytes: s.size } : null;
+      } catch {
+        return null;
+      }
+    }));
+    const out = stats
+      .filter((x): x is { name: string; mtimeISO: string; sizeBytes: number } => x !== null)
+      .sort((a, b) => b.mtimeISO.localeCompare(a.mtimeISO));
+    dirListingCache.set(p, { key, data: out });
+    return out;
+  } catch {
+    return [];
+  }
 }
 
 function todayET(): string {
@@ -528,11 +623,45 @@ export async function collectCoach(): Promise<PersonaState> {
  * lib/hq.ts#readCoreDecisionsLatest (commit 81147547 already re-pointed
  * Pilot's 3D desk screen the same way; this re-points the roster card to
  * the SAME source, per the coordinator's explicit instruction). */
-export async function collectPilot(): Promise<PersonaState> {
+// perf/hq-api pass (2026-09-15): readCoreDecisionsLatest/readCoreDecisionsToday
+// (lib/hq.ts, out of this pass's scope to edit) each do an independent seeked
+// read of automation/state/core-decisions.jsonl -- a 120MB+, continuously-
+// growing append-only ledger (see that file's own header) -- 512KiB and 4MiB
+// tails respectively, with NO cache. Profiled this pass: collectPilot alone
+// cost ~10-15ms warm, entirely inside these two reads, out of a ~15-20ms
+// median across the whole safeCollectCompany() call. Cached HERE instead, on
+// the file's OWN (mtimeMs, size) -- the same house pattern already used
+// throughout lib/hq.ts/lib/hq-agents.ts/lib/station.ts, just applied at the
+// call site since the source functions themselves are off-limits this pass.
+// A cache hit still calls the SAME two hq.ts functions on every miss (never
+// a second source of truth, never a fabricated value) -- it only skips the
+// redundant re-read+re-parse when the file has not grown/changed since the
+// last poll, which during RTH is true for all but ~1 poll per ~60s tick, and
+// always true outside RTH.
+let coreDecisionsCache: KeyedCacheEntry<{
+  core: Awaited<ReturnType<typeof readCoreDecisionsLatest>>;
+  today: Awaited<ReturnType<typeof readCoreDecisionsToday>>;
+}> | null = null;
+
+export async function readCoreDecisionsCached(): Promise<{
+  core: Awaited<ReturnType<typeof readCoreDecisionsLatest>>;
+  today: Awaited<ReturnType<typeof readCoreDecisionsToday>>;
+}> {
+  const key = await statKey(path.join(ROOT, "automation/state/core-decisions.jsonl"));
+  if (key !== null && coreDecisionsCache && coreDecisionsCache.key === key) {
+    return coreDecisionsCache.data;
+  }
   const [core, today] = await Promise.all([
     readCoreDecisionsLatest(),
     readCoreDecisionsToday(),
   ]);
+  const data = { core, today };
+  if (key !== null) coreDecisionsCache = { key, data };
+  return data;
+}
+
+export async function collectPilot(): Promise<PersonaState> {
+  const { core, today } = await readCoreDecisionsCached();
   const rth = isRegularTradingHours(nowEtMinutes(), nowEtDayOfWeek());
   const latest = [core.safe, core.bold]
     .filter((r): r is CoreDecisionRow => !!r)
