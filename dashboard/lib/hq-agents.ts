@@ -227,10 +227,17 @@ export const ZONE_NODE_ID: Record<LiveAgentZone, string> = {
   hub: "hub-center",
 };
 
-/** Where a spawning agent first appears -- hub-center (layout.ts's own HUB
- * origin), the one node every walk-graph path already routes through, so a
- * fresh arrival never needs a special-cased entry edge. */
-export const ENTRY_NODE_ID = "hub-center";
+/** Where a spawning agent first appears -- "campus-gate"
+ * (layout.ts#buildWalkGraph's own new entry-node leaf, wired to arm 0's
+ * T-junction; CAMPUS-GATE pass, 2026-09-15, J: agents should "spawn at the
+ * gate, walk the hallways ... walk out and despawn when they go quiet," not
+ * spawn/leave at the hub centre). MUST stay in sync with
+ * components/hq/liveAgentWalk.ts#ENTRY_NODE_ID -- this module is
+ * import-free by design (see this file's own header: no sibling lib/*.ts
+ * value import, no three.js, no react) so it cannot import that constant;
+ * kept as an identical string literal instead, backstopped by a sync test in
+ * dashboard/tests/live-agent-walk.test.ts. */
+export const ENTRY_NODE_ID = "campus-gate";
 
 // ─── Live-agent bubble action (BUBBLE-FIX, 2026-09-15) ─────────────────────
 //

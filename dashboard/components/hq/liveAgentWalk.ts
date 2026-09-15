@@ -41,7 +41,146 @@
 // a crowded zone should redistribute the ring, not overlap the newcomer on
 // an existing occupant).
 
-export const ENTRY_NODE_ID = "hub-center"; // mirrors lib/hq-agents.ts#ENTRY_NODE_ID (layout.ts's own HUB origin)
+// CAMPUS-GATE pass (2026-09-15, J: agents should "spawn at the gate, walk
+// the hallways to the area they're working in ... walk out and despawn when
+// they go quiet" -- today both this constant and lib/hq-agents.ts's own copy
+// read "hub-center", the middle of the building, not a gate). Moved to a new
+// walk-graph leaf node, "campus-gate" (layout.ts#buildWalkGraph, wired to
+// arm 0's T-junction, a real open-plaza hallway hop -- see that function's
+// own comment for the exact derivation). MUST stay in sync with
+// lib/hq-agents.ts#ENTRY_NODE_ID -- that module is import-free by design
+// (see its own header: no sibling lib/*.ts value import, no three.js, no
+// react, so its fs-reading pure combiner stays trivially unit-testable and
+// can never create a circular/SSR-unsafe dependency), so it cannot import
+// this constant; a plain string literal kept identical is the correct
+// solution here, backstopped by a sync test in
+// dashboard/tests/live-agent-walk.test.ts.
+export const ENTRY_NODE_ID = "campus-gate";
+
+// ─── Walk graph pathfinding (moved from layout.ts, CAMPUS-GATE pass) ───────
+// layout.ts imports 3 raw-kit constants from SetKit.tsx (a real .tsx
+// React/three component file). Verified this pass: node's own ESM loader
+// refuses to load ANY .tsx file at all under plain `node --test`
+// (`ERR_UNKNOWN_FILE_EXTENSION`, thrown before TS type-stripping or JSX
+// parsing even begin) -- so layout.ts itself can never be imported by this
+// repo's node-native test suite, no matter what it exports. findWalkPath has
+// zero SetKit dependency of its own -- it only ever touches a WalkGraph (a
+// plain nodes/adjacency Map pair) -- so moving JUST this pure function (and
+// its own WalkNode/WalkGraph/WalkEdgeEntry support types, likewise
+// SetKit-free) to this already node-testable, react/three-free module makes
+// it possible to prove the path-safety regression test below (every
+// ZONE_NODE_ID reachable from campus-gate) against the REAL algorithm,
+// rather than a hand-reimplemented copy that could silently drift from it.
+// A pure, behavior-preserving code MOVE, not a rewrite -- layout.ts
+// re-exports all three names from this module unchanged, so every existing
+// import site (Scene.tsx, LiveAgents.tsx) keeps working with zero edits.
+
+export interface WalkNode {
+  id: string;
+  position: [number, number, number];
+}
+
+interface WalkEdgeEntry {
+  to: string;
+  dist: number;
+}
+
+export interface WalkGraph {
+  nodes: Map<string, WalkNode>;
+  adjacency: Map<string, WalkEdgeEntry[]>;
+}
+
+/** Dijkstra over the walk graph -- a full shortest-path search (rather than
+ * a tree-only shortcut) despite the graph's current tree shape, so a future
+ * edge that adds a real cycle (e.g. a direct bay-to-bay shortcut) stays
+ * correct without a rewrite; the node count (~30) makes even the O(n^2)
+ * linear-scan priority step trivial, and this only ever runs when a walk
+ * TARGET changes, never per-frame. Returns world-space waypoints from
+ * `fromId` to `toId` inclusive, or null if either id is unknown or
+ * unreachable (fails open to the caller, which should fall back to a direct
+ * line rather than throw -- same "never crash on a missing node" discipline
+ * as every other lookup in this tree). */
+export function findWalkPath(graph: WalkGraph, fromId: string, toId: string): [number, number, number][] | null {
+  const start = graph.nodes.get(fromId);
+  const goal = graph.nodes.get(toId);
+  if (!start || !goal) return null;
+  if (fromId === toId) return [start.position];
+
+  const dist = new Map<string, number>([[fromId, 0]]);
+  const prev = new Map<string, string>();
+  const visited = new Set<string>();
+
+  for (;;) {
+    let current: string | null = null;
+    let currentDist = Infinity;
+    for (const [id, d] of dist) {
+      if (!visited.has(id) && d < currentDist) {
+        current = id;
+        currentDist = d;
+      }
+    }
+    if (current === null || current === toId) break;
+    visited.add(current);
+    for (const edge of graph.adjacency.get(current) ?? []) {
+      if (visited.has(edge.to)) continue;
+      const candidate = currentDist + edge.dist;
+      if (candidate < (dist.get(edge.to) ?? Infinity)) {
+        dist.set(edge.to, candidate);
+        prev.set(edge.to, current);
+      }
+    }
+  }
+  if (!dist.has(toId)) return null;
+
+  const path: string[] = [toId];
+  let cursor = toId;
+  while (cursor !== fromId) {
+    const parent = prev.get(cursor);
+    if (!parent) return null; // unreachable -- fail open, never throw
+    path.push(parent);
+    cursor = parent;
+  }
+  path.reverse();
+  return path.map((id) => graph.nodes.get(id)!.position);
+}
+
+// ─── Leave-timeout derivation (CAMPUS-GATE pass, 2026-09-15) ───────────────
+//
+// LiveAgents.tsx's own LEAVE_HARD_TIMEOUT_S is a defense-in-depth backstop
+// (see that file's own comment): if a leaving avatar never despawns through
+// the normal walk-arrival path, this ceiling force-despawns it wherever it
+// currently is (LiveAgentAvatar#fireDespawn on timeout) -- so it must never
+// be shorter than the SLOWEST real walk out could possibly take, or a
+// long-hallway leave would vanish mid-corridor instead of completing its
+// walk. Moving campus-gate away from the hub centre (this pass) lengthens
+// every walk-out versus the old hub-center entry, so a stale hand-picked
+// literal (the old value was tuned against hub-center-as-entry, never
+// re-derived here) is exactly the kind of guess this codebase's own
+// "no hardcoded values, derive them" convention forbids. This sweep instead
+// walks EVERY node the graph actually contains (a strict superset of the 5
+// real ZONE_NODE_ID targets lib/hq-agents.ts can emit today -- correct even
+// if a future zone mapping adds a 6th node this file never has to know
+// about) and returns the single longest real walk-graph distance back to
+// `entryNodeId`, in walk-seconds at `walkSpeedUPerS` -- the caller then adds
+// its own fixed safety margin on top (LiveAgents.tsx: LEAVE_TIMEOUT_MARGIN_S
+// below). A node the graph can't route back to `entryNodeId` from
+// (findWalkPath returns null) contributes nothing to this sweep -- CATCHING
+// that case is the path-safety regression test's own job (dashboard/tests/
+// live-agent-walk.test.ts), not this function's; a silently-skipped
+// unreachable node here would otherwise hide exactly the defect that test
+// exists to catch.
+export const LEAVE_TIMEOUT_MARGIN_S = 10;
+
+export function computeMaxPathDurationS(graph: WalkGraph, entryNodeId: string, walkSpeedUPerS: number): number {
+  let maxDist = 0;
+  for (const nodeId of graph.nodes.keys()) {
+    if (nodeId === entryNodeId) continue;
+    const path = findWalkPath(graph, nodeId, entryNodeId);
+    if (!path) continue;
+    maxDist = Math.max(maxDist, pathDistance(path));
+  }
+  return maxDist / walkSpeedUPerS;
+}
 
 export function pathDistance(wp: ReadonlyArray<readonly [number, number, number]>): number {
   let total = 0;

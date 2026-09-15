@@ -21,14 +21,28 @@
 // stranding the avatar in "working" with `leaving` permanently true. This
 // test file's own decideNextWalk treats leaving as an independent decision
 // that never consults the ordinary-retargeting latch, so this exact
-// collision can no longer suppress a leave.
+// collision can no longer suppress a leave. NOTE (CAMPUS-GATE pass,
+// 2026-09-15): at the time this defect was found, ENTRY_NODE_ID was
+// "hub-center", the SAME string ZONE_NODE_ID.hub resolves to -- exactly
+// what made the collision possible. ENTRY_NODE_ID has since moved to
+// "campus-gate" (J: agents should "spawn at the gate ... walk out and
+// despawn when they go quiet", not spawn/leave at the hub centre) --
+// ZONE_NODE_ID.hub is still "hub-center" (lib/hq-agents.ts, unchanged), so
+// the two no longer share a value at all. The regression test below still
+// proves the general shape (leaving must fire even when `seenTarget`
+// already equals the CURRENT `ENTRY_NODE_ID`, whatever that string is) by
+// reading the constant live rather than hardcoding either string, so it
+// keeps covering the same collision class across this rename.
 //
 // Run: cd dashboard && node --test tests/live-agent-walk.test.ts
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
+  computeMaxPathDurationS,
   ENTRY_NODE_ID,
+  findWalkPath,
+  LEAVE_TIMEOUT_MARGIN_S,
   pathDistance,
   poseAlongPath,
   decideNextWalk,
@@ -36,7 +50,9 @@ import {
   STAND_RING_RADIUS,
   reconcileLiveAgentRoster,
   shouldWriteLiveAgentDiag,
+  type WalkGraph,
 } from "../components/hq/liveAgentWalk.ts";
+import { ENTRY_NODE_ID as HQ_AGENTS_ENTRY_NODE_ID, ZONE_NODE_ID } from "../lib/hq-agents.ts";
 
 // ─── pathDistance ───────────────────────────────────────────────────────────
 
@@ -120,9 +136,12 @@ test("decideNextWalk: retargets mid-life to a new zone", () => {
 test("decideNextWalk: THE DEFECT 2 FIX -- leaving starts the exit walk even when seenTarget already equals ENTRY_NODE_ID", () => {
   // This is the exact collision that stranded 65e3d7 in the wild: the
   // agent's own classified zone had at some point resolved to "hub"
-  // (ZONE_NODE_ID.hub === ENTRY_NODE_ID), so seenTarget already holds
-  // ENTRY_NODE_ID from ordinary (non-leaving) life -- a shared-latch design
-  // would read the leaving transition as "no change" and never walk out.
+  // (ZONE_NODE_ID.hub === ENTRY_NODE_ID, true AT THE TIME -- both were
+  // "hub-center"), so seenTarget already holds ENTRY_NODE_ID from ordinary
+  // (non-leaving) life -- a shared-latch design would read the leaving
+  // transition as "no change" and never walk out. Reads ENTRY_NODE_ID live
+  // (never a hardcoded string) so this keeps proving the same collision
+  // class regardless of what the constant's current value is.
   const d = decideNextWalk({
     leaving: true,
     targetNodeId: "smart-board", // irrelevant while leaving -- must be ignored
@@ -131,6 +150,40 @@ test("decideNextWalk: THE DEFECT 2 FIX -- leaving starts the exit walk even when
     leaveTriggered: false,
   });
   assert.deepEqual(d, { action: "walk", dest: ENTRY_NODE_ID, despawn: true });
+});
+
+test("decideNextWalk: CAMPUS-GATE pass -- the same DEFECT 2 collision, pinned explicitly to ENTRY_NODE_ID = \"campus-gate\"", () => {
+  // Task's own regression requirement: keep a test that still covers
+  // "leaving starts the exit walk even when seenTarget equals the
+  // destination", now spelled out with the CURRENT concrete entry-node
+  // value rather than only through the live import above -- e.g. an agent
+  // whose most recent ordinary target happened to BE campus-gate itself
+  // (a real reachable shape: ZONE_NODE_ID has no "campus-gate" entry today,
+  // but nothing stops a future zone mapping from resolving there, and the
+  // fix must not depend on that never happening).
+  assert.equal(ENTRY_NODE_ID, "campus-gate");
+  const d = decideNextWalk({
+    leaving: true,
+    targetNodeId: "smart-board",
+    currentNode: "smart-board",
+    seenTarget: "campus-gate",
+    leaveTriggered: false,
+  });
+  assert.deepEqual(d, { action: "walk", dest: "campus-gate", despawn: true });
+});
+
+// ─── ENTRY_NODE_ID sync (CAMPUS-GATE pass, 2026-09-15) ─────────────────────
+//
+// liveAgentWalk.ts#ENTRY_NODE_ID and lib/hq-agents.ts#ENTRY_NODE_ID are two
+// independent string literals by design -- hq-agents.ts is import-free (no
+// sibling lib/*.ts value import, no three.js, no react, per its own header)
+// so it cannot import this constant from a react/three-adjacent module.
+// Nothing in the type system enforces they stay equal; this is that
+// enforcement. Both modules are plain node-testable .ts files (no JSX, no
+// SetKit dependency), so both are safely importable by value here.
+test("ENTRY_NODE_ID sync: liveAgentWalk.ts and lib/hq-agents.ts agree on the entry node id", () => {
+  assert.equal(ENTRY_NODE_ID, HQ_AGENTS_ENTRY_NODE_ID);
+  assert.equal(ENTRY_NODE_ID, "campus-gate");
 });
 
 test("decideNextWalk: leaving is a one-shot -- does not re-trigger once leaveTriggered", () => {
@@ -452,4 +505,121 @@ test("shouldWriteLiveAgentDiag: models the exact bug -- delete-then-unconditiona
   const despawnedThisFrame = true;
   if (shouldWriteLiveAgentDiag(despawnedThisFrame)) diagStore.set("a094022ec6e8790ff", { pos: [0, 0] });
   assert.equal(diagStore.has("a094022ec6e8790ff"), false, "guarded write must never resurrect the entry once despawned");
+});
+
+// ─── Path safety: campus-gate -> every real ZONE_NODE_ID (CAMPUS-GATE pass) ─
+//
+// Task's own regression requirement: if findWalkPath ever returns null for a
+// real zone target, LiveAgents.tsx falls back to a straight-line walk
+// through walls (LiveAgents.tsx's own `rawPath: ... ?? [nodePosition(origin),
+// nodePosition(dest)]` fallback, ~line 265-268) -- so THIS must fail loudly
+// if that ever happens, not silently degrade.
+//
+// Cannot import layout.ts#buildWalkGraph itself here (see this test file's
+// own header on ENTRY_NODE_ID / liveAgentWalk.ts's "Walk graph pathfinding"
+// header for the full reason: layout.ts imports 3 raw-kit constants from
+// SetKit.tsx, a real .tsx React/three file, and node's own ESM loader
+// refuses to load ANY .tsx file at all under plain `node --test`
+// (`ERR_UNKNOWN_FILE_EXTENSION`, verified empirically this pass) -- so this
+// builds a fixture graph that mirrors buildWalkGraph's REAL topology for the
+// one arm (arm 0) and the ambient/smart-board nodes every current
+// ZONE_NODE_ID value actually resolves to, using the real raw-kit-derived
+// numbers layout.ts itself computes (HUB_WALL_RADIUS=7.5, T_JUNCTION_HALF=
+// 0.9, MAIN_HALL_LEN=9 -> T_DIST=17.4; BAY_HALF_DEPTH=2.7 -> SIDE_SPAN=8.1;
+// ARM_LEN=20.1, PLAZA_APRON=1.5 -> campus-gate=[21.6,0,0], all cross-checked
+// against layout.ts's own exported ARM_LEN/PLAZA_APRON derivation comment)
+// plus Scene.tsx's own real WALL_POS=[0,3.4,0] and
+// PURPOSEFUL_TARGETS.core=[-1.2,0,-1.6]/["ideas-wall"]=[4.10,0,4.10]. A
+// topology change in either real file requires updating this fixture to
+// match -- a known coupling, documented rather than hidden. Uses the REAL
+// findWalkPath/pathDistance/computeMaxPathDurationS (moved to
+// liveAgentWalk.ts this same pass specifically so this test could exercise
+// the actual algorithm, not a second hand-reimplemented copy).
+
+function buildFixtureGraph(): WalkGraph {
+  const nodes = new Map<string, { id: string; position: [number, number, number] }>();
+  const adjacency = new Map<string, { to: string; dist: number }[]>();
+  const addNode = (id: string, position: [number, number, number]) => {
+    nodes.set(id, { id, position });
+    if (!adjacency.has(id)) adjacency.set(id, []);
+  };
+  const addEdge = (a: string, b: string) => {
+    const na = nodes.get(a)!;
+    const nb = nodes.get(b)!;
+    const d = Math.hypot(na.position[0] - nb.position[0], na.position[1] - nb.position[1], na.position[2] - nb.position[2]);
+    adjacency.get(a)!.push({ to: b, dist: d });
+    adjacency.get(b)!.push({ to: a, dist: d });
+  };
+
+  addNode("hub-center", [0, 0, 0]);
+  addNode("hub-door-0", [7.5, 0, 0]);
+  addNode("t-0", [17.4, 0, 0]);
+  addNode("bay-door-0", [17.4, 0, 5.4]);
+  addNode("bay-desk-0", [17.4, 0, 8.1]); // real agentHome is a small in-bay seat offset from this bay-center proxy -- close enough for a distance/reachability fixture
+  addNode("smart-board", [0, 3.4, 0]); // Scene.tsx's own WALL_POS
+  addNode("ambient-core", [-1.2, 0, -1.6]); // Scene.tsx's own PURPOSEFUL_TARGETS.core
+  addNode("ambient-ideas-wall", [4.1, 0, 4.1]); // Scene.tsx's own PURPOSEFUL_TARGETS["ideas-wall"]
+  addNode("campus-gate", [21.6, 0, 0]); // ARM_LEN(20.1) + PLAZA_APRON(1.5)
+
+  addEdge("hub-center", "hub-door-0");
+  addEdge("hub-door-0", "t-0");
+  addEdge("t-0", "bay-door-0");
+  addEdge("bay-door-0", "bay-desk-0");
+  addEdge("hub-center", "smart-board");
+  addEdge("hub-center", "ambient-core");
+  addEdge("hub-center", "ambient-ideas-wall");
+  addEdge("campus-gate", "t-0"); // the CAMPUS-GATE pass's own new edge
+
+  return { nodes, adjacency } as unknown as WalkGraph;
+}
+
+const WALK_SPEED_FIXTURE = 0.7; // KitAgent.tsx#WALK_SPEED's own real value -- "0.7 exactly", that file's own comment
+
+test("path safety: findWalkPath finds a non-null path from campus-gate to EVERY real ZONE_NODE_ID value", () => {
+  const graph = buildFixtureGraph();
+  const zoneIds = Object.values(ZONE_NODE_ID);
+  assert.ok(zoneIds.length > 0, "sanity: ZONE_NODE_ID must not be empty, or this test would vacuously pass");
+  for (const zoneId of zoneIds) {
+    const path = findWalkPath(graph, "campus-gate", zoneId);
+    assert.notEqual(path, null, `findWalkPath(campus-gate -> ${zoneId}) must not be null -- a null path means LiveAgents.tsx falls back to a straight-line walk through walls`);
+  }
+});
+
+test("path safety: every real zone's walk-out length stays within LEAVE_HARD_TIMEOUT_S's own margin", () => {
+  const graph = buildFixtureGraph();
+  const results: Record<string, { units: number; seconds: number }> = {};
+  let maxSeconds = 0;
+  for (const zoneId of Object.values(ZONE_NODE_ID)) {
+    const path = findWalkPath(graph, "campus-gate", zoneId);
+    assert.ok(path, `unreachable zone ${zoneId} -- see the test above`);
+    const units = pathDistance(path!);
+    const seconds = units / WALK_SPEED_FIXTURE;
+    results[zoneId] = { units, seconds };
+    maxSeconds = Math.max(maxSeconds, seconds);
+  }
+  // Cross-check: computeMaxPathDurationS (the REAL function LiveAgents.tsx
+  // now calls, see that file's own leaveHardTimeoutS) sweeps every node in
+  // the graph, a strict superset of just the zone nodes -- so it must be >=
+  // the max walk-time among the zone nodes alone computed above.
+  const sweepSeconds = computeMaxPathDurationS(graph, "campus-gate", WALK_SPEED_FIXTURE);
+  assert.ok(sweepSeconds >= maxSeconds - 1e-9, `computeMaxPathDurationS (${sweepSeconds}) must cover the longest real zone walk-out (${maxSeconds})`);
+  const derivedTimeoutS = sweepSeconds + LEAVE_TIMEOUT_MARGIN_S;
+  // The actual assertion this test exists for: the derived LEAVE_HARD_TIMEOUT_S
+  // (computed the same way LiveAgents.tsx now computes it) must exceed every
+  // real zone's own walk-out time, with the margin intact -- i.e. the
+  // backstop can never fire before a legitimately slow-but-real walk-out
+  // would have arrived on its own.
+  for (const [zoneId, r] of Object.entries(results)) {
+    assert.ok(r.seconds <= derivedTimeoutS, `${zoneId}: walk-out takes ${r.seconds.toFixed(2)}s, exceeds derived LEAVE_HARD_TIMEOUT_S ${derivedTimeoutS.toFixed(2)}s`);
+  }
+  // Sanity ceiling: catches a future geometry blowup (a zone accidentally
+  // wired many hops away) making leaves take unreasonably long, silently
+  // degrading UX rather than the null-path case the test above already
+  // guards. 120s is generous headroom over the real ~39s/~31s figures
+  // measured against this fixture.
+  assert.ok(derivedTimeoutS < 120, `derived LEAVE_HARD_TIMEOUT_S (${derivedTimeoutS.toFixed(2)}s) is unreasonably large -- check for a stray long hop in the walk graph`);
+  // eslint-disable-next-line no-console
+  console.log("[path-safety] campus-gate -> zone walk-out lengths:", JSON.stringify(
+    Object.fromEntries(Object.entries(results).map(([k, v]) => [k, `${v.units.toFixed(2)}u / ${v.seconds.toFixed(2)}s`])),
+  ), `derived LEAVE_HARD_TIMEOUT_S=${derivedTimeoutS.toFixed(2)}s`);
 });

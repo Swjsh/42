@@ -12,7 +12,11 @@
 // independent trigger channel through Agent.tsx (already 5 seen-value-diff
 // walk channels, 1250+ lines, entirely persona/lane-tuned -- see that file's
 // own header). A live agent's lifecycle is genuinely different from every
-// existing AgentWalkKind: it spawns at the entry gate, walks to whichever
+// existing AgentWalkKind: it spawns at the campus gate (CAMPUS-GATE pass,
+// 2026-09-15 -- see liveAgentWalk.ts#ENTRY_NODE_ID's own header; this
+// comment used to say "entry gate" while the actual entry node was
+// hub-center, the middle of the building, not a gate at all -- now true),
+// walks to whichever
 // REAL zone its own tool calls are touching right now, can retarget mid-life
 // (a session that edits dashboard/ then backtest/), and despawns when the
 // server stops reporting it (pulse.jsonl idle timeout) -- never a fixed
@@ -52,8 +56,8 @@ import { CHARACTER_SCALE, CHARACTER_TARGET_HEIGHT } from "./SetKit";
 import type { LiveAgent } from "./types";
 import type { LiveAgentState } from "@/lib/hq-agents";
 import {
-  computeStandSlot, decideNextWalk, ENTRY_NODE_ID, pathDistance, poseAlongPath, reconcileLiveAgentRoster,
-  shouldWriteLiveAgentDiag, STAND_BUBBLE_Y_STEP, STAND_RING_RADIUS,
+  computeMaxPathDurationS, computeStandSlot, decideNextWalk, ENTRY_NODE_ID, LEAVE_TIMEOUT_MARGIN_S, pathDistance,
+  poseAlongPath, reconcileLiveAgentRoster, shouldWriteLiveAgentDiag, STAND_BUBBLE_Y_STEP, STAND_RING_RADIUS,
 } from "./liveAgentWalk";
 
 // 8 distinct, saturated hues, cycled by arrival order -- deliberately NOT
@@ -87,7 +91,17 @@ const BUBBLE_FADE_DISTANCE = 80; // same floor Agent.tsx's own bubble fade uses
 // independent backstop so no OTHER, yet-undiscovered stall can strand an
 // avatar in the world forever (this codebase's own "no silent stuck state"
 // convention -- see CLAUDE.md's OP-25/failure-honesty rules).
-const LEAVE_HARD_TIMEOUT_S = 12;
+//
+// CAMPUS-GATE pass (2026-09-15): this USED to be a bare literal 12 -- never
+// re-derived when the entry node was hub-center (dead center of the
+// building, every real walk-out short) and left stale as this pass moves
+// the entry node out to campus-gate (every walk-out now longer, per-arm).
+// Replaced below (see LiveAgentAvatar's own `leaveHardTimeoutS`) with a
+// value computed from the REAL walk graph each avatar actually receives as
+// a prop (liveAgentWalk.ts#computeMaxPathDurationS: longest real walk-graph
+// distance from any node back to ENTRY_NODE_ID, at the real WALK_SPEED,
+// plus LEAVE_TIMEOUT_MARGIN_S) -- see that function's own header for why it
+// sweeps every graph node rather than a hand-picked zone list.
 
 // ─── Diagnostics (task's own contract: window.__hqLiveAgents, <=4x/s) ──────
 
@@ -161,6 +175,14 @@ function LiveAgentAvatar({
   const bubbleDelta = useMemo(() => new THREE.Vector3(), []);
   const entryPos = useMemo<[number, number, number]>(
     () => nodePosition(walkGraph, ENTRY_NODE_ID, [0, 0, 0]),
+    [walkGraph],
+  );
+  // CAMPUS-GATE pass (2026-09-15): derived from the real walkGraph prop --
+  // see this file's own leaveHardTimeoutS comment above for why a bare
+  // literal is no longer correct once the entry node is campus-gate instead
+  // of hub-center.
+  const leaveHardTimeoutS = useMemo(
+    () => computeMaxPathDurationS(walkGraph, ENTRY_NODE_ID, WALK_SPEED) + LEAVE_TIMEOUT_MARGIN_S,
     [walkGraph],
   );
 
@@ -347,11 +369,12 @@ function LiveAgentAvatar({
       }
     }
 
-    // Hard backstop (see LEAVE_HARD_TIMEOUT_S's own comment): if this avatar
-    // has been leaving for too long without despawning -- any mechanism,
-    // known or not -- force it out rather than stranding it in the world.
+    // Hard backstop (see this file's own leaveHardTimeoutS comment above):
+    // if this avatar has been leaving for too long without despawning -- any
+    // mechanism, known or not -- force it out rather than stranding it in
+    // the world.
     if (leavingRef.current && !despawned.current && leaveStartedAtT.current !== null) {
-      if (performance.now() / 1000 - leaveStartedAtT.current > LEAVE_HARD_TIMEOUT_S) {
+      if (performance.now() / 1000 - leaveStartedAtT.current > leaveHardTimeoutS) {
         fireDespawn();
       }
     }
@@ -486,7 +509,8 @@ export interface LiveAgentsProps {
  * Renders real Claude Code sessions/subagents (lib/hq-agents.ts's own
  * pulse.jsonl roster, server-side) as walking KitAgentBody characters.
  * Diffs the incoming roster against what's currently mounted: a new id ->
- * spawns at the entry gate and walks to its zone; an id whose targetZone
+ * spawns at the campus gate (ENTRY_NODE_ID = "campus-gate", CAMPUS-GATE
+ * pass 2026-09-15) and walks to its zone; an id whose targetZone
  * changed -> walks to the new zone; an id that dropped out of the incoming
  * list (server-side idle timeout) -> walks back out and unmounts itself
  * once that walk completes (LiveAgentAvatar's own onDespawned callback).
@@ -532,14 +556,15 @@ export default function LiveAgents({ agents, walkGraph, ultra, reducedMotion }: 
   }, [agents]);
 
   // DEFECT 1 fix: group every currently-displayed agent by its EFFECTIVE
-  // destination (the entry gate while leaving, its zone otherwise) and hand
+  // destination (the campus gate, ENTRY_NODE_ID, while leaving, its zone
+  // otherwise) and hand
   // each one a stable ring slot -- see liveAgentWalk.ts#computeStandSlot.
   // Recomputed whenever the displayed set (or any agent's leaving flag)
   // changes; cheap at this roster's own 8-agent cap.
   const standSlots = useMemo(() => {
     const groups = new Map<string, string[]>();
     for (const d of displayed.values()) {
-      const key = d.leaving ? "hub-center" : d.targetNodeId;
+      const key = d.leaving ? ENTRY_NODE_ID : d.targetNodeId;
       const ids = groups.get(key) ?? [];
       ids.push(d.id);
       groups.set(key, ids);

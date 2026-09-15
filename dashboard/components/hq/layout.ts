@@ -418,20 +418,23 @@ export function computePersonaWallSlots(count: number, brainWallArmIndex: number
 // node count (~30) makes even the O(n^2) linear-scan priority step trivial,
 // and this only ever runs when a walk TARGET changes, never per-frame.
 
-export interface WalkNode {
-  id: string;
-  position: [number, number, number];
-}
-
-interface WalkEdgeEntry {
-  to: string;
-  dist: number;
-}
-
-export interface WalkGraph {
-  nodes: Map<string, WalkNode>;
-  adjacency: Map<string, WalkEdgeEntry[]>;
-}
+// CAMPUS-GATE pass (2026-09-15): WalkNode/WalkGraph/findWalkPath moved to
+// liveAgentWalk.ts -- see that module's own "Walk graph pathfinding" header
+// for why. Short version: this file imports 3 raw-kit constants from
+// SetKit.tsx (a real .tsx React/three component file), which node's own ESM
+// loader refuses to load at all under plain `node --test`
+// (ERR_UNKNOWN_FILE_EXTENSION, verified this pass) -- so layout.ts itself
+// can never be imported by this repo's node-native test suite, and neither
+// could a path-safety regression test for findWalkPath (the exact test this
+// pass needs to add, per the campus-gate entry-node change below) if the
+// function stayed here. findWalkPath has zero SetKit dependency -- it only
+// ever touches a WalkGraph (a plain nodes/adjacency Map pair) -- so this is
+// a pure, behavior-preserving code MOVE, not a rewrite. Re-exported below so
+// every existing import site (Scene.tsx, LiveAgents.tsx) keeps working with
+// zero edits of its own.
+import { findWalkPath, type WalkGraph, type WalkNode } from "./liveAgentWalk";
+export { findWalkPath };
+export type { WalkGraph, WalkNode };
 
 function dist3(a: readonly [number, number, number], b: readonly [number, number, number]): number {
   return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
@@ -459,7 +462,7 @@ export interface WalkGraphInput {
  * that stability matters), never inside a useFrame. */
 export function buildWalkGraph(input: WalkGraphInput): WalkGraph {
   const nodes = new Map<string, WalkNode>();
-  const adjacency = new Map<string, WalkEdgeEntry[]>();
+  const adjacency: WalkGraph["adjacency"] = new Map();
 
   const addNode = (id: string, position: [number, number, number]) => {
     nodes.set(id, { id, position });
@@ -482,6 +485,21 @@ export function buildWalkGraph(input: WalkGraphInput): WalkGraph {
     addEdge("hub-center", `hub-door-${k}`);
     addEdge(`hub-door-${k}`, `t-${k}`);
   }
+  // CAMPUS-GATE pass (2026-09-15, J: agents should "spawn at the gate, walk
+  // the hallways ... walk out and despawn when they go quiet" -- today they
+  // spawn/leave at the hub centre, the middle of the building, not a gate).
+  // Sits just past arm 0's own real footprint (ARM_LEN, this file's own
+  // half-length-of-one-arm constant) plus the plaza's own apron (PLAZA_APRON,
+  // same margin the plaza floor/outdoor-prop clearance already use) --
+  // [21.6,0,0] at today's raw-kit dimensions, derived, never a literal.
+  // Wired to arm 0's T-junction ("t-0", added just above) rather than
+  // straight to the hub door: arm 0 (ZONE lab -> bay-desk-0, this session's
+  // own worst-case walk) already has a paved open-plaza run from its
+  // T-junction out to the apron edge, so this edge crosses open plaza floor
+  // (never a wall), a real hallway hop at the SAME node granularity as every
+  // other edge this graph already has.
+  addNode("campus-gate", [ARM_LEN + PLAZA_APRON, 0, 0]);
+  addEdge("campus-gate", "t-0");
   input.baySlots.forEach((slot) => {
     addNode(`bay-door-${slot.index}`, slot.doorWorldPos);
     addNode(`bay-desk-${slot.index}`, slot.agentHome);
@@ -502,57 +520,6 @@ export function buildWalkGraph(input: WalkGraphInput): WalkGraph {
   });
 
   return { nodes, adjacency };
-}
-
-/** Dijkstra over the walk graph -- see this section's own header for why a
- * full shortest-path search (rather than a tree-only shortcut) is used
- * despite the graph's current tree shape. Returns world-space waypoints
- * from `fromId` to `toId` inclusive, or null if either id is unknown or
- * unreachable (fails open to the caller, which should fall back to a
- * direct line rather than throw -- same "never crash on a missing node"
- * discipline as every other lookup in this tree). */
-export function findWalkPath(graph: WalkGraph, fromId: string, toId: string): [number, number, number][] | null {
-  const start = graph.nodes.get(fromId);
-  const goal = graph.nodes.get(toId);
-  if (!start || !goal) return null;
-  if (fromId === toId) return [start.position];
-
-  const dist = new Map<string, number>([[fromId, 0]]);
-  const prev = new Map<string, string>();
-  const visited = new Set<string>();
-
-  for (;;) {
-    let current: string | null = null;
-    let currentDist = Infinity;
-    for (const [id, d] of dist) {
-      if (!visited.has(id) && d < currentDist) {
-        current = id;
-        currentDist = d;
-      }
-    }
-    if (current === null || current === toId) break;
-    visited.add(current);
-    for (const edge of graph.adjacency.get(current) ?? []) {
-      if (visited.has(edge.to)) continue;
-      const candidate = currentDist + edge.dist;
-      if (candidate < (dist.get(edge.to) ?? Infinity)) {
-        dist.set(edge.to, candidate);
-        prev.set(edge.to, current);
-      }
-    }
-  }
-  if (!dist.has(toId)) return null;
-
-  const path: string[] = [toId];
-  let cursor = toId;
-  while (cursor !== fromId) {
-    const parent = prev.get(cursor);
-    if (!parent) return null; // unreachable -- fail open, never throw
-    path.push(parent);
-    cursor = parent;
-  }
-  path.reverse();
-  return path.map((id) => graph.nodes.get(id)!.position);
 }
 
 /** Builds a WalkPlan (the contract Agent.tsx's own walk consumer reads once
