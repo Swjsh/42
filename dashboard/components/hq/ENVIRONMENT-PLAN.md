@@ -592,3 +592,7 @@ own header has the exact 4.1 PERSONA_WALL_RADIUS derivation) and section B's fla
 (0deg-tilt) two-panel monitor spec, adapted to a billboarded floor stand (see
 TwinMonitors.tsx's own header for why a fixed wall-pitch can't serve both the default
 orbit camera and the top-down preset J asked for at once).
+
+### Head-label pass references (LABELS worker, 2026-09-15 18:59 ET)
+Implemented the compact head label from this section's part C (name + dot + model-tier
+glyph; action/status text moved to hover/click) -- see `headLabelModel.ts`/`HeadLabel.tsx`.

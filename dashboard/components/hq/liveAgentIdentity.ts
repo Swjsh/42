@@ -13,6 +13,13 @@
 // back empty). No model name is ever available here (PulseRow carries no
 // such field -- see hq-agents.ts's own wire type) and this module never
 // invents one.
+//
+// HEAD-LABELS pass (2026-09-15): now imports headLabelModel.ts's pure
+// `modelGlyph` for the identity's own glyph/glyphTitle fields below --
+// still react/three-COMPONENT-free (headLabelModel.ts only reads palette.ts's
+// plain color-map consts, no JSX/hooks), so this stays `node --test`-able.
+
+import { modelGlyph } from "./headLabelModel";
 
 export type LiveAgentTypeKind = "session" | "worker" | "explore" | "other";
 
@@ -27,6 +34,15 @@ export interface LiveAgentIdentity {
    * string so the header and any future name label can never show two
    * different things for the same agent. */
   displayName: string;
+  /** HEAD-LABELS pass (2026-09-15): the model-tier glyph shown after the
+   * name in the compact head label (headLabelModel.ts#modelGlyph). Every live
+   * agent gets the SAME generic "claude-live" glyph regardless of `kind`
+   * (session/worker/explore/other) -- pulse.jsonl rows carry no model
+   * name at all (see this file's own header), so this module never
+   * invents a Sonnet/Opus/Haiku tier for one. */
+  glyph: string;
+  /** Hover title for `glyph` -- literal, honest "tier unknown" text. */
+  glyphTitle: string;
 }
 
 // Real pulse.jsonl agent_type values seen in production (2026-09-15 tail:
@@ -69,16 +85,17 @@ function hashString(s: string): number {
  * a deterministic (never random) fallback bucket keyed off the agent's own
  * id so it still reads as visually distinct from its siblings. */
 export function liveAgentIdentity(label: string, id: string): LiveAgentIdentity {
+  const { glyph, title: glyphTitle } = modelGlyph("claude-live");
   if (label === "session") {
-    return { kind: "session", tint: SESSION_TINT, displayName: "Claude (you)" };
+    return { kind: "session", tint: SESSION_TINT, displayName: "Claude (you)", glyph, glyphTitle };
   }
   if (label === "general-purpose") {
-    return { kind: "worker", tint: WORKER_TINT, displayName: "general-purpose" };
+    return { kind: "worker", tint: WORKER_TINT, displayName: "general-purpose", glyph, glyphTitle };
   }
   if (label === "Explore") {
-    return { kind: "explore", tint: EXPLORE_TINT, displayName: "Explore" };
+    return { kind: "explore", tint: EXPLORE_TINT, displayName: "Explore", glyph, glyphTitle };
   }
   const displayName = label || "agent";
   const tint = OTHER_PALETTE[hashString(id || displayName) % OTHER_PALETTE.length];
-  return { kind: "other", tint, displayName };
+  return { kind: "other", tint, displayName, glyph, glyphTitle };
 }

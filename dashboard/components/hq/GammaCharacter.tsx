@@ -1,7 +1,6 @@
 "use client";
 
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
-import type { CSSProperties } from "react";
 import { Html } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { bubbleCounterScale } from "./bubbleText";
@@ -10,6 +9,9 @@ import { BAY_DESK_OFFSET_Z, BAY_SEAT_LOCAL, CHARACTER_TARGET_HEIGHT, DeskCluster
 import { localToWorld, splitBriefSentences, truncateOneLine, type ScreenLine } from "./palette";
 import { PRIORITY } from "./labelDeclutter";
 import { mergeRefs, useLabelDeclutter } from "./useLabelDeclutter";
+import HeadLabel from "./HeadLabel";
+import { modelGlyph } from "./headLabelModel";
+import { useIsKiosk } from "./LiveAgents";
 
 interface GammaLoopRow {
   ts_et: string;
@@ -105,6 +107,7 @@ export default function GammaCharacter({
   // verified truth Hud.tsx's side panel already reads, so the two can no
   // longer disagree the way the real capture caught them doing.
   const thinking = brainBusy;
+  const isKiosk = useIsKiosk();
   const animState: KitAnimState = thinking ? "thinking" : "resting-working";
 
   // Item 2d (LIVE-1, 2026-09-14, J: "it still a 'Dead' world"): cycle EVERY
@@ -202,51 +205,36 @@ export default function GammaCharacter({
         </Suspense>
       </group>
 
-      {/* PEOPLE pass (P2, 2026-09-14, J: "little bubbles above their heads
-          of the action they are doing") -- restyled to the SAME little-
-          bubble look every other character's Agent.tsx bubble now uses
-          (17px, one line, dark translucent box, static `.hq-beam` accent
-          ring, a small tail triangle pointing at the head) instead of the
-          old 30px/2-line panel. `bubbleText`'s own derivation above is
-          UNCHANGED (yielding/error/thinking/brief-sentence-cycling) --
-          only the presentation shrank; truncateOneLine keeps a single real
-          sentence's own tail from ever overflowing the little box.
-          `key={bubbleText}` still replays the shared one-shot .hq-shine
-          sweep whenever the line actually changes. World-2/PEOPLE-pass
-          "de-overlap the hub" rule: while a hub-exchange visitor is at her
-          desk this SAME bubble shows the ack instead (see `ackOverride`'s
-          own prop comment) rather than a second floating one. */}
+      {/* HEAD-LABELS pass (2026-09-15, J: "labels are too big and wordy") --
+          compact label (dot + "Gamma" + house glyph for her local Ollama
+          brain) replaces the old always-on "Gamma · <line>" bubble.
+          `bubbleText`'s own derivation above is UNCHANGED (yielding/error/
+          thinking/brief-sentence-cycling) -- it now shows on HOVER only
+          (HeadLabel's `detail`), including while a hub-exchange visitor's
+          ack is active (`ackOverride` already folds into `bubbleText`
+          upstream, so this still reads as "one bubble, never two").
+          `detailKey={line}` still replays the shared `.hq-shine` sweep
+          whenever the line actually changes -- motion still means events
+          even though the text itself no longer floats permanently. */}
       {(() => {
         const line = truncateOneLine(bubbleText, GAMMA_BUBBLE_ACTION_MAX_CHARS);
+        const { glyph, title: glyphTitle } = modelGlyph("local-llm", null, modelName);
         return (
         <Html position={bubbleWorld} center distanceFactor={9} style={{ pointerEvents: "none" }}>
           {/* DECLUTTER pass: outer wrapper the shared resolver owns, kept
               separate from `bubbleWrapRef`'s own camera-distance scale --
               see Agent.tsx's identical convention/comment. */}
           <div ref={declutterRef} style={{ transformOrigin: "50% 100%" }}>
-          <div ref={mergeRefs(bubbleWrapRef, declutterMeasureRef)} style={{ position: "relative", transformOrigin: "50% 100%" }}>
-            <div className="hq-beam" style={{ "--beam-color": accentColor, borderRadius: 6 } as CSSProperties}>
-              <div
-                style={{
-                  position: "relative", overflow: "hidden",
-                  fontFamily: "system-ui, sans-serif", color: "#dff3ff", fontSize: 24,
-                  background: "rgba(3,4,10,0.78)", padding: "3px 10px", borderRadius: 5,
-                  whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: 5,
-                }}
-              >
-                <span key={line} className="hq-shine" />
-                <b style={{ fontWeight: 800 }}>Gamma</b>
-                <span style={{ color: "#7f93b0" }}>·</span>
-                <span>{line}</span>
-              </div>
-            </div>
-            <div
-              style={{
-                position: "absolute", left: "50%", bottom: -4, width: 8, height: 8,
-                transform: "translateX(-50%) rotate(45deg)",
-                background: "rgba(3,4,10,0.78)",
-                borderRight: `1px solid ${accentColor}`, borderBottom: `1px solid ${accentColor}`,
-              }}
+          <div ref={mergeRefs(bubbleWrapRef, declutterMeasureRef)} style={{ position: "relative", transformOrigin: "50% 100%", pointerEvents: isKiosk ? "none" : "auto" }}>
+            <HeadLabel
+              name="Gamma"
+              glyph={glyph}
+              glyphTitle={glyphTitle}
+              dotColor={accentColor}
+              accentColor={accentColor}
+              detail={line}
+              detailKey={line}
+              interactive={!isKiosk}
             />
           </div>
           </div>

@@ -42,7 +42,6 @@
 // now only wires those pure decisions to real refs/THREE objects/r3f hooks.
 
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
-import type { CSSProperties } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
@@ -53,6 +52,8 @@ import { bubbleCounterScale } from "./bubbleText";
 import { PRIORITY } from "./labelDeclutter";
 import { mergeRefs, useLabelDeclutter } from "./useLabelDeclutter";
 import { liveAgentIdentity } from "./liveAgentIdentity";
+import HeadLabel from "./HeadLabel";
+import { statusDotColor } from "./headLabelModel";
 import { CHARACTER_SCALE, CHARACTER_TARGET_HEIGHT } from "./SetKit";
 import type { LiveAgent } from "./types";
 import type { LiveAgentState } from "@/lib/hq-agents";
@@ -84,7 +85,12 @@ import {
 // did fire a hover event). Decided after mount (useEffect, not read at
 // render time) so the server-rendered HTML never mismatches on hydration --
 // same convention as page.tsx's own `lanKiosk` state.
-function useIsKiosk(): boolean {
+// HEAD-LABELS pass (2026-09-15): exported so Agent.tsx/GammaCharacter.tsx's
+// new HeadLabel hover can share this SAME kiosk check instead of each
+// re-implementing it -- there is exactly one real definition of "kiosk" in
+// this codebase (a LAN hostname or ?kiosk=1) and every hover-capable
+// surface should agree on it.
+export function useIsKiosk(): boolean {
   const [kiosk, setKiosk] = useState(false);
   useEffect(() => {
     try {
@@ -194,6 +200,10 @@ interface AvatarProps {
   /** AGENT-IDENTITY pass: short human name (liveAgentIdentity.ts) shown in
    * the bubble header instead of the raw server `label` string. */
   displayName: string;
+  /** HEAD-LABELS pass (2026-09-15): model-tier glyph + hover title for the
+   * compact head label (liveAgentIdentity.ts). */
+  glyph: string;
+  glyphTitle: string;
   accentColor: string;
   bubble: string;
   rawDetail: string;
@@ -236,17 +246,15 @@ function nodePosition(walkGraph: WalkGraph, id: string, fallback: [number, numbe
 }
 
 function LiveAgentAvatar({
-  liveAgentId, label, displayName, accentColor, bubble, rawDetail, taskDetail, walkGraph, targetNodeId, serverState, leaving, reducedMotion,
+  liveAgentId, label, displayName, glyph, glyphTitle, accentColor, bubble, rawDetail, taskDetail, walkGraph, targetNodeId, serverState, leaving, reducedMotion,
   standOffset, standIndex, spawnDelayS, leaveDelayS, spawnIndex, leaveIndex, onDespawned,
 }: AvatarProps) {
   const group = useRef<THREE.Group>(null);
   const bubbleWrapRef = useRef<HTMLDivElement>(null);
   const bubbleDelta = useMemo(() => new THREE.Vector3(), []);
-  // AGENT-IDENTITY pass: hover -> full-task tooltip. A plain useState (not
-  // a ref) -- hover start/stop are discrete pointer events and the tooltip
-  // itself must re-render when this flips, same "state for discrete
-  // moments" convention Scene.tsx's own hoveredTarget comment documents.
-  const [hovered, setHovered] = useState(false);
+  // HEAD-LABELS pass (2026-09-15): hover state now lives inside HeadLabel
+  // itself (this component no longer owns a `hovered` useState -- see
+  // HeadLabel.tsx). `isKiosk` still gates `interactive` below.
   const isKiosk = useIsKiosk();
   const entryPos = useMemo<[number, number, number]>(
     () => nodePosition(walkGraph, ENTRY_NODE_ID, [0, 0, 0]),
@@ -1199,70 +1207,32 @@ function LiveAgentAvatar({
       <Suspense fallback={null}>
         <KitAgentBody laneSeed={liveAgentId} animState={animState} accentColor={accentColor} />
       </Suspense>
+      {/* HEAD-LABELS pass (2026-09-15): compact label (name + generic
+          Claude glyph + status dot) replaces the old always-on
+          "<name> · <bubble>" line -- the full bubble/taskDetail text is now
+          hover-only (HeadLabel's own `detail`), same content this avatar
+          already had, just no longer floating permanently over the scene.
+          Dot color: green while actively spawning/walking/working, gray
+          once `leaving` (Discord-style "quiet/leaving" -> gray, per
+          headLabelModel.ts#statusDotColor's persona-axis reuse -- this avatar
+          has no persona/lane status field of its own, so GREEN/IDLE is the
+          closest honest 2-state read of `leaving`). */}
       <Html position={[0, bubbleY, 0]} center distanceFactor={9} style={{ pointerEvents: "none" }}>
         {/* DECLUTTER pass: outer wrapper the shared resolver owns, kept
             separate from `bubbleWrapRef`'s own camera-distance fade/scale --
             see Agent.tsx's identical convention/comment. */}
         <div ref={declutterRef} style={{ transformOrigin: "50% 100%" }}>
-        <div
-          ref={mergeRefs(bubbleWrapRef, declutterMeasureRef)}
-          style={{ position: "relative", transformOrigin: "50% 100%", pointerEvents: isKiosk ? "none" : "auto" }}
-          onMouseEnter={() => setHovered(true)}
-          onMouseLeave={() => setHovered(false)}
-        >
-          <div className="hq-beam" style={{ "--beam-color": accentColor, borderRadius: 6 } as CSSProperties}>
-            <div
-              style={{
-                position: "relative", overflow: "hidden",
-                fontFamily: "system-ui, sans-serif", color: "#dff3ff", fontSize: 24,
-                background: "rgba(3,4,10,0.78)", padding: "3px 10px", borderRadius: 5,
-                whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: 5,
-              }}
-            >
-              <span key={bubbleTrunc} className="hq-shine" />
-              <b style={{ fontWeight: 800 }}>{displayName}</b>
-              <span style={{ color: "#7f93b0" }}>·</span>
-              <span>{bubbleTrunc}</span>
-            </div>
-          </div>
-          <div
-            style={{
-              position: "absolute", left: "50%", bottom: -4, width: 8, height: 8,
-              transform: "translateX(-50%) rotate(45deg)",
-              background: "rgba(3,4,10,0.78)",
-              borderRight: `1px solid ${accentColor}`, borderBottom: `1px solid ${accentColor}`,
-            }}
+        <div ref={mergeRefs(bubbleWrapRef, declutterMeasureRef)} style={{ position: "relative", transformOrigin: "50% 100%", pointerEvents: isKiosk ? "none" : "auto" }}>
+          <HeadLabel
+            name={displayName}
+            glyph={glyph}
+            glyphTitle={glyphTitle}
+            dotColor={statusDotColor("persona", leaving ? "IDLE" : "GREEN")}
+            accentColor={accentColor}
+            detail={taskDetail || bubbleTrunc || null}
+            detailKey={bubbleTrunc}
+            interactive={!isKiosk}
           />
-          {/* AGENT-IDENTITY pass: hover tooltip -- the FULL, un-truncated
-              (vs. bubbleTrunc's 44-char cut) sanitized task text
-              (taskDetail, server-computed by lib/hq-agents.ts#sanitizeTaskText).
-              Kiosk-hidden (pointerEvents "none" above means onMouseEnter can
-              never fire there anyway; `hovered` also just never becomes true
-              on a kiosk with no pointer -- this `!isKiosk` check is
-              belt-and-suspenders, matching this file's existing "no silent
-              stuck state" convention). `position: absolute` and therefore
-              taken out of flow -- appearing/disappearing on hover can never
-              change declutterMeasureRef's own getBoundingClientRect() (an
-              absolutely-positioned child never contributes to its static-
-              positioned parent's layout box), so a hover never perturbs the
-              declutter collision box the manager already computed for the
-              bubble. pointerEvents "none" so the tooltip itself can never
-              steal the mouseleave that should close it. */}
-          {hovered && !isKiosk && taskDetail ? (
-            <div
-              style={{
-                position: "absolute", left: "50%", bottom: "calc(100% + 10px)",
-                transform: "translateX(-50%)", pointerEvents: "none",
-                maxWidth: 340, width: "max-content",
-                fontFamily: "system-ui, sans-serif", color: "#dff3ff", fontSize: 20,
-                background: "rgba(3,4,10,0.92)", border: `1px solid ${accentColor}`,
-                borderRadius: 6, padding: "6px 10px",
-                whiteSpace: "normal", wordBreak: "break-word", lineHeight: 1.35,
-              }}
-            >
-              {taskDetail}
-            </div>
-          ) : null}
         </div>
         </div>
       </Html>
@@ -1286,6 +1256,11 @@ interface DisplayedAgent {
    * header and any future name label can never show two different things
    * for the same agent. */
   displayName: string;
+  /** HEAD-LABELS pass (2026-09-15): the compact label's model-tier glyph +
+   * hover title (liveAgentIdentity.ts -- always the generic "claude-live"
+   * glyph, since no live agent row ever carries a model name). */
+  glyph: string;
+  glyphTitle: string;
   /** AGENT-IDENTITY pass: full, leak-sanitized task text for the hover
    * tooltip (lib/hq-agents.ts#sanitizeTaskText, computed server-side --
    * see that field's own doc comment for why). */
@@ -1384,6 +1359,8 @@ export default function LiveAgents({ agents, walkGraph, ultra, reducedMotion }: 
           leaving: false,
           accentColor: identity.tint,
           displayName: identity.displayName,
+          glyph: identity.glyph,
+          glyphTitle: identity.glyphTitle,
           taskDetail: a.taskDetail || bubble,
           spawnDelayS: existing ? existing.spawnDelayS : (spawnDelays.get(a.id) ?? 0),
           leaveDelayS: existing ? existing.leaveDelayS : 0,
@@ -1474,6 +1451,8 @@ export default function LiveAgents({ agents, walkGraph, ultra, reducedMotion }: 
             liveAgentId={d.id}
             label={d.label}
             displayName={d.displayName}
+            glyph={d.glyph}
+            glyphTitle={d.glyphTitle}
             accentColor={d.accentColor}
             bubble={d.bubble}
             rawDetail={d.rawDetail}

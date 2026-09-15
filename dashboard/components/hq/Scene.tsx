@@ -40,6 +40,7 @@ import type { PersonaId } from "@/lib/hq-agents";
 import type { PersonaState } from "@/lib/personas";
 import type { AgentBehavior } from "./Agent";
 import Agent from "./Agent";
+import { modelGlyph } from "./headLabelModel";
 import BrainCore from "./BrainCore";
 import StationModule from "./StationModule";
 import HandoffCourier from "./HandoffCourier";
@@ -99,6 +100,10 @@ interface SceneProps {
 }
 
 const HUB: [number, number, number] = [0, 0, 0];
+// HEAD-LABELS pass (2026-09-15): every lane bay is the SAME deterministic
+// Python engine (never an LLM) -- computed once at module scope rather than
+// per-row-per-render.
+const BAY_MODEL_GLYPH = modelGlyph("python-script");
 // LAYOUT builder pass (2026-09-14, campus-cross rebuild replacing the old
 // 8-way ring, J: "the doors... jumbled mess... space this out... it needs
 // to look real"). All bay/hallway/T-junction geometry now comes from
@@ -1601,6 +1606,20 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
   // reference is stable across no-op polls same as everything else here.
   const auditByName = useMemo(() => new Map((data?.audit?.personas ?? []).map((a) => [a.name, a] as const)), [data?.audit]);
 
+  // HEAD-LABELS pass (2026-09-15): each persona's real model-tier glyph,
+  // from `data.runtime.roles` (lib/hq-runtime.ts#HqRoleRuntime -- the SAME
+  // classified runtime/producer facts Hud.tsx's TRUTH header already
+  // reads), matched by name. Computed once per poll, not per-persona-per-
+  // render, so 6 personas re-rendering doesn't re-derive this 6 times.
+  // `runtime`/`producer` are read live (never guessed) -- see
+  // headLabelModel.ts#modelGlyph's own doc comment for what each runtime
+  // kind maps to and why `claude-session`'s tier is only ever parsed from
+  // this real `producer` string.
+  const modelGlyphByPersona = useMemo(
+    () => new Map((data?.runtime?.roles ?? []).map((r) => [r.name, modelGlyph(r.runtime, r.producer)] as const)),
+    [data?.runtime?.roles],
+  );
+
   // PEOPLE pass (P2/P3, 2026-09-14): the old activityCandidates memo (a
   // separate ranked/fading bubble LAYER feeding the now-deleted
   // ActivityBubbleLayer.tsx) is gone -- each bubble now lives INSIDE its own
@@ -1997,6 +2016,12 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
                 facingYaw={i === nearestLaneIndex ? greeterFacingYaw : undefined}
                 ultra={ultra}
                 bubbleText={laneBubble}
+                // HEAD-LABELS pass (2026-09-15): every lane/bay is the
+                // deterministic Python engine (heartbeat_core.py + the
+                // watcher/gym fleet) -- always the gear glyph, never a
+                // guessed LLM tier.
+                modelGlyph={BAY_MODEL_GLYPH.glyph}
+                modelGlyphTitle={BAY_MODEL_GLYPH.title}
                 // WALK-ROUTING pass (2026-09-15): every walk this agent
                 // queues is now routed through the real hallway/door graph
                 // (`walkGraph`, already memoized above for LiveAgents.tsx);
@@ -2276,6 +2301,13 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
                 // JSX bolds it for free, no separate prop needed).
                 bubbleText={personaBubble}
                 auditVerdict={auditByName.get(persona.name)?.verdict}
+                // HEAD-LABELS pass (2026-09-15): this persona's real
+                // classified runtime (modelGlyphByPersona, derived from
+                // data.runtime.roles above) -- undefined for a persona the
+                // roster fixture doesn't classify (falls back to Agent.tsx's
+                // own "?" default, never a guessed tier).
+                modelGlyph={modelGlyphByPersona.get(persona.name)?.glyph}
+                modelGlyphTitle={modelGlyphByPersona.get(persona.name)?.title}
                 bubblePriority={PRIORITY.PERSONA}
                 // WALK-ROUTING pass (2026-09-15): personas are hub-interior
                 // (home->hub/ambient-point lines never cross a wall today),

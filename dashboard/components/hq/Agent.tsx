@@ -6,7 +6,7 @@ import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import { useThrottledFrame } from "./useThrottledFrame";
-import { auditVerdictColor, isRegularTradingHours, makeMatcapTexture, nowEtDayOfWeek, nowEtMinutes, seededRandom, truncateOneLine } from "./palette";
+import { isRegularTradingHours, makeMatcapTexture, nowEtDayOfWeek, nowEtMinutes, seededRandom, truncateOneLine } from "./palette";
 import { ALERT_PACE_SPEED, CLIP_TABLE, IDLE_VARIANTS, KitAgentBody, NATIVE_WALK_CLIP_MPS, WALK_SPEED, WORKING_VARIANTS, clipCadenceRatio, type KitAnimState } from "./KitAgent";
 import { CHARACTER_SCALE, CHARACTER_TARGET_HEIGHT } from "./SetKit";
 import { recordAgentSample } from "@/lib/hq-motion-diag";
@@ -24,6 +24,9 @@ import { routeViaGraph, type WalkGraph } from "./liveAgentWalk";
 import { bubbleCounterScale } from "./bubbleText";
 import { PRIORITY } from "./labelDeclutter";
 import { mergeRefs, useLabelDeclutter } from "./useLabelDeclutter";
+import HeadLabel from "./HeadLabel";
+import { modelGlyph as computeModelGlyph } from "./headLabelModel";
+import { useIsKiosk } from "./LiveAgents";
 
 export type AgentBehavior = "working" | "idle" | "alert" | "frozen";
 // MOTION-2 V2: "waypoints" added -- a walk driven by a real LAYOUT-supplied
@@ -176,6 +179,15 @@ interface AgentProps {
    * PASS/WARN/FAIL colored via auditVerdictColor). Undefined renders no
    * chip (a lane agent, or a persona /api/hq predates the audit for). */
   auditVerdict?: string;
+  /** HEAD-LABELS pass (2026-09-15): the model-tier glyph char shown after
+   * this agent's name (headLabelModel.ts#modelGlyph's `.glyph`) -- Scene.tsx
+   * computes this per call site (gear for every lane/bay agent, the real
+   * classified runtime for a persona via `data.runtime.roles`). Undefined
+   * falls back to modelGlyph("none")'s "?" -- never a guessed tier. */
+  modelGlyph?: string;
+  /** Hover title for `modelGlyph` -- the literal evidence string
+   * (modelGlyph's `.title`), never invented copy. */
+  modelGlyphTitle?: string;
   /** DECLUTTER pass (2026-09-14): which precedence tier this agent's own
    * head bubble registers at with the shared screen-space declutter system
    * (labelDeclutter.ts's own PRIORITY -- "persona bubbles > lane labels" per
@@ -463,6 +475,7 @@ export default function Agent({
   scheduleDim = 1,
   ultra = false,
   bubbleText, purposefulReason, eventWalkReason, auditVerdict,
+  modelGlyph: modelGlyphChar, modelGlyphTitle,
   bubblePriority = PRIORITY.LANE,
   walkGraph, alertPacePoint,
 }: AgentProps) {
@@ -595,6 +608,7 @@ export default function Agent({
   // "state for discrete moments" reason `walking`/`dwelling`/`pointing`
   // above are all state rather than refs.
   const [activePurpose, setActivePurpose] = useState<string | null>(null);
+  const isKiosk = useIsKiosk();
   // PEOPLE pass: DOM ref to the bubble's own wrapper div, so the per-frame
   // hook can fade it by DIRECT style mutation (never React state -- an
   // opacity ramp every frame would re-render this component's whole JSX
@@ -1279,73 +1293,51 @@ export default function Agent({
         </>
       )}
 
-      {/* PEOPLE pass (P2, 2026-09-14, J: "little bubbles above their heads
-          of the action they are doing") -- ONE little bubble, attached
-          inside this walker's own moving group so it travels WITH it (never
-          a fixed world point -- see ActivityBubbleLayer.tsx's now-deleted
-          layer, which drew bubbles at a snapshot position instead). `center`
-          + `distanceFactor` match every other in-scene Html label in this
-          tree (PersonaModule/GammaCharacter, both now this style too).
-          `.hq-beam` is the shared static 1px accent ring (Hud.tsx's own
-          style block -- no animation, per J's scanner-removal ask). Renders
-          nothing at all when there's no real text (`bubbleActionTrunc`
-          null) -- never a fabricated line, never an empty bubble. */}
-      {bubbleActionTrunc && (
-        <Html position={[0, bubbleY, 0]} center distanceFactor={9} style={{ pointerEvents: "none" }}>
-          {/* DECLUTTER pass: a NEW outer wrapper the shared resolver owns
-              (transform/opacity only, vertical-nudge + fade-beyond-cap) --
-              deliberately separate from `bubbleWrapRef` just inside it,
-              which keeps doing its own camera-distance scale/fade exactly
-              as before (see labelDeclutter.ts's own header for why these
-              must be two different DOM nodes). */}
-          <div ref={declutterRef} style={{ transformOrigin: "50% 100%" }}>
-          <div ref={mergeRefs(bubbleWrapRef, declutterMeasureRef)} style={{ position: "relative", transformOrigin: "50% 100%" }}>
-            <div className="hq-beam" style={{ "--beam-color": accentColor, borderRadius: 6 } as CSSProperties}>
-              <div
-                style={{
-                  position: "relative", overflow: "hidden",
-                  fontFamily: "system-ui, sans-serif", color: "#dff3ff", fontSize: 24,
-                  background: "rgba(3,4,10,0.78)", padding: "3px 10px", borderRadius: 5,
-                  whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: 5,
-                }}
-              >
-                <span key={bubbleActionTrunc} className="hq-shine" />
-                <b style={{ fontWeight: 800 }}>{laneSeed}</b>
-                <span style={{ color: "#7f93b0" }}>·</span>
-                <span>{bubbleActionTrunc}</span>
-                {auditVerdict && (
-                  // PersonaModule's now-deleted badge colored this chip by
-                  // VERDICT (auditVerdictColor: PASS green/WARN amber/FAIL
-                  // red), independent of the character's own status color --
-                  // that's the whole point of a second, separate signal ("is
-                  // the work real" vs "is it currently firing," which can
-                  // disagree). Reusing `accentColor` here would silently
-                  // erase that distinction whenever a persona's status and
-                  // its audit verdict happen to share a hue.
-                  <span style={{ fontSize: 14, fontWeight: 800, color: "#03040a", background: auditVerdictColor(auditVerdict), borderRadius: 3, padding: "0 4px" }}>
-                    {auditVerdict[0]}
-                  </span>
-                )}
-              </div>
-            </div>
-            {/* Speech-bubble tail: an 8x8 square rotated 45deg, positioned so
-                only its bottom-left corner peeks below the bubble box --
-                same bg + a matching two-edge accent border so it reads as
-                one continuous shape pointing down at the head. Plain inline
-                style (no new global CSS/keyframe needed -- this shape never
-                animates). */}
-            <div
-              style={{
-                position: "absolute", left: "50%", bottom: -4, width: 8, height: 8,
-                transform: "translateX(-50%) rotate(45deg)",
-                background: "rgba(3,4,10,0.78)",
-                borderRight: `1px solid ${accentColor}`, borderBottom: `1px solid ${accentColor}`,
-              }}
+      {/* HEAD-LABELS pass (2026-09-15, J: "labels are too big and wordy...
+          above each head show only: name + a model-tier icon + a colored
+          status dot. Long status text belongs in hover/click") -- replaces
+          the old always-wordy "<name> · <action text>" bubble (PEOPLE pass,
+          2026-09-14) with the compact HeadLabel (headLabelModel.ts/HeadLabel.tsx;
+          see ENVIRONMENT-PLAN.md's "Design pass 2026-09-15" part C for the
+          sourced label conventions). Renders UNCONDITIONALLY now -- the
+          name/dot/glyph are always real for a visible character, unlike the
+          old gate on `bubbleActionTrunc` (which only existed because the
+          FORMER label had nothing else to show without an action string).
+          `detail` folds the former action text + audit-verdict letter into
+          one hover-only string (Two Point Hospital convention, part C
+          source 5) rather than an always-on chip; `detailKey` still keys
+          the shared `.hq-shine` one-shot sweep so a genuine change still
+          reads as motion even though the wordy text no longer floats. */}
+      <Html position={[0, bubbleY, 0]} center distanceFactor={9} style={{ pointerEvents: "none" }}>
+        {/* DECLUTTER pass: a NEW outer wrapper the shared resolver owns
+            (transform/opacity only, vertical-nudge + fade-beyond-cap) --
+            deliberately separate from `bubbleWrapRef` just inside it,
+            which keeps doing its own camera-distance scale/fade exactly
+            as before (see labelDeclutter.ts's own header for why these
+            must be two different DOM nodes). */}
+        <div ref={declutterRef} style={{ transformOrigin: "50% 100%" }}>
+          <div ref={mergeRefs(bubbleWrapRef, declutterMeasureRef)} style={{ position: "relative", transformOrigin: "50% 100%", pointerEvents: isKiosk ? "none" : "auto" }}>
+            <HeadLabel
+              name={laneSeed}
+              glyph={modelGlyphChar ?? computeModelGlyph("none").glyph}
+              glyphTitle={modelGlyphTitle ?? computeModelGlyph("none").title}
+              dotColor={accentColor}
+              accentColor={accentColor}
+              detail={
+                bubbleActionTrunc
+                  ? auditVerdict
+                    ? `${bubbleActionTrunc} (audit: ${auditVerdict})`
+                    : bubbleActionTrunc
+                  : auditVerdict
+                    ? `audit: ${auditVerdict}`
+                    : null
+              }
+              detailKey={`${bubbleActionTrunc ?? ""}|${auditVerdict ?? ""}`}
+              interactive={!isKiosk}
             />
           </div>
-          </div>
-        </Html>
-      )}
+        </div>
+      </Html>
     </group>
   );
 }
