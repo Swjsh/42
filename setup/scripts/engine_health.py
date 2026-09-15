@@ -21,7 +21,8 @@ Checks (critical ones gate RED during RTH):
                                       distinguishes "producer dark" from "no signal"
   tv_chart                         -- tv-watchdog-status freshness + cdp_up
   killswitch_safe / killswitch_bold-- circuit-breaker .tripped (CRIT if tripped)
-  position_safe / position_bold    -- current-position*.json parseable
+  position_safe / position_bold    -- fleet/<arm>/exit-state.json readable (via
+                                      live_positions.py, HQ-POSITION-TRUTH 2026-09-15)
 
 Idempotent + fail-safe: a missing state file is a YELLOW check, never a crash.
 Pure stdlib. $0 cost. Per OP-27: paths anchored to __file__; pythonw stdio
