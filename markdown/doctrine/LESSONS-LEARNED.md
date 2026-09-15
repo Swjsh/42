@@ -6278,4 +6278,4 @@ actuator test family). Curated safety gate (31+5) PASS.
 
 **Detection:** any subagent prompt or fan-out template that instructs "run this in the background and wait" is mis-specified -- the orchestrator must own the background process's lifecycle end-to-end; a worker turn ending on a background launch with no synchronous result is an abandoned run waiting to happen.
 
-**Re-violated 2026-09-15 x2 (HQ-PROBE, PERSONA-LATENCY)** -> graduated to a PreToolUse deny in `setup/hooks/gamma_doctrine.py` (commit TBD-see-git-log) + prime-card line.
+**Re-violated 2026-09-15 x2 (HQ-PROBE, PERSONA-LATENCY)** -> graduated to a PreToolUse deny in `setup/hooks/gamma_doctrine.py` (commit f365b9ef) + prime-card line.
