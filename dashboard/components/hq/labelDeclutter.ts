@@ -173,7 +173,78 @@ export function smoothLabelOffset(
   };
 }
 
-function rectsOverlap(
+// NEVER-LERP-INTO-OVERLAP FIX (DECLUTTER v2, 2026-09-15, real-GPU probe
+// evidence: samples file 20260915T092455Z-ryajHEnIzll03dXEfn-AQ.samples
+// .json.gz, 580 ticks / 290s with the cold-start-snap fix already deployed
+// -- 12dd177a/build ryajHEnIzll03dXEfn-AQ). label_overlap was STILL FAIL at
+// 63/580 ticks (10.9%), but the shape changed from v1: overlaps are no
+// longer confined to the intro flythrough -- they're isolated single-tick
+// blips spread across the whole run (Chef/Treasurer alone: 19/580 ticks,
+// at ticks 4, 9, 112, 266, 297, 327, 348, 377, ...). Chef's own screen
+// position keeps drifting 100+ px over tens of seconds even mid-run (e.g.
+// t=62.8s (559.8,542.7) -> t=63.3s (580.5,513.7), a ~35px single-tick
+// move) -- the OVERVIEW CAMERA never stops moving, so a label that already
+// carries a non-zero offset (past the v1 cold-start-snap fix, which only
+// covers the FIRST nudging tick) keeps re-targeting every tick as the
+// camera drifts, and `smoothLabelOffset`'s SMOOTH_FACTOR=0.4 lerp lags
+// that continuously-moving target by ~1-3 ticks -- during which the
+// PARTIALLY-applied offset can itself sit inside a neighbor's rect even
+// though the FULLY-resolved target (which the resolver already proved
+// collision-free against every other label this tick) would not.
+//
+// Fix: never let the lerped (smoothed) candidate leave a label inside a
+// collision that the resolver's own target already avoids. Per label per
+// tick: if the smoothed candidate's rect overlaps ANY other label's
+// target-resolved rect this tick AND the raw target rect does not, skip
+// the lerp and snap straight to the target (same escape hatch the v1
+// cold-start fix already uses, just gated on a different condition).
+// Otherwise lerp exactly as `smoothLabelOffset` already does -- this
+// keeps the "don't snap the whole stack for a 1px jitter" behavior for
+// every tick where lagging behind the target was never actually visible.
+export interface OverlapRect {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+/**
+ * `smoothLabelOffset` plus one more guard: if the ordinary lerped
+ * (smoothed) candidate would overlap any rect in `otherRects` while the
+ * raw resolver `targetDx/targetDy` would not, returns the target directly
+ * instead of the lerped value. `otherRects` should be every OTHER label's
+ * natural rect already shifted by ITS OWN resolved target offset for this
+ * tick (i.e. where the resolver has already proven every label ends up
+ * with zero mutual overlap) -- see this file's own "NEVER-LERP-INTO-
+ * OVERLAP FIX" note above for why that's the right collision surface to
+ * test the lerped candidate against, and `LabelDeclutterManager.tsx`'s own
+ * call site for how that array is built once per tick from
+ * `resolveLabelOffsets`'s output. Pure function -- zero DOM/React/three.js,
+ * unit-testable in plain `node --test` exactly like `smoothLabelOffset`.
+ */
+export function smoothLabelOffsetAvoidingOverlap(
+  rect: OverlapRect,
+  prevDx: number,
+  prevDy: number,
+  targetDx: number,
+  targetDy: number,
+  smoothFactor: number,
+  otherRects: readonly OverlapRect[],
+): SmoothedOffset {
+  const lerped = smoothLabelOffset(prevDx, prevDy, targetDx, targetDy, smoothFactor);
+
+  const overlapsAny = (dx: number, dy: number): boolean =>
+    otherRects.some((o) =>
+      rectsOverlap(rect.x + dx, rect.y + dy, rect.width, rect.height, o.x, o.y, o.width, o.height),
+    );
+
+  if (overlapsAny(lerped.dx, lerped.dy) && !overlapsAny(targetDx, targetDy)) {
+    return { dx: targetDx, dy: targetDy };
+  }
+  return lerped;
+}
+
+export function rectsOverlap(
   ax: number, ay: number, aw: number, ah: number,
   bx: number, by: number, bw: number, bh: number,
 ): boolean {

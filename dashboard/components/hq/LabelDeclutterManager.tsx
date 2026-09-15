@@ -25,8 +25,37 @@ import { useThrottledFrame } from "./useThrottledFrame";
 import { useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { useRef } from "react";
-import { resolveLabelOffsets, smoothLabelOffset, DEFAULT_MAX_NUDGE_PX, DEFAULT_FADE_OPACITY, type LabelRect, type ObstacleRect } from "./labelDeclutter";
+import { resolveLabelOffsets, smoothLabelOffsetAvoidingOverlap, DEFAULT_MAX_NUDGE_PX, DEFAULT_FADE_OPACITY, type LabelRect, type ObstacleRect, type OverlapRect } from "./labelDeclutter";
 import { getLabelRegistry } from "./useLabelDeclutter";
+import { isMotionDiagEnabled } from "../../lib/hq-motion-diag";
+
+// TICK-COST DIAG (DECLUTTER v2, 2026-09-15): read-only perf sample so the
+// "should this move to per-frame?" question from the coordinator's fix
+// request can be answered with a real number instead of a guess. Same
+// `?diag=1` gate as every other diag hook in this tree (hq-motion-diag.ts)
+// -- zero cost on a normal viewer (the flag read is cached, and the
+// performance.now() calls below are two cheap timestamps, not a new
+// per-tick allocation). Exposes a small rolling window on
+// `window.__hqDeclutterPerf` for a Browser-pane read, not a re-render.
+declare global {
+  interface Window {
+    __hqDeclutterPerf?: { lastMs: number; avgMs: number; maxMs: number; samples: number };
+  }
+}
+let perfSampleCount = 0;
+let perfTotalMs = 0;
+let perfMaxMs = 0;
+function recordTickCost(ms: number): void {
+  perfSampleCount += 1;
+  perfTotalMs += ms;
+  perfMaxMs = Math.max(perfMaxMs, ms);
+  window.__hqDeclutterPerf = {
+    lastMs: ms,
+    avgMs: perfTotalMs / perfSampleCount,
+    maxMs: perfMaxMs,
+    samples: perfSampleCount,
+  };
+}
 
 // HUD-OBSTACLE (2026-09-15): fixed HUD DOM overlays (help bar, title block,
 // right panel, perf/Synced corner -- see Hud.tsx's own `data-hq-obstacle`
@@ -111,6 +140,8 @@ export default function LabelDeclutterManager(): null {
   useThrottledFrame((t) => {
     const registry = getLabelRegistry();
     if (registry.size === 0) return;
+    const diagOn = isMotionDiagEnabled();
+    const perfStart = diagOn ? performance.now() : 0;
     const { camera, size } = store;
     const camPos = camera.position;
 
@@ -152,7 +183,10 @@ export default function LabelDeclutterManager(): null {
       rects.push({ id: entry.id, priority: entry.priority, distance, x: naturalX, y: naturalY, width: measureRect.width, height: measureRect.height });
     }
 
-    if (rects.length === 0) return;
+    if (rects.length === 0) {
+      if (diagOn) recordTickCost(performance.now() - perfStart);
+      return;
+    }
     // See this file's own header (NUDGE_BASELINE_HEIGHT_PX + the SECOND FIX
     // note above it): grow the nudge cap by BOTH how much bigger the
     // tallest label this tick is than the tuned baseline, AND how many
@@ -168,6 +202,20 @@ export default function LabelDeclutterManager(): null {
     const obstacles = readObstacleRects();
     const offsets = resolveLabelOffsets(rects, maxNudgePx, DEFAULT_FADE_OPACITY, obstacles);
 
+    // NEVER-LERP-INTO-OVERLAP FIX (see labelDeclutter.ts's own header on
+    // `smoothLabelOffsetAvoidingOverlap` for the full evidence + mechanism):
+    // build, once per tick, every label's TARGET-resolved rect (its natural
+    // rect shifted by the resolver's own dx/dy for this tick -- the
+    // resolver has already proven these are mutually collision-free) plus
+    // every static obstacle rect, so each label's smoothing step below can
+    // test its lerped candidate against where everyone else is actually
+    // settling this tick, not just against last tick's positions.
+    const targetPlacedRects: (OverlapRect & { id: string })[] = rects.map((r) => {
+      const o = offsets.get(r.id) ?? { dx: 0, dy: 0, opacity: 1 };
+      return { id: r.id, x: r.x + o.dx, y: r.y + o.dy, width: r.width, height: r.height };
+    });
+    const obstacleRectsOnly: OverlapRect[] = obstacles.map((o) => ({ x: o.x, y: o.y, width: o.width, height: o.height }));
+
     for (const entry of registry.values()) {
       const m = measured.get(entry.id);
       const el = entry.wrapperRef.current;
@@ -175,8 +223,12 @@ export default function LabelDeclutterManager(): null {
       const target = offsets.get(entry.id) ?? { dx: 0, dy: 0, opacity: 1 };
       const prevScreenDx = entry.lastLocalDx * m.scale;
       const prevScreenDy = entry.lastLocalDy * m.scale;
-      const { dx: smoothedScreenDx, dy: smoothedScreenDy } = smoothLabelOffset(
-        prevScreenDx, prevScreenDy, target.dx, target.dy, SMOOTH_FACTOR,
+      const others: OverlapRect[] = obstacleRectsOnly.concat(
+        targetPlacedRects.filter((p) => p.id !== entry.id),
+      );
+      const { dx: smoothedScreenDx, dy: smoothedScreenDy } = smoothLabelOffsetAvoidingOverlap(
+        { x: m.naturalX, y: m.naturalY, width: m.width, height: m.height },
+        prevScreenDx, prevScreenDy, target.dx, target.dy, SMOOTH_FACTOR, others,
       );
       const localDx = m.scale > 0 ? smoothedScreenDx / m.scale : 0;
       const localDy = m.scale > 0 ? smoothedScreenDy / m.scale : 0;
@@ -188,6 +240,7 @@ export default function LabelDeclutterManager(): null {
       el.style.opacity = target.opacity.toFixed(2);
     }
 
+    if (diagOn) recordTickCost(performance.now() - perfStart);
     void size; // referenced for clarity/future use (screen-bound clamping); not needed by the algorithm today
     void t;
   }, TICK_HZ);

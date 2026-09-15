@@ -26,7 +26,9 @@ import {
   DEFAULT_MAX_NUDGE_PX,
   PRIORITY,
   resolveLabelOffsets,
+  rectsOverlap,
   smoothLabelOffset,
+  smoothLabelOffsetAvoidingOverlap,
   type LabelRect,
   type ObstacleRect,
 } from "../components/hq/labelDeclutter.ts";
@@ -374,4 +376,66 @@ test("smoothLabelOffset is a no-op when neither prev nor target carries an offse
   const out = smoothLabelOffset(0, 0, 0, 0, 0.4);
   assert.equal(out.dx, 0);
   assert.equal(out.dy, 0);
+});
+
+// ─── NEVER-LERP-INTO-OVERLAP FIX (DECLUTTER v2, 2026-09-15) ─────────────
+// Root cause (see labelDeclutter.ts's own "NEVER-LERP-INTO-OVERLAP FIX"
+// comment for the full real-GPU probe evidence, samples file
+// 20260915T092455Z-ryajHEnIzll03dXEfn-AQ.samples.json.gz, 63/580 ticks
+// still overlapping post-v1): once a label already carries a non-zero
+// offset, `smoothLabelOffset` keeps lerping at SMOOTH_FACTOR even while an
+// overview camera keeps panning/zooming and the resolver's target keeps
+// sliding -- the lerped (under-applied) offset can itself sit inside a
+// neighbor's rect even though the FULLY-resolved target never would.
+//
+// This scenario drives that exact mechanism through both functions:
+// label B needs to clear a neighbor A whose height (and therefore B's
+// exact required clearance) grows 40px every tick for 3 ticks -- a
+// continuously-drifting target, the shape the coordinator's probe read
+// off Chef's own 100+px drift over tens of seconds. A stays fixed at
+// dy=0 (higher priority); B's clearance target is exactly A's height
+// each tick, so a target that landed short would overlap and a target
+// that lands exactly on the boundary does not (matches the real
+// resolver's own "clears with zero slack" worst case).
+test("continuously-drifting target (40px/tick x3): plain smoothLabelOffset overlaps >=1 tick (RED reproduction of the v2 bug), smoothLabelOffsetAvoidingOverlap overlaps 0 ticks (GREEN)", () => {
+  const SMOOTH_FACTOR = 0.4;
+  const B_NATURAL = { x: 100, y: 100, width: 150, height: 24 };
+  const A_X = 100, A_Y = 100, A_WIDTH = 150;
+  const growingHeights = [40, 80, 120]; // A's height this tick == B's exact required clearance
+
+  function tickOverlaps(appliedDy: number, aHeight: number): boolean {
+    return rectsOverlap(
+      B_NATURAL.x, B_NATURAL.y + appliedDy, B_NATURAL.width, B_NATURAL.height,
+      A_X, A_Y, A_WIDTH, aHeight,
+    );
+  }
+
+  // OLD: plain smoothLabelOffset, no overlap-avoidance guard.
+  let prevDx = 0, prevDy = 0, oldOverlapTicks = 0;
+  for (const aHeight of growingHeights) {
+    const targetDy = aHeight;
+    const smoothed = smoothLabelOffset(prevDx, prevDy, 0, targetDy, SMOOTH_FACTOR);
+    if (tickOverlaps(smoothed.dy, aHeight)) oldOverlapTicks += 1;
+    prevDx = smoothed.dx;
+    prevDy = smoothed.dy;
+  }
+  assert.ok(oldOverlapTicks >= 1, `RED: pre-fix smoothLabelOffset must still overlap on >=1 of 3 ticks while the target keeps drifting (got ${oldOverlapTicks})`);
+
+  // NEW: smoothLabelOffsetAvoidingOverlap, snaps to target when (and only
+  // when) the ordinary lerp would leave the label inside a collision the
+  // target itself clears.
+  prevDx = 0;
+  prevDy = 0;
+  let newOverlapTicks = 0;
+  for (const aHeight of growingHeights) {
+    const targetDy = aHeight;
+    const otherRects = [{ x: A_X, y: A_Y, width: A_WIDTH, height: aHeight }];
+    const smoothed = smoothLabelOffsetAvoidingOverlap(
+      B_NATURAL, prevDx, prevDy, 0, targetDy, SMOOTH_FACTOR, otherRects,
+    );
+    if (tickOverlaps(smoothed.dy, aHeight)) newOverlapTicks += 1;
+    prevDx = smoothed.dx;
+    prevDy = smoothed.dy;
+  }
+  assert.equal(newOverlapTicks, 0, `GREEN: post-fix smoothLabelOffsetAvoidingOverlap must clear every tick even while the target keeps drifting (got ${newOverlapTicks} overlapping ticks)`);
 });
