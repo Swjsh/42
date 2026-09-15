@@ -58,3 +58,17 @@ changes during RTH. Live money needs J. Push only outside 09:30–15:55 ET. Comm
    `markdown/0dte/journaling-guide.md`. Don't build new machinery.
 
 Report to J: verdict first, measured numbers, every UNVERIFIED labelled.
+
+### Added 2026-09-15 evening (J's premarket question — see the audit addendum)
+
+5. **Filter-8 lateness study (research only).** F8 (VIX > 17.30 and rising) was the SOLE blocker on
+   four stretches from 09:55 today while bear score sat at 9; it cleared at 10:27 with 64% of the
+   day's move already gone, and the fill landed at 72%. Measure across all ENTER ticks since
+   08-10: % of the day's directional range travelled at the fill vs at the first all-but-F8 tick,
+   and the net P&L of the entries F8 correctly blocked. Earlier entry = risk EXPANSION → 10-30, not 09-29.
+6. **Premarket-scope study (research only).** Premarket is invisible at four layers (RTH bar filter,
+   `feed=iex`, RTH-only level producer, RTH-only prior-day context). `crypto/lib/session_levels_spy.py`
+   already computes PMH/PML and is unwired from the live SPY path; SIP *historical* bars are reachable
+   on the core key. Test PMH/PML as LEVELS only — never feed premarket bars into the ribbon
+   (`heartbeat_core.py:911` is the 2026-06-25 parity fix). Control for overlap with the existing
+   G11 level-memory wire (today PMH 761.40 vs MEMORY_RES 761.55 — 0.15 apart).
