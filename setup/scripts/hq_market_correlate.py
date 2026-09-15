@@ -23,8 +23,12 @@ SOURCES (read real paths from the writer, not memory -- verified 2026-09-15):
                         one row per account per tick: account="safe"|"bold",
                         ts_et, verdict/action, reason, spy, bear_score,
                         bull_score.)
-  - Positions:          automation/state/current-position-safe.json,
-                        automation/state/current-position-bold.json
+  - Positions:          automation/state/fleet/safe-2/exit-state.json,
+                        automation/state/fleet/bold-2/exit-state.json
+                        (HQ-POSITION-TRUTH, 2026-09-15 -- the LIVE truth;
+                        the OLDER current-position-{safe,bold}.json pair
+                        this script used to read is dead, nothing writes
+                        it -- see read_positions()'s own docstring.)
   - Circuit breakers:   automation/state/circuit-breaker.json (safe),
                         automation/state/aggressive/circuit-breaker.json (bold)
                         -- NOTE the two files use a divergent vocabulary
@@ -84,7 +88,14 @@ from et_clock import et_now  # noqa: E402
 
 BEACON_PATH = STATE / "sight-beacon.json"
 LEDGER_PATH = STATE / "core-decisions.jsonl"
-POSITION_PATHS = {"safe-2": STATE / "current-position-safe.json", "bold-2": STATE / "current-position-bold.json"}
+# HQ-POSITION-TRUTH (2026-09-15): repointed off the dead
+# current-position-{safe,bold}.json pair (nothing writes them -- root cause
+# of the bug this whole task fixes: HQ fell back to HOLD/flat while a real
+# broker position stayed open for hours) onto the LIVE per-account truth --
+# automation/state/fleet/<arm>/exit-state.json, a dict keyed by open option
+# symbol written by setup/scripts/heartbeat_core.py's exit_manager, `{}` ==
+# flat. Same source dashboard/lib/hq-positions.ts now reads for /api/hq.
+POSITION_PATHS = {"safe-2": STATE / "fleet" / "safe-2" / "exit-state.json", "bold-2": STATE / "fleet" / "bold-2" / "exit-state.json"}
 BREAKER_PATHS = {"safe-2": STATE / "circuit-breaker.json", "bold-2": STATE / "aggressive" / "circuit-breaker.json"}
 STATION_DIR = STATE / "station"
 HQ_URL = "http://127.0.0.1:3000/api/hq"
@@ -226,22 +237,39 @@ def read_engine(now_et: datetime, ledger_path: Path = LEDGER_PATH) -> dict[str, 
 
 
 def read_positions(paths: dict[str, Path] = POSITION_PATHS) -> dict[str, Any]:
+    """Reads each arm's exit-state.json (dict keyed by open option symbol,
+    `{}` == flat). Kept CLI-backward-compatible: `status`/`symbol`/`qty`/
+    `entry` still describe the SINGLE most-material open leg (largest qty,
+    same "most material fact first" convention lib/hq-positions-pure.ts's
+    formatPositionClause uses) when one exists, plus a new `open_count`/
+    `open_symbols` pair the p1_position_hidden mismatch rule below reads to
+    know "is ANYTHING open" without re-deriving it from `status` alone."""
     out: dict[str, Any] = {}
     for arm, path in paths.items():
         entry: dict[str, Any] = {
             "status": None, "symbol": None, "qty": None, "entry": None,
+            "open_count": None, "open_symbols": None,
             "source_file": str(path), "error": None,
         }
         try:
             if not path.exists():
-                entry["error"] = "position file not found"
+                entry["error"] = "exit-state file not found"
                 out[arm] = entry
                 continue
             data = json.loads(path.read_text(encoding="utf-8"))
-            entry["status"] = data.get("status")
-            entry["symbol"] = data.get("symbol") or data.get("option_symbol")
-            entry["qty"] = data.get("qty") or data.get("quantity")
-            entry["entry"] = data.get("entry") or data.get("entry_price") or data.get("fill_price")
+            if not isinstance(data, dict):
+                entry["error"] = f"exit-state.json is not a dict (got {type(data).__name__})"
+                out[arm] = entry
+                continue
+            legs = [v for v in data.values() if isinstance(v, dict) and v.get("symbol")]
+            entry["open_count"] = len(legs)
+            entry["open_symbols"] = [leg.get("symbol") for leg in legs]
+            entry["status"] = "open" if legs else "flat"
+            if legs:
+                biggest = max(legs, key=lambda leg: leg.get("total_qty") or 0)
+                entry["symbol"] = biggest.get("symbol")
+                entry["qty"] = biggest.get("total_qty")
+                entry["entry"] = biggest.get("entry_premium")
         except (OSError, json.JSONDecodeError) as e:
             entry["error"] = f"{type(e).__name__}: {e}"
         out[arm] = entry
@@ -308,9 +336,22 @@ def fetch_hq(url: str = HQ_URL, timeout: float = 5.0) -> dict[str, Any]:
 
         trading = payload.get("trading") or {}
         core = trading.get("core") or {}
+        # HQ-POSITION-TRUTH (2026-09-15): trading.position.<acct> is the NEW
+        # /api/hq field (dashboard/lib/hq.ts#readTradingStatus, sourced from
+        # lib/hq-positions.ts's exit-state.json read -- independent of
+        # `core`, which can be null/stale on a given tick even while a real
+        # position stays open). Merged into each account's own dict here so
+        # rule (p1) below can read `market.<acct>.position.open` without a
+        # second payload traversal.
+        position = trading.get("position") or {}
+        def _merge_account(acct_key: str) -> dict[str, Any]:
+            base = core.get(acct_key)
+            merged: dict[str, Any] = dict(base) if isinstance(base, dict) else {}
+            merged["position"] = position.get(acct_key)
+            return merged
         out["market"] = {
-            "safe": core.get("safe"),
-            "bold": core.get("bold"),
+            "safe": _merge_account("safe"),
+            "bold": _merge_account("bold"),
         }
         # MARKET-TRUTH (2026-09-15): the NEW top-level live field HQ's
         # /api/hq trading payload now carries (dashboard/lib/hq.ts
@@ -565,6 +606,37 @@ def check_hq_activity_no_engine(rows: list[dict[str, Any]]) -> list[dict[str, An
     return mismatches
 
 
+def check_position_hidden(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """(p1) HQ-POSITION-TRUTH (2026-09-15): the engine/broker holds an open
+    position (this script's own read_positions() -- exit-state.json truth,
+    status=="open") but /api/hq's `trading.position.<acct>.open` is empty --
+    the exact bug this task was filed against (HQ showed ENTER_BEAR for two
+    minutes then fell back to HOLD/flat while a real 3-lot put stayed open
+    for hours). Independent of check_hq_activity_no_engine (rule d, which
+    only ever compares HQ verdict vs the engine's per-tick action ledger,
+    never the actual broker position)."""
+    mismatches = []
+    for row in rows:
+        positions = row.get("positions") or {}
+        hq = row.get("hq") or {}
+        hq_market = hq.get("market") or {}
+        for arm in ("safe-2", "bold-2"):
+            pos_entry = positions.get(arm) or {}
+            if pos_entry.get("status") != "open":
+                continue
+            hq_key = "safe" if arm == "safe-2" else "bold"
+            hq_info = hq_market.get(hq_key)
+            hq_position = hq_info.get("position") if isinstance(hq_info, dict) else None
+            hq_open = hq_position.get("open") if isinstance(hq_position, dict) else None
+            if not (isinstance(hq_open, list) and len(hq_open) > 0):
+                mismatches.append({
+                    "rule": "p1_position_hidden", "ts_et": row.get("ts_et"), "arm": arm,
+                    "detail": f"{arm} exit-state shows OPEN ({pos_entry.get('symbol')} x{pos_entry.get('qty')}) "
+                              f"but HQ trading.position.{hq_key}.open is empty",
+                })
+    return mismatches
+
+
 def cmd_report(args: argparse.Namespace) -> int:
     now_et = et_now()
     date_str = args.date or now_et.strftime("%Y-%m-%d")
@@ -590,6 +662,7 @@ def cmd_report(args: argparse.Namespace) -> int:
         + check_hq_engine_bar_vs_ledger(rows)
         + check_engine_tick_gap(rows)
         + check_hq_activity_no_engine(rows)
+        + check_position_hidden(rows)
     )
     print(f"\n=== MISMATCHES: {len(mismatches)} ===")
     by_rule: dict[str, int] = {}

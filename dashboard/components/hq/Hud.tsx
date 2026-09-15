@@ -13,6 +13,7 @@ import type { MotionEvent } from "@/lib/useMotionEvents";
 // zero fs/fetch, ground truth stays in lib/personas.ts's PersonaState).
 import { crewLastLine, crewNextLine, crewNowLine, deriveCrewPill, CREW_PILL_COLOR } from "@/lib/crew";
 import { formatLiveSpyLine } from "@/lib/hq-market-pure";
+import { formatPositionClause } from "@/lib/hq-positions-pure";
 
 const BLOCKED_SOURCE_LABEL: Record<string, string> = {
   discord: "Discord",
@@ -100,6 +101,15 @@ function buildTradingStrip(trading: TradingStatus | undefined): TradingStrip {
   // "first available" convention the rest of this function already uses).
   const engineAction = core.safe?.action ?? core.bold?.action ?? null;
   const engineActionReason = core.safe?.actionReason ?? core.bold?.actionReason ?? null;
+  // HQ-POSITION-TRUTH (2026-09-15): a real open leg from lib/hq-positions.ts
+  // (exit-state.json truth, independent of the per-tick action ledger)
+  // ALWAYS outranks the generic engine-action clause below -- root cause
+  // this fixes: the strip fell back to "holding"/flat the moment the
+  // engine's action ledger stopped logging ENTER_* (~2 min post-entry) even
+  // while the broker position stayed open for hours.
+  const safePositionClause = formatPositionClause("safe", trading.position?.safe);
+  const boldPositionClause = formatPositionClause("bold", trading.position?.bold);
+  const positionClause = [safePositionClause, boldPositionClause].filter((c): c is string => !!c).join(" · ");
 
   let color: TradingStripColor;
   if (readiness.verdict === "RED" || ageMin === null || ageMin > 3) {
@@ -123,9 +133,11 @@ function buildTradingStrip(trading: TradingStatus | undefined): TradingStrip {
   // simply holding on a fresh tick) makes the SKIP/HOLD distinction visible
   // instead of collapsing everything into an undifferentiated "HOLD".
   const liveLine = formatLiveSpyLine(trading.market.live);
-  const engineClause = engineAction && engineAction !== "HOLD" && engineActionReason
-    ? ` · engine: ${engineActionReason}`
-    : "";
+  const engineClause = positionClause
+    ? ` · ${positionClause}`
+    : engineAction && engineAction !== "HOLD" && engineActionReason
+      ? ` · engine: ${engineActionReason}`
+      : "";
 
   const text = `MARKET OPEN · engine ticking ${hhmmFromEtIso(lastTickIso)} ET · safe ${safeV} / bold ${boldV} · `
     + `${liveLine} (bar ${engineBarSpy !== null ? engineBarSpy.toFixed(2) : "?"}) · VIX ${vix !== null ? vix.toFixed(1) : "?"}`

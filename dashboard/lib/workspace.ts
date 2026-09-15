@@ -119,4 +119,20 @@ export const paths = {
   // Real screen captures every builder writes proof to -- "last capture"
   // reads whichever PNG in here has the newest mtime.
   stationCaptures: st("station", "captures"),
+
+  // --- HQ-POSITION-TRUTH (2026-09-15): the LIVE per-account position
+  // source -- automation/state/fleet/<arm>/exit-state.json (dict keyed by
+  // open option symbol, `{}` == flat, written by setup/scripts/
+  // heartbeat_core.py's exit_manager) and the shared fills-ledger.jsonl
+  // (every real fill, all arms, written by the same engine). Replaces the
+  // dead current-position-{safe,bold}.json pair above as the truth source
+  // for open/closed positions -- see lib/hq-positions.ts + lib/
+  // hq-positions-pure.ts. Arm ids match fills-ledger.jsonl's own `arm`
+  // field verbatim ("safe-2"/"bold-2" -- verified against the live file
+  // this session), NOT the bare "safe"/"bold" core-decisions.jsonl uses. ---
+  fleetExitState: {
+    "safe-2": st("fleet", "safe-2", "exit-state.json"),
+    "bold-2": st("fleet", "bold-2", "exit-state.json"),
+  },
+  fillsLedger: st("fills-ledger.jsonl"),
 };

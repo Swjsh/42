@@ -4,8 +4,9 @@ import { useEffect, useId, useMemo } from "react";
 import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import type { SectorsSnapshot, TradingStatus } from "@/lib/hq";
-import { drawScreenLines, PALETTE, type ScreenLine } from "./palette";
+import { drawScreenLines, PALETTE, truncateOneLine, type ScreenLine } from "./palette";
 import { formatLiveSpyLine, formatEngineBarClause } from "@/lib/hq-market-pure";
+import { formatPositionClause } from "@/lib/hq-positions-pure";
 import { KIT_PATHS, KitProp, FURNITURE_SCALE, InstancedKitPool, usePooledKitProps } from "./SetKit";
 import HoloChart from "./HoloChart";
 
@@ -258,12 +259,24 @@ function SectorsTradingPanel({ sectorsSnapshot, trading }: SectorsTradingPanelPr
         color: "#5f7a99",
         size: 13,
       });
+      // HQ-POSITION-TRUTH (2026-09-15): a real open leg from lib/
+      // hq-positions.ts, independent of `core`'s own action ledger -- see
+      // Hud.tsx's buildTradingStrip for the root-cause writeup this same
+      // fix addresses (position truth outranking a stale HOLD read).
+      const safePosClause = formatPositionClause("safe", trading.position?.safe);
+      const boldPosClause = formatPositionClause("bold", trading.position?.bold);
+      if (safePosClause) out.push({ text: truncateOneLine(safePosClause, 36), color: "#ffb020", size: 14 });
+      if (boldPosClause) out.push({ text: truncateOneLine(boldPosClause, 36), color: "#ffb020", size: 14 });
     } else {
       out.push({ text: "trading: no data", color: "#7f93b0", size: 16 });
     }
     return out;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sectorsSnapshot?.ts_et, sectorsSnapshot?.summary_line, trading?.readiness.verdict, trading?.readiness.tsEt, trading?.market.live?.spy, trading?.market.live?.age_s, core?.engineBarSpy, core?.vix]);
+  }, [
+    sectorsSnapshot?.ts_et, sectorsSnapshot?.summary_line, trading?.readiness.verdict, trading?.readiness.tsEt,
+    trading?.market.live?.spy, trading?.market.live?.age_s, core?.engineBarSpy, core?.vix,
+    trading?.position?.safe, trading?.position?.bold,
+  ]);
 
   const contentKey = lines.map((l) => `${l.text}|${l.color ?? ""}`).join("~");
   useEffect(() => {

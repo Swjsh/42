@@ -26,6 +26,7 @@ import { reportAutoOrbitResumed } from "@/lib/hq-camera-mode";
 // 0-5, the SAME fixed order cameraPresets below already uses).
 import { getHoveredPersonaIndex, subscribeHoveredPersonaIndex } from "@/lib/hq-hover-persona";
 import type { HqApiResponse, SectorRow, CoreDecisionRow } from "./types";
+import { formatPositionClause, type AccountPositions } from "@/lib/hq-positions-pure";
 import type { PersonaId } from "@/lib/hq-agents";
 import type { PersonaState } from "@/lib/personas";
 import type { AgentBehavior } from "./Agent";
@@ -2020,6 +2021,10 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
         const purposeful = purposefulWalks[i];
         const safeDecision = isPilot ? (data?.trading?.core.safe ?? null) : null;
         const boldDecision = isPilot ? (data?.trading?.core.bold ?? null) : null;
+        // HQ-POSITION-TRUTH (2026-09-15): the LIVE exit-state.json truth,
+        // independent of core-decisions.jsonl -- see lib/hq-positions.ts.
+        const safePosition = isPilot ? (data?.trading?.position?.safe ?? null) : null;
+        const boldPosition = isPilot ? (data?.trading?.position?.bold ?? null) : null;
         // "isTradeAction" gates the "stands and points" gesture + the pulse
         // badge's hotter-red color. A genuine ENTER_BEAR/ENTER_BULL verdict
         // on EITHER account counts -- verified against the live 42k-row
@@ -2039,7 +2044,21 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
         const decisionText = latestDecision ? `${latestDecision.verdict ?? "?"} @ ${hhmmFromEtIso(latestDecision.tsEt)} ET` : null;
         const decisionTimeEt = latestDecision?.tsEt ?? null;
         const decisionAction = latestDecision?.verdict ?? null;
-        const accountScreenLine = (label: string, row: CoreDecisionRow | null): ScreenLine => {
+        const accountScreenLine = (
+          label: string,
+          row: CoreDecisionRow | null,
+          position: AccountPositions | null,
+        ): ScreenLine => {
+          // HQ-POSITION-TRUTH (2026-09-15): a real open leg ALWAYS outranks
+          // the generic verdict/action text -- root cause this fixes: this
+          // screen showed HOLD (flat-looking) the moment the engine's own
+          // action ledger stopped logging ENTER_* while the broker position
+          // stayed open for hours (position truth is independent of that
+          // ledger; see lib/hq-positions.ts).
+          const posClause = formatPositionClause(label, position);
+          if (posClause) {
+            return { text: truncateOneLine(posClause, 32), color: "#ffb020", size: 15 };
+          }
           if (!row) return { text: `${label}: no data`, color: "#5f7a99", size: 14 };
           const sideTxt = row.side === "C" ? " CALL" : row.side === "P" ? " PUT" : "";
           const rowIsTrade = !!row.verdict && /^(ENTER|EXIT)/.test(row.verdict);
@@ -2057,7 +2076,7 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
           };
         };
         const pilotScreenLines: ScreenLine[] | undefined = isPilot
-          ? [accountScreenLine("SAFE", safeDecision), accountScreenLine("BOLD", boldDecision)]
+          ? [accountScreenLine("SAFE", safeDecision, safePosition), accountScreenLine("BOLD", boldDecision, boldPosition)]
           : undefined;
         // INTERACT-2 (I1, 2026-09-14): every non-Pilot desk shows real work
         // too -- lib/desk-content.ts's own reader per role, keyed by the

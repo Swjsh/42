@@ -6,7 +6,6 @@ import {
   type LoopState,
   type KeyLevelsFile,
   type TodayBias,
-  type CurrentPosition,
   type CircuitBreaker,
   type DialogueFile,
   type KitchenStatus,
@@ -14,6 +13,8 @@ import {
 } from "@/lib/state";
 import { todayET } from "@/lib/time";
 import { countTradesToday } from "@/lib/journal";
+import { readHqPositions } from "@/lib/hq-positions";
+import { toLegacyCurrentPosition } from "@/lib/hq-positions-pure";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -26,8 +27,7 @@ export async function GET() {
     loopStateBold,
     todayBias,
     keyLevels,
-    positionSafe,
-    positionBold,
+    positions,
     circuitBreaker,
     circuitBreakerBold,
     kitchenStatus,
@@ -40,8 +40,13 @@ export async function GET() {
     readJson<LoopState>(paths.loopStateBold),
     readJson<TodayBias>(paths.todayBias),
     readJson<KeyLevelsFile>(paths.keyLevels),
-    readJson<CurrentPosition>(paths.positionSafe),
-    readJson<CurrentPosition>(paths.positionBold),
+    // HQ-POSITION-TRUTH (2026-09-15): repointed off the dead
+    // current-position-{safe,bold}.json pair (nothing writes them -- see
+    // lib/hq-positions.ts's header) onto the LIVE exit-state.json truth,
+    // adapted to this route's existing CurrentPosition shape so this
+    // floor's "/" dashboard stops lying FLAT during a real open position
+    // too, not just /hq.
+    readHqPositions(),
     readJson<CircuitBreaker>(paths.circuitBreaker),
     readJson<CircuitBreaker>(paths.circuitBreakerBold),
     readJson<KitchenStatus>(paths.kitchenStatus),
@@ -50,6 +55,8 @@ export async function GET() {
     readJsonlTail(paths.decisionsJsonlBold, 20),
     countTradesToday(today),
   ]);
+  const positionSafe = toLegacyCurrentPosition(positions["safe-2"]);
+  const positionBold = toLegacyCurrentPosition(positions["bold-2"]);
 
   // Merge ticks from both accounts, filter to today, sort by time, keep last 12
   const allTicks: DecisionTick[] = [

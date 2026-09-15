@@ -6,6 +6,8 @@ import path from "node:path";
 import { paths, WORKSPACE_ROOT } from "./workspace";
 import { getQuote } from "./quote";
 import { describeEngineAction } from "./engine-action-pure";
+import { readHqPositions } from "./hq-positions";
+import type { AccountPositions } from "./hq-positions-pure";
 
 const execFileAsync = promisify(execFile);
 
@@ -983,6 +985,15 @@ export interface TradingStatus {
   bias: TodayBiasSummary | null;
   openBellPingedToday: boolean;
   market: { live: LiveMarketQuote | null };
+  /** HQ-POSITION-TRUTH (2026-09-15): LIVE per-account open/closed position
+   * truth from lib/hq-positions.ts (exit-state.json + fills-ledger.jsonl),
+   * keyed the SAME "safe"/"bold" way `core` above is -- independent of
+   * `core` so a real open position still shows even on a tick where the
+   * engine's own core-decisions.jsonl row is null/stale (the exact bug this
+   * field fixes: HQ read `core.safe.action` alone and fell back to
+   * HOLD/flat 2 minutes after entry once the engine stopped logging
+   * ENTER_BEAR, even though the broker position stayed open for hours). */
+  position: { safe: AccountPositions; bold: AccountPositions };
 }
 
 /** Combines every item-5 source into the ONE `trading` field /api/hq
@@ -990,12 +1001,13 @@ export interface TradingStatus {
  * one missing file degrades that piece to null/UNKNOWN, never a 500 for
  * the whole payload. */
 export async function readTradingStatus(): Promise<TradingStatus> {
-  const [readiness, core, bias, openBellPingedToday, quote] = await Promise.all([
+  const [readiness, core, bias, openBellPingedToday, quote, positions] = await Promise.all([
     readTradingReadiness(),
     readCoreDecisionsLatest(),
     readTodayBiasSummary(),
     readOpenBellPingedToday(),
     getQuote(),
+    readHqPositions(),
   ]);
   // getQuote()'s own staleness ("unavailable"/"stale") is a DIFFERENT axis
   // than "do we have a number at all" -- market.live.spy is null only when
@@ -1005,7 +1017,10 @@ export async function readTradingStatus(): Promise<TradingStatus> {
   const live: LiveMarketQuote | null = quote.price === null
     ? null
     : { spy: quote.price, ts_et: quote.asOfEt, age_s: quote.ageSeconds, source: "sight-beacon" };
-  return { readiness, core, bias, openBellPingedToday, market: { live } };
+  return {
+    readiness, core, bias, openBellPingedToday, market: { live },
+    position: { safe: positions["safe-2"], bold: positions["bold-2"] },
+  };
 }
 
 // CREW-2 (roster) -- automation/state/station/crew-events.jsonl : a NEW

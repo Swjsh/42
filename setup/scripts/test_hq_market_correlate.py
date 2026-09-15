@@ -105,13 +105,27 @@ def test_read_engine_missing_account_in_window(tmp_path: Path):
 # ----------------------------------------------------------------------------
 
 def test_read_positions_missing_and_present(tmp_path: Path):
-    safe_path = tmp_path / "current-position-safe.json"
-    bold_path = tmp_path / "current-position-bold.json"
-    safe_path.write_text(json.dumps({"status": "open", "symbol": "SPY260915C00760000", "qty": 3, "entry": 1.55}), encoding="utf-8")
+    # HQ-POSITION-TRUTH (2026-09-15): exit-state.json is a dict keyed by
+    # open option symbol (real safe-2 shape, trimmed) -- `{}` == flat.
+    safe_path = tmp_path / "exit-state-safe.json"
+    bold_path = tmp_path / "exit-state-bold.json"
+    safe_path.write_text(json.dumps({
+        "SPY260915C00760000": {"symbol": "SPY260915C00760000", "total_qty": 3, "entry_premium": 1.55},
+    }), encoding="utf-8")
     out = hmc.read_positions({"safe-2": safe_path, "bold-2": bold_path})
     assert out["safe-2"]["status"] == "open"
     assert out["safe-2"]["qty"] == 3
-    assert out["bold-2"]["error"] == "position file not found"
+    assert out["safe-2"]["open_count"] == 1
+    assert out["bold-2"]["error"] == "exit-state file not found"
+
+
+def test_read_positions_flat_empty_dict(tmp_path: Path):
+    flat_path = tmp_path / "exit-state-flat.json"
+    flat_path.write_text("{}", encoding="utf-8")
+    out = hmc.read_positions({"safe-2": flat_path})
+    assert out["safe-2"]["status"] == "flat"
+    assert out["safe-2"]["open_count"] == 0
+    assert out["safe-2"]["symbol"] is None
 
 
 def test_read_breakers(tmp_path: Path):
@@ -294,6 +308,50 @@ def test_check_hq_activity_no_engine_ok_when_matching():
     rows = [_row("2026-09-15T10:05:00", 761.0, "ENTER", "HOLD", hq_safe_verdict="ENTER", hq_bold_verdict="HOLD")]
     mismatches = hmc.check_hq_activity_no_engine(rows)
     assert mismatches == []
+
+
+# ----------------------------------------------------------------------------
+# check_position_hidden (p1) -- HQ-POSITION-TRUTH (2026-09-15)
+# ----------------------------------------------------------------------------
+
+def _row_with_positions(ts_et: str, safe_open: bool, hq_safe_open: list | None) -> dict:
+    row = _row(ts_et, 761.0, "HOLD", "HOLD", hq_safe_verdict="HOLD", hq_bold_verdict="HOLD")
+    row["positions"] = {
+        "safe-2": {"status": "open" if safe_open else "flat", "symbol": "SPY260915P00757000", "qty": 3},
+        "bold-2": {"status": "flat", "symbol": None, "qty": None},
+    }
+    row["hq"]["market"]["safe"]["position"] = {"open": hq_safe_open} if hq_safe_open is not None else None
+    row["hq"]["market"]["bold"]["position"] = {"open": []}
+    return row
+
+
+def test_check_position_hidden_flags_the_exact_bug():
+    # exit-state shows safe-2 OPEN (engine action already fell back to
+    # HOLD -- the 2-min-later state this bug produced) but HQ's own
+    # trading.position.safe.open is still empty.
+    rows = [_row_with_positions("2026-09-15T10:42:00", safe_open=True, hq_safe_open=[])]
+    mismatches = hmc.check_position_hidden(rows)
+    assert any(m["rule"] == "p1_position_hidden" and m["arm"] == "safe-2" for m in mismatches)
+
+
+def test_check_position_hidden_ok_when_hq_shows_it():
+    rows = [_row_with_positions("2026-09-15T10:42:00", safe_open=True, hq_safe_open=[{"symbol": "SPY260915P00757000"}])]
+    mismatches = hmc.check_position_hidden(rows)
+    assert mismatches == []
+
+
+def test_check_position_hidden_ok_when_flat():
+    rows = [_row_with_positions("2026-09-15T10:42:00", safe_open=False, hq_safe_open=[])]
+    mismatches = hmc.check_position_hidden(rows)
+    assert mismatches == []
+
+
+def test_check_position_hidden_flags_when_hq_position_field_missing_entirely():
+    # An older /api/hq payload (predates this field) -- still a real
+    # mismatch, not silently skipped, since the broker truth says OPEN.
+    rows = [_row_with_positions("2026-09-15T10:42:00", safe_open=True, hq_safe_open=None)]
+    mismatches = hmc.check_position_hidden(rows)
+    assert any(m["rule"] == "p1_position_hidden" for m in mismatches)
 
 
 # ----------------------------------------------------------------------------
