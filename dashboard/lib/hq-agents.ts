@@ -368,13 +368,19 @@ function isListingCommand(rawCmd: string): boolean {
   return LISTING_VERBS.has(verb);
 }
 
-/** True when a Bash/PowerShell row's `detail` was cut off by pulse.py's own 100-char command
- * cap (setup/hooks/pulse.py#_detail L94: `"Ran: " + str(tool_input.get("command") or "")[:100]`
- * -- no truncation marker written, so the only signal is the length hitting the cap exactly).
- * Whatever verb/path substring sits right at that cut boundary may be a fragment, not the real
- * command, so it must never be trusted as a coarse-zone retarget signal on its own. */
+/** True when a Bash/PowerShell row's `detail` was cut off by pulse.py's own command cap
+ * (setup/hooks/pulse.py#_detail). Two eras of row:
+ *  - 2026-09-15+ (240-char cap): a trailing '…' marker is appended on truncation --
+ *    detect that directly, no length arithmetic needed.
+ *  - historical rows (100-char cap, no marker): the only signal is the length hitting
+ *    the old cap exactly (`"Ran: " + command[:100]`, RAN_PREFIX.length + 100 = 105).
+ * Whatever verb/path substring sits right at a cut boundary may be a fragment, not the
+ * real command, so it must never be trusted as a coarse-zone retarget signal on its own.
+ * A persona hit is unaffected either way -- see resolveTargetKey's own comment. */
 function isTruncatedBashDetail(detail: string): boolean {
-  return detail.startsWith(RAN_PREFIX) && detail.length === RAN_PREFIX.length + 100;
+  if (!detail.startsWith(RAN_PREFIX)) return false;
+  if (detail.endsWith("…")) return true;
+  return detail.length === RAN_PREFIX.length + 100;
 }
 
 function resolveTargetKey(

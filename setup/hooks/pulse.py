@@ -23,6 +23,7 @@ from __future__ import annotations
 import datetime as dt
 import json
 import os
+import re
 from pathlib import Path
 
 _REPO = Path(__file__).resolve().parent.parent.parent
@@ -62,6 +63,60 @@ def classify(tool_name: str) -> str | None:
 
 _TARGET_MAX_LEN = 120  # matches _detail's cap; see test_pulse_target_to_field_is_bounded
 
+# HQ live-agent persona classification reads pulse rows for filename evidence
+# (dashboard/lib/hq-agents.ts PERSONA_EVIDENCE_RULES) but Bash/PowerShell rows never
+# populated `to`, and the old 100-char, no-marker `detail` cap silently cut real commands
+# before the filename ever appeared (e.g. `python -c "print(open('automation/scout/
+# state/scout-feed-summary.json'...` never reaches char 100). Widened 2026-09-15:
+# `detail` grows to 240 chars with a trailing '…' marker on truncation so a consumer
+# can detect truncation without an exact-length heuristic (the old 100-char/no-marker
+# rows stay readable as a separate historical case -- see hq-agents.ts's own
+# isTruncatedBashDetail), and `to` is now populated for Bash/PowerShell from the first
+# path-like token in the FULL (untruncated) command.
+_BASH_DETAIL_CAP = 240
+_TRUNCATION_MARKER = "…"  # single-char ellipsis, not "..." -- keeps the cap exact
+
+# Extensions worth surfacing as a persona-evidence target. Kept narrow and explicit
+# (never a catch-all) so `to` only ever holds something that looks like a real repo
+# artifact, never an arbitrary command-line word that happens to contain a dot.
+_TARGET_EXTENSIONS = ("json", "jsonl", "md", "py", "ps1", "ts", "tsx", "csv")
+
+# A path-like token: word chars, dots, slashes (either direction), colons (Windows drive
+# letters), and hyphens/underscores, ending in one of the known extensions. Quotes,
+# parens, and other command-syntax characters are NOT in the class, so the regex
+# naturally stops at the surrounding `'...'` / `"..."` a `python -c` one-liner wraps the
+# path in -- no separate quote-stripping pass needed.
+_PATH_TOKEN_RE = re.compile(r"[A-Za-z0-9_./\\:-]+\.(?:" + "|".join(_TARGET_EXTENSIONS) + r")\b")
+
+_REPO_POSIX = str(_REPO).replace("\\", "/")
+
+
+def _to_repo_relative_or_basename(token: str) -> str:
+    """Normalize a path-like token for the `to` field.
+
+    Repo-relative when the token is an absolute path under the repo root; basename-only
+    otherwise (covers absolute paths outside the repo, e.g. a user home directory -- this
+    hook must never write a user home path into telemetry). A relative token is returned
+    with backslashes normalized to forward slashes and any leading "./" stripped.
+    """
+    normalized = token.replace("\\", "/")
+    is_absolute = normalized.startswith("/") or bool(re.match(r"^[A-Za-z]:/", normalized))
+    if is_absolute:
+        prefix = _REPO_POSIX + "/"
+        if normalized.lower().startswith(prefix.lower()):
+            return normalized[len(prefix):]
+        return normalized.rsplit("/", 1)[-1]
+    return normalized[2:] if normalized.startswith("./") else normalized
+
+
+def _first_path_target(command: str) -> str:
+    """First path-like token in `command` (the FULL, untruncated command), bounded to
+    _TARGET_MAX_LEN. Empty string when the command names no recognizable file."""
+    match = _PATH_TOKEN_RE.search(command)
+    if not match:
+        return ""
+    return _to_repo_relative_or_basename(match.group(0))[:_TARGET_MAX_LEN]
+
 
 def _target(tool_name: str, tool_input: dict) -> str:
     """Who the edge points at. Empty string means a self-glow, not a travelling pulse.
@@ -80,6 +135,8 @@ def _target(tool_name: str, tool_input: dict) -> str:
         return str(tool_input.get("subagent_type") or tool_input.get("description") or "agent")[:_TARGET_MAX_LEN]
     if tool_name == "Workflow":
         return str(tool_input.get("name") or "workflow")[:_TARGET_MAX_LEN]
+    if tool_name in ("Bash", "PowerShell"):
+        return _first_path_target(str(tool_input.get("command") or ""))
     return ""
 
 
@@ -91,7 +148,9 @@ def _detail(tool_name: str, tool_input: dict) -> str:
         raw = str(tool_input.get("file_path") or tool_input.get("notebook_path") or "")
         return "Editing " + raw.replace("\\", "/").rsplit("/", 1)[-1] if raw else "Editing"
     if tool_name in ("Bash", "PowerShell"):
-        return "Ran: " + str(tool_input.get("command") or "")[:100]
+        command = str(tool_input.get("command") or "")
+        marker = _TRUNCATION_MARKER if len(command) > _BASH_DETAIL_CAP else ""
+        return "Ran: " + command[:_BASH_DETAIL_CAP] + marker
     if tool_name in ("Agent", "Task", "Workflow"):
         return str(tool_input.get("description") or tool_input.get("name") or "")[:120]
     return ""

@@ -531,6 +531,44 @@ test("classifyPersona normalizes Windows backslashes before matching", () => {
   assert.equal(classifyPersona("Ran: cat C:\\Users\\jackw\\Desktop\\42\\journal\\mistakes.md")?.id, "Analyst");
 });
 
+// ─── PULSE-WIDEN pass (2026-09-15): setup/hooks/pulse.py now populates `to` for
+// Bash/PowerShell rows and caps `detail` at 240 chars with a trailing '\u2026' marker
+// instead of the old bare 100-char cut. ────────────────────────────────────────────────
+
+test("buildLiveAgents classifies via `to` when a long command's persona filename was cut out of `detail`", () => {
+  // detail is truncated (240-char cap + marker) before the filename ever appears, but
+  // pulse.py's own `to` extraction still found it in the FULL command -- classifyPersona
+  // must catch this via the `to`+`detail` concatenation resolveTargetKey already builds.
+  const rows = [
+    row({
+      agent_id: "a1",
+      ts: "2026-09-14T21:51:50",
+      tool: "Bash",
+      to: "automation/scout/state/scout-feed-summary.json",
+      detail: "Ran: python -c \"print(open('automation/scout/state/scout-feed-summary.json').read()" + "x".repeat(200) + "\u2026",
+    }),
+  ];
+  const agents = buildLiveAgents(rows, NOW);
+  assert.equal(agents[0].targetZone, PERSONA_NODE_ID.Scout);
+  assert.equal(agents[0].interaction?.personaId, "Scout");
+});
+
+test("isTruncatedBashDetail (via resolveTargetKey/buildLiveAgents) treats the new '\u2026' marker as truncated, not a coarse-zone signal", () => {
+  // No persona-evidence filename anywhere in this row, and detail was cut with the new
+  // marker -- must fall back to null/hub, never trust the fragment sitting at the cut.
+  const rows = [
+    row({
+      agent_id: "a1",
+      ts: "2026-09-14T21:51:50",
+      tool: "Bash",
+      to: "",
+      detail: "Ran: " + "x".repeat(240) + "\u2026",
+    }),
+  ];
+  const agents = buildLiveAgents(rows, NOW);
+  assert.equal(agents[0].interaction, null);
+});
+
 // ─── buildLiveAgents: persona targeting + interaction field ────────────────
 
 test("buildLiveAgents targets a persona's own walk-graph node on a single matching row", () => {
