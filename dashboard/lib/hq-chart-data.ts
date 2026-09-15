@@ -51,6 +51,7 @@ import {
   isWeekdayEt,
   computeSessionStatusLabel,
   buildIntradayCandles,
+  isStaleCarryoverTick,
   type HoloLevel,
   type IntradayTick,
 } from "./hq-chart-pure";
@@ -192,8 +193,16 @@ const CORE_DECISIONS_TICKS_TAIL_BYTES = 4 * 1024 * 1024; // 4 MiB -- same size h
  * calendar date) rows, and collapses the two accounts' rows down to ONE tick
  * per engine core_tick_id (both accounts share the same `spy` read for a
  * shared tick -- see hq-chart-pure.ts's own header). Fail-open: a
- * missing/unreadable file or a malformed line degrades to [], never throws. */
-async function readTodayEngineTicks(): Promise<IntradayTick[]> {
+ * missing/unreadable file or a malformed line degrades to [], never throws.
+ *
+ * `priorSessionClose` (the prior session's own last closed bar, from the CSV
+ * reader already in hand at the call site) feeds isStaleCarryoverTick's own
+ * action-less fallback path -- see hq-chart-pure.ts's own header for why the
+ * FIRST few ticks of a session (before the engine has a genuinely fresh
+ * closed bar) must be excluded rather than plotted as a fake early candle at
+ * yesterday's price. Pass null when no prior close is known (disables that
+ * fallback; the primary action-code check still applies). */
+async function readTodayEngineTicks(priorSessionClose: number | null): Promise<IntradayTick[]> {
   let handle: FileHandle | undefined;
   try {
     handle = await fs.open(paths.coreDecisions, "r");
@@ -222,6 +231,8 @@ async function readTodayEngineTicks(): Promise<IntradayTick[]> {
       if (!tsEt.startsWith(today)) continue; // only today's rows
       const price = typeof row.spy === "number" && Number.isFinite(row.spy) ? row.spy : null;
       if (price === null) continue;
+      const action = typeof row.action === "string" ? row.action : null;
+      if (isStaleCarryoverTick({ tsEt, price, action }, priorSessionClose)) continue;
       // Dedupe by core_tick_id (shared across accounts for the same engine
       // tick) when present; falls back to the (tsEt, price) pair itself so a
       // row missing core_tick_id still contributes rather than being
@@ -278,7 +289,11 @@ export async function getHoloChartData(): Promise<HoloChartData> {
     let intradayBars: ChartBar[] = [];
     let intradayPartialLast = false;
     if (isRth) {
-      const ticks = await readTodayEngineTicks();
+      // The prior session's own last closed bar (from the CSV reader above)
+      // -- feeds isStaleCarryoverTick's action-less fallback inside
+      // readTodayEngineTicks. null when the CSV itself has no bars at all.
+      const priorSessionClose = csvBars.length > 0 ? csvBars[csvBars.length - 1].close : null;
+      const ticks = await readTodayEngineTicks(priorSessionClose);
       if (ticks.length > 0) {
         const [hh, mm] = formatET(now).split(":").map(Number);
         const nowMinutesOfDay = hh * 60 + mm;

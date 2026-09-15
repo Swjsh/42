@@ -256,6 +256,55 @@ export interface IntradayTick {
   price: number;
 }
 
+// --- stale-carryover tick filtering (HOLOCHART-INTRADAY-2, 2026-09-15) ----
+//
+// ROOT CAUSE this fixes: the FIRST few engine ticks of a session (typically
+// 09:30-09:35 ET) can be logged BEFORE the engine has a genuinely fresh
+// closed 5m bar to decide on -- heartbeat_core.py marks these rows
+// `action: "SKIP_STALE_TRIGGER"` (setup/scripts/heartbeat_core.py:1858) or
+// `action: "SKIP_STALE_SIGHT"` (:1934), and in both cases the `spy` field on
+// that row is the PRIOR session's carried-over last close, not a real
+// today's-session read. Verified live this session: 2026-09-15's real
+// core-decisions rows from 09:30:04-09:35:04 all carry
+// action=SKIP_STALE_TRIGGER and spy=761.27/760.755 (2026-09-14's own close
+// range), while the sight-beacon's real ticks at the same wall-clock minutes
+// read 759.89 (09:31) / 758.86 (09:34) -- genuinely different, lower prices.
+// Un-filtered, these rows fabricated a fake 09:30 candle at yesterday's
+// price level. The first GENUINE row that session was 09:36:02
+// (action=HOLD, spy=758.925).
+
+/** Engine action codes whose `spy` field is known to be a carried-over
+ * PRIOR-session bar close, never today's real price -- see this section's
+ * own header. */
+const STALE_CARRYOVER_ACTIONS = new Set(["SKIP_STALE_TRIGGER", "SKIP_STALE_SIGHT"]);
+
+/** True when a tick should be EXCLUDED from the intraday candle series
+ * because it is a stale prior-session carryover, not a real today's price.
+ *
+ * Prefers the explicit engine `action` code whenever present -- this is the
+ * authoritative signal heartbeat_core.py itself writes for exactly this
+ * condition. Only when `action` is missing/empty (an older row shape that
+ * predates the action field, or a row this reader couldn't classify) does
+ * this fall back to a heuristic: a tick timestamped before 09:36 ET whose
+ * price is EXACTLY `priorSessionClose` (the prior session's own last closed
+ * bar) is almost certainly the same carried-over stale read under a shape
+ * this function can't otherwise recognize. `priorSessionClose === null`
+ * disables the fallback entirely -- this function never guesses without a
+ * real prior close to compare against (fail-open toward KEEPING the tick,
+ * never toward silently dropping real data). */
+export function isStaleCarryoverTick(
+  tick: { tsEt: string; price: number; action?: string | null },
+  priorSessionClose: number | null,
+): boolean {
+  if (typeof tick.action === "string" && tick.action.length > 0) {
+    return STALE_CARRYOVER_ACTIONS.has(tick.action);
+  }
+  if (priorSessionClose === null) return false;
+  const w = parseBareEtDigits(tick.tsEt);
+  if (!w) return false;
+  return minutesOfDay(w) < 9 * 60 + 36 && tick.price === priorSessionClose;
+}
+
 interface BareEtDigits {
   y: number;
   mo: number;

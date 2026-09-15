@@ -26,6 +26,7 @@ import {
   isWeekdayEt,
   computeSessionStatusLabel,
   buildIntradayCandles,
+  isStaleCarryoverTick,
   type HoloLevel,
   type IntradayTick,
 } from "../lib/hq-chart-pure.ts";
@@ -348,4 +349,68 @@ test("buildIntradayCandles: sample matching core-decisions.jsonl's real ts_et sh
   const { bars } = buildIntradayCandles(ticks, 660);
   assert.equal(bars.length, 1); // both land in the 10:50-10:55 bucket
   assert.equal(bars[0].close, 756.925);
+});
+
+// ─── isStaleCarryoverTick (HOLOCHART-INTRADAY-2) ────────────────────────────
+//
+// Fixture = today's REAL 2026-09-15 core-decisions.jsonl rows, 09:30-09:40
+// (read live this session via a direct grep of the file): the first six
+// engine ticks are logged action=SKIP_STALE_TRIGGER carrying spy=761.27 then
+// 760.755 -- 2026-09-14's OWN close range, not 2026-09-15's -- and the first
+// genuine row is 09:36:02, action=HOLD, spy=758.925 (matches the
+// sight-beacon's real same-morning reads of 759.89/758.86 far more closely
+// than the stale 760s do).
+
+const REAL_FIRST_ROWS_2026_09_15: Array<{ tsEt: string; price: number; action: string }> = [
+  { tsEt: "2026-09-15T09:30:04", price: 761.27, action: "SKIP_STALE_TRIGGER" },
+  { tsEt: "2026-09-15T09:31:02", price: 760.755, action: "SKIP_STALE_TRIGGER" },
+  { tsEt: "2026-09-15T09:32:02", price: 760.755, action: "SKIP_STALE_TRIGGER" },
+  { tsEt: "2026-09-15T09:33:02", price: 760.755, action: "SKIP_STALE_TRIGGER" },
+  { tsEt: "2026-09-15T09:34:02", price: 760.755, action: "SKIP_STALE_TRIGGER" },
+  { tsEt: "2026-09-15T09:35:03", price: 760.755, action: "SKIP_STALE_TRIGGER" },
+  { tsEt: "2026-09-15T09:36:02", price: 758.925, action: "HOLD" },
+  { tsEt: "2026-09-15T09:37:02", price: 758.925, action: "HOLD" },
+];
+
+test("isStaleCarryoverTick: action=SKIP_STALE_TRIGGER is excluded regardless of priorSessionClose", () => {
+  assert.equal(isStaleCarryoverTick({ tsEt: "2026-09-15T09:30:04", price: 761.27, action: "SKIP_STALE_TRIGGER" }, null), true);
+});
+
+test("isStaleCarryoverTick: action=SKIP_STALE_SIGHT is excluded", () => {
+  assert.equal(isStaleCarryoverTick({ tsEt: "2026-09-15T09:31:00", price: 760.0, action: "SKIP_STALE_SIGHT" }, null), true);
+});
+
+test("isStaleCarryoverTick: a genuine action (HOLD, ENTER, EXIT, ...) is never excluded by the action check", () => {
+  assert.equal(isStaleCarryoverTick({ tsEt: "2026-09-15T09:36:02", price: 758.925, action: "HOLD" }, 760.75), false);
+});
+
+test("isStaleCarryoverTick: action-less fallback excludes a pre-09:36 tick whose price equals priorSessionClose exactly", () => {
+  assert.equal(isStaleCarryoverTick({ tsEt: "2026-09-15T09:31:00", price: 760.75, action: null }, 760.75), true);
+});
+
+test("isStaleCarryoverTick: action-less fallback keeps a pre-09:36 tick whose price DIFFERS from priorSessionClose", () => {
+  assert.equal(isStaleCarryoverTick({ tsEt: "2026-09-15T09:31:00", price: 759.89, action: null }, 760.75), false);
+});
+
+test("isStaleCarryoverTick: action-less fallback never fires at/after 09:36 ET even at the exact prior close", () => {
+  assert.equal(isStaleCarryoverTick({ tsEt: "2026-09-15T09:36:00", price: 760.75, action: null }, 760.75), false);
+});
+
+test("isStaleCarryoverTick: fallback disabled entirely when priorSessionClose is null (never guesses)", () => {
+  assert.equal(isStaleCarryoverTick({ tsEt: "2026-09-15T09:31:00", price: 760.75, action: null }, null), false);
+});
+
+test("buildIntradayCandles + isStaleCarryoverTick pipeline on today's REAL first rows: stale 09:30-09:35 carryover ticks are filtered before bucketing, first surviving candle is the genuine 09:35 bucket at 758.925 (never a fabricated 761.27 09:30 candle)", () => {
+  const priorSessionClose = 760.75; // 2026-09-14's real last close
+  const filtered: IntradayTick[] = REAL_FIRST_ROWS_2026_09_15.filter(
+    (r) => !isStaleCarryoverTick(r, priorSessionClose),
+  ).map((r) => ({ tsEt: r.tsEt, price: r.price }));
+  // All 6 SKIP_STALE_TRIGGER rows dropped, both genuine 09:36/09:37 HOLD rows kept.
+  assert.equal(filtered.length, 2);
+  const { bars } = buildIntradayCandles(filtered, 9 * 60 + 40);
+  assert.equal(bars.length, 1); // 09:36+09:37 both land in the 09:35-09:40 bucket
+  assert.equal(bars[0].time, Math.floor(Date.UTC(2026, 8, 15, 9, 35, 0) / 1000));
+  assert.equal(bars[0].open, 758.925);
+  assert.equal(bars[0].close, 758.925);
+  assert.notEqual(bars[0].open, 761.27); // the old (pre-fix) fabricated-first-candle price
 });
