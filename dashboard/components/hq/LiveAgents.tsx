@@ -56,9 +56,9 @@ import { CHARACTER_SCALE, CHARACTER_TARGET_HEIGHT } from "./SetKit";
 import type { LiveAgent } from "./types";
 import type { LiveAgentState } from "@/lib/hq-agents";
 import {
-  applyLaneOffsets, computeBatchStaggerDelays, computeMaxPathDurationS, computeStandSlot, computeWaitPoint,
-  decideNextWalk, ENTRY_NODE_ID, LEAVE_TIMEOUT_MARGIN_S, pathDistance, poseAlongPath, reconcileLiveAgentRoster,
-  shouldWriteLiveAgentDiag, STAND_BUBBLE_Y_STEP, STAND_RING_RADIUS,
+  applyLaneOffsets, computeBatchOrder, computeBatchStaggerDelays, computeMaxPathDurationS, computeStandSlot,
+  computeWaitPoint, decideNextWalk, ENTRY_NODE_ID, LEAVE_TIMEOUT_MARGIN_S, pathDistance, poseAlongPath,
+  reconcileLiveAgentRoster, shouldWriteLiveAgentDiag, STAND_BUBBLE_Y_STEP, STAND_RING_RADIUS,
 } from "./liveAgentWalk";
 
 // 8 distinct, saturated hues, cycled by arrival order -- deliberately NOT
@@ -168,6 +168,14 @@ interface AvatarProps {
    * same batch must never retroactively change an already-decided delay). */
   spawnDelayS: number;
   leaveDelayS: number;
+  /** CONVOY-STACK v3 (2026-09-15): this avatar's own 0-based order within
+   * its spawn/leave batch (liveAgentWalk.ts#computeBatchOrder) -- used only
+   * to derive its WAIT POINT (computeWaitPoint), independently of
+   * spawnDelayS/leaveDelayS's own timing role. Kept as a separate prop
+   * rather than re-derived from the delay (delay / STAGGER_DELAY_S) so the
+   * two can never drift if either constant changes. */
+  spawnIndex: number;
+  leaveIndex: number;
   onDespawned: () => void;
 }
 
@@ -177,7 +185,7 @@ function nodePosition(walkGraph: WalkGraph, id: string, fallback: [number, numbe
 
 function LiveAgentAvatar({
   liveAgentId, label, accentColor, bubble, rawDetail, walkGraph, targetNodeId, serverState, leaving, reducedMotion,
-  standOffset, standIndex, spawnDelayS, leaveDelayS, onDespawned,
+  standOffset, standIndex, spawnDelayS, leaveDelayS, spawnIndex, leaveIndex, onDespawned,
 }: AvatarProps) {
   const group = useRef<THREE.Group>(null);
   const bubbleWrapRef = useRef<HTMLDivElement>(null);
@@ -218,11 +226,21 @@ function LiveAgentAvatar({
   // (no batch to stagger against) starts moving immediately, same as
   // before this pass.
   const pendingStartDelayS = useRef(spawnDelayS);
+  // CONVOY-STACK v3: the batch-order INDEX to feed computeWaitPoint the NEXT
+  // time a wait point is computed -- mirrors pendingStartDelayS's own
+  // seed/overwrite pattern (spawnIndex at mount, leaveIndex right before the
+  // leave walk kicks off), but is never zeroed after use: unlike the delay
+  // (which must never bleed into a later undelayed walk), re-reading a stale
+  // index for an ordinary retarget is harmless -- that walk's own
+  // pendingStartDelayS is 0, so `elapsed` is never negative and
+  // `waitPoint.current` is simply never rendered.
+  const pendingWaitIndex = useRef(spawnIndex);
   // The point to render this avatar AT while it is still waiting out its
-  // own stagger delay (elapsed < 0, see useFrame below) -- its own lane
-  // offset off the true origin, so same-batch avatars waiting for their
-  // turn don't stack exactly on the shared spawn/leave node either. Recomputed
-  // every time a new walk is kicked off; unused while `elapsed >= 0`.
+  // own stagger delay (elapsed < 0, see useFrame below) -- its own batch-
+  // order-derived lane/row offset off the true origin (liveAgentWalk.ts
+  // #computeWaitPoint), so same-batch avatars waiting for their turn don't
+  // stack exactly on the shared spawn/leave node either. Recomputed every
+  // time a new walk is kicked off; unused while `elapsed >= 0`.
   const waitPoint = useRef<[number, number, number]>(entryPos);
   // Set true/false each frame by the walking branch below, purely so the
   // diag-state classification at the bottom of useFrame can report
@@ -327,10 +345,12 @@ function LiveAgentAvatar({
     if (leaving) {
       leaveTriggered.current = true;
       if (leaveStartedAtT.current === null) leaveStartedAtT.current = performance.now() / 1000;
-      // CONVOY-STACK v2: this avatar's leave walk (if one is about to be
-      // kicked off below) uses the LEAVE batch's own stagger delay, not
-      // whatever spawn delay may already have been consumed by now.
+      // CONVOY-STACK v2/v3: this avatar's leave walk (if one is about to be
+      // kicked off below) uses the LEAVE batch's own stagger delay and
+      // batch-order index, not whatever spawn delay/index may already have
+      // been consumed by now.
       pendingStartDelayS.current = leaveDelayS;
+      pendingWaitIndex.current = leaveIndex;
     } else {
       seenTarget.current = targetNodeId;
     }
@@ -390,39 +410,60 @@ function LiveAgentAvatar({
     // `waitPoint` instead of progressing along `wp` -- its own lane offset
     // off the true origin, so same-batch siblings waiting out THEIR OWN
     // delay don't stack on the shared node either.
-    waitPoint.current = computeWaitPoint(livePos, wp[1] ?? finalPoint, liveAgentId);
+    waitPoint.current = computeWaitPoint(livePos, wp[1] ?? finalPoint, pendingWaitIndex.current);
     needsWalkStart.current = true;
     phase.current = "walking";
     setAnimState(WALK_ANIM);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [leaving, targetNodeId, reducedMotion, walkGraph]);
 
-  // STACK FIX (2026-09-15, coordinator probe 20260915T070024Z): a resting
-  // avatar's ring offset was previously ONLY ever applied at the moment its
-  // walk decision fired above (settle or walk-kickoff) -- that effect never
-  // re-runs on a bare `standOffset` change, so once an avatar settled, a
-  // LATER sibling joining/leaving the same target (which reassigns every
-  // member's slot via liveAgentWalk.ts#computeStandSlot) never moved it.
-  // Probe evidence: sessions a06954b44dcea322f and a3f93d37e2266fd28, both
-  // "working" at target "ambient-core", sat at the EXACT SAME point
-  // (pairwise distance 0.000, 115 consecutive ticks, t=37796ms-95082ms) --
-  // each had settled at a moment it was the ONLY member of the
-  // "ambient-core" group in `displayed` (computeStandSlot's own
-  // `groupSize <= 1` branch, offset [0,0]), and neither was ever corrected
-  // once the other joined, so both independently "considered themselves
-  // index 0" of a group of one. This effect re-snaps a RESTING avatar
-  // (phase.current === "working") to its current node's up-to-date stand
-  // point whenever the ring offset itself changes, independent of whether
-  // targetNodeId/leaving changed -- the redistribution the header comment
-  // on liveAgentWalk.ts#computeStandSlot already says is the correct,
-  // expected behavior. A walking avatar is left alone here; it already picks
-  // up the latest offset for its own walk the next time ITS OWN decision
-  // effect fires (arrival, or a fresh retarget).
-  useEffect(() => {
-    if (phase.current !== "working") return;
-    group.current?.position.set(...standPointFor(currentNode.current));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [standOffset[0], standOffset[1]]);
+  // STAND-SLOT COLLISION fix (2026-09-15, coordinator probe 20260915T070024Z,
+  // recurred at probe 20260915T085943Z after the first "STACK FIX" attempt
+  // below -- kept verbatim, struck through in spirit, as the documented
+  // reason this pass replaces it rather than patching it again):
+  //
+  // ORIGINAL "STACK FIX" (2026-09-14/15): an effect that re-applied
+  // standPointFor(currentNode.current) whenever THIS avatar's own
+  // `standOffset` prop changed value relative to its immediately-preceding
+  // render (`useEffect(..., [standOffset[0], standOffset[1]])`).
+  //
+  // WHY IT RECURRED (verified root cause, this pass): this is an
+  // EDGE-TRIGGERED correction -- it only runs when React's own dependency
+  // diff sees THIS avatar's offset change between two CONSECUTIVE renders of
+  // THIS avatar. Two gaps that leaves open: (1) the walk-ARRIVAL branch
+  // above (`progress >= 1`) never calls standPointFor at all -- an arriving
+  // avatar simply stays wherever `poseAlongPath` left it, i.e. the FINAL
+  // waypoint that was baked into `path.current` back at walk-DECISION time
+  // (LiveAgents.tsx's own decision effect, `finalPoint = destinationPointFor
+  // (decision.dest, decision.despawn)`); if the group composition changes
+  // again during the walk -- now a much wider window than before, since the
+  // CONVOY-STACK v2 stagger can add up to (roster cap - 1) * STAGGER_DELAY_S
+  // of pure WAITING before the avatar even starts moving, on top of the
+  // travel time itself -- the avatar settles at a stale offset and nothing
+  // re-corrects it unless its OWN prop changes AGAIN afterward. (2) an
+  // edge-triggered mechanism has no notion of "I am currently wrong" -- only
+  // "my prop just changed" -- so any sequence of group-membership churn that
+  // leaves two avatars' actually-applied positions both resolved from a
+  // groupSize-1 view (each independently believing itself alone in the
+  // group at the moment its own position was last set, whether via the
+  // uncorrected arrival above or a reslot that fired against a
+  // since-superseded value) reproduces the exact collision this effect was
+  // meant to prevent -- which is exactly what recurred (a1b95546df7c4703f
+  // arrived long after a7195e62a4dda3d05 had already settled, and the two
+  // sat at the IDENTICAL point for ~60s).
+  //
+  // FIX: stop relying on edge-triggered correction. `useFrame` below now
+  // unconditionally re-applies `standPointFor(currentNode.current)` to every
+  // RESTING (phase.current === "working", not yet despawned) avatar, EVERY
+  // FRAME, reading `standOffsetRef.current` live. This is provably correct
+  // regardless of the exact React-scheduling mechanism that let the old
+  // effect miss an update: a per-frame read of the CURRENT offset can never
+  // be "stale" by construction -- there is no prior value to diff against,
+  // only "what is the right position right now". A despawning avatar is
+  // excluded (`!despawned.current`) so this can never fight the
+  // DESPAWN-SCATTER fix's own raw-node destination (destinationPointFor's
+  // `despawn: true` branch, which intentionally has NO stand-slot ring
+  // offset at all -- see that function's own doc above).
 
   useFrame((state) => {
     const g = group.current;
@@ -464,6 +505,18 @@ function LiveAgentAvatar({
           }
         }
       }
+    }
+
+    // STAND-SLOT COLLISION fix (see this file's own header above the reslot
+    // effect this replaces): a RESTING avatar's position is re-derived from
+    // its LIVE stand-slot offset every single frame, not just when an effect
+    // happens to see its own prop change. `despawned.current` is checked so
+    // this can never re-apply a ring offset to an avatar whose despawn
+    // destination is deliberately the RAW node (no ring nudge) -- see
+    // destinationPointFor's own `despawn: true` branch above.
+    if (phase.current === "working" && !despawned.current) {
+      const p = standPointFor(currentNode.current);
+      g.position.set(p[0], p[1], p[2]);
     }
 
     // Hard backstop (see this file's own leaveHardTimeoutS comment above):
@@ -610,6 +663,13 @@ interface DisplayedAgent {
    * an id's already-decided delay. */
   spawnDelayS: number;
   leaveDelayS: number;
+  /** CONVOY-STACK v3 (2026-09-15): the same batch, same "assign once" rule
+   * as spawnDelayS/leaveDelayS above, but the raw 0-based batch ORDER
+   * (liveAgentWalk.ts#computeBatchOrder) rather than a seconds value -- used
+   * only to derive this avatar's WAIT POINT (computeWaitPoint), never its
+   * timing. */
+  spawnIndex: number;
+  leaveIndex: number;
 }
 
 export interface LiveAgentsProps {
@@ -647,21 +707,23 @@ export default function LiveAgents({ agents, walkGraph, ultra, reducedMotion }: 
   // the per-agent display-record builder (color assignment + bubble text
   // are side-effecting/component-local, so they stay here).
   //
-  // CONVOY-STACK v2 (2026-09-15): layered on top, not inside
+  // CONVOY-STACK v2/v3 (2026-09-15): layered on top, not inside
   // reconcileLiveAgentRoster itself (kept untouched -- its own existing
   // tests stay valid) -- every id genuinely NEW this poll (not in `prev` at
-  // all) gets a spawn-batch stagger delay via
-  // liveAgentWalk.ts#computeBatchStaggerDelays, sorted by id among just
-  // that batch; every id that flips `leaving` true THIS poll (was not
-  // already leaving in `prev`) separately gets a leave-batch delay the same
-  // way. An id already displayed keeps its ORIGINAL spawnDelayS/leaveDelayS
-  // forever (an id's delay is decided once, at the exact moment its walk is
-  // about to be kicked off, never retroactively by a later sibling joining
-  // the same target).
+  // all) gets a spawn-batch stagger delay + batch-order index via
+  // liveAgentWalk.ts#computeBatchStaggerDelays/computeBatchOrder, sorted by
+  // id among just that batch; every id that flips `leaving` true THIS poll
+  // (was not already leaving in `prev`) separately gets a leave-batch delay
+  // + index the same way. An id already displayed keeps its ORIGINAL
+  // spawnDelayS/spawnIndex/leaveDelayS/leaveIndex forever (an id's batch
+  // position is decided once, at the exact moment its walk is about to be
+  // kicked off, never retroactively by a later sibling joining the same
+  // target).
   useEffect(() => {
     setDisplayed((prev) => {
       const newIds = agents.map((a) => a.id).filter((id) => !prev.has(id));
       const spawnDelays = computeBatchStaggerDelays(newIds);
+      const spawnOrder = computeBatchOrder(newIds);
 
       const next = reconcileLiveAgentRoster(prev, agents, (a, existing) => {
         const bubble = `${a.state === "spawning" ? "arrived" : a.state === "cooling" ? "wrapping up" : "working"} · ${a.lastDetail}`;
@@ -681,6 +743,8 @@ export default function LiveAgents({ agents, walkGraph, ultra, reducedMotion }: 
           accentColor,
           spawnDelayS: existing ? existing.spawnDelayS : (spawnDelays.get(a.id) ?? 0),
           leaveDelayS: existing ? existing.leaveDelayS : 0,
+          spawnIndex: existing ? existing.spawnIndex : (spawnOrder.get(a.id) ?? 0),
+          leaveIndex: existing ? existing.leaveIndex : 0,
         };
       });
 
@@ -689,9 +753,10 @@ export default function LiveAgents({ agents, walkGraph, ultra, reducedMotion }: 
         .map(([id]) => id);
       if (newlyLeavingIds.length > 0) {
         const leaveDelays = computeBatchStaggerDelays(newlyLeavingIds);
+        const leaveOrder = computeBatchOrder(newlyLeavingIds);
         for (const id of newlyLeavingIds) {
           const d = next.get(id)!;
-          next.set(id, { ...d, leaveDelayS: leaveDelays.get(id) ?? 0 });
+          next.set(id, { ...d, leaveDelayS: leaveDelays.get(id) ?? 0, leaveIndex: leaveOrder.get(id) ?? 0 });
         }
       }
       return next;
@@ -756,6 +821,8 @@ export default function LiveAgents({ agents, walkGraph, ultra, reducedMotion }: 
             standIndex={slot.index}
             spawnDelayS={d.spawnDelayS}
             leaveDelayS={d.leaveDelayS}
+            spawnIndex={d.spawnIndex}
+            leaveIndex={d.leaveIndex}
             onDespawned={() => handleDespawned(d.id)}
           />
         );

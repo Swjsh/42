@@ -40,6 +40,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   applyLaneOffsets,
+  computeBatchOrder,
   computeBatchStaggerDelays,
   computeMaxPathDurationS,
   computeWaitPoint,
@@ -58,6 +59,11 @@ import {
   STAND_RING_RADIUS,
   reconcileLiveAgentRoster,
   shouldWriteLiveAgentDiag,
+  waitAlongOffsetForIndex,
+  waitLaneOffsetForIndex,
+  WAIT_ALONG_STEP_U,
+  WAIT_LANE_COUNT,
+  WAIT_LANE_STEP_U,
   type WalkGraph,
 } from "../components/hq/liveAgentWalk.ts";
 import { ENTRY_NODE_ID as HQ_AGENTS_ENTRY_NODE_ID, ZONE_NODE_ID } from "../lib/hq-agents.ts";
@@ -344,27 +350,113 @@ test("applyLaneOffsets: nudge magnitude never exceeds LANE_STEP_U", () => {
   }
 });
 
-// ─── computeWaitPoint (CONVOY-STACK v2) ─────────────────────────────────────
+// ─── computeWaitPoint / waitLaneOffsetForIndex / waitAlongOffsetForIndex ───
+// (CONVOY-STACK v3, 2026-09-15 -- replaces v2's id-hash approach, which let
+// 2 same-batch ids collide 1-in-3 times: session:5385... and
+// ae892a7f7e3cf5a51, both "spawning" toward ambient-core, sat at the
+// identical [21.65,0.45] at t=7.5s, probe 20260915T085943Z.)
 
-test("computeWaitPoint: nudges the origin perpendicular to the direction toward `next`, by this id's lane value", () => {
+test("waitLaneOffsetForIndex: zigzags 0, +1, -1, +2, -2 (x WAIT_LANE_STEP_U), cycling every WAIT_LANE_COUNT", () => {
+  const expected = [0, WAIT_LANE_STEP_U, -WAIT_LANE_STEP_U, 2 * WAIT_LANE_STEP_U, -2 * WAIT_LANE_STEP_U];
+  for (let i = 0; i < expected.length; i++) {
+    assert.ok(Math.abs(waitLaneOffsetForIndex(i) - expected[i]) < 1e-9, `index ${i}: expected ${expected[i]}, got ${waitLaneOffsetForIndex(i)}`);
+  }
+  assert.equal(waitLaneOffsetForIndex(WAIT_LANE_COUNT), waitLaneOffsetForIndex(0));
+});
+
+test("waitLaneOffsetForIndex: every pair of the WAIT_LANE_COUNT lane values is >=WAIT_LANE_STEP_U apart", () => {
+  const values = Array.from({ length: WAIT_LANE_COUNT }, (_, i) => waitLaneOffsetForIndex(i));
+  for (let i = 0; i < values.length; i++) {
+    for (let j = i + 1; j < values.length; j++) {
+      const gap = Math.abs(values[i] - values[j]);
+      assert.ok(gap >= WAIT_LANE_STEP_U - 1e-9, `lanes ${i} (${values[i]}) and ${j} (${values[j]}) only ${gap}u apart`);
+    }
+  }
+});
+
+test("waitLaneOffsetForIndex: the two most-extreme lanes stay within the gate's own +-1.47u opening", () => {
+  const values = Array.from({ length: WAIT_LANE_COUNT }, (_, i) => waitLaneOffsetForIndex(i));
+  const maxAbs = Math.max(...values.map(Math.abs));
+  assert.ok(maxAbs <= 1.47, `most-extreme lane ${maxAbs}u exceeds the gate's +-1.47u opening`);
+});
+
+test("waitAlongOffsetForIndex: 0 for the first WAIT_LANE_COUNT indices, one WAIT_ALONG_STEP_U per row after that", () => {
+  for (let i = 0; i < WAIT_LANE_COUNT; i++) assert.equal(waitAlongOffsetForIndex(i), 0);
+  assert.equal(waitAlongOffsetForIndex(WAIT_LANE_COUNT), WAIT_ALONG_STEP_U);
+  assert.equal(waitAlongOffsetForIndex(2 * WAIT_LANE_COUNT), 2 * WAIT_ALONG_STEP_U);
+});
+
+test("computeWaitPoint: nudges the origin perpendicular to the direction toward `next`, by this index's lane value", () => {
   const origin: [number, number, number] = [21.6, 0, 0];
   const next: [number, number, number] = [17.4, 0, 0]; // due -X
-  const wp = computeWaitPoint(origin, next, "wait-test-id");
+  const wp = computeWaitPoint(origin, next, 1); // index 1 -> lane +WAIT_LANE_STEP_U
   // direction origin->next is due -X (dx=-4.2, dz=0); perp = (-dz, dx)/len =
   // (0, -1), so the offset lands entirely on Z, with the sign this exact
   // rotation convention produces (matches applyLaneOffsets's own formula).
-  const expectedZ = -laneValueForId("wait-test-id");
+  const expectedZ = -waitLaneOffsetForIndex(1);
   assert.equal(wp[0], origin[0]);
   assert.ok(Math.abs(wp[2] - expectedZ) < 1e-9, `expected z-offset ${expectedZ}, got ${wp[2]}`);
 });
 
+test("computeWaitPoint: an overflow-row index also moves backward along the corridor axis (away from `next`)", () => {
+  const origin: [number, number, number] = [21.6, 0, 0];
+  const next: [number, number, number] = [17.4, 0, 0]; // due -X, so "backward" is +X
+  const wp = computeWaitPoint(origin, next, WAIT_LANE_COUNT); // first overflow row, lane 0
+  assert.ok(wp[0] > origin[0], `expected the avatar pushed backward (+X, away from next), got x=${wp[0]}`);
+  assert.ok(Math.abs(wp[0] - (origin[0] + WAIT_ALONG_STEP_U)) < 1e-9);
+});
+
 test("computeWaitPoint: falls back to the bare origin when origin and next coincide (no direction to be perpendicular to)", () => {
   const origin: [number, number, number] = [5, 0, 5];
-  const wp = computeWaitPoint(origin, origin, "any-id");
+  const wp = computeWaitPoint(origin, origin, 3);
   assert.deepEqual(wp, origin);
 });
 
-// ─── computeBatchStaggerDelays (CONVOY-STACK v2) ────────────────────────────
+// THE REQUIRED PROOF (bug 2): a batch of 3-4 ids gets pairwise >=0.7u wait
+// points, even when their id-hash lanes would collide (the exact v2
+// failure mode) -- verified here purely via batch INDEX, since v3 no longer
+// consults the id hash for wait-point placement at all.
+test("WAIT-POINT PROOF: a batch of 4 ids gets pairwise >=0.7u wait points, including ids whose old id-hash lane would have collided", () => {
+  const origin: [number, number, number] = [21.6, 0, 0];
+  const next: [number, number, number] = [17.4, 0, 0];
+  const REQUIRED_MIN_SEPARATION_U = 0.7;
+  const points = [0, 1, 2, 3].map((index) => computeWaitPoint(origin, next, index));
+  for (let i = 0; i < points.length; i++) {
+    for (let j = i + 1; j < points.length; j++) {
+      const dist = Math.hypot(points[i][0] - points[j][0], points[i][2] - points[j][2]);
+      assert.ok(dist >= REQUIRED_MIN_SEPARATION_U - 1e-9, `batch indices ${i} and ${j} are only ${dist.toFixed(3)}u apart`);
+    }
+  }
+});
+
+test("WAIT-POINT PROOF: an 8-member batch (roster cap, spanning 2 overflow rows) still gets pairwise >=0.7u wait points", () => {
+  const origin: [number, number, number] = [21.6, 0, 0];
+  const next: [number, number, number] = [17.4, 0, 0];
+  const REQUIRED_MIN_SEPARATION_U = 0.7;
+  const points = Array.from({ length: 8 }, (_, index) => computeWaitPoint(origin, next, index));
+  let checked = 0;
+  for (let i = 0; i < points.length; i++) {
+    for (let j = i + 1; j < points.length; j++) {
+      checked++;
+      const dist = Math.hypot(points[i][0] - points[j][0], points[i][2] - points[j][2]);
+      assert.ok(dist >= REQUIRED_MIN_SEPARATION_U - 1e-9, `batch indices ${i} and ${j} are only ${dist.toFixed(3)}u apart`);
+    }
+  }
+  assert.equal(checked, 28, "sanity: C(8,2) = 28 pairs must all have been checked");
+});
+
+// ─── computeBatchOrder / computeBatchStaggerDelays (CONVOY-STACK v2/v3) ────
+
+test("computeBatchOrder: sorted-order ids get 0, 1, 2, ... -- the single source of truth computeBatchStaggerDelays scales by STAGGER_DELAY_S", () => {
+  const order = computeBatchOrder(["zeta", "alpha", "mu"]);
+  assert.equal(order.get("alpha"), 0);
+  assert.equal(order.get("mu"), 1);
+  assert.equal(order.get("zeta"), 2);
+  const delays = computeBatchStaggerDelays(["zeta", "alpha", "mu"]);
+  for (const [id, idx] of order) {
+    assert.equal(delays.get(id), idx * STAGGER_DELAY_S, `${id}: delay must equal its own order x STAGGER_DELAY_S`);
+  }
+});
 
 test("computeBatchStaggerDelays: sorted-order ids get 0, STAGGER_DELAY_S, 2*STAGGER_DELAY_S, ...", () => {
   const delays = computeBatchStaggerDelays(["zeta", "alpha", "mu"]);
@@ -579,6 +671,67 @@ test("STACK FIX: reslot-on-group-change (the actual fix) gives both resting avat
   assert.notDeepEqual(appliedOffsetA, [0, 0]);
   const dist = Math.hypot(appliedOffsetA[0] - appliedOffsetB[0], appliedOffsetA[1] - appliedOffsetB[1]);
   assert.ok(dist >= STAND_RING_RADIUS, `expected separated ring points, got distance ${dist}`);
+});
+
+// ─── STAND-SLOT COLLISION fix (CONVOY-STACK v3, 2026-09-15) ────────────────
+//
+// The recurrence: a7195e62a4dda3d05 settled alone at ambient-core, then
+// a1b95546df7c4703f arrived ~60s later and the two sat at the IDENTICAL
+// point the whole time -- despite the STACK FIX effect above (already
+// proven correct in isolation by the two tests directly above this one).
+// Root cause (LiveAgents.tsx:441-506, this pass's own header comment above
+// the reslot effect it replaces): that effect only corrects a resting
+// avatar's position when THIS avatar's own `standOffset` PROP changes
+// between two consecutive renders -- an EDGE-TRIGGERED mechanism that can
+// miss a correction (the walk-arrival branch never calls standPointFor at
+// all, and an edge-triggered check has no notion of "I am currently wrong",
+// only "my prop just changed"). The actual fix replaces this with a
+// CONTINUOUS per-frame re-application of computeStandSlot's CURRENT output
+// (LiveAgents.tsx's own useFrame, `if (phase.current === "working" &&
+// !despawned.current) { ... standPointFor(currentNode.current) ... }`) --
+// this cannot go stale by construction, since there is no "last known
+// value" to diff against, only "what is correct right now".
+//
+// This test proves the underlying INVARIANT that continuous mechanism
+// relies on: computeStandSlot, read FRESH against whatever the CURRENT
+// group is, ALWAYS gives every member of a >=2 group >=STAND_RING_RADIUS
+// separation -- across a whole SEQUENCE of roster changes (a settled solo
+// agent, a late arrival, a third agent joining, the first agent's own
+// stand-slot then being re-read again) -- modeling "read the current group,
+// every frame" rather than "diff against the last-seen group".
+test("STAND-SLOT COLLISION fix: computeStandSlot, read fresh every frame against the CURRENT group, keeps every pair >=0.7u apart through a settle + late-arrival + reconcile sequence", () => {
+  const REQUIRED_MIN_SEPARATION_U = 0.7;
+  // Sequence of "current group at ambient-core" snapshots, mirroring the
+  // real timeline: A settles alone; B arrives much later (the exact
+  // reported collision); a third, C, then also joins (a further roster
+  // reconcile, the coordinator's own "including after roster reconcile"
+  // requirement); B eventually leaves the zone again.
+  const timeline: string[][] = [
+    ["a7195e62a4dda3d05"],
+    ["a7195e62a4dda3d05"], // still alone, several frames pass
+    ["a7195e62a4dda3d05", "a1b95546df7c4703f"], // late arrival joins -- THE collision moment
+    ["a7195e62a4dda3d05", "a1b95546df7c4703f"], // several more frames, both resting
+    ["a7195e62a4dda3d05", "a1b95546df7c4703f", "c-third-agent"], // a further reconcile
+    ["a1b95546df7c4703f", "c-third-agent"], // A leaves the zone
+  ];
+  for (const group of timeline) {
+    // "Every frame" = read computeStandSlot fresh for EVERY member against
+    // THIS snapshot's group, exactly what the continuous useFrame
+    // correction does (never a value carried over from an earlier group).
+    const offsets = new Map(group.map((id) => [id, computeStandSlot(group, id, STAND_RING_RADIUS).offset]));
+    for (let i = 0; i < group.length; i++) {
+      for (let j = i + 1; j < group.length; j++) {
+        const a = offsets.get(group[i])!;
+        const b = offsets.get(group[j])!;
+        const dist = Math.hypot(a[0] - b[0], a[1] - b[1]);
+        if (group.length <= 1) continue; // nothing to separate from
+        assert.ok(
+          dist >= REQUIRED_MIN_SEPARATION_U - 1e-9,
+          `group [${group.join(",")}]: ${group[i]} and ${group[j]} only ${dist.toFixed(3)}u apart`,
+        );
+      }
+    }
+  }
 });
 
 // ─── reconcileLiveAgentRoster (BUBBLE-FIX, 2026-09-15) ─────────────────────

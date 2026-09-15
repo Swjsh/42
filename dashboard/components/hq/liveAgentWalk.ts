@@ -609,45 +609,119 @@ export function applyLaneOffsets(
 export const STAGGER_DELAY_S = 1.5;
 
 /** Given a batch of ids all beginning a walk from the SAME origin node in
- * the same reconcile poll, returns each id's stable stagger delay in
- * seconds: 0 for the first (sorted) id, STAGGER_DELAY_S for the second, and
- * so on. Sorted lexicographically by id -- the same stable-order convention
- * every other group-based function in this module already uses (see
+ * the same reconcile poll, returns each id's stable 0-based ORDER within
+ * that batch: 0 for the first (sorted) id, 1 for the second, and so on.
+ * Sorted lexicographically by id -- the same stable-order convention every
+ * other group-based function in this module already uses (see
  * computeStandSlot's own sorted group). Pure and roster-order-independent:
  * calling this with the same set of ids (any input order, duplicates
- * collapsed) always assigns the same delay to the same id. */
-export function computeBatchStaggerDelays(ids: readonly string[]): Map<string, number> {
+ * collapsed) always assigns the same order to the same id. The single
+ * source of truth both `computeBatchStaggerDelays` (timing) and
+ * `computeWaitPoint` (CONVOY-STACK v3's own positioning) build on, so the
+ * two can never disagree about which id is "first". */
+export function computeBatchOrder(ids: readonly string[]): Map<string, number> {
   const sorted = [...new Set(ids)].sort();
-  return new Map(sorted.map((id, i) => [id, i * STAGGER_DELAY_S]));
+  return new Map(sorted.map((id, i) => [id, i]));
 }
 
-/** The visual "waiting for my stagger slot" point: `origin` nudged by this
- * id's own lane offset, perpendicular to the direction toward `next` (the
- * first real hallway waypoint the avatar will walk toward once its delay
- * elapses). Used only to render a delayed avatar's stationary pose --
- * without this, every same-batch avatar waiting out its stagger would
- * render stacked exactly on the shared origin node (the first waypoint is
- * deliberately left unoffset by `applyLaneOffsets` for path-continuity
- * reasons -- see that function's own doc), which would still fail the
- * required outcome's >=0.7u bar even though none of them are numerically
- * "walking" yet (LiveAgents.tsx's own `phase.current` is set to "walking"
- * for the entire wait+walk sequence, since the wait is implemented as a
- * negative-elapsed clamp on the SAME walk, not a separate phase -- see that
- * file's own useFrame comment). Falls back to `origin` unmodified if
- * `origin` and `next` coincide (no real direction to be perpendicular to). */
+/** Given a batch of ids all beginning a walk from the SAME origin node in
+ * the same reconcile poll, returns each id's stable stagger delay in
+ * seconds: 0 for the first (sorted) id, STAGGER_DELAY_S for the second, and
+ * so on -- `computeBatchOrder(ids)` scaled by STAGGER_DELAY_S. */
+export function computeBatchStaggerDelays(ids: readonly string[]): Map<string, number> {
+  const order = computeBatchOrder(ids);
+  return new Map(Array.from(order.entries()).map(([id, i]) => [id, i * STAGGER_DELAY_S]));
+}
+
+// ─── Wait point (CONVOY-STACK v3, 2026-09-15) ──────────────────────────────
+//
+// ROOT CAUSE (probe 20260915T085943Z): computeWaitPoint (v2) placed a
+// delayed avatar using `laneValueForId(id)` -- a discrete hash into only 3
+// values (LANE_VALUES). Two same-batch ids landing in the SAME hash bucket
+// (1-in-3 per pair) get the IDENTICAL wait point -- confirmed live:
+// session:5385... and ae892a7f7e3cf5a51, both "spawning" toward
+// ambient-core, sat at the exact same [21.65,0.45] at t=7.5s. A per-id HASH
+// can never guarantee separation among a KNOWN, already-ordered batch --
+// only the batch's own stable ORDER can (the same reasoning that already
+// drove `computeBatchStaggerDelays` away from a hash for the stagger delay
+// itself).
+//
+// FIX: derive the wait point from `batchIndex` (this id's own
+// computeBatchOrder position), not from a hash of its id at all. A
+// zigzagging LATERAL lane (perpendicular to the corridor, alternating
+// +/-: 0, +1, -1, +2, -2, ... x WAIT_LANE_STEP_U) covers the first
+// WAIT_LANE_COUNT batch members with GUARANTEED >=WAIT_LANE_STEP_U pairwise
+// separation (every pairwise gap between two of the 5 positions
+// {0,+-0.73,+-1.46} is an exact multiple of 0.73u -- verified by the
+// pairwise-difference table in this pass's own test file) while staying
+// within the gate's own +-1.47u opening (2*WAIT_LANE_STEP_U = 1.46 < 1.47,
+// so even the two most-extreme lanes never clip a wall). A batch bigger
+// than WAIT_LANE_COUNT (the roster caps at 8; more than 5 concurrent
+// waiters is a rare, extreme case) overflows into an extra ROW, offset
+// backward along the corridor's own axis (away from `next`, i.e. away from
+// the destination -- still on the walkable corridor floor, never off the
+// gate node) by WAIT_ALONG_STEP_U per row. Because `perp` and `dir` are
+// orthogonal unit vectors, two points that differ in EITHER lane OR row (or
+// both) are separated by at least min(WAIT_LANE_STEP_U, WAIT_ALONG_STEP_U)
+// -- see this pass's own test file for the full pairwise proof across every
+// index pair in an 8-member batch.
+export const WAIT_LANE_STEP_U = 0.73; // 2x stays inside the gate's own +-1.47u opening
+export const WAIT_LANE_COUNT = 5; // positions 0, +-1, +-2 (all within +-1.47u)
+export const WAIT_ALONG_STEP_U = 0.8; // overflow-row spacing, backward along the corridor
+
+/** This batch index's lateral (perpendicular) lane offset: a zigzag
+ * 0, +1, -1, +2, -2, ... pattern in units of WAIT_LANE_STEP_U, cycling every
+ * WAIT_LANE_COUNT indices (see this section's own header for the pairwise
+ * separation proof). */
+export function waitLaneOffsetForIndex(batchIndex: number, laneCount: number = WAIT_LANE_COUNT): number {
+  const lane = ((batchIndex % laneCount) + laneCount) % laneCount;
+  if (lane === 0) return 0;
+  const magnitude = Math.ceil(lane / 2);
+  const sign = lane % 2 === 1 ? 1 : -1;
+  return sign * magnitude * WAIT_LANE_STEP_U;
+}
+
+/** This batch index's along-path "row" offset (0 for the first
+ * WAIT_LANE_COUNT indices, 1 for the next WAIT_LANE_COUNT, ...), in units of
+ * WAIT_ALONG_STEP_U -- see this section's own header. */
+export function waitAlongOffsetForIndex(batchIndex: number, laneCount: number = WAIT_LANE_COUNT): number {
+  return Math.floor(Math.max(0, batchIndex) / laneCount) * WAIT_ALONG_STEP_U;
+}
+
+/** The visual "waiting for my stagger slot" point: `origin` nudged
+ * perpendicular to the direction toward `next` (the first real hallway
+ * waypoint the avatar will walk toward once its delay elapses) by this
+ * avatar's own `batchIndex`-derived lane, and backward along that same
+ * direction by its own row (see `waitLaneOffsetForIndex`/
+ * `waitAlongOffsetForIndex` above for the full derivation and separation
+ * proof -- CONVOY-STACK v3, replacing v2's id-hash approach, which could not
+ * guarantee separation within an already-known, already-ordered batch).
+ * Used only to render a delayed avatar's stationary pose -- without this,
+ * every same-batch avatar waiting out its stagger would render stacked
+ * exactly on the shared origin node (the first waypoint is deliberately
+ * left unoffset by `applyLaneOffsets` for path-continuity reasons -- see
+ * that function's own doc). Falls back to `origin` unmodified if `origin`
+ * and `next` coincide (no real direction to be perpendicular to). */
 export function computeWaitPoint(
   origin: readonly [number, number, number],
   next: readonly [number, number, number],
-  id: string,
+  batchIndex: number,
 ): [number, number, number] {
   const dx = next[0] - origin[0];
   const dz = next[2] - origin[2];
   const len = Math.hypot(dx, dz);
   if (len < 1e-9) return [...origin] as [number, number, number];
-  const perpX = -dz / len;
-  const perpZ = dx / len;
-  const offset = laneValueForId(id);
-  return [origin[0] + perpX * offset, origin[1], origin[2] + perpZ * offset];
+  const dirX = dx / len;
+  const dirZ = dz / len;
+  const perpX = -dirZ;
+  const perpZ = dirX;
+  const lateral = waitLaneOffsetForIndex(batchIndex);
+  const along = waitAlongOffsetForIndex(batchIndex);
+  return [
+    origin[0] + perpX * lateral - dirX * along,
+    origin[1],
+    origin[2] + perpZ * lateral - dirZ * along,
+  ];
 }
 
 export function computeStandSlot(
