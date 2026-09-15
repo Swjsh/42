@@ -161,7 +161,19 @@ def test_launch_loop_command_includes_live_and_loop_flags(monkeypatch, tmp_path)
     this test ran, most recently caught at 10:33:41 ET on 2026-09-13. Fixed at the source
     (_write_pid_file/_read_pid_file now resolve PID_FILE fresh inside the function body), but
     this test ALSO asserts the real path is untouched so a future regression in that fix is
-    caught right here, not just by the session-wide conftest guard."""
+    caught right here, not just by the session-wide conftest guard.
+
+    SECOND ISOLATION LEAK (found 2026-09-15, TWIN-LOOP-SINGLETON-GUARD audit): launch_loop()
+    also calls `_log(...)`, which reads the module-level `LOG_FILE` global -- unlike PID_FILE
+    at the time of the above incident, `_log` already re-reads its global fresh on every call
+    rather than binding it as a default argument, so `monkeypatch.setattr(ctk, "LOG_FILE",
+    ...)` DOES correctly redirect it (no source change needed here, only this test gained the
+    missing monkeypatch). Before this fix, every run of this test wrote a literal
+    '[...] launched crypto_twin_health.py --live --loop PID=9999 duration=86400s (24h
+    recycle)' line into the REAL automation/state/logs/crypto-twin-keepalive-<date>.log --
+    confirmed present in crypto-twin-keepalive-2026-09-09.log ('PID=9999') sitting next to a
+    genuine 'loop alive (pid=333)' line from production, i.e. test pollution of a real log a
+    human/Fable might read as production evidence."""
     captured = {}
 
     class _FakeProc:
@@ -174,10 +186,14 @@ def test_launch_loop_command_includes_live_and_loop_flags(monkeypatch, tmp_path)
     real_pid_file = ctk.PID_FILE
     real_pid_file_before = (real_pid_file.read_bytes() if real_pid_file.exists() else None)
     fake_pid_file = tmp_path / "crypto-twin-loop.pid"
+    real_log_file = ctk.LOG_FILE
+    real_log_file_before = (real_log_file.read_bytes() if real_log_file.exists() else None)
+    fake_log_file = tmp_path / "crypto-twin-keepalive-test.log"
 
     monkeypatch.setattr(ctk.subprocess, "Popen", fake_popen)
     monkeypatch.setattr(ctk.time, "sleep", lambda s: None)
     monkeypatch.setattr(ctk, "PID_FILE", fake_pid_file)
+    monkeypatch.setattr(ctk, "LOG_FILE", fake_log_file)
     ok, pid = ctk.launch_loop()
     assert ok is True
     assert pid == 9999
@@ -195,4 +211,12 @@ def test_launch_loop_command_includes_live_and_loop_flags(monkeypatch, tmp_path)
     assert real_pid_file_after == real_pid_file_before, (
         "launch_loop()/_write_pid_file() wrote to the REAL production pid file despite "
         "monkeypatching ctk.PID_FILE -- the 2026-09-13 bound-default regression is back"
+    )
+    assert fake_log_file.exists(), "launch_loop() must log via the (monkeypatched) LOG_FILE"
+    assert "PID=9999" in fake_log_file.read_text(encoding="utf-8")
+    real_log_file_after = (real_log_file.read_bytes() if real_log_file.exists() else None)
+    assert real_log_file_after == real_log_file_before, (
+        "launch_loop()/_log() wrote a fake PID=9999 line into the REAL production keepalive "
+        "log despite monkeypatching ctk.LOG_FILE -- the 2026-09-15 test-pollution regression "
+        "(confirmed in crypto-twin-keepalive-2026-09-09.log) is back"
     )

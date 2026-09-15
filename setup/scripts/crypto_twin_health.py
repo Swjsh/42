@@ -111,6 +111,9 @@ import crypto_twin_challenger as chal  # noqa: E402  -- H1-crypto ledger overlay
 # YOUR-KEEP item 7c). See run_tick_with_health's periodic-hook call site.
 import broker_canary as bc  # noqa: E402  -- BROKER-CANARY-SENTINEL-HOOKUP (queue.md 2026-07-11):
 # the one-line piggyback this scheduled tick was built to carry. See main()'s call site.
+import single_instance  # noqa: E402  -- TWIN-LOOP-SINGLETON-GUARD (2026-09-15). See
+# run_loop()'s guard block + single_instance.py's own module docstring for the 2026-09-09
+# 22-duplicate-loop / decisions.jsonl-corruption incident this closes.
 
 STATE = REPO / "automation" / "state"
 # TOP-LEVEL glance file -- deliberately a sibling of engine-health.json/
@@ -122,6 +125,13 @@ HEALTH_PATH = STATE / "twin-health.json"
 # the loop within one tick, never mid-tick. Never auto-created by this module -- an operator
 # (or Fable) creates/deletes it by hand; run_loop() only ever reads it.
 STOP_FILE = STATE / "crypto-twin.stop"
+
+# TWIN-LOOP-SINGLETON-GUARD (2026-09-15): OS-level exclusive lock, held for the resident
+# --loop process's entire lifetime, in the twin's own private ledger dir (sibling of
+# decisions.jsonl) rather than top-level STATE, matching crypto_twin_core.TWIN_DIR's
+# namespace-isolation convention. See single_instance.py's module docstring for why a lock
+# file (not a pidfile) and for the 2026-09-09 incident this closes.
+LOCK_PATH = STATE / "crypto-twin" / "twin-loop.lock"
 
 # Default --loop cadence and bounded runtime -- unchanged tick rate (CADENCE-TUNE 2026-08-01,
 # see module docstring: 1-min cadence is twin doctrine, this is a process-SHAPE change only)
@@ -689,7 +699,11 @@ def run_loop(*, live: bool = False, interval_sec: int = DEFAULT_LOOP_INTERVAL_SE
              duration_sec: int = DEFAULT_LOOP_DURATION_SEC, stop_file: Path = STOP_FILE,
              health_path: Path = HEALTH_PATH, tick_fn=run_tick_with_health,
              sleep_fn=time.sleep, monotonic_fn=time.monotonic,
-             log_fn=lambda msg: print(msg, file=sys.stderr)) -> int:
+             log_fn=lambda msg: print(msg, file=sys.stderr),
+             lock_path: Path = LOCK_PATH,
+             acquire_lock_fn=single_instance.acquire_lock,
+             legacy_check_fn=single_instance.is_legacy_process_running,
+             pid_fn=_os.getpid) -> int:
     """ONE resident process that ticks `tick_fn` (defaults to run_tick_with_health, the exact
     same call the old 1-min scheduled task made) on a drift-free schedule -- replaces
     Gamma_CryptoTwin's "spawn a fresh Python process every minute, 24/7" shape with a single
@@ -731,7 +745,30 @@ def run_loop(*, live: bool = False, interval_sec: int = DEFAULT_LOOP_INTERVAL_SE
     injectable now_utc/now_et/raw_bars pattern) so this is testable in well under a second
     with zero real sleeping and zero real ticks -- see
     backtest/tests/test_crypto_twin_health_loop_2026_09_05.py.
+
+    SINGLE-INSTANCE GUARD (TWIN-LOOP-SINGLETON-GUARD, 2026-09-15, checked once here at
+    startup, before the first tick -- see single_instance.py's module docstring for the
+    2026-09-09 22-duplicate-loop / decisions.jsonl-corruption incident this closes). Two
+    independent checks, EITHER failing means exit immediately with no tick, no ledger write,
+    no health-file write:
+      1. `legacy_check_fn` -- catches a process already running from BEFORE this guard
+         shipped (it holds no lock at all, e.g. the twin loop live at authoring time).
+      2. `acquire_lock_fn` -- the durable, OS-level guarantee for every launch from here on;
+         released automatically by Windows on process exit, no stale-lock recovery needed.
     """
+    own_pid = pid_fn()
+    if legacy_check_fn(("crypto_twin_health.py", "--loop"), own_pid):
+        log_fn(f"[crypto_twin_health] another crypto_twin_health.py --loop process is "
+               f"already running (pre-guard legacy instance, own pid={own_pid}) -- exiting "
+               f"without ticking")
+        return 0
+    lock = acquire_lock_fn(lock_path)
+    if lock is None:
+        log_fn(f"[crypto_twin_health] could not acquire single-instance lock ({lock_path}) "
+               f"-- another --loop process holds it (own pid={own_pid}) -- exiting without "
+               f"ticking")
+        return 0
+
     start = monotonic_fn()
     n_ticks = 0
     n_errors = 0

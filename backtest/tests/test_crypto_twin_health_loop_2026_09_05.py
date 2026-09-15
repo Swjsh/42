@@ -68,7 +68,9 @@ def test_loop_ticks_once_per_interval_drift_free(tmp_path):
     rc = cth.run_loop(
         live=False, interval_sec=60, duration_sec=0, stop_file=stop_file,
         health_path=tmp_path / "twin-health.json", tick_fn=tick_fn,
-        sleep_fn=clock.sleep, monotonic_fn=clock.monotonic, log_fn=lambda m: None,
+        sleep_fn=clock.sleep, monotonic_fn=clock.monotonic,
+        legacy_check_fn=lambda *a, **k: False, acquire_lock_fn=lambda *a, **k: object(),
+        log_fn=lambda m: None,
     )
     assert rc == 0
     assert len(calls) == 5
@@ -93,7 +95,9 @@ def test_loop_stops_on_stop_file_within_one_tick(tmp_path):
     rc = cth.run_loop(
         live=False, interval_sec=1, duration_sec=0, stop_file=stop_file,
         health_path=tmp_path / "twin-health.json", tick_fn=tick_fn,
-        sleep_fn=clock.sleep, monotonic_fn=clock.monotonic, log_fn=lambda m: None,
+        sleep_fn=clock.sleep, monotonic_fn=clock.monotonic,
+        legacy_check_fn=lambda *a, **k: False, acquire_lock_fn=lambda *a, **k: object(),
+        log_fn=lambda m: None,
     )
     assert rc == 0
     assert len(calls) == 3  # stopped immediately after the tick that wrote the stop file
@@ -109,7 +113,9 @@ def test_loop_never_starts_a_tick_when_stop_file_already_present(tmp_path):
         live=False, interval_sec=60, duration_sec=0, stop_file=stop_file,
         health_path=tmp_path / "twin-health.json",
         tick_fn=lambda **kw: (calls.append(1), _ok_result())[1],
-        sleep_fn=clock.sleep, monotonic_fn=clock.monotonic, log_fn=lambda m: None,
+        sleep_fn=clock.sleep, monotonic_fn=clock.monotonic,
+        legacy_check_fn=lambda *a, **k: False, acquire_lock_fn=lambda *a, **k: object(),
+        log_fn=lambda m: None,
     )
     assert rc == 0
     assert calls == []
@@ -126,7 +132,9 @@ def test_loop_exits_after_duration_sec_elapsed(tmp_path):
         live=False, interval_sec=60, duration_sec=185, stop_file=stop_file,
         health_path=tmp_path / "twin-health.json",
         tick_fn=lambda **kw: (calls.append(1), _ok_result())[1],
-        sleep_fn=clock.sleep, monotonic_fn=clock.monotonic, log_fn=lambda m: None,
+        sleep_fn=clock.sleep, monotonic_fn=clock.monotonic,
+        legacy_check_fn=lambda *a, **k: False, acquire_lock_fn=lambda *a, **k: object(),
+        log_fn=lambda m: None,
     )
     assert rc == 0
     # 185s / 60s interval -> ticks at t=0,60,120,180 fire (4 ticks); the 5th would be due at
@@ -153,7 +161,9 @@ def test_loop_survives_a_tick_exception_and_keeps_running(tmp_path):
     rc = cth.run_loop(
         live=False, interval_sec=1, duration_sec=0, stop_file=stop_file,
         health_path=tmp_path / "twin-health.json", tick_fn=tick_fn,
-        sleep_fn=clock.sleep, monotonic_fn=clock.monotonic, log_fn=logged.append,
+        sleep_fn=clock.sleep, monotonic_fn=clock.monotonic,
+        legacy_check_fn=lambda *a, **k: False, acquire_lock_fn=lambda *a, **k: object(),
+        log_fn=logged.append,
     )
     assert rc == 0
     assert len(calls) == 4  # the loop kept going past the exception on tick 2
@@ -180,7 +190,9 @@ def test_loop_logs_a_tick_error_without_raising(tmp_path):
     rc = cth.run_loop(
         live=False, interval_sec=1, duration_sec=0, stop_file=stop_file,
         health_path=tmp_path / "twin-health.json", tick_fn=tick_fn,
-        sleep_fn=clock.sleep, monotonic_fn=clock.monotonic, log_fn=logged.append,
+        sleep_fn=clock.sleep, monotonic_fn=clock.monotonic,
+        legacy_check_fn=lambda *a, **k: False, acquire_lock_fn=lambda *a, **k: object(),
+        log_fn=logged.append,
     )
     assert rc == 0
     assert len(calls) == 3
@@ -212,7 +224,9 @@ def test_zero_ticks_is_never_silently_ok_when_tick_fn_never_called(tmp_path):
         live=False, interval_sec=60, duration_sec=1, stop_file=stop_file,
         health_path=tmp_path / "twin-health.json",
         tick_fn=lambda **kw: (calls.append(1), _ok_result())[1],
-        sleep_fn=clock.sleep, monotonic_fn=clock.monotonic, log_fn=lambda m: None,
+        sleep_fn=clock.sleep, monotonic_fn=clock.monotonic,
+        legacy_check_fn=lambda *a, **k: False, acquire_lock_fn=lambda *a, **k: object(),
+        log_fn=lambda m: None,
     )
     assert rc == 0
     # duration_sec=1 is shorter than the 60s interval, but the FIRST tick (at t=0) is still
