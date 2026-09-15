@@ -161,7 +161,7 @@ export default function StationModule({
               (world pass A bug fix, see BrainCore.tsx's identical fix) so a
               still-loading bay never unmounts anything outside itself. */}
           <Suspense fallback={null}>
-            <DepartmentBayShell />
+            <DepartmentBayShell position={position} rotationY={rotationY} />
             <group position={[0, 0, BAY_DESK_OFFSET_Z]}>
               <DeskCluster accentColor={color} screenTitle={row.lane} screenLines={screenLines} />
             </group>

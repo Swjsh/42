@@ -1,10 +1,10 @@
 "use client";
 
-import { Suspense, useEffect, useMemo } from "react";
+import { Suspense, useEffect, useId, useLayoutEffect, useMemo, useRef, useSyncExternalStore } from "react";
 import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import DeskScreen from "./DeskScreen";
-import { lerp, PALETTE, type ScreenLine } from "./palette";
+import { lerp, localToWorld, PALETTE, type ScreenLine } from "./palette";
 
 // ─── HQ kit rebuild (2026-09-13, HQ-SCENE-PLAN.md) ──────────────────────────
 // Real CC0 GLB pieces (Kenney Space Station Kit / Modular Space Kit / Space
@@ -285,6 +285,227 @@ export function KitProp({ path, scale = 1, position, rotation, tint, tintStrengt
   return <primitive object={cloned} scale={scale} position={position} rotation={rotation} />;
 }
 
+// ─── P3 perf pass (POLISH-1, 2026-09-14): cross-scene instancing pool ──────
+// Real capture (world6-preset0-fixed.png) reads 1151 draw calls at the wide
+// overview because every corridor segment / gate-door / T-junction / bay
+// shell is its OWN full KitProp mount -- a separate THREE.Mesh object per
+// mount, even though geometry is drei-cached (SHARED buffers) and every
+// piece measured this session (a one-off GLB-JSON-chunk dump, same
+// technique dashboard/scripts/glb_extents.mjs already uses, not guessed):
+// corridor.glb / corridor-wide.glb / corridor-intersection.glb / room-small.glb
+// are each exactly ONE mesh primitive, ONE shared "colormap" material,
+// IDENTITY local-to-root matrix; gate-door.glb is exactly TWO (frame + door
+// panel), same material, same identity matrix -- three.js still issues one
+// draw call per Mesh OBJECT regardless of shared underlying data.
+//
+// Fix: one real THREE.InstancedMesh per (kit GLB primitive, material) pair,
+// fed by every hallway/junction/bay's own placement instead of each
+// spawning its own clone. The hard part: CorridorRun/TJunction/
+// DepartmentBayShell mount MANY TIMES as SIBLINGS scattered across Scene.tsx's
+// whole JSX tree (4 main spines + 8 side halls + 4 junctions + 8 bays) --
+// not descendants of one shared ancestor -- so a React Context provider
+// (drei's own <Instances>/<Instance> pattern) can't reach across them
+// without wrapping Scene.tsx's ENTIRE render tree, which this task's
+// file-ownership rule forbids editing. A plain MODULE-SCOPE registry
+// sidesteps the tree entirely -- the SAME "shared across every mounted
+// instance regardless of tree position" convention Agent.tsx's own
+// `lastGlobalWalkStartT` already uses in this exact codebase (module scope,
+// not React state/Context) -- each CorridorRun/TJunction/DepartmentBayShell
+// instance REGISTERS its own placement(s) via `usePooledKitProps` (a
+// useEffect, batched per call site to respect the rules of hooks -- never
+// one hook call per array item) and ONE always-mounted <InstancedKitPool>
+// per (path, variant) -- mounted from HubRoom below, itself a
+// guaranteed-single Scene.tsx mount -- subscribes to the registry via
+// React's own useSyncExternalStore and renders the real InstancedMesh(es).
+//
+// Placement math: every targeted piece's own local-to-glTF-root matrix is
+// IDENTITY (verified above), so a registered instance's matrix is exactly
+// `compose(position, quaternion-from-Euler(rotation), scale)` -- the SAME
+// three numbers every current KitProp mount already receives, just fed into
+// a shared buffer instead of a per-instance clone.
+//
+// Tint: CorridorRun's own segments/main-spines tint toward `plateColorStyle`
+// (dayFactor-driven). Verified this session (Scene.tsx's own call sites,
+// grepped): EVERY CorridorRun/TJunction/HubRoom call receives the IDENTICAL
+// `dayFactor={nightFactor}` value in any one render, so every "tinted"
+// instance in a pool always wants the SAME color at any given moment -- no
+// per-instance instanceColor needed, just ONE shared material whose
+// `.color` the pool itself derives from its OWN `dayFactor` prop (HubRoom
+// already receives it), recomputed with the IDENTICAL formula
+// CorridorRun/Plaza already use for `plateColorStyle`. Untinted pieces
+// (gate-door, T-junction intersection+cap, room-small) use the GLB's own
+// native material, unmodified.
+//
+// Scope (this pass): corridor.glb, corridor-wide.glb, gate-door.glb,
+// corridor-intersection.glb, room-small.glb -- every piece this task names
+// ("corridor.glb / corridor-wide.glb / gate-door.glb / wall segments").
+// NOT instanced, deliberately: room-large.glb (HubRoom's own hub shell --
+// exactly ONE mount, nothing to batch, AND uses a per-instance `emissive`
+// prop today -- this task's own explicit "leave it" case); CeilingLight
+// (12 mounts across HubRoom+DepartmentBayShell) -- same infra could extend
+// to it, deprioritized this pass for risk/time budget, flagged as a
+// follow-up; DeskCluster's furniture (table/chair/computer/screen, x8 bays)
+// and HubInterior's own table/chairs/cables -- table/chair are clean (no
+// tint), but the desk's own computer-screen carries UNIQUE per-bay canvas
+// content (P&L/state text, DeskScreen.tsx), which an InstancedMesh's ONE
+// shared material cannot represent -- exactly the "multi-material/
+// per-instance content" case this task says to leave; instancing table/
+// chair alone without the screen felt like a partial win not worth the
+// added surface this pass, flagged as a follow-up too.
+
+interface PoolInstance {
+  matrix: THREE.Matrix4;
+}
+type PoolKey = string; // `${glbPath}::${variant}`
+
+const poolRegistry = new Map<PoolKey, Map<string, PoolInstance>>();
+const poolListeners = new Set<() => void>();
+let poolVersion = 0;
+function notifyPool(): void {
+  poolVersion += 1;
+  poolListeners.forEach((l) => l());
+}
+function subscribePool(cb: () => void): () => void {
+  poolListeners.add(cb);
+  return () => poolListeners.delete(cb);
+}
+function getPoolVersion(): number {
+  return poolVersion;
+}
+
+const _poolPos = new THREE.Vector3();
+const _poolQuat = new THREE.Quaternion();
+const _poolEuler = new THREE.Euler();
+const _poolScale = new THREE.Vector3();
+
+interface PoolPlacement {
+  /** Stable across re-renders for the SAME logical instance (this call
+   * site's own useId() + a per-item suffix) -- the registry keys on this,
+   * never array index (index would silently reassign a DIFFERENT
+   * instance's matrix if the array ever reordered). */
+  id: string;
+  position: [number, number, number];
+  rotation: [number, number, number];
+  scale: number;
+}
+
+/** Registers a BATCH of placements into a shared cross-tree pool (see this
+ * section's own header) in ONE effect -- never one hook call per array item
+ * (rules of hooks forbid a hook inside a .map() callback). Re-registers only
+ * when the batch's own VALUES change (a stable serialized dep key, not the
+ * array reference -- callers often rebuild the array every render even when
+ * every number inside is unchanged). */
+function usePooledKitProps(path: string, variant: string, placements: PoolPlacement[]): void {
+  const key: PoolKey = `${path}::${variant}`;
+  const depsKey = placements
+    .map((p) => `${p.id}:${p.position[0]},${p.position[1]},${p.position[2]}:${p.rotation[0]},${p.rotation[1]},${p.rotation[2]}:${p.scale}`)
+    .join("|");
+  useEffect(() => {
+    let pool = poolRegistry.get(key);
+    if (!pool) {
+      pool = new Map();
+      poolRegistry.set(key, pool);
+    }
+    for (const p of placements) {
+      const m = new THREE.Matrix4().compose(
+        _poolPos.set(p.position[0], p.position[1], p.position[2]),
+        _poolQuat.setFromEuler(_poolEuler.set(p.rotation[0], p.rotation[1], p.rotation[2])),
+        _poolScale.set(p.scale, p.scale, p.scale),
+      );
+      pool.set(p.id, { matrix: m });
+    }
+    notifyPool();
+    return () => {
+      const live = poolRegistry.get(key);
+      if (live) for (const p of placements) live.delete(p.id);
+      notifyPool();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key, depsKey]);
+}
+
+interface InstancedKitPoolProps {
+  path: string;
+  variant: string;
+  /** Overrides the shared material's OWN color (native kit color if
+   * omitted). Computed by the CALLER from the SAME dayFactor every tinted
+   * mount already reads -- see this section's own header for why this
+   * sidesteps per-instance instanceColor entirely (every instance sharing
+   * one pool in THIS scene always agrees on one color at any moment). */
+  tintColor?: string;
+  tintStrength?: number;
+  castShadow?: boolean;
+  receiveShadow?: boolean;
+}
+
+/** Renders ONE real InstancedMesh per mesh primitive in `path`'s GLB, fed by
+ * every placement currently registered under (path, variant) -- see this
+ * section's own header. Mounted once per (path, variant) combo, from
+ * HubRoom below. */
+function InstancedKitPool({ path, variant, tintColor, tintStrength = 0, castShadow, receiveShadow }: InstancedKitPoolProps) {
+  const version = useSyncExternalStore(subscribePool, getPoolVersion, getPoolVersion);
+  const { scene } = useGLTF(path, false);
+  const key: PoolKey = `${path}::${variant}`;
+  const pool = poolRegistry.get(key);
+  const matrices = useMemo(
+    () => (pool ? Array.from(pool.values()).map((v) => v.matrix) : []),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [pool, version],
+  );
+
+  const meshes = useMemo(() => {
+    const out: THREE.Mesh[] = [];
+    scene.traverse((obj) => {
+      if (obj instanceof THREE.Mesh) out.push(obj);
+    });
+    return out;
+  }, [scene]);
+
+  // ONE cloned material PER mesh primitive (not per instance -- shared
+  // across every instance in this pool): tinted the SAME way
+  // tintObjectMaterials already blends a single material
+  // (color.lerp(tint, strength)), just computed ONCE here instead of
+  // once-per-mount.
+  const materials = useMemo(
+    () => meshes.map((mesh) => {
+      const src = Array.isArray(mesh.material) ? mesh.material[0] : mesh.material;
+      const clone = src.clone() as THREE.Material & { color?: THREE.Color };
+      if (tintColor && clone.color) clone.color.lerp(new THREE.Color(tintColor), tintStrength);
+      return clone;
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [meshes, tintColor, tintStrength],
+  );
+  useEffect(() => () => materials.forEach((m) => m.dispose()), [materials]);
+
+  const instRefs = useRef<(THREE.InstancedMesh | null)[]>([]);
+  useLayoutEffect(() => {
+    instRefs.current.forEach((im) => {
+      if (!im) return;
+      matrices.forEach((m, idx) => im.setMatrixAt(idx, m));
+      im.count = matrices.length;
+      im.instanceMatrix.needsUpdate = true;
+    });
+  }, [matrices]);
+
+  if (matrices.length === 0) return null;
+
+  return (
+    <>
+      {meshes.map((mesh, i) => (
+        <instancedMesh
+          key={i}
+          ref={(el) => { instRefs.current[i] = el; }}
+          args={[mesh.geometry, materials[i], Math.max(1, matrices.length)]}
+          castShadow={castShadow}
+          receiveShadow={receiveShadow}
+          frustumCulled={false}
+        />
+      ))}
+    </>
+  );
+}
+
 /** Central hub interior shell -- one `room-large.glb` at ARCHITECTURE_SCALE_HUB
  * (-> 15x15 footprint, radius 7.5, clearing Scene.tsx's PERSONA_RING_RADIUS=6.5
  * by 1.0 unit -- see ARCHITECTURE_SCALE_HUB's own comment for why this isn't
@@ -316,6 +537,14 @@ export function HubRoom({ dayFactor = 1 }: { dayFactor?: number }) {
   // clone + dispose, a real GPU op) on every poll instead of only when the
   // clock genuinely moves.
   const hubEmissive = useMemo(() => ({ color: PALETTE.warmAccent, intensity: 0.85 * lampFactor }), [lampFactor]);
+  // P3 perf pass (POLISH-1, 2026-09-14): the SAME dayFactor-driven color
+  // CorridorRun's own `plateColorStyle` already computes -- recomputed here
+  // (not threaded/imported) so the tinted architecture pool's shared
+  // material can derive its color WITHOUT depending on which specific
+  // CorridorRun call happens to be mounted (there are up to 12; every one
+  // of them shares this exact value in any one render -- see this file's
+  // own "P3 perf pass" header for the verification).
+  const archPlateColor = useMemo(() => _plazaColor.copy(PLAZA_NIGHT).lerp(PLAZA_DAY, dayFactor).getStyle(), [dayFactor]);
   return (
     <>
       {/* Pass F emissive fix (2026-09-13, coordinator's real-monitor
@@ -384,6 +613,24 @@ export function HubRoom({ dayFactor = 1 }: { dayFactor?: number }) {
           </group>
         );
       })}
+
+      {/* P3 perf pass (POLISH-1, 2026-09-14): cross-hallway/cross-bay
+          InstancedMesh pools, fed by every CorridorRun/TJunction/
+          DepartmentBayShell instance's own usePooledKitProps registration --
+          see this file's own "P3 perf pass" header. Mounted ONCE here
+          (HubRoom is itself a guaranteed-single Scene.tsx mount) instead of
+          once per hallway/bay, which IS the draw-call win. Suspense-scoped
+          (world pass A convention, see ReactorGreeble's own comment in
+          BrainCore.tsx) so a still-loading pool never unmounts HubRoom's
+          own shell/lights above. */}
+      <Suspense fallback={null}>
+        <InstancedKitPool path={KIT_PATHS.architecture.corridor} variant="tinted" tintColor={archPlateColor} tintStrength={0.6} receiveShadow />
+        <InstancedKitPool path={KIT_PATHS.architecture.corridor} variant="native" receiveShadow />
+        <InstancedKitPool path={KIT_PATHS.architecture.corridorWide} variant="tinted" tintColor={archPlateColor} tintStrength={0.6} receiveShadow />
+        <InstancedKitPool path={KIT_PATHS.architecture.gateDoor} variant="native" castShadow />
+        <InstancedKitPool path={KIT_PATHS.architecture.corridorIntersection} variant="native" receiveShadow />
+        <InstancedKitPool path={KIT_PATHS.architecture.roomSmall} variant="native" receiveShadow />
+      </Suspense>
     </>
   );
 }
@@ -395,17 +642,37 @@ export function HubRoom({ dayFactor = 1 }: { dayFactor?: number }) {
  * beacon/edge-strip convention already in StationModule.tsx). */
 export const BAY_CEILING_Y = 4.25 * ARCHITECTURE_SCALE_BAY - 0.35; // room-small raw height 4.25
 
-export function DepartmentBayShell() {
+/** P3 perf pass (POLISH-1, 2026-09-14): `position`/`rotationY` -- the SAME
+ * two values StationModule.tsx's own outer `<group position={position}
+ * rotation={[0, rotationY, 0]}>` already applies -- are now REQUIRED props
+ * (the shell's own room-small.glb and gate-door.glb no longer mount as
+ * KitProp children of that group; they register into the shared
+ * cross-scene pool instead, which renders from HubRoom, a sibling
+ * elsewhere in the tree -- see SetKit.tsx's own "P3 perf pass" header for
+ * why a pooled instance needs its WORLD placement computed explicitly
+ * rather than inheriting a parent group's transform). */
+export function DepartmentBayShell({ position, rotationY }: { position: [number, number, number]; rotationY: number }) {
   const halfDepth = (12 * ARCHITECTURE_SCALE_BAY) / 2; // room-small raw depth 12
+  const instanceIdBase = useId();
+
+  const roomPlacements = useMemo(
+    () => [{ id: `${instanceIdBase}-room`, position, rotation: [0, rotationY, 0] as [number, number, number], scale: ARCHITECTURE_SCALE_BAY }],
+    [instanceIdBase, position, rotationY],
+  );
+  usePooledKitProps(KIT_PATHS.architecture.roomSmall, "native", roomPlacements);
+
+  // Gate-door's OLD local position [0,0,-halfDepth] had NO rotation prop of
+  // its own (identity local rotation), so its world rotation was always
+  // exactly the parent group's rotationY -- reproduced directly here too.
+  const doorWorldPos = useMemo(() => localToWorld(position, rotationY, [0, 0, -halfDepth]), [position, rotationY, halfDepth]);
+  const doorPlacements = useMemo(
+    () => [{ id: `${instanceIdBase}-door`, position: doorWorldPos, rotation: [0, rotationY, 0] as [number, number, number], scale: ARCHITECTURE_SCALE_BAY }],
+    [instanceIdBase, doorWorldPos, rotationY],
+  );
+  usePooledKitProps(KIT_PATHS.architecture.gateDoor, "native", doorPlacements);
+
   return (
     <>
-      <KitProp path={KIT_PATHS.architecture.roomSmall} scale={ARCHITECTURE_SCALE_BAY} receiveShadow />
-      <KitProp
-        path={KIT_PATHS.architecture.gateDoor}
-        scale={ARCHITECTURE_SCALE_BAY}
-        position={[0, 0, -halfDepth]}
-        castShadow
-      />
       <CeilingLight position={[0, BAY_CEILING_Y, BAY_DESK_OFFSET_Z * 0.5]} />
     </>
   );
@@ -654,6 +921,7 @@ export function CorridorRun({
    * unchanged behavior for every hub-wall caller. */
   doorAtFrom?: boolean;
 }) {
+  const instanceIdBase = useId();
   const rotationY = Math.atan2(to[0] - from[0], to[2] - from[2]);
   // See CORRIDOR_KIT_YAW_OFFSET's own header -- the kit piece's real open
   // axis is local X, not local Z, so its yaw needs the +90deg correction
@@ -696,6 +964,39 @@ export function CorridorRun({
     return { midpoint: mid, length: len, segPositions: segs };
   }, [from[0], from[1], from[2], to[0], to[1], to[2], segmentLength]);
 
+  // P3 perf pass (POLISH-1, 2026-09-14): segments used to be one KitProp
+  // clone each (a full THREE.Mesh object per segment, ~2-3 per run x up to
+  // 12 hallways) -- now REGISTERED into the shared cross-hallway
+  // InstancedMesh pool (see this file's own "P3 perf pass" header) instead,
+  // rendered ONCE from HubRoom. "tinted" variant: that pool's own material
+  // color is dayFactor-driven, computed independently there from the SAME
+  // dayFactor every CorridorRun call already receives -- see that header
+  // for why this never needs per-instance color, so `plateColorStyle` is
+  // no longer passed as a per-segment tint here (still used just below, for
+  // the strip/rail meshes, which stay un-pooled procedural geometry).
+  const segPlacements = useMemo(
+    () => segPositions.map((pos, i) => ({
+      id: `${instanceIdBase}-seg${i}`, position: pos, rotation: [0, corridorKitRotationY, 0] as [number, number, number], scale: ARCHITECTURE_SCALE_BAY,
+    })),
+    [segPositions, corridorKitRotationY, instanceIdBase],
+  );
+  usePooledKitProps(corridorPath, "tinted", segPlacements);
+
+  // Hub-end door frame -- "the goal is the eye tracing hub -> hallway -> bay
+  // without a break." The bay end already has its own gate-door
+  // (DepartmentBayShell, own pool registration); a T-junction end
+  // (doorAtFrom=false, side hallways) gets neither -- an open junction, not
+  // a mystery door with no room behind it. Empty array (no registration at
+  // all) when doorAtFrom is false, matching the old JSX's own `{doorAtFrom
+  // && ...}` -- never a phantom zero-scale instance.
+  const doorPlacements = useMemo(
+    () => (doorAtFrom
+      ? [{ id: `${instanceIdBase}-door`, position: from, rotation: [0, rotationY, 0] as [number, number, number], scale: ARCHITECTURE_SCALE_BAY }]
+      : []),
+    [doorAtFrom, from, rotationY, instanceIdBase],
+  );
+  usePooledKitProps(KIT_PATHS.architecture.gateDoor, "native", doorPlacements);
+
   return (
     <group>
       <group position={midpoint} rotation={[0, rotationY, 0]}>
@@ -710,41 +1011,8 @@ export function CorridorRun({
           </mesh>
         ))}
       </group>
-      {segPositions.map((pos, i) => (
-        <KitProp
-          key={i}
-          path={corridorPath}
-          scale={ARCHITECTURE_SCALE_BAY}
-          position={pos}
-          rotation={[0, corridorKitRotationY, 0]}
-          // World-2 coordinator polish: "if the kit's corridor-room pieces
-          // are what is making the dark step (their own floor colour), tint
-          // them to the plate" -- a strong (0.6, well above the usual
-          // ~0.12-0.2 subtle-accent range elsewhere in this file) blend
-          // toward the SAME plate color the strip above uses, so the kit
-          // segments' own native tone no longer reads as a different
-          // material than the floor they sit on.
-          tint={plateColorStyle}
-          tintStrength={0.6}
-          receiveShadow
-        />
-      ))}
-      {/* Hub-end door frame + light -- "the goal is the eye tracing hub ->
-          hallway -> bay without a break." The bay end already has its own
-          gate-door (DepartmentBayShell, mounted from StationModule.tsx); a
-          T-junction end (doorAtFrom=false, side hallways) gets neither --
-          an open junction, not a mystery door with no room behind it. */}
       {doorAtFrom && (
-        <>
-          <KitProp
-            path={KIT_PATHS.architecture.gateDoor}
-            scale={ARCHITECTURE_SCALE_BAY}
-            position={from}
-            rotation={[0, rotationY, 0]}
-            castShadow
-          />
-          <pointLight position={[from[0], 0.9, from[2]]} color="#ffe9c2" intensity={1.5 * lampFactor} distance={3} decay={2} />
-        </>
+        <pointLight position={[from[0], 0.9, from[2]]} color="#ffe9c2" intensity={1.5 * lampFactor} distance={3} decay={2} />
       )}
     </group>
   );
@@ -808,16 +1076,36 @@ const T_JUNCTION_CAP_OFFSET = CORRIDOR_SEGMENT_LENGTH / 2;
 export function TJunction({ position, rotationY, dayFactor = 1 }: {
   position: [number, number, number]; rotationY: number; dayFactor?: number;
 }) {
+  const instanceIdBase = useId();
   const lampFactor = interiorLampFactor(dayFactor);
+
+  // P3 perf pass (POLISH-1, 2026-09-14): both pieces used to be direct
+  // KitProp children of this component's own <group> below -- now
+  // REGISTERED into the shared cross-junction InstancedMesh pool (see
+  // SetKit.tsx's own "P3 perf pass" header) instead, rendered ONCE from
+  // HubRoom. "native": neither piece was ever tinted here.
+  const intersectionPlacements = useMemo(
+    () => [{ id: `${instanceIdBase}-intersection`, position, rotation: [0, rotationY, 0] as [number, number, number], scale: ARCHITECTURE_SCALE_BAY }],
+    [instanceIdBase, position, rotationY],
+  );
+  usePooledKitProps(KIT_PATHS.architecture.corridorIntersection, "native", intersectionPlacements);
+
+  // Cap piece -- WORLD position/rotation computed explicitly (localToWorld)
+  // since the pooled instance renders from HubRoom (a sibling elsewhere in
+  // the tree), not nested inside this component's own <group> any more.
+  // Rotation OMITTED relative to the group in the ORIGINAL code (see
+  // T_JUNCTION_CAP_OFFSET's own header: "rotation OMITTED (identity
+  // relative to the parent)") -- so its WORLD rotation is exactly this
+  // junction's OWN rotationY, reproduced directly here.
+  const capWorldPos = useMemo(() => localToWorld(position, rotationY, [0, 0, T_JUNCTION_CAP_OFFSET]), [position, rotationY]);
+  const capPlacements = useMemo(
+    () => [{ id: `${instanceIdBase}-cap`, position: capWorldPos, rotation: [0, rotationY, 0] as [number, number, number], scale: ARCHITECTURE_SCALE_BAY }],
+    [instanceIdBase, capWorldPos, rotationY],
+  );
+  usePooledKitProps(KIT_PATHS.architecture.corridor, "native", capPlacements);
+
   return (
     <group position={position} rotation={[0, rotationY, 0]}>
-      <KitProp path={KIT_PATHS.architecture.corridorIntersection} scale={ARCHITECTURE_SCALE_BAY} receiveShadow />
-      <KitProp
-        path={KIT_PATHS.architecture.corridor}
-        scale={ARCHITECTURE_SCALE_BAY}
-        position={[0, 0, T_JUNCTION_CAP_OFFSET]}
-        receiveShadow
-      />
       <pointLight position={[0, 1.6, 0]} color="#ffe9c2" intensity={2.5 * lampFactor} distance={5} decay={2} />
     </group>
   );
