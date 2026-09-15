@@ -12,6 +12,17 @@
 # The VBS launcher (run-dashboard-keepalive.vbs) must be created alongside this file:
 #   CreateObject("WScript.Shell").Run "powershell.exe -NonInteractive -WindowStyle Hidden " & _
 #     "-File ""C:\Users\jackw\Desktop\42\setup\scripts\run-dashboard-keepalive.ps1""", 0, False
+#
+# DEPLOYING A NEW BUILD (2026-09-15): don't hand-run `npm run build` + this
+# script's restart dance yourself -- every HQ worker who has re-derived that
+# 5-step protocol by hand has gotten a step wrong at least once. Use
+# setup\scripts\dashboard_deploy.ps1 -Tag "<you>" instead: it encodes the
+# .build.lock wait/stale-check this script's STALE-BUILD GUARD already
+# respects (below), runs the build with one retry on the known transient
+# ENOENT, then re-invokes THIS script and polls /api/hq until its build_id
+# matches the fresh .next/BUILD_ID. Concurrency-safe -- run it from as many
+# sessions as you want, only one build proceeds at a time. -DryRun prints
+# every decision without building or writing anything.
 # STALE-BUILD GUARD (2026-09-14, coordinator-directed, HALLWAY-FIX builder's own
 # side finding this session): -DryRun prints the stale-build decision (see below)
 # without killing/respawning anything -- for manual verification against a live
