@@ -424,13 +424,28 @@ interface InstancedKitPoolProps {
   tintStrength?: number;
   castShadow?: boolean;
   receiveShadow?: boolean;
+  /** GATE-PROP-OPEN pass (2026-09-15): excludes mesh primitives by their
+   * GLB mesh name from this pool's own InstancedMesh set -- e.g.
+   * gate-door.glb ships TWO mesh primitives (verified via
+   * dashboard/scripts/glb_extents.mjs + a raw node/mesh JSON dump this
+   * session: mesh 0 name "gate-door" = the frame, whose own root-space AABB
+   * already spans the piece's FULL 4.2x4.621x1.4 footprint; mesh 1 name
+   * "door" = a separate child-node leaf slab, 2.4x3.721x0.7, centered in
+   * the opening). DepartmentBayShell's/CorridorRun's own bay + hallway
+   * doors keep BOTH meshes (their own "native" variant, unfiltered,
+   * unchanged) -- this prop exists so ONE other pool (CampusGate's own
+   * "frame-only" variant below) can render just the frame and skip the
+   * leaf, without touching what any other gate-door mount looks like. Only
+   * affects which InstancedMesh(es) this POOL renders; never mutates the
+   * shared GLTF scene/geometry itself. */
+  excludeMeshNames?: readonly string[];
 }
 
-/** Renders ONE real InstancedMesh per mesh primitive in `path`'s GLB, fed by
- * every placement currently registered under (path, variant) -- see this
- * section's own header. Mounted once per (path, variant) combo, from
- * HubRoom below. */
-export function InstancedKitPool({ path, variant, tintColor, tintStrength = 0, castShadow, receiveShadow }: InstancedKitPoolProps) {
+/** Renders ONE real InstancedMesh per mesh primitive in `path`'s GLB (minus
+ * any name in `excludeMeshNames`), fed by every placement currently
+ * registered under (path, variant) -- see this section's own header.
+ * Mounted once per (path, variant) combo, from HubRoom below. */
+export function InstancedKitPool({ path, variant, tintColor, tintStrength = 0, castShadow, receiveShadow, excludeMeshNames }: InstancedKitPoolProps) {
   const version = useSyncExternalStore(subscribePool, getPoolVersion, getPoolVersion);
   const { scene } = useGLTF(path, false);
   const key: PoolKey = makePoolKey(path, variant);
@@ -444,10 +459,11 @@ export function InstancedKitPool({ path, variant, tintColor, tintStrength = 0, c
   const meshes = useMemo(() => {
     const out: THREE.Mesh[] = [];
     scene.traverse((obj) => {
-      if (obj instanceof THREE.Mesh) out.push(obj);
+      if (obj instanceof THREE.Mesh && !excludeMeshNames?.includes(obj.name)) out.push(obj);
     });
     return out;
-  }, [scene]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scene, excludeMeshNames?.join("|")]);
 
   // ONE cloned material PER mesh primitive (not per instance -- shared
   // across every instance in this pool): tinted the SAME way
@@ -647,6 +663,20 @@ export function HubRoom({ dayFactor = 1 }: { dayFactor?: number }) {
         <InstancedKitPool path={KIT_PATHS.architecture.corridor} variant="native" receiveShadow />
         <InstancedKitPool path={KIT_PATHS.architecture.corridorWide} variant="tinted" tintColor={archPlateColor} tintStrength={0.6} receiveShadow />
         <InstancedKitPool path={KIT_PATHS.architecture.gateDoor} variant="native" castShadow />
+        {/* GATE-PROP-OPEN pass (2026-09-15): frame-only pool feeding
+            CampusGate's own "frame-only" registration above -- excludes
+            mesh "door" (the leaf slab that made the campus gate read as
+            shut) so ONLY the campus gate renders open, while every bay
+            door + hallway door above keeps rendering both meshes via the
+            unmodified "native" pool. One extra InstancedMesh (one extra
+            draw call) versus reusing "native" -- see CampusGate's own
+            comment. */}
+        <InstancedKitPool
+          path={KIT_PATHS.architecture.gateDoor}
+          variant="frame-only"
+          excludeMeshNames={GATE_DOOR_LEAF_MESH_NAMES}
+          castShadow
+        />
         <InstancedKitPool path={KIT_PATHS.architecture.corridorIntersection} variant="native" receiveShadow />
         <InstancedKitPool path={KIT_PATHS.architecture.roomSmall} variant="native" receiveShadow />
         <InstancedKitPool path={KIT_PATHS.lights} variant="native" />
@@ -719,6 +749,17 @@ export function DepartmentBayShell({ position, rotationY }: { position: [number,
   return null;
 }
 
+/** GATE-PROP-OPEN pass (2026-09-15): gate-door.glb's own mesh 1, name
+ * "door" -- the separate leaf-slab child node (2.4x3.721x0.7, centered in
+ * the frame's opening) that fills the doorway and reads as shut. Mesh 0
+ * ("gate-door", the frame) is NOT in this list -- its own root-space AABB
+ * already spans the piece's full 4.2x4.621x1.4 footprint, confirmed via
+ * `node dashboard/scripts/glb_extents.mjs gate-door.glb` plus a raw
+ * node/mesh JSON dump this session. Shared by CampusGate's own
+ * registration and HubRoom's own frame-only pool mount below so the two
+ * call sites can never drift on which mesh gets excluded. */
+const GATE_DOOR_LEAF_MESH_NAMES = ["door"] as const;
+
 /** GATE-PROP pass (2026-09-15): a visible physical gate at the live-agent
  * walk graph's own "campus-gate" node (layout.ts#buildWalkGraph -- where
  * every live agent, one per Claude session/subagent, now spawns and
@@ -754,7 +795,20 @@ export function CampusGate({ position, rotationY, scale }: { position: [number, 
     () => [{ id: `${instanceIdBase}-campus-gate`, position, rotation: [0, rotationY, 0] as [number, number, number], scale }],
     [instanceIdBase, position, rotationY, scale],
   );
-  usePooledKitProps(KIT_PATHS.architecture.gateDoor, "native", placements);
+  // GATE-PROP-OPEN pass (2026-09-15): a real-screen capture of the
+  // GATE-PROP pass above showed this reading as SHUT -- gate-door.glb's
+  // "native" variant (the SAME pool the 8 bay doors + hallway doors use)
+  // renders BOTH its mesh primitives, including the separate "door" leaf
+  // node that fills the frame's own opening. The bay/hallway doors are
+  // untouched (still "native", both meshes, per this file's own
+  // InstancedKitPool#excludeMeshNames header) -- ONLY the campus gate
+  // registers into its own "frame-only" variant instead, whose pool
+  // (mounted below in HubRoom) excludes mesh "door" so just the frame
+  // renders: an open doorway agents visibly walk through. Costs one extra
+  // InstancedMesh (the frame-only pool's own draw call) that the shared
+  // "native" pool wasn't already paying for -- see HubRoom's own mount
+  // comment for the measured delta.
+  usePooledKitProps(KIT_PATHS.architecture.gateDoor, "frame-only", placements);
   return null;
 }
 
