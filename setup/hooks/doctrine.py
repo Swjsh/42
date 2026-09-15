@@ -167,6 +167,133 @@ def subagent_background_run_hit(agent_id: str, tool: str, tool_input: dict) -> b
 
 
 # --------------------------------------------------------------------------------------
+# C34 -- tree-wide git ops in the shared checkout revert live state BACKWARD. Lessons
+# L214,228,233,238,242,252,265,267,271,304,316: this checkout is shared with scheduled
+# daemons (writing analysis/*.jsonl, automation/state/*) and other sessions/worktrees at
+# any moment. A whole-tree `git stash`/`checkout .`/`reset --hard`/`clean -f` silently
+# reverts or discards whatever any of them wrote between the op and now.
+#
+# Re-hit 2026-09-15 ~05:10 ET: a subagent ran a whole-working-tree `git stash` / `git
+# stash pop` to compare test baselines while another worker edited files and daemons
+# wrote live state. It popped clean THIS time -- same footgun class as the lessons
+# above, graduated here before the next one doesn't pop clean.
+#
+# SUBAGENT-ONLY, same mechanism as L318's subagent_background_run_hit() immediately
+# above: keyed on agent_id, so the main session (empty agent_id) is never evaluated.
+# Guards must fail open for J's interactive session (OP-25/OP-32 -- the 2026-05-22
+# market-hours-lockout scar); J's own tree-wide git calls are his judgment call, a
+# background worker's are not, because it cannot know what else is live in a checkout
+# it did not open.
+#
+# BASH_GUARDS below already denies `git checkout|restore .` and `git reset --hard` for
+# BOTH sessions (pre-existing, global) -- this function is intentionally broader
+# (stash, clean -f, branch switches) and subagent-scoped; where the two overlap,
+# BASH_GUARDS fires first (checked earlier in gamma_doctrine.py's PreToolUse handler)
+# and its message already names lesson cluster C34, so there is no silent gap either
+# way.
+#
+# `git stash push -- <pathspec>` (or `git stash push <pathspec>` without `--`) is
+# ALLOWED: a pathspec-scoped stash only touches the named files, not the whole tree,
+# so it is not the failure mode these lessons describe. `git stash save` is treated
+# as denied-always (deprecated alias for push, but this repo's callers never need the
+# pathspec form under that name) -- same for pop/apply/drop/clear/branch, none of
+# which have a pathspec concept at all.
+#
+# Uses the SAME quote-safe scanning as shell_write_hit (_strip_multiword_quoted +
+# strip_heredocs), defined further down this module -- Python resolves module-level
+# names at call time, not definition time, so the forward reference is safe. This is
+# what keeps a commit message merely mentioning "stash" from tripping the guard, e.g.
+# `git commit -m "fix stash pop race, verify with --name-only diff"` must pass: the
+# quoted multiword span is blanked before any of the patterns below ever see it.
+# --------------------------------------------------------------------------------------
+C34_DENY_TEMPLATE = (
+    "C34: {what} in the shared checkout can silently revert or discard another "
+    "session's or a scheduled daemon's live state (lesson cluster C34 -- "
+    "L214,228,233,238,242,252,265,267,271,304,316). Use `git show HEAD:<path>` or "
+    "`git diff -- <file>` for baselines; never stash/reset/clean/switch branches in "
+    "the shared checkout. Need this for real? Return control to the orchestrator or "
+    "do it in your own worktree."
+)
+
+
+def _c34_deny(what: str) -> str:
+    return C34_DENY_TEMPLATE.format(what=what)
+
+
+_GIT_RESET_HARD = re.compile(r"\bgit\s+(?:-C\s+\S+\s+)?reset\s+(?:[^\n;&|]*\s)?--hard\b", re.IGNORECASE)
+_GIT_CLEAN_FORCE = re.compile(
+    r"\bgit\s+(?:-C\s+\S+\s+)?clean\s+(?:-[A-Za-z]*f[A-Za-z]*\b|--force\b)", re.IGNORECASE
+)
+_GIT_CHECKOUT_RESTORE_DOT = re.compile(
+    r"\bgit\s+(?:-C\s+\S+\s+)?(?:checkout|restore)\s+(?:--\s+)?(?:--staged\s+)?\.(?:\s|$)",
+    re.IGNORECASE,
+)
+_GIT_SWITCH = re.compile(r"\bgit\s+(?:-C\s+\S+\s+)?switch\b", re.IGNORECASE)
+_GIT_CHECKOUT_CMD = re.compile(r"\bgit\s+(?:-C\s+\S+\s+)?checkout\b([^;&|\n]*)", re.IGNORECASE)
+_GIT_STASH_CMD = re.compile(r"\bgit\s+(?:-C\s+\S+\s+)?stash\b([^;&|\n]*)", re.IGNORECASE)
+
+
+def _checkout_call_is_branch_switch(rest: str) -> bool:
+    """`rest` is the argument text after `git checkout`. True when this moves HEAD to a
+    different branch/ref rather than restoring specific paths."""
+    tokens = rest.split()
+    if not tokens:
+        return False  # bare `git checkout`, nothing to act on
+    if "--" in tokens:
+        # `git checkout -- file.py` / `git checkout HEAD -- file.py`: everything before
+        # `--` is a tree-ish, everything after is a pathspec -- restores paths without
+        # moving HEAD's branch pointer.
+        return False
+    if tokens[0] in (".", "./"):
+        return False  # the dedicated dot-regex above already covers this case
+    return True  # `git checkout <branch>` / `git checkout -b <name>`: moves HEAD
+
+
+_GIT_STASH_READONLY = ("list", "show")
+
+
+def _stash_call_is_treewide(rest: str) -> bool:
+    """`rest` is the argument text after `git stash`. True unless it is read-only
+    (list/show) or an explicit-pathspec `push`."""
+    tokens = rest.split()
+    if not tokens:
+        return True  # bare `git stash` == `git stash push`, whole tree
+    sub = tokens[0].lower()
+    if sub in _GIT_STASH_READONLY:
+        return False
+    if sub == "push":
+        rest_tokens = tokens[1:]
+        has_pathspec = any(tok == "--" or not tok.startswith("-") for tok in rest_tokens)
+        return not has_pathspec
+    return True  # save / pop / apply / drop / clear / branch: no pathspec concept
+
+
+def git_treewide_hit(agent_id: str, command: str) -> str | None:
+    """C34 guard: SUBAGENT-only (see block comment above). Returns a deny message
+    naming the specific tree-wide git operation found in `command`, or None.
+    """
+    if not agent_id or not command:
+        return None
+    scanned = _strip_multiword_quoted(strip_heredocs(command))
+
+    if _GIT_RESET_HARD.search(scanned):
+        return _c34_deny("`git reset --hard`")
+    if _GIT_CLEAN_FORCE.search(scanned):
+        return _c34_deny("`git clean -f`")
+    if _GIT_CHECKOUT_RESTORE_DOT.search(scanned):
+        return _c34_deny("a whole-tree `git checkout .` / `git restore .`")
+    if _GIT_SWITCH.search(scanned):
+        return _c34_deny("`git switch` (branch switch in the shared checkout)")
+    for match in _GIT_CHECKOUT_CMD.finditer(scanned):
+        if _checkout_call_is_branch_switch(match.group(1)):
+            return _c34_deny("`git checkout <branch>` (branch switch in the shared checkout)")
+    for match in _GIT_STASH_CMD.finditer(scanned):
+        if _stash_call_is_treewide(match.group(1)):
+            return _c34_deny("`git stash` without an explicit pathspec")
+    return None
+
+
+# --------------------------------------------------------------------------------------
 # The prime card -- the ONLY doctrine injected unconditionally.
 #
 # Written as FACTUAL STATEMENTS, not imperative system commands. Anthropic's guidance:

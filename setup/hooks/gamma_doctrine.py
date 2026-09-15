@@ -486,6 +486,14 @@ def _handle_pre_tool(payload: dict) -> int:
         if message:
             return _deny("PreToolUse", message)
 
+        # C34 -- tree-wide git ops (stash/reset --hard/clean -f/checkout . or
+        # <branch>/switch) in the shared checkout revert live state BACKWARD.
+        # SUBAGENT-only (see doctrine.py's git_treewide_hit docstring): main session
+        # stays unguarded per OP-25/OP-32.
+        c34_message = D.git_treewide_hit(str(payload.get("agent_id") or ""), command)
+        if c34_message:
+            return _deny("PreToolUse", c34_message)
+
         # Guard the FILE, not just the tool name. Until 2026-08-29 the freeze and
         # generated-surface checks lived only in the Edit branch, so `sed -i` and
         # `echo >` walked straight past them -- verified, exit 0 both times. Under OP-0

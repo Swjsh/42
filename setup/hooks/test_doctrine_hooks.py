@@ -731,6 +731,121 @@ def test_l318_guard_respects_hooks_off_switch():
     assert code == ALLOW
 
 
+# ---------------------------------------------------------------------------------------
+# C34 -- tree-wide git ops in the shared checkout, SUBAGENT-only
+# ---------------------------------------------------------------------------------------
+@pytest.mark.parametrize(
+    "command",
+    [
+        "git stash",
+        "git stash push",
+        "git stash save",
+        "git stash pop",
+        "git stash apply",
+        "git stash drop",
+        "git stash clear",
+        "git reset --hard",
+        "git reset --hard HEAD~1",
+        "git clean -fd",
+        "git checkout .",
+        "git checkout -- .",
+        "git restore .",
+        "git restore --staged .",
+        "git switch main",
+        "git switch -c feature",
+        "git checkout main",
+        "git checkout -b feature",
+        "cd analysis && git stash pop",
+        "git -C automation stash",
+    ],
+)
+def test_c34_subagent_treewide_git_is_denied(command):
+    code, stdout, stderr = run_hook(
+        {
+            "hook_event_name": "PreToolUse",
+            "tool_name": "Bash",
+            "agent_id": "agent-abc",
+            "tool_input": {"command": command},
+        }
+    )
+    assert code == BLOCK, f"expected deny for: {command}"
+    assert "C34" in (stdout + stderr)
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "git status",
+        "git log --oneline -5",
+        "git diff -- automation/state/params.json",
+        "git show HEAD:automation/state/params.json",
+        "git add automation/state/params.json",
+        'git commit -m "fix stash pop race, verify with --name-only diff"',
+        "git push",
+        "git checkout -- automation/state/params.json",
+        "git checkout HEAD -- automation/state/params.json",
+        "git restore automation/state/params.json",
+        "git stash list",
+        "git stash show",
+        "git stash push -- automation/state/params.json",
+        "git stash push automation/state/params.json",
+        "git clean -n",
+        "git clean -id",
+    ],
+)
+def test_c34_subagent_scoped_git_is_allowed(command):
+    code, stdout, stderr = run_hook(
+        {
+            "hook_event_name": "PreToolUse",
+            "tool_name": "Bash",
+            "agent_id": "agent-abc",
+            "tool_input": {"command": command},
+        }
+    )
+    assert code == ALLOW, f"expected allow for: {command}, got stderr={stderr}"
+
+
+def test_c34_main_session_treewide_git_is_allowed():
+    """Empty agent_id == the main session (J's interactive session), which stays
+    unguarded per OP-25/OP-32 -- guards must fail open there."""
+    code, stdout, stderr = run_hook(
+        {
+            "hook_event_name": "PreToolUse",
+            "tool_name": "Bash",
+            "agent_id": "",
+            "tool_input": {"command": "git stash pop"},
+        }
+    )
+    assert code == ALLOW
+
+
+@pytest.mark.parametrize("tool_name", ["Bash", "PowerShell"])
+def test_c34_subagent_treewide_git_denied_both_shells(tool_name):
+    code, stdout, stderr = run_hook(
+        {
+            "hook_event_name": "PreToolUse",
+            "tool_name": tool_name,
+            "agent_id": "agent-abc",
+            "tool_input": {"command": "git reset --hard"},
+        }
+    )
+    assert code == BLOCK
+    assert "C34" in (stdout + stderr)
+
+
+def test_c34_guard_respects_hooks_off_switch():
+    code, stdout, stderr = run_hook(
+        {
+            "hook_event_name": "PreToolUse",
+            "tool_name": "Bash",
+            "agent_id": "agent-abc",
+            "tool_input": {"command": "git stash pop"},
+        },
+        env={"GAMMA_HOOKS_OFF": "1"},
+    )
+    assert code == ALLOW
+
+
 def test_stop_blocks_permission_question_once_only(tmp_path):
     # The one-block-per-session ledger is a real file keyed by session_id, so the test
     # needs a session id no previous run has used -- otherwise it reads the ledger from
