@@ -105,12 +105,15 @@ export interface LiveAgent {
    * short classified human phrase (bubbleText.ts#liveAgentBubbleAction).
    * Flattened to one line but otherwise exactly what pulse.py wrote. */
   rawDetail: string;
-  /** Full, un-truncated (up to TOOLTIP_MAX_CHARS), leak-sanitized task text
-   * for the hover tooltip (AGENT-IDENTITY pass, 2026-09-15) --
-   * sanitizeTaskText(rawDetail) above, computed here (not client-side) so
-   * the sanitizer stays inside this fs-importing module (LiveAgents.tsx's
-   * own header: never a BY-VALUE import of this file into the client
-   * bundle) and the client only ever consumes the already-safe string. */
+  /** Leak-sanitized task text for the hover tooltip (AGENT-IDENTITY pass,
+   * 2026-09-15; hardened IDENTITY v2 same day after a coordinator-reported
+   * temp-dir path leak) -- buildTaskDetail(lastDetail, rawDetail) above:
+   * the already-classified human phrase first, then the fuller
+   * sanitizeTaskText(rawDetail) appended (never a bare path/command up
+   * front). Computed here (not client-side) so the sanitizer stays inside
+   * this fs-importing module (LiveAgents.tsx's own header: never a
+   * BY-VALUE import of this file into the client bundle) and the client
+   * only ever consumes the already-safe string. */
   taskDetail: string;
   state: LiveAgentState;
   /** A real walk-graph node id from dashboard/components/hq/layout.ts
@@ -595,40 +598,137 @@ function rawDetailFor(row: PulseRow): string {
 // motivated BUBBLE-FIX above ("Ran: cd C:\...\42 && grep ..."). This reuses
 // this file's OWN existing leak knowledge (RAN_PREFIX, stripLeadingCd)
 // rather than inventing a second set of rules, and is verified by
-// dashboard/tests/hq-agents.test.ts to never match
+// dashboard/tests/live-agent-tooltip.test.ts to never match
 // setup/scripts/hq_probe_lib.py's own RAW_SHELL_LEAK_RE
 // (`Ran:|\\|/c/Users|&&`) -- the probe only scans the rendered `bubble`
 // field today (that file's own comment: "rawDetail is deliberately RAW ...
 // must never feed the leak scan"), but the tooltip renders taskDetail
 // on-screen too, so it must clear the exact same bar.
+//
+// IDENTITY v2 (2026-09-15, coordinator-reported leak on 7e6095eb): v1's
+// WORKSPACE_PATH_RE only stripped THIS box's own hardcoded repo path
+// ("C:/Users/<user>/Desktop/42/..." or its git-bash "/c/Users/..." twin) --
+// a real live tooltip read "python C:/Users/jackw/AppData/Local/
+// Temp/claude/.../scratchpad/p.py", an absolute path OUTSIDE the repo
+// (a scratchpad temp dir) that v1's narrower regex never matched. Replaced
+// with a GENERAL absolute-path scrubber (scrubAbsolutePaths below) that
+// recognizes the path SHAPE (drive-letter, MSYS /c/..., ~/..., %ENV%-style)
+// rather than one hardcoded prefix, so no future absolute path -- this
+// repo's, a temp dir, a user's home -- can leak through un-scrubbed.
 const TOOLTIP_MAX_CHARS = 200;
-// This box's own absolute workspace path (WORKSPACE_ROOT above), in both
-// its native Windows form and the git-bash "/c/Users/..." form a Bash tool
-// row's own command text can carry -- stripped so a tooltip never leaks the
-// operator's local machine path, matching RAW_SHELL_LEAK_RE's own
-// "/c/Users" check.
-const WORKSPACE_PATH_RE = /\/?[Cc]:?\/Users\/[^/]+\/Desktop\/42\/?/g;
+
+/** Absolute-path SHAPE checks, tested against one whitespace-delimited
+ * token (never mid-string) so a plain relative path like
+ * "components/a/b.ts" can never false-positive just because it happens to
+ * contain a "/a/" substring somewhere in the middle -- see
+ * scrubAbsolutePaths's own comment for why token-anchored beats a bare
+ * global regex here. */
+const WIN_DRIVE_PATH_RE = /^[A-Za-z]:\//; // "C:/...", "D:/..." (backslashes already normalized to "/" by the caller before this runs)
+const MSYS_DRIVE_PATH_RE = /^\/[A-Za-z]\//; // git-bash "/c/...", "/d/..." -- exactly ONE letter between the leading slashes, never a real multi-letter directory like "/etc/..."
+const HOME_PATH_RE = /^~\//; // "~/..."
+const ENV_VAR_PATH_RE = /^%[A-Za-z_][A-Za-z0-9_]*%/; // Windows "%TEMP%\..." / "%USERPROFILE%\..." style
+
+function looksLikeAbsolutePathToken(token: string): boolean {
+  return (
+    WIN_DRIVE_PATH_RE.test(token) ||
+    MSYS_DRIVE_PATH_RE.test(token) ||
+    HOME_PATH_RE.test(token) ||
+    ENV_VAR_PATH_RE.test(token)
+  );
+}
+
+/** basename of a path-shaped string, forward/backslash-agnostic -- same
+ * "last non-empty segment" convention as this file's own basenameOf, kept
+ * as its own tiny copy (not a shared rename) since this one is only ever
+ * called on a token already confirmed path-shaped by
+ * looksLikeAbsolutePathToken above, never on an arbitrary command token. */
+function pathBasename(p: string): string {
+  const norm = p.replace(/\\/g, "/").replace(/\/+$/, "");
+  const parts = norm.split("/");
+  return parts[parts.length - 1] || "path";
+}
+
+/** Replaces one confirmed-absolute-path token with just its basename, or
+ * `<temp>/<basename>` when the path itself names a temp/scratch directory
+ * (case-insensitive "temp"/"tmp" anywhere in the original path -- a real
+ * shape this project's own scratchpad convention produces, e.g.
+ * ".../AppData/Local/Temp/claude/.../scratchpad/p.py") -- this task's own
+ * "basename only, or a short <temp>/file.py token" spec. Deliberately never
+ * shows any DIRECTORY segment (not even a relative one) so a leading
+ * "scratchpad/" or similar never survives either. */
+function replacePathToken(pathStr: string): string {
+  const base = pathBasename(pathStr);
+  return /temp|tmp/i.test(pathStr) ? `<temp>/${base}` : base;
+}
+
+/** Scrubs every absolute-path-shaped TOKEN in `text` down to a basename (or
+ * `<temp>/basename`) -- token-anchored (split on whitespace, each token
+ * checked from its own start, optional surrounding quote preserved) rather
+ * than a single global regex over the whole string, specifically so a
+ * legitimate relative path like "components/a/b.ts" is never mistaken for
+ * an MSYS "/a/..." absolute path just because the substring appears
+ * mid-string. Known limitation (shared with this file's own
+ * lastArgBasename/classifyCommand token-splitting): a quoted path
+ * containing an internal SPACE splits into multiple tokens and is not
+ * reassembled -- not a leak (each fragment is still scrubbed if
+ * path-shaped, and no fragment can ever be a full absolute path with a
+ * space inside it since the split already broke it there), just not always
+ * a clean single replacement in that rare shape. */
+function scrubAbsolutePaths(text: string): string {
+  return text
+    .split(/(\s+)/)
+    .map((tok) => {
+      if (tok === "" || /^\s+$/.test(tok)) return tok;
+      const quote = tok.length > 1 && (tok[0] === '"' || tok[0] === "'") && tok[tok.length - 1] === tok[0] ? tok[0] : "";
+      const inner = quote ? tok.slice(1, -1) : tok;
+      if (!looksLikeAbsolutePathToken(inner)) return tok;
+      const replaced = replacePathToken(inner);
+      return quote ? `${quote}${replaced}${quote}` : replaced;
+    })
+    .join("");
+}
 
 /** Sanitizes a live agent's full raw row text (`rawDetail`) into tooltip-
  * safe display text: strips the "Ran: " prefix and any leading `cd ... &&`
  * chain (stripLeadingCd, the same helper classifyCommand above uses),
- * normalizes backslashes to forward slashes, strips this box's own
- * absolute workspace path, and replaces any remaining `&&` chain operator
- * with a plain word -- never truncates the VERB/TARGET the way the 60-char
- * shortDetail cap can, only caps at TOOLTIP_MAX_CHARS as a defensive
- * ceiling (this task's own "~200 chars" spec). Never throws on empty/
- * malformed input -- degrades to "" (caller falls back to the classified
- * bubble text) rather than showing an ellipsis-only tooltip. */
+ * normalizes backslashes to forward slashes, scrubs every absolute path
+ * down to a basename (scrubAbsolutePaths above -- ANY drive-letter/MSYS/
+ * home/%ENV% path, not just this box's own repo path), and replaces any
+ * remaining `&&` chain operator with a plain word -- never truncates the
+ * VERB/TARGET the way the 60-char shortDetail cap can, only caps at
+ * TOOLTIP_MAX_CHARS as a defensive ceiling (this task's own "~200 chars"
+ * spec). Never throws on empty/malformed input -- degrades to "" (caller
+ * falls back to the classified bubble text) rather than showing an
+ * ellipsis-only tooltip. */
 export function sanitizeTaskText(raw: string): string {
   let text = (raw || "").replace(/\s+/g, " ").trim();
   if (!text) return "";
   if (text.startsWith(RAN_PREFIX)) text = text.slice(RAN_PREFIX.length);
   text = text.replace(/\\/g, "/");
   text = stripLeadingCd(text);
-  text = text.replace(WORKSPACE_PATH_RE, "");
+  text = scrubAbsolutePaths(text);
   text = text.replace(/\s*&&\s*/g, " then ").trim();
   if (!text) return "";
   return text.length > TOOLTIP_MAX_CHARS ? `${text.slice(0, TOOLTIP_MAX_CHARS - 1)}…` : text;
+}
+
+/** Combines the already-classified, leak-proven-safe bubble phrase
+ * (`phrase` -- lib/hq-agents.ts's own liveAgentBubbleAction/shortDetail
+ * output, e.g. "running a command"/"reading pulse.jsonl") with the fuller
+ * sanitized raw detail (sanitizeTaskText(rawDetail) above) for the hover
+ * tooltip. IDENTITY v2 (coordinator directive: "prefer a human phrase over
+ * a raw command"): the phrase always comes FIRST so the tooltip never
+ * OPENS on a bare path/command even after scrubbing, then the fuller
+ * sanitized detail is appended only when it says something the phrase
+ * alone doesn't (skipped when empty or identical to the phrase, e.g. the
+ * SendMessage passthrough case where shortDetail already IS the full
+ * text). Caps at TOOLTIP_MAX_CHARS same as sanitizeTaskText. */
+export function buildTaskDetail(phrase: string, rawDetail: string): string {
+  const cleanPhrase = (phrase || "").trim();
+  const full = sanitizeTaskText(rawDetail);
+  if (!full || full === cleanPhrase) return cleanPhrase || full;
+  const combined = cleanPhrase ? `${cleanPhrase} — ${full}` : full;
+  return combined.length > TOOLTIP_MAX_CHARS ? `${combined.slice(0, TOOLTIP_MAX_CHARS - 1)}…` : combined;
 }
 
 // ─── Pure combiner (fixture-tested: dashboard/tests/hq-agents.test.ts) ─────
@@ -829,7 +929,7 @@ export function buildLiveAgents(rows: PulseRow[], nowMs: number = Date.now()): L
       lastTs: a.lastTs,
       lastDetail: a.lastDetail,
       rawDetail: a.lastRawDetail,
-      taskDetail: sanitizeTaskText(a.lastRawDetail),
+      taskDetail: buildTaskDetail(a.lastDetail, a.lastRawDetail),
       state,
       targetZone: nodeIdForTargetKey(a.targetKey),
       interaction: interaction && interaction.phrase ? { personaId: interaction.id, phrase: interaction.phrase } : null,
