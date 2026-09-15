@@ -125,7 +125,25 @@ function EffectsStack({ coreMeshRef, dayFactorRef }: EffectsStackProps) {
   }, -1); // before EffectComposer's own priority-1 render (PerfReporter.tsx's own reset documents this same ordering)
 
   return (
-    <EffectComposer ref={composerRef} enableNormalPass multisampling={0}>
+    // enableNormalPass REMOVED (PERF-3, 2026-09-15): N8AO here is
+    // @react-three/postprocessing's wrapper around n8ao's own N8AOPostPass
+    // (node_modules/n8ao/src/N8AOPass.js), a standalone `Pass` -- verified
+    // this session by reading its constructor (`constructor(scene, camera,
+    // width, height)`) and render targets (`beautyRenderTarget`,
+    // `writeTargetInternal`, `readTargetInternal`, `accumulationRenderTarget`):
+    // it renders the scene AND reconstructs depth/normals ITSELF into its
+    // own render targets every frame, entirely independent of
+    // EffectComposer's shared NormalPass texture. enableNormalPass exists
+    // for `Effect`-based passes that declare EffectAttribute.DEPTH and read
+    // the composer's shared normal buffer; N8AOPostPass is a `Pass`, not an
+    // `Effect`, and never touches that buffer (grepped n8ao's own source for
+    // any reference to a composer-supplied normal texture -- none). With it
+    // on, the composer was rendering the whole ~394-object scene a SECOND
+    // time purely to feed a buffer nothing consumes -- the single largest
+    // line item in the draw-call budget (est. ~350-390 of the measured
+    // 893-call overview total). Real A/B capture this session (ao-before.png
+    // / ao-after.png, same fixed camera) shows no visible AO change.
+    <EffectComposer ref={composerRef} multisampling={0}>
       <N8AO aoRadius={1.5} distanceFalloff={1} intensity={2.5} quality="high" />
       {/* World pass A (2026-09-13): threshold 0.92->0.78 -- paired with
           BrainCore.tsx's raised idle-state glow floor so the hub core
