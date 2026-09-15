@@ -206,6 +206,19 @@ automation/state/futures/today-bias.json
 # above. See backtest/tests/test_ledger_gitignore_guard.py DECISION_GATING_SNAPSHOTS.
 automation/state/fleet/safe-2/exit-state.json
 automation/state/fleet/bold-2/exit-state.json
+
+# HQ-POSITION-TRUTH (2026-09-15, C34 follow-up): nothing has legitimately written these
+# since the LLM heartbeat pipeline retired 2026-06-25 (heartbeat_persist_writer.py's own
+# docstring says it deliberately does NOT touch current-position.json). They sat all-null
+# for 2500h while every reader of them (discord-watcher/engine_health/gamma_glance/
+# gamma_glass/gamma_lanes/eod_fallback, all repointed this session to
+# setup/scripts/live_positions.py -> fleet/<arm>/exit-state.json) rendered a confident
+# wrong "flat". Untracked rather than left as a stale tracked snapshot that looks live.
+automation/state/current-position.json
+automation/state/current-position-safe.json
+automation/state/current-position-bold.json
+automation/state/aggressive/current-position.json
+automation/state/aggressive/current-position-bold.json
 automation/state/crypto-twin/breaker.json
 automation/state/crypto-twin/exit-state.json
 automation/state/crypto-twin/scenario-state.json
