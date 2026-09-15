@@ -483,3 +483,4 @@ automation/state/station/captures/
 # hq_live_probe.py raw per-tick samples (retention-capped at 20 by the probe itself
 # via enforce_samples_retention) -- rescoreable via `--rescore <path>`, never committed
 automation/state/station/hq-probe-runs/
+automation/state/station/hq-probe-latest.json
