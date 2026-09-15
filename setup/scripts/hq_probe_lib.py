@@ -925,6 +925,53 @@ def _pair_key(text_a: Optional[str], text_b: Optional[str]) -> str:
     return " ~ ".join(sorted([a, b]))
 
 
+# PROBE-14 (coordinator, 2026-09-15): the >5%-of-ticks rule alone can't
+# distinguish a genuinely persistent overlap (a viewer would definitely
+# notice it) from scattered 1-tick blips (a single unlucky sample mid-
+# declutter-resolve, well under the 5% bar). A run of >=3 CONSECUTIVE
+# ticks that ALSO spans >=1.5s of wall-clock time is the "a viewer would
+# see this" bar -- consecutive-tick count alone isn't enough on its own
+# (a burst of very-fast ticks could hit 3 ticks in well under a second),
+# so both conditions are required together.
+LABEL_OVERLAP_PERSISTENT_MIN_TICKS = 3
+LABEL_OVERLAP_PERSISTENT_MIN_S = 1.5
+
+
+def _pair_runs_from_events(events: List[Tuple[int, float]]) -> List[Dict[str, Any]]:
+    """`events` is (sample_index, t_ms) tuples for ONE pair, in the same
+    order they occurred in `samples` (samples are already time-ordered).
+    Splits into runs of CONSECUTIVE sample indices (a gap in sample_index
+    -- the pair stopped overlapping for at least one tick -- ends a run,
+    the same "don't bridge a gap" discipline check_walk_speed's own
+    windowing already uses)."""
+    runs: List[Dict[str, Any]] = []
+    run_start_idx: Optional[int] = None
+    run_start_t: Optional[float] = None
+    prev_idx: Optional[int] = None
+    prev_t: Optional[float] = None
+    for idx, t in events:
+        if prev_idx is not None and idx == prev_idx + 1:
+            prev_idx, prev_t = idx, t
+            continue
+        if run_start_idx is not None:
+            runs.append({
+                "ticks": prev_idx - run_start_idx + 1,
+                "start_t": run_start_t,
+                "end_t": prev_t,
+                "duration_s": round((prev_t - run_start_t) / 1000.0, 4),
+            })
+        run_start_idx, run_start_t = idx, t
+        prev_idx, prev_t = idx, t
+    if run_start_idx is not None:
+        runs.append({
+            "ticks": prev_idx - run_start_idx + 1,
+            "start_t": run_start_t,
+            "end_t": prev_t,
+            "duration_s": round((prev_t - run_start_t) / 1000.0, 4),
+        })
+    return runs
+
+
 def check_label_overlap(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
     any_rects_captured = False
     ticks_with_2plus_visible = 0
@@ -932,8 +979,10 @@ def check_label_overlap(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
     excluded_count = 0
     all_pairs: List[Dict[str, Any]] = []
     pair_counts: Dict[str, int] = {}
+    pair_events: Dict[str, List[Tuple[int, float]]] = {}
+    pair_texts: Dict[str, List[Optional[str]]] = {}
 
-    for s in samples:
+    for sample_idx, s in enumerate(samples):
         rects = s.get("label_rects") or []
         if rects:
             any_rects_captured = True
@@ -944,6 +993,7 @@ def check_label_overlap(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
             continue
         ticks_with_2plus_visible += 1
         page_agents = s.get("page_agents", [])
+        t_ms = s.get("t_ms")
         tick_has_live_violation = False
         for i in range(len(visible)):
             for j in range(i + 1, len(visible)):
@@ -951,14 +1001,17 @@ def check_label_overlap(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
                 if frac < LABEL_OVERLAP_MIN_INTERSECTION_FRAC:
                     continue
                 text_a, text_b = visible[i].get("text"), visible[j].get("text")
-                pair_counts[_pair_key(text_a, text_b)] = pair_counts.get(_pair_key(text_a, text_b), 0) + 1
+                key = _pair_key(text_a, text_b)
+                pair_counts[key] = pair_counts.get(key, 0) + 1
+                pair_events.setdefault(key, []).append((sample_idx, t_ms))
+                pair_texts.setdefault(key, [text_a, text_b])
                 state_a = _live_agent_state_for_label(visible[i], page_agents)
                 state_b = _live_agent_state_for_label(visible[j], page_agents)
                 involves_live_agent = state_a is not None or state_b is not None
                 if involves_live_agent:
                     tick_has_live_violation = True
                 all_pairs.append({
-                    "t": s.get("t_ms"),
+                    "t": t_ms,
                     "texts": [text_a, text_b],
                     "rects": [
                         {k: visible[i].get(k) for k in ("x", "y", "w", "h")},
@@ -992,10 +1045,45 @@ def check_label_overlap(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
     violating_frac = violating_ticks / ticks_with_2plus_visible
     live_pairs = [p for p in all_pairs if p["involves_live_agent"]]
     worst_pairs = sorted(live_pairs or all_pairs, key=lambda p: -p["overlap_frac"])[:LABEL_OVERLAP_WORST_PAIRS_CAP]
-    verdict = "FAIL" if violating_frac > LABEL_OVERLAP_FAIL_FRAC else "PASS"
+
+    # PROBE-14: per-pair run analysis -- ticks (== pair_counts' own value),
+    # segments (how many separate consecutive-tick runs), and the LONGEST
+    # run by both tick-count and wall-clock duration.
+    pair_runs: Dict[str, Dict[str, Any]] = {}
+    persistent_pairs: List[Dict[str, Any]] = []
+    overall_max_run_s = 0.0
+    for key, events in pair_events.items():
+        runs = _pair_runs_from_events(events)
+        max_run_ticks = max((r["ticks"] for r in runs), default=0)
+        max_run_s = max((r["duration_s"] for r in runs), default=0.0)
+        overall_max_run_s = max(overall_max_run_s, max_run_s)
+        pair_runs[key] = {
+            "ticks": pair_counts[key],
+            "segments": len(runs),
+            "max_run_ticks": max_run_ticks,
+            "max_run_s": round(max_run_s, 4),
+        }
+        for r in runs:
+            if r["ticks"] >= LABEL_OVERLAP_PERSISTENT_MIN_TICKS and r["duration_s"] >= LABEL_OVERLAP_PERSISTENT_MIN_S:
+                persistent_pairs.append({
+                    "pair": key,
+                    "texts": pair_texts.get(key),
+                    "ticks": r["ticks"],
+                    "duration_s": r["duration_s"],
+                    "start_t": r["start_t"],
+                    "end_t": r["end_t"],
+                })
+
     # Sorted descending so the dominant offending pair is first without the
     # reader re-sorting a JSON dict themselves.
     sorted_pair_counts = dict(sorted(pair_counts.items(), key=lambda kv: -kv[1]))
+    sorted_pair_runs = dict(sorted(pair_runs.items(), key=lambda kv: -kv[1]["max_run_s"]))
+    persistent_pairs.sort(key=lambda p: -p["duration_s"])
+
+    # Existing >5%-of-ticks rule OR a persistent (>=3 consecutive ticks AND
+    # >=1.5s) overlap on ANY pair -- either alone is a real FAIL, not just
+    # additive noise (see this section's own PROBE-14 header).
+    verdict = "FAIL" if (violating_frac > LABEL_OVERLAP_FAIL_FRAC or persistent_pairs) else "PASS"
     return {
         "verdict": verdict,
         "detail": {
@@ -1012,6 +1100,11 @@ def check_label_overlap(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
             # the LABEL_MIN_HEIGHT_PX/LABEL_MIN_WIDTH_PX size gate (e.g.
             # HoloChart's ticker plaque) -- see that constant's own header.
             "excluded_count": excluded_count,
+            # PROBE-14: per-pair run shape -- distinguishes a persistent
+            # stuck overlap from scattered 1-tick blips.
+            "pair_runs": sorted_pair_runs,
+            "max_run_s": round(overall_max_run_s, 4),
+            "persistent_pairs": persistent_pairs,
         },
     }
 

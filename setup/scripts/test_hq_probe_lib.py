@@ -9,7 +9,10 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from hq_probe_lib import (  # noqa: E402
+    LABEL_OVERLAP_FAIL_FRAC,
     LABEL_OVERLAP_MIN_INTERSECTION_FRAC,
+    LABEL_OVERLAP_PERSISTENT_MIN_S,
+    LABEL_OVERLAP_PERSISTENT_MIN_TICKS,
     PAGE_REFRESH_MS_DEFAULT,
     PAGE_REFRESH_MS_KIOSK,
     SPAWN_LATENCY_RENDER_SLACK_MS,
@@ -873,6 +876,68 @@ def test_label_overlap_fail_two_real_bubbles_still_caught_after_size_gate():
     assert v["detail"]["violating_ticks"] == 1
     assert v["detail"]["excluded_count"] == 0
     assert list(v["detail"]["pair_counts"].values())[0] == 1
+
+
+# PROBE-14: pair_runs / persistent-overlap detection ---------------------------------
+
+def _label_overlap_run_samples(n_ticks, violation_indices, interval_ms=500):
+    """n_ticks samples at `interval_ms` cadence; at each index in
+    `violation_indices` the two labels are fully coincident (a violation),
+    everywhere else they're disjoint. Both sides also match a live agent's
+    own bubble text (via page_agents), so every violation counts toward
+    the existing >5%-of-ticks rule too -- isolating the NEW persistent-run
+    rule means proving it fires even when the frac rule alone would not."""
+    samples = []
+    for idx in range(n_ticks):
+        t_ms = idx * interval_ms
+        if idx in violation_indices:
+            rects = [_label("A", 0, 0, 80, 20), _label("B", 0, 0, 80, 20)]
+        else:
+            rects = [_label("A", 0, 0, 80, 20), _label("B", 1000, 1000, 80, 20)]
+        samples.append(_s(
+            t_ms,
+            page=[
+                _agent("a1", "working", [0, 0], bubble="A", raw="A"),
+                _agent("a2", "working", [1, 0], bubble="B", raw="B"),
+            ],
+            label_rects=rects,
+        ))
+    return samples
+
+
+def test_label_overlap_scattered_blips_below_5pct_pass():
+    # 4 isolated 1-tick violations out of 100 judged ticks (4% < 5%), none
+    # of them adjacent to another -- no run ever reaches
+    # LABEL_OVERLAP_PERSISTENT_MIN_TICKS, so neither FAIL condition fires.
+    samples = _label_overlap_run_samples(100, {10, 30, 50, 70})
+    v = check_label_overlap(samples)
+    assert v["verdict"] == "PASS", v
+    assert v["detail"]["violating_frac"] <= LABEL_OVERLAP_FAIL_FRAC
+    assert v["detail"]["persistent_pairs"] == []
+    pair_runs = next(iter(v["detail"]["pair_runs"].values()))
+    assert pair_runs["ticks"] == 4
+    assert pair_runs["segments"] == 4  # every occurrence is its own 1-tick run
+    assert pair_runs["max_run_ticks"] == 1
+
+
+def test_label_overlap_four_tick_run_fails_even_under_5pct():
+    # 4 CONSECUTIVE ticks (500ms apart -> 1.5s span) out of 100 judged
+    # ticks: violating_frac is only 4% (under the 5% bar), so this proves
+    # the NEW persistent-run condition is what fails the run, not the
+    # existing frac rule.
+    samples = _label_overlap_run_samples(100, {50, 51, 52, 53})
+    v = check_label_overlap(samples)
+    assert v["verdict"] == "FAIL", v
+    assert v["detail"]["violating_frac"] <= LABEL_OVERLAP_FAIL_FRAC
+    assert len(v["detail"]["persistent_pairs"]) == 1
+    p = v["detail"]["persistent_pairs"][0]
+    assert p["ticks"] == 4
+    assert p["ticks"] >= LABEL_OVERLAP_PERSISTENT_MIN_TICKS
+    assert p["duration_s"] >= LABEL_OVERLAP_PERSISTENT_MIN_S
+    assert v["detail"]["max_run_s"] == p["duration_s"]
+    pair_runs = next(iter(v["detail"]["pair_runs"].values()))
+    assert pair_runs["max_run_ticks"] == 4
+    assert pair_runs["segments"] == 1
 
 
 # 5. page == API parity -------------------------------------------------------------
