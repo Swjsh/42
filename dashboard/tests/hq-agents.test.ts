@@ -604,3 +604,62 @@ test("buildLiveAgents: interaction.phrase reflects the STABLE target, not a stil
   assert.equal(agents[0].targetZone, PERSONA_NODE_ID.Coach);
   assert.deepEqual(agents[0].interaction, { personaId: "Coach", phrase: "reading Coach's sector rows" });
 });
+
+// ─── TARGET-FLICKER regression (2026-09-15) ────────────────────────────────
+//
+// Exact real pulse rows replayed from automation/state/hooks/pulse.jsonl for agent
+// a44e2083ea0c251df (2026-09-15T08:01:20 - 08:02:58 local, non-secret shell commands only),
+// the agent the hidden probe run 20260915T140056Z-7G3Tke9dNabbLbhLlZxfJ.samples.json.gz
+// caught flickering persona-Scout -> ambient-core -> persona-Scout. Root cause: two
+// CONSECUTIVE "ls .../grep -i scout" / "ls -la ... | head" listing rows each merely mention
+// "automation/" while hunting for the Scout evidence file -- before this fix that satisfied
+// TARGET_STICKY_MIN_ROWS as two genuine "zone:ops" signal rows and unseated the already-
+// established persona:Scout target. Replayed incrementally (one buildLiveAgents call per
+// growing prefix, mirroring the probe's own per-sample snapshots) so the regression this
+// guards is "never dips to ambient-core at ANY point", not just the final row's outcome.
+const FLICKER_REPLAY_ROWS: PulseRow[] = [
+  row({ agent_id: "a44e2083ea0c251df", agent_type: "general-purpose", event: "spawn", tool: "", to: "general-purpose", ts: "2026-09-15T08:01:20", detail: "subagent started" }),
+  row({ agent_id: "a44e2083ea0c251df", agent_type: "general-purpose", event: "act", tool: "Bash", ts: "2026-09-15T08:01:25", detail: "Ran: python -c \"print(open('automation/state/scout-feed-summary.json',encoding='utf-8').read()[:300])\"" }),
+  row({ agent_id: "a44e2083ea0c251df", agent_type: "general-purpose", event: "done", tool: "Bash", ts: "2026-09-15T08:01:28", detail: "failed" }),
+  row({ agent_id: "a44e2083ea0c251df", agent_type: "general-purpose", event: "act", tool: "Bash", ts: "2026-09-15T08:01:30", detail: "Ran: ls automation/state | grep -i scout" }),
+  row({ agent_id: "a44e2083ea0c251df", agent_type: "general-purpose", event: "done", tool: "Bash", ts: "2026-09-15T08:01:32", detail: "ok" }),
+  row({ agent_id: "a44e2083ea0c251df", agent_type: "general-purpose", event: "act", tool: "Bash", ts: "2026-09-15T08:01:35", detail: "Ran: ls -la automation/state/ | head -20" }),
+  row({ agent_id: "a44e2083ea0c251df", agent_type: "general-purpose", event: "done", tool: "Bash", ts: "2026-09-15T08:01:39", detail: "ok" }),
+  row({ agent_id: "a44e2083ea0c251df", agent_type: "general-purpose", event: "act", tool: "Bash", ts: "2026-09-15T08:01:47", detail: "Ran: find C:/Users/jackw/Desktop/42 -name \"*scout*feed*\" -o -name \"*feed*scout*\" 2>/dev/null | head -10" }),
+  row({ agent_id: "a44e2083ea0c251df", agent_type: "general-purpose", event: "done", tool: "Bash", ts: "2026-09-15T08:01:53", detail: "ok" }),
+  row({ agent_id: "a44e2083ea0c251df", agent_type: "general-purpose", event: "act", tool: "Bash", ts: "2026-09-15T08:01:56", detail: "Ran: python -c \"print(open('automation/scout/state/scout-feed-summary.json',encoding='utf-8').read()[:300" }), // real row: truncated by pulse.py's own 100-char cap, still contains the full filename before the cut
+  row({ agent_id: "a44e2083ea0c251df", agent_type: "general-purpose", event: "done", tool: "Bash", ts: "2026-09-15T08:02:00", detail: "ok" }),
+  row({ agent_id: "a44e2083ea0c251df", agent_type: "general-purpose", event: "act", tool: "Bash", ts: "2026-09-15T08:02:03", detail: "Ran: python -c \"import time; time.sleep(15)\"" }),
+  row({ agent_id: "a44e2083ea0c251df", agent_type: "general-purpose", event: "done", tool: "Bash", ts: "2026-09-15T08:02:22", detail: "ok" }),
+  row({ agent_id: "a44e2083ea0c251df", agent_type: "general-purpose", event: "act", tool: "Bash", ts: "2026-09-15T08:02:25", detail: "Ran: python -c \"print(len(open('automation/scout/state/scout-feed-summary.json',encoding='utf-8').read())" }),
+  row({ agent_id: "a44e2083ea0c251df", agent_type: "general-purpose", event: "done", tool: "Bash", ts: "2026-09-15T08:02:29", detail: "ok" }),
+  row({ agent_id: "a44e2083ea0c251df", agent_type: "general-purpose", event: "act", tool: "Bash", ts: "2026-09-15T08:02:32", detail: "Ran: python -c \"import time; time.sleep(15)\"" }),
+  row({ agent_id: "a44e2083ea0c251df", agent_type: "general-purpose", event: "done", tool: "Bash", ts: "2026-09-15T08:02:51", detail: "ok" }),
+  row({ agent_id: "a44e2083ea0c251df", agent_type: "general-purpose", event: "act", tool: "Bash", ts: "2026-09-15T08:02:54", detail: "Ran: python -c \"import json; d=json.load(open('automation/scout/state/scout-feed-summary.json',encoding='" }),
+  row({ agent_id: "a44e2083ea0c251df", agent_type: "general-purpose", event: "done", tool: "Bash", ts: "2026-09-15T08:02:58", detail: "ok" }),
+];
+
+const REPLAY_NOW = new Date(2026, 8, 15, 8, 3, 0).getTime();
+
+test("TARGET-FLICKER regression: replayed real pulse rows for a44e2083ea0c251df never leave persona-Scout once claimed", () => {
+  let sawRealTarget = false;
+  for (let i = 1; i <= FLICKER_REPLAY_ROWS.length; i++) {
+    const agents = buildLiveAgents(FLICKER_REPLAY_ROWS.slice(0, i), REPLAY_NOW);
+    const zone = agents[0]?.targetZone;
+    if (zone === PERSONA_NODE_ID.Scout) sawRealTarget = true;
+    if (sawRealTarget) {
+      assert.equal(
+        zone,
+        PERSONA_NODE_ID.Scout,
+        `row ${i} (${FLICKER_REPLAY_ROWS[i - 1].ts} ${FLICKER_REPLAY_ROWS[i - 1].detail}) flickered target to ${zone}`
+      );
+    }
+  }
+  assert.equal(sawRealTarget, true, "fixture never actually claimed persona-Scout -- test would be vacuous");
+});
+
+test("TARGET-FLICKER regression: final state is persona-Scout with the real evidence phrase", () => {
+  const agents = buildLiveAgents(FLICKER_REPLAY_ROWS, REPLAY_NOW);
+  assert.equal(agents[0].targetZone, PERSONA_NODE_ID.Scout);
+  assert.equal(agents[0].interaction?.personaId, "Scout");
+});

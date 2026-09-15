@@ -346,9 +346,55 @@ export function classifyPersona(text: string): { id: PersonaId; phrase: string }
 const TARGET_STICKY_MIN_ROWS = 2;
 const TARGET_STICKY_MIN_HOLD_MS = 20_000;
 
-function resolveTargetKey(text: string): { key: string; persona: { id: PersonaId; phrase: string } | null } | null {
+// TARGET-FLICKER fix (2026-09-15, hidden-probe replay 20260915T140056Z-7G3Tke9dNabbLbhLlZxfJ):
+// a Bash/PowerShell row whose command is merely HUNTING for a file (ls/dir/grep/rg/find/tree
+// over a directory) mentions that directory's zone prefix purely incidentally -- it is not
+// itself "doing work" in that zone the way an Edit/Write/python-read of a real file there is.
+// Replayed real pulse rows for agent a44e2083ea0c251df (automation/state/hooks/pulse.jsonl,
+// 2026-09-15T08:01:30 "ls automation/state | grep -i scout" then 08:01:35 "ls -la
+// automation/state/ | head -20") produced two CONSECUTIVE "zone:ops" signal rows purely from
+// this incidental substring match, which is enough to satisfy TARGET_STICKY_MIN_ROWS and yank
+// the target off an already-established persona:Scout for ~21s (until a genuine
+// scout-feed-summary.json hit reclaimed it via the >=20s hold branch) -- the flicker this task
+// fixes. A precise persona-file hit (PERSONA_EVIDENCE_RULES, a literal filename) is UNAFFECTED
+// by this -- that stays a strong signal regardless of verb, since naming a specific evidence
+// file is never incidental.
+const LISTING_VERBS = new Set(["ls", "dir", "grep", "rg", "find", "tree"]);
+
+function isListingCommand(rawCmd: string): boolean {
+  const cmd = stripLeadingCd(rawCmd);
+  if (!cmd) return false;
+  const verb = basenameOf((cmd.split(/\s+/)[0] || "").toLowerCase());
+  return LISTING_VERBS.has(verb);
+}
+
+/** True when a Bash/PowerShell row's `detail` was cut off by pulse.py's own 100-char command
+ * cap (setup/hooks/pulse.py#_detail L94: `"Ran: " + str(tool_input.get("command") or "")[:100]`
+ * -- no truncation marker written, so the only signal is the length hitting the cap exactly).
+ * Whatever verb/path substring sits right at that cut boundary may be a fragment, not the real
+ * command, so it must never be trusted as a coarse-zone retarget signal on its own. */
+function isTruncatedBashDetail(detail: string): boolean {
+  return detail.startsWith(RAN_PREFIX) && detail.length === RAN_PREFIX.length + 100;
+}
+
+function resolveTargetKey(
+  row: Pick<PulseRow, "tool" | "detail" | "to">
+): { key: string; persona: { id: PersonaId; phrase: string } | null } | null {
+  const text = `${row.to} ${row.detail}`;
   const persona = classifyPersona(text);
   if (persona) return { key: `persona:${persona.id}`, persona };
+
+  if (row.tool === "Bash" || row.tool === "PowerShell") {
+    // Truncated/unparseable past the 100-char cap -- never a coarse-zone signal (see
+    // isTruncatedBashDetail's own header). A persona hit above is unaffected since it's
+    // checked against the full text before any cap-awareness kicks in here.
+    if (isTruncatedBashDetail(row.detail)) return null;
+    const cmd = row.detail.startsWith(RAN_PREFIX) ? row.detail.slice(RAN_PREFIX.length) : row.detail;
+    // A listing/search command only ever mentions a directory while hunting for a file in
+    // it -- never a real competing coarse-zone signal (see this section's header).
+    if (isListingCommand(cmd)) return null;
+  }
+
   const zone = classifyZone(text);
   if (zone === "hub") return null; // no real signal -- never a retarget candidate
   return { key: `zone:${zone}`, persona: null };
@@ -804,7 +850,6 @@ export function buildLiveAgents(rows: PulseRow[], nowMs: number = Date.now()): L
     const key = row.agent_id ? row.agent_id : row.session_id ? `session:${row.session_id}` : null;
     if (!key) continue; // malformed ts already filtered out above -- never guess "now" for a row we can't date
 
-    const targetText = `${row.to} ${row.detail}`;
     let existing = groups.get(key);
     if (!existing) {
       existing = {
@@ -853,7 +898,7 @@ export function buildLiveAgents(rows: PulseRow[], nowMs: number = Date.now()): L
     // it. Runs on EVERY row for this agent (not just the latest-wins branch
     // above) so consecutive-row counting sees every real row in order, not
     // just whichever one happened to also be the new last-seen row.
-    const resolved = resolveTargetKey(targetText);
+    const resolved = resolveTargetKey(row);
     if (resolved) {
       if (resolved.persona) existing.personaPhraseByKey.set(resolved.key, resolved.persona.phrase);
       if (!existing.targetIsReal) {
