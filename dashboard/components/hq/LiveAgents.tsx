@@ -650,6 +650,34 @@ function LiveAgentAvatar({
           : livePos)
       : livePos;
     const wp: [number, number, number][] = hasDelay ? [waitPoint.current, ...rawWp.slice(1)] : rawWp;
+    // SPAWN HOP fix (CONVOY-STACK v14, 2026-09-15, probe
+    // 20260915T142437Z): a delayed/held walk (`hasDelay`, above) is
+    // rendered at `waitPoint.current` by useFrame's own wait branch --
+    // but only starting from THAT branch's NEXT tick. This effect itself
+    // only ever wrote `waitPoint.current` (the ref) and `path.current`/
+    // `needsWalkStart.current` (consumed by useFrame) -- it never touched
+    // the actual THREE.js `group.current.position` object. For a brand-new
+    // spawn, the SEPARATE `[entryPos]`-deps mount effect (above, in this
+    // same component) already set `group.current.position` to the RAW gate
+    // node the instant this avatar mounted -- so the first diag snapshot
+    // and the first rendered frame both showed the raw gate point, and only
+    // the SECOND frame (the first useFrame tick to actually run this walk's
+    // wait branch) corrected it to `waitPoint.current` -- a real, if small,
+    // one-frame position hop (probe's own report: [21.60,0.00] ->
+    // [21.52,-0.73], 0.73u in one diag interval). Setting the group's
+    // position here too -- synchronously, in the SAME effect-flush as the
+    // mount effect's own write, before this avatar's first useFrame tick or
+    // diag read can ever observe anything in between -- means the very
+    // first rendered/diagnosed pose is already correct. A no-op (same
+    // point) for the ordinary "no real wait" case (delay 0 AND this
+    // avatar's own batch-order lane happens to compute a zero offset,
+    // `computeWaitPoint`'s own index-0 case) -- mounting at the gate point
+    // is then still exactly what waitPoint.current itself equals, so
+    // nothing visibly changes for that case, per the coordinator's own "no
+    // wait -> mount at the gate point as today" requirement.
+    if (hasDelay) {
+      group.current?.position.set(...waitPoint.current);
+    }
     path.current = wp;
     walkDest.current = decision.dest;
     walkDespawnsOnArrival.current = decision.despawn;

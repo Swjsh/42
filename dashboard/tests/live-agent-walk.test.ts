@@ -3293,3 +3293,99 @@ test("findRetargetPath: a RESTING avatar (not actively walking) always uses the 
   assert.deepEqual(found, expectedBehind);
 });
 
+// ─── CONVOY-STACK v14 (2026-09-15): SPAWN HOP ──────────────────────────────
+//
+// ROOT CAUSE (pose_jump, probe 20260915T142437Z): a brand-new avatar's
+// mount effect (LiveAgents.tsx, `useEffect(() => { group.current?.position
+// .set(...entryPos); }, [entryPos])`) always sets the THREE.js group's
+// position to the RAW gate node the instant it mounts. The decision effect
+// that runs immediately after it (same `[leaving, targetNodeId, ...]`
+// effect, further down the same component) computes this spawn's own
+// `waitPoint.current` (a zigzag gate-lane point, `computeWaitPoint`) for a
+// delayed/held walk, but historically only ever wrote REFS
+// (`waitPoint.current`, `path.current`, `needsWalkStart.current`) --  it
+// never touched `group.current.position` itself. Only the FIRST useFrame
+// tick's own wait branch (`g.position.set(waitPoint.current...)`) actually
+// moved the avatar there -- one frame after the mount effect's raw-gate
+// write, and after this avatar's own first diag snapshot could already
+// have captured the raw gate point. Probe's own report: [21.60,0.00] (the
+// raw gate) -> [21.52,-0.73] (its own wait lane, index 1's
+// `WAIT_LANE_STEP_U`) in one diag interval -- exactly `computeWaitPoint`'s
+// own index-1 lateral offset.
+//
+// FIX: the decision effect now ALSO sets `group.current.position`
+// immediately (synchronously, in the SAME effect-flush as the mount
+// effect's own write, before this avatar's first useFrame tick or diag
+// read can ever run) whenever this walk `hasDelay` -- so the very first
+// rendered/diagnosed pose is already the wait point, never the raw gate.
+// A no-op for a spawn whose own batch index computes a zero lateral/along
+// offset (index 0 -- `waitLaneOffsetForIndex`'s own 0, +1, -1, ... pattern)
+// since `waitPoint.current` then equals the gate point exactly anyway,
+// satisfying the coordinator's own "no wait -> mount at the gate point as
+// today" requirement.
+
+const SPAWN_HOP_GATE: [number, number, number] = [21.6, 0, 0]; // campus-gate
+const SPAWN_HOP_NEXT: [number, number, number] = [17.4, 0, 0]; // t-0, the first real corridor waypoint a walk out of the gate heads toward
+const SPAWN_HOP_IDS = ["s-alpha", "s-beta"]; // two same-batch spawns, sorted order gives index 0 and 1
+
+interface SpawnHopFrame {
+  id: string;
+  frame0: [number, number, number];
+  frame1: [number, number, number];
+  waitPoint: [number, number, number];
+}
+
+/** Mirrors the mount-effect-then-decision-effect-then-first-useFrame-tick
+ * sequence for a batch of same-poll spawns. `applyFix` toggles whether the
+ * decision effect ALSO sets the group's position immediately (the v14
+ * fix) or only writes `waitPoint.current` for useFrame's own next tick to
+ * apply (the pre-fix behavior). */
+function simulateSpawnMount(applyFix: boolean): SpawnHopFrame[] {
+  const order = computeBatchOrder(SPAWN_HOP_IDS);
+  return SPAWN_HOP_IDS.map((id) => {
+    const batchIndex = order.get(id)!;
+    const waitPoint = computeWaitPoint(SPAWN_HOP_GATE, SPAWN_HOP_NEXT, batchIndex);
+    // Mount effect: always raw gate, regardless of the fix.
+    const frame0: [number, number, number] = applyFix ? waitPoint : [...SPAWN_HOP_GATE];
+    // First useFrame tick's own wait branch: always renders waitPoint,
+    // fix or not -- this is the SECOND frame either way, just a no-op
+    // change when the fix already put it there on frame 0.
+    const frame1: [number, number, number] = waitPoint;
+    return { id, frame0, frame1, waitPoint };
+  });
+}
+
+test("SPAWN HOP: RED (documents the bug) -- frame 0 is the raw gate point, not the wait point, for a spawn with a nonzero batch lane", () => {
+  const frames = simulateSpawnMount(false);
+  const withLane = frames.find((f) => Math.hypot(f.waitPoint[0] - SPAWN_HOP_GATE[0], f.waitPoint[2] - SPAWN_HOP_GATE[2]) > 1e-6)!;
+  assert.ok(withLane, "expected at least one same-batch spawn to have a nonzero wait-lane offset from the gate");
+  assert.notDeepEqual(withLane.frame0, withLane.waitPoint, `${withLane.id}: expected the PRE-FIX frame 0 to be the raw gate point, not its own wait point`);
+  const step = Math.hypot(withLane.frame0[0] - withLane.frame1[0], withLane.frame0[2] - withLane.frame1[2]);
+  const bound = SIM_WALK_SPEED * FOLLOW_TICK_DT_S + 0.05;
+  assert.ok(step > bound, `expected the PRE-FIX frame0->frame1 step (${step.toFixed(3)}u) to exceed WALK_SPEED*dt+0.05 (${bound.toFixed(3)}u) -- documents the reported spawn hop`);
+});
+
+test("SPAWN HOP: GREEN (the fix) -- frame 0 already equals each spawn's own wait point, and the per-step bound holds from frame 0 onward", () => {
+  const frames = simulateSpawnMount(true);
+  const bound = SIM_WALK_SPEED * FOLLOW_TICK_DT_S + 0.05;
+  let sawNonzeroLane = false;
+  for (const f of frames) {
+    if (Math.hypot(f.waitPoint[0] - SPAWN_HOP_GATE[0], f.waitPoint[2] - SPAWN_HOP_GATE[2]) > 1e-6) sawNonzeroLane = true;
+    assert.deepEqual(f.frame0, f.waitPoint, `${f.id}: frame 0 must already be this spawn's own wait point`);
+    const step = Math.hypot(f.frame0[0] - f.frame1[0], f.frame0[2] - f.frame1[2]);
+    assert.ok(step <= bound + 1e-9, `${f.id}: frame0->frame1 step (${step.toFixed(3)}u) exceeds WALK_SPEED*dt+0.05 (${bound.toFixed(3)}u)`);
+  }
+  assert.ok(sawNonzeroLane, "expected at least one same-batch spawn to have a nonzero wait-lane offset from the gate (otherwise this fixture proves nothing)");
+});
+
+test("SPAWN HOP: an undelayed/zero-lane spawn (batch index 0) mounts at the gate point either way -- no behavior change for the ordinary case", () => {
+  const order = computeBatchOrder(SPAWN_HOP_IDS);
+  const zeroIndexId = SPAWN_HOP_IDS.find((id) => order.get(id) === 0)!;
+  const waitPoint = computeWaitPoint(SPAWN_HOP_GATE, SPAWN_HOP_NEXT, 0);
+  assert.deepEqual(waitPoint, SPAWN_HOP_GATE, "batch index 0's own wait point should equal the gate point exactly (waitLaneOffsetForIndex(0) = 0)");
+  const framesFixed = simulateSpawnMount(true).find((f) => f.id === zeroIndexId)!;
+  const framesUnfixed = simulateSpawnMount(false).find((f) => f.id === zeroIndexId)!;
+  assert.deepEqual(framesFixed.frame0, SPAWN_HOP_GATE);
+  assert.deepEqual(framesUnfixed.frame0, SPAWN_HOP_GATE);
+});
+
