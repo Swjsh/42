@@ -59,6 +59,9 @@ import {
   STAND_RING_RADIUS,
   reconcileLiveAgentRoster,
   shouldWriteLiveAgentDiag,
+  stableSlotOffset,
+  STAND_SLOT_CAPACITY,
+  updateStableSlotAssignments,
   waitAlongOffsetForIndex,
   waitLaneOffsetForIndex,
   WAIT_ALONG_STEP_U,
@@ -563,6 +566,269 @@ test("TELEPORT-ON-LEAVE: GREEN (the actual fix) -- holding livePos during a leav
   // not a degenerate all-zero trajectory that would make the bound trivial.
   const totalDist = Math.hypot(steps[steps.length - 1].position[0] - steps[0].position[0], steps[steps.length - 1].position[2] - steps[0].position[2]);
   assert.ok(totalDist > 5, `sanity: the avatar should have travelled meaningfully toward the gate, only moved ${totalDist.toFixed(2)}u total`);
+});
+
+// ─── stableSlotOffset / updateStableSlotAssignments (CONVOY-STACK v5) ──────
+//
+// ROOT CAUSE (all-state displacement audit, probe 20260915T095436Z):
+// computeStandSlot (liveAgentWalk.ts, defined just above this section)
+// derives BOTH an id's index AND the angle's own denominator (`groupSize`)
+// from the CURRENT sorted membership of a zone -- so an existing resident's
+// computed offset can change whenever ANY sibling in the SAME zone arrives
+// or departs, even though that resident itself never moved or retargeted.
+// Combined with the CONVOY-STACK v3 per-frame correction (LiveAgents.tsx
+// useFrame, `if (phase.current === "working" ...) { standPointFor(...) }`,
+// which applies whatever the CURRENT offset says, every frame, with no
+// animation), this produces a real, visible snap -- the reported 0.90u
+// jumps (0.90 == the OLD STAND_RING_RADIUS, i.e. exactly computeStandSlot's
+// own angle recomputing around a new groupSize denominator).
+
+test("STAND-SLOT SHUFFLE-SNAP: RED (documents the bug) -- computeStandSlot moves a resident who never retargeted, purely because a sibling joined or left", () => {
+  const timeline = [
+    ["A", "B", "C"],
+    ["A", "C"], // B leaves
+    ["A", "C", "D"], // D arrives
+    ["C", "D"], // A retargets away
+    ["A", "C", "D"], // A retargets back
+  ];
+  const cOffsets = timeline.map((ids) => computeStandSlot(ids, "C", STAND_RING_RADIUS).offset);
+  const moved = cOffsets.some((o, i) => i > 0 && (o[0] !== cOffsets[i - 1][0] || o[1] !== cOffsets[i - 1][1]));
+  assert.ok(moved, "expected the OLD groupSize-based logic to move C purely because a sibling joined/left (documents the reported shuffle-snap)");
+});
+
+test("STAND-SLOT SHUFFLE-SNAP: GREEN (the fix) -- stable assignment never moves a resident unless ITS OWN zone key changes, and stays >=0.7u pairwise throughout", () => {
+  // Coordinator's own required scenario: residents A, B, C at a zone; B
+  // leaves, D arrives, A retargets away and back.
+  const REQUIRED_MIN_SEPARATION_U = 0.7;
+  const timeline: Record<string, string>[] = [
+    { A: "Z", B: "Z", C: "Z" },
+    { A: "Z", C: "Z" }, // B leaves
+    { A: "Z", C: "Z", D: "Z" }, // D arrives
+    { C: "Z", D: "Z" }, // A retargets away (to some other zone, irrelevant here)
+    { A: "Z", C: "Z", D: "Z" }, // A retargets back
+  ];
+  let assignments = new Map<string, Map<string, number>>();
+  const offsetHistory = new Map<string, Array<[number, number] | null>>();
+  for (const step of timeline) {
+    const membership = new Map<string, string[]>();
+    for (const [id, zone] of Object.entries(step)) {
+      const ids = membership.get(zone) ?? [];
+      ids.push(id);
+      membership.set(zone, ids);
+    }
+    assignments = updateStableSlotAssignments(assignments, membership);
+
+    const zIds = membership.get("Z") ?? [];
+    const offsets = new Map<string, [number, number]>();
+    for (const id of zIds) {
+      const index = assignments.get("Z")!.get(id)!;
+      offsets.set(id, stableSlotOffset(index));
+    }
+    for (const id of ["A", "B", "C", "D"]) {
+      const hist = offsetHistory.get(id) ?? [];
+      hist.push(offsets.get(id) ?? null);
+      offsetHistory.set(id, hist);
+    }
+
+    // Pairwise >=0.7u among whoever is CURRENTLY resident at this step.
+    const present = Array.from(offsets.entries());
+    for (let i = 0; i < present.length; i++) {
+      for (let j = i + 1; j < present.length; j++) {
+        const [idA, offA] = present[i];
+        const [idB, offB] = present[j];
+        const dist = Math.hypot(offA[0] - offB[0], offA[1] - offB[1]);
+        assert.ok(dist >= REQUIRED_MIN_SEPARATION_U - 1e-9, `step [${zIds.join(",")}]: ${idA} and ${idB} only ${dist.toFixed(3)}u apart`);
+      }
+    }
+  }
+  // C's own zone key never changes for the WHOLE timeline; D's never
+  // changes from the moment it first arrives -- both must have an IDENTICAL
+  // offset at every step where they were already present the step before
+  // (the exact invariant the shuffle-snap violated: "no resting agent's
+  // point moves between steps except via a walk").
+  for (const id of ["C", "D"]) {
+    const hist = offsetHistory.get(id)!;
+    for (let i = 1; i < hist.length; i++) {
+      if (hist[i - 1] === null || hist[i] === null) continue;
+      assert.deepEqual(hist[i], hist[i - 1], `${id}'s offset changed between step ${i - 1} and ${i} despite never retargeting`);
+    }
+  }
+});
+
+test("stableSlotOffset: every pair of indices within STAND_SLOT_CAPACITY is >=0.7u apart (the fixed-capacity ring's own separation proof)", () => {
+  const REQUIRED_MIN_SEPARATION_U = 0.7;
+  const points = Array.from({ length: STAND_SLOT_CAPACITY }, (_, i) => stableSlotOffset(i));
+  let checked = 0;
+  for (let i = 0; i < points.length; i++) {
+    for (let j = i + 1; j < points.length; j++) {
+      checked++;
+      const dist = Math.hypot(points[i][0] - points[j][0], points[i][1] - points[j][1]);
+      assert.ok(dist >= REQUIRED_MIN_SEPARATION_U - 1e-9, `indices ${i} and ${j} are only ${dist.toFixed(3)}u apart`);
+    }
+  }
+  assert.ok(checked > 0, "sanity: must have checked at least one pair");
+});
+
+test("updateStableSlotAssignments: never mutates its own `prev` argument", () => {
+  const prev = new Map([["Z", new Map([["A", 0]])]]);
+  updateStableSlotAssignments(prev, new Map([["Z", ["A", "B"]]]));
+  assert.equal(prev.get("Z")!.size, 1, "prev must stay untouched");
+});
+
+test("updateStableSlotAssignments: a zone absent from `membership` this round is simply absent from the result (no leaked stale assignment)", () => {
+  const prev = new Map([["Z", new Map([["A", 0]])]]);
+  const next = updateStableSlotAssignments(prev, new Map());
+  assert.equal(next.has("Z"), false);
+});
+
+// ─── ARRIVAL-WITH-SLOT-CHANGE + SPAWN-WAIT->WALK (CONVOY-STACK v5 addendum,
+// coordinator's own pose_jump audit, probe 20260915T095436Z) ───────────────
+//
+// Two more jump shapes the same audit caught, beyond the resting-reshuffle
+// snap above:
+//   - walking->working (arrival) jumps of 1.07-1.10u: a walk's baked-in
+//     FINAL waypoint (decided once, at walk-decision time) can still go
+//     stale if this avatar's own assignment drifts before it arrives; the
+//     OLD code let poseAlongPath arrive at the stale point, then relied on
+//     the continuous stand-slot correction to snap it to the CURRENT one
+//     the very next frame. FIX: LiveAgents.tsx's useFrame now smoothly
+//     retargets the path's own final waypoint every frame of an active
+//     walk (see that file's own "MID-WALK SLOT DRIFT fix" comment).
+//   - spawning->walking jump of 1.499u: the rendered WAIT point (a gate
+//     lane) and the walk's own first waypoint (always `livePos`, the raw
+//     origin) disagreed -- the walk used to resume from a DIFFERENT point
+//     than where the avatar had actually been sitting. FIX: when a walk
+//     has a real stagger delay, its own first waypoint is now the SAME
+//     value as the rendered wait point (LiveAgents.tsx's own
+//     "TELEPORT-ON-SPAWN fix").
+//
+// Both are modeled here as pure per-frame position simulations (mirroring
+// LiveAgentAvatar's own useFrame logic), sampled at the probe's own 0.5s
+// cadence, checked against the coordinator's own invariant.
+
+function simulateArrivalWithSlotChange(smoothMidWalkRetarget: boolean): SimStep[] {
+  const origin: [number, number, number] = [21.6, 0, 0];
+  const hallway: [number, number, number] = [17.4, 0, 0];
+  const zoneNode: [number, number, number] = [0, 0, 0];
+  const oldOffset = stableSlotOffset(0);
+  const newOffset = stableSlotOffset(3); // simulates this avatar's assignment drifting mid-flight
+  const oldFinal: [number, number, number] = [zoneNode[0] + oldOffset[0], 0, zoneNode[2] + oldOffset[1]];
+  const newFinal: [number, number, number] = [zoneNode[0] + newOffset[0], 0, zoneNode[2] + newOffset[1]];
+  let wp: [number, number, number][] = [origin, hallway, oldFinal];
+  const changeAtT = 8; // the reassignment happens well into the walk, before arrival
+
+  // DISTANCE-BASED PROGRESS (mirrors LiveAgents.tsx's own useFrame, this
+  // same pass): `progress` is derived from actual DISTANCE TRAVELED
+  // (tS*SIM_WALK_SPEED) divided by the CURRENT path's own live length, not
+  // a fraction of a duration baked from the ORIGINAL (pre-swap) total --
+  // otherwise swapping the endpoint would itself produce a discontinuity
+  // (a progress fraction suddenly meaning a different absolute distance
+  // once the path's own total length changes), the exact flaw a naive
+  // "just replace the last waypoint" fix would still have.
+  const MIN_WALK_S_FIXTURE = 0.5;
+  const steps: SimStep[] = [];
+  for (let tS = 0; ; tS += SIM_SAMPLE_DT_S) {
+    if (smoothMidWalkRetarget && tS >= changeAtT) {
+      wp = [wp[0], wp[1], newFinal]; // LiveAgents.tsx's own per-frame endpoint retarget
+    }
+    const distanceTraveled = tS * SIM_WALK_SPEED;
+    const liveTotal = Math.max(MIN_WALK_S_FIXTURE * SIM_WALK_SPEED, pathDistance(wp));
+    const progress = Math.min(1, distanceTraveled / liveTotal);
+    let position: [number, number, number];
+    if (progress < 1) {
+      position = poseAlongPath(wp, progress).position;
+    } else if (smoothMidWalkRetarget) {
+      position = poseAlongPath(wp, 1).position; // already retargeted -- arrives smoothly at newFinal
+    } else {
+      // OLD behavior: arrives at the STALE oldFinal, then the continuous
+      // stand-slot correction snaps it to the CURRENT offset (newFinal)
+      // starting the very next sample.
+      position = newFinal;
+    }
+    steps.push({ tS, position });
+    if (progress >= 1) break; // mirrors phase.current flipping to "working" on arrival
+  }
+  return steps;
+}
+
+test("ARRIVAL-WITH-SLOT-CHANGE: RED (documents the bug) -- an un-retargeted walk snaps on arrival when its assignment drifted mid-flight", () => {
+  const steps = simulateArrivalWithSlotChange(false);
+  const bound = SIM_WALK_SPEED * SIM_SAMPLE_DT_S + 0.05;
+  const { maxDist, atIndex } = maxStepDisplacement(steps);
+  assert.ok(
+    maxDist > bound,
+    `expected the PRE-FIX behavior to violate the ${bound.toFixed(3)}u bound (documenting the arrival snap) -- got max displacement ${maxDist.toFixed(3)}u at step ${atIndex}`,
+  );
+});
+
+test("ARRIVAL-WITH-SLOT-CHANGE: GREEN (the fix) -- smoothly retargeting the path's own endpoint keeps every step within WALK_SPEED*dt+0.05", () => {
+  const steps = simulateArrivalWithSlotChange(true);
+  for (let i = 1; i < steps.length; i++) {
+    const a = steps[i - 1].position;
+    const b = steps[i].position;
+    const dist = Math.hypot(a[0] - b[0], a[2] - b[2]);
+    const dt = steps[i].tS - steps[i - 1].tS;
+    assert.ok(
+      dist <= SIM_WALK_SPEED * dt + 0.05 + 1e-9,
+      `step ${i} (t=${steps[i - 1].tS}s -> ${steps[i].tS}s): displacement ${dist.toFixed(3)}u exceeds WALK_SPEED*dt+0.05 = ${(SIM_WALK_SPEED * dt + 0.05).toFixed(3)}u`,
+    );
+  }
+});
+
+function simulateSpawnWaitWalk(fixWp0Mismatch: boolean): SimStep[] {
+  const origin: [number, number, number] = [21.6, 0, 0]; // campus-gate, ENTRY_NODE_ID
+  const hallway: [number, number, number] = [17.4, 0, 0];
+  const finalPoint: [number, number, number] = [0, 0, -1.6];
+  const spawnIndex = 1; // a same-batch spawn with a nonzero gate lane, per the bug report
+  const rawWp: [number, number, number][] = [origin, hallway, finalPoint];
+  const duration = Math.max(0.5, pathDistance(rawWp) / SIM_WALK_SPEED);
+  const delayS = spawnIndex * STAGGER_DELAY_S;
+
+  const waitPoint = computeWaitPoint(origin, hallway, spawnIndex); // the gate-lane point actually RENDERED during the wait
+  const wp: [number, number, number][] = fixWp0Mismatch ? [waitPoint, hallway, finalPoint] : rawWp;
+
+  const steps: SimStep[] = [{ tS: 0, position: origin }]; // this avatar's very first rendered frame (creation)
+  for (let tS = SIM_SAMPLE_DT_S; tS <= delayS + duration + SIM_SAMPLE_DT_S; tS += SIM_SAMPLE_DT_S) {
+    const elapsed = tS - delayS;
+    if (elapsed < 0) {
+      steps.push({ tS, position: waitPoint });
+    } else {
+      const progress = Math.min(1, elapsed / duration);
+      steps.push({ tS, position: poseAlongPath(wp, progress).position });
+    }
+  }
+  return steps;
+}
+
+test("SPAWN-WAIT->WALK: RED (documents the bug) -- resuming from the raw origin instead of the rendered wait point violates the displacement invariant", () => {
+  const steps = simulateSpawnWaitWalk(false);
+  const bound = SIM_WALK_SPEED * SIM_SAMPLE_DT_S + 0.05;
+  // Skip the very first transition (tS=0 -> tS=0.5): a brand-new avatar's
+  // creation frame is explicitly exempt from the invariant (coordinator's
+  // own "except at creation").
+  const { maxDist, atIndex } = maxStepDisplacement(steps.slice(1));
+  assert.ok(
+    maxDist > bound,
+    `expected the PRE-FIX behavior to violate the ${bound.toFixed(3)}u bound (documenting the spawn-wait->walk snap) -- got max displacement ${maxDist.toFixed(3)}u at step ${atIndex}`,
+  );
+});
+
+test("SPAWN-WAIT->WALK: GREEN (the fix) -- starting the walk from the rendered wait point keeps every post-creation step within WALK_SPEED*dt+0.05", () => {
+  const steps = simulateSpawnWaitWalk(true);
+  for (let i = 2; i < steps.length; i++) {
+    // i starts at 2: the creation frame (0) and the first wait sample (1)
+    // are exempt/trivial (0 displacement, since the avatar spawns directly
+    // at its own wait point) -- the invariant is checked from the second
+    // wait sample onward, covering the wait->walk transition itself.
+    const a = steps[i - 1].position;
+    const b = steps[i].position;
+    const dist = Math.hypot(a[0] - b[0], a[2] - b[2]);
+    const dt = steps[i].tS - steps[i - 1].tS;
+    assert.ok(
+      dist <= SIM_WALK_SPEED * dt + 0.05 + 1e-9,
+      `step ${i} (t=${steps[i - 1].tS}s -> ${steps[i].tS}s): displacement ${dist.toFixed(3)}u exceeds WALK_SPEED*dt+0.05 = ${(SIM_WALK_SPEED * dt + 0.05).toFixed(3)}u`,
+    );
+  }
 });
 
 // ─── computeBatchOrder / computeBatchStaggerDelays (CONVOY-STACK v2/v3) ────

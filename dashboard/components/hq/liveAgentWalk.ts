@@ -736,3 +736,105 @@ export function computeStandSlot(
   const angle = (2 * Math.PI * index) / groupSize;
   return { offset: [Math.cos(angle) * radius, Math.sin(angle) * radius], index, groupSize };
 }
+
+// ─── Stable stand-slot assignment (CONVOY-STACK v5, 2026-09-15) ───────────
+//
+// ROOT CAUSE (all-state displacement audit, probe 20260915T095436Z):
+// `computeStandSlot` (above) derives BOTH an id's index AND the angle's own
+// denominator (`groupSize`) from the CURRENT sorted membership of a zone --
+// so when ANY resident of that zone arrives or departs, every OTHER
+// resident's index and/or angle can shift, even though THEY did not move.
+// Combined with CONVOY-STACK v3's own per-frame correction (LiveAgents.tsx
+// useFrame, `if (phase.current === "working" ...) { standPointFor(...) }`,
+// which exists specifically to apply a CHANGED offset instantly, every
+// frame, to keep two avatars from colliding) this produces a real, visible
+// SNAP the instant a sibling's membership in the SAME zone changes -- the
+// reported 0.90u jumps (0.90 == the OLD STAND_RING_RADIUS) are exactly
+// `computeStandSlot`'s own angle recomputing around a new groupSize
+// denominator.
+//
+// FIX: STABLE slot assignment, tracked by the reconcile layer
+// (LiveAgents.tsx's own `slotAssignmentsRef`) rather than re-derived from
+// scratch every render. `updateStableSlotAssignments` is the pure reducer:
+// given the PREVIOUS per-zone assignment and the CURRENT membership, an id
+// that was ALREADY assigned to a zone keeps that EXACT index for as long as
+// it stays a member of that SAME zone -- no renumbering, ever, regardless
+// of who else joins or leaves. A newcomer (first appearance in a zone, or a
+// retarget from a different zone -- its old zone's slot is simply absent
+// from that zone's next membership, and therefore freed) takes the LOWEST
+// index not currently in use in that zone. A departure (id absent from a
+// zone's membership this call) frees its index without touching anyone
+// else's.
+//
+// `stableSlotOffset` derives the on-screen offset from the index ALONE,
+// against a FIXED capacity (STAND_SLOT_CAPACITY, never the current
+// membership size) -- this is the second half of the stability guarantee:
+// even `computeStandSlot`'s OWN index-preservation would still shift an
+// existing resident's ANGLE if the angle's denominator (groupSize) kept
+// changing as siblings joined. A fixed denominator means an id's angle is a
+// pure function of its own (now-stable) index -- it can only ever be
+// recomputed to the SAME value.
+export const STAND_SLOT_CAPACITY = 8; // matches the live-agent roster cap (lib/hq-agents.ts)
+// 2*R*sin(pi/STAND_SLOT_CAPACITY) must stay >=0.7u for the worst case (two
+// ADJACENT indices on the full 8-slot ring): 2*0.95*sin(pi/8) = 0.727u.
+export const STABLE_STAND_RADIUS = 0.95;
+
+/** This STABLE index's on-screen [x,z] offset, on a ring of `capacity`
+ * evenly-spaced positions -- unlike `computeStandSlot`, the denominator is
+ * the FIXED `capacity`, never the current occupant count, so this can only
+ * ever return the SAME value for the SAME index (see this section's own
+ * header for why that fixed-denominator property is required, not just the
+ * index stability). */
+export function stableSlotOffset(
+  index: number,
+  radius: number = STABLE_STAND_RADIUS,
+  capacity: number = STAND_SLOT_CAPACITY,
+): [number, number] {
+  const angle = (2 * Math.PI * index) / Math.max(1, capacity);
+  return [Math.cos(angle) * radius, Math.sin(angle) * radius];
+}
+
+/** Pure reducer for the stable per-zone slot assignment described above.
+ * `membership` is this reconcile's CURRENT zone -> resident-ids map (every
+ * currently-displayed id, grouped exactly as LiveAgents.tsx's own
+ * `standSlots` memo already groups them -- by EFFECTIVE destination,
+ * ENTRY_NODE_ID while leaving, targetNodeId otherwise). Returns a brand-new
+ * Map-of-Maps (never mutates `prev`, per this tree's own immutability
+ * convention) where each zone's assignment is rebuilt from that zone's
+ * OWN prior assignment (if any) plus this round's membership -- a zone with
+ * no residents this round is simply absent from the result (nothing to
+ * leak). Deterministic given the same (prev, membership) pair: a tie among
+ * multiple simultaneously-new ids in one zone is broken by sorting their
+ * ids, the same stable-order convention every other batch function in this
+ * module already uses. */
+export function updateStableSlotAssignments(
+  prev: ReadonlyMap<string, ReadonlyMap<string, number>>,
+  membership: ReadonlyMap<string, readonly string[]>,
+): Map<string, Map<string, number>> {
+  const next = new Map<string, Map<string, number>>();
+  for (const [zoneKey, rawIds] of membership) {
+    const uniqueIds = [...new Set(rawIds)];
+    const prevZone = prev.get(zoneKey);
+    const zoneAssign = new Map<string, number>();
+    const used = new Set<number>();
+    // Keep every id already assigned to THIS zone at its EXACT prior index.
+    for (const id of uniqueIds) {
+      const priorIndex = prevZone?.get(id);
+      if (priorIndex !== undefined) {
+        zoneAssign.set(id, priorIndex);
+        used.add(priorIndex);
+      }
+    }
+    // Newcomers (genuinely new to this zone this round) take the lowest
+    // free index, in sorted-id order for a deterministic tie-break.
+    const newcomers = uniqueIds.filter((id) => !zoneAssign.has(id)).sort();
+    for (const id of newcomers) {
+      let idx = 0;
+      while (used.has(idx)) idx++;
+      zoneAssign.set(id, idx);
+      used.add(idx);
+    }
+    next.set(zoneKey, zoneAssign);
+  }
+  return next;
+}

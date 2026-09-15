@@ -56,9 +56,9 @@ import { CHARACTER_SCALE, CHARACTER_TARGET_HEIGHT } from "./SetKit";
 import type { LiveAgent } from "./types";
 import type { LiveAgentState } from "@/lib/hq-agents";
 import {
-  applyLaneOffsets, computeBatchOrder, computeBatchStaggerDelays, computeMaxPathDurationS, computeStandSlot,
-  computeWaitPoint, decideNextWalk, ENTRY_NODE_ID, LEAVE_TIMEOUT_MARGIN_S, pathDistance, poseAlongPath,
-  reconcileLiveAgentRoster, shouldWriteLiveAgentDiag, STAND_BUBBLE_Y_STEP, STAND_RING_RADIUS,
+  applyLaneOffsets, computeBatchOrder, computeBatchStaggerDelays, computeMaxPathDurationS, computeWaitPoint,
+  decideNextWalk, ENTRY_NODE_ID, LEAVE_TIMEOUT_MARGIN_S, pathDistance, poseAlongPath, reconcileLiveAgentRoster,
+  shouldWriteLiveAgentDiag, stableSlotOffset, STAND_BUBBLE_Y_STEP, updateStableSlotAssignments,
 } from "./liveAgentWalk";
 
 // 8 distinct, saturated hues, cycled by arrival order -- deliberately NOT
@@ -214,7 +214,6 @@ function LiveAgentAvatar({
   const path = useRef<[number, number, number][]>([entryPos, entryPos]);
   const walkDest = useRef(ENTRY_NODE_ID);
   const walkDespawnsOnArrival = useRef(false);
-  const walkDuration = useRef(MIN_WALK_S);
   const needsWalkStart = useRef(true); // first frame: begin the spawn->zone walk
   const walkStartT = useRef(0);
   const phase = useRef<"walking" | "working">("walking");
@@ -416,15 +415,11 @@ function LiveAgentAvatar({
     // first waypoint (this avatar's real live position) and the last
     // (finalPoint, already correctly nudged or not by destinationPointFor
     // above) are left untouched by design.
-    const wp = applyLaneOffsets(
+    const rawWp = applyLaneOffsets(
       rawPath.length > 0 ? [livePos, ...rawPath.slice(1, -1), finalPoint] : [livePos, finalPoint],
       liveAgentId,
     );
-    path.current = wp;
-    walkDest.current = decision.dest;
-    walkDespawnsOnArrival.current = decision.despawn;
-    walkDuration.current = Math.max(MIN_WALK_S, pathDistance(wp) / WALK_SPEED);
-    // CONVOY-STACK v2/v4: while this walk's own start delay
+    // CONVOY-STACK v2/v4/v5: while this walk's own start delay
     // (pendingStartDelayS, seeded above) hasn't elapsed yet, useFrame
     // renders this avatar at `waitPoint` instead of progressing along `wp`.
     //
@@ -432,21 +427,35 @@ function LiveAgentAvatar({
     // a computeWaitPoint gate lane (correctly separates same-batch spawns,
     // and is invisible -- the avatar is being CREATED right now, so there is
     // no prior on-screen pose to jump away from). A LEAVE wait must instead
-    // HOLD this avatar's own real `livePos` exactly -- root cause of the
-    // reported teleport: v3 applied the SAME gate-lane math to a leaving
-    // avatar's CURRENT zone position, instantly relocating a RESTING avatar
-    // (already on its own distinct stand slot, per CONVOY-STACK v3's
-    // continuous correction -- no additional separation is needed) by up to
-    // WAIT_LANE_STEP_U the instant `leaving` flipped true (probe: a
-    // 0.73u snap at the leaving transition, then an 0.87u snap back when the
-    // stagger delay elapsed and the walk resumed from `livePos`, since `wp[0]`
-    // was always the avatar's TRUE rest position, never the gate-lane point
-    // it had been VISUALLY relocated to during the wait). Holding at
-    // `livePos` for the whole wait makes both waypoints agree -- no jump at
-    // either edge of the wait.
-    waitPoint.current = pendingWaitUsesGateLane.current
-      ? computeWaitPoint(livePos, wp[1] ?? finalPoint, pendingWaitIndex.current)
+    // HOLD this avatar's own real `livePos` exactly -- v3 applied the SAME
+    // gate-lane math to a leaving avatar's CURRENT zone position, instantly
+    // relocating a RESTING avatar (already on its own distinct stand slot --
+    // no additional separation needed) the instant `leaving` flipped true.
+    //
+    // TELEPORT-ON-SPAWN fix (v5, probe 20260915T095436Z, coordinator's own
+    // pose_jump audit): a SPAWN wait's first rendered pose IS `waitPoint`
+    // (the gate lane), but `rawWp[0]` above is always `livePos` (the raw,
+    // un-offset origin) -- so the walk used to resume from a DIFFERENT point
+    // than the one the avatar had actually been sitting at for its whole
+    // wait, producing a snap the instant the delay elapsed (reported: 1.5u
+    // at a spawning->walking transition). Only a walk that actually HAS a
+    // delay (`pendingStartDelayS.current > 0`) is affected -- an ordinary,
+    // undelayed retarget must keep starting from the avatar's true
+    // `livePos`, never a stale gate-lane value left over from an earlier
+    // spawn/leave. Fix: when this walk DOES have a delay, replace the
+    // path's own first waypoint with `waitPoint` itself, so the two can
+    // never disagree -- the walk always resumes from EXACTLY where the
+    // avatar was rendered a moment before.
+    const hasDelay = pendingStartDelayS.current > 0;
+    waitPoint.current = hasDelay
+      ? (pendingWaitUsesGateLane.current
+          ? computeWaitPoint(livePos, rawWp[1] ?? finalPoint, pendingWaitIndex.current)
+          : livePos)
       : livePos;
+    const wp: [number, number, number][] = hasDelay ? [waitPoint.current, ...rawWp.slice(1)] : rawWp;
+    path.current = wp;
+    walkDest.current = decision.dest;
+    walkDespawnsOnArrival.current = decision.despawn;
     needsWalkStart.current = true;
     phase.current = "walking";
     setAnimState(WALK_ANIM);
@@ -527,7 +536,51 @@ function LiveAgentAvatar({
         waitingForSlot.current = true;
       } else {
         waitingForSlot.current = false;
-        const progress = Math.min(1, elapsed / walkDuration.current);
+        // MID-WALK SLOT DRIFT fix (v5 addendum, probe 20260915T095436Z's
+        // own pose_jump audit): even with STABLE slot assignment (this
+        // avatar's own index no longer changes while it stays assigned to
+        // the same zone), a walk's baked-in FINAL waypoint was still only
+        // ever computed ONCE, at decision time -- if this avatar's own
+        // assignment somehow drifts before arrival (a target-zone flap that
+        // drops and re-adds it, or any other future edge case), the old
+        // behavior let poseAlongPath arrive at a now-STALE point and then
+        // relied on the continuous stand-slot correction below to snap it
+        // to the CORRECT one the very next frame (exactly the "arrival,
+        // walking->working" jumps the probe caught, 1.07-1.10u). Instead,
+        // every frame of an active (non-despawning) walk smoothly retargets
+        // the path's own FINAL waypoint to whatever standPointFor currently
+        // says, so this can only ever shift WHERE the remaining walk
+        // interpolates TOWARD, never where the avatar is rendered THIS
+        // frame -- eliminating the snap at its root rather than patching
+        // the symptom on arrival. A despawning walk is exempt (its raw-node
+        // destination never carries a stand offset at all -- see
+        // destinationPointFor's own `despawn: true` branch above).
+        //
+        // DISTANCE-BASED PROGRESS (v5 addendum, same pass): swapping the
+        // endpoint changes the path's OWN total length -- a progress
+        // fraction computed against a duration baked from the ORIGINAL
+        // total (`elapsed / (originalTotal / WALK_SPEED)`) would then feed
+        // poseAlongPath a fraction of a DIFFERENT total than the one it was
+        // measured against, producing exactly the kind of discontinuity
+        // this fix exists to remove. Deriving `progress` fresh, every
+        // frame, from actual DISTANCE TRAVELED (`elapsed * WALK_SPEED`)
+        // divided by the CURRENT path's own live length keeps the avatar's
+        // physical walking speed constant and continuous regardless of when
+        // or how much the endpoint moves. `MIN_WALK_S` still floors the
+        // effective total so a near-zero-length path doesn't "arrive"
+        // instantly within a single frame.
+        if (!walkDespawnsOnArrival.current) {
+          const liveFinal = standPointFor(walkDest.current);
+          const wpNow = path.current;
+          const lastIdx = wpNow.length - 1;
+          const cur = wpNow[lastIdx];
+          if (lastIdx >= 0 && (cur[0] !== liveFinal[0] || cur[2] !== liveFinal[2])) {
+            path.current = [...wpNow.slice(0, lastIdx), liveFinal];
+          }
+        }
+        const distanceTraveled = elapsed * WALK_SPEED;
+        const liveTotal = Math.max(MIN_WALK_S * WALK_SPEED, pathDistance(path.current));
+        const progress = Math.min(1, distanceTraveled / liveTotal);
         const { position, facing } = poseAlongPath(path.current, progress);
         g.position.set(position[0], position[1], position[2]);
         g.rotation.y = facing;
@@ -731,6 +784,19 @@ export default function LiveAgents({ agents, walkGraph, ultra, reducedMotion }: 
   const [displayed, setDisplayed] = useState<Map<string, DisplayedAgent>>(new Map());
   const colorIdx = useRef(new Map<string, number>());
   const nextColorIdx = useRef(0);
+  // STAND-SLOT SHUFFLE-SNAP fix (CONVOY-STACK v5, 2026-09-15, all-state
+  // displacement audit on probe 20260915T095436Z): persistent, STABLE
+  // per-zone slot assignment (liveAgentWalk.ts#updateStableSlotAssignments)
+  // -- a ref, not React state, because it must be the "previous" input to
+  // its own next update on every reconcile (see that function's own doc for
+  // the full stability contract this replaces computeStandSlot with: an
+  // id's index never changes while it stays assigned to the SAME zone, no
+  // matter who else joins or leaves). Updated synchronously inside the
+  // reconcile effect below, immediately after `next` (the new `displayed`
+  // map) is built, so the VERY NEXT render's `standSlots` memo already sees
+  // the correct assignment -- never a render where a child's props are
+  // stale relative to this ref.
+  const slotAssignmentsRef = useRef<Map<string, Map<string, number>>>(new Map());
 
   useEffect(() => {
     ensureDiagInterval();
@@ -795,37 +861,58 @@ export default function LiveAgents({ agents, walkGraph, ultra, reducedMotion }: 
           next.set(id, { ...d, leaveDelayS: leaveDelays.get(id) ?? 0, leaveIndex: leaveOrder.get(id) ?? 0 });
         }
       }
+
+      // CONVOY-STACK v5: update the STABLE per-zone slot assignment from
+      // THIS round's fresh membership (grouped the same way standSlots
+      // itself groups -- by EFFECTIVE destination) -- see
+      // slotAssignmentsRef's own declaration above for why this must happen
+      // here, synchronously, rather than in a separate effect.
+      const membership = new Map<string, string[]>();
+      for (const [id, d] of next) {
+        const zoneKey = d.leaving ? ENTRY_NODE_ID : d.targetNodeId;
+        const ids = membership.get(zoneKey) ?? [];
+        ids.push(id);
+        membership.set(zoneKey, ids);
+      }
+      slotAssignmentsRef.current = updateStableSlotAssignments(slotAssignmentsRef.current, membership);
+
       return next;
     });
   }, [agents]);
 
-  // DEFECT 1 fix: group every currently-displayed agent by its EFFECTIVE
-  // destination (the campus gate, ENTRY_NODE_ID, while leaving, its zone
-  // otherwise) and hand
-  // each one a stable ring slot -- see liveAgentWalk.ts#computeStandSlot.
-  // Recomputed whenever the displayed set (or any agent's leaving flag)
-  // changes; cheap at this roster's own 8-agent cap.
+  // STAND-SLOT SHUFFLE-SNAP fix (CONVOY-STACK v5): derive each displayed
+  // agent's on-screen offset from its STABLE assignment
+  // (slotAssignmentsRef, updated above) rather than recomputing an index +
+  // angle from the CURRENT group every render -- the old `computeStandSlot`
+  // approach moved an existing resident whenever ANY sibling in the same
+  // zone joined or left, which is exactly the reported "0.90u == the OLD
+  // STAND_RING_RADIUS" shuffle-snap. `stableSlotOffset`'s own denominator
+  // (STAND_SLOT_CAPACITY) is FIXED, never the current occupant count, so an
+  // id's offset can only ever recompute to the SAME value it already had.
   const standSlots = useMemo(() => {
-    const groups = new Map<string, string[]>();
-    for (const d of displayed.values()) {
-      const key = d.leaving ? ENTRY_NODE_ID : d.targetNodeId;
-      const ids = groups.get(key) ?? [];
-      ids.push(d.id);
-      groups.set(key, ids);
-    }
     const out = new Map<string, { offset: [number, number]; index: number }>();
-    for (const ids of groups.values()) {
-      for (const id of ids) {
-        out.set(id, computeStandSlot(ids, id, STAND_RING_RADIUS));
-      }
+    for (const d of displayed.values()) {
+      const zoneKey = d.leaving ? ENTRY_NODE_ID : d.targetNodeId;
+      const index = slotAssignmentsRef.current.get(zoneKey)?.get(d.id) ?? 0;
+      out.set(d.id, { offset: stableSlotOffset(index), index });
     }
     return out;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [displayed]);
 
   const handleDespawned = (id: string) => {
     diagStore.delete(id);
     colorIdx.current.delete(id);
+    // CONVOY-STACK v5: free this id's stable stand-slot immediately, rather
+    // than waiting for the next reconcile poll to notice it's gone -- purely
+    // an efficiency nicety (a departed id's slot is a no-op reservation
+    // either way, since nobody renders there and updateStableSlotAssignments
+    // would drop it on the very next poll regardless), but it lets a
+    // newcomer reuse the freed index right away instead of a poll interval
+    // later. Refs are this tree's own accepted mutable-bookkeeping
+    // convention (see colorIdx.current.delete just above).
+    for (const zoneAssign of slotAssignmentsRef.current.values()) {
+      zoneAssign.delete(id);
+    }
     setDisplayed((prev) => {
       if (!prev.has(id)) return prev;
       const next = new Map(prev);
