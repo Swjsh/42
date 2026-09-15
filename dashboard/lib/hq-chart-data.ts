@@ -47,8 +47,15 @@ import {
   nearestBarIndex,
   dedupeTradeMarkers,
   filterLevelsNearRange,
+  isWeekdayEt,
+  computeSessionStatusLabel,
   type HoloLevel,
 } from "./hq-chart-pure";
+
+// Same threshold setup/scripts/sight_beacon.py itself documents
+// (STALE_AFTER_S = 180) -- a beacon tick older than this is untrustworthy
+// for every consumer, this one included.
+const STALE_AFTER_S = 180;
 
 // ─── wire types (shared with the client component via `import type`, which
 //     is erased at compile time -- no fs-touching code ever reaches the
@@ -164,11 +171,6 @@ async function readKeyLevels(): Promise<HoloLevel[]> {
   }
 }
 
-function sessionLabel(date: string | null, status: HoloChartData["session"]["status"]): string {
-  if (!date) return "SPY · no local session data";
-  return `SPY · ${date} session · ${status === "open" ? "live" : status === "closed" ? "closed" : "no data"}`;
-}
-
 // ─── assembly ────────────────────────────────────────────────────────────
 
 /** Everything HoloChart.tsx needs, assembled server-side. Never throws --
@@ -177,28 +179,46 @@ function sessionLabel(date: string | null, status: HoloChartData["session"]["sta
  * own explicit contract ("fail-open to an empty series with an `error`
  * field, never throws"). */
 export async function getHoloChartData(): Promise<HoloChartData> {
-  const emptySession: HoloChartData["session"] = { date: null, status: "no-data", label: sessionLabel(null, "no-data") };
+  const emptySession: HoloChartData["session"] = { date: null, status: "no-data", label: "SPY · no local session data" };
   try {
     const [chart, levelsAll] = await Promise.all([getChartData(), readKeyLevels()]);
     const { date, bars } = filterToLatestSessionDate(chart.bars);
 
+    const now = new Date();
+    const today = todayET(now);
+    // RTH gate -- weekday AND within the 09:30-16:00 ET window. Deliberately
+    // NOT the shared isMarketHoursET(now) alone (that helper carries no
+    // day-of-week check of its own -- see lib/time.ts) so a Saturday box
+    // clock reading a Mon-Fri-shaped time-of-day never gets read as "open"
+    // here.
+    const isRth = isMarketHoursET(now) && isWeekdayEt(today);
+    // The live sight-beacon tick's own freshness, entirely decoupled from
+    // `date` (the BARS file's date) -- see computeSessionStatusLabel's own
+    // header for why conflating the two was the root cause of the stale
+    // "yesterday session · closed" label during live RTH.
+    const liveChartTime = chart.live ? atIsoToChartTime(chart.live.atIso) : null;
+    const liveEtDate = liveChartTime !== null ? chartTimeToEtDateStr(liveChartTime) : null;
+    const liveFresh = chart.live !== null && chart.live.ageSeconds < STALE_AFTER_S && liveEtDate === today;
+    const live = liveFresh ? { price: chart.live!.price, ageSeconds: chart.live!.ageSeconds } : null;
+
     if (bars.length === 0) {
+      const { status, label } = computeSessionStatusLabel(null, today, isRth, liveFresh);
       return {
         ok: true,
         error: "no local SPY bars found (backtest/data/spy_5m_*.csv missing or empty)",
-        session: emptySession,
+        session: { date: null, status, label },
         bars: [],
         priceRange: null,
         levels: [],
         lastClose: null,
-        live: null,
+        live,
         trades: [],
         generatedAt: new Date().toISOString(),
       };
     }
 
-    const status: HoloChartData["session"]["status"] = date === todayET() && isMarketHoursET(new Date()) ? "open" : "closed";
-    const session = { date, status, label: sessionLabel(date, status) };
+    const { status, label } = computeSessionStatusLabel(date, today, isRth, liveFresh);
+    const session = { date, status, label };
 
     let low = Infinity;
     let high = -Infinity;
@@ -212,14 +232,9 @@ export async function getHoloChartData(): Promise<HoloChartData> {
     const lastBar = bars[bars.length - 1];
     const lastClose = { price: lastBar.close, chartTime: lastBar.time, barIndex: bars.length - 1 };
 
-    // Live point only counts as "live" against TODAY's own session (an
-    // after-hours sight-beacon tick from a prior state must never relabel a
-    // past/closed session as live) and only when fresh (STALE_AFTER_S=180,
-    // the same threshold sight_beacon.py itself documents for every
-    // consumer of this file).
-    const live = chart.live && session.date === todayET() && chart.live.ageSeconds < 180
-      ? { price: chart.live.price, ageSeconds: chart.live.ageSeconds }
-      : null;
+    // `live` was already computed above (decoupled from `session.date` --
+    // see its own comment) so it stays valid even when the bars file is
+    // stale to yesterday but the sight-beacon tick is genuinely today's.
 
     const deduped = dedupeTradeMarkers(chart.trades);
     const trades: HoloTradeMarker[] = deduped

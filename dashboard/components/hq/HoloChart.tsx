@@ -69,6 +69,7 @@ import useSWR from "swr";
 import { PALETTE } from "./palette";
 import { PRIORITY } from "./labelDeclutter";
 import { useLabelDeclutter } from "./useLabelDeclutter";
+import { bubbleCounterScale } from "./bubbleText";
 import type { HoloChartData, HoloLevel, HoloTradeMarker } from "@/lib/hq-chart-data";
 import type { ChartBar } from "@/lib/chart-data";
 
@@ -594,6 +595,31 @@ export default function HoloChart({ origin, facingYaw, dimFactor }: HoloChartPro
     PRIORITY.LANE,
     () => origin,
   );
+
+  // HOLOCHART-TRUTH (2026-09-15) caption-legibility fix: the session label
+  // had NO camera-distance counter-scale at all -- fixed distanceFactor={7},
+  // fontSize 13, letting drei's own ~1/dist falloff shrink it into the
+  // "faint unreadable smudge" the evidence capture caught (37.7x3.89px on
+  // screen). Every OTHER hub-center caption in this tree (Agent.tsx/
+  // GammaCharacter.tsx/LiveAgents.tsx's bubbles, BrainCore.tsx's plaques)
+  // already solves this the same way: a per-frame CSS counter-scale via the
+  // shared bubbleCounterScale(dist) (bubbleScale.ts, re-exported by
+  // bubbleText.ts) applied directly to the SAME element useLabelDeclutter's
+  // own `measureRef` points at -- see useLabelDeclutter.ts's own header for
+  // why that's the correct node (declutter only WRITES to `wrapperRef`,
+  // never `measureRef`, so this component fully owns measureRef's
+  // transform). `origin` is already world-space (HubInterior.tsx passes the
+  // real table-center position), matching the same "close enough, pixel
+  // accuracy comes from the real DOM rect" approximation this file's own
+  // declutter registration comment already documents for this exact label.
+  const sessionLabelOrigin = useMemo(() => new THREE.Vector3(...origin), [origin]);
+  useFrame((state) => {
+    const el = sessionLabelMeasureRef.current;
+    if (!el) return;
+    const dist = state.camera.position.distanceTo(sessionLabelOrigin);
+    const k = bubbleCounterScale(dist);
+    el.style.transform = Math.abs(k - 1) > 0.01 ? `scale(${k.toFixed(3)})` : "";
+  });
 
   return (
     <group position={origin} rotation={[0, facingYaw, 0]} scale={HOLO_CHART_SCALE}>

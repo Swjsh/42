@@ -23,9 +23,19 @@ import {
   nearestBarIndex,
   dedupeTradeMarkers,
   filterLevelsNearRange,
+  isWeekdayEt,
+  computeSessionStatusLabel,
   type HoloLevel,
 } from "../lib/hq-chart-pure.ts";
 import type { ChartBar, ChartTradeMarker } from "../lib/chart-data.ts";
+// Extensionless (not "../lib/time.ts") -- lib/time.ts has zero imports of
+// its own so this is a leaf specifier; keeping it extensionless (unlike the
+// two .ts-suffixed imports above, kept as-is/pre-existing) avoids TS5097
+// under this repo's `moduleResolution: "bundler"` tsconfig (no
+// allowImportingTsExtensions) while still resolving under `npm test`'s own
+// tests/resolve-ts-extensionless.loader.mjs hook (retries a bare relative
+// specifier with ".ts" appended -- see that file's own header).
+import { isMarketHoursET } from "../lib/time";
 
 function bar(time: number, overrides: Partial<ChartBar> = {}): ChartBar {
   return { time, open: 760, high: 761, low: 759, close: 760.5, ...overrides };
@@ -154,4 +164,84 @@ test("filterLevelsNearRange respects an explicit band override", () => {
   const out = filterLevelsNearRange(levels, 758, 762, 1);
   const prices = out.map((l) => l.price).sort((a, b) => a - b);
   assert.deepEqual(prices, [757, 760]); // 770 is 8 away, band=1 excludes it
+});
+
+// ─── HOLOCHART-TRUTH (2026-09-15): isMarketHoursET boundary + isWeekdayEt +
+//     computeSessionStatusLabel -- the root-cause fix for the stale
+//     "SPY · <yesterday> session · closed" label during live RTH. ──────────
+
+test("isMarketHoursET: 09:29:59 ET is before the open (RTH edge)", () => {
+  // 2026-09-15 is a real Tuesday (matches et_clock.py's own read this
+  // session: "2026-09-15 10:35:50 Tuesday EDT"). EDT = UTC-4.
+  const d = new Date(Date.UTC(2026, 8, 15, 13, 29, 59)); // 09:29:59 EDT
+  assert.equal(isMarketHoursET(d), false);
+});
+
+test("isMarketHoursET: 09:31:00 ET is inside RTH", () => {
+  const d = new Date(Date.UTC(2026, 8, 15, 13, 31, 0)); // 09:31:00 EDT
+  assert.equal(isMarketHoursET(d), true);
+});
+
+test("isWeekdayEt: Tuesday 2026-09-15 is a weekday", () => {
+  assert.equal(isWeekdayEt("2026-09-15"), true);
+});
+
+test("isWeekdayEt: Saturday 2026-09-12 is not a weekday", () => {
+  assert.equal(isWeekdayEt("2026-09-12"), false);
+});
+
+test("isWeekdayEt: Sunday 2026-09-13 is not a weekday", () => {
+  assert.equal(isWeekdayEt("2026-09-13"), false);
+});
+
+test("isWeekdayEt: malformed input fails closed (never RTH on garbage)", () => {
+  assert.equal(isWeekdayEt("not-a-date"), false);
+});
+
+test("computeSessionStatusLabel: bars ARE today's and it's RTH -> open/live", () => {
+  const { status, label } = computeSessionStatusLabel("2026-09-15", "2026-09-15", true, true);
+  assert.equal(status, "open");
+  assert.equal(label, "SPY · 2026-09-15 session · live");
+});
+
+test("computeSessionStatusLabel: THE BUG CASE -- bars stuck on yesterday, RTH, live tick fresh -> open, explicit no-intraday-bars caption (never claims yesterday is today)", () => {
+  const { status, label } = computeSessionStatusLabel("2026-09-14", "2026-09-15", true, true);
+  assert.equal(status, "open");
+  assert.equal(label, "SPY · live (no intraday bars)");
+  assert.ok(!label.includes("2026-09-14"), "must never present yesterday's date as the current session");
+});
+
+test("computeSessionStatusLabel: bars stale, RTH, but live NOT fresh -> honestly closed, labeled with the real bars date", () => {
+  const { status, label } = computeSessionStatusLabel("2026-09-14", "2026-09-15", true, false);
+  assert.equal(status, "closed");
+  assert.equal(label, "SPY · 2026-09-14 session · closed");
+});
+
+test("computeSessionStatusLabel: after hours (not RTH) -> closed regardless of live freshness", () => {
+  const { status, label } = computeSessionStatusLabel("2026-09-15", "2026-09-15", false, true);
+  assert.equal(status, "closed");
+  assert.equal(label, "SPY · 2026-09-15 session · closed");
+});
+
+test("computeSessionStatusLabel: weekend -- caller passes isRth=false (isWeekdayEt gate) even with a fresh live tick -> closed", () => {
+  // Simulates hq-chart-data.ts's own call site: isRth = isMarketHoursET(now) && isWeekdayEt(today).
+  // On a Saturday, isWeekdayEt("2026-09-12") is false, so isRth is false
+  // regardless of the wall-clock time-of-day component.
+  const today = "2026-09-12"; // Saturday
+  const isRth = true /* pretend isMarketHoursET() said yes */ && isWeekdayEt(today);
+  assert.equal(isRth, false);
+  const { status } = computeSessionStatusLabel("2026-09-11", today, isRth, true);
+  assert.equal(status, "closed");
+});
+
+test("computeSessionStatusLabel: no bars at all, but live is fresh -> open, no-intraday-bars caption", () => {
+  const { status, label } = computeSessionStatusLabel(null, "2026-09-15", true, true);
+  assert.equal(status, "open");
+  assert.equal(label, "SPY · live (no intraday bars)");
+});
+
+test("computeSessionStatusLabel: no bars at all and no live -> honest no-data", () => {
+  const { status, label } = computeSessionStatusLabel(null, "2026-09-15", true, false);
+  assert.equal(status, "no-data");
+  assert.equal(label, "SPY · no local session data");
 });

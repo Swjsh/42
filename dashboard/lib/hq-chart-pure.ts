@@ -121,6 +121,87 @@ export function dedupeTradeMarkers(trades: ChartTradeMarker[]): Array<ChartTrade
   });
 }
 
+// --- session status/label (HOLOCHART-TRUTH, 2026-09-15) --------------------
+//
+// ROOT CAUSE this fixes (dashboard/lib/hq-chart-data.ts:200, pre-fix): session
+// status was `date === todayET() && isMarketHoursET(now) ? "open" : "closed"`
+// where `date` is filterToLatestSessionDate's own output -- the latest ET
+// date PRESENT IN backtest/data/spy_5m_*.csv. That file is written ONCE per
+// day, AFTER close (confirmed this session: newest file
+// spy_5m_2026-05-19_2026-09-14.csv, mtime 2026-09-14 14:16 MT / last row
+// "2026-09-14 15:55:00-04:00", zero 2026-09-15 rows, while `python
+// setup/scripts/et_clock.py` read "2026-09-15 10:35:50 EDT market_hours=True"
+// the same session) -- so during TODAY's live RTH, before that once-daily
+// writer runs again, `date` is still YESTERDAY, the equality fails, and
+// status falls through to "closed" even though the market is open. The
+// sight-beacon (automation/state/sight-beacon.json, refreshed ~1min) already
+// has today's real tick the whole time -- this module's job is to use it.
+
+/** ISO "YYYY-MM-DD" -> true if that calendar date is a Mon-Fri (weekday) in
+ * the SAME calendar the string already encodes -- pure, no Date/timezone
+ * involved beyond `Date.UTC`'s own deterministic weekday math on already-ET
+ * digits (same "digits as UTC" convention etDigitsToChartTime/
+ * chartTimeToEtDateStr use elsewhere in this file). Never throws; malformed
+ * input reads as non-weekday (fail closed -- never claim RTH on garbage). */
+export function isWeekdayEt(dateStr: string): boolean {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateStr);
+  if (!m) return false;
+  const [, y, mo, d] = m.map(Number);
+  const day = new Date(Date.UTC(y, mo - 1, d)).getUTCDay(); // 0=Sun..6=Sat
+  return day >= 1 && day <= 5;
+}
+
+export interface SessionStatusLabel {
+  status: "open" | "closed" | "no-data";
+  label: string;
+}
+
+/**
+ * Pure decision table for the session caption -- decouples the BARS file's
+ * own (once-daily) freshness from the LIVE tick's (once-a-minute) freshness,
+ * which the pre-fix code conflated by gating status on bars-date equality
+ * alone.
+ *
+ * - `barsDate`: filterToLatestSessionDate's own output (the ET date of the
+ *   newest bar actually on hand) -- null means the local CSV had zero bars.
+ * - `today`: todayET(now).
+ * - `isRth`: true only Mon-Fri AND within the 09:30-16:00 ET window (the
+ *   caller is responsible for combining isMarketHoursET(now) with
+ *   isWeekdayEt(today) -- see hq-chart-data.ts's own call site).
+ * - `liveFresh`: true only when the sight-beacon's own tick is dated `today`
+ *   (in ET) AND under STALE_AFTER_S=180 seconds old -- computed by the
+ *   caller from `chart.live`, entirely independent of `barsDate`.
+ *
+ * Four honest outcomes, never a 5th silently-wrong one:
+ *   1. no bars at all                              -> "no-data"
+ *   2. bars ARE today's AND it's RTH                -> "open", "... live"
+ *   3. bars are STALE but it's RTH AND live is fresh -> "open", explicit
+ *      "no intraday bars" caption (this is the fix's core case -- never
+ *      silently present yesterday's bars as if they were today's)
+ *   4. everything else (after hours, weekend, or RTH with no fresh live
+ *      tick either) -> "closed", labeled with the bars' own real date
+ */
+export function computeSessionStatusLabel(
+  barsDate: string | null,
+  today: string,
+  isRth: boolean,
+  liveFresh: boolean,
+): SessionStatusLabel {
+  if (barsDate === null) {
+    return liveFresh
+      ? { status: "open", label: "SPY · live (no intraday bars)" }
+      : { status: "no-data", label: "SPY · no local session data" };
+  }
+  const barsAreToday = barsDate === today;
+  if (barsAreToday && isRth) {
+    return { status: "open", label: `SPY · ${barsDate} session · live` };
+  }
+  if (!barsAreToday && isRth && liveFresh) {
+    return { status: "open", label: "SPY · live (no intraday bars)" };
+  }
+  return { status: "closed", label: `SPY · ${barsDate} session · closed` };
+}
+
 /** Only levels within `band` dollars of [low, high] survive -- a level ten
  * dollars outside today's actual traded range would otherwise force the
  * ribbon's own vertical scale to stretch to accommodate a plane nobody will
