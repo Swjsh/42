@@ -139,6 +139,66 @@ def test_real_repo_sources_resolve_and_include_the_book():
     assert len(present) > 20, f"only {len(present)} sources resolved -- specs have rotted"
 
 
+# ────────────────────────────────────── crypto-twin decision ledger (added 2026-09-15)
+TWIN_LEDGER = "automation/state/crypto-twin/decisions.jsonl"
+
+
+def test_twin_decision_ledger_is_a_source_spec():
+    """147.6 MB / 58,859 rows as of 2026-09-15 had NO durable copy anywhere before this --
+    absent from git, absent from archive_ledgers.py, excluded by name from
+    retention_sweep.py. This is the exact three-way gap CRITICAL exists to close."""
+    assert TWIN_LEDGER in al.SOURCE_SPECS, (
+        "the crypto twin decision ledger is missing from SOURCE_SPECS -- it has no "
+        "durable copy anywhere (untracked, gitignored, excluded from retention_sweep.py)")
+
+
+def test_twin_ledger_capture_reads_source_read_only_and_checksum_matches(tmp_path):
+    """Prove the capture: (1) picks up the new spec, (2) never mutates the live source file
+    (read-only custody -- bytes and mtime unchanged after capture), and (3) the stored
+    blob's checksum matches the source's own sha256. Uses a synthetic tmp_path fixture --
+    never the real 147 MB file."""
+    repo = tmp_path / "repo"
+    twin_dir = repo / "automation" / "state" / "crypto-twin"
+    twin_dir.mkdir(parents=True)
+    # a couple of representative decision rows -- not the real book, just its shape
+    rows = [
+        {"ts_et": "2026-09-14T21:00:00", "twin": True, "symbol": "BTC/USD",
+         "verdict": "HOLD", "action": "HOLD", "reason": "no level in range"},
+        {"ts_et": "2026-09-14T21:05:00", "twin": True, "symbol": "BTC/USD",
+         "verdict": "ENTER", "action": "BUY", "reason": "ribbon reclaim"},
+    ]
+    ledger_path = twin_dir / "decisions.jsonl"
+    original_bytes = ("\n".join(json.dumps(r) for r in rows) + "\n").encode("utf-8")
+    ledger_path.write_bytes(original_bytes)
+    original_mtime = ledger_path.stat().st_mtime
+
+    # also satisfy the CRITICAL fills-ledger source so capture() has its usual anchor
+    (repo / "automation" / "state" / "fills-ledger.jsonl").write_bytes(_ledger_bytes(1))
+
+    root = tmp_path / "arch"
+    manifest = al.capture(repo, root, today="2026-09-15", now_iso="2026-09-15T00:00:00")
+
+    entry = next((f for f in manifest["files"] if f["rel"] == TWIN_LEDGER), None)
+    assert entry is not None, "twin ledger spec was added but not picked up by capture()"
+
+    # (2) read-only: source bytes and mtime are untouched by the archive run
+    assert ledger_path.read_bytes() == original_bytes, (
+        "capture() must never rewrite or truncate the live source file")
+    assert ledger_path.stat().st_mtime == original_mtime, (
+        "capture() touched the source file's mtime -- it must only ever read, never write")
+
+    # (3) checksum matches: recompute sha256 of the live bytes and of the stored blob
+    expected_sha = hashlib.sha256(original_bytes).hexdigest()
+    assert entry["sha256"] == expected_sha
+    stored = gzip.decompress((root / entry["blob"]).read_bytes())
+    assert hashlib.sha256(stored).hexdigest() == expected_sha
+
+    verify = al.verify_manifest(root, manifest, repo=repo)
+    assert verify["corruption"] == []
+    twin_bad = [c for c in verify["corruption"] if c["rel"] == TWIN_LEDGER]
+    assert twin_bad == []
+
+
 # ────────────────────────────────────────────────────────────── secrets never get archived
 @pytest.mark.parametrize("rel", [
     ".mcp.json",

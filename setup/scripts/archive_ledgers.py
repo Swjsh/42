@@ -144,6 +144,19 @@ SOURCE_SPECS: tuple[str, ...] = (
     "analysis/recommendations/trade-matrix.json",
     # -- option bars that make MAE/MFE reproducible offline --------------------
     "backtest/data/opra_1m_cache/*",
+    # -- crypto twin decision ledger (custody prerequisite, added 2026-09-15) --
+    # 147.6 MB / 58,859 rows as of 2026-09-15, growing ~3.6 MB/day, gitignored + untracked
+    # (retention_sweep.py excludes it by name -- it is state read every tick, not sweepable
+    # log spam; see markdown/infra/RETENTION.md `automation/state/crypto-twin/` row). Before
+    # this entry it had NO durable copy anywhere: absent from git, absent from .gitignore
+    # coverage that would matter (untracked+unignored -> `git clean -fd` would delete it),
+    # and absent from this module -- the exact three-way gap CRITICAL above was created to
+    # close for fills-ledger.jsonl. Content-addressed dedup does not help across days (the
+    # file is append-only, so each day's whole-file hash differs from the last), but gzip
+    # compression alone measured 54x on this file's highly repetitive JSON rows (2.73 MB
+    # compressed today) -- confirmed via `_gym-log` style spot check before adding, not
+    # assumed; 30-day projected cost is ~112 MB against 875 GB free on D: (~0.013%).
+    "automation/state/crypto-twin/decisions.jsonl",
 )
 
 # Hard deny-list. A match is a CRASH, not a skip: the whole point of a second volume is
