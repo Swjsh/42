@@ -57,7 +57,7 @@ import { CHARACTER_SCALE, CHARACTER_TARGET_HEIGHT } from "./SetKit";
 import type { LiveAgent } from "./types";
 import type { LiveAgentState } from "@/lib/hq-agents";
 import {
-  applyFollowCap, applyLaneOffsets, computeBatchOrder, computeBatchStaggerDelays, computeMaxPathDurationS,
+  applyFollowCap, applyLaneOffsets, clampFrameDelta, computeBatchOrder, computeBatchStaggerDelays, computeMaxPathDurationS,
   computeSidestepPlan, computeWaitPoint, decideNextWalk, ENTRY_NODE_ID, findCarAhead, FOLLOW_GAP_U,
   isPointOccupied, LEAVE_TIMEOUT_MARGIN_S,
   pathDistance, poseAlongPath, rampSidestepOffset, reconcileLiveAgentRoster, rightOf, shouldWriteLiveAgentDiag,
@@ -273,6 +273,18 @@ function LiveAgentAvatar({
   const walkDespawnsOnArrival = useRef(false);
   const needsWalkStart = useRef(true); // first frame: begin the spawn->zone walk
   const walkStartT = useRef(0);
+  // HQ-PAUSE TELEPORT fix (CONVOY-STACK v11): this avatar's own accumulated
+  // "sim time" -- advances every useFrame tick by clampFrameDelta(delta)
+  // ONLY (see liveAgentWalk.ts#clampFrameDelta's own header for the full
+  // root-cause writeup), never by the raw wall-clock delta and never read
+  // from `state.clock.elapsedTime` or `performance.now()` directly. Every
+  // schedule/threshold check that used to compare against a raw wall-clock
+  // timestamp (`walkStartT`/`elapsed`, `leaveStartedAtT`/the hard-timeout
+  // backstop) now reads and stamps THIS clock instead, so a real multi-
+  // second frameloop pause (UltraCanvasRoot's own GPU-YIELD) can never be
+  // mistaken for that many real seconds of elapsed walking/waiting/leaving
+  // time -- it is indistinguishable from a single `MAX_FRAME_DT_S` tick.
+  const simTimeRef = useRef(0);
   const phase = useRef<"walking" | "working">("walking");
   // CONVOY-STACK v2 (2026-09-15): the delay to apply the NEXT time
   // `needsWalkStart` fires -- seeded with this avatar's own spawn-batch
@@ -479,7 +491,13 @@ function LiveAgentAvatar({
       // the gate at all, so there is nothing left to hold.
       isSpawningRef.current = false;
       leaveTriggered.current = true;
-      if (leaveStartedAtT.current === null) leaveStartedAtT.current = performance.now() / 1000;
+      // HQ-PAUSE TELEPORT fix (CONVOY-STACK v11): stamp this avatar's own
+      // pause-immune sim clock (simTimeRef.current, last set by useFrame),
+      // never performance.now() -- see simTimeRef's own declaration above
+      // for why a raw wall-clock timestamp here would let a frameloop pause
+      // that happens to straddle this leave count as real elapsed leave
+      // time toward the hard-timeout backstop below.
+      if (leaveStartedAtT.current === null) leaveStartedAtT.current = simTimeRef.current;
       // CONVOY-STACK v2/v3: this avatar's leave walk (if one is about to be
       // kicked off below) uses the LEAVE batch's own stagger delay and
       // batch-order index, not whatever spawn delay/index may already have
@@ -647,10 +665,22 @@ function LiveAgentAvatar({
   // `despawn: true` branch, which intentionally has NO stand-slot ring
   // offset at all -- see that function's own doc above).
 
-  useFrame((state, delta) => {
+  useFrame((state, rawDelta) => {
     const g = group.current;
     if (!g) return;
-    const t = state.clock.elapsedTime;
+    // HQ-PAUSE TELEPORT fix (CONVOY-STACK v11): clamp the raw wall-clock
+    // delta BEFORE it drives anything -- see liveAgentWalk.ts#clampFrameDelta
+    // for the full root-cause writeup (a frameloop pause reports its whole
+    // suspended duration as ONE frame's `delta` on resume). `delta` below is
+    // this clamped value and must be the ONLY thing used for per-frame
+    // rate-based accounting (distance, ramps, accumulators) from here down
+    // -- `rawDelta` and `state.clock.elapsedTime` must never be read again
+    // in this callback. `simTimeRef` is this avatar's own accumulated,
+    // pause-immune clock -- the sole source for every schedule/threshold
+    // check that used to read a raw wall-clock timestamp.
+    const delta = clampFrameDelta(rawDelta);
+    simTimeRef.current += delta;
+    const t = simTimeRef.current;
     if (needsWalkStart.current) {
       needsWalkStart.current = false;
       // CONVOY-STACK v2: push the walk's own start time into the future by
@@ -942,8 +972,14 @@ function LiveAgentAvatar({
     // whenever following actually slowed this avatar's own advance -- so a
     // leaver that's legitimately still progressing, just more slowly than
     // the solo estimate assumed, is never despawned mid-corridor.
+    // HQ-PAUSE TELEPORT fix (CONVOY-STACK v11): compares against `t`
+    // (simTimeRef.current, this avatar's own pause-immune sim clock) rather
+    // than a fresh performance.now() read -- a frameloop pause can no
+    // longer count toward this backstop at all, so a long GPU-YIELD pause
+    // can never force-despawn an avatar that was legitimately still
+    // mid-corridor, only genuinely stalled real walking time can.
     if (leavingRef.current && !despawned.current && leaveStartedAtT.current !== null) {
-      if (performance.now() / 1000 - leaveStartedAtT.current > leaveHardTimeoutS + leaveTimeoutExtensionS.current) {
+      if (t - leaveStartedAtT.current > leaveHardTimeoutS + leaveTimeoutExtensionS.current) {
         fireDespawn();
       }
     }

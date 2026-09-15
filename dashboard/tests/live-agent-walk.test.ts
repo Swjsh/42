@@ -48,11 +48,13 @@ import {
   computeWaitPoint,
   ENTRY_NODE_ID,
   findCarAhead,
+  clampFrameDelta,
   findOncoming,
   findWalkPath,
   FOLLOW_GAP_U,
   HEAD_ON_COS_MAX,
   isPointOccupied,
+  MAX_FRAME_DT_S,
   laneIndexForId,
   laneValueForId,
   LANE_STEP_U,
@@ -2637,3 +2639,187 @@ test("GATE CO-SPAWN: GREEN (the fix) -- B is queued until the gate clears, pairw
     assert.ok(dist >= 0.7 - 1e-9, `t=${a.tS.toFixed(2)}s: A/B only ${dist.toFixed(3)}u apart`);
   }
 });
+
+// ─── CONVOY-STACK v11 (2026-09-15): HQ-PAUSE TELEPORT ──────────────────────
+//
+// ROOT CAUSE (walk_speed teleport_count 1, pose_jump 2, probe
+// 20260915T124705Z): UltraCanvasRoot's own GPU-YIELD pause (`paused =
+// gaming || hidden || brainBusy`, that file's own logic, NOT touched here)
+// can suspend the r3f frameloop entirely for real seconds (the probe's own
+// case: a 28.6s Station local-model run). r3f's `useFrame(state, delta)`
+// reports `delta` as the REAL wall-clock gap since the previous frame -- so
+// the FIRST tick after resume reports the WHOLE suspended gap (~14s in the
+// probe's own sample window) as `delta`, not one frame's worth.
+// LiveAgents.tsx's v6 incremental-distance formula (`appliedDistanceRef
+// .current + WALK_SPEED * delta`) took that raw delta at face value,
+// producing the reported 10.72u/9.74u jumps (~14s * 0.7u/s). The SAME raw
+// delta/wall-clock pattern also fed the sidestep ramp, the leave-timeout
+// extension accumulator, and (via `performance.now()`/`state.clock
+// .elapsedTime`) the wait/stagger schedule and the leave hard-timeout
+// backstop -- any of which could misbehave across a long pause (a stagger
+// wait "expiring" instantly, or a legitimately mid-corridor leaving avatar
+// getting force-despawned).
+//
+// FIX: liveAgentWalk.ts#clampFrameDelta caps a raw per-frame delta at
+// MAX_FRAME_DT_S before it is used for ANY rate-based accounting or folded
+// into an accumulated "sim time". LiveAgents.tsx's useFrame now clamps
+// `delta` once at the top and derives its own `simTimeRef`-based `t` from
+// the clamped value exclusively -- `walkStartT`/`elapsed` (wait/stagger) and
+// `leaveStartedAtT`/the hard-timeout backstop all read this pause-immune
+// clock instead of a raw wall-clock timestamp.
+
+test("clampFrameDelta: a normal ~1/60s frame passes through unchanged", () => {
+  assert.ok(Math.abs(clampFrameDelta(1 / 60) - 1 / 60) < 1e-9);
+});
+
+test("clampFrameDelta: a huge post-pause delta (14s) is capped at MAX_FRAME_DT_S", () => {
+  assert.equal(clampFrameDelta(14), MAX_FRAME_DT_S);
+});
+
+test("clampFrameDelta: zero, negative, and non-finite input all clamp to 0 (never NaN/negative propagation)", () => {
+  assert.equal(clampFrameDelta(0), 0);
+  assert.equal(clampFrameDelta(-1), 0);
+  assert.equal(clampFrameDelta(NaN), 0);
+  assert.equal(clampFrameDelta(Infinity), 0); // non-finite is rejected outright, never treated as "very large but valid"
+});
+
+interface PauseStep {
+  tS: number;
+  position: [number, number, number];
+}
+
+const PAUSE_ORIGIN: [number, number, number] = [0, 0, 0];
+const PAUSE_DEST: [number, number, number] = [20, 0, 0];
+const PAUSE_GAP_S = 14; // matches the probe's own reported freeze window
+
+/** Mirrors LiveAgents.tsx's own useFrame walk-distance accounting exactly:
+ * 5 normal ticks, then ONE frame reporting the whole PAUSE_GAP_S as its own
+ * `delta` (exactly what r3f reports on the first tick after a frameloop
+ * resume), then normal ticks to arrival. `applyClamp` toggles the v11 fix. */
+function simulateWalkThroughPause(applyClamp: boolean): PauseStep[] {
+  const wp: [number, number, number][] = [PAUSE_ORIGIN, PAUSE_DEST];
+  const total = pathDistance(wp);
+  let appliedDistance = 0;
+  let tS = 0;
+  const steps: PauseStep[] = [{ tS: 0, position: PAUSE_ORIGIN }];
+
+  const frames: number[] = [];
+  for (let i = 0; i < 5; i++) frames.push(FOLLOW_TICK_DT_S);
+  frames.push(PAUSE_GAP_S);
+  const maxTicks = Math.ceil((total / SIM_WALK_SPEED) / FOLLOW_TICK_DT_S) + 20;
+  for (let i = 0; i < maxTicks; i++) frames.push(FOLLOW_TICK_DT_S);
+
+  for (const rawDelta of frames) {
+    const delta = applyClamp ? clampFrameDelta(rawDelta) : rawDelta;
+    tS += rawDelta; // real wall-clock tS, for reporting/plotting only
+    appliedDistance = Math.min(total, appliedDistance + SIM_WALK_SPEED * delta);
+    const progress = total > 0 ? appliedDistance / total : 1;
+    const pos = poseAlongPath(wp, progress).position;
+    steps.push({ tS, position: pos });
+    if (appliedDistance >= total) break;
+  }
+  return steps;
+}
+
+test("HQ-PAUSE TELEPORT: RED (documents the bug) -- an unclamped resume frame teleports the avatar ~PAUSE_GAP_S*WALK_SPEED in one step", () => {
+  const steps = simulateWalkThroughPause(false);
+  // Resume frame is steps[6] (steps[0] is the seeded tick-0 pose, then 5
+  // normal ticks at indices 1-5, then the huge-delta resume frame at 6).
+  const before = steps[5].position;
+  const after = steps[6].position;
+  const dist = Math.hypot(after[0] - before[0], after[2] - before[2]);
+  const dtClamped = clampFrameDelta(PAUSE_GAP_S);
+  const bound = SIM_WALK_SPEED * dtClamped + 0.05;
+  assert.ok(dist > bound, `expected the PRE-FIX resume-frame displacement (${dist.toFixed(3)}u) to exceed the dt_clamped-based bound (${bound.toFixed(3)}u) -- documents the reported 10 u teleport`);
+});
+
+test("HQ-PAUSE TELEPORT: GREEN (the fix) -- every step (including the resume frame) stays within WALK_SPEED*dt_clamped+0.05, and arrival is pushed back by ~PAUSE_GAP_S", () => {
+  const paused = simulateWalkThroughPause(true);
+  // A no-pause baseline: identical ticks, minus the huge-gap frame, to know
+  // how long an undisturbed walk of the same length actually takes.
+  const wp: [number, number, number][] = [PAUSE_ORIGIN, PAUSE_DEST];
+  const total = pathDistance(wp);
+  let appliedDistance = 0;
+  let noPauseArrivalTs = 0;
+  for (let tick = 1; ; tick++) {
+    appliedDistance = Math.min(total, appliedDistance + SIM_WALK_SPEED * FOLLOW_TICK_DT_S);
+    noPauseArrivalTs = tick * FOLLOW_TICK_DT_S;
+    if (appliedDistance >= total) break;
+  }
+
+  // 1. Every step's displacement stays within the dt_clamped-based bound,
+  // including the resume frame itself.
+  for (let i = 1; i < paused.length; i++) {
+    const a = paused[i - 1].position;
+    const b = paused[i].position;
+    const dist = Math.hypot(a[0] - b[0], a[2] - b[2]);
+    const rawDt = paused[i].tS - paused[i - 1].tS;
+    const dtClamped = clampFrameDelta(rawDt);
+    const bound = SIM_WALK_SPEED * dtClamped + 0.05;
+    assert.ok(dist <= bound + 1e-9, `step ${i} (raw dt=${rawDt.toFixed(3)}s): displacement ${dist.toFixed(3)}u exceeds WALK_SPEED*dt_clamped+0.05 (${bound.toFixed(3)}u)`);
+  }
+
+  // 2. Arrival time is pushed back by (approximately) the paused duration
+  // -- never skipped ahead, never lost.
+  const arrivalStep = paused.find((s) => Math.hypot(s.position[0] - PAUSE_DEST[0], s.position[2] - PAUSE_DEST[2]) < 1e-6)!;
+  assert.ok(arrivalStep, "walk never arrived");
+  const shift = arrivalStep.tS - noPauseArrivalTs;
+  assert.ok(Math.abs(shift - PAUSE_GAP_S) < 1, `expected arrival to shift by ~${PAUSE_GAP_S}s (the paused duration), got ${shift.toFixed(2)}s`);
+});
+
+interface LeaveTimeoutStep {
+  tS: number;
+  simTime: number;
+  despawned: boolean;
+}
+
+const TIMEOUT_DEST: [number, number, number] = [100, 0, 0]; // far enough that the pause's own resume-frame jump can't accidentally reach it
+const TIMEOUT_HARD_TIMEOUT_S = 10; // deliberately tight vs PAUSE_GAP_S so a wall-clock-based backstop fires on resume, pre-fix
+
+/** Mirrors LiveAgents.tsx's own leave hard-timeout backstop for a walker
+ * that is still far from arrival when the pause hits. `useSimClock` toggles
+ * the v11 fix: false reproduces the OLD `performance.now()`-style raw
+ * wall-clock comparison (this sim's own `tS`), true uses the same
+ * clamped-delta accumulator (`simTime`) LiveAgents.tsx now uses for both
+ * distance AND the timeout comparison. */
+function simulateLeaveTimeoutThroughPause(useSimClock: boolean): LeaveTimeoutStep[] {
+  const wp: [number, number, number][] = [PAUSE_ORIGIN, TIMEOUT_DEST];
+  const total = pathDistance(wp);
+  let appliedDistance = 0;
+  let tS = 0; // raw wall-clock accumulator (mirrors the OLD performance.now()-based reads)
+  let simTime = 0; // clamped-delta accumulator (mirrors the v11 simTimeRef)
+  let despawned = false;
+  const steps: LeaveTimeoutStep[] = [{ tS: 0, simTime: 0, despawned: false }];
+
+  const frames: number[] = [];
+  for (let i = 0; i < 5; i++) frames.push(FOLLOW_TICK_DT_S);
+  frames.push(PAUSE_GAP_S);
+  for (let i = 0; i < 60; i++) frames.push(FOLLOW_TICK_DT_S); // a few more real seconds, well short of ever actually walking 100u
+
+  for (const rawDelta of frames) {
+    if (despawned) {
+      steps.push({ tS, simTime, despawned: true });
+      continue;
+    }
+    const clamped = clampFrameDelta(rawDelta);
+    tS += rawDelta;
+    simTime += clamped;
+    appliedDistance = Math.min(total, appliedDistance + SIM_WALK_SPEED * clamped);
+    const clockForTimeout = useSimClock ? simTime : tS;
+    if (clockForTimeout > TIMEOUT_HARD_TIMEOUT_S) despawned = true;
+    steps.push({ tS, simTime, despawned });
+  }
+  return steps;
+}
+
+test("HQ-PAUSE HARD-TIMEOUT: RED (documents the bug) -- a raw wall-clock timeout comparison force-despawns a mid-corridor leaver on the very resume frame", () => {
+  const steps = simulateLeaveTimeoutThroughPause(false);
+  // Index 6 is the resume-frame step (0 seeded + 5 normal ticks + the pause tick).
+  assert.ok(steps[6].despawned, "expected the PRE-FIX (raw wall-clock) hard-timeout to have already fired by the resume frame, despite the avatar being nowhere near its 100u destination");
+});
+
+test("HQ-PAUSE HARD-TIMEOUT: GREEN (the fix) -- the sim-time-based timeout does NOT fire on the resume frame (the avatar isn't despawned early)", () => {
+  const steps = simulateLeaveTimeoutThroughPause(true);
+  assert.ok(!steps[6].despawned, "the FIXED (sim-time) hard-timeout must not fire on the resume frame -- the pause must not count as elapsed leave time");
+});
+

@@ -1026,6 +1026,52 @@ export function isPointOccupied(
   return false;
 }
 
+// HQ-PAUSE TELEPORT fix (CONVOY-STACK v11, 2026-09-15, probe
+// 20260915T124705Z): r3f's `useFrame(state, delta)` reports `delta` as the
+// REAL wall-clock gap since the previous frame -- almost always one
+// vsync-ish tick (~1/60s), but UltraCanvasRoot's own GPU-YIELD pause
+// (`paused = gaming || hidden || brainBusy`, that file's own logic, NOT
+// touched here) can suspend the frameloop entirely for real seconds at a
+// time (the probe's own case: a 28.6s Station local-model run). The FIRST
+// `useFrame` tick after resume then reports a `delta` equal to the WHOLE
+// suspended wall-clock gap (~14s in the probe's own sample window), not one
+// frame's worth -- every piece of this file's own per-frame accounting that
+// multiplies `delta` by a rate (WALK_SPEED, the sidestep ramp rate, the
+// leave-timeout extension accumulator) or that stamps/reads a raw wall-clock
+// timestamp (`performance.now()`, `state.clock.elapsedTime`) for a
+// SCHEDULE/threshold check treats that one abnormal frame as if the avatar
+// had been walking/waiting/leaving continuously through the whole gap --
+// exactly the reported 10.72u/9.74u jumps (`WALK_SPEED * delta` with
+// `delta` ~= 14s instead of ~1/60s) and the risk of a leave hard-timeout
+// firing on resume for an avatar that was never actually stalled, just
+// paused along with everything else.
+//
+// FIX: every piece of LiveAgents.tsx's own per-frame accounting is driven
+// off ONE shared per-avatar accumulated "sim time" (see that file's own
+// `simTimeRef`), which itself only ever advances by this function's
+// CLAMPED delta each real frame -- never the raw one. A real pause of any
+// length is therefore indistinguishable, from every consumer's point of
+// view, from a single slightly-slow frame (`MAX_FRAME_DT_S` worth): motion
+// resumes from the exact frozen pose at normal speed, wait/stagger
+// schedules and the leave hard-timeout simply don't advance during the
+// gap (so a long pause can never force-despawn an agent that was mid-walk,
+// nor let a wait/stagger delay silently expire during the freeze), and the
+// avatar's own effective arrival time is pushed back by exactly the paused
+// duration -- never skipped ahead.
+export const MAX_FRAME_DT_S = 0.1; // ~6 frames' worth at 60fps -- generous headroom over a normal tick, small enough that no consumer can mistake a real pause for continuous motion/elapsed time
+
+/** Clamps a raw `useFrame` `delta` (or any other single-frame wall-clock
+ * gap) to `maxDt` before it is used for ANY rate-based accounting (a
+ * distance, a ramp, an accumulator) or before it is added into an
+ * accumulated "sim time" used for a schedule/threshold check -- see this
+ * section's own header for the full root-cause writeup. Non-finite or
+ * negative input (a defensive guard against a malformed/mocked clock) is
+ * treated as 0, never NaN/negative propagation into a distance or timer. */
+export function clampFrameDelta(delta: number, maxDt: number = MAX_FRAME_DT_S): number {
+  if (!Number.isFinite(delta) || delta <= 0) return 0;
+  return Math.min(delta, maxDt);
+}
+
 /** Given this avatar's UNCAPPED candidate cumulative distance-traveled for
  * this frame (elapsed*WALK_SPEED, before any following logic), the
  * distance it was ACTUALLY at as of the previous frame
