@@ -100,48 +100,78 @@ def test_spawn_latency_no_data_when_nobody_spawns():
 
 
 # 2. walk speed ----------------------------------------------------------------
+# 2026-09-15 PROBE-8: check_walk_speed now measures over WINDOWS of
+# >= speed_window_s (default 2.0s) instead of per-tick, so the 250ms
+# LiveAgents.tsx diag-publish vs ~500ms probe-sample quantization (a false
+# FAIL on run 20260915T074839Z-gZsuTUlH: out_of_band_frac 0.2293) averages
+# out. Teleport detection stays strict and per-tick (teleport_count).
 
 def test_walk_speed_pass_in_band():
-    # 0.7 units in 1s = 0.7 u/s -- exactly the configured design speed
-    # (dashboard/components/hq/KitAgent.tsx:85 WALK_SPEED = 0.7).
+    # 1.4 units over 2.0s (two 1.0s/0.7u ticks) = 0.7 u/s -- exactly the
+    # configured design speed (dashboard/components/hq/KitAgent.tsx:85
+    # WALK_SPEED = 0.7). Total run time meets the 2.0s window minimum.
     samples = [
         _s(0, page=[_agent("a1", "walking", [0, 0])]),
         _s(1000, page=[_agent("a1", "walking", [0.7, 0])]),
+        _s(2000, page=[_agent("a1", "walking", [1.4, 0])]),
     ]
     v = check_walk_speed(samples)
     assert v["verdict"] == "PASS", v
     assert v["detail"]["design_speed"] == 0.7
+    assert v["detail"]["window_count"] == 1
     assert abs(v["detail"]["median_speed_by_agent"]["a1"] - 0.7) < 1e-9
+    assert v["detail"]["teleport_count"] == 0
 
 
 def test_walk_speed_fail_too_fast():
     samples = [
         _s(0, page=[_agent("a1", "walking", [0, 0])]),
         _s(1000, page=[_agent("a1", "walking", [5, 0])]),
+        _s(2000, page=[_agent("a1", "walking", [10, 0])]),
     ]
     v = check_walk_speed(samples)
     assert v["verdict"] == "FAIL", v
 
 
 def test_walk_speed_fail_real_bug_median_1_02_vs_design_0_7():
-    # The actual dashboard bug (2026-09-15 coordinator analysis): agents walk
-    # a real steady ~1.02 u/s against a 0.7 u/s design speed
-    # (dashboard/components/hq/KitAgent.tsx:85). Both ticks are 'walking' --
-    # this is NOT a transition artifact, and must FAIL, not be excluded.
+    # (b) The actual dashboard bug shape (2026-09-15 coordinator analysis):
+    # agents walk a real steady ~1.02 u/s against a 0.7 u/s design speed
+    # (dashboard/components/hq/KitAgent.tsx:85). Every tick is 'walking' --
+    # this is a true wrong pace, not a transition or quantization artifact,
+    # and windowing must still catch it (median stays 1.02, not smoothed
+    # toward 0.7).
     samples = [
         _s(0, page=[_agent("a1", "walking", [0.0, 0])]),
         _s(500, page=[_agent("a1", "walking", [0.51, 0])]),
         _s(1000, page=[_agent("a1", "walking", [1.02, 0])]),
+        _s(1500, page=[_agent("a1", "walking", [1.53, 0])]),
+        _s(2000, page=[_agent("a1", "walking", [2.04, 0])]),  # 4 ticks = 2.0s window
     ]
     v = check_walk_speed(samples)
     assert v["verdict"] == "FAIL", v
+    assert v["detail"]["window_count"] == 1
     assert abs(v["detail"]["median_speed_by_agent"]["a1"] - 1.02) < 1e-9
+    assert v["detail"]["teleport_count"] == 0  # a true wrong pace is not a teleport
 
 
 def test_walk_speed_fail_unwalkable():
     samples = [
         _s(0, page=[_agent("a1", "walking", [0, 0], onWalkable=False)]),
         _s(1000, page=[_agent("a1", "walking", [0.7, 0], onWalkable=False)]),
+        _s(2000, page=[_agent("a1", "walking", [1.4, 0], onWalkable=False)]),
+    ]
+    v = check_walk_speed(samples)
+    assert v["verdict"] == "FAIL", v
+    assert v["detail"]["unwalkable_hits"] > 0
+
+
+def test_walk_speed_fail_unwalkable_even_with_no_window():
+    # unwalkable_hits is a real placement bug regardless of whether a full
+    # speed_window_s window ever forms -- must not be swallowed by the
+    # "no window observed" NO-DATA short-circuit.
+    samples = [
+        _s(0, page=[_agent("a1", "walking", [0, 0], onWalkable=False)]),
+        _s(500, page=[_agent("a1", "walking", [0.35, 0], onWalkable=False)]),
     ]
     v = check_walk_speed(samples)
     assert v["verdict"] == "FAIL", v
@@ -154,36 +184,197 @@ def test_walk_speed_no_data():
     assert v["verdict"] == "NO-DATA", v
 
 
+def test_walk_speed_no_data_when_run_shorter_than_window():
+    # Steady 0.7 u/s, but the whole run is only 1.0s -- shorter than the
+    # 2.0s window minimum, so no window can form. NO-DATA, not PASS/FAIL on
+    # an unjudgeable partial window.
+    samples = [
+        _s(0, page=[_agent("a1", "walking", [0, 0])]),
+        _s(1000, page=[_agent("a1", "walking", [0.7, 0])]),
+    ]
+    v = check_walk_speed(samples)
+    assert v["verdict"] == "NO-DATA", v
+
+
 def test_walk_speed_excludes_state_transition_ticks():
-    # a1 goes working -> walking (partial in-tick move at the transition,
-    # 0.2 u/s -- would itself be out-of-band and would FAIL the run if
-    # counted) -> steady 0.7 u/s walking. Only the two walking->walking
-    # ticks may count; the transition tick must be excluded, and the run
+    # (d) a1 goes working -> walking (partial in-tick move at the
+    # transition, 0.2 u/s -- would itself be out-of-band if counted) ->
+    # steady 0.7 u/s walking for a full 2.0s window. The transition tick
+    # must be excluded from the window (not bridged across), and the run
     # must PASS on the steady pace alone.
     samples = [
         _s(0, page=[_agent("a1", "working", [0.0, 0])]),
-        _s(500, page=[_agent("a1", "walking", [0.1, 0])]),   # transition tick -- excluded
+        _s(500, page=[_agent("a1", "walking", [0.1, 0])]),    # transition tick -- excluded
         _s(1000, page=[_agent("a1", "walking", [0.45, 0])]),  # 0.35/0.5 = 0.7 u/s
         _s(1500, page=[_agent("a1", "walking", [0.8, 0])]),   # 0.35/0.5 = 0.7 u/s
+        _s(2000, page=[_agent("a1", "walking", [1.15, 0])]),  # 0.35/0.5 = 0.7 u/s
+        _s(2500, page=[_agent("a1", "walking", [1.5, 0])]),   # 0.35/0.5 = 0.7 u/s -- 4 walking ticks = 2.0s window
     ]
     v = check_walk_speed(samples)
     assert v["verdict"] == "PASS", v
-    assert v["detail"]["sample_count"] == 2
+    assert v["detail"]["window_count"] == 1
     assert abs(v["detail"]["median_speed_by_agent"]["a1"] - 0.7) < 1e-9
 
 
 def test_walk_speed_excludes_leaving_to_despawn_transition():
     # working -> leaving transition tick, then steady leaving at 0.7 u/s --
     # 'leaving' is a walking state in its own right (departure), and its
-    # own entry transition must be excluded the same way 'walking' is.
+    # own entry transition must be excluded from the window the same way
+    # 'walking' is.
     samples = [
         _s(0, page=[_agent("a1", "working", [0.0, 0])]),
-        _s(500, page=[_agent("a1", "leaving", [0.05, 0])]),   # transition tick -- excluded
-        _s(1000, page=[_agent("a1", "leaving", [0.4, 0])]),    # 0.35/0.5 = 0.7 u/s
+        _s(500, page=[_agent("a1", "leaving", [0.05, 0])]),  # transition tick -- excluded
+        _s(1000, page=[_agent("a1", "leaving", [0.4, 0])]),  # 0.35/0.5 = 0.7 u/s
+        _s(1500, page=[_agent("a1", "leaving", [0.75, 0])]),  # 0.35/0.5 = 0.7 u/s
+        _s(2000, page=[_agent("a1", "leaving", [1.1, 0])]),   # 0.35/0.5 = 0.7 u/s -- 3 leaving ticks = 1.5s, not enough yet
+        _s(2500, page=[_agent("a1", "leaving", [1.45, 0])]),  # 4th leaving tick -> 2.0s window
     ]
     v = check_walk_speed(samples)
     assert v["verdict"] == "PASS", v
-    assert v["detail"]["sample_count"] == 1
+    assert v["detail"]["window_count"] == 1
+
+
+# (a) sampling-aliasing regression: the actual 20260915T074839Z-gZsuTUlH
+# shape -- LiveAgents.tsx publishes every 250ms, the probe samples every
+# ~500ms, so raw tick-to-tick displacement quantizes to 1/2/3 diag updates
+# (0.175/0.35/0.525u at the true 0.7 u/s design speed). Windowing must
+# average this out to PASS; the un-windowed (per-tick) reading would FAIL.
+
+def test_walk_speed_pass_despite_250ms_publish_500ms_sample_aliasing():
+    deltas = [0.175, 0.35, 0.525] * 8  # repeating quantization pattern, 24 ticks
+    pos = 0.0
+    samples = [_s(0, page=[_agent("a1", "walking", [0.0, 0])])]
+    t = 0
+    for d in deltas:
+        t += 500
+        pos += d
+        samples.append(_s(t, page=[_agent("a1", "walking", [round(pos, 6), 0])]))
+    v = check_walk_speed(samples)
+    assert v["verdict"] == "PASS", v
+    assert v["detail"]["teleport_count"] == 0
+    assert v["detail"]["window_count"] >= 1
+    for m in v["detail"]["median_speed_by_agent"].values():
+        assert abs(m - 0.7) < 0.1, v["detail"]["median_speed_by_agent"]
+    assert v["detail"]["out_of_band_frac"] <= 0.05, v["detail"]
+
+
+# (c) teleport detection: independent of windowing, strict, per-tick -- the
+# real 2cb12e5c-era bug shape (an 8.75u jump in 0.48s) must FAIL via
+# teleport_count even though a window average alone might otherwise dilute
+# a single bad tick into an in-band median.
+
+def test_walk_speed_fail_teleport_jump():
+    samples = [
+        _s(0, page=[_agent("a1", "walking", [0.0, 0])]),
+        _s(480, page=[_agent("a1", "walking", [8.75, 0])]),
+    ]
+    v = check_walk_speed(samples)
+    assert v["verdict"] == "FAIL", v
+    assert v["detail"]["teleport_count"] == 1
+    assert v["detail"]["teleport_events"][0]["distance"] == 8.75
+
+
+def test_walk_speed_teleport_fails_even_inside_an_otherwise_steady_walk():
+    # Steady 0.7 u/s for a full window, then one teleport tick -- the
+    # window average alone would still look fine, but teleport_count must
+    # independently FAIL the run.
+    samples = [
+        _s(0, page=[_agent("a1", "walking", [0.0, 0])]),
+        _s(500, page=[_agent("a1", "walking", [0.35, 0])]),
+        _s(1000, page=[_agent("a1", "walking", [0.7, 0])]),
+        _s(1500, page=[_agent("a1", "walking", [1.05, 0])]),
+        _s(2000, page=[_agent("a1", "walking", [1.4, 0])]),
+        _s(2480, page=[_agent("a1", "walking", [10.15, 0])]),  # +8.75u in 0.48s -- teleport
+    ]
+    v = check_walk_speed(samples)
+    assert v["verdict"] == "FAIL", v
+    assert v["detail"]["teleport_count"] == 1
+
+
+# page_t_ms vs host t_ms (WALK-SPEED-DIAG addendum, 2026-09-15) -------------------
+# hq_live_probe.py's sample loop timestamps AFTER the CDP round-trip
+# (page.evaluate) returns -- that round-trip itself jitters 0.198-0.808s,
+# unrelated to true agent speed. check_walk_speed must prefer the in-page
+# performance.now() timestamp (page_t_ms, captured in the SAME evaluate()
+# call as window.__hqLiveAgents) when present.
+
+def _s_with_page_t(t_ms, page_t_ms, page=None):
+    d = _s(t_ms, page=page)
+    d["page_t_ms"] = page_t_ms
+    return d
+
+
+def test_walk_speed_uses_page_timestamp_over_jittered_host_timestamp():
+    # True cadence (page_t_ms) is a clean 500ms/0.35u steady 0.7 u/s walk;
+    # host t_ms is jittered (198-808ms) around that same nominal cadence,
+    # as observed in production CDP round-trips. The windowed median must
+    # come out 0.7 (from page_t_ms), not skewed by the host jitter.
+    host_ts = [0, 198, 1006, 1210, 2014]
+    page_ts = [0, 500, 1000, 1500, 2000]
+    positions = [0.0, 0.35, 0.7, 1.05, 1.4]
+    samples = [
+        _s_with_page_t(host_ts[i], page_ts[i], page=[_agent("a1", "walking", [positions[i], 0])])
+        for i in range(len(host_ts))
+    ]
+    v = check_walk_speed(samples)
+    assert v["verdict"] == "PASS", v
+    assert v["detail"]["timestamp_source"] == "page"
+    assert abs(v["detail"]["median_speed_by_agent"]["a1"] - 0.7) < 1e-9
+
+
+def test_walk_speed_falls_back_to_host_timestamp_when_page_t_ms_absent():
+    # Old samples files predate page_t_ms -- must still work, off host t_ms,
+    # and must label the source so a rescore report can say so.
+    samples = [
+        _s(0, page=[_agent("a1", "walking", [0, 0])]),
+        _s(1000, page=[_agent("a1", "walking", [0.7, 0])]),
+        _s(2000, page=[_agent("a1", "walking", [1.4, 0])]),
+    ]
+    v = check_walk_speed(samples)
+    assert v["verdict"] == "PASS", v
+    assert v["detail"]["timestamp_source"] == "host"
+
+
+# whole-run average-speed regression check -----------------------------------------
+
+def test_walk_speed_avg_speed_by_agent_regression_ok_when_steady():
+    samples = [
+        _s(0, page=[_agent("a1", "walking", [0, 0])]),
+        _s(1000, page=[_agent("a1", "walking", [0.7, 0])]),
+        _s(2000, page=[_agent("a1", "walking", [1.4, 0])]),
+    ]
+    v = check_walk_speed(samples)
+    assert v["verdict"] == "PASS", v
+    assert abs(v["detail"]["avg_speed_by_agent"]["a1"] - 0.7) < 1e-9
+    assert v["detail"]["avg_speed_regression_ok"] is True
+
+
+def test_walk_speed_avg_speed_by_agent_regression_flags_wrong_pace():
+    samples = [
+        _s(0, page=[_agent("a1", "walking", [0.0, 0])]),
+        _s(500, page=[_agent("a1", "walking", [0.51, 0])]),
+        _s(1000, page=[_agent("a1", "walking", [1.02, 0])]),
+        _s(1500, page=[_agent("a1", "walking", [1.53, 0])]),
+        _s(2000, page=[_agent("a1", "walking", [2.04, 0])]),
+    ]
+    v = check_walk_speed(samples)
+    assert v["verdict"] == "FAIL", v
+    assert v["detail"]["avg_speed_regression_ok"] is False
+
+
+# --speed-window-s parameter ---------------------------------------------------------
+
+def test_walk_speed_window_s_param_overrides_default():
+    # With a 1.0s window, the same 1.0s run that was NO-DATA against the
+    # 2.0s default now forms exactly one window and PASSes.
+    samples = [
+        _s(0, page=[_agent("a1", "walking", [0, 0])]),
+        _s(1000, page=[_agent("a1", "walking", [0.7, 0])]),
+    ]
+    v = check_walk_speed(samples, speed_window_s=1.0)
+    assert v["verdict"] == "PASS", v
+    assert v["detail"]["window_count"] == 1
+    assert v["detail"]["speed_window_s"] == 1.0
 
 
 # 3. stand slots -----------------------------------------------------------------
@@ -643,12 +834,16 @@ def test_motion_checks_no_data_below_fps_gate():
 
 
 def test_motion_checks_run_normally_above_fps_gate():
-    # 0.35u / 0.5s = 0.7 u/s -- matches the 0.7 u/s design speed.
+    # 0.35u / 0.5s = 0.7 u/s -- matches the 0.7 u/s design speed. Extended
+    # to 2.0s total so a full speed_window_s window can form.
     samples = [
-        _s(0, page=[_agent("a1", "walking", [0, 0])], api=[{"id": "a1"}]),
+        _s(0, page=[_agent("a1", "walking", [0.0, 0])], api=[{"id": "a1"}]),
         _s(500, page=[_agent("a1", "walking", [0.35, 0])], api=[{"id": "a1"}]),
+        _s(1000, page=[_agent("a1", "walking", [0.7, 0])], api=[{"id": "a1"}]),
+        _s(1500, page=[_agent("a1", "walking", [1.05, 0])], api=[{"id": "a1"}]),
+        _s(2000, page=[_agent("a1", "walking", [1.4, 0])], api=[{"id": "a1"}]),
     ]
-    out = build_verdicts(samples, _high_fps_frames(), calls_samples=[100, 100], scene_ready=True, build_ids=["b", "b"])
+    out = build_verdicts(samples, _high_fps_frames(), calls_samples=[100] * 5, scene_ready=True, build_ids=["b"] * 5)
     assert out["walk_speed"]["verdict"] == "PASS", out["walk_speed"]
     assert "reason" not in out["walk_speed"]["detail"] or "fps too low" not in out["walk_speed"]["detail"].get("reason", "")
 
@@ -656,42 +851,46 @@ def test_motion_checks_run_normally_above_fps_gate():
 def test_motion_checks_ungated_when_no_frame_data():
     # No frame_timestamps_ms at all -- fps_p50 is unknown (None), not "low".
     # Must NOT gate (an unknown fps is not evidence it was too low); the
-    # individual checks run on their own NO-DATA/PASS/FAIL logic.
+    # individual checks run on their own NO-DATA/PASS/FAIL logic. Extended
+    # to 2.0s total so a full speed_window_s window can form.
     samples = [
-        _s(0, page=[_agent("a1", "walking", [0, 0])], api=[{"id": "a1"}]),
+        _s(0, page=[_agent("a1", "walking", [0.0, 0])], api=[{"id": "a1"}]),
         _s(500, page=[_agent("a1", "walking", [0.35, 0])], api=[{"id": "a1"}]),
+        _s(1000, page=[_agent("a1", "walking", [0.7, 0])], api=[{"id": "a1"}]),
+        _s(1500, page=[_agent("a1", "walking", [1.05, 0])], api=[{"id": "a1"}]),
+        _s(2000, page=[_agent("a1", "walking", [1.4, 0])], api=[{"id": "a1"}]),
     ]
-    out = build_verdicts(samples, [], calls_samples=[None, None], scene_ready=True, build_ids=["b", "b"])
+    out = build_verdicts(samples, [], calls_samples=[None] * 5, scene_ready=True, build_ids=["b"] * 5)
     assert out["walk_speed"]["verdict"] == "PASS", out["walk_speed"]
 
 
-# walk_speed: measure across real position changes, not sample ticks --------------
+# walk_speed: windowing naturally absorbs repeated/flat positions -----------------
+# The old per-tick "bridge across repeated positions" special case is gone --
+# windowing supersedes it FOR REALISTIC quantization magnitudes (a same-
+# position tick just contributes 0 distance to a window's cumulative sum,
+# which the window's other ticks average out -- see the 250ms/500ms
+# aliasing test above). A single-tick catch-up jump LARGE enough to imply
+# several skipped render frames is, correctly, still caught as a teleport
+# below -- that scenario belongs to the separate MOTION_MIN_FPS_P50 gate
+# one layer up in build_verdicts, not to windowed averaging here.
 
-def test_walk_speed_ignores_repeated_position_between_ticks():
-    # Agent's rendered position only actually updates every 3rd sample tick
-    # (a slow-renderer artifact) -- must NOT score the flat ticks as 0 u/s,
-    # and must NOT score the jump-tick's speed over just that one tick's dt;
-    # it should measure the true elapsed time since the last real move.
-    samples = [
-        _s(0, page=[_agent("a1", "walking", [0.0, 0])]),
-        _s(500, page=[_agent("a1", "walking", [0.0, 0])]),    # same pos -- renderer hasn't ticked yet
-        _s(1000, page=[_agent("a1", "walking", [0.0, 0])]),   # same pos again
-        _s(1500, page=[_agent("a1", "walking", [1.05, 0])]),  # moved 1.05u over the full 1.5s = 0.7 u/s
-    ]
-    v = check_walk_speed(samples)
-    assert v["verdict"] == "PASS", v
-    assert v["detail"]["sample_count"] == 1
-    assert abs(v["detail"]["min_speed"] - 0.7) < 1e-9
-
-
-def test_walk_speed_no_data_when_position_never_changes():
+def test_walk_speed_fails_when_position_never_changes_across_a_full_window():
+    # A walking/leaving agent that never actually moves for a whole
+    # speed_window_s window is a real stuck-agent bug (or a render rate so
+    # slow it should have been caught by the MOTION_MIN_FPS_P50 gate one
+    # layer up in build_verdicts) -- must FAIL on 0 u/s, not be silently
+    # swallowed as NO-DATA.
     samples = [
         _s(0, page=[_agent("a1", "walking", [0.0, 0])]),
         _s(500, page=[_agent("a1", "walking", [0.0, 0])]),
         _s(1000, page=[_agent("a1", "walking", [0.0, 0])]),
+        _s(1500, page=[_agent("a1", "walking", [0.0, 0])]),
+        _s(2000, page=[_agent("a1", "walking", [0.0, 0])]),
     ]
     v = check_walk_speed(samples)
-    assert v["verdict"] == "NO-DATA", v
+    assert v["verdict"] == "FAIL", v
+    assert v["detail"]["window_count"] == 1
+    assert v["detail"]["median_speed_by_agent"]["a1"] == 0.0
 
 
 # stand_slots: only 'working' agents count, walking/leaving are transit -----------

@@ -23,7 +23,7 @@ PASS/FAIL threshold (see check_perf).
 from __future__ import annotations
 
 import re
-from typing import Any, Dict, List, Optional, Sequence
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 RAW_SHELL_LEAK_RE = re.compile(r"Ran:|\\\\|/c/Users|&&")
 
@@ -158,20 +158,102 @@ def _median_sample_tick(samples: List[Dict[str, Any]]) -> float:
 # transition tick, not a real speed bug.
 WALKING_STATES = {"walking", "leaving"}
 
+# WALK-SPEED-DIAG (coordinator, 2026-09-15 ~04:05 ET): dashboard/components/
+# hq/LiveAgents.tsx:136-139 publishes window.__hqLiveAgents on a 250ms
+# setInterval while the probe samples every ~500ms -- each RAW tick-to-tick
+# displacement is therefore quantized to 1/2/3 diag updates (0.35/0.70/1.05
+# u/s at the true 0.7 u/s design speed), a false FAIL on tick-level speed
+# alone (run 20260915T074839Z-gZsuTUlH: min 0.337, max 1.021, out_of_band_frac
+# 0.2293 -- a measurement artifact, not a real speed bug). Measuring over
+# windows >= SPEED_WINDOW_S_DEFAULT averages the 250ms quantization out
+# while still catching a genuinely wrong pace (a true 1.02 u/s walk still
+# fails the windowed median) -- teleports are caught separately, per-tick,
+# below, since a window would just average a real teleport away too.
+SPEED_WINDOW_S_DEFAULT = 2.0
+
+# Teleport detection is independent of windowing -- any single tick-to-tick
+# displacement beyond what the maximum 250ms-quantization error could
+# explain is a real placement bug (the 2cb12e5c-era bug shape: an 8.75u jump
+# in 0.48s), not an aliasing artifact. threshold = design_speed * dt_s *
+# slack + pos_slack -- the *slack term covers normal jitter around the
+# nominal dt, the +pos_slack term covers the up-to-one-diag-tick quantization
+# error a window smooths but a single tick-pair can't.
+TELEPORT_DT_SLACK = 1.05
+TELEPORT_POS_SLACK_U = 0.3
+
+# A gap between consecutive resolved timestamps this much larger than the
+# run's own median tick interval means the probe missed ticks (browser
+# hiccup, GC pause, CDP round-trip stall) -- a window must not bridge across
+# it, same as it must not bridge across a state transition.
+GAP_MULTIPLIER = 3.0
+GAP_MIN_S = 1.0
+
+# Regression sanity check alongside the windowed medians: the WHOLE-RUN
+# average speed per agent (total path / total time, across all continuous
+# walking/leaving ticks) must also sit within this fraction of design_speed.
+# Reported in the detail dict; does not independently gate PASS/FAIL (the
+# windowed median + out-of-band-frac + teleport_count do that) but flags a
+# run where windowing alone looks fine yet the whole-path number disagrees.
+AVG_SPEED_REGRESSION_TOL = 0.05
+
+
+def _resolved_t_ms(s: Dict[str, Any]) -> Tuple[float, bool]:
+    """Resolves a sample tick's timestamp for speed/teleport measurement.
+    Prefers the in-page `performance.now()` captured in the SAME
+    page.evaluate() call as window.__hqLiveAgents (sample field
+    'page_t_ms') over the Python wall-clock time the CDP round-trip
+    finished ('t_ms'/'host_t_ms'): the round-trip itself has 0.198-0.808s
+    jitter that has nothing to do with true agent speed (WALK-SPEED-DIAG,
+    coordinator 2026-09-15 -- a full reconstructed walk measured 22.52u in
+    32.02s = 0.703 u/s once page-side timing replaced host timing). Falls
+    back to 't_ms' (host) for samples files captured before page_t_ms
+    existed -- second return value is True when that fallback was used."""
+    page_t = s.get("page_t_ms")
+    if page_t is not None:
+        return float(page_t), False
+    return float(s["t_ms"]), True
+
+
+def _median_dt_s(samples: List[Dict[str, Any]]) -> float:
+    """Median tick-to-tick interval across the whole run (resolved
+    timestamps), used as the reference interval for gap detection. Falls
+    back to the nominal 0.5s probe tick when there's nothing to measure."""
+    deltas: List[float] = []
+    prev: Optional[float] = None
+    for s in samples:
+        t, _ = _resolved_t_ms(s)
+        if prev is not None and t > prev:
+            deltas.append((t - prev) / 1000.0)
+        prev = t
+    if not deltas:
+        return 0.5
+    deltas.sort()
+    return deltas[len(deltas) // 2]
+
 
 def check_walk_speed(
     samples: List[Dict[str, Any]],
     design_speed: float = WALK_SPEED_DEFAULT,
     tol: float = WALK_SPEED_TOL_DEFAULT,
+    speed_window_s: float = SPEED_WINDOW_S_DEFAULT,
 ) -> Dict[str, Any]:
     by_id: Dict[str, List[Dict[str, Any]]] = {}
+    used_host_fallback = False
     for s in samples:
+        t_ms, is_host = _resolved_t_ms(s)
+        used_host_fallback = used_host_fallback or is_host
         for a in s.get("page_agents", []):
-            by_id.setdefault(a["id"], []).append({"t_ms": s["t_ms"], **a})
+            by_id.setdefault(a["id"], []).append({"t_ms": t_ms, **a})
 
-    speeds_by_agent: Dict[str, List[float]] = {}
+    median_dt_s = _median_dt_s(samples)
+    gap_threshold_s = max(GAP_MULTIPLIER * median_dt_s, GAP_MIN_S)
+
+    window_speeds_by_agent: Dict[str, List[float]] = {}
+    avg_speed_by_agent: Dict[str, float] = {}
     unwalkable_hits = 0
     walking_samples = 0
+    teleport_events: List[Dict[str, Any]] = []
+
     for agent_id, seq in by_id.items():
         # Unwalkable hits are a real placement bug regardless of transition
         # state -- counted on every tick the agent is in transit, not just
@@ -182,56 +264,109 @@ def check_walk_speed(
                 if not a.get("onWalkable", False):
                     unwalkable_hits += 1
 
-        # Measure speed only between two ticks that are BOTH walking/leaving
-        # (excludes state-transition ticks) and only across the tick where a
-        # position was last observed to actually move -- NOT between every
-        # consecutive sample tick. At a low sample-vs-render ratio the same
-        # position repeats across several ticks, and scoring those as
-        # "0 u/s" (or the jump when it finally does move, scored over just
-        # one tick's dt) is a measurement artifact, not a real speed reading
-        # (2026-09-14/09-15: 143/150 out-of-band at fps_p50 0.71).
-        last_move_idx: Optional[int] = None
+        # Accumulate displacement/time into windows of >= speed_window_s,
+        # only across pairs of ticks that are BOTH walking/leaving (no state
+        # transition) and not separated by a sampling gap. This is what
+        # averages the 250ms-publish/500ms-sample quantization out: a tick
+        # that hasn't visually moved yet (0 dist) or one that jumped 2-3
+        # diag updates at once both just contribute their real
+        # distance/time to the running window sum instead of being scored
+        # individually.
+        cum_dist = 0.0
+        cum_time = 0.0
+        total_dist = 0.0
+        total_time = 0.0
+
         for i in range(1, len(seq)):
             cur, prev = seq[i], seq[i - 1]
-            if cur.get("state") not in WALKING_STATES or prev.get("state") not in WALKING_STATES:
-                last_move_idx = None  # transition tick -- reset, don't bridge across it
+            dt_s = (cur["t_ms"] - prev["t_ms"]) / 1000.0
+            both_walking = cur.get("state") in WALKING_STATES and prev.get("state") in WALKING_STATES
+            if not both_walking or dt_s <= 0 or dt_s > gap_threshold_s:
+                # transition tick or sampling gap -- flush whatever window
+                # was accumulating (discarded if still short of
+                # speed_window_s) and start clean on the other side.
+                cum_dist = 0.0
+                cum_time = 0.0
                 continue
-            base_idx = last_move_idx if last_move_idx is not None else i - 1
-            base = seq[base_idx]
-            d = _dist(cur["pos"], base["pos"])
-            if d <= 1e-9:
-                last_move_idx = base_idx
-                continue  # position hasn't actually updated yet -- wait for the next real move
-            dt_s = (cur["t_ms"] - base["t_ms"]) / 1000.0
-            if dt_s > 0:
-                speeds_by_agent.setdefault(agent_id, []).append(d / dt_s)
-            last_move_idx = i
 
-    all_speeds = [v for vs in speeds_by_agent.values() for v in vs]
-    if not all_speeds:
-        return {"verdict": "NO-DATA", "detail": {"reason": "no steady walking/leaving motion observed"}}
+            d = _dist(cur["pos"], prev["pos"])
+
+            # Teleport detection -- strict, per-tick, independent of
+            # windowing. A displacement beyond the max quantization error
+            # is a real placement bug and always FAILs the run.
+            threshold = design_speed * dt_s * TELEPORT_DT_SLACK + TELEPORT_POS_SLACK_U
+            if d > threshold:
+                teleport_events.append({
+                    "agent_id": agent_id,
+                    "t_ms": cur["t_ms"],
+                    "distance": round(d, 4),
+                    "dt_s": round(dt_s, 4),
+                    "threshold": round(threshold, 4),
+                })
+                # A teleport corrupts whatever window it landed in -- don't
+                # blend it into a speed reading, just drop the window.
+                cum_dist = 0.0
+                cum_time = 0.0
+                continue
+
+            cum_dist += d
+            cum_time += dt_s
+            total_dist += d
+            total_time += dt_s
+            if cum_time >= speed_window_s:
+                window_speeds_by_agent.setdefault(agent_id, []).append(cum_dist / cum_time)
+                cum_dist = 0.0
+                cum_time = 0.0
+            # else: keep accumulating -- a trailing partial window shorter
+            # than speed_window_s at the end of a run is simply discarded
+            # (never flushed, since it never reaches the >= check above).
+
+        if total_time > 0:
+            avg_speed_by_agent[agent_id] = total_dist / total_time
+
+    teleport_count = len(teleport_events)
+    all_window_speeds = [v for vs in window_speeds_by_agent.values() for v in vs]
+
+    if not all_window_speeds and teleport_count == 0 and unwalkable_hits == 0:
+        return {
+            "verdict": "NO-DATA",
+            "detail": {"reason": f"no walking/leaving window >= {speed_window_s:.1f}s observed"},
+        }
 
     # Judge the steady pace against the CONFIGURED design speed, not a fixed
-    # band: median per agent must sit within design +/- tol; a sample is
-    # "out of band" (diagnostic, and capped at 5% of samples) at double that
-    # tolerance so normal per-tick jitter doesn't itself fail the run.
+    # band: median windowed speed per agent must sit within design +/- tol;
+    # a window is "out of band" (diagnostic, capped at 5% of windows) at
+    # double that tolerance so normal window-to-window jitter doesn't itself
+    # fail the run.
     band_lo, band_hi = design_speed * (1 - tol * 2), design_speed * (1 + tol * 2)
-    out_of_band = [v for v in all_speeds if v < band_lo or v > band_hi]
-    out_of_band_frac = len(out_of_band) / len(all_speeds)
+    out_of_band = [v for v in all_window_speeds if v < band_lo or v > band_hi]
+    out_of_band_frac = (len(out_of_band) / len(all_window_speeds)) if all_window_speeds else 0.0
 
     median_lo, median_hi = design_speed * (1 - tol), design_speed * (1 + tol)
-    median_speed_by_agent = {aid: _percentile(vs, 50) for aid, vs in speeds_by_agent.items()}
-    medians_in_band = all(median_lo <= m <= median_hi for m in median_speed_by_agent.values())
+    median_speed_by_agent = {aid: _percentile(vs, 50) for aid, vs in window_speeds_by_agent.items()}
+    medians_in_band = bool(median_speed_by_agent) and all(
+        median_lo <= m <= median_hi for m in median_speed_by_agent.values()
+    )
+
+    regression_lo = design_speed * (1 - AVG_SPEED_REGRESSION_TOL)
+    regression_hi = design_speed * (1 + AVG_SPEED_REGRESSION_TOL)
+    avg_speed_regression_ok = bool(avg_speed_by_agent) and all(
+        regression_lo <= v <= regression_hi for v in avg_speed_by_agent.values()
+    )
 
     verdict = "PASS" if (
-        medians_in_band and unwalkable_hits == 0 and out_of_band_frac <= 0.05
+        medians_in_band
+        and unwalkable_hits == 0
+        and out_of_band_frac <= 0.05
+        and teleport_count == 0
     ) else "FAIL"
     return {
         "verdict": verdict,
         "detail": {
-            "sample_count": len(all_speeds),
-            "min_speed": min(all_speeds),
-            "max_speed": max(all_speeds),
+            "window_count": len(all_window_speeds),
+            "speed_window_s": speed_window_s,
+            "min_speed": min(all_window_speeds) if all_window_speeds else None,
+            "max_speed": max(all_window_speeds) if all_window_speeds else None,
             "out_of_band_count": len(out_of_band),
             "out_of_band_frac": round(out_of_band_frac, 4),
             "unwalkable_hits": unwalkable_hits,
@@ -239,6 +374,11 @@ def check_walk_speed(
             "design_speed": design_speed,
             "tol": tol,
             "median_speed_by_agent": {k: round(v, 4) for k, v in median_speed_by_agent.items()},
+            "avg_speed_by_agent": {k: round(v, 4) for k, v in avg_speed_by_agent.items()},
+            "avg_speed_regression_ok": avg_speed_regression_ok,
+            "teleport_count": teleport_count,
+            "teleport_events": teleport_events,
+            "timestamp_source": "host" if used_host_fallback else "page",
         },
     }
 
@@ -662,6 +802,7 @@ def build_verdicts(
     page_refresh_ms: Optional[int] = None,
     walk_speed: float = WALK_SPEED_DEFAULT,
     walk_speed_tol: float = WALK_SPEED_TOL_DEFAULT,
+    speed_window_s: float = SPEED_WINDOW_S_DEFAULT,
 ) -> Dict[str, Any]:
     if calls_samples is None:
         calls_samples = [s.get("calls") for s in samples]
@@ -712,7 +853,7 @@ def build_verdicts(
         "invalid_reasons": [],
         "spawn_latency": check_spawn_latency(samples, page_refresh_ms=effective_page_refresh_ms),
         "walk_speed": _motion_no_data() if motion_gated else check_walk_speed(
-            samples, design_speed=walk_speed, tol=walk_speed_tol
+            samples, design_speed=walk_speed, tol=walk_speed_tol, speed_window_s=speed_window_s
         ),
         "stand_slots": _motion_no_data() if motion_gated else check_stand_slots(samples),
         "walk_out": _motion_no_data() if motion_gated else check_walk_out(samples),

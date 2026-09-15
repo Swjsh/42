@@ -65,6 +65,7 @@ from typing import Any, Dict, List, Optional
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from hq_probe_lib import (  # noqa: E402
+    SPEED_WINDOW_S_DEFAULT,
     WALK_SPEED_DEFAULT,
     WALK_SPEED_TOL_DEFAULT,
     build_verdicts,
@@ -176,6 +177,12 @@ async () => {
     calls,
     buildId,
     documentHidden: document.hidden,
+    // In-page timestamp, captured in the SAME evaluate() call that reads
+    // window.__hqLiveAgents -- used by check_walk_speed instead of the
+    // Python wall-clock time this CDP round-trip finishes (which has
+    // 0.198-0.808s jitter unrelated to true agent speed; WALK-SPEED-DIAG
+    // coordinator finding, 2026-09-15).
+    pageTMs: performance.now(),
   };
 }
 """
@@ -284,6 +291,7 @@ def rescore(
     page_refresh_ms: Optional[int] = None,
     walk_speed: float = WALK_SPEED_DEFAULT,
     walk_speed_tol: float = WALK_SPEED_TOL_DEFAULT,
+    speed_window_s: float = SPEED_WINDOW_S_DEFAULT,
 ) -> int:
     """Loads a previously written *.samples.json.gz and re-runs build_verdicts
     with the CURRENT verdict logic (never the logic that was live when the
@@ -310,6 +318,7 @@ def rescore(
         page_refresh_ms=page_refresh_ms,
         walk_speed=walk_speed,
         walk_speed_tol=walk_speed_tol,
+        speed_window_s=speed_window_s,
     )
     report = {
         "rescored": True,
@@ -541,8 +550,19 @@ def launch_and_probe(
                     result = {"pageAgents": [], "apiAgents": [], "apiError": str(exc), "calls": None, "buildId": None}
                 bid = result.get("buildId")
                 build_ids.append(bid)
+                host_t_ms = (time.time() - t0) * 1000.0
                 samples.append({
-                    "t_ms": (time.time() - t0) * 1000.0,
+                    # NOTE: 't_ms' stays host wall-clock (time since run
+                    # start) -- every OTHER check (spawn_latency, walk_out,
+                    # page_api_parity) keys thresholds off it and is out of
+                    # scope for this pass. 'page_t_ms' (in-page
+                    # performance.now(), same evaluate() call as
+                    # pageAgents) is the new field check_walk_speed prefers
+                    # -- see hq_probe_lib._resolved_t_ms. 'host_t_ms' is
+                    # 't_ms' by another name, kept explicit for diagnostics.
+                    "t_ms": host_t_ms,
+                    "host_t_ms": host_t_ms,
+                    "page_t_ms": result.get("pageTMs"),
                     "page_agents": result.get("pageAgents") or [],
                     "api_agents": result.get("apiAgents") or [],
                     "calls": result.get("calls"),
@@ -638,6 +658,17 @@ def main() -> int:
         help="fractional tolerance around --walk-speed for the median check (default: 0.15 = +/-15%%)",
     )
     ap.add_argument(
+        "--speed-window-s",
+        type=float,
+        default=SPEED_WINDOW_S_DEFAULT,
+        help=(
+            "check_walk_speed measures speed over windows of at least this "
+            "many seconds (averaging out the 250ms diag-publish / ~500ms "
+            "probe-sample quantization) instead of per-tick -- default 2.0. "
+            "Teleport detection is unaffected (always per-tick, strict)."
+        ),
+    )
+    ap.add_argument(
         "--rescore",
         default=None,
         metavar="PATH",
@@ -656,6 +687,7 @@ def main() -> int:
             page_refresh_ms=args.page_refresh_ms,
             walk_speed=args.walk_speed,
             walk_speed_tol=args.walk_speed_tol,
+            speed_window_s=args.speed_window_s,
         )
 
     refuse_reason = wait_for_stable_build(args.wait_for_stable_build, args.min_build_age_s)
@@ -685,6 +717,7 @@ def main() -> int:
         page_refresh_ms=args.page_refresh_ms,
         walk_speed=args.walk_speed,
         walk_speed_tol=args.walk_speed_tol,
+        speed_window_s=args.speed_window_s,
     )
 
     report = {
