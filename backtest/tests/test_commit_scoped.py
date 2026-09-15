@@ -212,6 +212,87 @@ def test_missing_path_fails_loud_not_silent(tmp_repo: Path) -> None:
     assert _staged(tmp_repo) == ["dirB/foreign.txt"]  # untouched
 
 
+def _committed_deletions(repo: Path, sha: str = "HEAD") -> list[str]:
+    cp = _git(repo, "diff-tree", "--no-commit-id", "--name-status", "-r", sha)
+    return [line.split("\t", 1)[1] for line in cp.stdout.splitlines() if line.startswith("D\t")]
+
+
+# ─── POLISH-1 P4 fix (2026-09-14): commit_scoped.py used to reject ANY path
+# missing on disk, typo or genuine deletion alike -- the PEOPLE builder hit
+# this exact gap and had to hand-roll a scoped `git rm --cached`/`git add -A
+# --` around this script entirely rather than through it. Fix distinguishes
+# "missing on disk AND not tracked in HEAD" (a real error, still refused --
+# see test_missing_path_fails_loud_not_silent above, unchanged) from
+# "missing on disk BUT tracked in HEAD" (a real deletion, now staged via the
+# SAME `git add -- <paths>` call this script already made -- git's own
+# long-standing behavior of staging a removal for an explicitly named,
+# now-gone, tracked path). Tests below reuse the SAME `tmp_repo` fixture
+# (and its "foreign staged file" concurrent-session setup) every other test
+# in this file already relies on, per this file's own core guard.
+
+def test_deleted_tracked_file_committed_scoped(tmp_repo: Path) -> None:
+    """A path that's TRACKED IN HEAD (tmp_repo's own `dirA/base.txt`, staged
+    by the fixture's initial commit) but missing on disk must commit cleanly
+    as a deletion through commit_scoped -- not refused as a typo."""
+    (tmp_repo / "dirA" / "base.txt").unlink()
+
+    rc = commit_scoped("delete base.txt", ["dirA/base.txt"])
+    assert rc == 0, "commit_scoped must accept a tracked-in-HEAD path that's missing on disk"
+
+    assert _committed_deletions(tmp_repo) == ["dirA/base.txt"]
+    assert _committed_files(tmp_repo) == ["dirA/base.txt"]  # --stat still names the deleted path
+    assert not (tmp_repo / "dirA" / "base.txt").exists()
+
+
+def test_deleted_tracked_file_foreign_stays_out(tmp_repo: Path) -> None:
+    """THE core guard (this file's own header), proven for a deletion: the
+    concurrently-staged foreign file must NOT ride along into a scoped
+    deletion commit, and must remain staged (uncommitted) afterward -- this
+    is the exact scenario the task's own proof asks for."""
+    (tmp_repo / "dirA" / "base.txt").unlink()
+
+    rc = commit_scoped("delete base.txt only", ["dirA/base.txt"])
+    assert rc == 0
+
+    committed = set(_committed_files(tmp_repo))
+    assert committed == {"dirA/base.txt"}, (
+        f"expected ONLY the deletion of dirA/base.txt in the commit, got {committed}"
+    )
+    assert "dirB/foreign.txt" not in committed
+    assert _staged(tmp_repo) == ["dirB/foreign.txt"], (
+        "the foreign session's staged file must still be staged after a "
+        "scoped deletion commit -- untouched, ready for them to commit next"
+    )
+    assert (tmp_repo / "dirB" / "foreign.txt").read_text(encoding="utf-8") == "foreign session's work\n"
+
+
+def test_deletion_and_new_file_in_one_scoped_commit(tmp_repo: Path) -> None:
+    """Realistic mixed case: a deletion committed ALONGSIDE a real edit in
+    the SAME call -- the actual multi-file scenario a builder hits, not
+    just an isolated single-deletion commit."""
+    (tmp_repo / "dirA" / "base.txt").unlink()
+    (tmp_repo / "dirA" / "new.txt").write_text("new content\n", encoding="utf-8")
+
+    rc = commit_scoped("delete base, add new", ["dirA/base.txt", "dirA/new.txt"])
+    assert rc == 0
+
+    committed = set(_committed_files(tmp_repo))
+    assert committed == {"dirA/base.txt", "dirA/new.txt"}
+    assert _committed_deletions(tmp_repo) == ["dirA/base.txt"]
+    assert _staged(tmp_repo) == ["dirB/foreign.txt"]
+
+
+def test_unknown_missing_path_still_fails_loud(tmp_repo: Path) -> None:
+    """The P4 fix must NOT relax the genuine-error case: a path missing on
+    disk AND never tracked in HEAD (typo, never existed) still fails loudly
+    -- same assertion as test_missing_path_fails_loud_not_silent above,
+    restated here with a name that makes the post-fix distinction
+    (tracked-deletion vs genuinely-unknown) explicit."""
+    rc = commit_scoped("ghost file", ["dirA/never_existed.txt"])
+    assert rc != 0
+    assert _staged(tmp_repo) == ["dirB/foreign.txt"]  # untouched
+
+
 def test_main_cli_argv_contract(tmp_repo: Path) -> None:
     """The CLI entrypoint: `commit_scoped.py "<message>" <path>...` -- argv[0]
     is the message, the rest are paths."""

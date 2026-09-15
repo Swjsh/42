@@ -98,6 +98,16 @@ def _git(args: list[str]) -> subprocess.CompletedProcess:
     )
 
 
+def _tracked_in_head(path: str) -> bool:
+    """True if `path` exists in the HEAD commit's own tree -- i.e. a path
+    missing on disk but tracked-in-HEAD is a real DELETION to stage, not a
+    typo or a path that never existed. `git cat-file -e HEAD:<path>` exits 0
+    iff that exact path is present in HEAD's tree; a bare repo with no HEAD
+    yet (no commits) makes this call fail closed (returncode != 0), which is
+    correct -- nothing can be "deleted" before a first commit exists."""
+    return _git(["cat-file", "-e", f"HEAD:{path}"]).returncode == 0
+
+
 def _git_with_lock_retry(args: list[str]) -> subprocess.CompletedProcess:
     """Retry ONLY on a transient index.lock collision; any other failure
     (merge conflict, hook rejection, bad pathspec) returns immediately so the
@@ -132,11 +142,28 @@ def commit_scoped(message: str, paths: list[str]) -> int:
               f"file or directory paths instead.", file=sys.stderr)
         return 2
 
+    # 2026-09-14 (POLISH-1 P4): a path missing on disk is only a REAL error
+    # when it is ALSO not tracked in HEAD -- a path that's tracked-in-HEAD
+    # but gone from disk is a genuine DELETION (the PEOPLE builder hit this
+    # exact case and had to hand-roll a scoped `git rm --cached` around this
+    # script entirely). `git add -- <path>` already stages a deletion
+    # correctly for an explicitly-named path that no longer exists on disk
+    # (git's own long-standing behavior, verified by this file's own test,
+    # backtest/tests/test_commit_scoped.py -- never assumed) -- the ONLY bug
+    # was this check refusing to even try. Genuinely unknown paths (typo,
+    # never existed, or already committed as deleted) still fail loudly,
+    # unchanged.
     missing = [p for p in paths if not (REPO / p).exists()]
-    if missing:
-        print(f"[commit_scoped] FAIL: path(s) not found on disk (typo, or already "
-              f"deleted?): {missing}", file=sys.stderr)
+    unknown = [p for p in missing if not _tracked_in_head(p)]
+    if unknown:
+        print(f"[commit_scoped] FAIL: path(s) not found on disk and not tracked in "
+              f"HEAD (typo, never existed, or already committed as deleted?): "
+              f"{unknown}", file=sys.stderr)
         return 2
+    deletions = [p for p in missing if p not in unknown]
+    if deletions:
+        print(f"[commit_scoped] {len(deletions)} path(s) missing on disk but tracked "
+              f"in HEAD -- staging as deletion(s): {deletions}")
 
     add = _git_with_lock_retry(["add", "--", *paths])
     if add.returncode != 0:
