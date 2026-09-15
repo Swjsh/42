@@ -8,6 +8,11 @@ import { Html, OrbitControls } from "@react-three/drei";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import * as THREE from "three";
 import { recordCameraSample } from "@/lib/hq-motion-diag";
+// CAM-PARAMS pass (2026-09-15): pure parsing/validation for `?camdist=`/
+// `?camtarget=`/`?tour=0` -- CAM_DIST_MIN/CAM_DIST_MAX replace this file's
+// own former FREE_CAM_MIN_DISTANCE/FREE_CAM_MAX_DISTANCE literals below (one
+// source of truth for the clamp, shared with the unit-testable parser).
+import { CAM_DIST_MAX, CAM_DIST_MIN, parseCameraParams } from "@/lib/hq-camera-params";
 // UX-1 U5 (2026-09-14): reports the exact frame the cinematic auto-orbit
 // resumes after FREE_CAM_IDLE_RESUME_S of user idle -- Hud.tsx (outside
 // <Canvas>) subscribes to this SAME external store to show a brief "camera
@@ -53,6 +58,7 @@ import { BAY_DESK_OFFSET_Z, BAY_SEAT_LOCAL, CampusGate, CHARACTER_SCALE, CHARACT
 import {
   ARM_HALF_WIDTH, ARM_LEN, armAngle, buildWalkGraph, CAMPUS_GATE_POSITION, CAMPUS_GATE_ROTATION_Y, CAMPUS_GATE_SCALE,
   computeAllBaySlots, computeArmLayout, computePersonaWallSlots, findWalkPath, PLAZA_APRON, PLAZA_CENTER_RADIUS, type ArmLayout,
+  type WalkGraph,
 } from "./layout";
 // World-2 coordinator review (2026-09-14, "GAMMA'S BUBBLE... must derive it
 // from the same truth as the panel"): the SAME pure function Hud.tsx's own
@@ -287,8 +293,8 @@ function clickableGroupProps(ultra: boolean, presetKey: string, onEnter: () => v
 // already past the old 36 ceiling: a real, pre-existing snap bug this same
 // change also fixes). 58+70 (SkyDome's own dome radius, per this comment's
 // own math above) = 128, still comfortably under far=400.
-const FREE_CAM_MIN_DISTANCE = 6;
-const FREE_CAM_MAX_DISTANCE = 58;
+const FREE_CAM_MIN_DISTANCE = CAM_DIST_MIN;
+const FREE_CAM_MAX_DISTANCE = CAM_DIST_MAX;
 const FREE_CAM_MAX_POLAR_ANGLE = (89.5 * Math.PI) / 180;
 const FREE_CAM_FLIGHT_S = 1.2; // keyboard 0-7 fly-to duration
 const FREE_CAM_IDLE_RESUME_S = 45; // auto-orbit resumes this long after the user's last input
@@ -461,6 +467,11 @@ interface CameraRigProps {
    * `ARMS` order) -- same URL-only, no-keyboard-binding convention as
    * `bayPresets`. */
   hallPresets: CameraPreset[];
+  /** CAM-PARAMS pass (2026-09-15): `?camtarget=<walk-graph node id>`
+   * resolves against this SAME graph LiveAgents.tsx already walks agents
+   * through (Scene.tsx's own `walkGraph`, built once via
+   * layout.ts#buildWalkGraph) -- never a second, parallel position lookup. */
+  walkGraph: WalkGraph;
 }
 
 /** Shared by the keyboard "0".."7" fly-to handler AND the `?preset=` mount
@@ -508,7 +519,7 @@ function resolveCameraPresetKey(
  * eventful happening. reducedMotion holds everything at the default lookAt
  * with zero drift, matching every other reducedMotion branch in this file.
  */
-function CameraRig({ reducedMotion, rows, geometry, briefMtimeMs, ultra, cameraPresets, bayPresets, hallPresets }: CameraRigProps) {
+function CameraRig({ reducedMotion, rows, geometry, briefMtimeMs, ultra, cameraPresets, bayPresets, hallPresets, walkGraph }: CameraRigProps) {
   const { camera } = useThree();
   const lookAtCurrent = useRef(new THREE.Vector3(0, 1.4, 0));
   const focusGoal = useRef<THREE.Vector3 | null>(null);
@@ -571,20 +582,60 @@ function CameraRig({ reducedMotion, rows, geometry, briefMtimeMs, ultra, cameraP
   // steady state a real mid-drag user already gets -- so a 35s capture
   // settle window never eases back toward the normal auto-orbit distance
   // before the screenshot fires.
+  // CAM-PARAMS pass (2026-09-15): folded `?camtarget=<walk-graph node id>`
+  // into this SAME effect -- the target must be resolved before the camera
+  // POSITION is computed from it. `?camdist` alone still behaves byte-for-
+  // byte as before (targetPos falls back to DEFAULT_LOOKAT's own x/z, which
+  // are both 0, so `targetPos[0] + sin*dist` / `targetPos[2] + cos*dist`
+  // reduce to the exact old `sin*dist`/`cos*dist` formula). An unknown
+  // `?camtarget` id (not in walkGraph.nodes) is silently ignored -- falls
+  // back to DEFAULT_LOOKAT, same "fail open, never crash" convention as
+  // every other URL-param branch in this file (resolveCameraPresetKey's
+  // missing-preset case, etc). `parseCameraParams` (lib/hq-camera-params.ts)
+  // owns the pure validation/clamp so it's independently unit-testable.
   useEffect(() => {
     if (!ultra) return;
     const controls = controlsRef.current;
     if (!controls) return;
-    const raw = new URLSearchParams(window.location.search).get("camdist");
-    const n = raw !== null ? Number(raw) : NaN;
-    if (!Number.isFinite(n)) return;
-    const dist = Math.min(FREE_CAM_MAX_DISTANCE, Math.max(FREE_CAM_MIN_DISTANCE, n));
-    camera.position.set(Math.sin(BASE_AZIMUTH) * dist, CAMERA_HEIGHT_ULTRA, Math.cos(BASE_AZIMUTH) * dist);
-    controls.target.set(DEFAULT_LOOKAT.x, DEFAULT_LOOKAT.y, DEFAULT_LOOKAT.z);
+    const params = parseCameraParams(new URLSearchParams(window.location.search));
+    if (params.camDist === undefined && params.camTarget === undefined) return;
+    const targetNode = params.camTarget ? walkGraph.nodes.get(params.camTarget) : undefined;
+    const targetPos: [number, number, number] = targetNode
+      ? targetNode.position
+      : [DEFAULT_LOOKAT.x, DEFAULT_LOOKAT.y, DEFAULT_LOOKAT.z];
+    const dist = params.camDist ?? CAMERA_DIST_ULTRA;
+    camera.position.set(
+      targetPos[0] + Math.sin(BASE_AZIMUTH) * dist,
+      CAMERA_HEIGHT_ULTRA,
+      targetPos[2] + Math.cos(BASE_AZIMUTH) * dist,
+    );
+    controls.target.set(targetPos[0], targetPos[1], targetPos[2]);
     camera.lookAt(controls.target);
     mode.current = "userFree";
     idleSince.current = null;
-  }, [ultra, camera]);
+  }, [ultra, camera, walkGraph]);
+
+  // CAM-PARAMS pass (2026-09-15): `?tour=0` holds the camera perfectly
+  // still -- parks it in the SAME "userFree" + `idleSince = null` state
+  // every other one-shot capture override above already uses (never times
+  // out back to "auto" -- see the mode state machine's own idle-resume
+  // branch below), so a headless capture sequence never lands a frame
+  // mid-drift-orbit or mid-director-vignette-pan. Its own effect (not
+  // folded into the camdist/camtarget effect above) since `?tour=0` is
+  // valid entirely on its own with neither of those params set, and
+  // ordering after that effect means it parks the mode AFTER whatever
+  // position/target camdist/camtarget already established this same mount,
+  // never fighting them. Absent (or any value other than the literal
+  // string "0"), this effect no-ops -- byte-for-byte unchanged default.
+  useEffect(() => {
+    if (!ultra) return;
+    const controls = controlsRef.current;
+    if (!controls) return;
+    const params = parseCameraParams(new URLSearchParams(window.location.search));
+    if (params.tour) return;
+    mode.current = "userFree";
+    idleSince.current = null;
+  }, [ultra]);
 
   // HALLWAY-FIX builder pass (2026-09-14): `?cam=x,y,z,tx,ty,tz` (ultra tier
   // only, dev/capture only) -- an arbitrary camera pose for a headless
@@ -1603,6 +1654,7 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
         cameraPresets={cameraPresets}
         bayPresets={bayPresets}
         hallPresets={hallPresets}
+        walkGraph={walkGraph}
       />
       {/* LIVE-1 item 2 follow-up (2026-09-14): renderer-exposure half of the
           day/night exposure+threshold pair -- see ExposureSync's own
