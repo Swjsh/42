@@ -6,10 +6,27 @@ service-rooted console-host window (WindowsTerminal -Embedding / conhost /
 OpenConsole) is SW_HIDE'd within a frame of appearing -- effectively never
 seen. Hide-only, never kills the underlying pythonw work process.
 
-Safety gate is identical to the poller: only ever hides windows whose
-ancestry is svchost/services/wininit-rooted (Task Scheduler / Session 0),
-and NEVER a window descending from explorer.exe (a terminal J opened
-himself). Games/apps aren't console-host images so they're untouched.
+Safety gate, UPDATED 2026-09-15: only ever hides windows whose ancestry is
+svchost/services/wininit-rooted (Task Scheduler / Session 0), NEVER a window
+descending from explorer.exe, AND (fixed 2026-09-15 -- this hook previously
+never consulted it at all) never a window matching
+automation/state/window-leak-allowlist.json (image_names/title_substrings/
+pids, reloaded on mtime change, mirroring window-leak-detector.py's
+_is_allowed). Games/apps aren't console-host images so they're untouched.
+
+WindowsTerminal.exe / OpenConsole.exe are structurally EXCLUDED from the
+hide-eligible set (see CONSOLE_HOST_HIDE_ELIGIBLE below) -- they are still
+watched/logged but never ShowWindow(SW_HIDE)'d. Root cause: modern Windows
+Terminal's DCOM-activation ancestry is byte-identical for J's own terminal
+and a Task-Scheduler leak (verified live 2026-09-15, see
+window-leak-allowlist.json's _why_windows_powershell for the full writeup),
+so ancestry+title can never safely single one out. This is what hid J's
+interactive PowerShell on 2026-09-15 ("powershell closes immediately when I
+open it") -- HID #40-44 in window-leak-hook-2026-09-14.log, pid 23376.
+
+Fail-open: if the allowlist file is missing or unreadable/corrupt, this hook
+does NOT hide anything that session -- it logs loudly and skips the hide.
+A hidden terminal J cannot use is worse than a visible leak.
 
 Singleton via a named kernel mutex (no pid-file/PID-reuse foot-gun).
 
@@ -53,8 +70,117 @@ PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
 TH32CS_SNAPPROCESS = 0x00000002
 ERROR_ALREADY_EXISTS = 183
 
+# CONSOLE_HOST = watched for logging/attribution (all 3 console-host images).
+# CONSOLE_HOST_HIDE_ELIGIBLE = the subset ShowWindow(SW_HIDE) may ever be called on.
+#
+# 2026-09-15 SAFETY FIX: windowsterminal.exe / openconsole.exe REMOVED from the
+# hide-eligible set. Empirical check of window-leak-hook-2026-09-14.log: of every HID
+# line ever written, 52 were windowsterminal.exe and 1 was openconsole.exe -- ZERO were
+# a bare conhost.exe. That means auto-hide has, in practice, only ever fired on the one
+# image this box cannot safely attribute (WT's DCOM-activation ancestry is identical for
+# J's own terminal and a Task-Scheduler leak -- see window-leak-allowlist.json's
+# _why_windows_powershell for the live verification). A legacy conhost.exe window IS
+# still explorer-rooted when J opens it directly (no DCOM activation involved for the
+# classic console host), so ancestry stays a valid, non-ambiguous signal for THAT image
+# only. Per OP-0 safety framing: a hidden terminal J cannot use is worse than a visible
+# leak, so WT/OpenConsole are watched (logged) but never hidden; only conhost.exe remains
+# hide-eligible, and even then only after the allowlist below clears it.
 CONSOLE_HOST = {"windowsterminal.exe", "openconsole.exe", "conhost.exe"}
+CONSOLE_HOST_HIDE_ELIGIBLE = {"conhost.exe"}
 SERVICE_ROOTS = {"svchost.exe", "services.exe", "wininit.exe"}
+
+# === allowlist (2026-09-15 fix -- this hook never consulted this file before) ===========
+# Mirrors window-leak-detector.py's _load_allowlist/_is_allowed exactly (kept as a literal
+# port rather than a cross-file import so this long-running process never takes an
+# import-time dependency on the poller script's module-load side effects; a dedicated
+# pinning test -- test_window_leak_hook_matches_detector_allowlist_logic -- keeps the two
+# implementations behaviorally identical). Reloaded whenever the file's mtime changes,
+# since this process runs for hours/days between restarts.
+ALLOWLIST_FILE = STATE / "window-leak-allowlist.json"
+# Images a TITLE-substring allowlist may exempt (2026-08-13 detector SCOPE FIX, mirrored
+# here). A console host inherits its parent's title, so a title match is only trusted for
+# the app's OWN window image -- never a console host that merely inherited the title.
+# Lowercase (unlike the detector's mixed-case set) because _image_name() above always
+# lowercases its result -- kept case-insensitive so an allowlist edit in either case works.
+TITLE_ALLOWLIST_IMAGES = {"windowsterminal.exe"}
+
+GetWindowTextW = user32.GetWindowTextW
+GetWindowTextW.argtypes = [wt.HWND, wt.LPWSTR, ctypes.c_int]
+GetWindowTextW.restype = ctypes.c_int
+GetWindowTextLengthW = user32.GetWindowTextLengthW
+GetWindowTextLengthW.argtypes = [wt.HWND]
+GetWindowTextLengthW.restype = ctypes.c_int
+
+
+def _window_title(hwnd) -> str:
+    try:
+        length = GetWindowTextLengthW(hwnd)
+        if length == 0:
+            return ""
+        buf = ctypes.create_unicode_buffer(length + 1)
+        GetWindowTextW(hwnd, buf, length + 1)
+        return buf.value
+    except Exception:
+        return ""
+
+
+_allow_cache: "dict | None" = None
+_allow_mtime: "float | None" = None
+_allow_load_failed_logged = False
+
+
+def _load_allowlist() -> "dict | None":
+    """Returns the parsed allowlist dict, or None on any failure (missing file, corrupt
+    JSON, unreadable). None is a distinct, fail-OPEN-for-J signal from the caller's
+    perspective: _handle_show treats None as "cannot prove this hide is safe -> skip the
+    hide, log loudly" rather than falling back to an empty/default allowlist that would
+    silently permit hides. Cached and reloaded only when the file's mtime changes."""
+    global _allow_cache, _allow_mtime, _allow_load_failed_logged
+    try:
+        st = ALLOWLIST_FILE.stat()
+    except Exception as ex:
+        if not _allow_load_failed_logged:
+            _log(f"ALLOWLIST MISSING/UNSTATABLE ({ex}) -- fail-open: no hides until it "
+                 f"reappears at {ALLOWLIST_FILE}")
+            _allow_load_failed_logged = True
+        _allow_cache = None
+        _allow_mtime = None
+        return None
+    if _allow_cache is not None and _allow_mtime == st.st_mtime:
+        return _allow_cache
+    try:
+        data = json.loads(ALLOWLIST_FILE.read_text(encoding="utf-8"))
+        if not isinstance(data, dict):
+            raise ValueError("allowlist root is not a JSON object")
+        _allow_cache = data
+        _allow_mtime = st.st_mtime
+        _allow_load_failed_logged = False
+        _log(f"allowlist (re)loaded mtime={st.st_mtime}")
+        return data
+    except Exception as ex:
+        _log(f"ALLOWLIST CORRUPT ({ex}) -- fail-open: no hides until it is fixed at "
+             f"{ALLOWLIST_FILE}")
+        _allow_cache = None
+        _allow_mtime = None
+        return None
+
+
+def _is_allowed(image_name: str, title: str, pid: int, allow: dict) -> bool:
+    """Port of window-leak-detector.py's _is_allowed -- see that file's
+    TITLE_ALLOWLIST_IMAGES comment for why title matches are scoped to the app's own
+    window image rather than trusted for every console host. `image_name` here is always
+    lowercase (this hook's _image_name() convention), so comparisons are lowercased on
+    both sides for case-insensitive parity with the detector's mixed-case set/allowlist."""
+    image_names_allow = {str(x).lower() for x in allow.get("image_names", [])}
+    if image_name.lower() in image_names_allow:
+        return True
+    if pid in allow.get("pids", []):
+        return True
+    if image_name.lower() in TITLE_ALLOWLIST_IMAGES:
+        for sub in allow.get("title_substrings", []):
+            if sub and sub.lower() in title.lower():
+                return True
+    return False
 
 
 def _log(msg: str) -> None:
@@ -357,6 +483,24 @@ WinEventProcType = ctypes.WINFUNCTYPE(
 _hidden = 0
 
 
+def _decide(name: str, title: str, pid: int, pm: dict, allow: "dict | None") -> tuple[bool, str]:
+    """PURE decision core of _handle_show -- given an already-console-host image name,
+    its window title, pid, the process/parent map, and the loaded allowlist (or None for
+    "unavailable"), returns (should_hide, reason). Extracted so the hide/no-hide policy
+    is unit-testable without any live Win32 window/process -- see
+    test_window_leak_hook.py. Callers must have already confirmed `name in CONSOLE_HOST`
+    before calling this."""
+    if name not in CONSOLE_HOST_HIDE_ELIGIBLE:
+        return False, "not-hide-eligible (WindowsTerminal/OpenConsole, 2026-09-15 fix)"
+    if not _service_rooted(pid, pm):
+        return False, "explorer-rooted"
+    if allow is None:
+        return False, "allowlist-unavailable-fail-open"
+    if _is_allowed(name, title, pid, allow):
+        return False, "allowlisted"
+    return True, "service-rooted-not-allowlisted"
+
+
 def _handle_show(hHook, event, hwnd, idObject, idChild, thread, ts):
     global _hidden, _hidden_today
     try:
@@ -371,28 +515,35 @@ def _handle_show(hHook, event, hwnd, idObject, idChild, thread, ts):
         if name not in CONSOLE_HOST:
             return  # cheap path: not a console host -> ignore
         pm = _parent_map()
-        if _service_rooted(p, pm):
-            # HIDE FIRST -- attribution below never delays or blocks the hide itself.
-            ShowWindow(hwnd, SW_HIDE)
-            _hidden += 1
-            _hidden_today += 1
-            try:
-                recent = _attribute_recent_processes(pm)
-            except Exception as ex:
-                recent = []
-                _log(f"attribution error (hide already applied): {ex}")
-            for r in recent:
-                _leak_sources[r["image"]] += 1
-            attrib = "; ".join(f"{r['image']} (parent={r['parent']})" for r in recent[:5]) or "none"
-            try:
-                trace_events = _read_recent_proc_trace_events(within_seconds=2.0)
-            except Exception as ex:
-                trace_events = []
-                _log(f"proc_trace read error (hide already applied): {ex}")
-            proc_trace_chain = _format_proc_trace_chain(trace_events)
-            _log(f"HID #{_hidden} hwnd={int(hwnd)} pid={p} img={name} recent_procs=[{attrib}] "
-                 f"proc_trace=[{proc_trace_chain}]")
-            _maybe_flush_daily_summary()
+        if not _service_rooted(p, pm):
+            return  # explorer-rooted -> definitely J's own window, no log needed
+        title = _window_title(hwnd)
+        allow = _load_allowlist() if name in CONSOLE_HOST_HIDE_ELIGIBLE else None
+        should_hide, reason = _decide(name, title, p, pm, allow)
+        if not should_hide:
+            _log(f"SKIP HIDE ({reason}) pid={p} img={name} title={title!r}")
+            return
+        # HIDE FIRST -- attribution below never delays or blocks the hide itself.
+        ShowWindow(hwnd, SW_HIDE)
+        _hidden += 1
+        _hidden_today += 1
+        try:
+            recent = _attribute_recent_processes(pm)
+        except Exception as ex:
+            recent = []
+            _log(f"attribution error (hide already applied): {ex}")
+        for r in recent:
+            _leak_sources[r["image"]] += 1
+        attrib = "; ".join(f"{r['image']} (parent={r['parent']})" for r in recent[:5]) or "none"
+        try:
+            trace_events = _read_recent_proc_trace_events(within_seconds=2.0)
+        except Exception as ex:
+            trace_events = []
+            _log(f"proc_trace read error (hide already applied): {ex}")
+        proc_trace_chain = _format_proc_trace_chain(trace_events)
+        _log(f"HID #{_hidden} hwnd={int(hwnd)} pid={p} img={name} title={title!r} "
+             f"recent_procs=[{attrib}] proc_trace=[{proc_trace_chain}]")
+        _maybe_flush_daily_summary()
     except Exception as ex:  # never let a callback crash the hook
         _log(f"cb error: {ex}")
 

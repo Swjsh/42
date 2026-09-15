@@ -159,7 +159,43 @@ SW_HIDE = 0
 # in the base CPython GUI interpreter. Not a one-liner fix (touches the venv launcher binary /
 # scheduler launch chain, both out of scope for a LOW hygiene pass) -- reported, not patched.
 # See backtest/tests/test_pandas_console_leak_root_cause_2026_09_03.py for the reproduction.
-CONSOLE_HOST_IMAGES = {"WindowsTerminal.exe", "OpenConsole.exe", "conhost.exe"}
+# 2026-09-15 SAFETY FIX (window-leak-hook incident -- J's PowerShell closed on open):
+# WindowsTerminal.exe/OpenConsole.exe are STRUCTURALLY REMOVED from the auto-hide set.
+#
+# WHY. The ancestry gate (_is_service_rooted) and the title gate (_is_allowed via
+# TITLE_ALLOWLIST_IMAGES) were BOTH supposed to let J's own terminal through. Live data
+# proved both broken for WindowsTerminal.exe specifically:
+#   1. Ancestry: modern Windows Terminal launches via DCOM activation -- EVERY
+#      WindowsTerminal.exe window (5,216 logged instances, 2026-07 through 2026-09-15)
+#      shows svchost->services->wininit ancestry with NO explorer.exe, whether J opened
+#      it himself or a scheduled task did. Ancestry cannot tell them apart; it is not a
+#      "usually works, edge case fails" gate -- it always says "service-rooted" for both.
+#   2. Title: the 2026-08-15 allowlist note assumed a J-opened terminal's title would
+#      read "Windows PowerShell" (with a space) to distinguish it from an automation
+#      shell's full-path title. Checked against window-leaks.jsonl (2026-09-15): of 52
+#      hook-hidden WindowsTerminal.exe rows and every detector-logged WT row, the title
+#      was "Terminal" (WT's own default app-title, not the hosted shell's) in the
+#      overwhelming majority of cases, and a handful showed the AUTOMATION shell's full
+#      pythonw.exe path -- "Windows PowerShell" never appeared once. The premise (WT's
+#      window title reflects the active shell) does not hold on this box's WT config.
+#   3. Session ID: WTSGetActiveConsoleSessionId() == 1 on this box, and BOTH J's live
+#      interactive WindowsTerminal (pid 23376, live-checked 2026-09-15) and every
+#      scheduled-task-spawned console (powershell.exe/conhost.exe children of pythonw
+#      launchers, live-checked same session) run in session 1 -- this machine runs
+#      scheduled tasks in the interactive session, so session ID does not discriminate
+#      either.
+#
+# CONCLUSION: no signal available to this process can safely tell "J's WindowsTerminal"
+# from "a leaked WindowsTerminal" on this box. Per OP-0 safety framing, a hidden
+# terminal J cannot use is worse than a visible leak, so WindowsTerminal.exe and its
+# conpty host OpenConsole.exe are never auto-hidden -- only LOGGED (SUSPECT_IMAGES still
+# covers them for leak-awareness/STATUS.md reporting). Historical data shows this is a
+# clean trade: of all logged leak rows, only WindowsTerminal.exe/OpenConsole.exe were
+# ever actually mitigated (ShowWindow'd) -- legacy conhost.exe/cmd.exe (still governed by
+# CONSOLE_HOST_IMAGES below) never triggered a real hide, because a legacy conhost.exe
+# window IS explorer-rooted when J opens it directly (no DCOM activation involved), so
+# the ancestry gate remains valid and non-ambiguous for that image.
+CONSOLE_HOST_IMAGES = {"conhost.exe"}
 
 
 def _enum_visible_top_windows() -> list[tuple[int, int, str]]:
