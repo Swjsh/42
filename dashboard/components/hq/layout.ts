@@ -145,6 +145,104 @@ export function computeArmLayout(armIndex: number): ArmLayout {
   return { armIndex, mainAngle, hubDoorPos, tCenter, tNearEdge, rotationY: rotationYFacing(tCenter, HUB) };
 }
 
+// GATE-PROP pass (2026-09-15): the campus-gate walk node above has no set
+// dressing -- a real-screen capture shows live agents spawning/despawning
+// out of empty dark plaza floor at [21.6,0,0], "spawn at the gate" isn't
+// legible to a viewer without an actual gate prop there. These constants
+// are the single source both the graph node above AND SetKit.tsx's new
+// `CampusGate` component read from -- never a re-typed literal in either
+// place, same "one number, every consumer derives from it" discipline this
+// whole file already follows (ARM_LEN/PLAZA_APRON themselves).
+//
+// Reuses gate-door.glb (kenney-modular-space-kit) -- the SAME asymmetric
+// "4.2 wide (local X) x 4.62 tall x 1.4 deep (local Z), -Z-front" piece
+// DepartmentBayShell already mounts at every bay's hub-facing wall (see
+// SetKit.tsx's own header table + DepartmentBayShell's comment) -- no new
+// asset, no new npm package, exactly the task's own "reuse the existing
+// kit's door/arch piece at matching scale" instruction.
+//
+// Position: arm 0's own T-junction center (`computeArmLayout(0).tCenter`,
+// NOT a re-typed [T_DIST,0,0]) offset outward by ARM_LEN+PLAZA_APRON along
+// that SAME arm's own direction vector -- algebraically identical to the
+// campus-gate WalkNode's old inline literal (arm 0 is the +X cardinal, so
+// dirX=1/dirZ=0 collapses this to [ARM_LEN+PLAZA_APRON,0,0]), but derived
+// from computeArmLayout like every other node in this graph rather than
+// hand-typed.
+const CAMPUS_GATE_ARM = computeArmLayout(0);
+
+/** gate-door.glb's raw (unscaled) footprint, X=4.2 (frame width, the axis
+ * that becomes the walk-through CLEAR opening once rotated per
+ * CAMPUS_GATE_ROTATION_Y below) x Z=1.4 (frame depth) -- measured directly
+ * from the GLB's own JSON chunk this session (`node scripts/glb_extents.mjs
+ * public/hq-assets/kenney-modular-space-kit/gate-door.glb`): root AABB
+ * X=[-2.1,2.1]. Matches this file's own already-documented "gate-door.glb
+ * 4.2 x 4.62 x 1.4" header comment. */
+const GATE_RAW_WIDTH = 4.2;
+
+/** Scale for the campus gate's gate-door mount -- deliberately LARGER than
+ * DepartmentBayShell's own ARCHITECTURE_SCALE_BAY (0.45, sized for a single
+ * bay doorway): the campus gate is the whole campus's one real entrance, a
+ * grander opening is architecturally appropriate, AND the task's own
+ * requirement ("Leave >= 1.2 u clear width either side of z=0 so a lateral
+ * lane offset ... doesn't clip") needs it. ASSUMPTION (stated, not directly
+ * measured -- this session's glb_extents.mjs run reports gate-door.glb's
+ * OUTER frame AABB, not the actual open-air gap net of the frame's own
+ * solid posts/lintel, and the kit ships no separate "opening-only" mesh to
+ * measure that against): the walkable clear gap scales with the piece's
+ * own full outer width, so guaranteeing the OUTER half-width alone clears
+ * 1.2u is the conservative, provably-sufficient bound (the true opening is
+ * <= the outer footprint, never larger) -- CAMPUS_GATE_SCALE is picked so
+ * outer half-width (GATE_RAW_WIDTH/2 * scale) is not just >=1.2 but has
+ * real headroom above it (1.2/2.1 = 0.571 is the bare minimum; 0.7 clears
+ * it by 22.5%), so even a generously-thick real post/lintel still leaves
+ * the required clear gap. */
+export const CAMPUS_GATE_SCALE = 0.7;
+
+// GATE-PROP pass (2026-09-15): the campus-gate walk node above has no set
+// dressing -- a real-screen capture shows live agents spawning/despawning
+// out of empty dark plaza floor at [21.6,0,0], "spawn at the gate" isn't
+// legible to a viewer without an actual gate prop there. The actual math
+// lives in liveAgentWalk.ts#computeCampusGateGeometry (import-free of
+// SetKit.tsx, so it's unit-testable under plain `node --test` -- see that
+// function's own header for why THIS file can't be) -- called here ONCE
+// with this module's own already-computed values (ARM_LEN/PLAZA_APRON/
+// computeArmLayout(0)), so there is exactly one computation, never a
+// second copy that could drift from the campus-gate WalkNode above.
+// `distanceFromHub: ARM_LEN + PLAZA_APRON` is the SAME distance-from-hub
+// the addNode("campus-gate", ...) call above already uses (arm 0 is the
+// +X cardinal, so this collapses to exactly [21.6,0,0] at today's raw-kit
+// dimensions -- matches this header's own stated position). Reuses
+// gate-door.glb (kenney-modular-space-kit) -- the SAME asymmetric piece
+// DepartmentBayShell already mounts at every bay's hub-facing wall (see
+// SetKit.tsx's own header table + DepartmentBayShell's comment) -- no new
+// asset, no new npm package, exactly the task's own "reuse the existing
+// kit's door/arch piece at matching scale" instruction.
+const CAMPUS_GATE_GEOMETRY = computeCampusGateGeometry({
+  armMainAngle: CAMPUS_GATE_ARM.mainAngle,
+  facingTarget: CAMPUS_GATE_ARM.tCenter,
+  distanceFromHub: ARM_LEN + PLAZA_APRON,
+  scale: CAMPUS_GATE_SCALE,
+  gateRawWidth: GATE_RAW_WIDTH,
+});
+export const CAMPUS_GATE_POSITION: [number, number, number] = CAMPUS_GATE_GEOMETRY.position;
+/** Yaw that puts the gate-door's own local Z axis (its walk-through axis --
+ * see DepartmentBayShell's own comment: local -Z is this kit's "front",
+ * agents pass through a mounted gate-door along local Z, its local X is the
+ * frame's WIDTH/clear-opening axis) along the campus-gate<->t-0 walk edge
+ * (world +X at z=0, today's raw dims) instead of the default local-Z==
+ * world-Z bay-door orientation -- computed via the same atan2(self-target)
+ * formula this file's own rotationYFacing uses, even though it
+ * algebraically reduces to exactly Math.PI/2 for arm 0's own +X-axis
+ * geometry. */
+export const CAMPUS_GATE_ROTATION_Y = CAMPUS_GATE_GEOMETRY.rotationY;
+/** Derived from CAMPUS_GATE_SCALE above (never a re-typed literal) -- the
+ * guaranteed-safe lower bound on the campus gate's own clear walkable half-
+ * width, in world units either side of z=0 along the rotated gate's own
+ * clear-opening axis. The gate-prop test (tests/campus-gate.test.ts)
+ * asserts computeCampusGateGeometry itself returns >= 1.2 for these same
+ * inputs, so this and the test can never silently drift apart. */
+export const CAMPUS_GATE_CLEAR_HALF_WIDTH = CAMPUS_GATE_GEOMETRY.clearHalfWidth;
+
 export interface BaySlot {
   /** 0..7, matches `data.sectors.rows[index]` 1:1 -- 4 arms x 2 sides. */
   index: number;
@@ -432,7 +530,7 @@ export function computePersonaWallSlots(count: number, brainWallArmIndex: number
 // a pure, behavior-preserving code MOVE, not a rewrite. Re-exported below so
 // every existing import site (Scene.tsx, LiveAgents.tsx) keeps working with
 // zero edits of its own.
-import { findWalkPath, type WalkGraph, type WalkNode } from "./liveAgentWalk";
+import { computeCampusGateGeometry, findWalkPath, type WalkGraph, type WalkNode } from "./liveAgentWalk";
 export { findWalkPath };
 export type { WalkGraph, WalkNode };
 
@@ -498,7 +596,7 @@ export function buildWalkGraph(input: WalkGraphInput): WalkGraph {
   // T-junction out to the apron edge, so this edge crosses open plaza floor
   // (never a wall), a real hallway hop at the SAME node granularity as every
   // other edge this graph already has.
-  addNode("campus-gate", [ARM_LEN + PLAZA_APRON, 0, 0]);
+  addNode("campus-gate", CAMPUS_GATE_POSITION);
   addEdge("campus-gate", "t-0");
   input.baySlots.forEach((slot) => {
     addNode(`bay-door-${slot.index}`, slot.doorWorldPos);

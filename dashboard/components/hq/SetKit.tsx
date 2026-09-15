@@ -719,6 +719,45 @@ export function DepartmentBayShell({ position, rotationY }: { position: [number,
   return null;
 }
 
+/** GATE-PROP pass (2026-09-15): a visible physical gate at the live-agent
+ * walk graph's own "campus-gate" node (layout.ts#buildWalkGraph -- where
+ * every live agent, one per Claude session/subagent, now spawns and
+ * despawns, per J's "spawn at the gate ... walk out and despawn when they
+ * go quiet"). Before this pass there was NO prop there at all -- a real
+ * capture showed agents appearing out of empty dark plaza floor.
+ *
+ * Reuses the SAME gate-door.glb piece DepartmentBayShell mounts above (no
+ * new asset, no new npm package) via the SAME `usePooledKitProps(...,
+ * "native", ...)` registration into HubRoom's already-mounted
+ * `<InstancedKitPool path={KIT_PATHS.architecture.gateDoor} variant="native">`
+ * -- so this is ONE more instance matrix in an InstancedMesh HubRoom
+ * renders regardless, not a new draw call (P3 perf pass's own "one real
+ * InstancedMesh per mesh primitive, fed by every registered placement"
+ * convention).
+ *
+ * `position`/`rotationY`/`scale` are REQUIRED props, never computed in here
+ * -- same "receives computed dimensions as props from Scene.tsx" contract
+ * Plaza/TJunction/CorridorRun already use, so this file never has to import
+ * from layout.ts (that module's own header: the dependency runs ONE way
+ * only, layout.ts -> SetKit.tsx -- an import the other direction would be a
+ * real circular-import bug, not just a style violation). Scene.tsx passes
+ * layout.ts's own CAMPUS_GATE_POSITION/CAMPUS_GATE_ROTATION_Y/
+ * CAMPUS_GATE_SCALE straight through -- see that module's own header for
+ * the derivation (from ARM_LEN/PLAZA_APRON, never a literal) and the stated
+ * clear-width assumption. Door-frame/arch piece, not a wall: the walk path
+ * (t-0 -> campus-gate) runs straight through it along its own local Z
+ * (walk-through) axis -- agents pass THROUGH the frame, nothing here blocks
+ * that edge. */
+export function CampusGate({ position, rotationY, scale }: { position: [number, number, number]; rotationY: number; scale: number }) {
+  const instanceIdBase = useId();
+  const placements = useMemo(
+    () => [{ id: `${instanceIdBase}-campus-gate`, position, rotation: [0, rotationY, 0] as [number, number, number], scale }],
+    [instanceIdBase, position, rotationY, scale],
+  );
+  usePooledKitProps(KIT_PATHS.architecture.gateDoor, "native", placements);
+  return null;
+}
+
 interface DeskClusterProps {
   /** P3 perf pass, item 2 (POLISH-1 follow-up, 2026-09-14): the SAME
    * `position`/`rotationY` StationModule.tsx's own outer

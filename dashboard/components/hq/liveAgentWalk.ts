@@ -57,6 +57,71 @@
 // dashboard/tests/live-agent-walk.test.ts.
 export const ENTRY_NODE_ID = "campus-gate";
 
+// GATE-PROP pass (2026-09-15): pure geometry for the campus-gate set-
+// dressing prop (SetKit.tsx#CampusGate) -- lives HERE, not layout.ts,
+// despite the caller (layout.ts) owning every input value, for the SAME
+// reason findWalkPath/WalkGraph were moved here in the CAMPUS-GATE pass
+// above: layout.ts imports 3 raw-kit constants from SetKit.tsx (a real
+// .tsx component file), which node's own ESM loader can't load at all
+// under plain `node --test` (confirmed this session: ERR_MODULE_NOT_FOUND
+// trying to resolve SetKit.tsx as SetKit.ts, since the test suite's
+// resolve-ts-extensionless loader only ever appends ".ts") -- so a
+// regression test for the gate's own placement math needs this function
+// import-free of layout.ts, taking every input as a plain number/tuple
+// instead. layout.ts calls this once (module scope) with its own already-
+// computed ARM_LEN/PLAZA_APRON/computeArmLayout(0) values and re-exports
+// the result, so there is exactly ONE computation, never two independent
+// copies that could drift.
+export interface CampusGateGeometry {
+  /** World position, world-Y always 0 (this scene's floor plane). */
+  position: [number, number, number];
+  /** Yaw that puts the gate-door kit piece's own local Z axis (its walk-
+   * through axis -- see SetKit.tsx#DepartmentBayShell's own comment: local
+   * -Z is "front", agents pass through a mounted gate-door along local Z)
+   * onto the position<->facingTarget line, computed via the exact same
+   * atan2 formula layout.ts#rotationYFacing already uses for every other
+   * kit placement in this tree (self=position, target=facingTarget). */
+  rotationY: number;
+  /** (gateRawWidth / 2) * scale -- the guaranteed-safe lower bound on the
+   * gate's own clear walkable half-width either side of its own local
+   * z=0 centerline (see layout.ts's own CAMPUS_GATE_SCALE header for why
+   * the OUTER footprint half-width is the conservative, provably-
+   * sufficient bound: the true opening is always <= it, never larger). */
+  clearHalfWidth: number;
+}
+
+export function computeCampusGateGeometry(params: {
+  /** Arm direction, radians (layout.ts#computeArmLayout's own `mainAngle`,
+   * `armAngle(armIndex)` -- 0 = +X, matching this tree's cos/sin
+   * convention). */
+  armMainAngle: number;
+  /** World point the gate's local -Z should face toward (layout.ts wires
+   * this to the SAME arm's own T-junction center, `tCenter`, matching the
+   * walk edge the campus-gate WalkNode itself has to "t-0"). */
+  facingTarget: [number, number, number];
+  /** Distance from the hub (world origin) along `armMainAngle` to the gate
+   * itself -- layout.ts passes `ARM_LEN + PLAZA_APRON`, the SAME distance
+   * the campus-gate WalkNode's own position already uses (that module's
+   * own header explains the derivation), never re-derived here. */
+  distanceFromHub: number;
+  /** Scale factor applied to the gate-door.glb kit piece. */
+  scale: number;
+  /** gate-door.glb's raw (unscaled) X footprint -- 4.2 at today's kit
+   * (layout.ts's own CAMPUS_GATE_SCALE header cites the glb_extents.mjs
+   * measurement this number comes from). */
+  gateRawWidth: number;
+}): CampusGateGeometry {
+  const { armMainAngle, facingTarget, distanceFromHub, scale, gateRawWidth } = params;
+  const position: [number, number, number] = [
+    Math.cos(armMainAngle) * distanceFromHub,
+    0,
+    Math.sin(armMainAngle) * distanceFromHub,
+  ];
+  const rotationY = Math.atan2(position[0] - facingTarget[0], position[2] - facingTarget[2]);
+  const clearHalfWidth = (gateRawWidth / 2) * scale;
+  return { position, rotationY, clearHalfWidth };
+}
+
 // ─── Walk graph pathfinding (moved from layout.ts, CAMPUS-GATE pass) ───────
 // layout.ts imports 3 raw-kit constants from SetKit.tsx (a real .tsx
 // React/three component file). Verified this pass: node's own ESM loader

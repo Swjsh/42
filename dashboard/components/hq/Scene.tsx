@@ -45,14 +45,14 @@ import LabelDeclutterManager from "./LabelDeclutterManager";
 import { PRIORITY } from "./labelDeclutter";
 import { laneBubbleAction, personaBubbleAction } from "./bubbleText";
 import { computePurposefulWalk, dayNightFactor, healthColor, hhmmFromEtIso, isParkedState, isRegularTradingHours, lerp, localToWorld, minutesSinceEvidence, nowEtDayOfWeek, nowEtMinutes, PALETTE, personaStatusColor, scheduleOnShift, truncateOneLine, type ScreenLine } from "./palette";
-import { BAY_DESK_OFFSET_Z, BAY_SEAT_LOCAL, CHARACTER_SCALE, CHARACTER_TARGET_HEIGHT, CorridorRun, DeskCluster, HubRoom, HUB_WALL_RADIUS, Plaza, TJunction } from "./SetKit";
+import { BAY_DESK_OFFSET_Z, BAY_SEAT_LOCAL, CampusGate, CHARACTER_SCALE, CHARACTER_TARGET_HEIGHT, CorridorRun, DeskCluster, HubRoom, HUB_WALL_RADIUS, Plaza, TJunction } from "./SetKit";
 // LAYOUT builder pass (2026-09-14, campus-cross rebuild): pure geometry/math
 // module (no React/Three deps) shared with SetKit.tsx -- see that module's
 // own header for why the dependency runs this direction only (layout.ts ->
 // SetKit.tsx's raw-kit constants), never the reverse.
 import {
-  ARM_HALF_WIDTH, ARM_LEN, armAngle, buildWalkGraph, computeAllBaySlots, computeArmLayout, computePersonaWallSlots,
-  findWalkPath, PLAZA_APRON, PLAZA_CENTER_RADIUS, type ArmLayout,
+  ARM_HALF_WIDTH, ARM_LEN, armAngle, buildWalkGraph, CAMPUS_GATE_POSITION, CAMPUS_GATE_ROTATION_Y, CAMPUS_GATE_SCALE,
+  computeAllBaySlots, computeArmLayout, computePersonaWallSlots, findWalkPath, PLAZA_APRON, PLAZA_CENTER_RADIUS, type ArmLayout,
 } from "./layout";
 // World-2 coordinator review (2026-09-14, "GAMMA'S BUBBLE... must derive it
 // from the same truth as the panel"): the SAME pure function Hud.tsx's own
@@ -1782,6 +1782,19 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
           <TJunction position={arm.tCenter} rotationY={arm.rotationY} dayFactor={nightFactor} />
         </Suspense>
       ))}
+
+      {/* GATE-PROP pass (2026-09-15): set dressing for the live-agent walk
+          graph's own "campus-gate" node (layout.ts#buildWalkGraph) -- see
+          SetKit.tsx#CampusGate's own header. Position/rotation/scale all
+          come from layout.ts (derived from ARM_LEN/PLAZA_APRON, never a
+          literal here); registers into HubRoom's already-mounted gate-door
+          InstancedKitPool, so this adds zero new draw calls. Ultra tier
+          only, matching every other architecture piece on this arm. */}
+      {ultra && (
+        <Suspense fallback={null}>
+          <CampusGate position={CAMPUS_GATE_POSITION} rotationY={CAMPUS_GATE_ROTATION_Y} scale={CAMPUS_GATE_SCALE} />
+        </Suspense>
+      )}
 
       {rows.map((row, i) => {
         const slot = geometry[i] ?? geometry[0];
