@@ -12,6 +12,8 @@ from hq_probe_lib import (  # noqa: E402
     PAGE_REFRESH_MS_DEFAULT,
     PAGE_REFRESH_MS_KIOSK,
     SPAWN_LATENCY_RENDER_SLACK_MS,
+    WALK_OUT_MAX_S,
+    WALKER_MIN_DIST,
     build_verdicts,
     check_bubbles,
     check_page_api_parity,
@@ -21,6 +23,7 @@ from hq_probe_lib import (  # noqa: E402
     check_stand_slots,
     check_walk_out,
     check_walk_speed,
+    check_walker_separation,
     page_refresh_ms_from_url,
     perf_headless_flag,
 )
@@ -413,6 +416,45 @@ def test_stand_slots_no_data_single_agent():
     assert v["verdict"] == "NO-DATA", v
 
 
+# 3b. walker separation -------------------------------------------------------------
+# Companion to stand_slots: catches two agents overlapping WHILE IN TRANSIT
+# (walking/leaving), which stand_slots can't see since neither is "working".
+
+def test_walker_separation_fail_lockstep_pair():
+    # PROBE-10 shape: two agents walking 0.01u apart for many ticks.
+    samples = [
+        _s(t, page=[
+            _agent("a1", "walking", [float(t) / 1000.0, 0]),
+            _agent("a2", "walking", [float(t) / 1000.0 + 0.01, 0]),
+        ])
+        for t in range(0, 11000, 1000)
+    ]
+    v = check_walker_separation(samples)
+    assert v["verdict"] == "FAIL", v
+    assert v["detail"]["violating_frac"] == 1.0
+    assert v["detail"]["min_pairwise_dist"] == 0.01
+    assert len(v["detail"]["worst_pairs"]) <= 5
+
+
+def test_walker_separation_pass_well_separated():
+    samples = [
+        _s(t, page=[
+            _agent("a1", "walking", [float(t) / 1000.0, 0]),
+            _agent("a2", "walking", [float(t) / 1000.0 + 1.0, 0]),
+        ])
+        for t in range(0, 11000, 1000)
+    ]
+    v = check_walker_separation(samples)
+    assert v["verdict"] == "PASS", v
+    assert v["detail"]["violating_frac"] == 0.0
+
+
+def test_walker_separation_no_data_single_walker():
+    samples = [_s(0, page=[_agent("a1", "walking", [0, 0])])]
+    v = check_walker_separation(samples)
+    assert v["verdict"] == "NO-DATA", v
+
+
 # 4. walk-out ---------------------------------------------------------------------
 
 def test_walk_out_pass():
@@ -476,10 +518,13 @@ def test_walk_out_fail_despawn_far_from_gate():
 
 
 def test_walk_out_fail_never_gone():
+    # Never despawns, well past the derived grace (WALK_OUT_MAX_S) -- a
+    # genuine FAIL, not a probe-window artifact.
+    past_grace_ms = (WALK_OUT_MAX_S + 5.0) * 1000
     samples = [
         _s(0, page=[_agent("a1", "leaving", [5, 0])]),
         _s(1000, page=[_agent("a1", "leaving", [3, 0])]),
-        _s(20000, page=[_agent("a1", "leaving", [3, 0])]),
+        _s(past_grace_ms, page=[_agent("a1", "leaving", [3, 0])]),
     ]
     v = check_walk_out(samples)
     assert v["verdict"] == "FAIL", v
@@ -506,18 +551,39 @@ def test_walk_out_no_data_when_leave_started_near_window_end():
     assert v["detail"]["per_agent"]["a1"]["leave_started_offset_s"] == 10.0
 
 
-def test_walk_out_fail_when_leaving_at_least_20s_without_despawn():
-    # Same shape as the window-end case but past the 20s grace -- now a
+def test_walk_out_fail_when_leaving_past_derived_grace_without_despawn():
+    # Same shape as the window-end case but past the derived grace
+    # (WALK_OUT_WINDOW_END_GRACE_S == WALK_OUT_MAX_S, ~51.14s) -- now a
     # genuine FAIL, not an artifact.
+    past_grace_ms = (WALK_OUT_MAX_S + 1.0) * 1000
     samples = [
         _s(0, page=[_agent("a1", "leaving", [5, 0])]),
         _s(1000, page=[_agent("a1", "leaving", [3, 0])]),
-        _s(20000, page=[_agent("a1", "leaving", [3, 0])]),  # window ends here
+        _s(past_grace_ms, page=[_agent("a1", "leaving", [3, 0])]),  # window ends here
     ]
     v = check_walk_out(samples)
     assert v["verdict"] == "FAIL", v
     assert v["detail"]["per_agent"]["a1"]["status"] == "FAIL"
-    assert v["detail"]["per_agent"]["a1"]["leave_started_offset_s"] == 20.0
+    assert v["detail"]["per_agent"]["a1"]["leave_started_offset_s"] == past_grace_ms / 1000
+
+
+def test_walk_out_no_data_when_still_walking_within_max_s_at_window_end():
+    # PROBE-10 (coordinator, 2026-09-15, run
+    # 20260915T084211Z-5rAPWKjf6d_SvYCYmRL3o): agent a93582c12e2fad9ca
+    # started leaving 28.02s before the window ended, moved, and was still
+    # walking at window close -- a correct in-progress hub->gate walk
+    # (~31s), well inside WALK_OUT_MAX_S (~51.14s). The old fixed 20.0s
+    # grace wrongly FAILed this. Must be NO-DATA -- the walk simply hasn't
+    # had its full budget to finish yet.
+    samples = [
+        _s(0, page=[_agent("a1", "leaving", [5.0, 0])]),
+        _s(14000, page=[_agent("a1", "leaving", [13.0, 0])]),
+        _s(28020, page=[_agent("a1", "leaving", [20.02, -0.02])]),  # window ends here
+    ]
+    v = check_walk_out(samples)
+    assert v["verdict"] == "NO-DATA", v
+    assert v["detail"]["per_agent"]["a1"]["status"] == "NO-DATA"
+    assert v["detail"]["per_agent"]["a1"]["leave_started_offset_s"] == 28.02
 
 
 def test_walk_out_mixed_no_data_and_pass():
@@ -876,7 +942,7 @@ def test_motion_checks_no_data_below_fps_gate():
     ]
     out = build_verdicts(samples, _low_fps_frames(), calls_samples=[100, 100], scene_ready=True, build_ids=["b", "b"])
     assert out["run_valid"] is True, out
-    for key in ("walk_speed", "stand_slots", "walk_out"):
+    for key in ("walk_speed", "stand_slots", "walker_separation", "walk_out"):
         assert out[key]["verdict"] == "NO-DATA", (key, out[key])
         assert "fps too low" in out[key]["detail"]["reason"]
     # not gated -- these have nothing to do with position/motion sampling
@@ -997,7 +1063,10 @@ def test_build_verdicts_invalid_on_build_change_never_passes_perf():
     )
     assert out["run_valid"] is False, out
     assert out["perf"]["verdict"] == "NO-DATA", out["perf"]
-    for key in ("spawn_latency", "walk_speed", "stand_slots", "walk_out", "page_api_parity", "bubbles"):
+    for key in (
+        "spawn_latency", "walk_speed", "stand_slots", "walker_separation",
+        "walk_out", "page_api_parity", "bubbles",
+    ):
         assert out[key]["verdict"] == "NO-DATA", (key, out[key])
 
 

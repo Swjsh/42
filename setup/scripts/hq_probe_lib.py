@@ -34,6 +34,12 @@ WALK_SPEED_DEFAULT = 0.7
 WALK_SPEED_TOL_DEFAULT = 0.15
 STAND_SLOT_MIN_DIST = 0.7
 
+# check_walker_separation's collision bar -- same 0.7u bar STAND_SLOT_MIN_DIST
+# already uses for settled agents, applied to agents still in transit
+# (walking/leaving) instead (PROBE-10, coordinator, 2026-09-15).
+WALKER_MIN_DIST = 0.7
+WALKER_SEPARATION_FAIL_FRAC = 0.10
+
 # check_walk_out's PASS ceiling and despawn-location gate, derived from
 # where commit 6249eaf3 (2026-09-15) actually moved live-agent spawn/despawn
 # to -- a real "campus-gate" node, not the hub centre. The old fixed
@@ -501,6 +507,62 @@ def check_stand_slots(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
     }
 
 
+# 3b. walker separation ---------------------------------------------------------
+
+# Companion to check_stand_slots: that check only judges agents SETTLED at a
+# shared target ("working"); two agents still in transit (walking/leaving)
+# can walk in lockstep, overlapping the whole way, and stand_slots never
+# sees it because neither one ever reaches "working" while overlapped
+# (PROBE-10, coordinator, 2026-09-15, run
+# 20260915T084211Z-5rAPWKjf6d_SvYCYmRL3o: a93582c1 and ab416fc0 walked
+# 0.01u apart for ~33s).
+def check_walker_separation(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
+    multi_walker_ticks = 0
+    violating_ticks = 0
+    tick_min_dists: List[float] = []
+    all_pairs: List[Dict[str, Any]] = []
+
+    for s in samples:
+        walkers = [a for a in s.get("page_agents", []) if a.get("state") in WALKING_STATES]
+        if len(walkers) < 2:
+            continue
+        multi_walker_ticks += 1
+        tick_min = None
+        for i in range(len(walkers)):
+            for j in range(i + 1, len(walkers)):
+                d = _dist(walkers[i]["pos"], walkers[j]["pos"])
+                if tick_min is None or d < tick_min:
+                    tick_min = d
+                all_pairs.append({
+                    "a_id": walkers[i]["id"],
+                    "b_id": walkers[j]["id"],
+                    "t_ms": s.get("t_ms"),
+                    "dist": round(d, 4),
+                    "a_pos": walkers[i]["pos"],
+                    "b_pos": walkers[j]["pos"],
+                })
+        tick_min_dists.append(tick_min)
+        if tick_min < WALKER_MIN_DIST:
+            violating_ticks += 1
+
+    if multi_walker_ticks == 0:
+        return {"verdict": "NO-DATA", "detail": {"reason": "no tick had >=2 walking/leaving agents"}}
+
+    violating_frac = violating_ticks / multi_walker_ticks
+    worst_pairs = sorted(all_pairs, key=lambda p: p["dist"])[:5]
+    verdict = "FAIL" if violating_frac > WALKER_SEPARATION_FAIL_FRAC else "PASS"
+    return {
+        "verdict": verdict,
+        "detail": {
+            "multi_walker_ticks": multi_walker_ticks,
+            "violating_ticks": violating_ticks,
+            "violating_frac": round(violating_frac, 4),
+            "min_pairwise_dist": round(min(tick_min_dists), 4),
+            "worst_pairs": worst_pairs,
+        },
+    }
+
+
 # 4. walk-out ------------------------------------------------------------------
 
 # An agent still "leaving" when the sampling window ends is ambiguous, not
@@ -508,7 +570,16 @@ def check_stand_slots(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
 # a FAIL once it has been leaving for at least this long without despawning;
 # below that it's NO-DATA (the window just didn't run long enough to judge
 # this particular agent).
-WALK_OUT_WINDOW_END_GRACE_S = 20.0
+#
+# Derived from WALK_OUT_MAX_S itself (coordinator, PROBE-10, 2026-09-15,
+# run 20260915T084211Z-5rAPWKjf6d_SvYCYmRL3o): a fixed 20.0s grace was a
+# stale literal from before the campus-gate move -- it FAILed agent
+# a93582c12e2fad9ca, which started leaving 28.02s before the window ended,
+# was moving, and was still correctly mid-walk (a hub->gate walk is ~31s,
+# well inside the ~51.1s WALK_OUT_MAX_S ceiling). An agent that hasn't had
+# the full WALK_OUT_MAX_S budget to complete its walk yet is unjudged, not
+# broken -- NO-DATA, not FAIL.
+WALK_OUT_WINDOW_END_GRACE_S = WALK_OUT_MAX_S
 
 
 def check_walk_out(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -937,6 +1008,7 @@ def build_verdicts(
             "spawn_latency": _no_data(),
             "walk_speed": _no_data(),
             "stand_slots": _no_data(),
+            "walker_separation": _no_data(),
             "walk_out": _no_data(),
             "page_api_parity": _no_data(),
             "bubbles": _no_data(),
@@ -966,6 +1038,7 @@ def build_verdicts(
             samples, design_speed=walk_speed, tol=walk_speed_tol, speed_window_s=speed_window_s
         ),
         "stand_slots": _motion_no_data() if motion_gated else check_stand_slots(samples),
+        "walker_separation": _motion_no_data() if motion_gated else check_walker_separation(samples),
         "walk_out": _motion_no_data() if motion_gated else check_walk_out(samples),
         "page_api_parity": check_page_api_parity(samples),
         "bubbles": check_bubbles(samples),
