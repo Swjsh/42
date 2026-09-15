@@ -416,13 +416,63 @@ def test_stand_slots_no_data_single_agent():
 # 4. walk-out ---------------------------------------------------------------------
 
 def test_walk_out_pass():
+    # Despawns near campus-gate (GATE_POS = (21.6, 0.0)) after a real
+    # ~2s walk -- correct on both duration and despawn location.
     samples = [
-        _s(0, page=[_agent("a1", "leaving", [5, 0])]),
-        _s(1000, page=[_agent("a1", "leaving", [3, 0])]),
+        _s(0, page=[_agent("a1", "leaving", [19.6, 0])]),
+        _s(1000, page=[_agent("a1", "leaving", [21.3, 0])]),
         _s(2000, page=[]),
     ]
     v = check_walk_out(samples)
     assert v["verdict"] == "PASS", v
+
+
+def test_walk_out_pass_30s_ending_at_gate():
+    # Live-evidence shape (2026-09-15 run 20260915T081521Z-BJcLqAlox0n-8xa5n5Kns,
+    # agent ac4b025b7106368d5): a correct 30.85s walk-out ending 0.30u from
+    # the gate. Must PASS under the derived ~51.14s ceiling -- the old fixed
+    # 15.0s limit wrongly FAILed exactly this shape.
+    samples = [
+        _s(0, page=[_agent("a1", "leaving", [5.0, 0])]),
+        _s(15000, page=[_agent("a1", "leaving", [13.0, 0])]),
+        _s(30850, page=[_agent("a1", "leaving", [21.30, 0])]),
+        _s(31000, page=[]),
+    ]
+    v = check_walk_out(samples)
+    assert v["verdict"] == "PASS", v
+    assert v["detail"]["per_agent"]["a1"]["despawned_at_gate"] is True
+
+
+def test_walk_out_fail_60s_exceeds_derived_ceiling():
+    # A walk-out that reaches the gate but takes far longer than the app's
+    # own derived ceiling (~51.14s = 27.4u/0.7 + 10s margin + 2s slack) is a
+    # genuine FAIL, not a correct-but-slow walk.
+    samples = [
+        _s(0, page=[_agent("a1", "leaving", [5.0, 0])]),
+        _s(30000, page=[_agent("a1", "leaving", [13.0, 0])]),
+        _s(60000, page=[_agent("a1", "leaving", [21.6, 0])]),
+        _s(60100, page=[]),
+    ]
+    v = check_walk_out(samples)
+    assert v["verdict"] == "FAIL", v
+    assert v["detail"]["per_agent"]["a1"]["status"] == "FAIL"
+
+
+def test_walk_out_fail_despawn_far_from_gate():
+    # Despawns well within the time ceiling but 8u from campus-gate --
+    # the teleport/ghost-despawn bug shape (vanishing mid-hallway), not a
+    # correct walk-out. Must FAIL even though duration alone would PASS.
+    samples = [
+        _s(0, page=[_agent("a1", "leaving", [5.0, 0])]),
+        _s(3000, page=[_agent("a1", "leaving", [13.6, 0])]),  # 8u from gate
+        _s(4000, page=[]),
+    ]
+    v = check_walk_out(samples)
+    assert v["verdict"] == "FAIL", v
+    detail = v["detail"]["per_agent"]["a1"]
+    assert detail["status"] == "FAIL"
+    assert detail["despawned_at_gate"] is False
+    assert detail["dist_to_gate"] == 8.0
 
 
 def test_walk_out_fail_never_gone():
@@ -471,15 +521,15 @@ def test_walk_out_fail_when_leaving_at_least_20s_without_despawn():
 
 
 def test_walk_out_mixed_no_data_and_pass():
-    # One agent despawns cleanly (PASS), another starts leaving only 5s
-    # before the window ends (NO-DATA for that agent) -- overall verdict is
-    # PASS since nothing actually FAILed.
+    # One agent despawns cleanly at the gate (PASS), another starts leaving
+    # only 5s before the window ends (NO-DATA for that agent) -- overall
+    # verdict is PASS since nothing actually FAILed.
     samples = [
         _s(0, page=[
-            _agent("a1", "leaving", [5, 0]),
+            _agent("a1", "leaving", [19.6, 0]),
         ]),
         _s(1000, page=[
-            _agent("a1", "leaving", [3, 0]),
+            _agent("a1", "leaving", [21.3, 0]),
         ]),
         _s(2000, page=[
             _agent("a2", "leaving", [5, 0]),

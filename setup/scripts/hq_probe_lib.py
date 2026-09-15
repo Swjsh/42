@@ -33,7 +33,48 @@ RAW_SHELL_LEAK_RE = re.compile(r"Ran:|\\\\|/c/Users|&&")
 WALK_SPEED_DEFAULT = 0.7
 WALK_SPEED_TOL_DEFAULT = 0.15
 STAND_SLOT_MIN_DIST = 0.7
-WALK_OUT_MAX_S = 15.0
+
+# check_walk_out's PASS ceiling and despawn-location gate, derived from
+# where commit 6249eaf3 (2026-09-15) actually moved live-agent spawn/despawn
+# to -- a real "campus-gate" node, not the hub centre. The old fixed
+# WALK_OUT_MAX_S = 15.0 predates that move and was never re-derived, so a
+# correct 17-39s gate-to-desk walk (the graph's own worst-case is longer
+# than 15s even before any margin) was scored as a FAIL (2026-09-15 live
+# probe run 20260915T081521Z-BJcLqAlox0n-8xa5n5Kns: agent ac4b025b7106368d5
+# despawned 0.30u from the gate after a correct 30.85s walk-out, FAILed only
+# because 30.85 > 15).
+#
+# GATE_POS mirrors dashboard/components/hq/layout.ts:501
+#   addNode("campus-gate", [ARM_LEN + PLAZA_APRON, 0, 0])
+# at today's raw-kit dimensions ([21.6, 0, 0]); sample `pos` fields are
+# [x, z] (see module docstring), so this is (x, z).
+GATE_POS: Tuple[float, float] = (21.6, 0.0)
+
+# The app's OWN hard despawn ceiling is derived per-graph, not a literal:
+# dashboard/components/hq/liveAgentWalk.ts#computeMaxPathDurationS walks
+# every graph node and returns the longest real walk-graph distance back to
+# ENTRY_NODE_ID ("campus-gate"). That longest path is
+# ambient-ideas-wall -> hub-center (5.8u, hypot(4.10, 4.10)) -> hub-door-0
+# -> t-0 -> campus-gate (21.6u, ARM_LEN + PLAZA_APRON) = 27.4u total
+# (dashboard/components/hq/Scene.tsx:396 "ideas-wall": [4.10, 0, 4.10]).
+# LiveAgents.tsx then adds its own fixed LEAVE_TIMEOUT_MARGIN_S = 10
+# (liveAgentWalk.ts:172) on top before force-despawning a stuck avatar.
+_WALK_OUT_MAX_PATH_U = 27.4
+_WALK_OUT_LEAVE_TIMEOUT_MARGIN_S = 10.0
+# Probe-side slack on top of the app's own ceiling, for sample/poll
+# granularity (the probe's own tick interval + CDP round-trip jitter --
+# see _resolved_t_ms below), not a re-guess of the app's timeout.
+_WALK_OUT_PROBE_SLACK_S = 2.0
+WALK_OUT_MAX_S = (
+    _WALK_OUT_MAX_PATH_U / WALK_SPEED_DEFAULT
+    + _WALK_OUT_LEAVE_TIMEOUT_MARGIN_S
+    + _WALK_OUT_PROBE_SLACK_S
+)  # ~51.14s
+
+# Despawn must also happen AT the gate, not mid-hallway -- an agent
+# vanishing far from campus-gate is the teleport/ghost-despawn bug shape,
+# not a slow-but-correct walk-out.
+WALK_OUT_GATE_RADIUS = 1.0
 
 # Below this measured fps, position samples update in jumps rather than
 # smooth motion (headless SwiftShader fps_p50 0.71 was the observed
@@ -95,6 +136,16 @@ def check_spawn_latency(
     latencies_ms: List[float] = []
     prev_api: set = _api_ids(samples[0])
     seen_on_page_by: Dict[str, Optional[float]] = {}
+    # Detail-only, per commit 6249eaf3 (campus-gate spawn/despawn): first
+    # observed page position + distance to GATE_POS for each spawned agent.
+    # NOT folded into the PASS/FAIL verdict above -- doing that cleanly
+    # needs the per-agent first-observation delay (WALK_SPEED * delay + a
+    # position tolerance) budgeted against the SAME page_refresh_ms/slack
+    # the latency check already uses, and that budget hasn't been derived
+    #/verified against a live sample yet. Reported as diagnostic detail so
+    # a spawn-at-the-wrong-place bug is still visible without risking a
+    # false FAIL on a correct-but-conservative tolerance guess.
+    spawn_gate_by_agent: Dict[str, Dict[str, Any]] = {}
 
     for i in range(1, len(samples)):
         cur = samples[i]
@@ -105,6 +156,7 @@ def check_spawn_latency(
         prev_api = cur_api
 
         cur_page = _page_ids(cur)
+        cur_page_agents = {a["id"]: a for a in cur.get("page_agents", [])}
         for agent_id in list(seen_on_page_by.keys()):
             if seen_on_page_by[agent_id] is None and agent_id in cur_page:
                 # first sample tick the id appears on the page after the
@@ -117,6 +169,11 @@ def check_spawn_latency(
                 if spawn_tick is not None:
                     latencies_ms.append(samples[i]["t_ms"] - samples[spawn_tick]["t_ms"])
                 seen_on_page_by[agent_id] = samples[i]["t_ms"]
+                first_pos = cur_page_agents.get(agent_id, {}).get("pos")
+                spawn_gate_by_agent[agent_id] = {
+                    "first_pos": first_pos,
+                    "dist_to_gate": round(_dist(first_pos, GATE_POS), 4) if first_pos is not None else None,
+                }
 
     if not latencies_ms:
         return {"verdict": "NO-DATA", "detail": {"reason": "no spawn observed this window"}}
@@ -136,6 +193,8 @@ def check_spawn_latency(
             # The probe's own --interval-ms sample tick -- NOT the judging
             # threshold. Reported for diagnostics only.
             "sample_tick_ms": sample_tick_ms,
+            # Detail-only gate-position report -- see comment above.
+            "spawn_gate_by_agent": spawn_gate_by_agent,
         },
     }
 
@@ -446,6 +505,12 @@ def check_walk_out(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
     despawn_ms: Dict[str, float] = {}
     ever_leaving: set = set()
 
+    # Resolve timestamps the same way check_walk_speed does -- prefer the
+    # in-page page_t_ms over host t_ms (see _resolved_t_ms), so a walk-out
+    # duration isn't inflated/deflated by CDP round-trip jitter that has
+    # nothing to do with the agent's real walk time.
+    resolved_t_ms = [_resolved_t_ms(s)[0] for s in samples]
+
     all_ids_by_tick: List[set] = [_page_ids(s) for s in samples]
 
     for i, s in enumerate(samples):
@@ -455,7 +520,7 @@ def check_walk_out(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
             aid = a["id"]
             ever_leaving.add(aid)
             if aid not in leaving_start:
-                leaving_start[aid] = s["t_ms"]
+                leaving_start[aid] = resolved_t_ms[i]
                 leaving_last_pos[aid] = a["pos"]
                 moved_while_leaving[aid] = False
             else:
@@ -466,8 +531,8 @@ def check_walk_out(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
     for aid, start_t in leaving_start.items():
         gone_at = None
         for i, ids in enumerate(all_ids_by_tick):
-            if samples[i]["t_ms"] >= start_t and aid not in ids:
-                gone_at = samples[i]["t_ms"]
+            if resolved_t_ms[i] >= start_t and aid not in ids:
+                gone_at = resolved_t_ms[i]
                 break
         if gone_at is not None:
             despawn_ms[aid] = gone_at - start_t
@@ -475,17 +540,22 @@ def check_walk_out(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
     if not ever_leaving:
         return {"verdict": "NO-DATA", "detail": {"reason": "no agent observed leaving this window"}}
 
-    window_end_ms = samples[-1]["t_ms"] if samples else 0.0
+    window_end_ms = resolved_t_ms[-1] if resolved_t_ms else 0.0
 
     per_agent: Dict[str, Dict[str, Any]] = {}
     for aid, start_t in leaving_start.items():
         moved = moved_while_leaving.get(aid, False)
+        last_pos = leaving_last_pos.get(aid)
+        dist_to_gate = _dist(last_pos, GATE_POS) if last_pos is not None else None
+        despawned_at_gate = dist_to_gate is not None and dist_to_gate <= WALK_OUT_GATE_RADIUS
         # Offset of this agent's leave-start relative to the END of the
         # sampling window -- how much window was left to observe it in.
         leave_started_offset_s = (window_end_ms - start_t) / 1000.0
         if aid in despawn_ms:
             dur_ms = despawn_ms[aid]
-            status = "PASS" if (dur_ms <= WALK_OUT_MAX_S * 1000 and moved) else "FAIL"
+            status = "PASS" if (
+                dur_ms <= WALK_OUT_MAX_S * 1000 and moved and despawned_at_gate
+            ) else "FAIL"
         elif leave_started_offset_s < WALK_OUT_WINDOW_END_GRACE_S:
             # Started leaving too close to the window's end to judge --
             # this is a probe-window artifact, not evidence of a stuck agent.
@@ -497,6 +567,9 @@ def check_walk_out(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
             "despawn_ms": despawn_ms.get(aid),
             "moved_while_leaving": moved,
             "leave_started_offset_s": leave_started_offset_s,
+            "last_pos": last_pos,
+            "dist_to_gate": round(dist_to_gate, 4) if dist_to_gate is not None else None,
+            "despawned_at_gate": despawned_at_gate,
         }
 
     statuses = [v["status"] for v in per_agent.values()]
@@ -515,6 +588,9 @@ def check_walk_out(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
             "despawn_ms": despawn_ms,
             "moved_while_leaving": moved_while_leaving,
             "per_agent": per_agent,
+            "walk_out_max_s": round(WALK_OUT_MAX_S, 4),
+            "gate_pos": GATE_POS,
+            "gate_radius": WALK_OUT_GATE_RADIUS,
         },
     }
 
