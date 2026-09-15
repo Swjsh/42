@@ -42,13 +42,26 @@ const WORKSPACE_ROOT = process.env.GAMMA_WORKSPACE ?? "C:\\Users\\jackw\\Desktop
 const PULSE_PATH = process.env.GAMMA_PULSE_PATH
   || path.join(WORKSPACE_ROOT, "automation", "state", "hooks", "pulse.jsonl");
 
-// pulse.py's own MAX_ROWS=2000/_TRIM_SLACK=400 (setup/hooks/pulse.py) caps the
-// whole file at ~2400 short JSON lines -- comfortably under 512KB in
-// practice. 128KB read from the tail is a generous multiple of the ~500
-// lines this task asks for while never requiring a whole-file read even if a
-// future change raises that cap.
-const TAIL_READ_BYTES = 131072;
-const TAIL_MAX_LINES = 500;
+// HQ BUG-3 FIX (2026-09-15, coordinator-measured): TAIL_MAX_LINES=500 was well under
+// pulse.py's own MAX_ROWS=2000/_TRIM_SLACK=400 ring cap (setup/hooks/pulse.py), so under
+// heavy fan-out (commit 645b5cff doubled the row rate with a matching "done" row per
+// tool completion) the last 500 rows could span LESS than ACTIVE_TOOL_GRACE_MS's 20
+// minutes -- measured tonight at 500 rows / 56-60 min -- and the START row of a still-
+// open long tool call fell out of the tail before its grace window closed, so the agent
+// vanished mid-work. Raised to the ring cap itself (2000) so the tail can never be
+// smaller than the whole ring pulse.py ever keeps on disk. Measured at current load
+// (2026-09-15, python one-liner over the live file): the last 2000 rows already span
+// ~7h53m (15:58:52 -> 23:51:58 local), so 2000 rows comfortably clears the 25-minute
+// bar this fix targets without needing a time-based row selection instead.
+export const TAIL_MAX_LINES = 2000;
+// Sized from the file's own measured row length, not guessed: 2223 real rows / 716915
+// bytes = 322.5 bytes/row average (python: os.path.getsize / line count, same command
+// as above). 2400 rows (pulse.py's hard ceiling before a trim fires: MAX_ROWS +
+// _TRIM_SLACK) * 322.5 * 1.5 safety margin = 1,160,996 bytes -- rounded up to a clean
+// 1,200,000 (~1.14MB) so a byte-offset read of TAIL_MAX_LINES=2000 JSONL lines never
+// truncates the first line of the intended window even if average row size drifts
+// somewhat larger than tonight's measurement.
+const TAIL_READ_BYTES = 1_200_000;
 
 const IDLE_TIMEOUT_MS = 3 * 60_000; // "no row for 3 min = agent leaves" (task spec)
 const SPAWN_WINDOW_MS = 15_000; // first ~15s of an agent's own visible life reads as "just arrived"

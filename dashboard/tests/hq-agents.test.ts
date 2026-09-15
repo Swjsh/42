@@ -24,6 +24,7 @@ import {
   buildLiveAgents,
   liveAgentBubbleAction,
   ZONE_NODE_ID,
+  TAIL_MAX_LINES,
   type PulseRow,
 } from "../lib/hq-agents.ts";
 
@@ -84,15 +85,16 @@ test("parsePulseLines drops a row missing required string fields (ts/event)", ()
   assert.equal(parsePulseLines(text).length, 0);
 });
 
-test("parsePulseLines caps to the last 500 lines even given a much larger blob", () => {
-  const many = Array.from({ length: 700 }, (_, i) =>
+test("parsePulseLines caps to the last TAIL_MAX_LINES lines even given a much larger blob", () => {
+  const total = TAIL_MAX_LINES + 200;
+  const many = Array.from({ length: total }, (_, i) =>
     `{"ts":"2026-09-14T21:51:${String(i % 60).padStart(2, "0")}","event":"act","session_id":"s1","agent_id":"","agent_type":"","cwd":"","tool":"","to":"","detail":"${i}"}`,
   ).join("\n");
   const rows = parsePulseLines(many);
-  assert.equal(rows.length, 500);
+  assert.equal(rows.length, TAIL_MAX_LINES);
   // the last row of the tail must be the LAST row of the input, never an
   // earlier one -- proves the cap keeps the tail, not the head.
-  assert.equal(rows[rows.length - 1].detail, "699");
+  assert.equal(rows[rows.length - 1].detail, String(total - 1));
 });
 
 // ─── classifyZone ───────────────────────────────────────────────────────────
@@ -340,6 +342,84 @@ test("buildLiveAgents: a row written before this fix (no completion ever coming)
   const rows = [row({ agent_id: "old-agent", event: "act", tool: "Bash", ts: "2026-09-14T21:00:00" })]; // 52 min stale
   const agents = buildLiveAgents(rows, NOW);
   assert.equal(agents.length, 0);
+});
+
+// ─── HQ BUG-3: tail must cover the open-tool grace window (2026-09-15) ─────
+//
+// Real defect (coordinator-measured, 2026-09-15 01:55 ET): TAIL_MAX_LINES was 500, but
+// commit 645b5cff's "done" row per tool completion roughly doubled the row rate, so
+// under heavy fan-out the last 500 rows spanned LESS than ACTIVE_TOOL_GRACE_MS's 20
+// minutes (measured tonight: 500 rows / ~56-60 min at lighter load, worse under fan-
+// out). Once a still-open long tool call's START row falls out of the tail entirely,
+// buildLiveAgents never even sees it -- the agent vanishes mid-work, no matter how
+// generous the in-memory grace window is. This reproduces that shape end-to-end
+// (parsePulseLines' own line cap, not just buildLiveAgents given a small hand-built
+// array) with the open row 900 lines from the tail end -- past the OLD 500-line cap,
+// inside the NEW 2000-line one.
+
+function tsAtSeconds(totalSeconds: number): string {
+  const hh = Math.floor(totalSeconds / 3600);
+  const mm = Math.floor((totalSeconds % 3600) / 60);
+  const ss = totalSeconds % 60;
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `2026-09-14T${pad(hh)}:${pad(mm)}:${pad(ss)}`;
+}
+
+test("buildLiveAgents keeps an open tool call active when its start row is 900 lines back and 15 min old", () => {
+  const NOW_SECONDS = 21 * 3600 + 52 * 60; // 21:52:00, same wall-clock NOW as the suite above
+  const TARGET_SECONDS = NOW_SECONDS - 15 * 60; // 21:37:00 -- 15 min old, inside the 20-min grace
+
+  const before = Array.from({ length: 100 }, (_, i) =>
+    JSON.stringify({
+      ts: tsAtSeconds(TARGET_SECONDS - 300 - i),
+      event: "act",
+      session_id: "old-noise",
+      agent_id: "old-noise",
+      agent_type: "general-purpose",
+      cwd: "",
+      tool: "Bash",
+      to: "",
+      detail: "Ran: ls",
+    }),
+  );
+  const target = JSON.stringify({
+    ts: tsAtSeconds(TARGET_SECONDS),
+    event: "act",
+    session_id: "s1",
+    agent_id: "a1",
+    agent_type: "general-purpose",
+    cwd: "",
+    tool: "Bash",
+    to: "",
+    detail: "Ran: long_probe.py", // no matching "done" row anywhere -- still open
+  });
+  // 899 rows after the target -> the target sits exactly 900 lines from the tail end
+  // (itself + 899 after it), well past the OLD TAIL_MAX_LINES=500 cap.
+  const after = Array.from({ length: 899 }, (_, i) =>
+    JSON.stringify({
+      ts: tsAtSeconds(TARGET_SECONDS + 1 + i),
+      event: "act",
+      session_id: "filler",
+      agent_id: "filler",
+      agent_type: "general-purpose",
+      cwd: "",
+      tool: "Bash",
+      to: "",
+      detail: "Ran: ls",
+    }),
+  );
+
+  const text = [...before, target, ...after].join("\n");
+  const rows = parsePulseLines(text);
+  // Nothing truncated at 1000 total lines (comfortably under TAIL_MAX_LINES=2000) --
+  // proves the tail-selection step itself didn't drop the target row before
+  // buildLiveAgents ever saw it.
+  assert.equal(rows.length, before.length + 1 + after.length);
+
+  const agents = buildLiveAgents(rows, new Date(2026, 8, 14, 21, 52, 0).getTime());
+  const a1 = agents.find((a) => a.id === "a1");
+  assert.ok(a1, "agent a1's still-open tool call must survive the tail read");
+  assert.equal(a1.state, "active");
 });
 
 // ─── HQ BUG-2: liveAgentBubbleAction / classifyCommand target sniffing ─────
