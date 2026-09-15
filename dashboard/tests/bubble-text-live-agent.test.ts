@@ -30,19 +30,24 @@ function row(overrides: Partial<LiveAgentBubbleRow>): LiveAgentBubbleRow {
   return { tool: "Bash", detail: "", to: "", ...overrides };
 }
 
-test("Bash grep -> reading <basename>", () => {
+test("Bash grep -> searching <basename>", () => {
+  // Test was stale: 645b5cff (LIVE-ACTIVE) split grep/rg into their own
+  // "searching ..." phrase (SEARCH_VERBS), distinct from cat/sed/head's
+  // "reading ...". A grep/rg over a named file honestly reads as
+  // "searching <file>", not "reading <file>".
   assert.equal(
     liveAgentBubbleAction(row({ detail: "Ran: grep -n \"LiveAgent\" components/hq/types.ts" })),
-    "reading types.ts",
+    "searching types.ts",
   );
 });
 
 test("real shape: cd <path> && grep ... -> the cd preamble is stripped before classifying", () => {
+  // See 645b5cff note above: grep classifies as "searching", not "reading".
   assert.equal(
     liveAgentBubbleAction(row({
       detail: "Ran: cd C:/Users/jackw/Desktop/42/dashboard && grep -n \"LiveAgents\\b\" components/hq/Scene.tsx",
     })),
-    "reading Scene.tsx",
+    "searching Scene.tsx",
   );
 });
 

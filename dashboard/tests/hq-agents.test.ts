@@ -457,12 +457,18 @@ test("liveAgentBubbleAction names a real cat/head target when one is present", (
 });
 
 test("liveAgentBubbleAction classifies a PowerShell '$var = ...' assignment without inventing a target", () => {
+  // Fixed 2026-09-15: this asserted "running a script", but a bare `$var =
+  // ...` assignment invokes no actual script file -- "running a script" is
+  // reserved for a real script-file invocation (python/node/pwsh -File X).
+  // Corrected alongside the same bug fix in lib/hq-agents.ts's
+  // PS_ASSIGNMENT_RE branch (see tests/bubble-text-live-agent.test.ts's own
+  // two cases for the same shape).
   const action = liveAgentBubbleAction({
     tool: "PowerShell",
     detail: 'Ran: $ts = "C:\\Program Files\\Tailscale\\tailscale.exe"; & $ts status',
     to: "",
   });
-  assert.equal(action, "running a script");
+  assert.equal(action, "running a command");
 });
 
 test("liveAgentBubbleAction still classifies a curl command by its URL, unaffected by the target-sniffing fix", () => {

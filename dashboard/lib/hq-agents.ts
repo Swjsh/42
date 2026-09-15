@@ -364,7 +364,12 @@ function looksLikeFileTarget(token: string | null): token is string {
 function classifyCommand(rawCmd: string): string {
   const cmd = stripLeadingCd(rawCmd);
   if (!cmd) return "running a command";
-  if (PS_ASSIGNMENT_RE.test(cmd)) return "running a script";
+  // A bare `$var = ...` assignment has no recognizable verb and runs no
+  // named script file, so it must NOT say "running a script" (fixed
+  // 2026-09-15: the prior return value here was wrong per the phrase
+  // convention -- "running a script" is reserved for a real script-file
+  // invocation like python/node/pwsh -File X).
+  if (PS_ASSIGNMENT_RE.test(cmd)) return "running a command";
   const verb = basenameOf((cmd.split(/\s+/)[0] || "").toLowerCase());
   if (SEARCH_VERBS.has(verb)) {
     const target = lastArgBasename(cmd);
