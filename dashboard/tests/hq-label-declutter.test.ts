@@ -505,3 +505,36 @@ test("orderGroup/orderKey: two different orderGroups never constrain each other"
   assert.ok(out.get("group-a-1"));
   assert.ok(out.get("group-b-1"));
 });
+
+// OCCLUSION fix regression (2026-09-15, real capture hq-final2.png read at
+// 1:1, 17:44 ET): "757.38 · last close" (a taller ~40px `.hq-beam` plaque)
+// drawn ON TOP of "757.44 RESISTANCE" (a compact ~24px level plaque) --
+// only "757.4" of the level plaque stayed readable. The old
+// `enforceGroupOrder` only floored on the previous label's final TOP, so
+// two same-order-group plaques of DIFFERENT heights could satisfy
+// "757.44's finalY <= 757.38's finalY" while their rects still
+// intersected. This test reproduces that exact pair (a shorter,
+// higher-priced level plaque directly above a taller, lower-priced
+// last-close plaque, adversarial starting y's forcing the order pass to
+// act) and asserts the final rects never intersect, not just that the
+// order is right.
+test("orderGroup/orderKey: a level plaque and a taller last-close plaque of similar size never end up with intersecting final rects", () => {
+  const level = priceRect("757.44-RESISTANCE", 757.44, 0, 140, 24);
+  const lastClose = priceRect("757.38-last-close", 757.38, 2, 150, 40);
+  const out = resolveLabelOffsets([level, lastClose]);
+  const levelOff = out.get("757.44-RESISTANCE")!;
+  const lastCloseOff = out.get("757.38-last-close")!;
+  const levelFinal = { x: level.x + levelOff.dx, y: level.y + levelOff.dy, width: level.width, height: level.height };
+  const lastCloseFinal = {
+    x: lastClose.x + lastCloseOff.dx, y: lastClose.y + lastCloseOff.dy,
+    width: lastClose.width, height: lastClose.height,
+  };
+  assert.ok(
+    !rectsOverlap(
+      levelFinal.x, levelFinal.y, levelFinal.width, levelFinal.height,
+      lastCloseFinal.x, lastCloseFinal.y, lastCloseFinal.width, lastCloseFinal.height,
+    ),
+    `757.44 and 757.38 · last close must never intersect (level=${JSON.stringify(levelFinal)}, lastClose=${JSON.stringify(lastCloseFinal)})`,
+  );
+  assert.ok(levelFinal.y <= lastCloseFinal.y, "757.44 (higher price) must stay above 757.38 · last close");
+});

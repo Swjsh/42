@@ -374,13 +374,30 @@ export function resolveLabelOffsets(
  * collision resolver's own output: within each `orderGroup`, walks labels
  * ascending by `orderKey` and clamps each one's final screen-space top (`y +
  * dy`) to never sit above (i.e. never end up with a SMALLER y than) the
- * previous, lower-ranked label's own final top -- a monotonic floor, exactly
- * mirroring how `resolveAxis` already only ever pushes a label AWAY (never
- * pulls one closer), so this never fights the collision-avoidance nudges,
- * only tops them up when the two passes would otherwise disagree on order.
- * Mutates nothing outside the group; a label with no orderGroup/orderKey (or
- * a NaN/undefined key) is left exactly as the collision pass already set it.
- */
+ * previous, lower-ranked label's own final BOTTOM (`y + dy + height`) -- a
+ * monotonic floor, exactly mirroring how `resolveAxis` already only ever
+ * pushes a label AWAY (never pulls one closer), so this never fights the
+ * collision-avoidance nudges, only tops them up when the two passes would
+ * otherwise disagree on order. Mutates nothing outside the group; a label
+ * with no orderGroup/orderKey (or a NaN/undefined key) is left exactly as
+ * the collision pass already set it.
+ *
+ * OCCLUSION fix (2026-09-15, real capture hq-final2.png, read at 1:1):
+ * this pass used to floor on the previous label's final TOP, not its
+ * BOTTOM -- "never end up ABOVE" was enforced, but "never end up
+ * OVERLAPPING" was not. Two price plaques of different heights (the
+ * compact ~24px level plaque vs. the taller ~40px `.hq-beam` last-close
+ * plaque, both same x column) could legally satisfy the old floor
+ * (finalY_lower >= finalY_higher) while their rects still intersected,
+ * because the floor never accounted for the higher-ranked plaque's own
+ * height -- exactly the capture: "757.38 · last close" landed with its
+ * top AT (not below) "757.44 RESISTANCE"'s top, so the taller last-close
+ * box covered the shorter level plaque's lower half ("757.4" was all that
+ * remained readable). The existing unit tests only ever asserted
+ * `finalY <= finalY` (order), never rect non-intersection, so this
+ * shipped without a red test -- see the new
+ * "never end up with intersecting final rects" test below, which does
+ * assert non-intersection and would have caught it. */
 function enforceGroupOrder(rects: readonly LabelRect[], out: Map<string, LabelOffset>): void {
   const groups = new Map<string, LabelRect[]>();
   for (const r of rects) {
@@ -400,8 +417,9 @@ function enforceGroupOrder(rects: readonly LabelRect[], out: Map<string, LabelOf
       const finalY = r.y + off.dy;
       if (finalY < floor) {
         out.set(r.id, { ...off, dy: off.dy + (floor - finalY) });
+        floor += r.height;
       } else {
-        floor = finalY;
+        floor = finalY + r.height;
       }
     }
   }
