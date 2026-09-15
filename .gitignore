@@ -217,6 +217,7 @@ automation/state/crypto-twin/sim-bear-positions.json
 # directory is NEW as of this change, so it is gitignored from the start rather than
 # risking a future `git add -A` committing multi-MB gz blobs to the public repo.
 automation/state/crypto-twin/archive/
+automation/state/crypto-twin/decisions.jsonl
 automation/state/key-levels.json
 automation/state/sd-zones.json
 # sibling decision-gating state (C34): forward-clock eligibility for the SD_ZONE promotion
