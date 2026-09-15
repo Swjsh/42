@@ -27,8 +27,11 @@ from typing import Any, Dict, List, Optional, Sequence
 
 RAW_SHELL_LEAK_RE = re.compile(r"Ran:|\\\\|/c/Users|&&")
 
-WALK_SPEED_MIN = 0.3
-WALK_SPEED_MAX = 1.0
+# dashboard/components/hq/KitAgent.tsx:85 sets WALK_SPEED = 0.7 u/s -- this
+# is the design speed check_walk_speed judges the STEADY walking/leaving
+# pace against (not a fixed band). +/-15% default tolerance.
+WALK_SPEED_DEFAULT = 0.7
+WALK_SPEED_TOL_DEFAULT = 0.15
 STAND_SLOT_MIN_DIST = 0.7
 WALK_OUT_MAX_S = 15.0
 
@@ -147,55 +150,95 @@ def _median_sample_tick(samples: List[Dict[str, Any]]) -> float:
 
 # 2. walk speed ---------------------------------------------------------------
 
-def check_walk_speed(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
+# States in which an agent is actually in transit. A tick where either side
+# of a pair is NOT one of these (arrival into 'working', departure out of
+# it) captures a partial in-tick move, not the steady walking pace, and must
+# be excluded from speed measurement -- the 2026-09-14/09-15 case's 6 LOW
+# anomalies (0.047-0.258 u/s) were every one of them exactly such a
+# transition tick, not a real speed bug.
+WALKING_STATES = {"walking", "leaving"}
+
+
+def check_walk_speed(
+    samples: List[Dict[str, Any]],
+    design_speed: float = WALK_SPEED_DEFAULT,
+    tol: float = WALK_SPEED_TOL_DEFAULT,
+) -> Dict[str, Any]:
     by_id: Dict[str, List[Dict[str, Any]]] = {}
     for s in samples:
         for a in s.get("page_agents", []):
-            if a.get("state") == "walking":
-                by_id.setdefault(a["id"], []).append({"t_ms": s["t_ms"], **a})
+            by_id.setdefault(a["id"], []).append({"t_ms": s["t_ms"], **a})
 
-    speeds: List[float] = []
+    speeds_by_agent: Dict[str, List[float]] = {}
     unwalkable_hits = 0
     walking_samples = 0
-    for _agent_id, seq in by_id.items():
-        if seq and not seq[0].get("onWalkable", False):
-            unwalkable_hits += 1
-            walking_samples += 1
-        # Measure speed only between the tick where a position was last
-        # observed to actually move and the next tick where it moves again
-        # -- NOT between every consecutive sample tick. At a low sample-vs-
-        # render ratio the same position repeats across several ticks, and
-        # scoring those as "0 u/s" (or the jump when it finally does move,
-        # scored over just one tick's dt) is a measurement artifact, not a
-        # real speed reading (this was the 2026-09-14/09-15 walk_speed FAIL:
-        # 143/150 out-of-band at fps_p50 0.71).
-        last_move_idx = 0
+    for agent_id, seq in by_id.items():
+        # Unwalkable hits are a real placement bug regardless of transition
+        # state -- counted on every tick the agent is in transit, not just
+        # ticks that also qualify for a speed sample.
+        for a in seq:
+            if a.get("state") in WALKING_STATES:
+                walking_samples += 1
+                if not a.get("onWalkable", False):
+                    unwalkable_hits += 1
+
+        # Measure speed only between two ticks that are BOTH walking/leaving
+        # (excludes state-transition ticks) and only across the tick where a
+        # position was last observed to actually move -- NOT between every
+        # consecutive sample tick. At a low sample-vs-render ratio the same
+        # position repeats across several ticks, and scoring those as
+        # "0 u/s" (or the jump when it finally does move, scored over just
+        # one tick's dt) is a measurement artifact, not a real speed reading
+        # (2026-09-14/09-15: 143/150 out-of-band at fps_p50 0.71).
+        last_move_idx: Optional[int] = None
         for i in range(1, len(seq)):
-            walking_samples += 1
-            if not seq[i].get("onWalkable", False):
-                unwalkable_hits += 1
-            d = _dist(seq[i]["pos"], seq[last_move_idx]["pos"])
+            cur, prev = seq[i], seq[i - 1]
+            if cur.get("state") not in WALKING_STATES or prev.get("state") not in WALKING_STATES:
+                last_move_idx = None  # transition tick -- reset, don't bridge across it
+                continue
+            base_idx = last_move_idx if last_move_idx is not None else i - 1
+            base = seq[base_idx]
+            d = _dist(cur["pos"], base["pos"])
             if d <= 1e-9:
+                last_move_idx = base_idx
                 continue  # position hasn't actually updated yet -- wait for the next real move
-            dt_s = (seq[i]["t_ms"] - seq[last_move_idx]["t_ms"]) / 1000.0
+            dt_s = (cur["t_ms"] - base["t_ms"]) / 1000.0
             if dt_s > 0:
-                speeds.append(d / dt_s)
+                speeds_by_agent.setdefault(agent_id, []).append(d / dt_s)
             last_move_idx = i
 
-    if not speeds:
-        return {"verdict": "NO-DATA", "detail": {"reason": "no walking agent observed"}}
+    all_speeds = [v for vs in speeds_by_agent.values() for v in vs]
+    if not all_speeds:
+        return {"verdict": "NO-DATA", "detail": {"reason": "no steady walking/leaving motion observed"}}
 
-    out_of_band = [v for v in speeds if v < WALK_SPEED_MIN or v > WALK_SPEED_MAX]
-    verdict = "PASS" if not out_of_band and unwalkable_hits == 0 else "FAIL"
+    # Judge the steady pace against the CONFIGURED design speed, not a fixed
+    # band: median per agent must sit within design +/- tol; a sample is
+    # "out of band" (diagnostic, and capped at 5% of samples) at double that
+    # tolerance so normal per-tick jitter doesn't itself fail the run.
+    band_lo, band_hi = design_speed * (1 - tol * 2), design_speed * (1 + tol * 2)
+    out_of_band = [v for v in all_speeds if v < band_lo or v > band_hi]
+    out_of_band_frac = len(out_of_band) / len(all_speeds)
+
+    median_lo, median_hi = design_speed * (1 - tol), design_speed * (1 + tol)
+    median_speed_by_agent = {aid: _percentile(vs, 50) for aid, vs in speeds_by_agent.items()}
+    medians_in_band = all(median_lo <= m <= median_hi for m in median_speed_by_agent.values())
+
+    verdict = "PASS" if (
+        medians_in_band and unwalkable_hits == 0 and out_of_band_frac <= 0.05
+    ) else "FAIL"
     return {
         "verdict": verdict,
         "detail": {
-            "sample_count": len(speeds),
-            "min_speed": min(speeds),
-            "max_speed": max(speeds),
+            "sample_count": len(all_speeds),
+            "min_speed": min(all_speeds),
+            "max_speed": max(all_speeds),
             "out_of_band_count": len(out_of_band),
+            "out_of_band_frac": round(out_of_band_frac, 4),
             "unwalkable_hits": unwalkable_hits,
             "walking_samples": walking_samples,
+            "design_speed": design_speed,
+            "tol": tol,
+            "median_speed_by_agent": {k: round(v, 4) for k, v in median_speed_by_agent.items()},
         },
     }
 
@@ -617,6 +660,8 @@ def build_verdicts(
     headless: Optional[bool] = True,
     url: Optional[str] = None,
     page_refresh_ms: Optional[int] = None,
+    walk_speed: float = WALK_SPEED_DEFAULT,
+    walk_speed_tol: float = WALK_SPEED_TOL_DEFAULT,
 ) -> Dict[str, Any]:
     if calls_samples is None:
         calls_samples = [s.get("calls") for s in samples]
@@ -666,7 +711,9 @@ def build_verdicts(
         "run_valid": True,
         "invalid_reasons": [],
         "spawn_latency": check_spawn_latency(samples, page_refresh_ms=effective_page_refresh_ms),
-        "walk_speed": _motion_no_data() if motion_gated else check_walk_speed(samples),
+        "walk_speed": _motion_no_data() if motion_gated else check_walk_speed(
+            samples, design_speed=walk_speed, tol=walk_speed_tol
+        ),
         "stand_slots": _motion_no_data() if motion_gated else check_stand_slots(samples),
         "walk_out": _motion_no_data() if motion_gated else check_walk_out(samples),
         "page_api_parity": check_page_api_parity(samples),

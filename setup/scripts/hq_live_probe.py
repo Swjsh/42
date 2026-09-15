@@ -64,7 +64,12 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from hq_probe_lib import build_verdicts, perf_headless_flag  # noqa: E402
+from hq_probe_lib import (  # noqa: E402
+    WALK_SPEED_DEFAULT,
+    WALK_SPEED_TOL_DEFAULT,
+    build_verdicts,
+    perf_headless_flag,
+)
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 OUT_PATH = REPO_ROOT / "automation" / "state" / "station" / "hq-probe-latest.json"
@@ -274,7 +279,12 @@ def enforce_samples_retention(runs_dir: Path = SAMPLE_RUNS_DIR, keep: int = SAMP
     return deleted
 
 
-def rescore(samples_path: Path, page_refresh_ms: Optional[int] = None) -> int:
+def rescore(
+    samples_path: Path,
+    page_refresh_ms: Optional[int] = None,
+    walk_speed: float = WALK_SPEED_DEFAULT,
+    walk_speed_tol: float = WALK_SPEED_TOL_DEFAULT,
+) -> int:
     """Loads a previously written *.samples.json.gz and re-runs build_verdicts
     with the CURRENT verdict logic (never the logic that was live when the
     samples were captured). Never launches a browser / imports playwright --
@@ -298,6 +308,8 @@ def rescore(samples_path: Path, page_refresh_ms: Optional[int] = None) -> int:
         headless=headless,
         url=payload.get("url"),
         page_refresh_ms=page_refresh_ms,
+        walk_speed=walk_speed,
+        walk_speed_tol=walk_speed_tol,
     )
     report = {
         "rescored": True,
@@ -610,6 +622,22 @@ def main() -> int:
         help="poll up to N seconds for dashboard/.next/BUILD_ID to settle (no lock, min age met) before refusing (exit 3)",
     )
     ap.add_argument(
+        "--walk-speed",
+        type=float,
+        default=WALK_SPEED_DEFAULT,
+        help=(
+            "configured design walking speed (u/s) check_walk_speed judges the "
+            "steady walking/leaving median against (default: 0.7, from "
+            "dashboard/components/hq/KitAgent.tsx:85 WALK_SPEED)"
+        ),
+    )
+    ap.add_argument(
+        "--walk-speed-tol",
+        type=float,
+        default=WALK_SPEED_TOL_DEFAULT,
+        help="fractional tolerance around --walk-speed for the median check (default: 0.15 = +/-15%%)",
+    )
+    ap.add_argument(
         "--rescore",
         default=None,
         metavar="PATH",
@@ -623,7 +651,12 @@ def main() -> int:
     args = ap.parse_args()
 
     if args.rescore:
-        return rescore(Path(args.rescore), page_refresh_ms=args.page_refresh_ms)
+        return rescore(
+            Path(args.rescore),
+            page_refresh_ms=args.page_refresh_ms,
+            walk_speed=args.walk_speed,
+            walk_speed_tol=args.walk_speed_tol,
+        )
 
     refuse_reason = wait_for_stable_build(args.wait_for_stable_build, args.min_build_age_s)
     if refuse_reason:
@@ -650,6 +683,8 @@ def main() -> int:
         headless=perf_headless_flag(diag)[0],
         url=args.url,
         page_refresh_ms=args.page_refresh_ms,
+        walk_speed=args.walk_speed,
+        walk_speed_tol=args.walk_speed_tol,
     )
 
     report = {

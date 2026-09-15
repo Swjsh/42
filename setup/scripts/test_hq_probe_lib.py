@@ -102,13 +102,16 @@ def test_spawn_latency_no_data_when_nobody_spawns():
 # 2. walk speed ----------------------------------------------------------------
 
 def test_walk_speed_pass_in_band():
-    # 0.5 units in 1s = 0.5 u/s, within [0.3, 1.0]
+    # 0.7 units in 1s = 0.7 u/s -- exactly the configured design speed
+    # (dashboard/components/hq/KitAgent.tsx:85 WALK_SPEED = 0.7).
     samples = [
         _s(0, page=[_agent("a1", "walking", [0, 0])]),
-        _s(1000, page=[_agent("a1", "walking", [0.5, 0])]),
+        _s(1000, page=[_agent("a1", "walking", [0.7, 0])]),
     ]
     v = check_walk_speed(samples)
     assert v["verdict"] == "PASS", v
+    assert v["detail"]["design_speed"] == 0.7
+    assert abs(v["detail"]["median_speed_by_agent"]["a1"] - 0.7) < 1e-9
 
 
 def test_walk_speed_fail_too_fast():
@@ -120,10 +123,25 @@ def test_walk_speed_fail_too_fast():
     assert v["verdict"] == "FAIL", v
 
 
+def test_walk_speed_fail_real_bug_median_1_02_vs_design_0_7():
+    # The actual dashboard bug (2026-09-15 coordinator analysis): agents walk
+    # a real steady ~1.02 u/s against a 0.7 u/s design speed
+    # (dashboard/components/hq/KitAgent.tsx:85). Both ticks are 'walking' --
+    # this is NOT a transition artifact, and must FAIL, not be excluded.
+    samples = [
+        _s(0, page=[_agent("a1", "walking", [0.0, 0])]),
+        _s(500, page=[_agent("a1", "walking", [0.51, 0])]),
+        _s(1000, page=[_agent("a1", "walking", [1.02, 0])]),
+    ]
+    v = check_walk_speed(samples)
+    assert v["verdict"] == "FAIL", v
+    assert abs(v["detail"]["median_speed_by_agent"]["a1"] - 1.02) < 1e-9
+
+
 def test_walk_speed_fail_unwalkable():
     samples = [
         _s(0, page=[_agent("a1", "walking", [0, 0], onWalkable=False)]),
-        _s(1000, page=[_agent("a1", "walking", [0.5, 0], onWalkable=False)]),
+        _s(1000, page=[_agent("a1", "walking", [0.7, 0], onWalkable=False)]),
     ]
     v = check_walk_speed(samples)
     assert v["verdict"] == "FAIL", v
@@ -134,6 +152,38 @@ def test_walk_speed_no_data():
     samples = [_s(0, page=[_agent("a1", "working", [0, 0])])]
     v = check_walk_speed(samples)
     assert v["verdict"] == "NO-DATA", v
+
+
+def test_walk_speed_excludes_state_transition_ticks():
+    # a1 goes working -> walking (partial in-tick move at the transition,
+    # 0.2 u/s -- would itself be out-of-band and would FAIL the run if
+    # counted) -> steady 0.7 u/s walking. Only the two walking->walking
+    # ticks may count; the transition tick must be excluded, and the run
+    # must PASS on the steady pace alone.
+    samples = [
+        _s(0, page=[_agent("a1", "working", [0.0, 0])]),
+        _s(500, page=[_agent("a1", "walking", [0.1, 0])]),   # transition tick -- excluded
+        _s(1000, page=[_agent("a1", "walking", [0.45, 0])]),  # 0.35/0.5 = 0.7 u/s
+        _s(1500, page=[_agent("a1", "walking", [0.8, 0])]),   # 0.35/0.5 = 0.7 u/s
+    ]
+    v = check_walk_speed(samples)
+    assert v["verdict"] == "PASS", v
+    assert v["detail"]["sample_count"] == 2
+    assert abs(v["detail"]["median_speed_by_agent"]["a1"] - 0.7) < 1e-9
+
+
+def test_walk_speed_excludes_leaving_to_despawn_transition():
+    # working -> leaving transition tick, then steady leaving at 0.7 u/s --
+    # 'leaving' is a walking state in its own right (departure), and its
+    # own entry transition must be excluded the same way 'walking' is.
+    samples = [
+        _s(0, page=[_agent("a1", "working", [0.0, 0])]),
+        _s(500, page=[_agent("a1", "leaving", [0.05, 0])]),   # transition tick -- excluded
+        _s(1000, page=[_agent("a1", "leaving", [0.4, 0])]),    # 0.35/0.5 = 0.7 u/s
+    ]
+    v = check_walk_speed(samples)
+    assert v["verdict"] == "PASS", v
+    assert v["detail"]["sample_count"] == 1
 
 
 # 3. stand slots -----------------------------------------------------------------
@@ -593,9 +643,10 @@ def test_motion_checks_no_data_below_fps_gate():
 
 
 def test_motion_checks_run_normally_above_fps_gate():
+    # 0.35u / 0.5s = 0.7 u/s -- matches the 0.7 u/s design speed.
     samples = [
         _s(0, page=[_agent("a1", "walking", [0, 0])], api=[{"id": "a1"}]),
-        _s(500, page=[_agent("a1", "walking", [0.5, 0])], api=[{"id": "a1"}]),
+        _s(500, page=[_agent("a1", "walking", [0.35, 0])], api=[{"id": "a1"}]),
     ]
     out = build_verdicts(samples, _high_fps_frames(), calls_samples=[100, 100], scene_ready=True, build_ids=["b", "b"])
     assert out["walk_speed"]["verdict"] == "PASS", out["walk_speed"]
@@ -608,7 +659,7 @@ def test_motion_checks_ungated_when_no_frame_data():
     # individual checks run on their own NO-DATA/PASS/FAIL logic.
     samples = [
         _s(0, page=[_agent("a1", "walking", [0, 0])], api=[{"id": "a1"}]),
-        _s(500, page=[_agent("a1", "walking", [0.5, 0])], api=[{"id": "a1"}]),
+        _s(500, page=[_agent("a1", "walking", [0.35, 0])], api=[{"id": "a1"}]),
     ]
     out = build_verdicts(samples, [], calls_samples=[None, None], scene_ready=True, build_ids=["b", "b"])
     assert out["walk_speed"]["verdict"] == "PASS", out["walk_speed"]
@@ -625,12 +676,12 @@ def test_walk_speed_ignores_repeated_position_between_ticks():
         _s(0, page=[_agent("a1", "walking", [0.0, 0])]),
         _s(500, page=[_agent("a1", "walking", [0.0, 0])]),    # same pos -- renderer hasn't ticked yet
         _s(1000, page=[_agent("a1", "walking", [0.0, 0])]),   # same pos again
-        _s(1500, page=[_agent("a1", "walking", [0.75, 0])]),  # moved 0.75u over the full 1.5s = 0.5 u/s
+        _s(1500, page=[_agent("a1", "walking", [1.05, 0])]),  # moved 1.05u over the full 1.5s = 0.7 u/s
     ]
     v = check_walk_speed(samples)
     assert v["verdict"] == "PASS", v
     assert v["detail"]["sample_count"] == 1
-    assert abs(v["detail"]["min_speed"] - 0.5) < 1e-9
+    assert abs(v["detail"]["min_speed"] - 0.7) < 1e-9
 
 
 def test_walk_speed_no_data_when_position_never_changes():
