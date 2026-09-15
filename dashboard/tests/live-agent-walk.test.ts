@@ -1628,6 +1628,163 @@ test("HEAD_ON_COS_MAX and FOLLOW_HEADING_COS_MIN leave no overlapping heading-do
   assert.ok(HEAD_ON_COS_MAX < FOLLOW_HEADING_COS_MIN_LOCAL, "the two thresholds must not overlap or cross");
 });
 
+// ─── CONVOY-STACK v9 (2026-09-15): mass-leave flip must never move anyone ──
+//
+// ROOT CAUSE (pose_jump FAIL, 3 jumps, probe 20260915T120533Z): all 3 jumps
+// land on the SAME tick a batch of 3 residents flips working->leaving
+// together (a mass-leave in one poll). LiveAgents.tsx's own
+// `leavingRef.current = leaving` (render body) updates the instant the
+// `leaving` prop flips true -- strictly BEFORE the decision effect (a
+// `useEffect`) actually runs for that same render, since a `useFrame` tick
+// can land in the gap between React's commit and its own effect flush. The
+// v5 continuous stand-slot correction (`if (phase.current === "working" &&
+// !despawned.current) { standPointFor(currentNode.current) ... }`, no
+// `leaving` check at all) fired on exactly that in-between frame, using
+// `currentNode.current` (still the OLD pre-leaving zone node -- only
+// updated on walk ARRIVAL) together with the ALREADY-updated `standOffset`
+// PROP (the parent recomputed it this same render for the avatar's NEW
+// leaving-group membership under ENTRY_NODE_ID) -- OLD zone's node + a
+// stand-slot offset computed for a DIFFERENT group. Reported: a4a43059
+// landed EXACTLY on a1495f14's own prior slot point, because the two
+// groups' sorted-index assignments collided on the same index for those
+// two ids.
+//
+// FIX: gate that same correction on `!leavingRef.current` too (see
+// LiveAgents.tsx's own "LEAVE-FLIP TELEPORT fix" comment at that call
+// site). This also fixes the v4 hold-livePos mechanism "one layer up" for
+// free: the decision effect's own `livePos = group.current.position` read
+// now always sees the avatar's TRUE last-good resting pose.
+
+interface LeaveFlipStep {
+  tS: number;
+  position: [number, number, number];
+}
+
+const LEAVE_FLIP_ZONE_NODE: [number, number, number] = [-1.2, 0, -1.6]; // ambient-core-ish, matches the probe's own coordinate range
+const LEAVE_FLIP_GATE_NODE: [number, number, number] = [21.6, 0, 0]; // campus-gate
+const LEAVE_FLIP_IDS = ["a1495f14", "a4a43059", "a8a9d04f"]; // the probe's own real ids
+
+/** Models the coordinator's own required scenario: 3 residents in one zone
+ * with STABLE slots (built up over some unmodeled history -- deliberately
+ * NOT simple sorted-newcomer order, exactly why it can differ from a fresh
+ * simultaneous group's own assignment, see this section's own header) all
+ * flip to leaving in the SAME reconcile batch, with stagger delays. Returns
+ * each avatar's per-tick trajectory: tick 0 is its true resting pose, tick
+ * 1 is the flip frame (PRE-FIX: a possibly-wrong reslot write; FIXED: the
+ * unchanged resting pose), then the stagger wait (hold at whatever pose
+ * was captured on the flip frame -- CONVOY-STACK v4's own mechanism,
+ * itself unmodified by this pass) and finally the walk to the gate. */
+function simulateMassLeaveFlip(applyFix: boolean): Map<string, LeaveFlipStep[]> {
+  // Historical OLD zone stand-slot assignment -- NOT sorted-newcomer order,
+  // simulating slots built up over time (unrelated joins/departures before
+  // this fixture's own window), which is exactly why it can diverge from
+  // the fresh, simultaneous leaving-group's own sorted assignment below.
+  const oldZoneIndex = new Map([["a1495f14", 1], ["a4a43059", 0], ["a8a9d04f", 2]]);
+  const workingPos = new Map<string, [number, number, number]>(
+    LEAVE_FLIP_IDS.map((id) => {
+      const off = stableSlotOffset(oldZoneIndex.get(id)!);
+      return [id, [LEAVE_FLIP_ZONE_NODE[0] + off[0], 0, LEAVE_FLIP_ZONE_NODE[2] + off[1]]];
+    }),
+  );
+
+  // Fresh, simultaneous leaving-group assignment, same poll -- the REAL
+  // sorted-newcomer order liveAgentWalk.ts#updateStableSlotAssignments
+  // actually produces for a batch that's all brand new to a group.
+  const leaveOrder = computeBatchOrder(LEAVE_FLIP_IDS);
+  const leaveDelays = computeBatchStaggerDelays(LEAVE_FLIP_IDS);
+
+  const steps = new Map<string, LeaveFlipStep[]>(LEAVE_FLIP_IDS.map((id) => [id, []]));
+  for (const id of LEAVE_FLIP_IDS) steps.get(id)!.push({ tS: 0, position: workingPos.get(id)! });
+
+  // Tick 1: the flip frame.
+  const livePos = new Map<string, [number, number, number]>();
+  for (const id of LEAVE_FLIP_IDS) {
+    let pos: [number, number, number];
+    if (!applyFix) {
+      const newIdx = leaveOrder.get(id)!;
+      const off = stableSlotOffset(newIdx);
+      pos = [LEAVE_FLIP_ZONE_NODE[0] + off[0], 0, LEAVE_FLIP_ZONE_NODE[2] + off[1]];
+    } else {
+      pos = workingPos.get(id)!; // FIXED: reslot skipped -- position unchanged
+    }
+    steps.get(id)!.push({ tS: FOLLOW_TICK_DT_S, position: pos });
+    livePos.set(id, pos); // exactly what the decision effect's own `livePos` read captures next
+  }
+
+  // Hold through the stagger wait, then walk straight to the gate.
+  const maxTicks = Math.ceil(30 / SIM_WALK_SPEED / FOLLOW_TICK_DT_S);
+  for (let tick = 2; tick <= maxTicks; tick++) {
+    const tS = tick * FOLLOW_TICK_DT_S;
+    for (const id of LEAVE_FLIP_IDS) {
+      const delay = leaveDelays.get(id)!;
+      const elapsed = tS - FOLLOW_TICK_DT_S - delay;
+      const wp: [number, number, number][] = [livePos.get(id)!, LEAVE_FLIP_GATE_NODE];
+      const total = pathDistance(wp);
+      let pos: [number, number, number];
+      if (elapsed < 0) {
+        pos = livePos.get(id)!; // CONVOY-STACK v4: hold exactly at livePos during the wait
+      } else {
+        const dist = Math.min(total, elapsed * SIM_WALK_SPEED);
+        const progress = total > 0 ? dist / total : 1;
+        pos = poseAlongPath(wp, progress).position;
+      }
+      steps.get(id)!.push({ tS, position: pos });
+    }
+  }
+  return steps;
+}
+
+test("MASS-LEAVE FLIP: RED (documents the bug) -- the flip frame moves at least one avatar off its true resting pose", () => {
+  const steps = simulateMassLeaveFlip(false);
+  let sawJump = false;
+  for (const id of LEAVE_FLIP_IDS) {
+    const hist = steps.get(id)!;
+    const dist = Math.hypot(hist[0].position[0] - hist[1].position[0], hist[0].position[2] - hist[1].position[2]);
+    if (dist > 1e-6) sawJump = true;
+  }
+  assert.ok(sawJump, "expected the PRE-FIX behavior to move at least one avatar on the flip frame (documents the reported pose_jump)");
+});
+
+test("MASS-LEAVE FLIP: GREEN (the fix) -- every avatar holds EXACTLY its resting pose on the flip frame and through its wait, then walks with displacement <= 0.7*dt+0.05", () => {
+  const steps = simulateMassLeaveFlip(true);
+  const leaveDelays = computeBatchStaggerDelays(LEAVE_FLIP_IDS);
+
+  for (const id of LEAVE_FLIP_IDS) {
+    const hist = steps.get(id)!;
+    // Flip frame: EXACTLY unchanged (not just "close" -- the coordinator's
+    // own invariant is "never moves the avatar", zero tolerance).
+    assert.deepEqual(hist[1].position, hist[0].position, `${id}: position changed on the flip frame`);
+
+    // Held exactly through its own stagger wait.
+    const delay = leaveDelays.get(id)!;
+    for (const step of hist) {
+      if (step.tS > FOLLOW_TICK_DT_S && step.tS - FOLLOW_TICK_DT_S < delay) {
+        assert.deepEqual(step.position, hist[0].position, `${id}: moved while still waiting out its own stagger delay (t=${step.tS}s)`);
+      }
+    }
+
+    // Per-step displacement bound throughout the ENTIRE trajectory
+    // (flip, wait, and the walk that follows) -- no snaps anywhere.
+    for (let i = 1; i < hist.length; i++) {
+      const a = hist[i - 1].position;
+      const b = hist[i].position;
+      const dist = Math.hypot(a[0] - b[0], a[2] - b[2]);
+      const dt = hist[i].tS - hist[i - 1].tS;
+      assert.ok(
+        dist <= SIM_WALK_SPEED * dt + 0.05 + 1e-9,
+        `${id} step ${i} (t=${hist[i - 1].tS}s -> ${hist[i].tS}s): displacement ${dist.toFixed(3)}u exceeds WALK_SPEED*dt+0.05`,
+      );
+    }
+
+    // Eventually reaches the gate.
+    const last = hist[hist.length - 1];
+    assert.ok(
+      Math.hypot(last.position[0] - LEAVE_FLIP_GATE_NODE[0], last.position[2] - LEAVE_FLIP_GATE_NODE[2]) < 1e-6,
+      `${id} never reached the gate -- ended at [${last.position[0]},${last.position[2]}]`,
+    );
+  }
+});
+
 test("computeBatchOrder: sorted-order ids get 0, 1, 2, ... -- the single source of truth computeBatchStaggerDelays scales by STAGGER_DELAY_S", () => {
   const order = computeBatchOrder(["zeta", "alpha", "mu"]);
   assert.equal(order.get("alpha"), 0);

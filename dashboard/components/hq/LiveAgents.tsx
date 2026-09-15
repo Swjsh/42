@@ -816,7 +816,36 @@ function LiveAgentAvatar({
     // this can never re-apply a ring offset to an avatar whose despawn
     // destination is deliberately the RAW node (no ring nudge) -- see
     // destinationPointFor's own `despawn: true` branch above.
-    if (phase.current === "working" && !despawned.current) {
+    //
+    // LEAVE-FLIP TELEPORT fix (CONVOY-STACK v9, 2026-09-15, probe
+    // 20260915T120533Z): `!leavingRef.current` -- ROOT CAUSE, verified:
+    // `leavingRef.current = leaving;` (this file, render body, above) is
+    // updated the INSTANT this avatar's `leaving` prop flips true --
+    // strictly earlier than the "decision effect" (the `useEffect` with
+    // `[leaving, targetNodeId, ...]` deps, below) actually RUNS for that
+    // same render, since React effects fire after commit while a `useFrame`
+    // tick can land in between. Before this fix, THIS block had no
+    // `leaving` check at all: on that in-between frame, `phase.current` was
+    // still "working" (the decision effect hadn't yet flipped it to
+    // "walking"), so this correction still fired -- reading
+    // `currentNode.current` (this avatar's OWN ref, still the OLD
+    // pre-leaving zone node; only updated on walk ARRIVAL, untouched by a
+    // leaving flip) together with `standOffsetRef.current` (fed from the
+    // `standOffset` PROP, which the PARENT had ALREADY recomputed for this
+    // avatar's NEW leaving-group membership under ENTRY_NODE_ID, since
+    // props update before this avatar's own effects run). The result: OLD
+    // zone's node position + a stand-slot offset computed for a DIFFERENT
+    // group -- a real position, just the WRONG one, sized like any other
+    // valid slot offset (probe's own observed 0.73-1.34u jumps, with
+    // a4a43059 landing EXACTLY on a1495f14's own prior slot -- both groups'
+    // sorted-index assignment happened to collide on the same index,
+    // `stableSlotOffset` returning the identical [x,z] offset for both).
+    // Skipping this correction the instant `leaving` flips also fixes the
+    // v4 hold-livePos mechanism "one layer up" for free: the decision
+    // effect's own `livePos = group.current.position` read now always sees
+    // the avatar's TRUE last-good resting pose, never a transiently
+    // corrupted one, because nothing overwrote `g.position` in between.
+    if (phase.current === "working" && !despawned.current && !leavingRef.current) {
       const p = standPointFor(currentNode.current);
       g.position.set(p[0], p[1], p[2]);
     }
