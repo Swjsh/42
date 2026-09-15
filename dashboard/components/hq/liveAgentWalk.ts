@@ -927,6 +927,15 @@ export interface WalkerSnapshot {
   /** This walker's current walk destination (graph node id) -- the cheap
    * "are we even converging on the same place" pre-filter. */
   destKey: string;
+  /** MUTUAL-HOLD DEADLOCK fix (v12): this walker's own progress fraction
+   * (0..1) along its CURRENT path, as of the frame this snapshot was taken
+   * -- optional and defaults to 0 when absent (every pre-v12 snapshot
+   * construction, in this file's own tests and any other caller, stays
+   * valid with no changes required) so `resolveMutualHoldWinner` below has
+   * a deterministic "who's further along" signal without requiring every
+   * caller to be touched. See that function's own header for why this is
+   * the precedence signal, not e.g. distance-to-destination. */
+  progress?: number;
 }
 
 export interface CarAheadResult {
@@ -972,6 +981,86 @@ export function findCarAhead(self: WalkerSnapshot, others: readonly WalkerSnapsh
     if (!best || forwardGap < best.forwardGap) best = { other, forwardGap };
   }
   return best;
+}
+
+// ─── Mutual-hold deadlock + starvation guard (CONVOY-STACK v12, 2026-09-15) ─
+//
+// ROOT CAUSE (long_holds, probe 20260915T130317Z): findCarAhead's own
+// "ahead-or-level, near-parallel heading, within FOLLOW_GAP_U" test is
+// evaluated INDEPENDENTLY from each walker's own point of view. Two walkers
+// converging from different stand slots onto the SAME first corridor leg
+// (a batch leave through a shared zone's own hub-center ring, the probe's
+// own exact shape) can each have a POSITIVE forward projection of the
+// other -- i.e. BOTH findCarAhead(A, [B]) and findCarAhead(B, [A]) return
+// non-null, genuinely (not a near-zero tie; each really does read the
+// other as "ahead-or-level" from its own heading). applyFollowCap then
+// caps BOTH of them below FOLLOW_GAP_U, using the OTHER's one-frame-stale,
+// itself-also-frozen registry entry -- a stable mutual lock, confirmed by
+// the probe as a genuine ~36s hold, not a render pause (this file's own
+// v11 pause-clamp fix does not touch this: neither avatar had a delta
+// anomaly, both simply capped each other to zero net advance every real
+// frame). The EXISTING id tie-break inside findCarAhead only ever fires
+// at an EXACT forward===0 tie -- it was never meant to, and cannot, resolve
+// a genuine BOTH-see-each-other-ahead configuration where forward is
+// meaningfully positive on both sides.
+//
+// FIX (deadlock-proof by construction, not a timeout-only band-aid):
+// 1. PRECEDENCE (`resolveMutualHoldWinner`): whenever `findCarAhead(self,
+//    others)` returns non-null AND `findCarAhead(carAhead.other,
+//    [self])` ALSO returns non-null (i.e. each treats the other as ahead
+//    -- reusing findCarAhead itself for the reverse check, rather than a
+//    parallel geometry function, keeps this single-source-of-truth and
+//    automatically symmetric even off a one-frame-stale snapshot of
+//    either side), exactly one of the pair is chosen to proceed: whichever
+//    is FURTHER ALONG its own path (`progress`, this file's own
+//    `WalkerSnapshot` addition -- closer to being out of everyone's way),
+//    tie-broken by the lexicographically LOWER id (mirrors findCarAhead's
+//    own tie-break convention). The loser's own `carAhead` is left
+//    unchanged (it still yields, normally); the winner's own `carAhead` is
+//    set to null by the CALLER (LiveAgents.tsx's useFrame) for that frame,
+//    i.e. the winner proceeds exactly as if nothing were ahead of it --
+//    this is also what satisfies requirement 3 ("the one proceeding
+//    ignores yielders that are yielding to it"): a walker that IS the
+//    other's own registered car-ahead never gets capped by that same
+//    other walker once it has won precedence against it.
+// 2. STARVATION (`shouldBreakStarvation`): a general safety net for any
+//    OTHER long-hold shape this precedence rule doesn't cover (e.g. a
+//    genuinely one-directional follow against a car ahead that is itself
+//    stuck for unrelated reasons) -- if a walker has been actively capped
+//    (findCarAhead non-null AND its applied distance did not advance) for
+//    more than STARVATION_HOLD_S of its own pause-immune sim time, it
+//    stops waiting and proceeds at full (uncapped) speed for that frame.
+//    The per-frame INCREMENTAL distance accumulation (v6, unmodified) means
+//    this is still bounded by WALK_SPEED*dt per frame -- never a snap, only
+//    a walker that finally stops waiting.
+
+export const STARVATION_HOLD_S = 3; // sim seconds -- generous enough that ordinary, resolving follow-caps never trip it, tight enough to bound worst-case hold time well under the probe's own ~36s observed stall
+
+/** Deterministically resolves which of two MUTUALLY-ahead walkers proceeds
+ * (see this section's own header for when this applies): whichever has the
+ * HIGHER `progress` (further along its own path) wins; a progress tie (or
+ * either/both snapshots predating the v12 `progress` field, defaulting to
+ * 0) falls back to the lexicographically LOWER id -- mirrors
+ * findCarAhead's own tie-break convention. Pure and symmetric: both
+ * callers, even reading a one-frame-stale copy of one side, always compute
+ * the identical winner from the same two snapshots. */
+export function resolveMutualHoldWinner(a: WalkerSnapshot, b: WalkerSnapshot): string {
+  const pa = a.progress ?? 0;
+  const pb = b.progress ?? 0;
+  if (pa !== pb) return pa > pb ? a.id : b.id;
+  return a.id < b.id ? a.id : b.id;
+}
+
+/** True once a walker has been actively held (capped with no net advance)
+ * for longer than `thresholdS` of its own accumulated sim time -- past
+ * this point LiveAgents.tsx's own useFrame stops applying the follow cap
+ * for that frame regardless of cause, rather than risk an unbounded wait.
+ * See this section's own header for the full "why a timeout-only guard is
+ * still needed even with the mutual-hold precedence fix" reasoning
+ * (precedence only resolves the specific mutual-ahead shape; this covers
+ * everything else). */
+export function shouldBreakStarvation(stalledS: number, thresholdS: number = STARVATION_HOLD_S): boolean {
+  return stalledS > thresholdS;
 }
 
 /** GATE CO-SPAWN OVERLAP fix (CONVOY-STACK v10, 2026-09-15, probe

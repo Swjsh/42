@@ -55,6 +55,9 @@ import {
   HEAD_ON_COS_MAX,
   isPointOccupied,
   MAX_FRAME_DT_S,
+  resolveMutualHoldWinner,
+  shouldBreakStarvation,
+  STARVATION_HOLD_S,
   laneIndexForId,
   laneValueForId,
   LANE_STEP_U,
@@ -2821,5 +2824,285 @@ test("HQ-PAUSE HARD-TIMEOUT: RED (documents the bug) -- a raw wall-clock timeout
 test("HQ-PAUSE HARD-TIMEOUT: GREEN (the fix) -- the sim-time-based timeout does NOT fire on the resume frame (the avatar isn't despawned early)", () => {
   const steps = simulateLeaveTimeoutThroughPause(true);
   assert.ok(!steps[6].despawned, "the FIXED (sim-time) hard-timeout must not fire on the resume frame -- the pause must not count as elapsed leave time");
+});
+
+// ─── CONVOY-STACK v12 (2026-09-15): MUTUAL-HOLD DEADLOCK ───────────────────
+//
+// ROOT CAUSE (long_holds, probe 20260915T130317Z): findCarAhead evaluates
+// "is `other` ahead of self" independently from each walker's own point of
+// view. Two walkers converging from different stand slots onto the same
+// first corridor leg (a batch leave, this exact probe's own shape) can
+// each have a genuinely POSITIVE forward projection of the other -- NOT a
+// near-zero tie, which the existing id tie-break was built for, but two
+// real, meaningfully-positive projections at once. That happens whenever
+// each walker's own heading, though still near-parallel to the other's
+// (passes FOLLOW_HEADING_COS_MIN), differs from it by even a few degrees
+// while the pair sits roughly ABREAST (their separation vector close to
+// perpendicular to both headings) -- exactly the geometry of two avatars
+// approaching a shared corridor entrance from slightly different angles.
+// applyFollowCap then caps BOTH below FOLLOW_GAP_U using the other's own
+// (also frozen) one-frame-stale registry entry -- since nothing about
+// either side's position or heading ever changes once both are capped to
+// zero net advance, the hold is perfectly self-reinforcing and permanent,
+// exactly the probe's own ~36s "long_holds" observation (this specific
+// repro geometry deadlocks from tick 0, matching the probe's own "stuck
+// the instant both flip leaving" report).
+//
+// Geometry used below (verified numerically, not just reasoned about):
+// walker A heading due "north" ([0,1]), walker B ~25 degrees off that
+// heading ([0.423,0.906], headingDot ~0.906 -- comfortably above
+// FOLLOW_HEADING_COS_MIN's 0.7), B positioned 0.7u to A's "west" and 0.3u
+// further "north" (separation 0.762u, inside FOLLOW_GAP_U). Both
+// findCarAhead(A,[B]) and findCarAhead(B,[A]) return non-null from these
+// exact starting snapshots -- a genuine, immediate mutual hold.
+
+const MUTUAL_HOLD_DEST_KEY = "campus-gate";
+const MUTUAL_LEG_LENGTH = 10; // long enough that "never arrives" is unambiguous, short enough to simulate fast
+const MUTUAL_MAX_HOLD_TOLERANCE_S = STARVATION_HOLD_S + FOLLOW_TICK_DT_S + 1e-6; // one tick of slack over the threshold itself
+
+interface MutualHoldAgent {
+  id: string;
+  origin: [number, number, number];
+  heading: [number, number];
+}
+
+// The 2-agent repro, matching the probe's own real ids and reported
+// pattern (a9b796fb frozen the whole time, a7f66d26 makes one small move
+// then also freezes -- both genuinely mutual, not a chain).
+const MUTUAL_PAIR: MutualHoldAgent[] = [
+  { id: "a9b796fb", origin: [0, 0, 0], heading: [0, 1] },
+  { id: "a7f66d26", origin: [-0.7, 0, 0.3], heading: [0.423, 0.906] },
+];
+
+// 3-agent convergence: a THIRD walker mirrored onto A's other side (same
+// mutual relationship with A, individually verified far enough from B to
+// not ALSO directly conflict with B -- separation 1.4u, well outside
+// FOLLOW_GAP_U) -- a genuine 3-way jam centered on the single agent A that
+// two different walkers each mutually hold against.
+const MUTUAL_TRIPLE: MutualHoldAgent[] = [
+  ...MUTUAL_PAIR,
+  { id: "ac1a3c9d", origin: [0.7, 0, 0.3], heading: [-0.423, 0.906] },
+];
+
+interface MutualHoldStep {
+  tS: number;
+  position: [number, number, number];
+}
+
+function buildStraightPath(origin: [number, number, number], heading: [number, number], length: number): [number, number, number][] {
+  return [origin, [origin[0] + heading[0] * length, origin[1], origin[2] + heading[1] * length]];
+}
+
+/** Mirrors LiveAgents.tsx's own useFrame car-following accounting exactly
+ * (one-frame-stale registry, incremental distance) for N walkers on
+ * straight single-leg paths, PLUS (when `applyFix`) the v12 mutual-hold
+ * precedence + starvation guard. Returns each walker's trajectory and the
+ * longest UNINTERRUPTED stall (sim seconds with no net advance while
+ * actively capped) any walker experienced. */
+function simulateMutualHold(agents: MutualHoldAgent[], applyFix: boolean): { history: Map<string, MutualHoldStep[]>; maxHoldS: Map<string, number> } {
+  const paths = new Map(agents.map((a) => [a.id, buildStraightPath(a.origin, a.heading, MUTUAL_LEG_LENGTH)]));
+  const totals = new Map(agents.map((a) => [a.id, pathDistance(paths.get(a.id)!)]));
+  const appliedDistance = new Map(agents.map((a) => [a.id, 0]));
+  const stalledSinceS = new Map(agents.map((a) => [a.id, 0]));
+  const maxHoldS = new Map(agents.map((a) => [a.id, 0]));
+  let registry = new Map<string, WalkerSnapshot>();
+  const history = new Map<string, MutualHoldStep[]>(agents.map((a) => [a.id, []]));
+  const maxTicks = Math.ceil((MUTUAL_LEG_LENGTH * 4) / SIM_WALK_SPEED / FOLLOW_TICK_DT_S); // generous margin over a solo walk
+
+  for (let tick = 0; tick <= maxTicks; tick++) {
+    const tS = tick * FOLLOW_TICK_DT_S;
+    const nextRegistry = new Map<string, WalkerSnapshot>();
+    let allArrived = true;
+    for (const a of agents) {
+      const wp = paths.get(a.id)!;
+      const total = totals.get(a.id)!;
+      const prevApplied = appliedDistance.get(a.id)!;
+      const distanceTraveled = prevApplied + SIM_WALK_SPEED * FOLLOW_TICK_DT_S;
+      const lastSelf = registry.get(a.id);
+      const initialPose = poseAlongPath(wp, 0);
+      const selfSnapshot: WalkerSnapshot = lastSelf ?? {
+        id: a.id,
+        position: [initialPose.position[0], initialPose.position[2]],
+        heading: [Math.sin(initialPose.facing), Math.cos(initialPose.facing)],
+        destKey: MUTUAL_HOLD_DEST_KEY,
+        progress: total > 0 ? prevApplied / total : 1,
+      };
+      const others = Array.from(registry.values()).filter((s) => s.id !== a.id);
+      let carAhead = findCarAhead(selfSnapshot, others);
+      if (applyFix && carAhead && findCarAhead(carAhead.other, [selfSnapshot])) {
+        const winner = resolveMutualHoldWinner(selfSnapshot, carAhead.other);
+        if (winner === a.id) carAhead = null;
+      }
+      let newApplied = applyFollowCap(distanceTraveled, prevApplied, carAhead);
+      const stalledThisFrame = carAhead !== null && newApplied <= prevApplied + 1e-9;
+      stalledSinceS.set(a.id, stalledThisFrame ? stalledSinceS.get(a.id)! + FOLLOW_TICK_DT_S : 0);
+      maxHoldS.set(a.id, Math.max(maxHoldS.get(a.id)!, stalledSinceS.get(a.id)!));
+      if (applyFix && carAhead !== null && shouldBreakStarvation(stalledSinceS.get(a.id)!)) {
+        newApplied = applyFollowCap(distanceTraveled, prevApplied, null);
+      }
+      appliedDistance.set(a.id, newApplied);
+      const progress = total > 0 ? Math.min(1, newApplied / total) : 1;
+      const pose = poseAlongPath(wp, progress);
+      history.get(a.id)!.push({ tS, position: pose.position });
+      if (progress < 1) {
+        allArrived = false;
+        nextRegistry.set(a.id, {
+          id: a.id,
+          position: [pose.position[0], pose.position[2]],
+          heading: [Math.sin(pose.facing), Math.cos(pose.facing)],
+          destKey: MUTUAL_HOLD_DEST_KEY,
+          progress,
+        });
+      }
+    }
+    registry = nextRegistry;
+    if (allArrived) break;
+  }
+  return { history, maxHoldS };
+}
+
+test("MUTUAL-HOLD (2-agent): sanity -- the chosen geometry really is a mutual ahead-of-each-other reading from BOTH starting snapshots", () => {
+  const [a, b] = MUTUAL_PAIR;
+  const pathA = buildStraightPath(a.origin, a.heading, MUTUAL_LEG_LENGTH);
+  const pathB = buildStraightPath(b.origin, b.heading, MUTUAL_LEG_LENGTH);
+  const poseA = poseAlongPath(pathA, 0);
+  const poseB = poseAlongPath(pathB, 0);
+  const snapA: WalkerSnapshot = { id: a.id, position: [poseA.position[0], poseA.position[2]], heading: [Math.sin(poseA.facing), Math.cos(poseA.facing)], destKey: MUTUAL_HOLD_DEST_KEY };
+  const snapB: WalkerSnapshot = { id: b.id, position: [poseB.position[0], poseB.position[2]], heading: [Math.sin(poseB.facing), Math.cos(poseB.facing)], destKey: MUTUAL_HOLD_DEST_KEY };
+  assert.ok(findCarAhead(snapA, [snapB]) !== null, "A must see B as ahead from A's own starting snapshot");
+  assert.ok(findCarAhead(snapB, [snapA]) !== null, "B must see A as ahead from B's own starting snapshot -- this is what makes it MUTUAL, not just one-directional following");
+});
+
+test("MUTUAL-HOLD (2-agent): RED (documents the bug) -- both walkers settle to a near-frozen equilibrium far short of arrival, a permanent deadlock", () => {
+  const { history } = simulateMutualHold(MUTUAL_PAIR, false);
+  for (const a of MUTUAL_PAIR) {
+    const hist = history.get(a.id)!;
+    const last = hist[hist.length - 1];
+    // Each side's own forwardGap toward the other isn't perfectly
+    // symmetric, so the mutual cap can settle a hair off the literal
+    // origin (a tiny, self-consistent equilibrium point) rather than
+    // freezing at EXACTLY [0,0,0] -- the genuinely diagnostic signature of
+    // the deadlock is that this settled point stays a tiny fraction of the
+    // full leg length, i.e. it never gets anywhere close to arriving.
+    const driftFromOrigin = Math.hypot(last.position[0] - a.origin[0], last.position[2] - a.origin[2]);
+    assert.ok(driftFromOrigin < 0.05, `expected the PRE-FIX behavior to leave ${a.id} within 0.05u of its origin (moved ${driftFromOrigin.toFixed(4)}u instead) -- documents the reported long_holds deadlock`);
+    const dest = buildStraightPath(a.origin, a.heading, MUTUAL_LEG_LENGTH)[1];
+    const distFromDest = Math.hypot(last.position[0] - dest[0], last.position[2] - dest[2]);
+    assert.ok(distFromDest > MUTUAL_LEG_LENGTH * 0.9, `expected ${a.id} to never make meaningful progress toward its destination (only ${(MUTUAL_LEG_LENGTH - distFromDest).toFixed(3)}u of ${MUTUAL_LEG_LENGTH}u covered) -- documents the reported long_holds deadlock`);
+  }
+});
+
+test("MUTUAL-HOLD (2-agent): GREEN (the fix) -- both reach the gate, no hold exceeds STARVATION_HOLD_S, per-step bound holds, pairwise >=0.6u except a brief pass", () => {
+  const { history, maxHoldS } = simulateMutualHold(MUTUAL_PAIR, true);
+  const totalA = pathDistance(buildStraightPath(MUTUAL_PAIR[0].origin, MUTUAL_PAIR[0].heading, MUTUAL_LEG_LENGTH));
+  const boundS = totalA / SIM_WALK_SPEED + STARVATION_HOLD_S + 5; // path time + one starvation cycle + stagger/margin
+
+  // 1. No agent ever holds longer than the starvation threshold (+1 tick slack).
+  for (const a of MUTUAL_PAIR) {
+    const held = maxHoldS.get(a.id)!;
+    assert.ok(held <= MUTUAL_MAX_HOLD_TOLERANCE_S, `${a.id} held for ${held.toFixed(2)}s, exceeding STARVATION_HOLD_S (${STARVATION_HOLD_S}s) + slack`);
+  }
+
+  // 2. Both actually reach their own destination within a reasonable bound.
+  for (const a of MUTUAL_PAIR) {
+    const hist = history.get(a.id)!;
+    const dest = buildStraightPath(a.origin, a.heading, MUTUAL_LEG_LENGTH)[1];
+    const last = hist[hist.length - 1];
+    const dist = Math.hypot(last.position[0] - dest[0], last.position[2] - dest[2]);
+    assert.ok(dist < 1e-6, `${a.id} never reached its destination (ended ${dist.toFixed(3)}u short) -- last tS=${last.tS.toFixed(2)}s vs bound ${boundS.toFixed(2)}s`);
+    assert.ok(last.tS <= boundS, `${a.id} arrived at t=${last.tS.toFixed(2)}s, exceeding the (path/speed + starvation + margin) bound of ${boundS.toFixed(2)}s`);
+  }
+
+  // 3. Per-step displacement bound throughout (no snaps, including any
+  // starvation-triggered "proceed through" frame).
+  for (const a of MUTUAL_PAIR) {
+    const hist = history.get(a.id)!;
+    for (let i = 1; i < hist.length; i++) {
+      const p = hist[i - 1].position;
+      const q = hist[i].position;
+      const dist = Math.hypot(p[0] - q[0], p[2] - q[2]);
+      const dt = hist[i].tS - hist[i - 1].tS;
+      assert.ok(dist <= SIM_WALK_SPEED * dt + 0.05 + 1e-9, `${a.id} step ${i}: displacement ${dist.toFixed(3)}u exceeds WALK_SPEED*dt+0.05`);
+    }
+  }
+
+  // 4. Pairwise separation stays >=0.6u except only a brief pass (the
+  // starvation break-through is explicitly allowed to graze past, per the
+  // coordinator's own "except a brief pass" allowance) -- checked as "no
+  // MORE than a handful of consecutive ticks under the bar".
+  const [ah, bh] = [history.get(MUTUAL_PAIR[0].id)!, history.get(MUTUAL_PAIR[1].id)!];
+  const n = Math.min(ah.length, bh.length);
+  let consecutiveViolationTicks = 0;
+  let maxConsecutiveViolationTicks = 0;
+  for (let i = 0; i < n; i++) {
+    const dist = Math.hypot(ah[i].position[0] - bh[i].position[0], ah[i].position[2] - bh[i].position[2]);
+    if (dist < 0.6 - 1e-9) {
+      consecutiveViolationTicks++;
+      maxConsecutiveViolationTicks = Math.max(maxConsecutiveViolationTicks, consecutiveViolationTicks);
+    } else {
+      consecutiveViolationTicks = 0;
+    }
+  }
+  const briefPassTicksBound = Math.round(1 / FOLLOW_TICK_DT_S); // <=1s of grazing during the pass
+  assert.ok(maxConsecutiveViolationTicks <= briefPassTicksBound, `pairwise separation stayed under 0.6u for ${(maxConsecutiveViolationTicks * FOLLOW_TICK_DT_S).toFixed(2)}s straight -- longer than a brief pass`);
+});
+
+test("MUTUAL-HOLD (3-agent convergence): RED (documents the bug) -- the centrally-held agent (A) never makes meaningful progress", () => {
+  const { history } = simulateMutualHold(MUTUAL_TRIPLE, false);
+  const a = MUTUAL_TRIPLE[0];
+  const hist = history.get(a.id)!;
+  const last = hist[hist.length - 1];
+  // Same near-frozen-equilibrium signature as the 2-agent case (see that
+  // RED test's own comment) -- diagnostic is "never gets anywhere close to
+  // arriving", not literal bit-for-bit stasis at the origin.
+  const driftFromOrigin = Math.hypot(last.position[0] - a.origin[0], last.position[2] - a.origin[2]);
+  assert.ok(driftFromOrigin < 0.05, `expected the PRE-FIX behavior to leave ${a.id} within 0.05u of its origin (moved ${driftFromOrigin.toFixed(4)}u instead)`);
+  const dest = buildStraightPath(a.origin, a.heading, MUTUAL_LEG_LENGTH)[1];
+  const distFromDest = Math.hypot(last.position[0] - dest[0], last.position[2] - dest[2]);
+  assert.ok(distFromDest > MUTUAL_LEG_LENGTH * 0.9, `expected ${a.id} to never make meaningful progress toward its destination (only ${(MUTUAL_LEG_LENGTH - distFromDest).toFixed(3)}u of ${MUTUAL_LEG_LENGTH}u covered)`);
+});
+
+test("MUTUAL-HOLD (3-agent convergence): GREEN (the fix) -- all three reach the gate, no agent holds > STARVATION_HOLD_S, per-step bound holds", () => {
+  const { history, maxHoldS } = simulateMutualHold(MUTUAL_TRIPLE, true);
+  for (const a of MUTUAL_TRIPLE) {
+    const held = maxHoldS.get(a.id)!;
+    assert.ok(held <= MUTUAL_MAX_HOLD_TOLERANCE_S, `${a.id} held for ${held.toFixed(2)}s, exceeding STARVATION_HOLD_S (${STARVATION_HOLD_S}s) + slack`);
+
+    const hist = history.get(a.id)!;
+    const dest = buildStraightPath(a.origin, a.heading, MUTUAL_LEG_LENGTH)[1];
+    const last = hist[hist.length - 1];
+    const arrivedDist = Math.hypot(last.position[0] - dest[0], last.position[2] - dest[2]);
+    assert.ok(arrivedDist < 1e-6, `${a.id} never reached its destination (ended ${arrivedDist.toFixed(3)}u short)`);
+
+    for (let i = 1; i < hist.length; i++) {
+      const p = hist[i - 1].position;
+      const q = hist[i].position;
+      const dist = Math.hypot(p[0] - q[0], p[2] - q[2]);
+      const dt = hist[i].tS - hist[i - 1].tS;
+      assert.ok(dist <= SIM_WALK_SPEED * dt + 0.05 + 1e-9, `${a.id} step ${i}: displacement ${dist.toFixed(3)}u exceeds WALK_SPEED*dt+0.05`);
+    }
+  }
+});
+
+test("resolveMutualHoldWinner: the walker further along its own path wins (proceeds)", () => {
+  const behind: WalkerSnapshot = { id: "b", position: [0, 0], heading: [0, 1], destKey: "x", progress: 0.2 };
+  const ahead: WalkerSnapshot = { id: "a", position: [0, 0.1], heading: [0, 1], destKey: "x", progress: 0.8 };
+  assert.equal(resolveMutualHoldWinner(behind, ahead), "a");
+  assert.equal(resolveMutualHoldWinner(ahead, behind), "a"); // symmetric regardless of argument order
+});
+
+test("resolveMutualHoldWinner: a progress tie (or missing progress, defaulting to 0) falls back to the lexicographically lower id", () => {
+  const x: WalkerSnapshot = { id: "zzz", position: [0, 0], heading: [0, 1], destKey: "x", progress: 0.5 };
+  const y: WalkerSnapshot = { id: "aaa", position: [0, 0], heading: [0, 1], destKey: "x", progress: 0.5 };
+  assert.equal(resolveMutualHoldWinner(x, y), "aaa");
+  const noProgressA: WalkerSnapshot = { id: "zzz", position: [0, 0], heading: [0, 1], destKey: "x" };
+  const noProgressB: WalkerSnapshot = { id: "aaa", position: [0, 0], heading: [0, 1], destKey: "x" };
+  assert.equal(resolveMutualHoldWinner(noProgressA, noProgressB), "aaa");
+});
+
+test("shouldBreakStarvation: false at/under the threshold, true once strictly past it", () => {
+  assert.equal(shouldBreakStarvation(STARVATION_HOLD_S), false);
+  assert.equal(shouldBreakStarvation(STARVATION_HOLD_S - 0.01), false);
+  assert.equal(shouldBreakStarvation(STARVATION_HOLD_S + 0.01), true);
 });
 

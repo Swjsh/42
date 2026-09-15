@@ -60,7 +60,8 @@ import {
   applyFollowCap, applyLaneOffsets, clampFrameDelta, computeBatchOrder, computeBatchStaggerDelays, computeMaxPathDurationS,
   computeSidestepPlan, computeWaitPoint, decideNextWalk, ENTRY_NODE_ID, findCarAhead, FOLLOW_GAP_U,
   isPointOccupied, LEAVE_TIMEOUT_MARGIN_S,
-  pathDistance, poseAlongPath, rampSidestepOffset, reconcileLiveAgentRoster, rightOf, shouldWriteLiveAgentDiag,
+  pathDistance, poseAlongPath, rampSidestepOffset, reconcileLiveAgentRoster, resolveMutualHoldWinner, rightOf,
+  shouldBreakStarvation, shouldWriteLiveAgentDiag,
   stableSlotOffset, STAND_BUBBLE_Y_STEP, updateStableSlotAssignments, type WalkerSnapshot,
 } from "./liveAgentWalk";
 
@@ -337,6 +338,14 @@ function LiveAgentAvatar({
   // frame. Reset to 0 whenever a new walk is kicked off (see the decision
   // effect below); never touched while resting/waiting.
   const appliedDistanceRef = useRef(0);
+  // MUTUAL-HOLD STARVATION guard (CONVOY-STACK v12): sim-seconds this
+  // avatar has been actively capped (a car ahead, no net advance applied)
+  // WITHOUT interruption -- reset to 0 the instant either the cap lifts or
+  // this avatar actually advances. Past liveAgentWalk.ts#STARVATION_HOLD_S,
+  // useFrame below stops honoring the cap for a frame regardless of cause
+  // (see that constant's own header for why the mutual-hold precedence fix
+  // alone isn't a complete deadlock guarantee on its own).
+  const stalledSinceSRef = useRef(0);
   // LEAVE-TIMEOUT EXTENSION guardrail (v6): cumulative extra seconds to add
   // on top of leaveHardTimeoutS -- incremented by this frame's own delta
   // every frame this avatar's forward advance was actually reduced by
@@ -611,6 +620,10 @@ function LiveAgentAvatar({
     // accounting fresh -- never carries over a "never reverse" floor from
     // whatever walk (if any) preceded it.
     appliedDistanceRef.current = 0;
+    // MUTUAL-HOLD STARVATION guard (v12): a brand-new walk also starts its
+    // own stall clock fresh -- a hold from a PREVIOUS walk must never carry
+    // over and immediately trip the starvation break-through on this one.
+    stalledSinceSRef.current = 0;
     needsWalkStart.current = true;
     phase.current = "walking";
     setAnimState(WALK_ANIM);
@@ -814,10 +827,56 @@ function LiveAgentAvatar({
           position: [g.position.x, g.position.z],
           heading: [Math.sin(g.rotation.y), Math.cos(g.rotation.y)],
           destKey: walkDest.current,
+          // MUTUAL-HOLD DEADLOCK fix (v12): this avatar's own progress as of
+          // its LAST rendered frame (mirrors every other field on this
+          // snapshot -- "last rendered pose", never this frame's not-yet-
+          // applied candidate) -- see resolveMutualHoldWinner's own header
+          // for why progress is the precedence signal.
+          progress: liveTotal > 0 ? Math.min(1, appliedDistanceRef.current / liveTotal) : 1,
         };
         const others = Array.from(walkerFollowRegistry.values());
-        const carAhead = findCarAhead(selfSnapshot, others);
+        let carAhead = findCarAhead(selfSnapshot, others);
+        // MUTUAL-HOLD DEADLOCK fix (CONVOY-STACK v12, probe
+        // 20260915T130317Z): findCarAhead only ever asks "is `other` ahead
+        // of self" -- it has no notion of whether `other` symmetrically
+        // reads `self` as ITS OWN car ahead too. Two walkers converging
+        // from different stand slots onto the same first corridor leg (a
+        // batch leave, this exact probe's own shape) can genuinely see
+        // EACH OTHER as ahead-or-level at once (not a near-zero tie --
+        // both real, positive forward projections), which applyFollowCap
+        // alone caps into a stable mutual lock: each holds back for the
+        // other, forever, since neither's registry entry ever changes. The
+        // reverse check reuses findCarAhead itself (self is now the sole
+        // "other" candidate) so the mutual test is symmetric and single-
+        // source-of-truth by construction, even off a one-frame-stale
+        // snapshot of `carAhead.other`. When mutual, resolveMutualHoldWinner
+        // deterministically picks exactly one winner (further along its
+        // own path, else lower id); if THIS avatar wins, `carAhead` is
+        // cleared for this frame -- proceeding exactly as if nothing were
+        // ahead of it, which also satisfies "the one proceeding ignores
+        // yielders that are yielding to it" (the loser's own cap is left
+        // untouched, so it still yields normally on its own next frame).
+        if (carAhead && findCarAhead(carAhead.other, [selfSnapshot])) {
+          const winner = resolveMutualHoldWinner(selfSnapshot, carAhead.other);
+          if (winner === selfSnapshot.id) carAhead = null;
+        }
         let appliedDistance = applyFollowCap(distanceTraveled, appliedDistanceRef.current, carAhead);
+        // STARVATION GUARD (CONVOY-STACK v12): a general backstop for any
+        // OTHER long-hold shape the mutual-hold precedence fix above
+        // doesn't cover (e.g. a one-directional follow against a car ahead
+        // that is itself stuck for unrelated reasons) -- tracks how long
+        // THIS avatar has been actively capped with no net advance, and
+        // once that exceeds liveAgentWalk.ts#STARVATION_HOLD_S, stops
+        // honoring the cap for a frame rather than risk an unbounded wait.
+        // Still bounded by WALK_SPEED*delta (the same incremental
+        // accumulation as every other frame, v6, unmodified) -- never a
+        // snap, only a walker that finally stops waiting.
+        const stalledThisFrame = carAhead !== null && appliedDistance <= appliedDistanceRef.current + 1e-9;
+        stalledSinceSRef.current = stalledThisFrame ? stalledSinceSRef.current + delta : 0;
+        const starvationBroke = carAhead !== null && shouldBreakStarvation(stalledSinceSRef.current);
+        if (starvationBroke) {
+          appliedDistance = applyFollowCap(distanceTraveled, appliedDistanceRef.current, null);
+        }
         // KEEP-RIGHT PASSING (CONVOY-STACK v8, probe 20260915T114713Z):
         // findCarAhead/applyFollowCap above only ever engage for SAME-
         // direction traffic (FOLLOW_HEADING_COS_MIN) -- correctly excluding
@@ -879,6 +938,10 @@ function LiveAgentAvatar({
           position: [renderedX, renderedZ],
           heading: [Math.sin(facing), Math.cos(facing)],
           destKey: walkDest.current,
+          // MUTUAL-HOLD DEADLOCK fix (v12): this frame's own real progress
+          // -- see resolveMutualHoldWinner's own header for why this is the
+          // published precedence signal.
+          progress,
         });
         if (progress >= 1) {
           currentNode.current = walkDest.current;
