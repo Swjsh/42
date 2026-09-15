@@ -22,6 +22,7 @@ from hq_probe_lib import (  # noqa: E402
     check_walk_out,
     check_walk_speed,
     page_refresh_ms_from_url,
+    perf_headless_flag,
 )
 
 
@@ -432,6 +433,131 @@ def test_perf_real_gpu_no_data_still_no_data():
     assert v["verdict"] == "NO-DATA", v
     v2 = check_perf([i * 16.667 for i in range(120)], [None, None, None], headless=False)
     assert v2["verdict"] == "NO-DATA", v2
+
+
+# perf_headless_flag -- single source of truth for live vs rescore ------------------
+# 2026-09-15 bug: hq_live_probe.py's live path derived headless from
+# `not diag.get("gl_is_hardware", False)`, its --rescore path derived it from
+# `diag.get("headless", True)` (a literal always-True field unrelated to GL
+# backend) -- two different rules for the same parameter. A real hardware-GL
+# run (gl_is_hardware True, live-verified perf PASS) rescored as perf
+# INFO/"SwiftShader numbers", which was false. perf_headless_flag is now the
+# ONE function both paths call.
+
+def test_perf_headless_flag_hardware_true_means_not_headless():
+    is_headless, reason = perf_headless_flag({"gl_is_hardware": True})
+    assert is_headless is False, (is_headless, reason)
+    assert reason is None
+
+
+def test_perf_headless_flag_software_gl_means_headless():
+    is_headless, reason = perf_headless_flag({"gl_is_hardware": False})
+    assert is_headless is True, (is_headless, reason)
+    assert reason is None
+
+
+def test_perf_headless_flag_missing_field_is_unknown_not_defaulted():
+    # Must NEVER default to True or False -- an older samples file that
+    # predates gl_is_hardware being recorded has no basis for either.
+    is_headless, reason = perf_headless_flag({})
+    assert is_headless is None, is_headless
+    assert reason == "gl backend not recorded"
+    is_headless2, reason2 = perf_headless_flag({"gl_is_hardware": None})
+    assert is_headless2 is None, is_headless2
+    assert reason2 == "gl backend not recorded"
+
+
+def test_check_perf_headless_none_is_no_data_never_info_or_pass():
+    frames = [i * 16.667 for i in range(120)]
+    v = check_perf(frames, [100, 110, 105], headless=None)
+    assert v["verdict"] == "NO-DATA", v
+    assert v["detail"]["reason"] == "gl backend not recorded"
+    assert v["verdict"] not in ("INFO", "PASS")
+
+
+def test_rescore_matches_live_verdicts_for_hardware_gl_run(tmp_path, capsys):
+    """The exact 2026-09-15 bug this pass fixes: a live hardware-GL run
+    (gl_is_hardware True) rescored from its own samples.json.gz must
+    reproduce the SAME full build_verdicts dict the live path would compute
+    from the same diag -- perf included, PASS/FAIL on real-GPU thresholds,
+    never INFO/SwiftShader."""
+    import importlib
+    import json as _json
+    import sys as _sys
+    from pathlib import Path as _Path
+
+    _sys.path.insert(0, str(_Path(__file__).resolve().parent))
+    hq_live_probe = importlib.import_module("hq_live_probe")
+    importlib.reload(hq_live_probe)
+
+    samples = [
+        _s(0, page=[], api=[], calls=100),
+        _s(500, page=[], api=[{"id": "a1"}], calls=100),
+        _s(1000, page=[_agent("a1", "walking", [0, 0])], api=[{"id": "a1"}], calls=100),
+        _s(1500, page=[_agent("a1", "walking", [0.5, 0])], api=[{"id": "a1"}], calls=100),
+    ]
+    frame_ts = [i * 16.667 for i in range(120)]  # steady 60fps
+    build_ids = ["build-hw"] * 5
+    diag = {
+        "scene_ready": True,
+        "gl_is_hardware": True,
+        "gl_renderer": "NVIDIA GeForce RTX 5080/PCIe/SSE2",
+        "gl_backend": "hardware (ANGLE/D3D11, NVIDIA)",
+        "build_id_start": "build-hw",
+    }
+
+    # "Live" verdict: exactly the call shape write_partial/main() use.
+    live_headless, live_reason = perf_headless_flag(diag)
+    assert live_reason is None
+    live_verdicts = build_verdicts(
+        samples, frame_ts, calls_samples=[s.get("calls") for s in samples],
+        scene_ready=True, build_ids=build_ids, headless=live_headless,
+    )
+    assert live_verdicts["perf"]["verdict"] in ("PASS", "FAIL"), live_verdicts["perf"]
+
+    gz_path = tmp_path / "20260915T070024Z-build_hw.samples.json.gz"
+    hq_live_probe.write_samples_gz(
+        gz_path, "2026-09-15T07:00:24Z", "http://x/hq?diag=1&tier=ultra",
+        diag, samples, frame_ts, build_ids,
+    )
+
+    exit_code = hq_live_probe.rescore(gz_path)
+    report = _json.loads(capsys.readouterr().out)
+
+    assert report["environment"]["gl_is_hardware"] is True
+    assert report["gl_backend_recorded"] is True
+    assert report["verdicts"] == live_verdicts, (report["verdicts"], live_verdicts)
+    assert report["verdicts"]["perf"]["verdict"] == live_verdicts["perf"]["verdict"]
+    assert "SwiftShader" not in _json.dumps(report["verdicts"]["perf"]["detail"])
+    assert exit_code in (0, 2)
+
+
+def test_rescore_no_data_when_gl_fields_missing(tmp_path, capsys):
+    """Older samples file predating gl_is_hardware -- rescore must never
+    silently report perf INFO or PASS; it's NO-DATA with an explicit reason."""
+    import importlib
+    import json as _json
+    import sys as _sys
+    from pathlib import Path as _Path
+
+    _sys.path.insert(0, str(_Path(__file__).resolve().parent))
+    hq_live_probe = importlib.import_module("hq_live_probe")
+    importlib.reload(hq_live_probe)
+
+    samples = [_s(0, calls=100), _s(500, calls=100)]
+    frame_ts = [i * 16.667 for i in range(120)]
+    diag = {"scene_ready": True, "build_id_start": "build-old"}  # no gl_is_hardware
+    gz_path = tmp_path / "old.samples.json.gz"
+    hq_live_probe.write_samples_gz(
+        gz_path, "2026-09-01T00:00:00Z", "http://x/hq", diag, samples, frame_ts,
+        ["build-old", "build-old"],
+    )
+
+    hq_live_probe.rescore(gz_path)
+    report = _json.loads(capsys.readouterr().out)
+    assert report["gl_backend_recorded"] is False
+    assert report["verdicts"]["perf"]["verdict"] == "NO-DATA"
+    assert report["verdicts"]["perf"]["detail"]["reason"] == "gl backend not recorded"
 
 
 # motion-check fps gating -----------------------------------------------------------

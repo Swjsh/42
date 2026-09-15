@@ -64,7 +64,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from hq_probe_lib import build_verdicts  # noqa: E402
+from hq_probe_lib import build_verdicts, perf_headless_flag  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 OUT_PATH = REPO_ROOT / "automation" / "state" / "station" / "hq-probe-latest.json"
@@ -283,13 +283,19 @@ def rescore(samples_path: Path, page_refresh_ms: Optional[int] = None) -> int:
     payload = load_samples_gz(samples_path)
     diag = payload.get("environment", {}) or {}
     samples = payload.get("samples", [])
+    # Single source of truth (see perf_headless_flag docstring): derived from
+    # the recorded gl_is_hardware field, NEVER from diag's own 'headless'
+    # literal (always True -- Playwright always launches headless=True, an
+    # unrelated "no visible window" fact). This is the same call
+    # write_partial/main() make on the live path -- one rule, two callers.
+    headless, gl_backend_reason = perf_headless_flag(diag)
     verdicts = build_verdicts(
         samples,
         payload.get("frame_timestamps_ms", []),
         calls_samples=[s.get("calls") for s in samples],
         scene_ready=diag.get("scene_ready", False),
         build_ids=payload.get("build_ids", []),
-        headless=diag.get("headless", True),
+        headless=headless,
         url=payload.get("url"),
         page_refresh_ms=page_refresh_ms,
     )
@@ -300,6 +306,11 @@ def rescore(samples_path: Path, page_refresh_ms: Optional[int] = None) -> int:
         "run_started_utc": payload.get("run_started_utc"),
         "url": payload.get("url"),
         "sample_count": len(samples),
+        # Carries gl_is_hardware/gl_renderer/gl_backend forward from the
+        # samples file so a reader never sees environment.gl_is_hardware as
+        # a bare None just because rescore omitted the block entirely.
+        "environment": diag,
+        "gl_backend_recorded": gl_backend_reason is None,
         "verdicts": verdicts,
     }
     print(json.dumps(report, indent=2))
@@ -342,7 +353,7 @@ def launch_and_probe(
                 calls_samples=[s.get("calls") for s in samples],
                 scene_ready=diag.get("scene_ready", False),
                 build_ids=build_ids,
-                headless=not diag.get("gl_is_hardware", False),
+                headless=perf_headless_flag(diag)[0],
                 url=url,
                 page_refresh_ms=page_refresh_ms,
             )
@@ -636,7 +647,7 @@ def main() -> int:
         calls_samples=calls_samples,
         scene_ready=scene_ready,
         build_ids=build_ids,
-        headless=not diag.get("gl_is_hardware", False),
+        headless=perf_headless_flag(diag)[0],
         url=args.url,
         page_refresh_ms=args.page_refresh_ms,
     )

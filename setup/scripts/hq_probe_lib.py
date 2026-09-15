@@ -438,6 +438,30 @@ def check_bubbles(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
 
 # 7. perf -------------------------------------------------------------------------
 
+def perf_headless_flag(environment: Dict[str, Any]) -> "tuple[Optional[bool], Optional[str]]":
+    """The SINGLE source of truth for whether perf numbers came from software
+    GL (SwiftShader) or real hardware GL. Driven ONLY by the recorded
+    gl_is_hardware field -- never by environment's own 'headless' key (that
+    key is always literal True: Playwright always launches headless=True: a
+    "no visible window" fact, unrelated to which GL backend rendered the
+    frames). Both hq_live_probe.py's live path and its --rescore path must
+    call this exact function so they can never compute two different
+    verdicts from the same recorded environment (2026-09-15 bug: live used
+    `not gl_is_hardware`, rescore used the meaningless `headless` literal --
+    rescore reported perf INFO/SwiftShader on a run that was live-verified
+    PASS on real NVIDIA hardware).
+
+    Returns (is_software_gl, no_data_reason):
+      - gl_is_hardware recorded -> (not gl_is_hardware, None)
+      - gl_is_hardware missing (samples file predates this field) ->
+        (None, "gl backend not recorded") -- caller must NEVER default this
+        to True/False; check_perf treats None as NO-DATA.
+    """
+    if "gl_is_hardware" not in environment or environment.get("gl_is_hardware") is None:
+        return None, "gl backend not recorded"
+    return (not bool(environment["gl_is_hardware"])), None
+
+
 def _percentile(values: List[float], pct: float) -> float:
     if not values:
         return 0.0
@@ -458,19 +482,29 @@ def check_perf(
     frame_timestamps_ms: List[float],
     calls_samples: List[Optional[int]],
     scene_ready: bool = True,
-    headless: bool = True,
+    headless: Optional[bool] = True,
 ) -> Dict[str, Any]:
     """Verdict shape depends on environment:
-      - headless/SwiftShader (default, matches every hq_live_probe.py run
-        today -- Playwright always launches headless=True there): verdict
+      - headless/SwiftShader (software GL -- see perf_headless_flag): verdict
         is NO-DATA while there's genuinely no data (scene not ready, too few
         frames, no draw-call samples), otherwise INFO -- headless numbers
         carry no PASS/FAIL threshold, they're for trend-watching only.
       - real GPU (headless=False): NO-DATA for the same missing-data cases,
         otherwise PASS only if fps_p50 >= 58, p95 frame time <= 17ms, AND
         draw calls were sampled; FAIL otherwise.
+      - headless=None (the gl backend was never recorded -- an older
+        samples.json.gz predating gl_is_hardware): always NO-DATA, never
+        INFO or PASS -- there is no basis to label the numbers either way.
     Never PASS in headless mode -- that was the 2026-09-14 false-PASS bug
-    (fps_p50 0.71 on SwiftShader read as a passing perf number)."""
+    (fps_p50 0.71 on SwiftShader read as a passing perf number). Callers
+    (both the live path and --rescore) must derive `headless` from
+    perf_headless_flag(environment), never from environment's own literal
+    'headless' key -- see that function's docstring for why."""
+    if headless is None:
+        return {
+            "verdict": "NO-DATA",
+            "detail": {"reason": "gl backend not recorded", "headless": None, "label": "UNKNOWN"},
+        }
     label = "HEADLESS" if headless else "GPU"
     if not scene_ready:
         return {
@@ -580,14 +614,14 @@ def build_verdicts(
     calls_samples: Optional[List[Optional[int]]] = None,
     scene_ready: bool = True,
     build_ids: Optional[Sequence[Optional[str]]] = None,
-    headless: bool = True,
+    headless: Optional[bool] = True,
     url: Optional[str] = None,
     page_refresh_ms: Optional[int] = None,
 ) -> Dict[str, Any]:
     if calls_samples is None:
         calls_samples = [s.get("calls") for s in samples]
     build_ids = build_ids or []
-    label = "HEADLESS" if headless else "GPU"
+    label = "UNKNOWN" if headless is None else ("HEADLESS" if headless else "GPU")
     # Explicit --page-refresh-ms wins; otherwise derive from the probe URL's
     # kiosk=1 query param (see page_refresh_ms_from_url docstring).
     effective_page_refresh_ms = (
