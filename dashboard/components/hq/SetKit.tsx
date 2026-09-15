@@ -5,6 +5,17 @@ import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import DeskScreen from "./DeskScreen";
 import { lerp, localToWorld, PALETTE, type ScreenLine } from "./palette";
+import {
+  poolRegistry,
+  subscribePool,
+  getPoolVersion,
+  makePoolKey,
+  registerPlacements,
+  unregisterPlacements,
+  ceilingLightWorldQuaternion,
+  type PoolPlacement,
+  type PoolKey,
+} from "./kitPoolRegistry";
 
 // ─── HQ kit rebuild (2026-09-13, HQ-SCENE-PLAN.md) ──────────────────────────
 // Real CC0 GLB pieces (Kenney Space Station Kit / Modular Space Kit / Space
@@ -363,70 +374,18 @@ export function KitProp({ path, scale = 1, position, rotation, tint, tintStrengt
 // chair alone without the screen felt like a partial win not worth the
 // added surface this pass, flagged as a follow-up too.
 
-interface PoolInstance {
-  matrix: THREE.Matrix4;
-}
-type PoolKey = string; // `${glbPath}::${variant}`
 export type { PoolPlacement, InstancedKitPoolProps };
-
-const poolRegistry = new Map<PoolKey, Map<string, PoolInstance>>();
-const poolListeners = new Set<() => void>();
-let poolVersion = 0;
-function notifyPool(): void {
-  poolVersion += 1;
-  poolListeners.forEach((l) => l());
-}
-function subscribePool(cb: () => void): () => void {
-  poolListeners.add(cb);
-  return () => poolListeners.delete(cb);
-}
-function getPoolVersion(): number {
-  return poolVersion;
-}
-
-const _poolPos = new THREE.Vector3();
-const _poolQuat = new THREE.Quaternion();
-const _poolEuler = new THREE.Euler();
-const _poolScale = new THREE.Vector3();
-
-interface PoolPlacement {
-  /** Stable across re-renders for the SAME logical instance (this call
-   * site's own useId() + a per-item suffix) -- the registry keys on this,
-   * never array index (index would silently reassign a DIFFERENT
-   * instance's matrix if the array ever reordered). */
-  id: string;
-  position: [number, number, number];
-  /** Euler XYZ (three.js default order). Every placement pooled so far
-   * (corridor/gate-door/junction/room, and DeskCluster's table+chair below)
-   * needs at most ONE non-zero axis (a plain Y-facing rotation), where
-   * axis order is moot -- use this field for those. Mutually exclusive
-   * with `quaternion`; exactly one of the two must be given. */
-  rotation?: [number, number, number];
-  /** Precomposed world quaternion -- for a placement whose rotation is a
-   * composition of axes that three.js's default XYZ Euler order can't
-   * express directly. CeilingLight is the case that needs this: its own
-   * local orientation is a pure X-axis flip, nested inside a Y-rotated
-   * parent (a department bay's own `rotationY`; 0 for the hub's 4
-   * fixtures, which have no parent rotation) -- the real nested-group
-   * composition is `Ry(rotationY) * Rx(Math.PI)` (apply the fixture's own
-   * flip first, THEN the bay's rotation, matching how two nested
-   * `<group rotation=[...]>` transforms actually multiply). A single Euler
-   * triple `[Math.PI, rotationY, 0]` under the default 'XYZ' order instead
-   * composes to `Rx(Math.PI) * Ry(rotationY)` (apply Ry first, then Rx) --
-   * the WRONG order whenever rotationY != 0 -- so this case computes the
-   * quaternion explicitly via real quaternion multiplication instead (see
-   * `ceilingLightWorldQuaternion` below). Mutually exclusive with
-   * `rotation`. */
-  quaternion?: THREE.Quaternion;
-  scale: number;
-}
 
 /** Registers a BATCH of placements into a shared cross-tree pool (see this
  * section's own header) in ONE effect -- never one hook call per array item
  * (rules of hooks forbid a hook inside a .map() callback). Re-registers only
  * when the batch's own VALUES change (a stable serialized dep key, not the
  * array reference -- callers often rebuild the array every render even when
- * every number inside is unchanged). */
+ * every number inside is unchanged). The registry itself (module-scope Map,
+ * version counter, and the PoolPlacement -> Matrix4 composition) lives in
+ * kitPoolRegistry.ts -- pulled out react-free so it can be unit tested with
+ * plain `node --test` (regression-test pass, 2026-09-15); this hook still
+ * owns all React-specific behavior (the effect, its cleanup, the depsKey). */
 // PERF-3 (2026-09-15): exported (was file-private) so callers outside this
 // file -- Ground.tsx (craters), BaseProps.tsx (cables/supportsHigh/barrels
 // callers, follow-up scope), HubInterior.tsx (hub chairs/cables),
@@ -435,7 +394,7 @@ interface PoolPlacement {
 // instead of each mounting its own un-instanced KitProp. No behavior change
 // for existing in-file callers (HubRoom/DeskCluster/CorridorRun/TJunction).
 export function usePooledKitProps(path: string, variant: string, placements: PoolPlacement[]): void {
-  const key: PoolKey = `${path}::${variant}`;
+  const key: PoolKey = makePoolKey(path, variant);
   const depsKey = placements
     .map((p) => {
       const rot = p.quaternion
@@ -445,25 +404,9 @@ export function usePooledKitProps(path: string, variant: string, placements: Poo
     })
     .join("|");
   useEffect(() => {
-    let pool = poolRegistry.get(key);
-    if (!pool) {
-      pool = new Map();
-      poolRegistry.set(key, pool);
-    }
-    for (const p of placements) {
-      const q = p.quaternion ?? _poolQuat.setFromEuler(_poolEuler.set(p.rotation![0], p.rotation![1], p.rotation![2]));
-      const m = new THREE.Matrix4().compose(
-        _poolPos.set(p.position[0], p.position[1], p.position[2]),
-        q,
-        _poolScale.set(p.scale, p.scale, p.scale),
-      );
-      pool.set(p.id, { matrix: m });
-    }
-    notifyPool();
+    registerPlacements(key, placements);
     return () => {
-      const live = poolRegistry.get(key);
-      if (live) for (const p of placements) live.delete(p.id);
-      notifyPool();
+      unregisterPlacements(key, placements);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key, depsKey]);
@@ -490,7 +433,7 @@ interface InstancedKitPoolProps {
 export function InstancedKitPool({ path, variant, tintColor, tintStrength = 0, castShadow, receiveShadow }: InstancedKitPoolProps) {
   const version = useSyncExternalStore(subscribePool, getPoolVersion, getPoolVersion);
   const { scene } = useGLTF(path, false);
-  const key: PoolKey = `${path}::${variant}`;
+  const key: PoolKey = makePoolKey(path, variant);
   const pool = poolRegistry.get(key);
   const matrices = useMemo(
     () => (pool ? Array.from(pool.values()).map((v) => v.matrix) : []),
@@ -573,20 +516,11 @@ function interiorLampFactor(dayFactor: number): number {
 }
 
 // P3 perf pass, item 2 (POLISH-1 follow-up, 2026-09-14): CeilingLight is
-// now pooled the SAME way -- see PoolPlacement's own `quaternion` field
-// header for why this needs a real quaternion multiply rather than a
-// single Euler triple. `CEILING_LIGHT_LOCAL_QUAT` is the fixture's own
-// fixed local orientation (CeilingLight's old KitProp always passed
-// `rotation={[Math.PI, 0, 0]}`, never anything else); a fresh Y-axis
-// quaternion multiplies it PER CALL (never mutating this shared constant --
-// `.multiply` runs on the fresh per-call quaternion, matching the
-// immutability convention every other pooled placement in this file
-// already follows for its own scratch math).
-const _ceilingLightYAxis = new THREE.Vector3(0, 1, 0);
-const CEILING_LIGHT_LOCAL_QUAT = new THREE.Quaternion().setFromEuler(new THREE.Euler(Math.PI, 0, 0));
-function ceilingLightWorldQuaternion(rotationY: number): THREE.Quaternion {
-  return new THREE.Quaternion().setFromAxisAngle(_ceilingLightYAxis, rotationY).multiply(CEILING_LIGHT_LOCAL_QUAT);
-}
+// pooled the SAME way -- see PoolPlacement's own `quaternion` field header
+// for why this needs a real quaternion multiply rather than a single Euler
+// triple. `ceilingLightWorldQuaternion` itself now lives in
+// kitPoolRegistry.ts (react-free, unit tested there) -- imported above,
+// zero behavior change.
 
 export function HubRoom({ dayFactor = 1 }: { dayFactor?: number }) {
   const lightRadius = 4;
