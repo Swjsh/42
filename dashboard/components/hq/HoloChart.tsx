@@ -70,7 +70,7 @@ import { PALETTE } from "./palette";
 import { PRIORITY } from "./labelDeclutter";
 import { useLabelDeclutter } from "./useLabelDeclutter";
 import { bubbleCounterScale } from "./bubbleText";
-import { deriveTradeArmLabel, formatGroupedTradeLabel, groupTradesByBarAndSide } from "@/lib/hq-chart-pure";
+import { deriveTradeArmLabel, formatGroupedTradeLines, groupTradesByBarAndSide } from "@/lib/hq-chart-pure";
 import type { HoloChartData, HoloLevel, HoloTradeMarker } from "@/lib/hq-chart-data";
 import type { ChartBar } from "@/lib/chart-data";
 
@@ -654,11 +654,23 @@ function TradeMarkerLabel({
 /** ONE combined plaque for a same-bar/same-side group of >=2 real trades --
  * see TradeMarkers' own `labelGroups` comment for the root cause this fixes
  * (crowded same-priority labels fading past the declutter resolver's nudge
- * cap). Text comes from formatGroupedTradeLabel (lib/hq-chart-pure.ts,
- * unit-tested) so every account+price+P&L stays listed, never dropped --
- * this component only owns POSITIONING (the outermost stacked marker in the
- * group) and registration with the shared declutter system, identically to
- * a lone TradeMarkerLabel. */
+ * cap). MARKER-OFFSCREEN follow-up (2026-09-15, same session): a first
+ * version joined every account onto ONE line via formatGroupedTradeLabel --
+ * an instrumented live readback (wrapperRef.getBoundingClientRect(), logged
+ * to an on-screen debug plaque during this fix) measured that single line at
+ * ~1426px wide for a 5-account group, which forced the shared declutter
+ * resolver to nudge it 272px to escape collisions across nearly the whole
+ * screen width -- landing its top edge 6px below the 1440px viewport bottom,
+ * fully off-screen despite a "successful" (opacity 1) resolve. Rendering one
+ * SHORT header line + one line per account (formatGroupedTradeLines, unit-
+ * tested in lib/hq-chart-pure.ts) keeps every line's width close to a lone
+ * TradeMarkerLabel's own, so the existing per-label nudge budget (already
+ * proven sufficient for single markers) stays sufficient here too. Same
+ * content as the single-line formatter, just laid out vertically -- nothing
+ * dropped, see formatGroupedTradeLines' own header. This component still
+ * only owns POSITIONING (the outermost stacked marker in the group) and
+ * registration with the shared declutter system, identically to a lone
+ * TradeMarkerLabel. */
 function GroupedTradeMarkerLabel({
   groupKey, group, dimFactor, origin, facingYaw,
 }: { groupKey: string; group: PositionedTrade[]; dimFactor: number; origin: [number, number, number]; facingYaw: number }) {
@@ -669,7 +681,7 @@ function GroupedTradeMarkerLabel({
   const worldPos = useMemo(() => chartLocalToWorld(origin, facingYaw, x, localY), [origin, facingYaw, x, localY]);
   const { wrapperRef, measureRef } = useLabelDeclutter(`holo-trade-group:${groupKey}`, PRIORITY.PLAQUE, () => worldPos);
   const color = first.direction === "call" ? "#22ff88" : "#ff3b3b";
-  const text = formatGroupedTradeLabel(
+  const lines = formatGroupedTradeLines(
     first.side,
     first.direction,
     group.map((p) => ({ account: p.trade.account, note: p.trade.note, price: p.trade.price, pnl: p.trade.pnl })),
@@ -680,12 +692,14 @@ function GroupedTradeMarkerLabel({
         <div
           ref={measureRef}
           style={{
-            fontFamily: "system-ui, sans-serif", whiteSpace: "nowrap", color: "#dff3ff",
-            background: "rgba(3,4,10,0.78)", padding: "2px 7px", borderRadius: 5,
-            fontSize: 13, fontWeight: 600, border: `1px solid ${color}`, opacity: dimFactor,
+            fontFamily: "system-ui, sans-serif", whiteSpace: "pre", color: "#dff3ff", textAlign: "left",
+            background: "rgba(3,4,10,0.82)", padding: "3px 8px", borderRadius: 5,
+            fontSize: 12, fontWeight: 600, lineHeight: 1.35, border: `1px solid ${color}`, opacity: dimFactor,
           }}
         >
-          {text}
+          {lines.map((line, i) => (
+            <div key={i} style={i === 0 ? { fontWeight: 700, opacity: 0.85 } : undefined}>{line}</div>
+          ))}
         </div>
       </div>
     </Html>

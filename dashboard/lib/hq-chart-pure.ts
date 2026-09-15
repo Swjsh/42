@@ -254,6 +254,45 @@ export function formatGroupedTradeLabel(
   return `${verb} ${direction} · ${parts.join(" · ")}`;
 }
 
+// MARKER-OFFSCREEN fix (HQ-CHART-MARKERS, 2026-09-15, same-session follow-up):
+// a live capture of formatGroupedTradeLabel's own single-line output (5-item
+// bar-14 entry group, ~95 characters at the plaque's real font size) measured
+// ~1426 CSS px wide -- nearly the full 2560px viewport. Verified live via an
+// instrumented readback (wrapperRef.getBoundingClientRect() logged straight
+// to an on-screen debug plaque): the shared declutter resolver, forced to
+// dodge that one enormous rect against everything else sharing its priority
+// tier, nudged it 272px down, landing its top edge at screen y=1446 on a
+// 1440px-tall viewport -- SIX PIXELS below the visible frame, fully off-
+// screen despite opacity:1 and a "cleared" resolve (the resolver had done
+// its job correctly; the INPUT rect was simply too wide to safely live
+// anywhere near the bottom of the screen). Root cause: cramming N accounts
+// onto ONE line scales the rect's WIDTH linearly with group size, and nothing
+// in this codebase's declutter budget accounts for width the way
+// LabelDeclutterManager.tsx's own cap already accounts for height/count.
+//
+// Fix: render a grouped plaque as ONE SHORT HEADER LINE ("ENTER put") plus
+// ONE LINE PER ACCOUNT ("safe-2 1.08"), never a single wide concatenation --
+// keeps every line's width close to a lone TradeMarkerLabel's own (~120-160px
+// at 5 accounts), so the resolver's existing per-label nudge budget (already
+// proven sufficient for single markers) stays sufficient here too. Same
+// account+price+P&L content as formatGroupedTradeLabel (nothing dropped),
+// just laid out vertically instead of horizontally -- see this function's
+// own unit tests for the exact line shapes.
+export function formatGroupedTradeLines(
+  side: "entry" | "exit",
+  direction: "call" | "put",
+  items: readonly GroupLabelItem[],
+): string[] {
+  const verb = side === "entry" ? "ENTER" : "EXIT";
+  const lines = [`${verb} ${direction}`];
+  for (const it of items) {
+    const arm = deriveTradeArmLabel(it.account, it.note);
+    const pnlStr = it.pnl !== null ? ` (${it.pnl >= 0 ? "+" : ""}${it.pnl.toFixed(0)})` : "";
+    lines.push(`${arm} ${it.price.toFixed(2)}${pnlStr}`);
+  }
+  return lines;
+}
+
 // --- session status/label (HOLOCHART-TRUTH, 2026-09-15) --------------------
 //
 // ROOT CAUSE this fixes (dashboard/lib/hq-chart-data.ts:200, pre-fix): session

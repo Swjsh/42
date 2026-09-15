@@ -30,6 +30,7 @@ import {
   deriveTradeArmLabel,
   groupTradesByBarAndSide,
   formatGroupedTradeLabel,
+  formatGroupedTradeLines,
   type HoloLevel,
   type IntradayTick,
 } from "../lib/hq-chart-pure.ts";
@@ -531,4 +532,57 @@ test("formatGroupedTradeLabel: an exit group includes each real P&L, never drops
 test("formatGroupedTradeLabel: a single-item group renders the same 'ARM SIDE $price' shape a lone marker would", () => {
   const text = formatGroupedTradeLabel("exit", "put", [{ account: "bold", note: null, price: 0.62, pnl: 75 }]);
   assert.equal(text, "EXIT put · bold-2 0.62 (+75)");
+});
+
+// ─── formatGroupedTradeLines (MARKER-OFFSCREEN fix, 2026-09-15) ───────────
+// A live-capture readback this session measured formatGroupedTradeLabel's
+// single joined line at ~1426px wide for a real 5-account group -- wide
+// enough that the shared declutter resolver nudged it fully off the bottom
+// of a 1440px-tall viewport. formatGroupedTradeLines renders the SAME
+// content as one short header line + one line per account instead.
+
+test("formatGroupedTradeLines: header line + one line per account, matches this task's own real-shape example content", () => {
+  const lines = formatGroupedTradeLines("entry", "put", [
+    { account: "safe", note: null, price: 1.08, pnl: null },
+    { account: "bold", note: null, price: 0.47, pnl: null },
+    { account: "safe-3", note: null, price: 1.12, pnl: null },
+    { account: "risky-1", note: null, price: 1.13, pnl: null },
+    { account: "risky-3", note: null, price: 1.12, pnl: null },
+  ]);
+  assert.deepEqual(lines, [
+    "ENTER put",
+    "safe-2 1.08",
+    "bold-2 0.47",
+    "safe-3 1.12",
+    "risky-1 1.13",
+    "risky-3 1.12",
+  ]);
+});
+
+test("formatGroupedTradeLines: no single line is anywhere near as wide as the old one-line format -- every account line stays short", () => {
+  const lines = formatGroupedTradeLines("exit", "put", [
+    { account: "safe-3", note: null, price: 0.74, pnl: -114 },
+    { account: "risky-1", note: null, price: 0.74, pnl: -195 },
+    { account: "risky-3", note: null, price: 0.74, pnl: -190 },
+    { account: "safe", note: null, price: 0.73, pnl: -105 },
+  ]);
+  assert.equal(lines.length, 5); // 1 header + 4 accounts
+  for (const line of lines) {
+    assert.ok(line.length <= 20, `line "${line}" should stay short (<=20 chars), was ${line.length}`);
+  }
+  // Every account and pnl is still present somewhere (nothing dropped).
+  const joined = lines.join(" ");
+  assert.match(joined, /safe-3/);
+  assert.match(joined, /risky-1/);
+  assert.match(joined, /risky-3/);
+  assert.match(joined, /safe-2/); // legacy "safe" -> "safe-2" mapping still applies per-line
+  assert.match(joined, /-114/);
+  assert.match(joined, /-195/);
+  assert.match(joined, /-190/);
+  assert.match(joined, /-105/);
+});
+
+test("formatGroupedTradeLines: a single-item group is still a 2-line plaque (header + the one account)", () => {
+  const lines = formatGroupedTradeLines("exit", "put", [{ account: "bold", note: null, price: 0.62, pnl: 75 }]);
+  assert.deepEqual(lines, ["EXIT put", "bold-2 0.62 (+75)"]);
 });
