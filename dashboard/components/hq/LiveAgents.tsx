@@ -56,8 +56,9 @@ import { CHARACTER_SCALE, CHARACTER_TARGET_HEIGHT } from "./SetKit";
 import type { LiveAgent } from "./types";
 import type { LiveAgentState } from "@/lib/hq-agents";
 import {
-  computeMaxPathDurationS, computeStandSlot, decideNextWalk, ENTRY_NODE_ID, LEAVE_TIMEOUT_MARGIN_S, pathDistance,
-  poseAlongPath, reconcileLiveAgentRoster, shouldWriteLiveAgentDiag, STAND_BUBBLE_Y_STEP, STAND_RING_RADIUS,
+  applyLaneOffsets, computeMaxPathDurationS, computeStandSlot, decideNextWalk, ENTRY_NODE_ID, LEAVE_TIMEOUT_MARGIN_S,
+  pathDistance, poseAlongPath, reconcileLiveAgentRoster, shouldWriteLiveAgentDiag, STAND_BUBBLE_Y_STEP,
+  STAND_RING_RADIUS,
 } from "./liveAgentWalk";
 
 // 8 distinct, saturated hues, cycled by arrival order -- deliberately NOT
@@ -233,6 +234,29 @@ function LiveAgentAvatar({
     return [base[0] + ox, base[1], base[2] + oz];
   }
 
+  /** DESPAWN-SCATTER FIX (2026-09-15, probe 20260915T081521Z/20260915T082114Z):
+   * a despawning avatar's final position must be the RAW gate node, never
+   * `standPointFor`'s own stand-slot ring nudge. Root cause: LiveAgents.tsx's
+   * `standSlots` memo groups every currently-leaving agent under one shared
+   * key (`ENTRY_NODE_ID`, see this file's own `standSlots` comment below) so
+   * `computeStandSlot` spreads them around a `STAND_RING_RADIUS` (0.9u) ring
+   * centered on the gate -- correct for agents genuinely RESTING/working in a
+   * shared zone (that's this offset's whole purpose), but wrong for a
+   * despawn: the avatar is about to vanish, not stand there, so scattering it
+   * around the gate instead of AT it is pure bug, not a feature. This
+   * explains the probe's observed last-diag positions before disappearing
+   * ([21.30,0] 0.30u short, [20.655,0] 0.94u short, [22.393,0] 0.79u past --
+   * every one of them within/around the exact 0.9u ring radius, in whatever
+   * direction that avatar's own ring angle happened to point that poll,
+   * including PAST the gate when the angle pointed outward). Using the bare
+   * node position for any despawning destination collapses every
+   * simultaneously-leaving avatar onto the same exact gate point right
+   * before they vanish, which is fine -- they are about to disappear, never
+   * stand there, so there is nothing left to separate. */
+  function destinationPointFor(nodeId: string, despawn: boolean): [number, number, number] {
+    return despawn ? nodePosition(walkGraph, nodeId, entryPos) : standPointFor(nodeId);
+  }
+
   // Kicks a new walk whenever the destination genuinely changes (a fresh
   // zone from a new tool call, or the server dropping this agent -> leaving
   // flips true). Uses liveAgentWalk.ts#decideNextWalk (pure, unit-tested)
@@ -242,7 +266,7 @@ function LiveAgentAvatar({
     if (reducedMotion) {
       const dest = leaving ? ENTRY_NODE_ID : targetNodeId;
       currentNode.current = dest;
-      group.current?.position.set(...standPointFor(dest));
+      group.current?.position.set(...destinationPointFor(dest, leaving));
       phase.current = "working";
       setAnimState(WORK_DWELL_ANIM);
       if (leaving) fireDespawn();
@@ -274,7 +298,7 @@ function LiveAgentAvatar({
 
     if (decision.action === "settle") {
       currentNode.current = decision.dest;
-      group.current?.position.set(...standPointFor(decision.dest));
+      group.current?.position.set(...destinationPointFor(decision.dest, decision.despawn));
       phase.current = "working";
       setAnimState(WORK_DWELL_ANIM);
       if (decision.despawn) fireDespawn();
@@ -304,9 +328,20 @@ function LiveAgentAvatar({
     const livePos: [number, number, number] = group.current
       ? [group.current.position.x, group.current.position.y, group.current.position.z]
       : nodePosition(walkGraph, currentNode.current, entryPos);
-    const wp = rawPath.length > 0
-      ? [livePos, ...rawPath.slice(1, -1), standPointFor(decision.dest)]
-      : [livePos, standPointFor(decision.dest)];
+    const finalPoint = destinationPointFor(decision.dest, decision.despawn);
+    // CONVOY-STACK FIX (2026-09-15): nudge every INTERIOR hallway waypoint
+    // sideways by this avatar's own deterministic lane offset, so two agents
+    // sharing a corridor leg (the common case: every walk leaves campus-gate
+    // through the same first hallway) walk in separate lanes instead of
+    // occupying the exact same XZ point for the whole shared segment -- see
+    // liveAgentWalk.ts#applyLaneOffsets for the full root-cause writeup. The
+    // first waypoint (this avatar's real live position) and the last
+    // (finalPoint, already correctly nudged or not by destinationPointFor
+    // above) are left untouched by design.
+    const wp = applyLaneOffsets(
+      rawPath.length > 0 ? [livePos, ...rawPath.slice(1, -1), finalPoint] : [livePos, finalPoint],
+      liveAgentId,
+    );
     path.current = wp;
     walkDest.current = decision.dest;
     walkDespawnsOnArrival.current = decision.despawn;

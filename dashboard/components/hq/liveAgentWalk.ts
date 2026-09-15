@@ -408,6 +408,87 @@ export function shouldWriteLiveAgentDiag(despawned: boolean): boolean {
   return !despawned;
 }
 
+// ─── Lane offset (CONVOY-STACK fix, 2026-09-15) ────────────────────────────
+//
+// ROOT CAUSE (probe 20260915T081521Z/20260915T082114Z, real-GPU headless
+// run): every avatar that is already live when the page mounts starts its
+// FIRST walk from the exact same point (ENTRY_NODE_ID's own node position --
+// see the mount effect that seeds `group.current` there) toward whatever
+// findWalkPath returns for its own target. Every one of those real walks
+// leaves campus-gate through the SAME first hallway leg (there is only one
+// corridor out of the gate -- layout.ts#buildWalkGraph's own T-junction
+// wiring), so two or more agents converging on that shared leg get BYTE-
+// IDENTICAL waypoint lists for the overlap, and `poseAlongPath` places them
+// at the exact same XZ point for the whole shared segment, not just a brief
+// coincidence at t=0 (measured: 64/540 ticks with walking agents <0.3u
+// apart; all 4 live agents recorded AT [18.25,0] simultaneously mid-walk).
+// Standing slots already get their own per-destination ring separation
+// (computeStandSlot) -- there was no equivalent separation for the WALKING
+// leg of a path.
+//
+// FIX (smallest of the two options this task's own brief offered): a
+// permanent per-id lateral lane offset on every interior waypoint, rather
+// than a spawn-order stagger. A lane offset needs nothing beyond the
+// avatar's own id -- no roster-order bookkeeping to keep in sync as agents
+// join/leave, no interaction with the existing `needsWalkStart`/
+// `walkStartT`/leave-hard-timeout-margin timing math (a stagger would have
+// to delay `walkStartT.current` itself, which every one of those derived
+// values assumes starts the instant the walk decision fires). A lane offset
+// also keeps separating agents for the WHOLE shared corridor, not just the
+// first second or two after a staggered start. The endpoints are never
+// touched (see `applyLaneOffsets`'s own doc) so this cannot perturb the
+// existing stand-slot ring placement (DEFECT 1's own fix) or the despawn
+// destination.
+export const LANE_OFFSET_MAGNITUDE_U = 0.4;
+
+/** Deterministic, roster-independent per-id lane value in [-1, 1] -- a
+ * plain string hash (same shape this tree already uses elsewhere for
+ * stable derived-from-id values, e.g. KitAgent.tsx's own laneSeed). Only
+ * has to SEPARATE agents most of the time, not guarantee a collision-free
+ * lane per id -- a rare shared value is cosmetically fine, not a
+ * correctness requirement. */
+export function laneOffsetUnit(id: string): number {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) {
+    h = (h * 31 + id.charCodeAt(i)) | 0;
+  }
+  return ((h & 0xffff) / 0xffff) * 2 - 1;
+}
+
+/** Nudges every INTERIOR waypoint of `waypoints` (indices 1..length-2)
+ * sideways, perpendicular to its local path direction, by a fixed
+ * `laneOffsetUnit(id) * magnitude` amount. The FIRST waypoint (a caller's
+ * own live current position -- see LiveAgents.tsx's own `livePos`, so a
+ * mid-walk retarget still starts exactly where the avatar visually is) and
+ * the LAST waypoint (the caller's own stand-slot-nudged destination, or the
+ * raw despawn node position -- either way, a value this function must never
+ * further perturb) are always returned unchanged. A waypoint list shorter
+ * than 3 points has no interior leg at all (a direct one-hop path) and is
+ * returned unchanged too -- there is no shared corridor segment to
+ * separate. Magnitude is capped well inside every real corridor's own 4u
+ * raw XZ footprint (layout.ts#buildWalkGraph's own corridor.glb/
+ * corridor-intersection.glb footprint comment), so a nudged waypoint always
+ * stays on walkable floor. */
+export function applyLaneOffsets(
+  waypoints: ReadonlyArray<readonly [number, number, number]>,
+  id: string,
+  magnitude: number = LANE_OFFSET_MAGNITUDE_U,
+): [number, number, number][] {
+  if (waypoints.length < 3) return waypoints.map((wp) => [...wp] as [number, number, number]);
+  const offset = laneOffsetUnit(id) * magnitude;
+  return waypoints.map((wp, i) => {
+    if (i === 0 || i === waypoints.length - 1) return [...wp] as [number, number, number];
+    const prev = waypoints[i - 1];
+    const next = waypoints[i + 1];
+    const dx = next[0] - prev[0];
+    const dz = next[2] - prev[2];
+    const len = Math.hypot(dx, dz) || 1;
+    const perpX = -dz / len;
+    const perpZ = dx / len;
+    return [wp[0] + perpX * offset, wp[1], wp[2] + perpZ * offset];
+  });
+}
+
 export function computeStandSlot(
   groupIds: readonly string[],
   id: string,

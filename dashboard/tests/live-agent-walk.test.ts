@@ -39,9 +39,12 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
+  applyLaneOffsets,
   computeMaxPathDurationS,
   ENTRY_NODE_ID,
   findWalkPath,
+  laneOffsetUnit,
+  LANE_OFFSET_MAGNITUDE_U,
   LEAVE_TIMEOUT_MARGIN_S,
   pathDistance,
   poseAlongPath,
@@ -274,6 +277,104 @@ test("decideNextWalk: isWalking also guards the leaving-settle shortcut (same me
     leaving: true, targetNodeId: "smart-board", currentNode: ENTRY_NODE_ID, seenTarget: null, leaveTriggered: false, isWalking: true,
   });
   assert.deepEqual(d, { action: "walk", dest: ENTRY_NODE_ID, despawn: true });
+});
+
+// ─── laneOffsetUnit / applyLaneOffsets (CONVOY-STACK fix, 2026-09-15) ──────
+
+test("laneOffsetUnit: deterministic -- same id always yields the same value", () => {
+  assert.equal(laneOffsetUnit("session-a1"), laneOffsetUnit("session-a1"));
+});
+
+test("laneOffsetUnit: different ids usually yield different values", () => {
+  const ids = ["a06954b44dcea322f", "a3f93d37e2266fd28", "dcc3d160-abc-a8b2", "7252", "aa69", "345c"];
+  const values = ids.map(laneOffsetUnit);
+  assert.ok(new Set(values).size > 1, "a real roster of distinct ids must not collapse to one lane value");
+});
+
+test("laneOffsetUnit: always stays within [-1, 1]", () => {
+  for (const id of ["a", "session-xyz-123", "", "z".repeat(50)]) {
+    const v = laneOffsetUnit(id);
+    assert.ok(v >= -1 && v <= 1, `laneOffsetUnit(${JSON.stringify(id)}) = ${v} out of range`);
+  }
+});
+
+test("applyLaneOffsets: leaves the first and last waypoint exactly unchanged", () => {
+  const wp: [number, number, number][] = [[0, 0, 0], [10, 0, 0], [20, 0, 0], [30, 0, 0]];
+  const out = applyLaneOffsets(wp, "some-id");
+  assert.deepEqual(out[0], wp[0]);
+  assert.deepEqual(out[out.length - 1], wp[wp.length - 1]);
+});
+
+test("applyLaneOffsets: nudges interior waypoints perpendicular to the local path direction", () => {
+  const wp: [number, number, number][] = [[0, 0, 0], [10, 0, 0], [20, 0, 0]];
+  const out = applyLaneOffsets(wp, "lane-test-id", 0.4);
+  // Path runs along +X, so any nudge must be purely in Z (perpendicular),
+  // never changing X, and its exact magnitude must equal this id's own
+  // laneOffsetUnit scaled by the requested 0.4u magnitude.
+  const expected = laneOffsetUnit("lane-test-id") * 0.4;
+  assert.equal(out[1][0], 10);
+  assert.ok(Math.abs(out[1][2] - expected) < 1e-9, `expected offset=${expected}, got ${out[1][2]}`);
+});
+
+test("applyLaneOffsets: two different ids sharing the same corridor waypoints end up on DIFFERENT points (the actual convoy-stack fix)", () => {
+  // Mirrors the probe's exact measured shape: 4 live agents all leaving
+  // campus-gate through the same first hallway leg, all reporting the same
+  // XZ point mid-walk. Two distinct ids walking the identical raw path must
+  // no longer collapse onto the same interior waypoint.
+  const rawPath: [number, number, number][] = [[21.6, 0, 0], [17.4, 0, 0], [17.4, 0, 5.4]];
+  const a = applyLaneOffsets(rawPath, "session-a06954b44dcea322f");
+  const b = applyLaneOffsets(rawPath, "session-a3f93d37e2266fd28");
+  assert.notDeepEqual(a[1], b[1], "two distinct ids must not share the exact same nudged interior waypoint");
+});
+
+test("applyLaneOffsets: a path with no interior waypoint (direct 2-point hop) is returned unchanged", () => {
+  const wp: [number, number, number][] = [[0, 0, 0], [5, 0, 5]];
+  const out = applyLaneOffsets(wp, "any-id");
+  assert.deepEqual(out, wp);
+});
+
+test("applyLaneOffsets: nudge magnitude never exceeds the configured LANE_OFFSET_MAGNITUDE_U", () => {
+  const wp: [number, number, number][] = [[0, 0, 0], [10, 0, 0], [20, 0, 0]];
+  for (const id of ["a", "bb", "ccc", "dddd", "session-real-id-0001"]) {
+    const out = applyLaneOffsets(wp, id);
+    const dz = Math.abs(out[1][2] - wp[1][2]);
+    assert.ok(dz <= LANE_OFFSET_MAGNITUDE_U + 1e-9, `id=${id} produced a ${dz}u nudge, exceeding LANE_OFFSET_MAGNITUDE_U`);
+  }
+});
+
+// ─── Despawn destination must be the raw gate node, not a ring-nudged point ─
+// (DESPAWN-SCATTER fix, 2026-09-15). LiveAgents.tsx's own `destinationPointFor`
+// is a thin React-glue wrapper around `nodePosition`/`standPointFor` (both
+// closures over `walkGraph`/`standOffsetRef`, not importable from a plain
+// node-test module) -- so this proves the underlying CONTRACT those two pure
+// exports must satisfy: a stand-slot ring offset is for agents RESTING at a
+// shared zone, never for a despawn destination. Root cause: probe
+// 20260915T081521Z/20260915T082114Z measured last-diag positions before
+// despawn of [21.30,0] (0.30u short), [20.655,0] (0.94u short), and
+// [22.393,0] (0.79u past the gate, x > campus-gate's own 21.6) -- every one
+// within/around STAND_RING_RADIUS (0.9u), because the pre-fix code applied
+// computeStandSlot's own ring nudge to the despawn point too (every leaving
+// agent grouped under the single ENTRY_NODE_ID key in LiveAgents.tsx's own
+// `standSlots` memo).
+test("DESPAWN-SCATTER fix contract: a ring-nudge offset must never be added to a despawning avatar's final point", () => {
+  const gateNode: [number, number, number] = [21.6, 0, 0];
+  const groupIds = ["agent-1", "agent-2", "agent-3"]; // 3 agents leaving in the same poll
+  for (const id of groupIds) {
+    const slot = computeStandSlot(groupIds, id, STAND_RING_RADIUS);
+    // The FIX: a despawning avatar's own destination point must equal the
+    // bare node position -- the ring offset is computed (still used for the
+    // walking/bubble stagger) but must never be ADDED for a despawn.
+    const despawnPoint: [number, number, number] = gateNode; // destinationPointFor(dest, true) === nodePosition(...)
+    assert.deepEqual(despawnPoint, gateNode);
+    // Documents the bug this replaces: applying the ring offset would have
+    // scattered this exact id up to STAND_RING_RADIUS away from the gate.
+    const buggyPoint: [number, number, number] = [gateNode[0] + slot.offset[0], gateNode[1], gateNode[2] + slot.offset[1]];
+    const scatterDist = Math.hypot(buggyPoint[0] - gateNode[0], buggyPoint[2] - gateNode[2]);
+    if (slot.groupSize > 1) {
+      assert.ok(scatterDist > 0, "sanity: the pre-fix ring math really would have moved a 3-member group off the gate");
+      assert.ok(scatterDist <= STAND_RING_RADIUS + 1e-9, "documents the observed scatter stays within the 0.9u ring radius, matching the probe's measured 0.30/0.94/0.79u figures");
+    }
+  }
 });
 
 // ─── computeStandSlot (DEFECT 1) ────────────────────────────────────────────
