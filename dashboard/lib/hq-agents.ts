@@ -67,6 +67,11 @@ export interface LiveAgent {
   firstTs: string;
   lastTs: string;
   lastDetail: string;
+  /** The full, un-classified, un-truncated last row text (BUBBLE-FIX,
+   * 2026-09-15) -- kept for debugging even after `lastDetail` becomes a
+   * short classified human phrase (bubbleText.ts#liveAgentBubbleAction).
+   * Flattened to one line but otherwise exactly what pulse.py wrote. */
+  rawDetail: string;
   state: LiveAgentState;
   /** A real walk-graph node id from dashboard/components/hq/layout.ts
    * (buildWalkGraph's own node-id convention) -- never an invented place.
@@ -194,11 +199,182 @@ export const ZONE_NODE_ID: Record<LiveAgentZone, string> = {
  * fresh arrival never needs a special-cased entry edge. */
 export const ENTRY_NODE_ID = "hub-center";
 
+// ─── Live-agent bubble action (BUBBLE-FIX, 2026-09-15) ─────────────────────
+//
+// DEFECT (coordinator review, 2026-09-15 00:27 ET): a live agent's bubble
+// showed raw shell text like "working · Ran: cd /c/Users/jackw/Desktop/42"
+// -- truncated (this module's own 60-char DETAIL_MAX_CHARS, then
+// LiveAgents.tsx's own 44-char truncateOneLine) BEFORE the verb or target
+// ever appeared, because setup/hooks/pulse.py#_detail only ever writes
+// "Ran: " + command[:100] for Bash/PowerShell (see that function for the
+// exact prefix set: "Editing <basename>" for Edit/Write/NotebookEdit/
+// MultiEdit, a bare description/name for Agent/Task/Workflow, the raw
+// summary/message for SendMessage). `liveAgentBubbleAction` runs BEFORE any
+// of that truncation (shortDetail below calls it on the FULL row, not a
+// pre-cut slice) and classifies STRUCTURALLY off pulse.py's own real
+// prefixes (`row.tool`, the literal tool_name pulse.py wrote) plus the
+// command's own verb/target -- never invents a specific it can't see. A
+// `cd ... && ...` preamble is stripped before classifying (a real shape
+// this session's own pulse.jsonl already contains: "Ran: cd
+// C:/.../dashboard && grep -n ...").
+//
+// Deliberately INLINED here rather than in components/hq/bubbleText.ts
+// (this task's own first-draft location): bubbleText.ts pulls in
+// @/lib/personas + @/lib/crew via the tsconfig path alias, which Node's own
+// ESM loader (no bundler) cannot resolve when this file is loaded directly
+// by `node --test tests/hq-agents.test.ts` (this module's own established
+// zero-relative-import convention -- see that test file's header, "the fs
+// reader is exercised live instead... matching this codebase's established
+// convention"). This is the ONLY consumer that needs runtime classification
+// (the client, LiveAgents.tsx, only ever displays the already-classified
+// `lastDetail` string this module produces) so colocating it here adds no
+// new cross-file relative import and keeps the whole file plain-node-test-
+// able, matching classifyZone's own existing "pure classifier lives right
+// next to its one caller" convention two screens up.
+export interface LiveAgentBubbleRow {
+  /** The literal tool_name pulse.py wrote (row.tool) -- "Bash"/"PowerShell"/
+   * "Edit"/"Write"/"NotebookEdit"/"MultiEdit"/"Agent"/"Task"/"Workflow"/
+   * "SendMessage", or "" for a row this classifier doesn't specialize. */
+  tool: string;
+  /** pulse.py#_detail's own already-prefixed string (row.detail). */
+  detail: string;
+  /** pulse.py#_target's own string (row.to) -- the subagent_type/
+   * description for Agent/Task, the workflow name for Workflow. */
+  to: string;
+}
+
+const RAN_PREFIX = "Ran: ";
+const EDITING_PREFIX = "Editing";
+
+function basenameOf(p: string): string {
+  const norm = p.replace(/\\/g, "/").replace(/\/+$/, "");
+  const parts = norm.split("/");
+  return parts[parts.length - 1] || p;
+}
+
+/** Strips one or more leading "cd <path> && " segments before classifying.
+ * pulse.py's own 100-char cap on the FULL command means a long enough `cd`
+ * path can eat the ENTIRE budget before "&&" ever appears -- when that
+ * happens there is nothing left to strip and no verb to see, so this
+ * returns the (still cd-prefixed) string unchanged and the caller below
+ * honestly falls through to "running a command" rather than guessing. */
+function stripLeadingCd(cmd: string): string {
+  let s = cmd;
+  for (;;) {
+    const m = /^cd\s+\S+\s*&&\s*/.exec(s);
+    if (!m) break;
+    s = s.slice(m[0].length);
+  }
+  return s.trim();
+}
+
+/** Last non-flag token of a command, basenamed -- good enough for the
+ * common "<verb> [flags] <file-or-url>" shape these commands almost always
+ * have. Returns null (never a guess) when no such token exists. */
+function lastArgBasename(cmd: string): string | null {
+  const tokens = cmd.split(/\s+/).filter(Boolean);
+  for (let i = tokens.length - 1; i >= 1; i--) {
+    if (!tokens[i].startsWith("-")) return basenameOf(tokens[i]);
+  }
+  return null;
+}
+
+const READ_VERBS = new Set(["grep", "rg", "cat", "sed", "head", "tail", "less", "more", "read"]);
+const TEST_RE = /^(pytest\b|node\s+--test\b|npm\s+(run\s+)?test\b)/;
+const NPM_BUILD_RE = /^npm\s+run\s+build\b/;
+const GIT_COMMIT_RE = /^git\s+commit\b/;
+const GIT_PUSH_RE = /^git\s+push\b/;
+const CURL_RE = /^curl\b/;
+// A token that genuinely looks like a URL/host -- scheme-prefixed, or
+// host.tld-shaped. Coordinator review (bench-live-agents-0038.png, real
+// on-screen curl capture) found pulse.py's own 100-char cap can cut a curl
+// command BEFORE the URL argument, leaving only a truncated quoted flag
+// value (e.g. `-w "HTT`) as the "last non-flag token" -- picking THAT as
+// the target produced garbled bubble text. This shape check rejects a
+// non-URL leftover rather than showing it verbatim.
+const URL_LIKE_RE = /^(https?:\/\/\S+|[a-z0-9.-]+\.[a-z]{2,}(:\d+)?(\/\S*)?)$/i;
+
+/** Classifies an already cd-stripped Bash/PowerShell command string into a
+ * short human action phrase. Every branch checks the command's own real
+ * verb/target -- the default ("running a command") is the honest answer
+ * whenever this classifier can't name anything more specific from what
+ * pulse.py actually recorded (e.g. the verb itself got truncated away by
+ * pulse.py's own 100-char cap, or the command is a PowerShell `$var = ...`
+ * assignment with no recognizable leading verb at all). */
+function classifyCommand(rawCmd: string): string {
+  const cmd = stripLeadingCd(rawCmd);
+  if (!cmd) return "running a command";
+  const verb = basenameOf((cmd.split(/\s+/)[0] || "").toLowerCase());
+  if (READ_VERBS.has(verb)) {
+    const target = lastArgBasename(cmd);
+    return target ? `reading ${target}` : "reading a file";
+  }
+  if (TEST_RE.test(cmd)) return "running tests";
+  if (NPM_BUILD_RE.test(cmd)) return "building the dashboard";
+  if (GIT_COMMIT_RE.test(cmd)) return "committing";
+  if (GIT_PUSH_RE.test(cmd)) return "pushing";
+  if (CURL_RE.test(cmd)) {
+    const urlTok = cmd.split(/\s+/).filter(Boolean).find((t) => URL_LIKE_RE.test(t));
+    const cleaned = urlTok ? urlTok.replace(/^https?:\/\//, "").split("?")[0] : null;
+    return cleaned ? `checking ${cleaned}` : "checking a URL";
+  }
+  return "running a command";
+}
+
+/** The bubble's own action phrase for a live Claude Code agent/session --
+ * see this section's own header for the defect this fixes. Structural
+ * (keyed off `row.tool`, the literal tool_name), never keyword-sniffing
+ * pre-flattened text. */
+export function liveAgentBubbleAction(row: LiveAgentBubbleRow): string {
+  const detail = row.detail || "";
+  switch (row.tool) {
+    case "Bash":
+    case "PowerShell": {
+      const cmd = detail.startsWith(RAN_PREFIX) ? detail.slice(RAN_PREFIX.length) : detail;
+      return cmd ? classifyCommand(cmd) : "running a command";
+    }
+    case "Edit":
+    case "Write":
+    case "NotebookEdit":
+    case "MultiEdit": {
+      const rest = detail.startsWith(EDITING_PREFIX) ? detail.slice(EDITING_PREFIX.length).trim() : "";
+      return rest ? `editing ${basenameOf(rest)}` : "editing a file";
+    }
+    case "Agent":
+    case "Task":
+      return row.to ? `spawning ${row.to}` : "spawning an agent";
+    case "Workflow":
+      return row.to ? `running ${row.to}` : "running a workflow";
+    default:
+      // SendMessage and anything else already carries human-readable free
+      // text straight from pulse.py's own _detail() -- never reclassified,
+      // just passed through (the caller applies its own defensive cap).
+      return detail || row.to || row.tool || "";
+  }
+}
+
+// BUBBLE-FIX (2026-09-15): classify BEFORE truncating -- the old version of
+// this function flattened+cut the RAW row text (e.g. "Ran: cd
+// C:/Users/jackw/Desktop/42" with the actual verb/target past the 100-char
+// cap pulse.py itself already applied), which is exactly what produced the
+// unreadable bubble text this pass fixes. `liveAgentBubbleAction` runs on
+// the row's real tool/detail/to fields (see bubbleText.ts's own header) and
+// returns a short human phrase; DETAIL_MAX_CHARS still applies here purely
+// as a defensive cap, never as this function's main truncation mechanism.
 function shortDetail(row: PulseRow): string {
-  const raw = row.detail || row.to || row.tool || row.event || "";
+  const raw = liveAgentBubbleAction(row) || rawDetailFor(row);
   const flat = raw.replace(/\s+/g, " ").trim();
   if (!flat) return "…";
   return flat.length > DETAIL_MAX_CHARS ? `${flat.slice(0, DETAIL_MAX_CHARS - 1)}…` : flat;
+}
+
+/** The full, un-classified row text -- same fallback chain `shortDetail`
+ * used before this pass, kept verbatim (flattened to one line, not cut) as
+ * the `rawDetail` diagnostic field so a real row's exact original text is
+ * always recoverable even once `lastDetail` is a classified phrase. */
+function rawDetailFor(row: PulseRow): string {
+  const raw = row.detail || row.to || row.tool || row.event || "";
+  return raw.replace(/\s+/g, " ").trim();
 }
 
 // ─── Pure combiner (fixture-tested: dashboard/tests/hq-agents.test.ts) ─────
@@ -211,6 +387,7 @@ interface AgentAcc {
   lastTs: string;
   lastTsPseudoMs: number;
   lastDetail: string;
+  lastRawDetail: string;
   zone: LiveAgentZone;
 }
 
@@ -245,6 +422,7 @@ export function buildLiveAgents(rows: PulseRow[], nowMs: number = Date.now()): L
         lastTs: row.ts,
         lastTsPseudoMs: tsPseudo,
         lastDetail: shortDetail(row),
+        lastRawDetail: rawDetailFor(row),
         zone,
       });
       continue;
@@ -261,6 +439,7 @@ export function buildLiveAgents(rows: PulseRow[], nowMs: number = Date.now()): L
       existing.lastTs = row.ts;
       existing.lastTsPseudoMs = tsPseudo;
       existing.lastDetail = shortDetail(row);
+      existing.lastRawDetail = rawDetailFor(row);
       // A real zone signal only ever REPLACES the stale one on a later row
       // -- a row with no path in its own detail/to (e.g. a bare "Ran: ls")
       // must never blank an agent back to "hub" just because it's the most
@@ -286,6 +465,7 @@ export function buildLiveAgents(rows: PulseRow[], nowMs: number = Date.now()): L
       firstTs: a.firstTs,
       lastTs: a.lastTs,
       lastDetail: a.lastDetail,
+      rawDetail: a.lastRawDetail,
       state,
       targetZone: ZONE_NODE_ID[a.zone],
     };

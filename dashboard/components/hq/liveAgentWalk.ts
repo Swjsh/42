@@ -134,7 +134,16 @@ export function decideNextWalk(input: WalkDecisionInput): WalkDecision {
 // ─── Stand-slot ring offset (DEFECT 1 fix) ─────────────────────────────────
 
 export const STAND_RING_RADIUS = 0.9;
-export const STAND_BUBBLE_Y_STEP = 0.22;
+// BUBBLE-FIX (2026-09-15): coordinator's real Edge-kiosk capture
+// (bench-live-agents-0038.png, 00:38 ET) measured two stacked bubbles at
+// y~586px and y~604px -- only ~18px apart, touching/overlapping -- from
+// this 0.22u step. ~18px/0.22u implies ~82 px per world-unit at that
+// framing; raised to 0.75u (>=~60px separation at the same framing, more
+// than 3x the old gap) so 2+ stacked bubbles read as a clearly separated
+// short list instead of a smear. UNVERIFIED against a fresh capture by
+// this pass (no browser/screenshot tool available here) -- the coordinator
+// checks this visually.
+export const STAND_BUBBLE_Y_STEP = 0.75;
 
 /** A deterministic point on a small ring around a shared destination node,
  * so agents converging on the SAME zone never occupy the exact same point.
@@ -149,6 +158,59 @@ export const STAND_BUBBLE_Y_STEP = 0.22;
  * dimensions) -- not a collision-checked placement (this module has no
  * room-geometry data at all), but small enough to stay clear of a wall in
  * every zone this task's zone mapping actually uses. */
+// ─── Roster reconcile (BUBBLE-FIX, 2026-09-15) ─────────────────────────────
+//
+// Extracted from LiveAgents.tsx's own `setDisplayed` updater so the exact
+// "one id replaced by another id in the SAME poll, same target" scenario the
+// coordinator flagged (aa69 dropped + 7252/this session added in one
+// /api/hq response) can be proven correct with a plain `node --test`
+// (react/three-free, matching this module's own established convention --
+// see this file's header). ROOT CAUSE FINDING for that report: this
+// reconcile function, taken alone, was ALREADY correct (see the test suite
+// alongside this function) -- the real bug was one layer up, in
+// app/hq/page.tsx's `sceneData` memo never listing `data.liveAgents` in its
+// own inclusion-list key, so a poll where every OTHER listed field happened
+// to be unchanged silently kept `LiveAgents`'s own `agents` prop pinned to
+// the stale array (fixed in that file, same commit). This function is kept
+// pure and exported anyway -- it is the one piece of this reconcile that
+// COULD have hidden that class of bug, and now has a regression test
+// proving it does not.
+export interface RosterReconcileEntry {
+  id: string;
+  leaving: boolean;
+}
+
+/** Diffs `incoming` (this poll's full roster) against `prev` (currently
+ * displayed): every incoming id is added or updated via `buildDisplayed`
+ * (never marked leaving, even if it was previously -- an agent that
+ * reappears has come back); any id in `prev` NOT in `incoming` this poll,
+ * and not already marked leaving, is flipped to `leaving: true` in place
+ * (only its `leaving` field changes, the rest of its display record is
+ * preserved) so its own avatar can walk itself out instead of popping out
+ * of existence. Order-independent and safe to call on every poll,
+ * including one where `incoming` is empty (transient fetch glitch) or
+ * where an id drops out and a DIFFERENT id appears in the very same call --
+ * both branches below run unconditionally on their own pass over the data,
+ * never on a superseded snapshot. */
+export function reconcileLiveAgentRoster<A extends { id: string }, D extends RosterReconcileEntry>(
+  prev: ReadonlyMap<string, D>,
+  incoming: readonly A[],
+  buildDisplayed: (agent: A, existing: D | undefined) => D,
+): Map<string, D> {
+  const next = new Map(prev);
+  const seen = new Set<string>();
+  for (const a of incoming) {
+    seen.add(a.id);
+    next.set(a.id, buildDisplayed(a, next.get(a.id)));
+  }
+  for (const [id, d] of next) {
+    if (!seen.has(id) && !d.leaving) {
+      next.set(id, { ...d, leaving: true });
+    }
+  }
+  return next;
+}
+
 export function computeStandSlot(
   groupIds: readonly string[],
   id: string,

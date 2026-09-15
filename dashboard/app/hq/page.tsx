@@ -167,6 +167,25 @@ function HqView() {
       // true: a field Scene DOES read must be listed, or its reference
       // would stay stale across a real content change).
       audit: data.audit,
+      // BUBBLE-FIX (2026-09-15) ROOT CAUSE FIX: LIVE-AGENTS pass (2026-09-14)
+      // added Scene.tsx's own `data.liveAgents` read (`<LiveAgents
+      // agents={data?.liveAgents ?? []} .../>`) but never added it to this
+      // inclusion list -- the exact bug this memo's own comment warned
+      // about ("the inverse is also true: a field Scene DOES read must be
+      // listed, or its reference would stay stale"). Coordinator's live
+      // browser evidence (2026-09-15 00:31 ET) matched this exactly: a
+      // dropped agent (aa69) stayed rendered "working" forever and a new
+      // agent (7252, this very session) never mounted, even though the raw
+      // SWR `data`/Hud's own "Synced" timestamp were both genuinely fresh --
+      // because whenever EVERY other listed field happened to be unchanged
+      // between two polls, this memo's own `key` matched the previous key
+      // and `sceneData` (and therefore Scene's/LiveAgents' own `data` prop)
+      // stayed pinned to the OLD object, silently hiding a real liveAgents
+      // change. This is not a bug in LiveAgents.tsx's own reconcile logic
+      // (see liveAgentWalk.ts#reconcileLiveAgentRoster's own unit tests,
+      // added this pass, which prove that logic handles a same-poll
+      // drop+add correctly) -- it never received the fresh roster at all.
+      liveAgents: data.liveAgents,
     });
     if (key === sceneDataKeyRef.current && sceneDataRef.current) return sceneDataRef.current;
     sceneDataKeyRef.current = key;

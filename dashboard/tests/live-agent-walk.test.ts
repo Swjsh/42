@@ -34,6 +34,7 @@ import {
   decideNextWalk,
   computeStandSlot,
   STAND_RING_RADIUS,
+  reconcileLiveAgentRoster,
 } from "../components/hq/liveAgentWalk.ts";
 
 // ─── pathDistance ───────────────────────────────────────────────────────────
@@ -184,4 +185,83 @@ test("computeStandSlot: slot assignment is a pure function of the group's sorted
 test("computeStandSlot: an id not in the group falls back to index 0 rather than throwing", () => {
   const r = computeStandSlot(["a", "b"], "not-in-group");
   assert.equal(r.index, 0);
+});
+
+// ─── reconcileLiveAgentRoster (BUBBLE-FIX, 2026-09-15) ─────────────────────
+//
+// Extracted from LiveAgents.tsx's own `setDisplayed` updater specifically to
+// reproduce the coordinator's live-browser finding: a dropped agent (aa69)
+// stayed rendered "working" forever while a newly-arrived agent (7252, this
+// very session) never mounted, observed in the SAME /api/hq poll. The test
+// below proves the reconcile function ITSELF handles that exact "one id
+// replaced by another, same target, same poll" shape correctly -- the real
+// root cause was one layer up (app/hq/page.tsx's `sceneData` memo never
+// listing `liveAgents` in its own inclusion-list key, fixed in that file,
+// same commit) and never reached this function at all, which is exactly
+// what this passing test demonstrates.
+
+interface FakeAgent {
+  id: string;
+  targetZone: string;
+}
+
+interface FakeDisplayed {
+  id: string;
+  targetNodeId: string;
+  leaving: boolean;
+}
+
+function buildFakeDisplayed(a: FakeAgent): FakeDisplayed {
+  return { id: a.id, targetNodeId: a.targetZone, leaving: false };
+}
+
+test("reconcileLiveAgentRoster: coordinator's exact scenario -- one id (aa69) dropped and a DIFFERENT id (7252) added, in the SAME poll, both at the same target", () => {
+  const prev = new Map<string, FakeDisplayed>([
+    ["aa69", { id: "aa69", targetNodeId: "smart-board", leaving: false }],
+    ["345c", { id: "345c", targetNodeId: "ambient-core", leaving: false }],
+    ["e5df", { id: "e5df", targetNodeId: "ambient-ideas-wall", leaving: false }],
+  ]);
+  const incoming: FakeAgent[] = [
+    { id: "7252", targetZone: "smart-board" }, // replaces aa69 at the SAME target
+    { id: "345c", targetZone: "ambient-core" },
+    { id: "e5df", targetZone: "ambient-ideas-wall" },
+  ];
+
+  const next = reconcileLiveAgentRoster(prev, incoming, buildFakeDisplayed);
+
+  assert.equal(next.size, 4, "aa69 stays (marked leaving), plus the 3 incoming ids");
+  assert.equal(next.get("aa69")?.leaving, true, "the dropped id must be marked leaving, never left silently 'working'");
+  assert.ok(next.has("7252"), "the newly-arrived id in the same poll must be added");
+  assert.equal(next.get("7252")?.leaving, false);
+  assert.equal(next.get("345c")?.leaving, false);
+  assert.equal(next.get("e5df")?.leaving, false);
+});
+
+test("reconcileLiveAgentRoster: an id that reappears after being marked leaving comes back (leaving reset to false)", () => {
+  const prev = new Map<string, FakeDisplayed>([["a1", { id: "a1", targetNodeId: "hub-center", leaving: true }]]);
+  const next = reconcileLiveAgentRoster(prev, [{ id: "a1", targetZone: "smart-board" }], buildFakeDisplayed);
+  assert.equal(next.get("a1")?.leaving, false);
+  assert.equal(next.get("a1")?.targetNodeId, "smart-board");
+});
+
+test("reconcileLiveAgentRoster: an already-leaving id with no incoming row stays leaving (no double-mark, no reset)", () => {
+  const prev = new Map<string, FakeDisplayed>([["a1", { id: "a1", targetNodeId: "hub-center", leaving: true }]]);
+  const next = reconcileLiveAgentRoster(prev, [], buildFakeDisplayed);
+  assert.equal(next.get("a1")?.leaving, true);
+});
+
+test("reconcileLiveAgentRoster: an empty incoming roster (transient fetch glitch) marks every currently-displayed id leaving", () => {
+  const prev = new Map<string, FakeDisplayed>([
+    ["a1", { id: "a1", targetNodeId: "hub-center", leaving: false }],
+    ["a2", { id: "a2", targetNodeId: "smart-board", leaving: false }],
+  ]);
+  const next = reconcileLiveAgentRoster(prev, [], buildFakeDisplayed);
+  assert.equal(next.get("a1")?.leaving, true);
+  assert.equal(next.get("a2")?.leaving, true);
+});
+
+test("reconcileLiveAgentRoster: never mutates the `prev` map it was given", () => {
+  const prev = new Map<string, FakeDisplayed>([["a1", { id: "a1", targetNodeId: "hub-center", leaving: false }]]);
+  reconcileLiveAgentRoster(prev, [], buildFakeDisplayed);
+  assert.equal(prev.get("a1")?.leaving, false, "prev must stay untouched -- React state must never be mutated in place");
 });

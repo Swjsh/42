@@ -46,10 +46,11 @@ import { KitAgentBody, WALK_SPEED, type KitAnimState } from "./KitAgent";
 import { findWalkPath, type WalkGraph } from "./layout";
 import { truncateOneLine } from "./palette";
 import { bubbleCounterScale } from "./bubbleText";
+import { CHARACTER_SCALE, CHARACTER_TARGET_HEIGHT } from "./SetKit";
 import type { LiveAgent } from "./types";
 import type { LiveAgentState } from "@/lib/hq-agents";
 import {
-  computeStandSlot, decideNextWalk, ENTRY_NODE_ID, pathDistance, poseAlongPath,
+  computeStandSlot, decideNextWalk, ENTRY_NODE_ID, pathDistance, poseAlongPath, reconcileLiveAgentRoster,
   STAND_BUBBLE_Y_STEP, STAND_RING_RADIUS,
 } from "./liveAgentWalk";
 
@@ -64,7 +65,18 @@ const ACCENT_PALETTE = ["#ff6b6b", "#4ecdc4", "#ffe66d", "#a78bfa", "#38bdf8", "
 const WORK_DWELL_ANIM: KitAnimState = "resting-working-type";
 const WALK_ANIM: KitAnimState = "walking";
 const MIN_WALK_S = 0.5;
-const BUBBLE_HEAD_Y = 1.95; // matches Agent.tsx's ULTRA_HEAD_Y (CHARACTER_TARGET_HEIGHT*CHARACTER_SCALE*0.95) + BUBBLE_HEAD_GAP, re-derived as a plain constant here (small, self-contained component -- see this file's own header on why it does not import Agent.tsx's internals)
+// BUBBLE-FIX (2026-09-15, coordinator review item 2): this used to be a bare
+// literal 1.95 with a comment claiming it "matches" Agent.tsx's own derived
+// ULTRA_HEAD_Y + BUBBLE_HEAD_GAP -- it did not: Agent.tsx derives
+// ULTRA_HEAD_Y = CHARACTER_TARGET_HEIGHT(1.8) * CHARACTER_SCALE(1.25) * 0.95
+// = 2.1375, + BUBBLE_HEAD_GAP(0.3) = 2.4375, not 1.95. The stale literal put
+// live-agent bubbles at head height instead of above the head (confirmed on
+// bench-live-agents-0038.png). Now genuinely DERIVED from the same imported
+// SetKit.tsx constants Agent.tsx itself uses, so the two can never drift
+// apart again.
+const ULTRA_HEAD_Y = CHARACTER_TARGET_HEIGHT * CHARACTER_SCALE * 0.95;
+const BUBBLE_HEAD_GAP = 0.3;
+const BUBBLE_HEAD_Y = ULTRA_HEAD_Y + BUBBLE_HEAD_GAP;
 const BUBBLE_FADE_DISTANCE = 80; // same floor Agent.tsx's own bubble fade uses
 // DEFECT 2 fix, defense in depth: a hard ceiling on how long an avatar may
 // stay in "leaving" without despawning. liveAgentWalk.ts#decideNextWalk's
@@ -84,6 +96,11 @@ export interface LiveAgentDiagEntry {
   pos: [number, number];
   target: string;
   bubble: string;
+  /** BUBBLE-FIX (2026-09-15): the full, un-classified, un-truncated row
+   * text (lib/hq-agents.ts's own `rawDetail` field) -- kept here purely for
+   * debugging so the classified `bubble` text above can always be checked
+   * against what pulse.py actually recorded. */
+  rawDetail: string;
   bubbleOpacity: number;
   onWalkable: boolean;
 }
@@ -113,6 +130,7 @@ interface AvatarProps {
   label: string;
   accentColor: string;
   bubble: string;
+  rawDetail: string;
   walkGraph: WalkGraph;
   targetNodeId: string;
   serverState: LiveAgentState;
@@ -133,7 +151,7 @@ function nodePosition(walkGraph: WalkGraph, id: string, fallback: [number, numbe
 }
 
 function LiveAgentAvatar({
-  liveAgentId, label, accentColor, bubble, walkGraph, targetNodeId, serverState, leaving, reducedMotion,
+  liveAgentId, label, accentColor, bubble, rawDetail, walkGraph, targetNodeId, serverState, leaving, reducedMotion,
   standOffset, standIndex, onDespawned,
 }: AvatarProps) {
   const group = useRef<THREE.Group>(null);
@@ -313,6 +331,7 @@ function LiveAgentAvatar({
       pos: [g.position.x, g.position.z],
       target: leaving ? ENTRY_NODE_ID : targetNodeId,
       bubble,
+      rawDetail,
       bubbleOpacity,
       onWalkable: walkable,
     });
@@ -367,6 +386,7 @@ interface DisplayedAgent {
   label: string;
   serverState: LiveAgentState;
   bubble: string;
+  rawDetail: string;
   targetNodeId: string;
   leaving: boolean;
   accentColor: string;
@@ -399,38 +419,33 @@ export default function LiveAgents({ agents, walkGraph, ultra, reducedMotion }: 
     ensureDiagInterval();
   }, []);
 
+  // BUBBLE-FIX (2026-09-15): the actual diff/mark-leaving logic now lives in
+  // liveAgentWalk.ts#reconcileLiveAgentRoster (pure, unit-tested against the
+  // exact "one id replaced by another in the same poll" scenario the
+  // coordinator's live-browser review flagged) -- this effect only supplies
+  // the per-agent display-record builder (color assignment + bubble text
+  // are side-effecting/component-local, so they stay here).
   useEffect(() => {
-    setDisplayed((prev) => {
-      const next = new Map(prev);
-      const seen = new Set<string>();
-      for (const a of agents) {
-        seen.add(a.id);
+    setDisplayed((prev) =>
+      reconcileLiveAgentRoster(prev, agents, (a) => {
         const bubble = `${a.state === "spawning" ? "arrived" : a.state === "cooling" ? "wrapping up" : "working"} · ${a.lastDetail}`;
         if (!colorIdx.current.has(a.id)) {
           colorIdx.current.set(a.id, nextColorIdx.current);
           nextColorIdx.current += 1;
         }
         const accentColor = ACCENT_PALETTE[colorIdx.current.get(a.id)! % ACCENT_PALETTE.length];
-        next.set(a.id, {
+        return {
           id: a.id,
           label: a.label,
           serverState: a.state,
           bubble,
+          rawDetail: a.rawDetail,
           targetNodeId: a.targetZone,
           leaving: false,
           accentColor,
-        });
-      }
-      // Any currently-displayed id the server no longer reports has gone
-      // idle (>=3min with no pulse row) -- mark it "leaving" so its avatar
-      // walks back out instead of popping out of existence.
-      for (const [id, d] of next) {
-        if (!seen.has(id) && !d.leaving) {
-          next.set(id, { ...d, leaving: true });
-        }
-      }
-      return next;
-    });
+        };
+      }),
+    );
   }, [agents]);
 
   // DEFECT 1 fix: group every currently-displayed agent by its EFFECTIVE
@@ -480,6 +495,7 @@ export default function LiveAgents({ agents, walkGraph, ultra, reducedMotion }: 
             label={d.label}
             accentColor={d.accentColor}
             bubble={d.bubble}
+            rawDetail={d.rawDetail}
             walkGraph={walkGraph}
             targetNodeId={d.targetNodeId}
             serverState={d.serverState}

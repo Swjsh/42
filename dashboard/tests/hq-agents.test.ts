@@ -155,14 +155,18 @@ function row(overrides: Partial<PulseRow>): PulseRow {
 
 test("buildLiveAgents groups by agent_id when present", () => {
   const rows = [
-    row({ agent_id: "a1", agent_type: "general-purpose", ts: "2026-09-14T21:51:00", detail: "Editing dashboard/x.ts" }),
-    row({ agent_id: "a1", agent_type: "general-purpose", ts: "2026-09-14T21:51:30", detail: "Editing dashboard/y.ts" }),
+    row({ agent_id: "a1", agent_type: "general-purpose", tool: "Edit", ts: "2026-09-14T21:51:00", detail: "Editing dashboard/x.ts" }),
+    row({ agent_id: "a1", agent_type: "general-purpose", tool: "Edit", ts: "2026-09-14T21:51:30", detail: "Editing dashboard/y.ts" }),
   ];
   const agents = buildLiveAgents(rows, NOW);
   assert.equal(agents.length, 1);
   assert.equal(agents[0].id, "a1");
   assert.equal(agents[0].label, "general-purpose");
-  assert.equal(agents[0].lastDetail, "Editing dashboard/y.ts");
+  // BUBBLE-FIX (2026-09-15): lastDetail is now a classified human phrase
+  // (liveAgentBubbleAction, this same module), not the raw flattened
+  // string -- rawDetail below carries the original verbatim text.
+  assert.equal(agents[0].lastDetail, "editing y.ts");
+  assert.equal(agents[0].rawDetail, "Editing dashboard/y.ts");
   assert.equal(agents[0].targetZone, ZONE_NODE_ID.build);
 });
 
