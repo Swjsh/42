@@ -116,6 +116,33 @@ def credential_deny_message(tool: str, label: str, prefix: str, severity: str = 
         f"`{_NOQA_MARKER}` to the line."
     )
 
+
+# --------------------------------------------------------------------------------------
+# L318 -- subagents cannot durably wait on their own background runs. Re-violated
+# 2026-09-15 x2 (HQ-PROBE, PERSONA-LATENCY): a subagent launched a long command with
+# run_in_background=true and ended its turn "waiting for the notification" that only
+# the orchestrator's session ever receives. Graduated from prose to a deterministic
+# PreToolUse deny per markdown/doctrine/LESSONS-LEARNED.md L318.
+# --------------------------------------------------------------------------------------
+L318_BACKGROUND_DENY_MESSAGE = (
+    "L318: subagents cannot wait on background runs -- rerun this command in the "
+    "FOREGROUND with a timeout that covers it (tool timeout max 600000 ms); for longer "
+    "jobs, split them or return and let the orchestrator own the run."
+)
+
+
+def subagent_background_run_hit(agent_id: str, tool: str, tool_input: dict) -> bool:
+    """True only for a SUBAGENT (non-empty agent_id) issuing Bash/PowerShell with
+    run_in_background=true. The main session (empty agent_id) is unaffected -- it CAN
+    durably receive a background-task notification; only a subagent cannot.
+    """
+    if not agent_id:
+        return False
+    if tool not in ("Bash", "PowerShell"):
+        return False
+    return bool(tool_input.get("run_in_background"))
+
+
 # --------------------------------------------------------------------------------------
 # The prime card -- the ONLY doctrine injected unconditionally.
 #
@@ -139,6 +166,10 @@ Project Gamma operating facts (5 that carry the most weight):
    human-written.
 5. Generated surfaces (MAP.md, HOME.md, SHADOW.md, journal dailies, INDEX.md) are written
    by setup/scripts/obsidian_vault_sync.py. The generator is the edit point, not the file.
+L318: a subagent cannot durably wait on its own background run -- run long commands in
+the foreground with a covering timeout (max 600000 ms), or split/return and let the
+orchestrator own it. A PreToolUse guard denies Bash/PowerShell run_in_background=true
+from a subagent.
 """
 
 # --------------------------------------------------------------------------------------

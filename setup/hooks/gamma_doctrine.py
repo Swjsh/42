@@ -461,6 +461,14 @@ def _handle_pre_tool(payload: dict) -> int:
     if tool in ("Bash", "PowerShell"):
         command = str(tin.get("command") or "")
 
+        # L318 -- subagents cannot durably wait on their own background runs (only the
+        # orchestrator's session ever receives the completion notification). Re-violated
+        # 2026-09-15 x2 (HQ-PROBE, PERSONA-LATENCY); graduated from prose to this
+        # deterministic deny. Checked first -- cheapest guard, no regex scan needed --
+        # and independent of every other check in this block.
+        if D.subagent_background_run_hit(str(payload.get("agent_id") or ""), tool, tin):
+            return _deny("PreToolUse", D.L318_BACKGROUND_DENY_MESSAGE)
+
         # Scan the RAW command -- deliberately BEFORE strip_heredocs/_strip_multiword_quoted
         # (those exist to avoid false-positiving the frozen-path/generated-surface guards on
         # documentation strings, and would throw away exactly the heredoc BODY text a

@@ -610,6 +610,81 @@ def test_bash_write_to_frozen_path_is_now_closed():
     assert "frozen trading path" in (stdout + stderr)
 
 
+@pytest.mark.parametrize("tool_name", ["Bash", "PowerShell"])
+def test_l318_subagent_background_run_is_denied(tool_name):
+    """L318 graduated from prose to a deterministic guard 2026-09-15 after being
+    re-violated twice (HQ-PROBE, PERSONA-LATENCY): a subagent launched a long command
+    in the background and ended its turn waiting for a notification only the
+    orchestrator's session ever receives."""
+    code, stdout, stderr = run_hook(
+        {
+            "hook_event_name": "PreToolUse",
+            "tool_name": tool_name,
+            "agent_id": "agent-abc",
+            "tool_input": {"command": "echo hi", "run_in_background": True},
+        }
+    )
+    assert code == BLOCK
+    assert "L318" in (stdout + stderr)
+    assert "FOREGROUND" in (stdout + stderr)
+
+
+def test_l318_subagent_foreground_run_is_allowed():
+    code, stdout, stderr = run_hook(
+        {
+            "hook_event_name": "PreToolUse",
+            "tool_name": "Bash",
+            "agent_id": "agent-abc",
+            "tool_input": {"command": "echo hi", "run_in_background": False},
+        }
+    )
+    assert code == ALLOW
+
+
+def test_l318_main_session_background_run_is_allowed():
+    """Empty agent_id == the main session, which CAN durably receive a background-task
+    notification -- only a subagent cannot. The guard must not fire here."""
+    code, stdout, stderr = run_hook(
+        {
+            "hook_event_name": "PreToolUse",
+            "tool_name": "Bash",
+            "agent_id": "",
+            "tool_input": {"command": "echo hi", "run_in_background": True},
+        }
+    )
+    assert code == ALLOW
+
+
+@pytest.mark.parametrize("tool_input", ["just a raw string", ["a", "b"], None, []])
+def test_l318_malformed_tool_input_with_agent_id_fails_open(tool_input):
+    """Same malformed-tool_input coercion as the general fail-open suite above, but
+    with a subagent's agent_id present -- proves subagent_background_run_hit() never
+    raises when tool_input isn't a dict."""
+    code, stdout, stderr = run_hook(
+        {
+            "hook_event_name": "PreToolUse",
+            "tool_name": "Bash",
+            "agent_id": "agent-abc",
+            "tool_input": tool_input,
+        }
+    )
+    assert code == ALLOW
+    assert "Traceback" not in stderr
+
+
+def test_l318_guard_respects_hooks_off_switch():
+    code, stdout, stderr = run_hook(
+        {
+            "hook_event_name": "PreToolUse",
+            "tool_name": "Bash",
+            "agent_id": "agent-abc",
+            "tool_input": {"command": "echo hi", "run_in_background": True},
+        },
+        env={"GAMMA_HOOKS_OFF": "1"},
+    )
+    assert code == ALLOW
+
+
 def test_stop_blocks_permission_question_once_only(tmp_path):
     # The one-block-per-session ledger is a real file keyed by session_id, so the test
     # needs a session id no previous run has used -- otherwise it reads the ledger from
