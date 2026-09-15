@@ -63,6 +63,25 @@ export interface LabelRect {
   height: number;
 }
 
+/** A fixed DOM rect the resolver must never place a label on top of, but
+ * which the resolver itself never moves -- the HUD's own overlays (help
+ * bar, title block, right panel, perf/Synced corner) registered via
+ * `data-hq-obstacle` (see LabelDeclutterManager.tsx's own header) rather
+ * than a world Html label. Same screen-space/CSS-pixel convention as
+ * `LabelRect`, minus `priority`/`distance` -- an obstacle always outranks
+ * every label (it is seeded into the resolver's `placed` list ahead of
+ * anything in `rects`) and is never itself nudged or included in the
+ * output map, so callers don't need to special-case "this id has no
+ * offset." */
+export interface ObstacleRect {
+  /** Stable identity, purely for debugging -- never looked up. */
+  id: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 export interface LabelOffset {
   /** Horizontal pixel nudge (positive = further right). Mutually exclusive
    * with `dy` -- a label is nudged along exactly ONE axis (whichever
@@ -141,11 +160,20 @@ function resolveAxis(
  * up to 8 live agents + 1 plaque + 1 Gamma, rarely all visible/overlapping
  * at once), trivial at that size, called at most 10x/s (see
  * useLabelDeclutter.ts's own throttle).
+ *
+ * `obstacles` (2026-09-15, HUD-OBSTACLE pass): fixed DOM rects seeded into
+ * `placed` BEFORE any real label, at max precedence -- a label overlapping
+ * one is nudged away exactly like it would be for a higher-priority label,
+ * on whichever axis clears cheaper, and fades past `maxNudgePx` same as
+ * any other capped label. Obstacles are never added to `out` (nothing to
+ * offset) and never appear in `placed` for a later label to "keep its
+ * place" against -- they simply always win a collision.
  */
 export function resolveLabelOffsets(
   rects: readonly LabelRect[],
   maxNudgePx: number = DEFAULT_MAX_NUDGE_PX,
   fadeOpacity: number = DEFAULT_FADE_OPACITY,
+  obstacles: readonly ObstacleRect[] = [],
 ): Map<string, LabelOffset> {
   const order = [...rects].sort((a, b) => {
     if (a.priority !== b.priority) return a.priority - b.priority;
@@ -153,7 +181,11 @@ export function resolveLabelOffsets(
     return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
   });
 
-  const placed: PlacedLabel[] = [];
+  const placed: PlacedLabel[] = obstacles.map((o) => ({
+    rect: { id: o.id, priority: -1, distance: 0, x: o.x, y: o.y, width: o.width, height: o.height },
+    dx: 0,
+    dy: 0,
+  }));
   const out = new Map<string, LabelOffset>();
 
   for (const rect of order) {

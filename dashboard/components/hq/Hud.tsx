@@ -507,6 +507,18 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
   // task's own literal "fades 8s after the first user input" spec (not
   // "resets on every input"). Ultra tier only -- HARD RULES: "TV tier:
   // legend/tooltips off".
+  //
+  // HUD-OBSTACLE (2026-09-15): on kiosk=1 there is no operator to ever fire
+  // pointerdown/wheel/keydown (real evidence: plaque-overview.png was
+  // captured 03:12 ET, unattended, with the legend still fully opaque --
+  // `armed` never flipped true because nothing ever touched the page). The
+  // `data-hq-obstacle` fix above already keeps world labels off this bar
+  // regardless, but the bar is still purely instructional chrome with no
+  // one to instruct on a kiosk, so it also gets the SAME mount-triggered
+  // fade clock a real first input would start -- `onFirstInput()` called
+  // once at mount is the smallest change that reuses every existing rule
+  // (LEGEND_FADE_MS, `armed` latching, the manual "?" re-arm) rather than a
+  // second fade mechanism.
   const [legendVisible, setLegendVisible] = useState(true);
   useEffect(() => {
     if (tier !== "ultra") return;
@@ -532,6 +544,7 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
       }
       onFirstInput();
     };
+    if (kiosk) onFirstInput(); // no operator on a kiosk to ever fire a real input event
     window.addEventListener("pointerdown", onFirstInput);
     window.addEventListener("wheel", onFirstInput, { passive: true });
     window.addEventListener("keydown", onKey);
@@ -541,7 +554,7 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
       window.removeEventListener("keydown", onKey);
       if (fadeTimer !== null) clearTimeout(fadeTimer);
     };
-  }, [tier]);
+  }, [tier, kiosk]);
 
   // UX-1 U8/U6 (2026-09-14): right panel tabs -- "Crew | Activity" (the
   // sim-game tab-strip option J offered, chosen over a stacked section: 7
@@ -878,6 +891,17 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
           applies regardless of tier. */}
       {tier === "ultra" && (
         <div
+          // HUD-OBSTACLE (2026-09-15): world labels colliding with this bar
+          // (real capture plaque-overview.png, read at 1:1: a live-agent
+          // bubble + the SPY 0DTE lane label both sit under it at the
+          // default overview cam) is the bug this attribute fixes --
+          // LabelDeclutterManager.tsx queries every `data-hq-obstacle` node
+          // once per resolve tick and nudges any label off it, WITHOUT ever
+          // moving this bar itself. Only tagged while actually visible
+          // (legendVisible fully hides it via opacity:0 -- see the "consider
+          // auto-hiding" note in this file's own header) so a faded-out
+          // legend never blocks a label from resting under its old spot.
+          data-hq-obstacle={legendVisible ? "help-bar" : undefined}
           style={{
             position: "absolute", left: "50%", bottom: 210, transform: "translateX(-50%)",
             zIndex: 11,
@@ -932,7 +956,11 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
           (2026-09-13, J: "it's just like text ... no animations"): mode
           badge bumped to ~34px per spec; title/clock bumped alongside it so
           the badge doesn't outsize its own header. */}
-      <div style={{ position: "absolute", top: 14, left: 20, display: "flex", alignItems: "center", gap: 16 }}>
+      {/* HUD-OBSTACLE (2026-09-15): the title/clock/mode-badge cluster is
+          the "HUD title block top-left" obstacle named in the task's own
+          evidence read -- see LabelDeclutterManager.tsx's own header for
+          how `data-hq-obstacle` nodes get read. */}
+      <div data-hq-obstacle="title-block" style={{ position: "absolute", top: 14, left: 20, display: "flex", alignItems: "center", gap: 16 }}>
         <span style={{ color: "#dff3ff", fontSize: 34, fontWeight: 800, letterSpacing: 1.5, textShadow: "0 0 14px rgba(122,217,255,0.6)" }}>
           GAMMA HQ
         </span>
@@ -1028,7 +1056,9 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
           ledger's own TV-UA-matched row (lib/hq.ts#readLatestHqPerf's
           existing isTvUa() split), which was never the broken half of
           this -- a real physical TV has no other tab to be confused with. */}
-      <div style={{ position: "absolute", bottom: 8, right: 12, textAlign: "right" }}>
+      {/* HUD-OBSTACLE (2026-09-15): the "perf/Synced text bottom-right"
+          obstacle named in the task's own evidence read. */}
+      <div data-hq-obstacle="perf-corner" style={{ position: "absolute", bottom: 8, right: 12, textAlign: "right" }}>
         {tier === "ultra" ? (
           <>
             {livePerf && (
@@ -1064,6 +1094,11 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
         `hudVisible` (LIVE-1 item 1) same as the left column above. */}
     {hudVisible && (
     <div
+      // HUD-OBSTACLE (2026-09-15): the "right-side panel ~x >= 1420"
+      // obstacle named in the task's own evidence read -- this whole fixed
+      // column, not just its content, since nothing behind it (a lane label
+      // that would rest under the panel) can ever be seen anyway.
+      data-hq-obstacle="right-panel"
       style={{
         position: "fixed", top: 0, right: 0, bottom: 0, width: HUD_RIGHT_COLUMN_WIDTH,
         background: "#03040a", borderLeft: "1px solid rgba(122,217,255,0.15)",

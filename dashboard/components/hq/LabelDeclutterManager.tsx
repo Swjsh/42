@@ -25,8 +25,36 @@ import { useThrottledFrame } from "./useThrottledFrame";
 import { useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { useRef } from "react";
-import { resolveLabelOffsets, DEFAULT_MAX_NUDGE_PX, type LabelRect } from "./labelDeclutter";
+import { resolveLabelOffsets, DEFAULT_MAX_NUDGE_PX, DEFAULT_FADE_OPACITY, type LabelRect, type ObstacleRect } from "./labelDeclutter";
 import { getLabelRegistry } from "./useLabelDeclutter";
+
+// HUD-OBSTACLE (2026-09-15): fixed HUD DOM overlays (help bar, title block,
+// right panel, perf/Synced corner -- see Hud.tsx's own `data-hq-obstacle`
+// attributes) are STATIC, non-React-managed nodes from this module's point
+// of view -- there is no ref registry for them the way world labels join
+// through useLabelDeclutter.ts, since Hud.tsx and this manager have no
+// shared parent that could thread refs between them, and a plain DOM
+// attribute query is the cheapest way to stay decoupled (Hud.tsx never
+// needs to import or know about the declutter system at all, just tag its
+// own overlay nodes). Read via querySelectorAll ONCE per throttled tick
+// (10Hz, same cadence as the label rects themselves) -- obstacles never
+// move (they're all `position: fixed`/`absolute` HUD chrome), so a fresh
+// read every tick is correct-by-construction rather than a perf concern:
+// this is at most 4 getBoundingClientRect calls at 10Hz, negligible next to
+// the O(n^2) label resolve already running here.
+const OBSTACLE_SELECTOR = "[data-hq-obstacle]";
+
+function readObstacleRects(): ObstacleRect[] {
+  if (typeof document === "undefined") return [];
+  const nodes = document.querySelectorAll<HTMLElement>(OBSTACLE_SELECTOR);
+  const out: ObstacleRect[] = [];
+  nodes.forEach((el, i) => {
+    const r = el.getBoundingClientRect();
+    if (r.width === 0 && r.height === 0) return; // not laid out / hidden this tick
+    out.push({ id: el.getAttribute("data-hq-obstacle") || `obstacle-${i}`, x: r.left, y: r.top, width: r.width, height: r.height });
+  });
+  return out;
+}
 
 // OVERVIEW-FLOOR fix (2026-09-15): bubbleScale.ts's own fix roughly doubles
 // every hub-center label's real on-screen size (the ~6px overview floor
@@ -137,7 +165,8 @@ export default function LabelDeclutterManager(): null {
     const heightRatio = tallestHeight > NUDGE_BASELINE_HEIGHT_PX ? tallestHeight / NUDGE_BASELINE_HEIGHT_PX : 1;
     const worstCaseChainPx = tallestHeight * rects.length * NUDGE_CHAIN_MARGIN;
     const maxNudgePx = Math.max(DEFAULT_MAX_NUDGE_PX * heightRatio, worstCaseChainPx, DEFAULT_MAX_NUDGE_PX);
-    const offsets = resolveLabelOffsets(rects, maxNudgePx);
+    const obstacles = readObstacleRects();
+    const offsets = resolveLabelOffsets(rects, maxNudgePx, DEFAULT_FADE_OPACITY, obstacles);
 
     for (const entry of registry.values()) {
       const m = measured.get(entry.id);

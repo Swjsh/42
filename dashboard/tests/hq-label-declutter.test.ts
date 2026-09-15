@@ -27,6 +27,7 @@ import {
   PRIORITY,
   resolveLabelOffsets,
   type LabelRect,
+  type ObstacleRect,
 } from "../components/hq/labelDeclutter.ts";
 
 function rect(id: string, priority: number, distance: number, x: number, y: number, w = 100, h = 24): LabelRect {
@@ -213,6 +214,71 @@ test("the real hub crowd (9 labels) at post-OVERVIEW-FLOOR-fix size: height-only
       assert.ok(clear, `${rects[i].id} and ${rects[j].id} still overlap after the two-factor-cap resolve`);
     }
   }
+});
+
+// ─── HUD-OBSTACLE (2026-09-15): fixed HUD DOM overlays (help bar, title
+// block, right panel, perf/Synced corner -- see LabelDeclutterManager.tsx's
+// own `data-hq-obstacle` wiring) register as ObstacleRect entries the
+// resolver must nudge labels off of, without ever moving the obstacle
+// itself or disturbing label-vs-label priority order. ────────────────────
+
+function obstacle(id: string, x: number, y: number, w: number, h: number): ObstacleRect {
+  return { id, x, y, width: w, height: h };
+}
+
+test("a label overlapping a fixed obstacle moves off it", () => {
+  // The real evidence case: a live-agent bubble sitting exactly under the
+  // HUD help bar (plaque-overview.png, read at 1:1).
+  const helpBar = obstacle("help-bar", 440, 845, 555, 24);
+  const bubble = rect("live:general-purpose", PRIORITY.LIVE_AGENT, 10, 450, 831, 260, 26);
+  const out = resolveLabelOffsets([bubble], DEFAULT_MAX_NUDGE_PX, DEFAULT_FADE_OPACITY, [helpBar]);
+  const o = out.get(bubble.id)!;
+  assert.ok(o.dx !== 0 || o.dy !== 0, "a label starting on top of an obstacle must be nudged");
+  const clear =
+    bubble.x + o.dx + bubble.width <= helpBar.x || helpBar.x + helpBar.width <= bubble.x + o.dx ||
+    bubble.y + o.dy + bubble.height <= helpBar.y || helpBar.y + helpBar.height <= bubble.y + o.dy;
+  assert.ok(clear, "label must actually clear the obstacle after resolve");
+});
+
+test("the obstacle never moves and never appears in the output map", () => {
+  const helpBar = obstacle("help-bar", 0, 0, 200, 24);
+  const label = rect("lane:futures", PRIORITY.LANE, 10, 0, 0, 200, 24);
+  const out = resolveLabelOffsets([label], DEFAULT_MAX_NUDGE_PX, DEFAULT_FADE_OPACITY, [helpBar]);
+  assert.equal(out.get("help-bar"), undefined, "obstacles are not labels and get no offset entry");
+  assert.equal(out.size, 1, "only the real label gets an offset entry");
+});
+
+test("an obstacle always outranks every label, even LIVE_AGENT/GAMMA priority", () => {
+  const rightPanel = obstacle("right-panel", 1420, 0, 500, 1080);
+  const gamma = rect("gamma", PRIORITY.GAMMA, 5, 1400, 500, 150, 28);
+  const out = resolveLabelOffsets([gamma], DEFAULT_MAX_NUDGE_PX, DEFAULT_FADE_OPACITY, [rightPanel]);
+  const o = out.get("gamma")!;
+  assert.ok(o.dx !== 0 || o.dy !== 0, "even the highest-priority label must yield to an obstacle");
+});
+
+test("priority order between two real labels is unchanged when an unrelated obstacle is present", () => {
+  const cornerObstacle = obstacle("perf-corner", 900, 900, 200, 40); // far away, touches neither label
+  const a = rect("a", PRIORITY.GAMMA, 5, 100, 100, 120, 24);
+  const b = rect("b", PRIORITY.PERSONA, 5, 100, 100, 120, 24);
+  const withoutObstacle = resolveLabelOffsets([a, b]);
+  const withObstacle = resolveLabelOffsets([a, b], DEFAULT_MAX_NUDGE_PX, DEFAULT_FADE_OPACITY, [cornerObstacle]);
+  assert.equal(withObstacle.get("a")!.dx, withoutObstacle.get("a")!.dx);
+  assert.equal(withObstacle.get("a")!.dy, withoutObstacle.get("a")!.dy);
+  assert.equal(withObstacle.get("b")!.dx, withoutObstacle.get("b")!.dx);
+  assert.equal(withObstacle.get("b")!.dy, withoutObstacle.get("b")!.dy);
+});
+
+test("a label pinned against an obstacle past the cap fades instead of stacking forever", () => {
+  const maxNudge = 10;
+  const fade = 0.35;
+  // Obstacle fills the whole plausible nudge range on both axes so neither
+  // axis can clear within a tiny 10px cap.
+  const bigObstacle = obstacle("title-block", -50, -50, 300, 300);
+  const label = rect("lane:safe2", PRIORITY.LANE, 10, 0, 0, 120, 24);
+  const out = resolveLabelOffsets([label], maxNudge, fade, [bigObstacle]);
+  const o = out.get(label.id)!;
+  assert.ok(Math.abs(o.dx) === maxNudge || Math.abs(o.dy) === maxNudge, "should clamp exactly at the cap");
+  assert.equal(o.opacity, fade, "a label that cannot clear an obstacle within the cap must fade");
 });
 
 test("stable order across frames: identical input always yields identical output (no jitter)", () => {
