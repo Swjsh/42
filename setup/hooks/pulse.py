@@ -152,3 +152,32 @@ def record_tool(payload: dict) -> None:
         to=_target(tool_name, tool_input),
         detail=_detail(tool_name, tool_input),
     )
+
+
+def record_tool_done(payload: dict, *, failed: bool = False) -> None:
+    """PostToolUse / PostToolUseFailure entry point -- the completion half of
+    record_tool()'s start edge (HQ live-agent BUG-1, 2026-09-14).
+
+    Until this existed, pulse.jsonl only ever recorded a tool STARTING
+    (PreToolUse), never finishing: `grep -c '"event": "done"' pulse.jsonl` was
+    always 0. dashboard/lib/hq-agents.ts's 3-min idle rule reads "no new row
+    for 3 min" as "the agent walked away", so one long foreground tool call
+    (verified case: a 244s probe, 23:30:32 -> 23:34:36 local) made a
+    still-working agent look idle and despawn mid-work.
+
+    This writes a matching "done" row keyed the same way hq-agents.ts already
+    matches a start to its completion: same session_id/agent_id (via
+    record()'s own payload-derived fields) + same tool name (row.tool). The
+    consumer only needs to know THIS tool call finished, not whether it
+    succeeded, so both PostToolUse and PostToolUseFailure write the identical
+    "done" event -- `failed` only changes the diagnostic `detail` string, it
+    is not part of the matching key.
+
+    Gated by the same classify() the start edge used: a tool that never got a
+    start row (classify() returns None) must never get a completion row
+    either, or hq-agents.ts would see a "done" with no matching open call.
+    """
+    tool_name = payload.get("tool_name") or ""
+    if classify(tool_name) is None:
+        return
+    record(payload, "done", detail="failed" if failed else "ok")

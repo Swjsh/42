@@ -56,6 +56,26 @@ const COOLING_WINDOW_MS = 30_000; // last ~30s before the idle timeout reads as 
 const MAX_AGENTS = 8;
 const DETAIL_MAX_CHARS = 60;
 
+// HQ BUG-1 FIX (2026-09-14, coordinator-verified): pulse.jsonl used to record a tool
+// STARTING (PreToolUse) but never finishing, so IDLE_TIMEOUT_MS alone made one long
+// foreground tool call (real case: a 244s probe) look like the agent walked away mid-
+// work. setup/hooks/gamma_doctrine.py now also fires on PostToolUse/PostToolUseFailure
+// and setup/hooks/pulse.py#record_tool_done writes a matching "done" row (same
+// session_id/agent_id/tool). An agent whose latest tool-start row has no later "done"
+// for that same tool counts as ACTIVE for up to this long after the start, instead of
+// the normal 3-minute idle rule -- long enough to cover a slow foreground command, short
+// enough that a row written before this fix (which can NEVER get a completion) still
+// eventually expires rather than staying "active" forever.
+const ACTIVE_TOOL_GRACE_MS = 20 * 60_000;
+// The one completion event pulse.py's record_tool_done ever writes (see that function's
+// own docstring: success and failure both write "done" -- only the `detail` differs).
+const TOOL_COMPLETION_EVENT = "done";
+// The three start-edge events pulse.py#classify() ever produces for a tool call
+// (SendMessage -> "message", Agent/Task/Workflow -> "spawn", everything else it tracks
+// -> "act"). Anything outside this set (e.g. Stop's own "idle" row) is not a tool call
+// and never opens or closes a grace window.
+const TOOL_START_EVENTS = new Set(["act", "message", "spawn"]);
+
 // ─── Wire types ─────────────────────────────────────────────────────────────
 
 export type LiveAgentZone = "build" | "lab" | "ops" | "docs" | "hub";
@@ -279,8 +299,17 @@ function lastArgBasename(cmd: string): string | null {
   return null;
 }
 
-const READ_VERBS = new Set(["grep", "rg", "cat", "sed", "head", "tail", "less", "more", "read"]);
+// Split from READ_VERBS (BUG-2 fix, 2026-09-14): grep/rg get their own fallback phrase
+// ("searching code") distinct from cat/sed/head's ("reading a file") -- per the
+// coordinator's own bug report wording.
+const SEARCH_VERBS = new Set(["grep", "rg"]);
+const READ_VERBS = new Set(["cat", "sed", "head", "tail", "less", "more", "read"]);
 const TEST_RE = /^(pytest\b|node\s+--test\b|npm\s+(run\s+)?test\b)/;
+// A bare PowerShell variable assignment ("$ts = ..."), e.g. the shape seen in this
+// repo's own .claude/settings.local.json launch commands. Has no recognizable verb at
+// all (the "verb" token is the variable name itself), so it must never fall through to
+// classifyCommand's other verb checks and must never be mistaken for a file target.
+const PS_ASSIGNMENT_RE = /^\$\w+\s*=/;
 const NPM_BUILD_RE = /^npm\s+run\s+build\b/;
 const GIT_COMMIT_RE = /^git\s+commit\b/;
 const GIT_PUSH_RE = /^git\s+push\b/;
@@ -294,6 +323,24 @@ const CURL_RE = /^curl\b/;
 // non-URL leftover rather than showing it verbatim.
 const URL_LIKE_RE = /^(https?:\/\/\S+|[a-z0-9.-]+\.[a-z]{2,}(:\d+)?(\/\S*)?)$/i;
 
+// A token counts as a real file/path TARGET only when it structurally looks like one --
+// never picked out of a quoted string or a regex pattern (BUG-2 fix, 2026-09-14: a
+// truncated `grep -n "^import\|bubbleY = \|bubbleActionTrunc &&\|<Htm` produced the
+// bubble text "working · reading |<Htm" because the old code took ANY last non-flag
+// token, including a fragment of the quoted regex itself). Any of these characters
+// means the token came from inside a quote or is a regex/shell metachar fragment, not a
+// standalone path: quotes, the regex/shell operators `| ^ $ < > * ( ) { } [ ]`, and a
+// backslash (a regex escape in this position far more often than a literal Windows path
+// segment once a leading `cd ... &&` has already been stripped).
+const INVALID_TARGET_CHARS_RE = /["'|^$<>*(){}[\]\\]/;
+
+function looksLikeFileTarget(token: string | null): token is string {
+  if (!token) return false;
+  if (INVALID_TARGET_CHARS_RE.test(token)) return false;
+  if (token.includes("/")) return true; // a real path segment
+  return /^[A-Za-z0-9_.-]+\.[A-Za-z0-9]+$/.test(token); // a bare "name.ext"-shaped filename
+}
+
 /** Classifies an already cd-stripped Bash/PowerShell command string into a
  * short human action phrase. Every branch checks the command's own real
  * verb/target -- the default ("running a command") is the honest answer
@@ -304,10 +351,15 @@ const URL_LIKE_RE = /^(https?:\/\/\S+|[a-z0-9.-]+\.[a-z]{2,}(:\d+)?(\/\S*)?)$/i;
 function classifyCommand(rawCmd: string): string {
   const cmd = stripLeadingCd(rawCmd);
   if (!cmd) return "running a command";
+  if (PS_ASSIGNMENT_RE.test(cmd)) return "running a script";
   const verb = basenameOf((cmd.split(/\s+/)[0] || "").toLowerCase());
+  if (SEARCH_VERBS.has(verb)) {
+    const target = lastArgBasename(cmd);
+    return looksLikeFileTarget(target) ? `searching ${target}` : "searching code";
+  }
   if (READ_VERBS.has(verb)) {
     const target = lastArgBasename(cmd);
-    return target ? `reading ${target}` : "reading a file";
+    return looksLikeFileTarget(target) ? `reading ${target}` : "reading a file";
   }
   if (TEST_RE.test(cmd)) return "running tests";
   if (NPM_BUILD_RE.test(cmd)) return "building the dashboard";
@@ -389,6 +441,14 @@ interface AgentAcc {
   lastDetail: string;
   lastRawDetail: string;
   zone: LiveAgentZone;
+  /** pseudo-ms of the most recent tool-start row that has NOT yet been closed by a
+   * matching "done" row for the same tool, or null when the agent's last tool call
+   * already completed (or it has never started one). See ACTIVE_TOOL_GRACE_MS above. */
+  openToolTs: number | null;
+  /** The tool name (row.tool) that start row belongs to -- a "done" row only closes
+   * the open window when its own tool matches this, same key pulse.py's
+   * record_tool_done docstring documents. */
+  openToolName: string | null;
 }
 
 /** Groups rows by agent_id (a real subagent), or by session_id when
@@ -405,16 +465,25 @@ interface AgentAcc {
 export function buildLiveAgents(rows: PulseRow[], nowMs: number = Date.now()): LiveAgent[] {
   const groups = new Map<string, AgentAcc>();
 
-  for (const row of rows) {
+  // Open-tool-call tracking (HQ BUG-1 fix, see ACTIVE_TOOL_GRACE_MS above) needs start
+  // and "done" rows visited in chronological order per agent, so this pass sorts the
+  // whole tail by pseudo-ms first (stable: rows with an identical timestamp keep their
+  // original file-append order). first/last-row tracking below still uses explicit
+  // pseudo-ms comparisons rather than relying on this order, matching the existing
+  // "out-of-order tail slice" guarantee this function already documented.
+  const ordered = rows
+    .map((row, index) => ({ row, index, tsPseudo: parseLocalTsPseudoMs(row.ts) }))
+    .filter((r): r is { row: PulseRow; index: number; tsPseudo: number } => r.tsPseudo !== null)
+    .sort((a, b) => a.tsPseudo - b.tsPseudo || a.index - b.index);
+
+  for (const { row, tsPseudo } of ordered) {
     const key = row.agent_id ? row.agent_id : row.session_id ? `session:${row.session_id}` : null;
-    if (!key) continue;
-    const tsPseudo = parseLocalTsPseudoMs(row.ts);
-    if (tsPseudo === null) continue; // malformed ts -- never guess "now" for a row we can't date
+    if (!key) continue; // malformed ts already filtered out above -- never guess "now" for a row we can't date
 
     const zone = classifyZone(`${row.to} ${row.detail}`);
-    const existing = groups.get(key);
+    let existing = groups.get(key);
     if (!existing) {
-      groups.set(key, {
+      existing = {
         id: key,
         label: row.agent_id ? (row.agent_type || "agent") : "session",
         firstTs: row.ts,
@@ -424,41 +493,70 @@ export function buildLiveAgents(rows: PulseRow[], nowMs: number = Date.now()): L
         lastDetail: shortDetail(row),
         lastRawDetail: rawDetailFor(row),
         zone,
-      });
-      continue;
+        openToolTs: null,
+        openToolName: null,
+      };
+      groups.set(key, existing);
+    } else {
+      // Rows are now visited in pseudo-ms order, but first/last are still tracked by
+      // explicit comparison (not "the loop's current position") -- an out-of-order tail
+      // slice with two equal timestamps still produces a correct result either way.
+      if (tsPseudo < existing.firstTsPseudoMs) {
+        existing.firstTs = row.ts;
+        existing.firstTsPseudoMs = tsPseudo;
+      }
+      if (tsPseudo >= existing.lastTsPseudoMs) {
+        existing.lastTs = row.ts;
+        existing.lastTsPseudoMs = tsPseudo;
+        existing.lastDetail = shortDetail(row);
+        existing.lastRawDetail = rawDetailFor(row);
+        // A real zone signal only ever REPLACES the stale one on a later row
+        // -- a row with no path in its own detail/to (e.g. a bare "Ran: ls")
+        // must never blank an agent back to "hub" just because it's the most
+        // recent row seen.
+        if (zone !== "hub") existing.zone = zone;
+        if (row.agent_id && row.agent_type) existing.label = row.agent_type;
+      }
     }
-    // Rows are read from the file in append (chronological) order, but this
-    // loop makes no assumption of that -- first/last are tracked by actual
-    // pseudo-ms comparison, so an out-of-order tail slice still produces a
-    // correct result.
-    if (tsPseudo < existing.firstTsPseudoMs) {
-      existing.firstTs = row.ts;
-      existing.firstTsPseudoMs = tsPseudo;
-    }
-    if (tsPseudo >= existing.lastTsPseudoMs) {
-      existing.lastTs = row.ts;
-      existing.lastTsPseudoMs = tsPseudo;
-      existing.lastDetail = shortDetail(row);
-      existing.lastRawDetail = rawDetailFor(row);
-      // A real zone signal only ever REPLACES the stale one on a later row
-      // -- a row with no path in its own detail/to (e.g. a bare "Ran: ls")
-      // must never blank an agent back to "hub" just because it's the most
-      // recent row seen.
-      if (zone !== "hub") existing.zone = zone;
-      if (row.agent_id && row.agent_type) existing.label = row.agent_type;
+
+    // Close the open tool-call window when a "done" row for the SAME tool arrives;
+    // open (or re-open, for the next call) one on a fresh tool-start row. A "done" for
+    // a DIFFERENT tool than the one currently open is ignored -- it cannot belong to
+    // this open call, and pulse.jsonl's own PreToolUse ordering means a session never
+    // starts a second tool before its first one's completion is recorded.
+    if (row.event === TOOL_COMPLETION_EVENT) {
+      if (existing.openToolName === row.tool) {
+        existing.openToolTs = null;
+        existing.openToolName = null;
+      }
+    } else if (TOOL_START_EVENTS.has(row.event)) {
+      existing.openToolTs = tsPseudo;
+      existing.openToolName = row.tool;
     }
   }
 
   const nowPseudo = nowLocalPseudoMs(nowMs);
-  const alive = Array.from(groups.values()).filter((a) => nowPseudo - a.lastTsPseudoMs <= IDLE_TIMEOUT_MS);
+  const alive = Array.from(groups.values()).filter((a) =>
+    a.openToolTs !== null
+      ? nowPseudo - a.openToolTs <= ACTIVE_TOOL_GRACE_MS
+      : nowPseudo - a.lastTsPseudoMs <= IDLE_TIMEOUT_MS,
+  );
   alive.sort((a, b) => b.lastTsPseudoMs - a.lastTsPseudoMs);
 
   return alive.slice(0, MAX_AGENTS).map((a) => {
     const age = nowPseudo - a.lastTsPseudoMs;
     const sinceFirst = nowPseudo - a.firstTsPseudoMs;
     let state: LiveAgentState = "active";
-    if (sinceFirst <= SPAWN_WINDOW_MS) state = "spawning";
-    else if (age >= IDLE_TIMEOUT_MS - COOLING_WINDOW_MS) state = "cooling";
+    if (a.openToolTs !== null) {
+      // A tool call is still open (no "done" row yet): the agent reads as actively
+      // working for the whole grace window (bounded above in the alive filter), never
+      // "cooling"/about-to-leave just because its start row is a few minutes old.
+      state = sinceFirst <= SPAWN_WINDOW_MS ? "spawning" : "active";
+    } else if (sinceFirst <= SPAWN_WINDOW_MS) {
+      state = "spawning";
+    } else if (age >= IDLE_TIMEOUT_MS - COOLING_WINDOW_MS) {
+      state = "cooling";
+    }
     return {
       id: a.id,
       label: a.label,

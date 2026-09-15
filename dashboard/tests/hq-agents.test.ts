@@ -22,6 +22,7 @@ import {
   parsePulseLines,
   classifyZone,
   buildLiveAgents,
+  liveAgentBubbleAction,
   ZONE_NODE_ID,
   type PulseRow,
 } from "../lib/hq-agents.ts";
@@ -198,8 +199,14 @@ test("buildLiveAgents maps zone from the MOST RECENT matching row, not blanked b
   assert.equal(agents[0].targetZone, ZONE_NODE_ID.docs);
 });
 
-test("buildLiveAgents excludes an agent idle for more than 3 minutes", () => {
-  const rows = [row({ agent_id: "a1", ts: "2026-09-14T21:48:00" })]; // 4 min before NOW (21:52:00)
+test("buildLiveAgents excludes an agent idle for more than 3 minutes (tool call closed, not open)", () => {
+  // A "done" row closes the tool call started at 21:48:00, so the HQ BUG-1 20-min grace
+  // window never applies here -- this is testing the plain post-completion idle rule,
+  // not an open call (see the dedicated open-tool-call tests further below).
+  const rows = [
+    row({ agent_id: "a1", event: "act", ts: "2026-09-14T21:48:00" }), // 4 min before NOW (21:52:00)
+    row({ agent_id: "a1", event: "done", ts: "2026-09-14T21:48:01" }),
+  ];
   const agents = buildLiveAgents(rows, NOW);
   assert.equal(agents.length, 0);
 });
@@ -216,10 +223,12 @@ test("buildLiveAgents marks state 'spawning' for an agent first seen within the 
   assert.equal(agents[0].state, "spawning");
 });
 
-test("buildLiveAgents marks state 'cooling' close to the idle timeout", () => {
+test("buildLiveAgents marks state 'cooling' close to the idle timeout (tool call closed, not open)", () => {
   const rows = [
-    row({ agent_id: "a1", ts: "2026-09-14T21:49:00" }), // first seen 3:00 before NOW -- long past the spawn window
-    row({ agent_id: "a1", ts: "2026-09-14T21:49:25" }), // last seen 2:35 (155s) before NOW -- inside the last 30s of the 3min budget (>=150s)
+    row({ agent_id: "a1", event: "act", ts: "2026-09-14T21:49:00" }), // first seen 3:00 before NOW -- long past the spawn window
+    row({ agent_id: "a1", event: "done", ts: "2026-09-14T21:49:01" }), // closes the tool call started above
+    row({ agent_id: "a1", event: "act", tool: "Edit", ts: "2026-09-14T21:49:24" }),
+    row({ agent_id: "a1", event: "done", tool: "Edit", ts: "2026-09-14T21:49:25" }), // last seen 2:35 (155s) before NOW -- inside the last 30s of the 3min budget (>=150s)
   ];
   const agents = buildLiveAgents(rows, NOW);
   assert.equal(agents[0].state, "cooling");
@@ -263,4 +272,129 @@ test("buildLiveAgents tracks firstTs/lastTs correctly across out-of-order rows",
   const agents = buildLiveAgents(rows, NOW);
   assert.equal(agents[0].firstTs, "2026-09-14T21:51:00");
   assert.equal(agents[0].lastTs, "2026-09-14T21:51:30");
+});
+
+// ─── HQ BUG-1: open tool-call grace window (2026-09-14) ────────────────────
+//
+// Real case this section reproduces: agent a797be574c57d1381 had a 244s gap
+// (23:30:32 -> 23:34:36 local) running a foreground probe. pulse.jsonl only
+// ever wrote the PreToolUse start row, never a completion, so the plain
+// 3-min IDLE_TIMEOUT_MS rule alone read the agent as having left mid-work.
+
+test("buildLiveAgents keeps an open (no 'done' row) tool call ACTIVE past the normal 3-min idle window", () => {
+  const rows = [
+    // start row only, 4 min before NOW (21:52:00) -- would be excluded entirely under
+    // the old plain-3-min rule, and would read "cooling" even if the cutoff were bumped
+    // without also fixing the STATE computation.
+    row({ agent_id: "a1", event: "act", tool: "Bash", ts: "2026-09-14T21:48:00", detail: "Ran: long_probe.py" }),
+  ];
+  const agents = buildLiveAgents(rows, NOW);
+  assert.equal(agents.length, 1);
+  assert.equal(agents[0].state, "active");
+});
+
+test("buildLiveAgents still despawns an open tool call once the 20-min grace cap elapses", () => {
+  const rows = [
+    row({ agent_id: "a1", event: "act", tool: "Bash", ts: "2026-09-14T21:31:59" }), // 20:01 before NOW -- just past the cap
+  ];
+  const agents = buildLiveAgents(rows, NOW);
+  assert.equal(agents.length, 0);
+});
+
+test("buildLiveAgents keeps an open tool call alive right up to the 20-min grace cap", () => {
+  const rows = [
+    row({ agent_id: "a1", event: "act", tool: "Bash", ts: "2026-09-14T21:32:01" }), // 19:59 before NOW -- just inside the cap
+  ];
+  const agents = buildLiveAgents(rows, NOW);
+  assert.equal(agents.length, 1);
+  assert.equal(agents[0].state, "active");
+});
+
+test("buildLiveAgents closes the grace window on a matching 'done' row, reverting to the normal 3-min idle rule", () => {
+  const rows = [
+    row({ agent_id: "a1", event: "act", tool: "Bash", ts: "2026-09-14T21:45:00", detail: "Ran: long_probe.py" }),
+    row({ agent_id: "a1", event: "done", tool: "Bash", ts: "2026-09-14T21:45:05", detail: "" }),
+  ];
+  // The done row is 6:55 before NOW -- well past the 3-min idle window, and the tool
+  // call is closed, so the 20-min grace no longer applies: the agent must be gone.
+  const agents = buildLiveAgents(rows, NOW);
+  assert.equal(agents.length, 0);
+});
+
+test("buildLiveAgents 'done' row only closes the window for the SAME tool name", () => {
+  const rows = [
+    row({ agent_id: "a1", event: "act", tool: "Bash", ts: "2026-09-14T21:48:00" }),
+    // a "done" for a different tool must not close Bash's still-open window
+    row({ agent_id: "a1", event: "done", tool: "Edit", ts: "2026-09-14T21:48:01" }),
+  ];
+  const agents = buildLiveAgents(rows, NOW);
+  assert.equal(agents.length, 1);
+  assert.equal(agents[0].state, "active");
+});
+
+test("buildLiveAgents: a row written before this fix (no completion ever coming) still expires via the 20-min cap, not forever", () => {
+  // Simulates historical pulse.jsonl data written before PostToolUse existed: a start
+  // row with literally no possibility of a matching "done" ever arriving. The 20-min
+  // cap is exactly the mechanism that prevents such an agent from reading as
+  // permanently active.
+  const rows = [row({ agent_id: "old-agent", event: "act", tool: "Bash", ts: "2026-09-14T21:00:00" })]; // 52 min stale
+  const agents = buildLiveAgents(rows, NOW);
+  assert.equal(agents.length, 0);
+});
+
+// ─── HQ BUG-2: liveAgentBubbleAction / classifyCommand target sniffing ─────
+//
+// Real defect (coordinator review): a truncated grep pattern produced the
+// bubble text "working · reading |<Htm" because the old classifier took the
+// last non-flag token unconditionally, even a fragment pulled from inside a
+// quoted regex.
+
+test("liveAgentBubbleAction falls back to 'searching code' on a grep target from inside a quoted regex (exact reported string)", () => {
+  const action = liveAgentBubbleAction({
+    tool: "Bash",
+    detail:
+      'Ran: cd "...\\dashboard" && grep -n "^import\\|bubbleY = \\|bubbleActionTrunc &&\\|<Htm',
+    to: "",
+  });
+  assert.equal(action, "searching code");
+});
+
+test("liveAgentBubbleAction names a real grep target when one is present", () => {
+  const action = liveAgentBubbleAction({ tool: "Bash", detail: "Ran: grep -n foo dashboard/lib/hq-agents.ts", to: "" });
+  assert.equal(action, "searching hq-agents.ts");
+});
+
+test("liveAgentBubbleAction falls back to 'reading a file' for cat/sed/head with no real target", () => {
+  for (const verb of ["cat", "sed", "head"]) {
+    const action = liveAgentBubbleAction({ tool: "Bash", detail: `Ran: ${verb} "$(weird | pipe)"`, to: "" });
+    assert.equal(action, "reading a file", `verb=${verb}`);
+  }
+});
+
+test("liveAgentBubbleAction names a real cat/head target when one is present", () => {
+  const action = liveAgentBubbleAction({ tool: "Bash", detail: "Ran: head -n 20 setup/hooks/pulse.py", to: "" });
+  assert.equal(action, "reading pulse.py");
+});
+
+test("liveAgentBubbleAction classifies a PowerShell '$var = ...' assignment without inventing a target", () => {
+  const action = liveAgentBubbleAction({
+    tool: "PowerShell",
+    detail: 'Ran: $ts = "C:\\Program Files\\Tailscale\\tailscale.exe"; & $ts status',
+    to: "",
+  });
+  assert.equal(action, "running a script");
+});
+
+test("liveAgentBubbleAction still classifies a curl command by its URL, unaffected by the target-sniffing fix", () => {
+  const action = liveAgentBubbleAction({ tool: "Bash", detail: "Ran: curl -s http://localhost:9222/json/version", to: "" });
+  assert.equal(action, "checking localhost:9222/json/version");
+});
+
+test("liveAgentBubbleAction falls back to 'checking a URL' when curl's own target got truncated away", () => {
+  const action = liveAgentBubbleAction({
+    tool: "Bash",
+    detail: 'Ran: curl -s -o /dev/null -w "HTT',
+    to: "",
+  });
+  assert.equal(action, "checking a URL");
 });

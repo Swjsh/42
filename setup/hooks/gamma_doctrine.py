@@ -7,7 +7,11 @@ piece of context or hard-blocks an action doctrine says must never happen.
   SessionStart        prime card + live state (re-fires after /compact, where doctrine dies)
   UserPromptSubmit    keyword-routed situational rule (usually nothing)
   PreToolUse          HARD BLOCK: frozen trading path, generated surfaces, scarred shell cmds
-  PostToolUseFailure  repeated-identical-failure -> the stop-repeating-it rule
+  PostToolUse         pulse.jsonl completion edge (P.record_tool_done) -- closes the start
+                      edge PreToolUse wrote, so the army view can tell a still-running
+                      foreground tool call from an agent that actually walked away
+  PostToolUseFailure  repeated-identical-failure -> the stop-repeating-it rule; also writes
+                      the same completion edge (a failed call still finished)
   Stop                HARD BLOCK: turn ends on a permission question (OP-0), an
                       unverified success claim (OP-33), or an active unexpired
                       goal (automation/state/active-goal.json) still has an open
@@ -518,8 +522,24 @@ def _handle_pre_tool(payload: dict) -> int:
     return _ALLOW
 
 
+def _handle_post_tool(payload: dict) -> int:
+    """Completion half of _handle_pre_tool's P.record_tool() start edge (HQ BUG-1,
+    2026-09-14) -- see pulse.py#record_tool_done's own docstring for the full defect.
+    Fires on every successful tool call this dispatcher also started a pulse row for;
+    fail-open like every other handler here (P.record_tool_done swallows its own errors).
+    """
+    P.record_tool_done(payload)
+    return _ALLOW
+
+
 def _handle_post_tool_failure(payload: dict) -> int:
     """Second identical failure in a session is a loop; name it rather than retry."""
+    # Completion edge FIRST, unconditionally -- a failed tool call still finished (it did
+    # not leave the agent mid-work forever), so hq-agents.ts's open-tool-call grace window
+    # must close here exactly like the success path in _handle_post_tool, regardless of
+    # whether this is the 1st or the 2nd+ identical failure below.
+    P.record_tool_done(payload, failed=True)
+
     session_id = payload.get("session_id") or ""
     tin = payload.get("tool_input") or {}
     signature = f"{payload.get('tool_name')}::{str(tin.get('command') or tin.get('file_path') or '')[:160]}"
@@ -635,6 +655,7 @@ _HANDLERS = {
     "SessionStart": _handle_session_start,
     "UserPromptSubmit": _handle_user_prompt,
     "PreToolUse": _handle_pre_tool,
+    "PostToolUse": _handle_post_tool,
     "PostToolUseFailure": _handle_post_tool_failure,
     "Stop": _handle_stop,
     "SubagentStart": _handle_subagent_start,
