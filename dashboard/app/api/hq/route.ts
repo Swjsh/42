@@ -202,6 +202,9 @@ async function buildHqResponse() {
     brainModel: config.model ?? null,
     ollamaModelsLoaded: models.models.map((m) => m.name),
     gpuOk: gpu.ok,
+    // GPU-YIELD (queue item e): same readGpuVitals() call as gpuOk above,
+    // one more field off an already-fetched, already-cached result.
+    gpuUtilPct: gpu.util_pct,
   });
 
   return NextResponse.json(

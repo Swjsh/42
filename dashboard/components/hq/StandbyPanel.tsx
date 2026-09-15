@@ -28,6 +28,17 @@ export default function StandbyPanel({ data }: StandbyPanelProps) {
   const gpu = data?.brainVitals?.gpu;
   const modelName = data?.brainVitals?.models?.[0]?.name ?? null;
   const brief = data?.brief.text || "NO DATA -- no brief written yet";
+  // GPU-YIELD (queue item e, 2026-09-15): this panel is now ALSO shown
+  // while the local brain (Ollama) is mid-inference-burst, a different
+  // cause from "J is gaming" -- the banner below must say which one it
+  // actually is rather than always claiming "reserved for J".
+  const brainBusy = data?.runtime?.brain?.busy === true;
+  const gaming = data?.mode === "gaming";
+  const standbyText = gaming
+    ? "Standby -- GPU reserved for J, resumes automatically"
+    : brainBusy
+      ? "Standby -- brain thinking (local GPU inference), resumes automatically"
+      : "Standby -- resumes automatically";
 
   return (
     <div
@@ -44,7 +55,7 @@ export default function StandbyPanel({ data }: StandbyPanelProps) {
           fontSize: 20, fontWeight: 700, letterSpacing: 0.3,
         }}
       >
-        Standby -- GPU reserved for J, resumes automatically
+        {standbyText}
       </div>
 
       <div style={{ maxWidth: 2560, margin: "0 auto", padding: "96px 60px 60px", display: "grid", gridTemplateColumns: "1.1fr 1fr 1fr", gap: 48 }}>

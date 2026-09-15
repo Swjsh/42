@@ -650,6 +650,12 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
 
   const mode = data?.mode ?? "unknown";
   const gaming = mode === "gaming";
+  // GPU-YIELD (queue item e, 2026-09-15): local brain (Ollama) inference
+  // burst on the same RTX 5080 -- see lib/hq-runtime.ts#isBrainBusy for the
+  // exact rule (Ollama has a loaded model AND nvidia-smi util > 50%, never
+  // a bare utilization threshold, so HQ's own rendering never triggers
+  // this on itself). Server-derived only, never re-computed client-side.
+  const brainBusy = data?.runtime?.brain?.busy === true;
   const present = data?.presence?.present ?? null;
   const syncedText = data
     ? `Synced ${new Date(data.fetched_at).toLocaleTimeString()}${isValidating ? " -- syncing..." : ""}`
@@ -982,6 +988,22 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
         >
           {gaming ? "GPU RESERVED" : `mode: ${mode}`}
         </span>
+        {/* GPU-YIELD (queue item e): a second, independent chip -- gaming
+            and brain-busy are different causes (J playing a game vs. the
+            local brain mid-inference) and can be told apart, so this never
+            collapses into the mode chip above. Only rendered when NOT
+            already gaming (gaming's own pause/chip already covers "HQ is
+            not rendering right now" and takes visual priority). */}
+        {!gaming && brainBusy && (
+          <span
+            style={{
+              fontSize: 22, fontWeight: 700, padding: "3px 16px", borderRadius: 999,
+              background: "rgba(122,217,255,0.16)", color: "#7ad9ff", border: "2px solid #7ad9ff",
+            }}
+          >
+            brain thinking -- HQ paused
+          </span>
+        )}
       </div>
 
       {/* UX-1 U0 (2026-09-14): "is it working?" instrument, directly under

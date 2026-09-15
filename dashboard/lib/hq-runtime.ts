@@ -135,6 +135,44 @@ export interface HqBrainInfo {
   gpu: boolean;
   state: HqBrainState;
   reason: string | null;
+  /** Live nvidia-smi utilization.gpu percent (0-100) at the sample the
+   * server took building this response, or null when nvidia-smi is
+   * unavailable (readGpuVitals's own fail-open path) -- see `busy` below
+   * for the derived HQ-render-pause signal built from this. */
+  gpu_util_pct: number | null;
+  /** True iff the local brain (Ollama) is actively burning GPU on an
+   * inference burst -- see isBrainBusy's own doc comment for the exact
+   * rule and why it is gated on Ollama having a loaded model, not on
+   * gpu_util_pct alone (HQ's own r3f render loop uses the same GPU). */
+  busy: boolean;
+}
+
+/** GPU-YIELD (queue item e, 2026-09-15): pure busy-rule for "is the local
+ * brain (Ollama, on the same RTX 5080 HQ renders on) currently mid-burst,
+ * such that HQ should pause/throttle its own render loop." Deliberately
+ * NOT `gpu_util_pct > threshold` alone -- HQ's own PBR + N8AO + DoF +
+ * GodRays stack routinely drives the SAME nvidia-smi utilization.gpu
+ * metric past 50% on its own (that's the whole reason this feature
+ * exists), so a bare utilization threshold would make HQ pause itself
+ * every time it renders hard, a false-positive loop with no burst
+ * happening at all. Gating on `modelsLoaded.length > 0` (Ollama actually
+ * reporting a loaded model via `ollama ps`, the same source
+ * lib/station.ts#readOllamaPs already feeds into deriveBrain's `running`
+ * state below) distinguishes "Ollama is doing inference" from "the GPU is
+ * busy for some other reason" -- only readable, already-available signals,
+ * no separate nvidia-smi --query-compute-apps process list required. A
+ * null utilization (nvidia-smi missing) always reads not-busy (fail open,
+ * matching every other reader in this file's convention: a courtesy
+ * signal, never a safety gate, must never wedge the render loop paused on
+ * a permanently-missing nvidia-smi). */
+export function isBrainBusy(
+  modelsLoaded: string[],
+  gpuUtilPct: number | null,
+  thresholdPct = 50,
+): boolean {
+  if (gpuUtilPct === null) return false;
+  if (modelsLoaded.length === 0) return false;
+  return gpuUtilPct > thresholdPct;
 }
 
 export type HqRoleRuntimeKind = "python-script" | "local-llm" | "claude-session" | "none";
@@ -187,6 +225,10 @@ export interface HqRuntimeInputs {
   ollamaModelsLoaded: string[];
   /** gpu.ok from lib/station.ts#readGpuVitals() (already fetched as `gpu`). */
   gpuOk: boolean;
+  /** gpu.util_pct from the SAME lib/station.ts#readGpuVitals() call as
+   * gpuOk above -- one more field off an already-fetched, already-5s-cached
+   * reader, no new shell-out. GPU-YIELD (queue item e). */
+  gpuUtilPct: number | null;
 }
 
 // ─── Pure: tasklist CSV parsing (unit-tested, zero fs/child_process) ───────
@@ -754,15 +796,17 @@ function deriveBrain(
   model: string | null,
   modelsLoaded: string[],
   gpuOk: boolean,
+  gpuUtilPct: number | null,
 ): HqBrainInfo {
+  const busy = isBrainBusy(modelsLoaded, gpuUtilPct);
   const reason = gammaManager?.quietReason ?? null;
   if (reason && reason.startsWith("yields")) {
-    return { model, host: "this PC", gpu: gpuOk, state: "yielding", reason };
+    return { model, host: "this PC", gpu: gpuOk, state: "yielding", reason, gpu_util_pct: gpuUtilPct, busy };
   }
   if (modelsLoaded.length > 0) {
-    return { model, host: "this PC", gpu: gpuOk, state: "running", reason: `${modelsLoaded.join(", ")} loaded` };
+    return { model, host: "this PC", gpu: gpuOk, state: "running", reason: `${modelsLoaded.join(", ")} loaded`, gpu_util_pct: gpuUtilPct, busy };
   }
-  return { model, host: "this PC", gpu: gpuOk, state: "idle", reason: reason ?? "no model currently loaded in Ollama" };
+  return { model, host: "this PC", gpu: gpuOk, state: "idle", reason: reason ?? "no model currently loaded in Ollama", gpu_util_pct: gpuUtilPct, busy };
 }
 
 /** Fixed roster order -- Gamma (Manager) first, matching lib/personas.ts's
@@ -802,7 +846,7 @@ async function buildHqRuntime(inputs: HqRuntimeInputs): Promise<HqRuntime> {
     snapshotAtEt: hhmmssEt(nowMs),
     processes: processResult.counts,
     ...(processResult.error ? { error: processResult.error } : {}),
-    brain: deriveBrain(personaByName.get("Gamma (Manager)") ?? null, inputs.brainModel, inputs.ollamaModelsLoaded, inputs.gpuOk),
+    brain: deriveBrain(personaByName.get("Gamma (Manager)") ?? null, inputs.brainModel, inputs.ollamaModelsLoaded, inputs.gpuOk, inputs.gpuUtilPct),
     roles,
     quietModeUntilEt: quiet.active ? quiet.untilEt : null,
   };
@@ -824,7 +868,7 @@ export async function readHqRuntime(inputs: HqRuntimeInputs): Promise<HqRuntime>
       snapshotAtEt: hhmmssEt(Date.now()),
       processes: null,
       error: `readHqRuntime failed: ${message}`,
-      brain: { model: inputs.brainModel ?? null, host: "this PC", gpu: false, state: "idle", reason: null },
+      brain: { model: inputs.brainModel ?? null, host: "this PC", gpu: false, state: "idle", reason: null, gpu_util_pct: null, busy: false },
       roles: [],
       quietModeUntilEt: null,
     };

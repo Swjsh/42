@@ -162,6 +162,16 @@ interface UltraCanvasRootProps {
  * skips work when page.tsx's stable `sceneData` hasn't actually changed. */
 function UltraCanvasRoot({ data, reducedMotion, kiosk }: UltraCanvasRootProps) {
   const gaming = data?.mode === "gaming";
+  // GPU-YIELD (queue item e, 2026-09-15, J: "HQ must not collapse to ~2fps
+  // when the Station's local model runs inference on the same RTX 5080").
+  // Reuses the EXISTING paused mechanism below (frameloop="never" + fully
+  // hidden canvas + StandbyPanel) rather than a second one -- server-derived
+  // via lib/hq-runtime.ts#isBrainBusy (Ollama has a loaded model AND
+  // nvidia-smi util > 50%, so HQ's own rendering never triggers this on
+  // itself; see that function's own doc comment). Resumes within one
+  // /api/hq poll (15s non-kiosk / 60s kiosk, both well inside the Station's
+  // own ~25-35s fire duration) of the burst ending, same as gaming/hidden.
+  const brainBusy = data?.runtime?.brain?.busy === true;
   const [hidden, setHidden] = useState(false);
   const [contextLost, setContextLost] = useState(false);
   // World-2 item 6: `?fps=max` lifts the 60fps cap for measurements --
@@ -176,7 +186,7 @@ function UltraCanvasRoot({ data, reducedMotion, kiosk }: UltraCanvasRootProps) {
     return () => document.removeEventListener("visibilitychange", onVis);
   }, []);
 
-  const paused = gaming || hidden;
+  const paused = gaming || hidden || brainBusy;
   // World-2 item 6: capped mode drives the render loop manually via
   // <FrameRateCap> below (frameloop="never" disables r3f's own internal
   // loop so ours is the only one); `?fps=max` or paused both fall back to

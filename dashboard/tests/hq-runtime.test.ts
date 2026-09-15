@@ -32,6 +32,7 @@ import {
   parseTasklistCsv,
   countProcessImages,
   classifyRole,
+  isBrainBusy,
   resolveTaskDisposition,
   deriveTaskStateReason,
   type RosterPersonaFixture,
@@ -311,4 +312,33 @@ test("deriveTaskStateReason: genuinely disabled (quiet mode not the explanation)
     null, NOW,
   );
   assert.equal(reason, "task Gamma_TreasurerWeekly DISABLED -- no next fire");
+});
+
+// ─── isBrainBusy (GPU-YIELD, queue item e, 2026-09-15) ─────────────────────
+
+test("isBrainBusy: ollama loaded + util > 50 -> busy", () => {
+  assert.equal(isBrainBusy(["gamma-planner-fast"], 73), true);
+});
+
+test("isBrainBusy: util > 50 without ollama loaded -> not busy (HQ's own rendering never self-triggers)", () => {
+  assert.equal(isBrainBusy([], 92), false);
+});
+
+test("isBrainBusy: null util (nvidia-smi unavailable) -> not busy, fails open", () => {
+  assert.equal(isBrainBusy(["gamma-planner-fast"], null), false);
+});
+
+test("isBrainBusy: ollama loaded but util at/below threshold -> not busy", () => {
+  assert.equal(isBrainBusy(["gamma-planner-fast"], 50), false);
+  assert.equal(isBrainBusy(["gamma-planner-fast"], 12), false);
+});
+
+test("isBrainBusy: neither ollama loaded nor high util -> not busy", () => {
+  assert.equal(isBrainBusy([], null), false);
+  assert.equal(isBrainBusy([], 0), false);
+});
+
+test("isBrainBusy: custom threshold respected", () => {
+  assert.equal(isBrainBusy(["gamma-planner-fast"], 65, 70), false);
+  assert.equal(isBrainBusy(["gamma-planner-fast"], 75, 70), true);
 });
