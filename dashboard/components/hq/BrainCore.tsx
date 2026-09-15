@@ -12,6 +12,7 @@ import { ReactorGreeble } from "./SetKit";
 import HubInterior from "./HubInterior";
 import { PRIORITY } from "./labelDeclutter";
 import { mergeRefs, useLabelDeclutter } from "./useLabelDeclutter";
+import { bubbleCounterScale } from "./bubbleText";
 
 /** Mirrors GammaCharacter.tsx's own local `GammaLoopRow` shape (that file's
  * own comment: "the SAME loop-ledger row the crew panel's own pill
@@ -73,54 +74,35 @@ const PULSE_DURATION_MS = 10_000;
 // yielded/RTH window, must never read as "thinking").
 const THINKING_UTIL_THRESHOLD = 30;
 
-// ─── P1 fix (POLISH-1, 2026-09-14, coordinator, real capture
-// world6-chart-closeup3.png -- "the BRAIN plaque covering the chart at close
-// range") ────────────────────────────────────────────────────────────────
-// Every plaque below is a drei <Html distanceFactor={9}>. Read
-// node_modules/@react-three/drei/web/Html.js#objectScale this session (not
-// assumed): it scales content by `distanceFactor / (2*tan(fov/2)*dist)` every
-// frame, i.e. STRICTLY inversely proportional to the real world distance from
-// camera to the Html's own anchor point -- correct at the tuned preset-0
-// distance, but blows a plaque up to ~10% of the screen at any closer camera
-// (hub-interior presets, `?cam=` close-ups), exactly the chart-closeup3
-// capture's symptom.
+// ─── Plaque on-screen size (2026-09-15, worker fix -- overview-read.png
+// capture: the "BRAIN · wrote brief" plaque measured ~5px tall at the
+// default overview camera while every other hub label sits ~12px, commit
+// 23f4c6a4). Root cause: the P1 fix below (POLISH-1, 2026-09-14) only ever
+// clamped these Html's counter-scale to `min(1, camDist/preset0Dist)` --
+// i.e. AT the overview camera (camDist == preset0Dist, BrainCore mounts at
+// Scene.tsx's own overview default) the factor is exactly 1, so the plaque
+// got NO extra scaling and fell back to drei's raw
+// `distanceFactor/(2*tan(fov/2)*dist)` term, which this codebase's own
+// bubbleScale.ts header derives as ~0.177 at that camera for
+// distanceFactor=9 -- a 34px plaque font landing at ~6px, matching the
+// ~5px capture. It never adopted bubbleScale.ts's `bubbleCounterScale`
+// (BUBBLE_FAR_REF_DISTANCE 20 / NEAR_HOLD 10 / MAX_COUNTER_SCALE 5), which
+// every OTHER hub label (Agent.tsx, GammaCharacter.tsx) already uses and
+// which pins a real floor (~0.482 at dist>=20u, giving the same 34px font
+// ~16.4px at the overview's ~54.6u).
 //
-// Fix: each plaque's own wrapper div gets a ref, mutated in the useFrame
-// below to carry an ADDITIONAL `scale(min(1, camDist/preset0Dist))` CSS
-// transform. This composes with (does not fight) drei's own scale -- Html.js's
-// own DOM nesting is `el` (drei's scale) > styles-div (the `center` transform)
-// > this component's own child (our ref) -- and the algebra is exact: at
-// camDist>=preset0Dist the factor clamps to 1, so the far look (preset 0 and
-// beyond) is BYTE-IDENTICAL to today; below preset0Dist,
-// (distanceFactor/camDist)*(camDist/preset0Dist) = distanceFactor/preset0Dist,
-// a CONSTANT regardless of how much closer the camera gets -- i.e. exactly
-// the preset-0 on-screen size, never larger. Zero React state (ref mutation
-// only).
-//
-// PRESET0_CAM_* is the real preset-0 camera position, cross-referenced from
-// Scene.tsx (read-only -- never imported, same "duplicate a small derived
-// constant, comment its source" convention HubInterior.tsx#facingHubRotationY
-// already uses for Scene.tsx-adjacent math): sin/cos(BASE_AZIMUTH=
-// atan2(16,20)) * CAMERA_DIST_ULTRA(45), CAMERA_HEIGHT_ULTRA(31) -- all 3
-// read directly from that file this session. BrainCore's own mount in
-// Scene.tsx carries no position offset (verified by reading that call site
-// too -- `<group {...clickableGroupProps(...)}><BrainCore .../></group>`,
-// no `position`), so the hub center IS world origin and every plaque's world
-// X/Z stay 0 -- only Y varies, by each plaque's own local-Y * CORE_GROUP_SCALE
-// below.
-const PRESET0_CAM_X = 28.1113;
-const PRESET0_CAM_Y = 31;
-const PRESET0_CAM_Z = 35.1391;
+// Fix: swap the clamp for `bubbleCounterScale(dist)` -- the same shared
+// policy, same DOM-nesting composition with drei's own scale (Html.js:
+// `el` (drei's scale) > styles-div (`center` transform) > this component's
+// own ref child) POLISH-1 already relied on. It keeps POLISH-1's close-range
+// intent too: bubbleCounterScale's near branch holds a bounded plateau
+// (dist/NEAR_HOLD_DISTANCE, capped, never unbounded) rather than growing
+// into a banner as the camera approaches, same "never blow up close" goal.
 
-function presetZeroClampFactor(camX: number, camY: number, camZ: number, worldY: number): number {
-  const camDist = Math.hypot(camX, camY - worldY, camZ);
-  const preset0Dist = Math.hypot(PRESET0_CAM_X, PRESET0_CAM_Y - worldY, PRESET0_CAM_Z);
-  return Math.min(1, camDist / preset0Dist);
-}
 
 // Outer core-group scale (the `<group scale={...}>` wrapping the sphere/
-// rings/plaques below) -- named so the clamp math above can convert each
-// Html's own LOCAL y into the real world-Y `presetZeroClampFactor` needs,
+// rings/plaques below) -- named so the useFrame math above can convert each
+// Html's own LOCAL y into the real world-Y `bubbleCounterScale` needs,
 // without a second hardcoded "1.15" ever drifting from the JSX below.
 const CORE_GROUP_SCALE = 1.15;
 // Each plaque/label's own local Y (pre-CORE_GROUP_SCALE) -- shared between
@@ -216,7 +198,7 @@ export default function BrainCore({
   const matcap = useMemo(() => makeMatcapTexture(), []);
   const glowMat = useRef<THREE.SpriteMaterial>(null);
   // P1 fix -- plaque-scale-clamp wrapper refs, one per Html this fix covers
-  // (see presetZeroClampFactor's own header). Each is the actual rendered
+  // (see bubbleCounterScale fix's own header above). Each is the actual rendered
   // wrapper div (the ".hq-beam" div for 3 of the 4; the gauge label has no
   // beam wrapper, so its own <div> gets the ref directly) -- null whenever
   // that Html isn't currently mounted (pulse/gaming are conditional),
@@ -231,7 +213,7 @@ export default function BrainCore({
   // pulse/gaming plaques are rare/conditional overlays, out of this pass's
   // own scope (smallest-correct-change). World position is static (PLAQUE_Y
   // scaled by this component's own outer CORE_GROUP_SCALE, matching
-  // presetZeroClampFactor's own worldY convention just above).
+  // bubbleCounterScale's own worldY convention just above).
   const { wrapperRef: declutterRef, measureRef: declutterMeasureRef } = useLabelDeclutter(
     "brain-plaque",
     PRIORITY.PLAQUE,
@@ -293,29 +275,35 @@ export default function BrainCore({
     if (coreMat.current) coreMat.current.color.set(PALETTE.hubCore).multiplyScalar(baseGlow + flicker);
     if (glowMat.current) glowMat.current.opacity = clamp01(0.35 + utilFrac * 0.5) * dimFactor;
 
-    // P1 fix -- see presetZeroClampFactor's own header comment. camera
-    // position is read once per frame (state.camera has no parent transform
-    // in this tree, so .position IS its real world position); worldY per
-    // plaque is its own local Y * CORE_GROUP_SCALE (this component's own
-    // outer <group> scale).
+    // bubbleCounterScale fix (see header comment above) -- camera position
+    // is read once per frame (state.camera has no parent transform in this
+    // tree, so .position IS its real world position); worldY per plaque is
+    // its own local Y * CORE_GROUP_SCALE (this component's own outer
+    // <group> scale), and every plaque's world X/Z stay 0 (BrainCore's own
+    // mount in Scene.tsx carries no position offset), so `dist` below is the
+    // true camera-to-plaque distance bubbleCounterScale expects.
     const camX = state.camera.position.x;
     const camY = state.camera.position.y;
     const camZ = state.camera.position.z;
     if (gaugeLabelRef.current) {
-      const f = presetZeroClampFactor(camX, camY, camZ, (GAUGE_GROUP_Y + GAUGE_LABEL_Y) * CORE_GROUP_SCALE);
-      gaugeLabelRef.current.style.transform = `scale(${f})`;
+      const worldY = (GAUGE_GROUP_Y + GAUGE_LABEL_Y) * CORE_GROUP_SCALE;
+      const k = bubbleCounterScale(Math.hypot(camX, camY - worldY, camZ));
+      gaugeLabelRef.current.style.transform = `scale(${k})`;
     }
     if (plaqueRef.current) {
-      const f = presetZeroClampFactor(camX, camY, camZ, PLAQUE_Y * CORE_GROUP_SCALE);
-      plaqueRef.current.style.transform = `scale(${f})`;
+      const worldY = PLAQUE_Y * CORE_GROUP_SCALE;
+      const k = bubbleCounterScale(Math.hypot(camX, camY - worldY, camZ));
+      plaqueRef.current.style.transform = `scale(${k})`;
     }
     if (pulseRef.current) {
-      const f = presetZeroClampFactor(camX, camY, camZ, PULSE_PLAQUE_Y * CORE_GROUP_SCALE);
-      pulseRef.current.style.transform = `scale(${f})`;
+      const worldY = PULSE_PLAQUE_Y * CORE_GROUP_SCALE;
+      const k = bubbleCounterScale(Math.hypot(camX, camY - worldY, camZ));
+      pulseRef.current.style.transform = `scale(${k})`;
     }
     if (gamingRef.current) {
-      const f = presetZeroClampFactor(camX, camY, camZ, GAMING_PLAQUE_Y * CORE_GROUP_SCALE);
-      gamingRef.current.style.transform = `scale(${f})`;
+      const worldY = GAMING_PLAQUE_Y * CORE_GROUP_SCALE;
+      const k = bubbleCounterScale(Math.hypot(camX, camY - worldY, camZ));
+      gamingRef.current.style.transform = `scale(${k})`;
     }
   });
 
@@ -415,7 +403,7 @@ export default function BrainCore({
       <Html position={[0, PLAQUE_Y, 0]} center distanceFactor={9} style={{ pointerEvents: "none" }}>
         {/* DECLUTTER pass: outer wrapper the shared resolver owns (vertical
             nudge + fade-beyond-cap), kept separate from `plaqueRef`'s own
-            existing presetZeroClampFactor close-camera scale-clamp -- see
+            existing bubbleCounterScale close-camera scale-clamp -- see
             Agent.tsx's identical two-wrapper convention/comment. */}
         <div ref={declutterRef} style={{ transformOrigin: "50% 100%" }}>
         <div ref={mergeRefs(plaqueRef, declutterMeasureRef)} className="hq-beam" style={{ "--beam-color": "#7ad9ff", borderRadius: 8 } as CSSProperties}>
