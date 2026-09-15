@@ -671,6 +671,95 @@ def check_waiting_separation(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
     }
 
 
+# 3d. pose jump -------------------------------------------------------------------
+
+# PROBE-15 (coordinator, 2026-09-15): check_walk_speed's own teleport
+# detection (TELEPORT_DT_SLACK/TELEPORT_POS_SLACK_U) only looks at ticks
+# where BOTH sides are a walking state (WALKING_STATES) -- by design, so a
+# genuine state-transition tick's partial in-tick move never reads as a
+# false teleport (see WALKING_STATES's own comment). That design choice
+# has a real coverage gap, though: a RESTING ("working") agent snapping
+# 0.9-1.1u between two slots -- never walking at all, so never even
+# entering check_walk_speed's own windows -- goes completely unflagged.
+# This check covers EVERY state (including transitions) for exactly that
+# gap: same teleport-threshold shape check_walk_speed's own per-tick
+# teleport detection uses (design_speed * dt * slack + pos_slack), applied
+# to every consecutive same-agent pair regardless of state.
+POSE_JUMP_DT_SLACK = 1.05
+POSE_JUMP_POS_SLACK_U = 0.3
+# A gap this large between consecutive resolved timestamps means the probe
+# missed ticks (browser hiccup, GC pause, CDP stall) -- the agent may have
+# legitimately walked across that gap, so it's excluded from judgment, not
+# flagged as a jump (same "don't bridge a gap" discipline check_walk_speed's
+# own GAP_MULTIPLIER/GAP_MIN_S already use, but pose_jump's gap threshold is
+# a flat cap per the coordinator's own spec, not derived from the run's
+# median tick interval -- this check has no windowing to protect).
+POSE_JUMP_MAX_GAP_S = 2.0
+POSE_JUMP_JUMPS_CAP = 10
+
+
+def check_pose_jump(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
+    # last[(agent_id)] = (t_ms, pos, state) for the previous tick this
+    # agent was observed on, in resolved-timestamp order.
+    last: Dict[str, Tuple[float, List[float], Optional[str]]] = {}
+    jumps: List[Dict[str, Any]] = []
+    jumps_by_state: Dict[str, int] = {}
+    comparisons = 0
+
+    for s in samples:
+        t_ms, _is_host = _resolved_t_ms(s)
+        for a in s.get("page_agents", []):
+            aid = a.get("id")
+            pos = a.get("pos")
+            state = a.get("state")
+            if aid is None or pos is None:
+                continue
+            prev = last.get(aid)
+            if prev is None:
+                # First sample for this agent -- creation, not a jump (see
+                # this check's own header: "exclude only an agent's FIRST
+                # sample").
+                last[aid] = (t_ms, pos, state)
+                continue
+            prev_t, prev_pos, prev_state = prev
+            dt_s = (t_ms - prev_t) / 1000.0
+            last[aid] = (t_ms, pos, state)
+            if dt_s <= 0 or dt_s > POSE_JUMP_MAX_GAP_S:
+                continue
+            comparisons += 1
+            d = _dist(pos, prev_pos)
+            threshold = WALK_SPEED_DEFAULT * dt_s * POSE_JUMP_DT_SLACK + POSE_JUMP_POS_SLACK_U
+            if d <= threshold:
+                continue
+            jumps_by_state[state] = jumps_by_state.get(state, 0) + 1
+            jumps.append({
+                "id": aid,
+                "t": t_ms,
+                "from_state": prev_state,
+                "to_state": state,
+                "from_pos": prev_pos,
+                "to_pos": pos,
+                "d": round(d, 4),
+                "dt": round(dt_s, 4),
+            })
+
+    if comparisons == 0:
+        return {"verdict": "NO-DATA", "detail": {"reason": "no agent had 2+ consecutive judgable samples this window"}}
+
+    jump_count = len(jumps)
+    jumps_sorted = sorted(jumps, key=lambda j: -j["d"])
+    verdict = "FAIL" if jump_count > 0 else "PASS"
+    return {
+        "verdict": verdict,
+        "detail": {
+            "comparisons": comparisons,
+            "jump_count": jump_count,
+            "jumps": jumps_sorted[:POSE_JUMP_JUMPS_CAP],
+            "jumps_by_state": jumps_by_state,
+        },
+    }
+
+
 # 4. walk-out ------------------------------------------------------------------
 
 # An agent still "leaving" when the sampling window ends is ambiguous, not
@@ -1419,6 +1508,7 @@ def build_verdicts(
             "stand_slots": _no_data(),
             "walker_separation": _no_data(),
             "waiting_separation": _no_data(),
+            "pose_jump": _no_data(),
             "walk_out": _no_data(),
             "label_overlap": _no_data(),
             "page_api_parity": _no_data(),
@@ -1451,6 +1541,7 @@ def build_verdicts(
         "stand_slots": _motion_no_data() if motion_gated else check_stand_slots(samples),
         "walker_separation": _motion_no_data() if motion_gated else check_walker_separation(samples),
         "waiting_separation": _motion_no_data() if motion_gated else check_waiting_separation(samples),
+        "pose_jump": _motion_no_data() if motion_gated else check_pose_jump(samples),
         "walk_out": _motion_no_data() if motion_gated else check_walk_out(samples),
         "label_overlap": _motion_no_data() if motion_gated else check_label_overlap(samples),
         "page_api_parity": check_page_api_parity(samples),

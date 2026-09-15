@@ -23,6 +23,7 @@ from hq_probe_lib import (  # noqa: E402
     check_label_overlap,
     check_page_api_parity,
     check_perf,
+    check_pose_jump,
     check_run_validity,
     check_spawn_latency,
     check_stand_slots,
@@ -570,6 +571,73 @@ def test_waiting_separation_covers_future_non_literal_states():
     ])]
     v = check_waiting_separation(samples)
     assert v["verdict"] == "FAIL", v
+
+
+# 3d. pose jump ----------------------------------------------------------------------
+# PROBE-15: check_walk_speed's own teleport detection only judges ticks
+# where BOTH sides are a walking state -- a RESTING ("working") agent
+# snapping between two slots never even enters those windows. pose_jump
+# covers every state, including transitions.
+
+def test_pose_jump_fail_resting_snap():
+    # 0.9u in 500ms while "working" (never walking at all) -- threshold is
+    # WALK_SPEED_DEFAULT*0.5*1.05 + 0.3 = 0.6675u, so 0.9u is a real jump.
+    samples = [
+        _s(0, page=[_agent("a1", "working", [0, 0], target="zone-a")]),
+        _s(500, page=[_agent("a1", "working", [0.9, 0], target="zone-a")]),
+    ]
+    v = check_pose_jump(samples)
+    assert v["verdict"] == "FAIL", v
+    assert v["detail"]["jump_count"] == 1
+    assert v["detail"]["jumps_by_state"] == {"working": 1}
+    j = v["detail"]["jumps"][0]
+    assert j["id"] == "a1"
+    assert j["from_state"] == "working" and j["to_state"] == "working"
+    assert j["d"] == 0.9
+    assert j["dt"] == 0.5
+
+
+def test_pose_jump_pass_normal_walk():
+    # 0.35u in 500ms = 0.7 u/s -- exactly the design speed, well under the
+    # jump threshold.
+    samples = [
+        _s(0, page=[_agent("a1", "walking", [0, 0])]),
+        _s(500, page=[_agent("a1", "walking", [0.35, 0])]),
+    ]
+    v = check_pose_jump(samples)
+    assert v["verdict"] == "PASS", v
+    assert v["detail"]["jump_count"] == 0
+
+
+def test_pose_jump_ignores_first_sample():
+    # a2's FIRST observed sample is at a huge, arbitrary position (creation,
+    # not a jump -- there's no prior sample to compare it against). Only
+    # a1's tick0->tick1 pair is a real comparison.
+    samples = [
+        _s(0, page=[_agent("a1", "working", [0, 0])]),
+        _s(500, page=[
+            _agent("a1", "working", [0, 0]),
+            _agent("a2", "working", [999, 999]),
+        ]),
+    ]
+    v = check_pose_jump(samples)
+    assert v["verdict"] == "PASS", v
+    assert v["detail"]["jump_count"] == 0
+    assert v["detail"]["comparisons"] == 1
+
+
+def test_pose_jump_excludes_sampling_gap():
+    # dt > POSE_JUMP_MAX_GAP_S (2.0s): the probe missed ticks, the agent
+    # may have legitimately walked across the gap -- excluded, not flagged
+    # (with nothing else to judge this window, that's NO-DATA, not a
+    # silent PASS).
+    samples = [
+        _s(0, page=[_agent("a1", "working", [0, 0])]),
+        _s(3000, page=[_agent("a1", "working", [5, 0])]),  # 2.5u/s if judged -- would be a jump
+    ]
+    v = check_pose_jump(samples)
+    assert v["verdict"] == "NO-DATA", v
+    assert v["detail"]["reason"]
 
 
 # 4. walk-out ---------------------------------------------------------------------
@@ -1272,7 +1340,7 @@ def test_motion_checks_no_data_below_fps_gate():
     ]
     out = build_verdicts(samples, _low_fps_frames(), calls_samples=[100, 100], scene_ready=True, build_ids=["b", "b"])
     assert out["run_valid"] is True, out
-    for key in ("walk_speed", "stand_slots", "walker_separation", "waiting_separation", "walk_out", "label_overlap"):
+    for key in ("walk_speed", "stand_slots", "walker_separation", "waiting_separation", "pose_jump", "walk_out", "label_overlap"):
         assert out[key]["verdict"] == "NO-DATA", (key, out[key])
         assert "fps too low" in out[key]["detail"]["reason"]
     # not gated -- these have nothing to do with position/motion sampling
@@ -1395,7 +1463,7 @@ def test_build_verdicts_invalid_on_build_change_never_passes_perf():
     assert out["perf"]["verdict"] == "NO-DATA", out["perf"]
     for key in (
         "spawn_latency", "walk_speed", "stand_slots", "walker_separation",
-        "waiting_separation", "walk_out", "label_overlap", "page_api_parity", "bubbles",
+        "waiting_separation", "pose_jump", "walk_out", "label_overlap", "page_api_parity", "bubbles",
     ):
         assert out[key]["verdict"] == "NO-DATA", (key, out[key])
 
