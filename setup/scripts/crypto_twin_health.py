@@ -103,6 +103,7 @@ if str(SCRIPTS) not in sys.path:
 
 from et_clock import et_now  # noqa: E402
 
+import twin_ledger_io as tlio  # noqa: E402
 import crypto_twin_core as ctc  # noqa: E402
 import crypto_twin_broker as broker  # noqa: E402
 import crypto_twin_scenarios as cts  # noqa: E402
@@ -153,6 +154,19 @@ def _read_jsonl(path: Path) -> list[dict]:
     return out
 
 
+# --- bounded decisions.jsonl reads (2026-09-15, OP-22 retention cap) -------------------
+# decisions.jsonl gets rotated (twin_ledger_rotate.py): completed UTC days move out to
+# automation/state/crypto-twin/archive/decisions-YYYY-MM-DD.jsonl.gz, leaving only the
+# still-open day(s) in the live file. A caller that only ever needs "today" or "the last
+# soak hour" routes through here with a `since_utc` lookback instead of _read_jsonl's
+# full-file scan (that scan was ~1/min against a 147 MB file before rotation existed).
+# `since_utc=None` still reads the FULL live+archive history (via twin_ledger_io) for a
+# caller that genuinely needs it -- this helper narrows the SCAN, never the DATA.
+def _read_decisions_bounded(decisions_path: Path, since_utc: Optional[str]) -> list[dict]:
+    archive_dir = decisions_path.parent / "archive"
+    return tlio.read_rows(since_utc, live_path=decisions_path, archive_dir=archive_dir)
+
+
 # --- the four health facts --------------------------------------------------------------
 def count_ticks_today(decisions_path: Path, today_et: str) -> int:
     """Count of decisions.jsonl rows whose ts_et falls on `today_et` (YYYY-MM-DD).
@@ -160,7 +174,15 @@ def count_ticks_today(decisions_path: Path, today_et: str) -> int:
     writes exactly one decisions.jsonl row, so this is precisely "how many times the
     scheduled task fired today", re-derived fresh every call -- self-healing across
     restarts, can never drift from a separately maintained counter."""
-    rows = _read_jsonl(decisions_path)
+    # Lookback = today_et's UTC date minus 1 day, a safety margin for the ET/UTC offset
+    # (ET is always behind UTC, so a row stamped "today" in ET can carry a UTC calendar
+    # date of yesterday) -- since_utc only narrows the SCAN, the ts_et startswith filter
+    # below still does the actual selection.
+    try:
+        since_utc = (datetime.strptime(today_et, "%Y-%m-%d") - timedelta(days=1)).strftime("%Y-%m-%d")
+    except ValueError:
+        since_utc = None
+    rows = _read_decisions_bounded(decisions_path, since_utc)
     return sum(1 for r in rows if str(r.get("ts_et", "")).startswith(today_et))
 
 
@@ -317,13 +339,20 @@ def _latest_decisions_price(decisions_path: Path, symbol: str) -> Optional[float
     neither a fresh tick_quote_mid nor a bar-close price (a TICK_ERROR row has no `price`
     key at all -- see _tick_error_row above) -- see summarize_position's current_mid_source
     tiers for the full fallback order."""
-    rows = _read_jsonl(decisions_path)
-    for r in reversed(rows):
-        if r.get("symbol") == symbol and r.get("price") is not None:
-            try:
-                return float(r["price"])
-            except (TypeError, ValueError):
-                continue
+    # The matching row is almost always within the last tick or two -- bound the scan to
+    # the last 2 UTC days first, and only fall back to the FULL live+archive history
+    # (since_utc=None) if nothing matched in that window, so a genuinely stale/rare
+    # symbol still gets a correct (if slower) answer rather than a silently wrong None.
+    today_utc = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    since_utc = (datetime.strptime(today_utc, "%Y-%m-%d") - timedelta(days=2)).strftime("%Y-%m-%d")
+    for lookback in (since_utc, None):
+        rows = _read_decisions_bounded(decisions_path, lookback)
+        for r in reversed(rows):
+            if r.get("symbol") == symbol and r.get("price") is not None:
+                try:
+                    return float(r["price"])
+                except (TypeError, ValueError):
+                    continue
     return None
 
 
@@ -536,7 +565,14 @@ def append_soak_row_if_due(cfg: ctc.TwinConfig, *, now_et: datetime) -> Optional
         return None  # this hour is already rolled up
 
     period_start_iso = last or (hour_floor - timedelta(hours=1)).isoformat()
-    rows = _read_jsonl(cfg.state_dir / "decisions.jsonl")
+    # Lookback bound = period_start's own UTC-ish date minus 1 day margin (same ET/UTC
+    # offset reasoning as count_ticks_today) -- a multi-hour/day gap still gets every row
+    # it needs since since_utc only narrows the scan, never the window filter below.
+    try:
+        since_utc = (datetime.fromisoformat(period_start_iso[:10]) - timedelta(days=1)).strftime("%Y-%m-%d")
+    except ValueError:
+        since_utc = None
+    rows = _read_decisions_bounded(cfg.state_dir / "decisions.jsonl", since_utc)
     in_window = [r for r in rows if period_start_iso <= str(r.get("ts_et", "")) < hour_floor_iso]
 
     dist: dict[str, int] = {}

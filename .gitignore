@@ -211,6 +211,12 @@ automation/state/crypto-twin/exit-state.json
 automation/state/crypto-twin/scenario-state.json
 automation/state/crypto-twin/sim-bear-scenario-state.json
 automation/state/crypto-twin/sim-bear-positions.json
+# twin_ledger_rotate.py's rotated archives (2026-09-15, OP-22 retention cap): gzip
+# snapshots of decisions.jsonl's completed UTC days. Same public-repo hazard class as
+# decisions.jsonl itself (tracked-but-diverged, out of this change's scope) -- this
+# directory is NEW as of this change, so it is gitignored from the start rather than
+# risking a future `git add -A` committing multi-MB gz blobs to the public repo.
+automation/state/crypto-twin/archive/
 automation/state/key-levels.json
 automation/state/sd-zones.json
 # sibling decision-gating state (C34): forward-clock eligibility for the SD_ZONE promotion

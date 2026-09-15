@@ -61,6 +61,7 @@ _HERE = str(Path(__file__).resolve().parent)
 if _HERE not in sys.path:
     sys.path.insert(0, _HERE)
 from et_clock import et_now  # noqa: E402
+import twin_ledger_io as tlio  # noqa: E402
 
 STATE_VALUES = frozenset(
     {"armed-paper", "shadow", "killed", "dormant", "dead", "pending", "unknown"}
@@ -269,7 +270,14 @@ def _crypto_twin_row(root: Path) -> dict:
     if last_row is None:
         return _unknown_row(lane, doc, decisions_path, root)
 
-    n_rows = _count_lines(decisions_path)
+    # Total across the live file + twin_ledger_rotate.py's archived days (2026-09-15) --
+    # a plain _count_lines(decisions_path) would silently undercount to "today's rows
+    # only" the moment rotation starts moving completed days out of the live file.
+    try:
+        n_rows = tlio.count_rows(None, live_path=decisions_path,
+                                 archive_dir=decisions_path.parent / "archive")
+    except OSError:
+        n_rows = _count_lines(decisions_path)
     n_rows_s = str(n_rows) if n_rows is not None else "?"
     last_evidence_et = (
         _already_et(last_row.get("ts_et"))

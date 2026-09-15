@@ -25,6 +25,11 @@ from pathlib import Path
 from typing import Iterable, Optional
 
 REPO = Path(__file__).resolve().parents[2]
+SCRIPTS = REPO / "setup" / "scripts"
+if str(SCRIPTS) not in sys.path:
+    sys.path.insert(0, str(SCRIPTS))
+import twin_ledger_io as tlio  # noqa: E402 -- rotation-aware reads for the real decisions.jsonl
+
 TWIN_DIR = REPO / "automation" / "state" / "crypto-twin"
 JOURNAL = TWIN_DIR / "journal.jsonl"
 DECISIONS = TWIN_DIR / "decisions.jsonl"
@@ -47,6 +52,18 @@ ORGANIC = "ORGANIC_SIGNAL"
 
 
 def _rows(path: Path) -> list[dict]:
+    """Every JSON row of `path`. SPECIAL-CASED for the real decisions.jsonl (identity
+    check against the module-level `DECISIONS` constant, never a name/parent heuristic
+    -- see twin_ledger_io.py's module docstring): routes through twin_ledger_io so a
+    caller that needs full history (e.g. reconstruct_trips below) still gets it after
+    twin_ledger_rotate.py has moved completed days into
+    automation/state/crypto-twin/archive/*.jsonl.gz. Every other path (journal.jsonl,
+    every test fixture) keeps the exact prior single-file read, unchanged."""
+    try:
+        if path.resolve() == DECISIONS.resolve():
+            return tlio.read_rows(None, live_path=DECISIONS, archive_dir=DECISIONS.parent / "archive")
+    except OSError:
+        pass
     out: list[dict] = []
     try:
         with open(path, "r", encoding="utf-8", errors="replace") as fh:

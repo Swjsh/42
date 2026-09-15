@@ -110,6 +110,7 @@ if str(SCRIPTS) not in _sys.path:
     _sys.path.insert(0, str(SCRIPTS))
 
 from et_clock import et_now, et_offset_hours  # noqa: E402
+import twin_ledger_io as tlio  # noqa: E402
 
 STATE = REPO / "automation" / "state"
 TWIN_DIR = STATE / "crypto-twin"
@@ -460,7 +461,14 @@ def evaluate(
     now_et = now_et or et_now()
     today_utc_str = now_utc.strftime("%Y-%m-%d")
 
-    rows = _read_jsonl(decisions_path)
+    # Lookback = today + yesterday (UTC): evaluate_tick_freshness needs "ticks today"
+    # plus the single most-recent tick, which can be yesterday's if the twin has gone
+    # fully silent across a UTC midnight boundary -- a 1-day margin keeps TICK_GAP
+    # correct across that boundary. since_utc only narrows the SCAN (routes around
+    # twin_ledger_rotate.py's archived days); it never changes which rows count.
+    since_utc = (now_utc - timedelta(days=1)).strftime("%Y-%m-%d")
+    archive_dir = decisions_path.parent / "archive"
+    rows = tlio.read_rows(since_utc, live_path=decisions_path, archive_dir=archive_dir)
     freshness = evaluate_tick_freshness(rows, now_utc)
 
     incidents_rows = _read_jsonl(incidents_path)
