@@ -12,11 +12,34 @@ Background:
   writes_today=1 / ticks_today=0 (only premarket init), and current-position.json
   remained null all day. The heartbeat thought it was flat and never managed the
   position. EOD flatten safety net closed 3 contracts at $0.01.
-  This pattern = ENTER with valid symbol, no matching EXIT, and current-position
-  showing null. The position was real but the state write failed.
-  LIMITATION: if the EOD flatten ran and wrote an EXIT record, the Mode B check
-  is masked (ENTER + EXIT + null appears like a properly-closed position). Use
-  Mode C as a complementary check.
+
+  REPOINTED 2026-09-15 (HQ-POSITION-TRUTH): automation/state/current-position.json
+  and automation/state/decisions.jsonl are BOTH dead — nothing has written either
+  since the LLM heartbeat retired 2026-06-25 (decisions.jsonl is frozen at its last
+  2026-06-25 tick; current-position.json parses to a permanent `{"status": null}`).
+  Checking ENTER-without-EXIT in decisions.jsonl against current-position.json was
+  therefore evaluating two dead files against each other — permanently degenerate.
+  Evidence (this session, `python -c` run against live repo state): decisions.jsonl
+  has 63 records, all dated 2026-06-25, exactly 1 ENTER (tick 9, 2026-05-19 in the
+  payload, frozen); ghost_count=0 / state_write_failure_count=0 came back GREEN not
+  because the system is healthy today but because the one frozen ENTER happens to
+  have a matching frozen EXIT — the check cannot see anything that happened after
+  2026-06-25 and never will again.
+
+  Mode B now compares LIVE sources instead: automation/state/fills-ledger.jsonl
+  (broker-confirmed buy/sell fills, still written every trading day — 1349 records,
+  latest today 2026-09-15) netted per arm+symbol for TODAY, against
+  automation/state/fleet/<arm>/exit-state.json (the engine's live open-position
+  truth, read via setup/scripts/live_positions.read_open_positions — same source
+  dashboard/lib/hq-positions-pure.ts and hq_market_correlate.py already use).
+  Ghost = today's net-open buy fills for a symbol > 0 but exit-state.json has no
+  entry for that symbol (or is unreadable — LivePositionsError is treated as an
+  unknown-state ghost candidate too, never silently coerced to "flat", per that
+  module's fail-loud contract).
+  LIMITATION: if the EOD flatten closes a position (broker sell fill) before the
+  gym re-reads exit-state.json, that trade's ghost signal self-resolves within the
+  same day it ran (netting also runs sell fills, so a since-closed fill nets to 0).
+  Use Mode C as a complementary check for the loop-level failure signature.
 
   MODE C — "loop-state-discrepancy" (5/21 pattern, complement to Mode B):
   loop-state.json shows ticks_today==0 (heartbeat never incremented tick counter)
@@ -39,10 +62,12 @@ Offline coverage:
   - Real ENTER: symbol="SPY260519C00738000" → not flagged
   - Non-ENTER records → never flagged
 
-  MODE B:
-  - ENTER(symbol set) + no EXIT + current_position=None → state-write-failure flagged
-  - ENTER(symbol set) + matching EXIT + current_position=None → not flagged (properly closed)
-  - ENTER(symbol set) + no EXIT + current_position has symbol → not flagged (position tracked)
+  MODE B (fills-ledger vs exit-state.json, see REPOINTED note above):
+  - Net-open buy fill for a symbol today + no exit-state.json entry → ghost flagged
+  - Net-open buy fill + matching exit-state.json entry → not flagged (engine tracked it)
+  - Buy fill fully offset by a same-day sell fill (net qty <= 0) → not flagged (closed)
+  - exit-state.json unreadable (LivePositionsError) + net-open buy fill → flagged as
+    unknown-state ghost candidate (fail-loud, never coerced to "flat")
 
   MODE C:
   - ENTER(symbol set) + loop_state.ticks_today==0 → discrepancy flagged
@@ -67,9 +92,19 @@ from pathlib import Path
 _ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(_ROOT))
 
+from setup.scripts.live_positions import (  # noqa: E402
+    LivePositionsError,
+    read_open_positions,
+)
+from setup.scripts.et_clock import et_today_str  # noqa: E402
+
 _DECISIONS_PATH    = _ROOT / "automation" / "state" / "decisions.jsonl"
-_CURRENT_POS_PATH  = _ROOT / "automation" / "state" / "current-position.json"
+_FILLS_LEDGER_PATH = _ROOT / "automation" / "state" / "fills-ledger.jsonl"
 _LOOP_STATE_PATH   = _ROOT / "automation" / "state" / "loop-state.json"
+
+# v26 tracks the single legacy "safe" account, which is fleet arm safe-2
+# (the mcp_heartbeat CONTROL — see automation/state/fleet/accounts.json).
+_ARM = "safe-2"
 
 
 # ---------------------------------------------------------------------------
@@ -100,52 +135,82 @@ def detect_ghost_entries(decisions: list[dict]) -> list[dict]:
     return ghosts
 
 
-def detect_state_write_failure(
-    decisions: list[dict],
-    current_position: dict | None,
-) -> list[dict]:
-    """MODE B: Detect orders that filled but state was never written.
-
-    The 2026-05-21 failure pattern: order DID fill (symbol in decisions.jsonl)
-    but loop-state.json / current-position.json were never updated. Heartbeat
-    treated the session as flat all day; EOD flatten caught 3 unaccounted
-    contracts at $0.01.
-
-    Detection logic:
-    1. Find ENTER records with a valid symbol (order was placed).
-    2. Check whether a corresponding EXIT record exists for that symbol
-       (EXIT records have action containing "EXIT" and the same symbol).
-    3. If no EXIT found AND current-position status is None/null → state-write
-       failure: real position invisible to the state machine.
-
-    Returns list of ENTER records that match the state-write-failure pattern.
+def net_open_qty_by_symbol(
+    fills: list[dict],
+    arm: str,
+    date_et: str | None = None,
+) -> dict[str, float]:
+    """Net today's (or `date_et`'s) option buy/sell fills for `arm` into
+    per-symbol quantity. Positive == broker fills alone show a net-open long
+    option position for that symbol on that day (buy qty minus sell qty).
     """
-    # Collect symbols with confirmed EXIT records
-    exited_symbols: set[str] = set()
-    for rec in decisions:
-        action = rec.get("action", "")
-        if "EXIT" in action.upper():
-            sym = rec.get("symbol")
-            if sym:
-                exited_symbols.add(sym)
-
-    # Check current position status (None/null = flat per state file)
-    pos_symbol = None
-    if isinstance(current_position, dict):
-        pos_symbol = current_position.get("symbol") or current_position.get("status")
-
-    failures = []
-    for rec in decisions:
-        if rec.get("action", "") != "ENTER":
+    net: dict[str, float] = {}
+    for rec in fills:
+        if not isinstance(rec, dict):
+            continue
+        if rec.get("arm") != arm:
+            continue
+        if not rec.get("is_option"):
+            continue
+        if date_et is not None and rec.get("date_et") != date_et:
             continue
         sym = rec.get("symbol")
         if not sym:
-            continue  # MODE A ghost, already detected by detect_ghost_entries
-        if sym in exited_symbols:
-            continue  # Position properly closed — no failure
-        # ENTER with valid symbol + no EXIT + state shows flat
-        if pos_symbol is None or pos_symbol == "null":
-            failures.append(rec)
+            continue
+        qty = rec.get("qty") or 0
+        side = str(rec.get("side") or "").lower()
+        if side == "buy":
+            net[sym] = net.get(sym, 0) + qty
+        elif side == "sell":
+            net[sym] = net.get(sym, 0) - qty
+    return net
+
+
+def detect_state_write_failure(
+    fills: list[dict],
+    arm: str,
+    engine_open_symbols: set[str] | None,
+    engine_read_error: str | None = None,
+    date_et: str | None = None,
+) -> list[dict]:
+    """MODE B (repointed 2026-09-15): Detect broker fills invisible to the engine.
+
+    The 2026-05-21 failure pattern generalized: a symbol filled at the broker
+    (fills-ledger.jsonl) but the engine's live open-position truth
+    (automation/state/fleet/<arm>/exit-state.json, read via
+    setup/scripts/live_positions.read_open_positions) never recorded it.
+
+    Detection logic:
+    1. Net today's buy/sell fills for `arm` per symbol.
+    2. A symbol with net-open qty > 0 is "broker shows this open".
+    3. If that symbol has no entry in `engine_open_symbols` -> state-write
+       failure: real position invisible to the engine's state.
+    4. If `engine_open_symbols` is None (exit-state.json was unreadable --
+       LivePositionsError), EVERY net-open symbol is flagged as an
+       unknown-state ghost candidate. Fail-loud: an unreadable state file is
+       never treated as evidence of "flat" (matches live_positions.py's own
+       contract).
+
+    Returns list of ghost-candidate dicts: {symbol, arm, net_qty, kind}.
+    """
+    net = net_open_qty_by_symbol(fills, arm, date_et=date_et)
+    net_open_symbols = {sym: q for sym, q in net.items() if q > 0}
+    if not net_open_symbols:
+        return []
+
+    failures: list[dict] = []
+    for sym, qty in sorted(net_open_symbols.items()):
+        if engine_open_symbols is None:
+            failures.append({
+                "symbol": sym, "arm": arm, "net_qty": qty,
+                "kind": "exit_state_unreadable",
+                "detail": engine_read_error,
+            })
+        elif sym not in engine_open_symbols:
+            failures.append({
+                "symbol": sym, "arm": arm, "net_qty": qty,
+                "kind": "state_write_failure",
+            })
     return failures
 
 
@@ -283,10 +348,13 @@ def run_offline() -> dict:
     results.append(("T7_empty_input_no_ghosts", t7, "empty list yields []"))
 
     # -----------------------------------------------------------------------
-    # MODE B: state-write-failure detection (2026-05-21 pattern)
+    # MODE B: state-write-failure detection — repointed 2026-09-15 to
+    # fills-ledger.jsonl (broker truth) vs exit-state.json (engine truth,
+    # via live_positions.read_open_positions). See module docstring.
     # -----------------------------------------------------------------------
 
-    # Scenario T8: ENTER with valid symbol, no EXIT, position null → should flag
+    # Retained for MODE C tests below (loop-state discrepancy still keys off
+    # decisions.jsonl ENTER records — that check was never position-file-based).
     enter_no_exit = {
         "timestamp": "2026-05-21T14:35:00Z",
         "tick": 11,
@@ -294,39 +362,58 @@ def run_offline() -> dict:
         "symbol": "SPY260521P00735000",
         "entry_price": 0.69,
     }
-    current_pos_null = {"status": None}  # position state shows flat
-    failures_t8 = detect_state_write_failure([enter_no_exit, hold, exit_stop], current_pos_null)
+
+    # Scenario T8: buy fill today, no matching exit-state.json entry → should flag
+    buy_fill = {
+        "arm": "safe-2", "symbol": "SPY260521P00735000", "side": "buy",
+        "qty": 3.0, "is_option": True, "date_et": "2026-05-21",
+    }
+    failures_t8 = detect_state_write_failure(
+        [buy_fill], "safe-2", engine_open_symbols=set(), date_et="2026-05-21"
+    )
     t8 = len(failures_t8) == 1 and failures_t8[0]["symbol"] == "SPY260521P00735000"
     results.append(("T8_state_write_failure_detected", t8,
-                    f"failures={len(failures_t8)} expected=1 (5/21 pattern)"))
+                    f"failures={len(failures_t8)} expected=1 (broker fill, engine blind to it)"))
 
-    # Scenario T9: ENTER + matching EXIT + position null → should NOT flag
-    exit_matching = {
-        "timestamp": "2026-05-21T15:50:00Z",
-        "tick": 45,
-        "action": "EXIT_TP1",
-        "symbol": "SPY260521P00735000",
-        "exit_price": 1.00,
+    # Scenario T9: buy fill fully offset by a same-day sell fill → should NOT flag
+    sell_fill = {
+        "arm": "safe-2", "symbol": "SPY260521P00735000", "side": "sell",
+        "qty": 3.0, "is_option": True, "date_et": "2026-05-21",
     }
     failures_t9 = detect_state_write_failure(
-        [enter_no_exit, exit_matching], current_pos_null
+        [buy_fill, sell_fill], "safe-2", engine_open_symbols=set(), date_et="2026-05-21"
     )
     t9 = len(failures_t9) == 0
     results.append(("T9_properly_closed_not_flagged", t9,
-                    f"failures={len(failures_t9)} expected=0 (ENTER+EXIT = properly closed)"))
+                    f"failures={len(failures_t9)} expected=0 (buy+sell nets to flat)"))
 
-    # Scenario T10: ENTER + no EXIT + position IS tracked → should NOT flag
-    current_pos_has_symbol = {"status": "open", "symbol": "SPY260521P00735000"}
-    failures_t10 = detect_state_write_failure([enter_no_exit, hold], current_pos_has_symbol)
+    # Scenario T10: buy fill + exit-state.json DOES have the symbol → should NOT flag
+    failures_t10 = detect_state_write_failure(
+        [buy_fill], "safe-2",
+        engine_open_symbols={"SPY260521P00735000"}, date_et="2026-05-21",
+    )
     t10 = len(failures_t10) == 0
     results.append(("T10_open_position_tracked_not_flagged", t10,
-                    f"failures={len(failures_t10)} expected=0 (position properly in state)"))
+                    f"failures={len(failures_t10)} expected=0 (position properly in exit-state.json)"))
 
-    # Scenario T11: MODE A ghost (symbol=None) should NOT be double-counted by Mode B
-    failures_t11 = detect_state_write_failure([ghost, ghost_empty], current_pos_null)
-    t11 = len(failures_t11) == 0
-    results.append(("T11_modeA_ghost_not_modeB_false_positive", t11,
-                    f"failures={len(failures_t11)} expected=0 (no-symbol entries skip ModeB)"))
+    # Scenario T11: exit-state.json unreadable (engine_open_symbols=None) →
+    # net-open buy fill flagged as unknown-state ghost, not silently "flat"
+    failures_t11 = detect_state_write_failure(
+        [buy_fill], "safe-2", engine_open_symbols=None,
+        engine_read_error="exit-state file missing for arm 'safe-2'", date_et="2026-05-21",
+    )
+    t11 = len(failures_t11) == 1 and failures_t11[0]["kind"] == "exit_state_unreadable"
+    results.append(("T11_unreadable_exit_state_fails_loud", t11,
+                    f"failures={len(failures_t11)} expected=1 (fail-loud, never coerced to flat)"))
+
+    # Scenario T11b: different arm's fill is never attributed to this arm
+    failures_t11b = detect_state_write_failure(
+        [{**buy_fill, "arm": "bold-2"}], "safe-2",
+        engine_open_symbols=set(), date_et="2026-05-21",
+    )
+    t11b = len(failures_t11b) == 0
+    results.append(("T11b_other_arm_fill_not_attributed", t11b,
+                    f"failures={len(failures_t11b)} expected=0 (arm filter respected)"))
 
     # -----------------------------------------------------------------------
     # MODE C: loop-state discrepancy (5/21 root-cause: ticks_today=0 + ENTER)
@@ -407,17 +494,38 @@ def run_live() -> dict:
     enter_records = [d for d in decisions if d.get("action") == "ENTER"]
     ghosts = detect_ghost_entries(decisions)
 
-    # MODE B: state-write-failure check — read current-position.json
-    current_pos: dict | None = None
-    if _CURRENT_POS_PATH.exists():
-        try:
-            with _CURRENT_POS_PATH.open(encoding="utf-8") as fh:
-                raw_pos = json.load(fh)
-                current_pos = raw_pos if isinstance(raw_pos, dict) else None
-        except Exception:
-            current_pos = None
+    # MODE B (repointed 2026-09-15): fills-ledger.jsonl (broker truth, today)
+    # vs exit-state.json (engine truth, via live_positions). decisions.jsonl
+    # and current-position.json are both frozen at 2026-06-25 and are no
+    # longer read here — see module docstring "REPOINTED" note.
+    fills: list[dict] = []
+    fills_parse_errors = 0
+    if _FILLS_LEDGER_PATH.exists():
+        with _FILLS_LEDGER_PATH.open(encoding="utf-8") as fh:
+            for line in fh:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    parsed_fill = json.loads(line)
+                    if isinstance(parsed_fill, dict):
+                        fills.append(parsed_fill)
+                except json.JSONDecodeError:
+                    fills_parse_errors += 1
 
-    state_write_failures = detect_state_write_failure(decisions, current_pos)
+    today_et = et_today_str()
+    engine_open_symbols: set[str] | None
+    engine_read_error: str | None = None
+    try:
+        engine_open_symbols = {p["symbol"] for p in read_open_positions(_ARM)}
+    except LivePositionsError as e:
+        engine_open_symbols = None
+        engine_read_error = str(e)
+
+    state_write_failures = detect_state_write_failure(
+        fills, _ARM, engine_open_symbols,
+        engine_read_error=engine_read_error, date_et=today_et,
+    )
 
     # MODE C: loop-state discrepancy check
     loop_state: dict | None = None
@@ -452,12 +560,15 @@ def run_live() -> dict:
     ]
     swf_summary = [
         {
-            "kind": "mode_b_state_write_failure",
-            "timestamp": f.get("timestamp"),
-            "tick": f.get("tick"),
-            "setup_name": f.get("setup_name"),
+            "kind": f.get("kind", "mode_b_state_write_failure"),
+            "arm": f.get("arm"),
             "symbol": f.get("symbol"),
-            "note": "Order confirmed (symbol set) but no EXIT recorded and current-position is null",
+            "net_qty": f.get("net_qty"),
+            "date_et": today_et,
+            "note": (
+                f.get("detail")
+                or "Broker fill shows net-open qty today but exit-state.json has no entry for this symbol"
+            ),
         }
         for f in state_write_failures
     ]
@@ -486,13 +597,21 @@ def run_live() -> dict:
         "loop_state_discrepancy": loop_state_discrepancy,
         "issues": ghost_summary + swf_summary + ls_issue,
         "parse_errors": parse_errors,
+        "fills_parse_errors": fills_parse_errors,
+        "arm": _ARM,
+        "date_et": today_et,
+        "engine_read_error": engine_read_error,
         "note": (
-            f"Scanned {len(decisions)} decisions ({len(enter_records)} ENTER records). "
-            f"ModeA ghosts={len(ghosts)} (symbol=None/empty). "
+            f"Scanned {len(decisions)} FROZEN decisions.jsonl records (2026-06-25 and earlier; "
+            f"{len(enter_records)} ENTER). ModeA ghosts={len(ghosts)} (symbol=None/empty, "
+            f"historical-only — decisions.jsonl has not been written since 2026-06-25). "
             f"ModeB state-write-failures={len(state_write_failures)} "
-            f"(order filled, no EXIT, position null). "
+            f"(arm={_ARM}, date={today_et}: broker fills-ledger.jsonl net-open buy fills with "
+            f"no matching exit-state.json entry"
+            + (f"; exit-state read error: {engine_read_error}" if engine_read_error else "")
+            + "). "
             f"ModeC loop-state-discrepancy={loop_state_discrepancy} "
-            f"(ticks_today=0 with ENTER present — not masked by EOD flatten). "
+            f"(ticks_today=0 with frozen ENTER present, historical-only). "
             f"Verdict={verdict}. pass=True (audit mode)."
         ),
     }
