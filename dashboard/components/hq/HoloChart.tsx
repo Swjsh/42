@@ -611,13 +611,25 @@ function TradeMarkers({
 /** One trade tooltip -- a standalone component (same rules-of-hooks reason
  * as LevelLabelItem above) so it can register with the shared
  * label-declutter system. NAMING fix (HQ-CHART-MARKERS, 2026-09-15):
- * prefixes the real FLEET ARM id (e.g. "safe-2 · EXIT ..." / "bold-2 ·
- * EXIT ...") via deriveTradeArmLabel, never the raw `trade.account` --
- * journal/trades.csv's own `account_id` column still carries the legacy
- * CORE-account spellings ("safe"/"bold") for the two CORE accounts, which
- * read as a different, smaller account than "safe-3"/"risky-1"/"risky-3"
- * even though "safe" IS "safe-2" (see deriveTradeArmLabel's own header in
- * lib/hq-chart-pure.ts for the full root-cause + real-data evidence). */
+ * prefixes the real FLEET ARM id (e.g. "safe-2 EXIT ..." / "bold-2 EXIT
+ * ...") via deriveTradeArmLabel, never the raw `trade.account` -- journal/
+ * trades.csv's own `account_id` column still carries the legacy CORE-account
+ * spellings ("safe"/"bold") for the two CORE accounts, which read as a
+ * different, smaller account than "safe-3"/"risky-1"/"risky-3" even though
+ * "safe" IS "safe-2" (see deriveTradeArmLabel's own header in
+ * lib/hq-chart-pure.ts for the full root-cause + real-data evidence).
+ * MARKER-OFFSCREEN follow-up (2026-09-15, same session): dropped the
+ * verbose humanized `t.setup` phrase ("Bearish rejection ride the ribbon")
+ * from this on-chart pin -- a live capture after the grouping fix still
+ * showed bold-2's lone bar-17 exit (the day's only winner, +75) missing,
+ * because its plaque sits world-adjacent to the now-6-line bar-14 ENTER
+ * group and the setup phrase's own width left it without enough room to
+ * clear that box within the resolver's nudge cap (same mechanism as the
+ * grouped-label MARKER-OFFSCREEN fix above, just triggered by a neighbor's
+ * footprint instead of this label's own). The setup is still on every real
+ * row in journal/trades.csv and every plaque already carries direction via
+ * color + ENTER/EXIT -- nothing load-bearing is lost by shortening this
+ * pin's own text. */
 function TradeMarkerLabel({
   positioned, dimFactor, origin, facingYaw,
 }: { positioned: PositionedTrade; dimFactor: number; origin: [number, number, number]; facingYaw: number }) {
@@ -642,7 +654,7 @@ function TradeMarkerLabel({
             fontSize: 13, fontWeight: 600, border: `1px solid ${color}`, opacity: dimFactor,
           }}
         >
-          {arm} · {t.side === "entry" ? "ENTER" : "EXIT"} {t.setup} ${t.price.toFixed(2)}
+          {arm} {t.side === "entry" ? "ENTER" : "EXIT"} ${t.price.toFixed(2)}
           {t.count > 1 ? ` ×${t.count}` : ""}
           {t.pnl !== null ? ` (${t.pnl >= 0 ? "+" : ""}${t.pnl.toFixed(0)})` : ""}
         </div>
