@@ -44,11 +44,14 @@ import {
   computeBatchOrder,
   computeBatchStaggerDelays,
   computeMaxPathDurationS,
+  computeSidestepPlan,
   computeWaitPoint,
   ENTRY_NODE_ID,
   findCarAhead,
+  findOncoming,
   findWalkPath,
   FOLLOW_GAP_U,
+  HEAD_ON_COS_MAX,
   laneIndexForId,
   laneValueForId,
   LANE_STEP_U,
@@ -58,6 +61,11 @@ import {
   poseAlongPath,
   decideNextWalk,
   computeStandSlot,
+  rampSidestepOffset,
+  rightOf,
+  SIDESTEP_DETECTION_RADIUS_U,
+  SIDESTEP_RATE_U_PER_S,
+  SIDESTEP_TARGET_U,
   STAGGER_DELAY_S,
   STAND_RING_RADIUS,
   reconcileLiveAgentRoster,
@@ -1359,6 +1367,265 @@ test("HEAD-ON PASS: a simulated approach-and-pass never slows either walker (ful
     registry = next;
     if (progressA >= 1 && progressB >= 1) break;
   }
+});
+
+// ─── CONVOY-STACK v8 (2026-09-15): KEEP-RIGHT PASSING for head-on walkers ──
+//
+// ROOT CAUSE (walker_separation PASS-BY-RULE but min 0.07u, probe
+// 20260915T114713Z): findCarAhead's FOLLOW_HEADING_COS_MIN gate correctly
+// excludes head-on pairs from the follow-distance mechanism (deliberately
+// -- that's what prevents a head-on deadlock), but excluding them from
+// FOLLOW also means nothing EVER makes two opposite-direction walkers step
+// aside. Two avatars in the same lane, walking toward each other, pass
+// straight through one another (observed 0.65u -> 0.07u in one 0.5s
+// sample).
+//
+// FIX: KEEP-RIGHT PASSING -- see liveAgentWalk.ts#findOncoming/
+// computeSidestepPlan/rampSidestepOffset/rightOf for the full mechanism.
+
+test("rightOf: rotates a heading -90 degrees (facing north, right is east)", () => {
+  const north: [number, number] = [0, 1]; // [sin(facing), cos(facing)] convention, facing=0
+  const right = rightOf(north);
+  assert.ok(Math.abs(right[0] - 1) < 1e-9 && Math.abs(right[1]) < 1e-9, `expected east [1,0], got [${right}]`);
+});
+
+test("rightOf: two opposite headings have opposite right vectors (why keep-right separates a head-on pair)", () => {
+  const east: [number, number] = [1, 0];
+  const west: [number, number] = [-1, 0];
+  const rightOfEast = rightOf(east);
+  const rightOfWest = rightOf(west);
+  assert.ok(Math.abs(rightOfEast[0] + rightOfWest[0]) < 1e-9 && Math.abs(rightOfEast[1] + rightOfWest[1]) < 1e-9, `expected opposite vectors, got [${rightOfEast}] and [${rightOfWest}]`);
+});
+
+test("findOncoming: a walker heading roughly opposite, close, and laterally near is found", () => {
+  const self: WalkerSnapshot = { id: "a", position: [0, 0], heading: [0, 1], destKey: "hub" };
+  const other: WalkerSnapshot = { id: "b", position: [0, 1.5], heading: [0, -1], destKey: "gate" };
+  assert.equal(findOncoming(self, [other]), other);
+});
+
+test("findOncoming: ignores a same-direction walker (that's findCarAhead's job, not this one's)", () => {
+  const self: WalkerSnapshot = { id: "a", position: [0, 0], heading: [0, 1], destKey: "hub" };
+  const other: WalkerSnapshot = { id: "b", position: [0, 0.5], heading: [0, 1], destKey: "hub" };
+  assert.equal(findOncoming(self, [other]), null);
+});
+
+test("findOncoming: ignores an oncoming walker already laterally clear (>=FOLLOW_GAP_U)", () => {
+  const self: WalkerSnapshot = { id: "a", position: [0, 0], heading: [0, 1], destKey: "hub" };
+  const other: WalkerSnapshot = { id: "b", position: [0.8, 1.5], heading: [0, -1], destKey: "gate" };
+  assert.equal(findOncoming(self, [other]), null);
+});
+
+test("findOncoming: ignores an oncoming walker outside SIDESTEP_DETECTION_RADIUS_U", () => {
+  const self: WalkerSnapshot = { id: "a", position: [0, 0], heading: [0, 1], destKey: "hub" };
+  const other: WalkerSnapshot = { id: "b", position: [0, SIDESTEP_DETECTION_RADIUS_U + 0.5], heading: [0, -1], destKey: "gate" };
+  assert.equal(findOncoming(self, [other]), null);
+});
+
+test("findOncoming: does NOT filter by destKey -- an arriving and a leaving avatar target different nodes but must still avoid each other", () => {
+  const self: WalkerSnapshot = { id: "a", position: [0, 0], heading: [0, 1], destKey: "hub" };
+  const other: WalkerSnapshot = { id: "b", position: [0, 1.0], heading: [0, -1], destKey: "totally-different-gate" };
+  assert.equal(findOncoming(self, [other]), other);
+});
+
+test("computeSidestepPlan: no oncoming -> no offset, no pause", () => {
+  const self: WalkerSnapshot = { id: "a", position: [0, 0], heading: [0, 1], destKey: "hub" };
+  const plan = computeSidestepPlan(self, [], true);
+  assert.deepEqual(plan, { offsetTargetU: 0, pauseForOncoming: false });
+});
+
+test("computeSidestepPlan: oncoming + trusted corridor -> both sidestep target SIDESTEP_TARGET_U, nobody pauses", () => {
+  const self: WalkerSnapshot = { id: "a", position: [0, 0], heading: [0, 1], destKey: "hub" };
+  const other: WalkerSnapshot = { id: "b", position: [0, 1.0], heading: [0, -1], destKey: "gate" };
+  const plan = computeSidestepPlan(self, [other], true);
+  assert.equal(plan.offsetTargetU, SIDESTEP_TARGET_U);
+  assert.equal(plan.pauseForOncoming, false);
+});
+
+test("computeSidestepPlan: oncoming + UNTRUSTED corridor -> no sidestep, only the lexicographically LOWER id pauses", () => {
+  const lower: WalkerSnapshot = { id: "a", position: [0, 0], heading: [0, 1], destKey: "hub" };
+  const higher: WalkerSnapshot = { id: "z", position: [0, 1.0], heading: [0, -1], destKey: "gate" };
+  const lowerPlan = computeSidestepPlan(lower, [higher], false);
+  const higherPlan = computeSidestepPlan(higher, [lower], false);
+  assert.deepEqual(lowerPlan, { offsetTargetU: 0, pauseForOncoming: true });
+  assert.deepEqual(higherPlan, { offsetTargetU: 0, pauseForOncoming: false });
+});
+
+test("rampSidestepOffset: moves toward target at the bounded rate, never overshoots", () => {
+  const afterOneStep = rampSidestepOffset(0, SIDESTEP_TARGET_U, SIDESTEP_RATE_U_PER_S, 0.1);
+  assert.ok(Math.abs(afterOneStep - SIDESTEP_RATE_U_PER_S * 0.1) < 1e-9);
+  assert.ok(afterOneStep < SIDESTEP_TARGET_U, "must not overshoot in a single bounded step");
+});
+
+test("rampSidestepOffset: snaps to target exactly once within one step's reach (no overshoot, no infinite approach)", () => {
+  const result = rampSidestepOffset(SIDESTEP_TARGET_U - 0.001, SIDESTEP_TARGET_U, SIDESTEP_RATE_U_PER_S, 1);
+  assert.equal(result, SIDESTEP_TARGET_U);
+});
+
+test("rampSidestepOffset: ramps back down toward 0 the same way (drift back to lane after passing)", () => {
+  const result = rampSidestepOffset(SIDESTEP_TARGET_U, 0, SIDESTEP_RATE_U_PER_S, 0.1);
+  assert.ok(Math.abs(result - (SIDESTEP_TARGET_U - SIDESTEP_RATE_U_PER_S * 0.1)) < 1e-9);
+});
+
+// ─── THE REQUIRED PROOF: head-on pass in one lane (RED / GREEN) ───────────
+
+interface HeadOnStep {
+  tS: number;
+  posEast: [number, number, number];
+  posWest: [number, number, number];
+}
+
+function simulateHeadOnPass(useSidestep: boolean, corridorTrusted: boolean): HeadOnStep[] {
+  const laneZ = 0;
+  const spanX = 20;
+  const pathEast: [number, number, number][] = [[0, 0, laneZ], [spanX, 0, laneZ]]; // heading +X
+  const pathWest: [number, number, number][] = [[spanX, 0, laneZ], [0, 0, laneZ]]; // heading -X, starts at the far end
+  const appliedEast = { v: 0 };
+  const appliedWest = { v: 0 };
+  const sidestepEast = { v: 0 };
+  const sidestepWest = { v: 0 };
+  let registry = new Map<string, WalkerSnapshot>();
+  const steps: HeadOnStep[] = [];
+  // Generous ceiling: the narrow-corridor fallback can hold the lower id
+  // paused for a while (until the oncoming walker clears
+  // SIDESTEP_DETECTION_RADIUS_U on the far side too -- roughly
+  // 2*SIDESTEP_DETECTION_RADIUS_U/SIM_WALK_SPEED of extra wall-clock time,
+  // since only the OTHER walker is still closing/opening the gap during
+  // the pause), so the ceiling must cover a full solo walk PLUS that
+  // worst-case pause, not just the solo walk with a token margin.
+  const maxTicks = Math.ceil((spanX + 4 * SIDESTEP_DETECTION_RADIUS_U) / SIM_WALK_SPEED / FOLLOW_TICK_DT_S);
+
+  for (let tick = 0; tick <= maxTicks; tick++) {
+    const tS = tick * FOLLOW_TICK_DT_S;
+    const totalE = pathDistance(pathEast);
+    const totalW = pathDistance(pathWest);
+    const candE = appliedEast.v + SIM_WALK_SPEED * FOLLOW_TICK_DT_S;
+    const candW = appliedWest.v + SIM_WALK_SPEED * FOLLOW_TICK_DT_S;
+    const initE = poseAlongPath(pathEast, 0);
+    const initW = poseAlongPath(pathWest, 0);
+    const selfE: WalkerSnapshot = registry.get("east") ?? {
+      id: "east", position: [initE.position[0], initE.position[2]], heading: [Math.sin(initE.facing), Math.cos(initE.facing)], destKey: "west-hub",
+    };
+    const selfW: WalkerSnapshot = registry.get("west") ?? {
+      id: "west", position: [initW.position[0], initW.position[2]], heading: [Math.sin(initW.facing), Math.cos(initW.facing)], destKey: "east-hub",
+    };
+    const othersForE = Array.from(registry.values()).filter((s) => s.id !== "east");
+    const othersForW = Array.from(registry.values()).filter((s) => s.id !== "west");
+    const planE = useSidestep ? computeSidestepPlan(selfE, othersForE, corridorTrusted) : { offsetTargetU: 0, pauseForOncoming: false };
+    const planW = useSidestep ? computeSidestepPlan(selfW, othersForW, corridorTrusted) : { offsetTargetU: 0, pauseForOncoming: false };
+    const newAppliedE = planE.pauseForOncoming ? appliedEast.v : candE;
+    const newAppliedW = planW.pauseForOncoming ? appliedWest.v : candW;
+    appliedEast.v = newAppliedE;
+    appliedWest.v = newAppliedW;
+    const progE = Math.min(1, newAppliedE / totalE);
+    const progW = Math.min(1, newAppliedW / totalW);
+    const poseE = poseAlongPath(pathEast, progE);
+    const poseW = poseAlongPath(pathWest, progW);
+    sidestepEast.v = rampSidestepOffset(sidestepEast.v, progE >= 0.95 ? 0 : planE.offsetTargetU, SIDESTEP_RATE_U_PER_S, FOLLOW_TICK_DT_S);
+    sidestepWest.v = rampSidestepOffset(sidestepWest.v, progW >= 0.95 ? 0 : planW.offsetTargetU, SIDESTEP_RATE_U_PER_S, FOLLOW_TICK_DT_S);
+    const rightE = rightOf([Math.sin(poseE.facing), Math.cos(poseE.facing)]);
+    const rightW = rightOf([Math.sin(poseW.facing), Math.cos(poseW.facing)]);
+    const finalE: [number, number, number] = [poseE.position[0] + rightE[0] * sidestepEast.v, 0, poseE.position[2] + rightE[1] * sidestepEast.v];
+    const finalW: [number, number, number] = [poseW.position[0] + rightW[0] * sidestepWest.v, 0, poseW.position[2] + rightW[1] * sidestepWest.v];
+    steps.push({ tS, posEast: finalE, posWest: finalW });
+    const next = new Map<string, WalkerSnapshot>();
+    if (progE < 1) next.set("east", { id: "east", position: [finalE[0], finalE[2]], heading: [Math.sin(poseE.facing), Math.cos(poseE.facing)], destKey: "west-hub" });
+    if (progW < 1) next.set("west", { id: "west", position: [finalW[0], finalW[2]], heading: [Math.sin(poseW.facing), Math.cos(poseW.facing)], destKey: "east-hub" });
+    registry = next;
+    if (progE >= 1 && progW >= 1) break;
+  }
+  return steps;
+}
+
+test("HEAD-ON KEEP-RIGHT: RED (documents the bug) -- without sidestep, the pair passes through each other well under 0.7u", () => {
+  const steps = simulateHeadOnPass(false, true);
+  const minDist = Math.min(...steps.map((s) => Math.hypot(s.posEast[0] - s.posWest[0], s.posEast[2] - s.posWest[2])));
+  assert.ok(minDist < 0.7, `expected the PRE-FIX behavior to pass within 0.7u (documenting the reported pass-through) -- min distance was ${minDist.toFixed(3)}u`);
+});
+
+test("HEAD-ON KEEP-RIGHT: GREEN (the fix) -- min distance >=0.7u throughout, both arrive, no snaps (lateral+forward combined)", () => {
+  const steps = simulateHeadOnPass(true, true);
+  let minDist = Infinity;
+  for (const s of steps) {
+    const dist = Math.hypot(s.posEast[0] - s.posWest[0], s.posEast[2] - s.posWest[2]);
+    if (dist < minDist) minDist = dist;
+  }
+  assert.ok(minDist >= 0.7 - 1e-9, `expected min distance >=0.7u, got ${minDist.toFixed(3)}u`);
+
+  // Per-step displacement bound, combining lateral + forward motion, for BOTH walkers.
+  for (const [key] of [["posEast"], ["posWest"]] as const) {
+    for (let i = 1; i < steps.length; i++) {
+      const a = steps[i - 1][key];
+      const b = steps[i][key];
+      const dist = Math.hypot(a[0] - b[0], a[2] - b[2]);
+      const dt = steps[i].tS - steps[i - 1].tS;
+      assert.ok(
+        dist <= SIM_WALK_SPEED * dt + 0.05 + 1e-9,
+        `${key} step ${i} (t=${steps[i - 1].tS}s -> ${steps[i].tS}s): displacement ${dist.toFixed(3)}u exceeds WALK_SPEED*dt+0.05`,
+      );
+    }
+  }
+
+  // Both actually arrive (the sidestep must drift back to 0 and never block completion).
+  const last = steps[steps.length - 1];
+  assert.ok(Math.abs(last.posEast[0] - 20) < 1e-6, `east never reached the end -- x=${last.posEast[0]}`);
+  assert.ok(Math.abs(last.posWest[0] - 0) < 1e-6, `west never reached the end -- x=${last.posWest[0]}`);
+
+  // No deadlock: the simulation must have actually TERMINATED (not hit the
+  // generous tick ceiling), i.e. both walkers made real forward progress
+  // throughout rather than freezing each other out.
+  const maxPossibleTicks = Math.ceil(20 / SIM_WALK_SPEED / FOLLOW_TICK_DT_S) + 60;
+  assert.ok(steps.length < maxPossibleTicks, "simulation ran to its ceiling -- suggests a deadlock rather than a clean pass");
+});
+
+test("HEAD-ON KEEP-RIGHT: narrow-corridor fallback -- no sidestep is ever applied, the lower id visibly pauses, no deadlock, no snap", () => {
+  // "east" < "west" lexicographically, so "east" is the id that must pause.
+  const steps = simulateHeadOnPass(true, false);
+  for (const s of steps) {
+    assert.ok(Math.abs(s.posEast[2]) < 1e-9, `east's own Z ever left the lane (${s.posEast[2]}) -- the untrusted-corridor fallback must never sidestep`);
+    assert.ok(Math.abs(s.posWest[2]) < 1e-9, `west's own Z ever left the lane (${s.posWest[2]}) -- the untrusted-corridor fallback must never sidestep`);
+  }
+  // Displacement bound still holds (no snap) even though this path does not
+  // claim to guarantee the full 0.7u separation bar -- this module has no
+  // real per-edge corridor-width data to safely locate the "wider point"
+  // the spec's own fallback describes (see computeSidestepPlan's own
+  // header); the honest guarantee here is "no snap, no deadlock", not
+  // "still >=0.7u apart" the way the trusted-corridor case can prove.
+  for (const key of ["posEast", "posWest"] as const) {
+    for (let i = 1; i < steps.length; i++) {
+      const a = steps[i - 1][key];
+      const b = steps[i][key];
+      const dist = Math.hypot(a[0] - b[0], a[2] - b[2]);
+      const dt = steps[i].tS - steps[i - 1].tS;
+      assert.ok(dist <= SIM_WALK_SPEED * dt + 0.05 + 1e-9, `${key} step ${i}: displacement ${dist.toFixed(3)}u exceeds bound`);
+    }
+  }
+  // No deadlock: both eventually arrive.
+  const last = steps[steps.length - 1];
+  assert.ok(Math.abs(last.posEast[0] - 20) < 1e-6, "east never reached the end (narrow-corridor fallback)");
+  assert.ok(Math.abs(last.posWest[0] - 0) < 1e-6, "west never reached the end (narrow-corridor fallback)");
+  // The pause mechanism actually engaged at some point (documents that the
+  // fallback path, not the sidestep path, is the one under test here).
+  let sawHold = false;
+  for (let i = 1; i < steps.length; i++) {
+    if (Math.abs(steps[i].posEast[0] - steps[i - 1].posEast[0]) < 1e-9) { sawHold = true; break; }
+  }
+  assert.ok(sawHold, "expected the lower id (east) to visibly pause (zero forward advance) at some point during the narrow-corridor fallback");
+});
+
+// ─── Existing v6/v7 fixtures unaffected by v8 (regression guard) ──────────
+
+test("findCarAhead (v7, regression): same-direction pair within FOLLOW_GAP_U is still found as a car ahead -- unaffected by the v8 head-on addition", () => {
+  const self: WalkerSnapshot = { id: "a", position: [0, 0], heading: [0, 1], destKey: "gate" };
+  const other: WalkerSnapshot = { id: "b", position: [0, 0.5], heading: [0, 1], destKey: "gate" };
+  const result = findCarAhead(self, [other]);
+  assert.ok(result);
+  assert.equal(result!.other.id, "b");
+});
+
+test("HEAD_ON_COS_MAX and FOLLOW_HEADING_COS_MIN leave no overlapping heading-dot range -- a pair is classified as EITHER same-direction-follow OR head-on-sidestep, never ambiguously both", () => {
+  assert.ok(HEAD_ON_COS_MAX <= 0, `HEAD_ON_COS_MAX (${HEAD_ON_COS_MAX}) should describe "roughly opposite"`);
+  const FOLLOW_HEADING_COS_MIN_LOCAL = 0.7; // liveAgentWalk.ts's own real value, re-asserted here for this cross-check
+  assert.ok(HEAD_ON_COS_MAX < FOLLOW_HEADING_COS_MIN_LOCAL, "the two thresholds must not overlap or cross");
 });
 
 test("computeBatchOrder: sorted-order ids get 0, 1, 2, ... -- the single source of truth computeBatchStaggerDelays scales by STAGGER_DELAY_S", () => {

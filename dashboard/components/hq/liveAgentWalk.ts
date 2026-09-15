@@ -1000,3 +1000,134 @@ export function applyFollowCap(
   const reduction = gapU - carAhead.forwardGap;
   return Math.max(prevAppliedDistance, candidateDistance - reduction);
 }
+
+// ─── Keep-right passing / head-on sidestep (CONVOY-STACK v8, 2026-09-15) ──
+//
+// ROOT CAUSE (walker_separation FAIL by rule but min 0.07u, probe
+// 20260915T114713Z): findCarAhead's own FOLLOW_HEADING_COS_MIN gate
+// (v6/v7) correctly excludes head-on pairs from the follow-distance
+// mechanism (which is only meaningful for same-direction traffic) --
+// exactly what prevents the deadlock the coordinator flagged as a risk.
+// But excluding them from FOLLOW also means NOTHING makes two opposite-
+// direction walkers avoid each other at all -- two avatars in the SAME
+// lane, heading toward each other, walk straight through one another
+// (observed: 0.65u apart, then 0.07u one tick later, i.e. mid-pass-through).
+//
+// FIX: KEEP-RIGHT PASSING. When `findOncoming` detects another walker
+// heading roughly OPPOSITE (headingDot < HEAD_ON_COS_MAX) and within
+// FOLLOW_GAP_U laterally, this avatar's own lateral offset (perpendicular
+// to its CURRENT heading, toward its OWN right -- `rightOf`) ramps toward
+// SIDESTEP_TARGET_U at a bounded rate (`rampSidestepOffset`, never a snap)
+// -- and back toward 0 once no longer needed, the same ramp, same rate. On
+// a straight corridor with two walkers starting in the SAME lane (the
+// reported bug's own shape), each shifting SIDESTEP_TARGET_U (0.4u) toward
+// its own right moves them in OPPOSITE lateral directions (heading
+// opposite implies "right" points opposite ways too), clearing a combined
+// 2*SIDESTEP_TARGET_U = 0.8u = FOLLOW_GAP_U. This is deliberately a
+// PERPENDICULAR, render-time-only nudge on top of the existing path
+// interpolation -- never touches `progress`/distance-traveled accounting
+// (LiveAgents.tsx's own useFrame adds it to the already-computed path
+// position, the same "offset on top of the interpolated pose" shape
+// applyLaneOffsets/computeWaitPoint already use elsewhere in this file) --
+// so it can never interact with arrival, following, or the mid-walk
+// slot-drift fix.
+//
+// NARROW-CORRIDOR FALLBACK: this module has no true per-edge corridor-
+// width metadata (see applyLaneOffsets's own header on why threading real
+// graph-edge identity through the pipeline was rejected as a materially
+// larger change back in v6 -- the same tradeoff applies here). Rather than
+// fabricate a width figure, the caller (LiveAgents.tsx) passes through its
+// OWN already-computed, already-trusted `walkable` state (true only when
+// `findWalkPath` found a REAL graph route, never the straight-line
+// fallback) as `corridorTrusted`. When untrusted, `computeSidestepPlan`
+// never offsets either walker sideways at all -- instead the
+// LEXICOGRAPHICALLY LOWER id (deterministic, no coordination needed) is
+// told to pause (hold its forward advance) until the oncoming walker
+// clears, exactly the "lower-id walker pausing briefly at a wider point"
+// the spec asked for, minus the "wider point" framing this module has no
+// way to locate -- a documented, honest simplification, not a fabrication.
+export const HEAD_ON_COS_MAX = -0.5; // heading dot below this = "roughly opposite direction"
+export const SIDESTEP_TARGET_U = 0.4; // each walker's own shift; 2x clears FOLLOW_GAP_U on a shared straight lane
+export const SIDESTEP_RATE_U_PER_S = 0.6; // bounded lateral speed -- gradual ramp, never a snap
+export const SIDESTEP_DETECTION_RADIUS_U = 2.5; // Euclidean range to start/keep reacting to an oncoming walker, well ahead of an actual collision
+
+/** This heading's own "right" direction (a walker facing `heading` sees
+ * this vector pointing to their right) -- rotates `heading` by -90 degrees
+ * in the XZ plane. Two walkers heading in roughly opposite directions have
+ * roughly OPPOSITE "right" vectors too, which is exactly what makes
+ * "each shift toward your own right" separate a head-on pair rather than
+ * push them the same way. */
+export function rightOf(heading: readonly [number, number]): [number, number] {
+  return [heading[1], -heading[0]];
+}
+
+/** Finds the nearest (by lateral distance) walker `self` is on a head-on
+ * approach with: heading roughly OPPOSITE (`headingDot < HEAD_ON_COS_MAX`),
+ * within `SIDESTEP_DETECTION_RADIUS_U` in straight Euclidean distance (both
+ * approaching AND just-passed pairs qualify -- the ramp-back-to-0 after
+ * passing is what makes the avatar drift back to its lane, not an early
+ * cutoff here), and within `FOLLOW_GAP_U` laterally (already-clear lanes
+ * need no sidestep at all). Returns null if nobody qualifies. Unlike
+ * `findCarAhead`, this does NOT filter by `destKey` -- an arriving and a
+ * leaving avatar realistically target different nodes, and a head-on pass
+ * must still avoid them. */
+export function findOncoming(self: WalkerSnapshot, others: readonly WalkerSnapshot[]): WalkerSnapshot | null {
+  let best: WalkerSnapshot | null = null;
+  let bestLateral = Infinity;
+  for (const other of others) {
+    if (other.id === self.id) continue;
+    const headingDot = self.heading[0] * other.heading[0] + self.heading[1] * other.heading[1];
+    if (headingDot >= HEAD_ON_COS_MAX) continue;
+    const dx = other.position[0] - self.position[0];
+    const dz = other.position[1] - self.position[1];
+    const dist = Math.hypot(dx, dz);
+    if (dist >= SIDESTEP_DETECTION_RADIUS_U) continue;
+    const lateral = Math.abs(dx * -self.heading[1] + dz * self.heading[0]);
+    if (lateral >= FOLLOW_GAP_U) continue;
+    if (lateral < bestLateral) {
+      bestLateral = lateral;
+      best = other;
+    }
+  }
+  return best;
+}
+
+export interface SidestepPlan {
+  /** The lateral offset (toward self's own right) this avatar's own ramp
+   * should target this frame -- 0 when no sidestep is needed/possible. */
+  offsetTargetU: number;
+  /** True only in the narrow-corridor fallback, and only for the
+   * lexicographically LOWER id of the oncoming pair -- LiveAgents.tsx
+   * should hold this avatar's forward advance (same shape as
+   * applyFollowCap's own "hold at prevAppliedDistance") while true. */
+  pauseForOncoming: boolean;
+}
+
+/** Pure decision: given `self`, the current oncoming candidates, and
+ * whether this avatar's OWN current corridor segment is on a real,
+ * graph-verified path (`corridorTrusted` -- see this section's own header
+ * for why LiveAgents.tsx's existing `walkable` state is used for this),
+ * decides this frame's sidestep target and whether this avatar must
+ * instead pause. See this section's own header for the full reasoning. */
+export function computeSidestepPlan(
+  self: WalkerSnapshot,
+  others: readonly WalkerSnapshot[],
+  corridorTrusted: boolean,
+): SidestepPlan {
+  const oncoming = findOncoming(self, others);
+  if (!oncoming) return { offsetTargetU: 0, pauseForOncoming: false };
+  if (corridorTrusted) return { offsetTargetU: SIDESTEP_TARGET_U, pauseForOncoming: false };
+  return { offsetTargetU: 0, pauseForOncoming: self.id < oncoming.id };
+}
+
+/** Ramps `current` toward `target` at a bounded rate (`rateUPerS`) over
+ * this frame's own `dt` -- never overshoots, never a discontinuous jump.
+ * The single mechanism behind BOTH "gradually shift to pass" (target > 0)
+ * and "drift back to lane" (target back to 0) -- same function, same rate,
+ * just a different target. */
+export function rampSidestepOffset(current: number, target: number, rateUPerS: number = SIDESTEP_RATE_U_PER_S, dt: number = 0): number {
+  const maxStep = rateUPerS * dt;
+  const delta = target - current;
+  if (Math.abs(delta) <= maxStep) return target;
+  return current + Math.sign(delta) * maxStep;
+}

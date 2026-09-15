@@ -58,9 +58,9 @@ import type { LiveAgent } from "./types";
 import type { LiveAgentState } from "@/lib/hq-agents";
 import {
   applyFollowCap, applyLaneOffsets, computeBatchOrder, computeBatchStaggerDelays, computeMaxPathDurationS,
-  computeWaitPoint, decideNextWalk, ENTRY_NODE_ID, findCarAhead, LEAVE_TIMEOUT_MARGIN_S, pathDistance, poseAlongPath,
-  reconcileLiveAgentRoster, shouldWriteLiveAgentDiag, stableSlotOffset, STAND_BUBBLE_Y_STEP,
-  updateStableSlotAssignments, type WalkerSnapshot,
+  computeSidestepPlan, computeWaitPoint, decideNextWalk, ENTRY_NODE_ID, findCarAhead, LEAVE_TIMEOUT_MARGIN_S,
+  pathDistance, poseAlongPath, rampSidestepOffset, reconcileLiveAgentRoster, rightOf, shouldWriteLiveAgentDiag,
+  stableSlotOffset, STAND_BUBBLE_Y_STEP, updateStableSlotAssignments, type WalkerSnapshot,
 } from "./liveAgentWalk";
 
 // AGENT-IDENTITY pass (2026-09-15): color used to cycle by ARRIVAL ORDER
@@ -331,6 +331,15 @@ function LiveAgentAvatar({
   // behind another leaver is never despawned mid-corridor just because
   // following made its walk take longer than the un-crowded estimate.
   const leaveTimeoutExtensionS = useRef(0);
+  // KEEP-RIGHT PASSING (v8): this avatar's own current lateral offset
+  // (toward its own right, perpendicular to its CURRENT heading), ramped
+  // every frame toward whatever liveAgentWalk.ts#computeSidestepPlan says
+  // this frame (0 when no head-on conflict, SIDESTEP_TARGET_U when one is
+  // detected) via rampSidestepOffset's own bounded rate -- never reset
+  // between walks the way appliedDistanceRef is, since drifting smoothly
+  // back to 0 (rather than snapping) is exactly the point when a walk ends
+  // mid-sidestep.
+  const sidestepOffsetRef = useRef(0);
   const [animState, setAnimState] = useState<KitAnimState>(WALK_ANIM);
   const [walkable, setWalkable] = useState(true);
   const despawned = useRef(false);
@@ -716,38 +725,74 @@ function LiveAgentAvatar({
         // building this fix's own 3-deep-chain test). Reading the avatar's
         // OWN last-rendered pose keeps both sides of every comparison on
         // the same one-frame-stale footing.
-        const carAhead = findCarAhead(
-          {
-            id: liveAgentId,
-            position: [g.position.x, g.position.z],
-            heading: [Math.sin(g.rotation.y), Math.cos(g.rotation.y)],
-            destKey: walkDest.current,
-          },
-          Array.from(walkerFollowRegistry.values()),
-        );
-        const appliedDistance = applyFollowCap(distanceTraveled, appliedDistanceRef.current, carAhead);
+        const selfSnapshot: WalkerSnapshot = {
+          id: liveAgentId,
+          position: [g.position.x, g.position.z],
+          heading: [Math.sin(g.rotation.y), Math.cos(g.rotation.y)],
+          destKey: walkDest.current,
+        };
+        const others = Array.from(walkerFollowRegistry.values());
+        const carAhead = findCarAhead(selfSnapshot, others);
+        let appliedDistance = applyFollowCap(distanceTraveled, appliedDistanceRef.current, carAhead);
+        // KEEP-RIGHT PASSING (CONVOY-STACK v8, probe 20260915T114713Z):
+        // findCarAhead/applyFollowCap above only ever engage for SAME-
+        // direction traffic (FOLLOW_HEADING_COS_MIN) -- correctly excluding
+        // head-on pairs so they can never deadlock each other, but that
+        // also means nothing previously made two opposite-direction
+        // walkers avoid each other at all (observed: two walkers in the
+        // same lane passing straight through one another, 0.07u apart).
+        // liveAgentWalk.ts#computeSidestepPlan decides, independently: (a)
+        // a gradual lateral offset toward THIS avatar's own right when a
+        // head-on conflict is detected on a TRUSTED corridor (`walkable`,
+        // this avatar's own already-computed state -- see that function's
+        // own header for why a real per-edge width figure isn't available
+        // here), or (b) in the untrusted/narrow-corridor fallback, the
+        // lexicographically LOWER id pausing its forward advance instead of
+        // risking a sidestep off walkable floor.
+        const sidestepPlan = computeSidestepPlan(selfSnapshot, others, walkable);
+        if (sidestepPlan.pauseForOncoming) {
+          appliedDistance = appliedDistanceRef.current;
+        }
         appliedDistanceRef.current = appliedDistance;
         // LEAVE-TIMEOUT EXTENSION guardrail: this frame's advance fell
         // short of what an un-crowded walk would have covered -- extend
         // the hard-timeout backstop by exactly the time this frame cost,
-        // so a leaving avatar slowed behind another leaver is never
-        // despawned mid-corridor purely because following made its walk
-        // take longer than the solo estimate.
+        // so a leaving avatar slowed behind another leaver (following OR
+        // pausing for an oncoming pass) is never despawned mid-corridor
+        // purely because either mechanism made its walk take longer than
+        // the solo estimate.
         if (leavingRef.current && appliedDistance < distanceTraveled - 1e-6) {
           leaveTimeoutExtensionS.current += delta;
         }
 
         const progress = Math.min(1, appliedDistance / liveTotal);
         const { position, facing } = poseAlongPath(path.current, progress);
-        g.position.set(position[0], position[1], position[2]);
+        // KEEP-RIGHT PASSING, continued: ramp this avatar's own lateral
+        // offset toward the plan's target (0 when clear, SIDESTEP_TARGET_U
+        // while passing) at a bounded rate -- never a snap, in either
+        // direction. Forced back toward 0 in the final approach to THIS
+        // avatar's own destination (progress >= 0.95) regardless of any
+        // still-detected oncoming walker: the stand-slot correction that
+        // takes over on arrival (CONVOY-STACK v5) has no notion of a
+        // sidestep offset at all, so arriving with a non-zero one would
+        // itself be a snap the instant phase flips to "working". A few
+        // tenths of a unit of remaining walk is comfortably enough time
+        // (SIDESTEP_TARGET_U / SIDESTEP_RATE_U_PER_S ~= 0.67s) for the ramp
+        // to settle back to 0 first.
+        const sidestepTarget = progress >= 0.95 ? 0 : sidestepPlan.offsetTargetU;
+        sidestepOffsetRef.current = rampSidestepOffset(sidestepOffsetRef.current, sidestepTarget, undefined, delta);
+        const right = rightOf([Math.sin(facing), Math.cos(facing)]);
+        const renderedX = position[0] + right[0] * sidestepOffsetRef.current;
+        const renderedZ = position[2] + right[1] * sidestepOffsetRef.current;
+        g.position.set(renderedX, position[1], renderedZ);
         g.rotation.y = facing;
-        // Publish THIS frame's own final (possibly capped) pose for other
-        // avatars' NEXT frame -- see walkerFollowRegistry's own header for
-        // why this is deliberately one-frame-stale from a reader's
-        // perspective.
+        // Publish THIS frame's own final (possibly capped, possibly
+        // sidestepped) pose for other avatars' NEXT frame -- see
+        // walkerFollowRegistry's own header for why this is deliberately
+        // one-frame-stale from a reader's perspective.
         walkerFollowRegistry.set(liveAgentId, {
           id: liveAgentId,
-          position: [position[0], position[2]],
+          position: [renderedX, renderedZ],
           heading: [Math.sin(facing), Math.cos(facing)],
           destKey: walkDest.current,
         });
