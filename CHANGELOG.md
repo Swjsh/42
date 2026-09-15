@@ -1,4 +1,12 @@
 
+## 2026-09-15 — Market-hours session cutoff retired (J-directed)
+
+J (~08:26 ET): there is no LLM cutoff during market hours. The live engine is deterministic Python and spends zero Anthropic
+tokens, and the "no interactive Claude sessions 09:30–15:55 ET" line was stale doctrine carried for months. CLAUDE.md's
+market-hours reminder is rewritten: work continues all day, and RTH is the time to watch HQ react to live market data.
+Still binding during RTH: Rule 9 (no mid-session trading-rule/param changes), the config freeze, live money needs J, and
+pushes stay after-hours. Memory: `feedback_work_through_market_hours_2026_09_15.md`.
+
 ## 2026-08-19 — MULTI-SYMBOL OPTIONS LANE created (J-directed)
 
 J: *"copy the entire spy engine and then paste it... you don't touch the original, and then you

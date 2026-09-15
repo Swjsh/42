@@ -1,12 +1,12 @@
 # CLAUDE.md — Project Gamma
 
-> ⏰ **CHECK THE REAL TIME, IMPOSE NO FAKE ONE (J 2026-07-07).** Read ET from `et_clock.py`/PowerShell before any time-gated action — never guess it. Work with ZERO self-imposed time pressure: BANNED framing = "it's late / get some rest / ship it next session / don't rush at midnight / running low on time." Off-hours is MAXIMUM build time — ship the FULL work this session, don't defer. The ONLY real clock constraint is the market-hours heartbeat rule immediately below.
+> ⏰ **CHECK THE REAL TIME, IMPOSE NO FAKE ONE (J 2026-07-07).** Read ET from `et_clock.py`/PowerShell before any time-gated action — never guess it. Work with ZERO self-imposed time pressure: BANNED framing = "it's late / get some rest / ship it next session / don't rush at midnight / running low on time." Off-hours is MAXIMUM build time — ship the FULL work this session, don't defer. The ONLY real clock constraints are the market-hours rules immediately below (Rule 9 + after-hours pushes; work itself never stops).
 
 > The soul file. Read first, every session. Lean by design — only what's load-bearing for active work.
 >
 > **Audit history & doctrine evolution:** [CHANGELOG.md](CHANGELOG.md). Don't touch CLAUDE.md when fixing a typo'd update entry — touch the changelog.
 
-> **J discipline reminder:** No interactive Claude sessions during 09:30–15:55 ET — load-bearing, but for **Rule 9 (no mid-session rule changes), not for tokens** (the live engine spends ZERO Anthropic tokens; nothing in a Claude session can starve it). Full provenance-correction narrative (2026-08-29): [`RTH-POOL-PROVENANCE.md`](markdown/doctrine/RTH-POOL-PROVENANCE.md).
+> **Market hours (J 2026-09-15, supersedes the old "no interactive sessions 09:30–15:55" line):** there is NO Claude/LLM cutoff during market hours. The live engine is deterministic Python and spends ZERO Anthropic tokens, so keep working all day (HQ/dashboard/research) and watch the world react to live market data. Still binding during RTH: **Rule 9** (no mid-session trading-rule/param changes), the config freeze, live money needs J, and pushes stay after-hours. Provenance: [`RTH-POOL-PROVENANCE.md`](markdown/doctrine/RTH-POOL-PROVENANCE.md).
 
 ---
 
