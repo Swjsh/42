@@ -60,8 +60,38 @@ DAY = "2026-07-01"
 # ---------------------------------------------------------------------------
 # 1. prompts carry deterministic numbers, not the legacy empty ledger
 # ---------------------------------------------------------------------------
+#
+# GUARD INTENT: these three tests exist to catch the prompt TEMPLATE/ASSEMBLY
+# code in eod_fallback.py regressing to point the model at the legacy
+# decisions.jsonl/loop-state.json ledger instead of the deterministic QUANT
+# block. They must NOT depend on what today's *live* journal/state files
+# happen to say -- e.g. today-bias.json's premarket prose can legitimately
+# mention "loop-state.json" as a bug narrative (it did on 2026-09-14/15),
+# which is unrelated to the guard and must not fail these tests. So every
+# live-state input the builder inlines (today-bias.json, current-position*.json,
+# scout/swarm output, STATUS.md, key-levels.json, news.json, gym scorecard,
+# journal/{day}.md, trades*.csv, hypothesis-grades.jsonl) is redirected to an
+# EMPTY controlled fixture directory via REPO/STATE_DIR/STATUS_FILE
+# monkeypatches, so only the static template text can produce the strings
+# under test.
 
-def test_eod_summary_prompt_carries_quant_not_legacy_ledger():
+
+def _empty_fixture_dirs(tmp_path, monkeypatch):
+    """Point every live-state path the prompt builders read at an empty,
+    controlled fixture dir so only the TEMPLATE (not today's real journal/
+    state content) is under test. All the read helpers in eod_fallback.py
+    return '' gracefully on missing files."""
+    (tmp_path / "journal").mkdir(parents=True, exist_ok=True)
+    (tmp_path / "automation" / "state").mkdir(parents=True, exist_ok=True)
+    (tmp_path / "automation" / "overnight").mkdir(parents=True, exist_ok=True)
+    monkeypatch.setattr(ef, "REPO", tmp_path)
+    monkeypatch.setattr(ef, "STATE_DIR", tmp_path / "automation" / "state")
+    monkeypatch.setattr(ef, "STATUS_FILE", tmp_path / "automation" / "overnight" / "STATUS.md")
+    return tmp_path
+
+
+def test_eod_summary_prompt_carries_quant_not_legacy_ledger(tmp_path, monkeypatch):
+    _empty_fixture_dirs(tmp_path, monkeypatch)
     prompt, _ = ef._prompt_eod_summary(DAY)
     assert "DETERMINISTIC QUANT" in prompt
     assert "NUMBERS RULE" in prompt
@@ -70,7 +100,8 @@ def test_eod_summary_prompt_carries_quant_not_legacy_ledger():
     assert "loop-state.json" not in prompt
 
 
-def test_analyst_prompt_carries_quant_not_legacy_ledger():
+def test_analyst_prompt_carries_quant_not_legacy_ledger(tmp_path, monkeypatch):
+    _empty_fixture_dirs(tmp_path, monkeypatch)
     prompt, _ = ef._prompt_analyst(DAY)
     assert "DETERMINISTIC QUANT" in prompt
     assert "NUMBERS RULE" in prompt
@@ -78,11 +109,49 @@ def test_analyst_prompt_carries_quant_not_legacy_ledger():
     assert "loop-state.json" not in prompt
 
 
-def test_manager_prompt_carries_quant_not_legacy_ledger():
+def test_manager_prompt_carries_quant_not_legacy_ledger(tmp_path, monkeypatch):
+    _empty_fixture_dirs(tmp_path, monkeypatch)
     prompt, _ = ef._prompt_manager(DAY)
     assert "DETERMINISTIC QUANT" in prompt
     assert "decisions.jsonl (today" not in prompt
     assert "loop-state.json" not in prompt
+
+
+# ---------------------------------------------------------------------------
+# 1b. RED-proof: the guard must still bite if the TEMPLATE/ASSEMBLY code
+# itself (not live journal content) regresses to reference the legacy ledger.
+# Scans the actual source lines that build the prompt strings (skipping
+# comments/docstrings, since the module's own bug-narrative comments legally
+# say "loop-state.json"/"decisions.jsonl").
+# ---------------------------------------------------------------------------
+
+def test_prompt_template_source_never_references_legacy_ledger():
+    src_path = os.path.join(ROOT, "setup", "scripts", "eod_fallback.py")
+    with open(src_path, encoding="utf-8") as f:
+        lines = f.readlines()
+
+    forbidden = ("loop-state.json", "decisions.jsonl (today")
+    offenders = []
+    in_docstring = False
+    for i, raw in enumerate(lines, start=1):
+        stripped = raw.strip()
+        if stripped.startswith('"""') or stripped.startswith("'''"):
+            # toggle naive docstring tracking; good enough for this single module
+            if stripped.count('"""') % 2 == 1 or stripped.count("'''") % 2 == 1:
+                in_docstring = not in_docstring
+            continue
+        if in_docstring:
+            continue
+        if stripped.startswith("#"):
+            continue
+        for needle in forbidden:
+            if needle in raw:
+                offenders.append((i, needle, raw.strip()))
+
+    assert offenders == [], (
+        "prompt-building source code (outside comments/docstrings) references "
+        f"the legacy ledger: {offenders}"
+    )
 
 
 def test_quant_section_carries_real_ledger_truth():
