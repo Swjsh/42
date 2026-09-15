@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useId, useMemo } from "react";
 import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import type { SectorRow } from "./types";
-import { KIT_PATHS, KitProp, FURNITURE_SCALE, BAY_DESK_OFFSET_Z, BAY_HALF_DEPTH, BAY_SEAT_LOCAL } from "./SetKit";
+import { KIT_PATHS, KitProp, FURNITURE_SCALE, BAY_DESK_OFFSET_Z, BAY_HALF_DEPTH, BAY_SEAT_LOCAL, usePooledKitProps } from "./SetKit";
+import { localToWorld } from "./palette";
 
 // W2 (2026-09-14, WORLD-6 builder): plant-small.glb (Kenney Furniture Kit,
 // public/hq-assets/kenney-furniture-kit/) was downloaded for "interior
@@ -119,9 +120,21 @@ interface BayInteriorProps {
   accentColor: string;
   laneName: string;
   row: SectorRow;
+  /** PERF-3 (2026-09-15): this component's own placements were previously
+   * pure-local JSX, correct because StationModule.tsx mounts it inside its
+   * own `<group position={position} rotation={[0, rotationY, 0]}>` (see
+   * that file's own render). The pooled chair below can't rely on that
+   * parent transform (InstancedKitPool renders from a single mount point
+   * with no per-caller group ancestor -- same reasoning DeskCluster's own
+   * pooled table/chair already documents), so this bay's own
+   * position/rotationY are threaded through explicitly to fold into the
+   * pool's world-space matrix via localToWorld -- the identical pattern
+   * DeskCluster uses for its table/chair. */
+  position: [number, number, number];
+  rotationY: number;
 }
 
-export default function BayInterior({ accentColor, laneName, row }: BayInteriorProps) {
+export default function BayInterior({ accentColor, laneName, row, position, rotationY }: BayInteriorProps) {
   // Second screen -- computer-screen.glb again (drei caches by path, so
   // this is zero extra parse cost beyond DeskCluster's own instance),
   // retextured with the P&L gauge instead of the desk screen's line text.
@@ -167,7 +180,26 @@ export default function BayInterior({ accentColor, laneName, row }: BayInteriorP
   useEffect(() => () => signTexture.dispose(), [signTexture]);
 
   // Second chair -- beside the existing one (BAY_SEAT_LOCAL), same facing.
+  // PERF-3 (2026-09-15): routed through the existing cross-tree chair pool
+  // (SetKit.tsx#usePooledKitProps, "native" variant -- same pool key
+  // DeskCluster's own chair already registers into, rendered by HubRoom's
+  // single <InstancedKitPool> mount) instead of a bare KitProp -- this was
+  // an un-instanced draw call per bay (x8) on top of DeskCluster's own
+  // already-pooled chair (evidence: "chair_1 x14" == 8 bay second-chairs +
+  // 6 HubInterior.tsx hub chairs, the other un-pooled chair source).
+  const seatId = useId();
   const secondSeat: [number, number, number] = [BAY_SEAT_LOCAL[0] + 0.9, BAY_SEAT_LOCAL[1], BAY_SEAT_LOCAL[2]];
+  const chairPlacements = useMemo(
+    () => [{
+      id: `bay-2nd-chair-${seatId}`,
+      position: localToWorld(position, rotationY, secondSeat),
+      rotation: [0, rotationY + Math.PI, 0] as [number, number, number],
+      scale: FURNITURE_SCALE,
+    }],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [seatId, position, rotationY, secondSeat[0], secondSeat[1], secondSeat[2]],
+  );
+  usePooledKitProps(KIT_PATHS.furniture.chair, "native", chairPlacements);
   // Second screen -- a smaller secondary monitor at the desk's far edge.
   // table.glb is only 2.2 world units wide (FURNITURE_SCALE 2.0 x raw 1.1);
   // the desk's OWN screen already spans X [-0.8,0.8] at its native scale
@@ -193,8 +225,6 @@ export default function BayInterior({ accentColor, laneName, row }: BayInteriorP
 
   return (
     <>
-      <KitProp path={KIT_PATHS.furniture.chair} scale={FURNITURE_SCALE} position={secondSeat} rotation={[0, Math.PI, 0]} castShadow />
-
       <primitive object={screenClone} position={secondScreenPos} rotation={[0, Math.PI, 0]} scale={SECOND_SCREEN_SCALE} />
 
       <KitProp

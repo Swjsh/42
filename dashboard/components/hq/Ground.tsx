@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import * as THREE from "three";
 import { PALETTE, seededRandom } from "./palette";
-import { KIT_PATHS, KitProp } from "./SetKit";
+import { KIT_PATHS, InstancedKitPool, usePooledKitProps } from "./SetKit";
 
 // ─── World-2 item 2 (2026-09-14, J: "when I scroll out, a black circle just
 // appears and takes over everything... there needs to be some sort of floor
@@ -155,6 +155,35 @@ const GROUND_NIGHT = new THREE.Color(PALETTE.floor);
 const GROUND_DAY = new THREE.Color(PALETTE.groundDay);
 const _groundColor = new THREE.Color();
 
+// PERF-3 (2026-09-15): craters routed through a self-contained pool pair
+// (crater.glb "native" / craterLarge.glb "native" -- distinct GLB paths so
+// distinct pool keys, no collision with any other consumer) instead of 8
+// bare KitProps. Ground.tsx is a guaranteed-single Scene.tsx mount with no
+// wrapping position/rotation transform (grepped Scene.tsx's own call site:
+// `<Ground dayFactor={...} ultra={...} />`, no group ancestor), so CRATERS'
+// own angle/radius math already IS world-space -- no localToWorld needed,
+// same reasoning HubInterior.tsx's hub-chair pool uses. Registered/mounted
+// here rather than piggybacked on HubRoom's existing pool mounts, since
+// this file owns both ends of its own pool and no cross-file coordination
+// is needed for a path this component alone produces placements for.
+// Evidence this fixes (hq_drawcall_probe.py "duplicate un-instanced
+// geometry+material pairs"): "Mesh_crater x5, Mesh_crater_1 x5" (the 5
+// `large:false` craters below, crater.glb's own 2 mesh primitives) and
+// "Mesh_craterLarge x3, Mesh_craterLarge_1 x3" (the 3 `large:true`
+// craters, i%3===0 -> i=0,3,6).
+function useCraterPlacements(large: boolean) {
+  return useMemo(
+    () =>
+      CRATERS.filter((c) => c.large === large).map((c, i) => ({
+        id: `ground-crater-${large ? "L" : "S"}-${i}`,
+        position: [Math.cos(c.angle) * c.radius, -0.03, Math.sin(c.angle) * c.radius] as [number, number, number],
+        rotation: [0, c.rotation, 0] as [number, number, number],
+        scale: c.scale,
+      })),
+    [large],
+  );
+}
+
 export default function Ground({ dayFactor = 1, ultra = false }: GroundProps) {
   const texture = useMemo(() => makeGroundTexture(), []);
   // Re-blended only when dayFactor genuinely changes (same cadence as
@@ -162,28 +191,25 @@ export default function Ground({ dayFactor = 1, ultra = false }: GroundProps) {
   // moves gradually, no per-frame cost here).
   const color = useMemo(() => _groundColor.copy(GROUND_NIGHT).lerp(GROUND_DAY, dayFactor).clone(), [dayFactor]);
 
+  const craterPlacements = useCraterPlacements(false);
+  const craterLargePlacements = useCraterPlacements(true);
+  usePooledKitProps(KIT_PATHS.terrain.crater, "native", craterPlacements);
+  usePooledKitProps(KIT_PATHS.terrain.craterLarge, "native", craterLargePlacements);
+
   return (
     <>
       <mesh position={[0, -0.06, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow={ultra}>
         <circleGeometry args={[RADIUS, SEGMENTS]} />
         <meshStandardMaterial map={texture} color={color} roughness={1} metalness={0} />
       </mesh>
-      {/* World-3 environment pass (E2): craters, both tiers -- cheap (8
-          small GLBs, no instancing needed at this count) and part of "TV
-          tier gets sky+ground+planet+a few props" per this pass's own
-          brief. Sit right at the ground plane (y=-0.03, a hair above the
-          disc itself to avoid z-fighting, matching this file's own -0.06
-          ground-offset convention). */}
-      {CRATERS.map((c, i) => (
-        <KitProp
-          key={i}
-          path={c.large ? KIT_PATHS.terrain.craterLarge : KIT_PATHS.terrain.crater}
-          scale={c.scale}
-          position={[Math.cos(c.angle) * c.radius, -0.03, Math.sin(c.angle) * c.radius]}
-          rotation={[0, c.rotation, 0]}
-          receiveShadow={ultra}
-        />
-      ))}
+      {/* World-3 environment pass (E2): craters, both tiers -- cheap and
+          part of "TV tier gets sky+ground+planet+a few props" per this
+          pass's own brief. Now 2 real InstancedMesh draw calls per pool
+          entry (crater.glb / craterLarge.glb each contribute their own
+          mesh-primitive count) regardless of the 5/3 instance counts,
+          instead of 8 separate KitProp mounts. */}
+      <InstancedKitPool path={KIT_PATHS.terrain.crater} variant="native" receiveShadow={ultra} />
+      <InstancedKitPool path={KIT_PATHS.terrain.craterLarge} variant="native" receiveShadow={ultra} />
     </>
   );
 }

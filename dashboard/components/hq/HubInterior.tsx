@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useId, useMemo } from "react";
 import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import type { SectorsSnapshot, TradingStatus } from "@/lib/hq";
 import { drawScreenLines, PALETTE, type ScreenLine } from "./palette";
-import { KIT_PATHS, KitProp, FURNITURE_SCALE } from "./SetKit";
+import { KIT_PATHS, KitProp, FURNITURE_SCALE, InstancedKitPool, usePooledKitProps } from "./SetKit";
 import HoloChart from "./HoloChart";
 
 // ─── S2 hub interior pass (2026-09-14, MODELS builder) ─────────────────────
@@ -361,16 +361,52 @@ function facingHubRotationY(position: readonly [number, number, number]): number
 }
 
 export default function HubInterior({ utilPct, memUsedMib, memTotalMib, modelName, sectorsSnapshot, trading, dimFactor }: HubInteriorProps) {
+  // PERF-3 (2026-09-15): hub chairs routed through the existing cross-tree
+  // chair pool (SetKit.tsx#usePooledKitProps, "native" variant -- the same
+  // pool key DeskCluster's own chair registers into, rendered by HubRoom's
+  // single <InstancedKitPool> mount) instead of CHAIR_COUNT bare KitProps.
+  // Safe to pass TABLE_CENTER-relative world coords directly (no
+  // localToWorld needed, unlike BayInterior/DeskCluster): this component's
+  // own outer `scale={1/1.15}` exactly cancels BrainCore's `scale={1.15}`
+  // outer group (see this file's own top comment), and that group carries
+  // no `position` (defaults to [0,0,0], verified in BrainCore.tsx) -- so
+  // HubInterior's local coordinates already ARE world-space, net scale 1.
+  const hubChairIdBase = useId();
+  const hubChairPlacements = useMemo(
+    () => Array.from({ length: CHAIR_COUNT }, (_, i) => {
+      const theta = (i * (2 * Math.PI)) / CHAIR_COUNT;
+      const pos: [number, number, number] = [
+        TABLE_CENTER[0] + Math.sin(theta) * CHAIR_RADIUS,
+        TABLE_CENTER[1],
+        TABLE_CENTER[2] + Math.cos(theta) * CHAIR_RADIUS,
+      ];
+      return { id: `${hubChairIdBase}-${i}`, position: pos, rotation: [0, theta, 0] as [number, number, number], scale: FURNITURE_SCALE };
+    }),
+    [hubChairIdBase],
+  );
+  usePooledKitProps(KIT_PATHS.furniture.chair, "native", hubChairPlacements);
+
+  // PERF-3 (2026-09-15): wall-base cables pooled the same way (own
+  // self-contained pool key, mounted+registered here since HubInterior
+  // alone produces cable placements -- evidence: "cables_1 x3", one pair
+  // of mesh primitives per CABLE_ANGLES_DEG entry).
+  const cableIdBase = useId();
+  const cablePlacements = useMemo(
+    () => CABLE_ANGLES_DEG.map((d) => ({
+      id: `${cableIdBase}-${d}`,
+      position: [Math.cos(deg(d)) * CABLE_RADIUS, 0, Math.sin(deg(d)) * CABLE_RADIUS] as [number, number, number],
+      rotation: [0, deg(d), 0] as [number, number, number],
+      scale: CABLE_SCALE,
+    })),
+    [cableIdBase],
+  );
+  usePooledKitProps(CABLES_PATH, "native", cablePlacements);
+
   return (
     <group scale={1 / 1.15}>
-      {/* Round table + chairs */}
+      {/* Round table + (pooled) chairs */}
       <group position={TABLE_CENTER}>
         <KitProp path={TABLE_LARGE_PATH} scale={TABLE_SCALE} receiveShadow />
-        {Array.from({ length: CHAIR_COUNT }, (_, i) => {
-          const theta = (i * (2 * Math.PI)) / CHAIR_COUNT;
-          const pos: [number, number, number] = [Math.sin(theta) * CHAIR_RADIUS, 0, Math.cos(theta) * CHAIR_RADIUS];
-          return <KitProp key={i} path={KIT_PATHS.furniture.chair} scale={FURNITURE_SCALE} position={pos} rotation={[0, theta, 0]} castShadow />;
-        })}
       </group>
 
       {/* W1 -- the holographic SPY chart, floating above the round table's
@@ -405,17 +441,11 @@ export default function HubInterior({ utilPct, memUsedMib, memTotalMib, modelNam
         );
       })()}
 
-      {/* Wall-base cable greeble */}
-      {CABLE_ANGLES_DEG.map((d) => (
-        <KitProp
-          key={d}
-          path={CABLES_PATH}
-          scale={CABLE_SCALE}
-          position={[Math.cos(deg(d)) * CABLE_RADIUS, 0, Math.sin(deg(d)) * CABLE_RADIUS]}
-          rotation={[0, deg(d), 0]}
-          receiveShadow
-        />
-      ))}
+      {/* Wall-base cable greeble -- pooled above. */}
+      <InstancedKitPool path={CABLES_PATH} variant="native" receiveShadow />
+      {/* Hub chairs -- pooled above (registered into the SAME "native" pool
+          key DeskCluster's own bay chairs already share, rendered by
+          HubRoom's single <InstancedKitPool> mount for that pool). */}
 
       {/* W2 (2026-09-14): interior plants flanking the table. */}
       <HubPlants />

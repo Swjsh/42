@@ -172,7 +172,7 @@ export default function StationModule({
                 boundary as the shell/desk above (own useGLTF calls, same
                 world-pass-A "never let a still-loading piece unmount a
                 sibling" reasoning). */}
-            <BayInterior accentColor={color} laneName={row.lane} row={row} />
+            <BayInterior accentColor={color} laneName={row.lane} row={row} position={position} rotationY={rotationY} />
           </Suspense>
 
           {/* World pass A (2026-09-13): "each bay interior tinted by its

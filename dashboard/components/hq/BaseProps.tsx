@@ -5,7 +5,7 @@ import { useFrame } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import { PALETTE, lerp } from "./palette";
-import { KIT_PATHS, KitProp } from "./SetKit";
+import { KIT_PATHS, KitProp, InstancedKitPool, usePooledKitProps } from "./SetKit";
 import { minClearRadius } from "./layout";
 
 // ─── W2 (2026-09-14, WORLD-6 builder): 3 reputable-source CC0 pieces --
@@ -111,7 +111,18 @@ const SOLAR_COLS = 4;
 const SOLAR_SPACING = 2.6;
 const SOLAR_ORIGIN = polar(90, 26);
 
+// PERF-3 (2026-09-15): the 2 supportsHigh legs pooled (own pool key, this
+// file is BaseProps.tsx's own singleton mount with no wrapping transform --
+// grepped Scene.tsx's own call site, no group ancestor -- so world coords
+// below are genuine world-space, same reasoning as this file's other pools).
+// Evidence: "Mesh_supports_high x2, Mesh_supports_high_1 x2".
+const SUPPORTS_HIGH_PLACEMENTS = [
+  { id: "solar-support-1", position: [SOLAR_ORIGIN[0] - SOLAR_SPACING * 1.8, 0, SOLAR_ORIGIN[2] - 0.5] as [number, number, number], rotation: [0, 0, 0] as [number, number, number], scale: 1.6 },
+  { id: "solar-support-2", position: [SOLAR_ORIGIN[0] + SOLAR_SPACING * 1.8, 0, SOLAR_ORIGIN[2] + SOLAR_ROWS * SOLAR_SPACING] as [number, number, number], rotation: [0, 0, 0] as [number, number, number], scale: 1.6 },
+];
+
 function SolarArray() {
+  usePooledKitProps(KIT_PATHS.baseProps.supportsHigh, "native", SUPPORTS_HIGH_PLACEMENTS);
   const panels = useMemo(() => {
     const out: [number, number, number][] = [];
     for (let r = 0; r < SOLAR_ROWS; r++) {
@@ -127,8 +138,7 @@ function SolarArray() {
   }, []);
   return (
     <group>
-      <KitProp path={KIT_PATHS.baseProps.supportsHigh} scale={1.6} position={[SOLAR_ORIGIN[0] - SOLAR_SPACING * 1.8, 0, SOLAR_ORIGIN[2] - 0.5]} castShadow />
-      <KitProp path={KIT_PATHS.baseProps.supportsHigh} scale={1.6} position={[SOLAR_ORIGIN[0] + SOLAR_SPACING * 1.8, 0, SOLAR_ORIGIN[2] + SOLAR_ROWS * SOLAR_SPACING]} castShadow />
+      <InstancedKitPool path={KIT_PATHS.baseProps.supportsHigh} variant="native" castShadow />
       {panels.map((pos, i) => (
         <mesh key={i} position={pos} rotation={[_deg(-25), 0, 0]} castShadow receiveShadow>
           <boxGeometry args={[2.1, 0.06, 1.3]} />

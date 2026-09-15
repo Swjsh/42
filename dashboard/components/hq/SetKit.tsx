@@ -367,6 +367,7 @@ interface PoolInstance {
   matrix: THREE.Matrix4;
 }
 type PoolKey = string; // `${glbPath}::${variant}`
+export type { PoolPlacement, InstancedKitPoolProps };
 
 const poolRegistry = new Map<PoolKey, Map<string, PoolInstance>>();
 const poolListeners = new Set<() => void>();
@@ -426,7 +427,14 @@ interface PoolPlacement {
  * when the batch's own VALUES change (a stable serialized dep key, not the
  * array reference -- callers often rebuild the array every render even when
  * every number inside is unchanged). */
-function usePooledKitProps(path: string, variant: string, placements: PoolPlacement[]): void {
+// PERF-3 (2026-09-15): exported (was file-private) so callers outside this
+// file -- Ground.tsx (craters), BaseProps.tsx (cables/supportsHigh/barrels
+// callers, follow-up scope), HubInterior.tsx (hub chairs/cables),
+// BayInterior.tsx (second chair) -- can register into the SAME cross-tree
+// pool this section already built for corridor/gate-door/table/chair,
+// instead of each mounting its own un-instanced KitProp. No behavior change
+// for existing in-file callers (HubRoom/DeskCluster/CorridorRun/TJunction).
+export function usePooledKitProps(path: string, variant: string, placements: PoolPlacement[]): void {
   const key: PoolKey = `${path}::${variant}`;
   const depsKey = placements
     .map((p) => {
@@ -479,7 +487,7 @@ interface InstancedKitPoolProps {
  * every placement currently registered under (path, variant) -- see this
  * section's own header. Mounted once per (path, variant) combo, from
  * HubRoom below. */
-function InstancedKitPool({ path, variant, tintColor, tintStrength = 0, castShadow, receiveShadow }: InstancedKitPoolProps) {
+export function InstancedKitPool({ path, variant, tintColor, tintStrength = 0, castShadow, receiveShadow }: InstancedKitPoolProps) {
   const version = useSyncExternalStore(subscribePool, getPoolVersion, getPoolVersion);
   const { scene } = useGLTF(path, false);
   const key: PoolKey = `${path}::${variant}`;
