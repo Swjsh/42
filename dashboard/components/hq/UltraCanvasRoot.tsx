@@ -8,7 +8,7 @@ import StandbyPanel from "./StandbyPanel";
 import PerfReporter from "./PerfReporter";
 import { HUD_RIGHT_COLUMN_WIDTH } from "./Hud";
 import type { HqApiResponse } from "./types";
-import { recordAdvanceCall, recordTick } from "@/lib/hq-motion-diag";
+import { exposeSceneForDiag, recordAdvanceCall, recordTick } from "@/lib/hq-motion-diag";
 
 // World-2 item 6 (2026-09-14, coordinator: "J's monitor is 480 Hz, so
 // requestAnimationFrame lets the page render 200+ frames/s and pins the
@@ -245,6 +245,15 @@ function UltraCanvasRoot({ data, reducedMotion, kiosk }: UltraCanvasRootProps) {
             // longer blows out once daylight is genuinely bright (item 3).
             state.gl.toneMapping = THREE.ACESFilmicToneMapping;
             state.gl.toneMappingExposure = 1.35;
+            // HQ-PROBE hardening (2026-09-14): CanvasRoot.tsx's TV tier has
+            // always called this from its own onCreated; this tier never
+            // did, despite hq-motion-diag.ts's own module doc comment saying
+            // every CanvasRoot should -- so window.__hqGl was never set on
+            // tier=ultra and hq_live_probe.py's draw-call sampling read
+            // `calls: null` for every ultra-tier run. No-ops unless ?diag=1
+            // is on the URL (see exposeSceneForDiag's own gate) -- zero cost
+            // on a normal kiosk/viewer tab.
+            exposeSceneForDiag(state.scene, state.camera, state.gl);
             const canvas = state.gl.domElement;
             canvas.addEventListener("webglcontextlost", (e) => {
               e.preventDefault();

@@ -13,6 +13,7 @@ from hq_probe_lib import (  # noqa: E402
     check_bubbles,
     check_page_api_parity,
     check_perf,
+    check_run_validity,
     check_spawn_latency,
     check_stand_slots,
     check_walk_out,
@@ -224,17 +225,98 @@ def test_perf_no_data_too_few_frames():
     assert v["verdict"] == "NO-DATA", v
 
 
+def test_perf_no_data_scene_not_ready():
+    # Hardening case: even with plenty of frame timestamps and draw calls,
+    # scene_ready=False must short-circuit straight to NO-DATA/HEADLESS --
+    # this is exactly the 2026-09-14 INVALID-run shape (frames kept ticking
+    # while the page never actually mounted the real scene).
+    frames = [i * 16.667 for i in range(120)]
+    v = check_perf(frames, [100, 110, 105], scene_ready=False)
+    assert v["verdict"] == "NO-DATA", v
+    assert v["detail"]["label"] == "HEADLESS"
+
+
+def test_perf_no_data_without_draw_calls():
+    # Hardening case: frames measured fine, but window.__hqGl never got
+    # populated (all calls samples None) -- this is the UltraCanvasRoot.tsx
+    # bug this same pass fixes in the app; the probe must never call this
+    # PASS just because frames existed.
+    frames = [i * 16.667 for i in range(120)]
+    v = check_perf(frames, [None, None, None])
+    assert v["verdict"] == "NO-DATA", v
+    assert v["detail"]["label"] == "HEADLESS"
+    assert "draw-call" in v["detail"]["reason"]
+
+
+def test_perf_pass_requires_draw_calls_present():
+    # Sanity companion to the above: with scene_ready + frames + at least
+    # one real draw-call sample, PASS still fires (draw-call reason above
+    # isn't just permanently disabling PASS).
+    frames = [i * 16.667 for i in range(120)]
+    v = check_perf(frames, [None, 100, None])
+    assert v["verdict"] == "PASS", v
+    assert v["detail"]["draw_call_samples"] == 1
+
+
+# run validity ----------------------------------------------------------------------
+
+def test_run_validity_pass_stable_build():
+    v = check_run_validity(["abc123", "abc123", "abc123"], scene_ready=True)
+    assert v["valid"] is True, v
+    assert v["reasons"] == []
+
+
+def test_run_invalid_on_build_change():
+    # The actual 2026-09-14 failure signature: another builder's deploy
+    # rewrote BUILD_ID mid-run.
+    v = check_run_validity(["old-build", "old-build", "new-build"], scene_ready=True)
+    assert v["valid"] is False, v
+    assert any("build_id changed" in r for r in v["reasons"])
+
+
+def test_run_invalid_on_scene_not_ready():
+    v = check_run_validity(["abc123", "abc123"], scene_ready=False)
+    assert v["valid"] is False, v
+    assert any("scene_ready" in r for r in v["reasons"])
+
+
+def test_build_verdicts_invalid_on_build_change_never_passes_perf():
+    samples = [_s(0), _s(500)]
+    frames = [i * 16.667 for i in range(120)]
+    out = build_verdicts(
+        samples, frames, calls_samples=[100, 110], scene_ready=True,
+        build_ids=["build-a", "build-a", "build-b"],
+    )
+    assert out["run_valid"] is False, out
+    assert out["perf"]["verdict"] == "NO-DATA", out["perf"]
+    for key in ("spawn_latency", "walk_speed", "stand_slots", "walk_out", "page_api_parity", "bubbles"):
+        assert out[key]["verdict"] == "NO-DATA", (key, out[key])
+
+
+def test_build_verdicts_invalid_on_scene_not_ready_never_passes_perf():
+    samples = [_s(0), _s(500)]
+    frames = [i * 16.667 for i in range(120)]
+    out = build_verdicts(
+        samples, frames, calls_samples=[100, 110], scene_ready=False,
+        build_ids=["build-a", "build-a"],
+    )
+    assert out["run_valid"] is False, out
+    assert out["perf"]["verdict"] == "NO-DATA", out["perf"]
+
+
 # build_verdicts smoke ------------------------------------------------------------------
 
 def test_build_verdicts_shape():
     samples = [_s(0), _s(500)]
     out = build_verdicts(samples, [0.0, 16.0, 32.0])
-    assert set(out.keys()) == {
+    expected_keys = {
         "spawn_latency", "walk_speed", "stand_slots", "walk_out",
         "page_api_parity", "bubbles", "perf",
     }
-    for v in out.values():
-        assert v["verdict"] in ("PASS", "FAIL", "NO-DATA")
+    assert expected_keys <= set(out.keys())
+    assert "run_valid" in out and "invalid_reasons" in out
+    for key in expected_keys:
+        assert out[key]["verdict"] in ("PASS", "FAIL", "NO-DATA")
 
 
 if __name__ == "__main__":

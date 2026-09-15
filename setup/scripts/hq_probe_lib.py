@@ -310,9 +310,24 @@ def _percentile(values: List[float], pct: float) -> float:
     return s[idx]
 
 
-def check_perf(frame_timestamps_ms: List[float], calls_samples: List[Optional[int]]) -> Dict[str, Any]:
+def check_perf(
+    frame_timestamps_ms: List[float],
+    calls_samples: List[Optional[int]],
+    scene_ready: bool = True,
+) -> Dict[str, Any]:
+    """PASS requires ALL THREE: scene_ready, >=2 measured frames, AND at
+    least one non-null draw-call sample -- perf on a scene that never
+    rendered (2026-09-14 INVALID run: window.__hqLiveAgents never appeared,
+    yet this used to PASS on frame timestamps alone) is not perf data, it's
+    noise. Every short-circuit below is labeled HEADLESS + NO-DATA, never
+    silently downgraded to PASS."""
+    if not scene_ready:
+        return {
+            "verdict": "NO-DATA",
+            "detail": {"reason": "scene_ready is false -- no real render loop to measure", "headless": True, "label": "HEADLESS"},
+        }
     if len(frame_timestamps_ms) < 2:
-        return {"verdict": "NO-DATA", "detail": {"reason": "fewer than 2 recorded frames", "headless": True}}
+        return {"verdict": "NO-DATA", "detail": {"reason": "fewer than 2 recorded frames", "headless": True, "label": "HEADLESS"}}
 
     frame_deltas = [
         frame_timestamps_ms[i] - frame_timestamps_ms[i - 1]
@@ -320,33 +335,99 @@ def check_perf(frame_timestamps_ms: List[float], calls_samples: List[Optional[in
         if frame_timestamps_ms[i] > frame_timestamps_ms[i - 1]
     ]
     if not frame_deltas:
-        return {"verdict": "NO-DATA", "detail": {"reason": "no positive frame deltas", "headless": True}}
+        return {"verdict": "NO-DATA", "detail": {"reason": "no positive frame deltas", "headless": True, "label": "HEADLESS"}}
 
     fps_samples = [1000.0 / d for d in frame_deltas if d > 0]
     calls_present = [c for c in calls_samples if c is not None]
+    if not calls_present:
+        return {
+            "verdict": "NO-DATA",
+            "detail": {
+                "reason": "frames were measured but zero draw-call samples were taken (window.__hqGl never populated)",
+                "headless": True,
+                "label": "HEADLESS",
+                "fps_p50": round(_percentile(fps_samples, 50), 2),
+                "fps_p95": round(_percentile(fps_samples, 95), 2),
+                "frame_count": len(frame_timestamps_ms),
+            },
+        }
 
     return {
         "verdict": "PASS",
         "detail": {
             "headless": True,
+            "label": "HEADLESS",
             "note": "SwiftShader/software-GL numbers -- NOT representative of real-GPU perf",
             "fps_p50": round(_percentile(fps_samples, 50), 2),
             "fps_p95": round(_percentile(fps_samples, 95), 2),
             "frame_count": len(frame_timestamps_ms),
-            "mean_draw_calls": round(sum(calls_present) / len(calls_present), 1) if calls_present else None,
+            "mean_draw_calls": round(sum(calls_present) / len(calls_present), 1),
             "draw_call_samples": len(calls_present),
         },
     }
 
 
-def build_verdicts(samples: List[Dict[str, Any]], frame_timestamps_ms: List[float]) -> Dict[str, Any]:
-    calls_samples = [s.get("calls") for s in samples]
+# 8. run validity ---------------------------------------------------------------
+
+def check_run_validity(build_ids: Sequence[Optional[str]], scene_ready: bool) -> Dict[str, Any]:
+    """A run is INVALID (not FAIL -- there is no data to fail on) when the
+    dashboard build changed out from under it (another builder's deploy
+    rewrote dashboard/.next/BUILD_ID mid-run: deleted chunks, a restarting
+    server, net::ERR_CONNECTION_REFUSED) or the scene never actually
+    rendered. build_ids should carry the /api/hq build_id sampled at start,
+    every ~30s, and at the end -- ANY drift among the non-null values means
+    the page was talking to two different deploys during one run."""
+    distinct = sorted({b for b in build_ids if b})
+    build_changed = len(distinct) > 1
+    reasons: List[str] = []
+    if build_changed:
+        reasons.append(f"build_id changed during run: {distinct}")
+    if not scene_ready:
+        reasons.append("scene_ready is false -- window.__hqLiveAgents/canvas/Standby-clear never satisfied within the wait window")
+    return {"valid": not reasons, "reasons": reasons, "distinct_build_ids": distinct}
+
+
+def build_verdicts(
+    samples: List[Dict[str, Any]],
+    frame_timestamps_ms: List[float],
+    calls_samples: Optional[List[Optional[int]]] = None,
+    scene_ready: bool = True,
+    build_ids: Optional[Sequence[Optional[str]]] = None,
+) -> Dict[str, Any]:
+    if calls_samples is None:
+        calls_samples = [s.get("calls") for s in samples]
+    build_ids = build_ids or []
+
+    run_check = check_run_validity(build_ids, scene_ready)
+    if not run_check["valid"]:
+        reason_str = "; ".join(run_check["reasons"])
+
+        def _no_data() -> Dict[str, Any]:
+            return {"verdict": "NO-DATA", "detail": {"reason": reason_str}}
+
+        return {
+            "run_valid": False,
+            "invalid_reasons": run_check["reasons"],
+            "spawn_latency": _no_data(),
+            "walk_speed": _no_data(),
+            "stand_slots": _no_data(),
+            "walk_out": _no_data(),
+            "page_api_parity": _no_data(),
+            "bubbles": _no_data(),
+            "perf": {
+                "verdict": "NO-DATA",
+                "detail": {"reason": reason_str, "headless": True, "label": "HEADLESS"},
+            },
+        }
+
     return {
+        "run_valid": True,
+        "invalid_reasons": [],
         "spawn_latency": check_spawn_latency(samples),
         "walk_speed": check_walk_speed(samples),
         "stand_slots": check_stand_slots(samples),
         "walk_out": check_walk_out(samples),
         "page_api_parity": check_page_api_parity(samples),
         "bubbles": check_bubbles(samples),
-        "perf": check_perf(frame_timestamps_ms, calls_samples),
+        "perf": check_perf(frame_timestamps_ms, calls_samples, scene_ready=scene_ready),
     }

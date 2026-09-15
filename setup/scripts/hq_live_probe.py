@@ -6,6 +6,29 @@ Chromium via Playwright, drives the real /hq page with ?diag=1&tier=ultra,
 and samples window.__hqLiveAgents + /api/hq's liveAgents + renderer stats
 over time, then runs them through hq_probe_lib.py's pure verdict logic.
 
+HARDENED 2026-09-14 (this run's own first fire was INVALID, not a real
+FAIL): dashboard/.next/BUILD_ID was rewritten by another builder's deploy 4s
+before the probe loaded the page. The page hit deleted chunks (400) and a
+restarting server (net::ERR_CONNECTION_REFUSED), window.__hqLiveAgents never
+appeared within the old 15s wait, and the old code still marked perf PASS on
+a scene that never rendered. Fixes, all in this file + hq_probe_lib.py:
+  1. Sample /api/hq's build_id at start, every ~30s (piggybacked on the
+     normal poll tick), and at the end. ANY drift, or scene_ready=false,
+     makes the WHOLE RUN invalid (hq_probe_lib.check_run_validity) -- every
+     check becomes NO-DATA with the reason, perf is never PASS, exit code 2.
+  2. Refuse to start (exit 3) while dashboard/.build.lock exists or
+     dashboard/.next/BUILD_ID is younger than --min-build-age-s (90s
+     default) -- optionally poll up to --wait-for-stable-build seconds first.
+  3. Scene wait 15s -> --scene-wait-ms (90s default; SwiftShader is slow),
+     and the readiness gate now also requires a <canvas> element AND the
+     page NOT showing StandbyPanel's "Standby" text.
+  4. A partial JSON checkpoint is written to --out every ~30s during the
+     run (and best-effort on exit) so an external kill (setup/scripts/
+     _shared.ps1#Stop-StaleClaudeProcesses reaps python.exe >5min old) can
+     never wipe out a run's whole 200s of data.
+  5. perf is PASS only when scene_ready AND frames were measured AND
+     draw-call samples exist; otherwise NO-DATA, always labeled HEADLESS.
+
 Dependency note (flagged per task instructions, nothing new installed):
   - No Node Playwright in dashboard/node_modules or the repo root.
   - System Python (py -3.13, the WindowsApps python.exe on PATH) already
@@ -18,14 +41,20 @@ Dependency note (flagged per task instructions, nothing new installed):
   Read-only against the app: no dashboard/ source files are touched.
 
 Usage:
-    python setup/scripts/hq_live_probe.py --seconds 240
+    python setup/scripts/hq_live_probe.py --seconds 200
     python setup/scripts/hq_live_probe.py --seconds 5 --smoke   # quick check
+    python setup/scripts/hq_live_probe.py --wait-for-stable-build 300
 
-Output: JSON to stdout AND automation/state/station/hq-probe-latest.json.
+Output: JSON to stdout AND automation/state/station/hq-probe-latest.json
+(partial checkpoints during the run, final report at the end).
+Exit codes: 0 = run valid (verdicts may still individually FAIL/PASS/NO-DATA),
+2 = run INVALID (build drift or scene never ready -- see verdicts.invalid_reasons),
+3 = refused to start (unstable build -- see stderr).
 """
 from __future__ import annotations
 
 import argparse
+import atexit
 import json
 import sys
 import time
@@ -37,8 +66,14 @@ from hq_probe_lib import build_verdicts  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 OUT_PATH = REPO_ROOT / "automation" / "state" / "station" / "hq-probe-latest.json"
+DASHBOARD_DIR = REPO_ROOT / "dashboard"
+BUILD_ID_PATH = DASHBOARD_DIR / ".next" / "BUILD_ID"
+BUILD_LOCK_PATH = DASHBOARD_DIR / ".build.lock"
 
 DEFAULT_URL = "http://127.0.0.1:3000/hq?diag=1&tier=ultra"
+DEFAULT_MIN_BUILD_AGE_S = 90.0
+DEFAULT_SCENE_WAIT_MS = 90_000
+PARTIAL_WRITE_INTERVAL_S = 30.0
 
 # In-page hook installed BEFORE navigation so it wraps the real rAF loop
 # r3f's Canvas uses (frameloop="always" in UltraCanvasRoot.tsx when not
@@ -55,15 +90,22 @@ RAF_HOOK_SCRIPT = """
 })();
 """
 
+FETCH_BUILD_ID_SCRIPT = (
+    "async () => { try { const r = await fetch('/api/hq', { cache: 'no-store' }); "
+    "const j = await r.json(); return j.build_id ?? null; } catch (e) { return null; } }"
+)
+
 SAMPLE_SCRIPT = """
 async () => {
   let apiAgents = [];
   let apiError = null;
+  let buildId = null;
   try {
     const r = await fetch('/api/hq', { cache: 'no-store' });
     const j = await r.json();
     apiAgents = j.liveAgents || [];
     apiError = j.liveAgentsError || null;
+    buildId = j.build_id || null;
   } catch (e) {
     apiError = String(e);
   }
@@ -79,151 +121,302 @@ async () => {
     apiAgents: apiAgents.map((a) => ({ id: a.id, state: a.state })),
     apiError,
     calls,
+    buildId,
     documentHidden: document.hidden,
   };
 }
 """
 
 
-def launch_and_probe(url: str, seconds: int, interval_ms: int) -> Dict[str, Any]:
+def check_build_stable(min_age_s: float = DEFAULT_MIN_BUILD_AGE_S) -> Optional[str]:
+    """Returns None if the build looks stable enough to probe against, else
+    the reason string a caller should print + exit 3 on. Two guards, same
+    logic setup/scripts/run-dashboard-keepalive.ps1's own stale-build guard
+    uses: a fresh .build.lock means a builder actively owns this exact
+    build/restart transition (racing them here would fight, not help), and
+    a just-written BUILD_ID may still be mid-settle (server process hasn't
+    necessarily restarted onto it yet)."""
+    if BUILD_LOCK_PATH.exists():
+        return f"dashboard/.build.lock exists at {BUILD_LOCK_PATH} -- another builder owns this build/restart cycle"
+    if not BUILD_ID_PATH.exists():
+        return f"no build found -- {BUILD_ID_PATH} does not exist (run 'npm run build' first)"
+    age_s = time.time() - BUILD_ID_PATH.stat().st_mtime
+    if age_s < min_age_s:
+        return f"BUILD_ID is {age_s:.1f}s old (< {min_age_s:.0f}s minimum) -- deploy still settling"
+    return None
+
+
+def wait_for_stable_build(max_wait_s: float, min_age_s: float, poll_s: float = 5.0) -> Optional[str]:
+    """Polls check_build_stable up to max_wait_s. Returns None once stable,
+    else the LAST reason seen (caller exits 3). max_wait_s=0 (default) means
+    a single check, no polling."""
+    reason = check_build_stable(min_age_s)
+    if not reason:
+        return None
+    deadline = time.time() + max_wait_s
+    while reason and time.time() < deadline:
+        time.sleep(poll_s)
+        reason = check_build_stable(min_age_s)
+    return reason
+
+
+def _close_quietly(obj: Any) -> None:
+    if obj is None:
+        return
+    try:
+        obj.close()
+    except Exception:  # noqa: BLE001
+        pass
+
+
+def launch_and_probe(
+    url: str,
+    seconds: int,
+    interval_ms: int,
+    out_path: Path,
+    scene_wait_ms: int,
+) -> Dict[str, Any]:
     from playwright.sync_api import sync_playwright
 
     samples: List[Dict[str, Any]] = []
     diag: Dict[str, Any] = {}
+    build_ids: List[Optional[str]] = []
+    frame_timestamps_ms: List[float] = []
+    run_started_utc = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
 
-    with sync_playwright() as pw:
-        browser = pw.chromium.launch(
-            headless=True,
-            args=[
-                "--use-gl=angle",
-                "--use-angle=swiftshader",
-                "--enable-webgl",
-                "--enable-webgl2",
-                "--ignore-gpu-blocklist",
-                "--enable-unsafe-swiftshader",
-                "--disable-gpu-sandbox",
-                "--no-sandbox",
-            ],
-        )
-        context = browser.new_context(viewport={"width": 1600, "height": 900})
-        page = context.new_page()
-        page.add_init_script(RAF_HOOK_SCRIPT)
-
-        console_errors: List[str] = []
-        page.on("console", lambda msg: console_errors.append(msg.text) if msg.type == "error" else None)
-
-        t0 = time.time()
-        page.goto(url, wait_until="load", timeout=60000)
-
-        # WebGL2 sanity: verify a real WebGL2 context is actually creatable
-        # in this headless page (the swiftshader-flags concern from the
-        # task brief), independent of whether the app itself managed to use it.
-        webgl2_ok = page.evaluate(
-            "() => { const c = document.createElement('canvas'); "
-            "const gl = c.getContext('webgl2'); return !!gl; }"
-        )
-        diag["webgl2_context_creatable"] = webgl2_ok
-
-        # Readiness signal: window.__hqLiveAgents (set by LiveAgents.tsx's
-        # ensureDiagInterval, ~250ms after that component mounts) is proof
-        # the ultra-tier r3f Canvas actually mounted and is rendering, not
-        # just that the HTML shell loaded. Primary because it is reliably
-        # wired for tier=ultra; window.__hqGl (hq-motion-diag.ts's
-        # exposeSceneForDiag) is checked too but is NOT actually called from
-        # UltraCanvasRoot.tsx's onCreated (verified by reading that file --
-        # only CanvasRoot.tsx's TV tier appears to wire it) despite the
-        # module's own doc comment saying every CanvasRoot should call it.
-        # FINDING, not a probe bug: draw-call sampling below will read
-        # `calls: null` on tier=ultra for this reason -- flagged in the
-        # perf verdict's own detail rather than silently degrading.
-        scene_ready = True
+    def write_partial(reason: str) -> None:
         try:
-            page.wait_for_function("() => window.__hqLiveAgents !== undefined", timeout=15000)
-        except Exception as exc:  # noqa: BLE001
-            scene_ready = False
-            diag["scene_ready_wait_error"] = str(exc)
-        diag["scene_ready"] = scene_ready
-        diag["hq_gl_exposed"] = page.evaluate("() => !!window.__hqGl")
-        if not diag["hq_gl_exposed"]:
-            diag["hq_gl_note"] = (
-                "window.__hqGl is never set on tier=ultra -- UltraCanvasRoot.tsx's "
-                "onCreated does not call hq-motion-diag.ts#exposeSceneForDiag "
-                "(CanvasRoot.tsx's TV tier does). draw-call sampling is NO-DATA "
-                "for this reason, not a probe defect. App code not touched (read-only)."
+            verdicts = build_verdicts(
+                samples,
+                frame_timestamps_ms,
+                calls_samples=[s.get("calls") for s in samples],
+                scene_ready=diag.get("scene_ready", False),
+                build_ids=build_ids,
             )
+            report = {
+                "run_started_utc": run_started_utc,
+                "partial": True,
+                "partial_reason": reason,
+                "url": url,
+                "sample_count": len(samples),
+                "environment": {
+                    "headless": True,
+                    "gl_backend": "swiftshader (software) -- NOT the real GPU",
+                    **diag,
+                },
+                "verdicts": verdicts,
+            }
+            out_path.parent.mkdir(parents=True, exist_ok=True)
+            out_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
+        except Exception:  # noqa: BLE001
+            # Checkpoint failures must never crash the run they're protecting.
+            pass
 
-        diag["document_hidden_at_start"] = page.evaluate("() => document.hidden")
-        diag["mode_at_start"] = page.evaluate(
-            "async () => { try { const r = await fetch('/api/hq'); const j = await r.json(); "
-            "return j.mode ?? null; } catch (e) { return null; } }"
-        )
+    # Best-effort last-gasp checkpoint. NOTE (verify-don't-claim): this
+    # covers a clean Python exit (return, uncaught exception, KeyboardInterrupt)
+    # but CANNOT run after an external forceful kill -- Windows
+    # Stop-Process/TerminateProcess (what _shared.ps1's reaper uses) gives no
+    # unwind, so no atexit/finally/signal handler fires. The 30s periodic
+    # checkpoint below is the real defense against that case; this is only
+    # the belt for every other exit path.
+    def _atexit_partial() -> None:
+        write_partial("process exiting (atexit)")
 
-        # Let the scene settle a moment before sampling begins.
-        page.wait_for_timeout(1000)
+    atexit.register(_atexit_partial)
 
-        n_ticks = max(1, int((seconds * 1000) / interval_ms))
-        for _ in range(n_ticks):
-            tick_t0 = time.time()
+    browser = None
+    context = None
+    try:
+        with sync_playwright() as pw:
+            browser = pw.chromium.launch(
+                headless=True,
+                args=[
+                    "--use-gl=angle",
+                    "--use-angle=swiftshader",
+                    "--enable-webgl",
+                    "--enable-webgl2",
+                    "--ignore-gpu-blocklist",
+                    "--enable-unsafe-swiftshader",
+                    "--disable-gpu-sandbox",
+                    "--no-sandbox",
+                ],
+            )
+            context = browser.new_context(viewport={"width": 1600, "height": 900})
+            page = context.new_page()
+            page.add_init_script(RAF_HOOK_SCRIPT)
+
+            console_errors: List[str] = []
+            page.on("console", lambda msg: console_errors.append(msg.text) if msg.type == "error" else None)
+
+            t0 = time.time()
+            page.goto(url, wait_until="load", timeout=60000)
+
+            # WebGL2 sanity: verify a real WebGL2 context is actually creatable
+            # in this headless page (the swiftshader-flags concern from the
+            # task brief), independent of whether the app itself managed to use it.
+            webgl2_ok = page.evaluate(
+                "() => { const c = document.createElement('canvas'); "
+                "const gl = c.getContext('webgl2'); return !!gl; }"
+            )
+            diag["webgl2_context_creatable"] = webgl2_ok
+
+            start_build_id = page.evaluate(FETCH_BUILD_ID_SCRIPT)
+            diag["build_id_start"] = start_build_id
+            build_ids.append(start_build_id)
+            write_partial("preflight")
+
+            # Readiness signal, hardened: window.__hqLiveAgents existing is
+            # proof the ultra-tier r3f Canvas mounted, but the INVALID run
+            # showed that alone isn't enough -- a page mid-ChunkLoadError can
+            # still eval that check true against a stale bundle. Now ALSO
+            # requires a real <canvas> element on the page AND that
+            # StandbyPanel's "Standby" text is NOT showing (paused/gaming/
+            # hidden state, or a page that rendered nothing at all).
+            scene_ready = True
             try:
-                result = page.evaluate(SAMPLE_SCRIPT)
+                page.wait_for_function(
+                    "() => window.__hqLiveAgents !== undefined "
+                    "&& !!document.querySelector('canvas') "
+                    "&& !(document.body.innerText || '').includes('Standby')",
+                    timeout=scene_wait_ms,
+                )
             except Exception as exc:  # noqa: BLE001
-                result = {"pageAgents": [], "apiAgents": [], "apiError": str(exc), "calls": None}
-            samples.append({
-                "t_ms": (time.time() - t0) * 1000.0,
-                "page_agents": result.get("pageAgents") or [],
-                "api_agents": result.get("apiAgents") or [],
-                "calls": result.get("calls"),
-                "document_hidden": result.get("documentHidden"),
-                "api_error": result.get("apiError"),
-            })
-            elapsed = time.time() - tick_t0
-            sleep_s = max(0.0, (interval_ms / 1000.0) - elapsed)
-            time.sleep(sleep_s)
+                scene_ready = False
+                diag["scene_ready_wait_error"] = str(exc)
+            diag["scene_ready"] = scene_ready
+            diag["hq_gl_exposed"] = page.evaluate("() => !!window.__hqGl")
+            if not diag["hq_gl_exposed"]:
+                diag["hq_gl_note"] = (
+                    "window.__hqGl is not set. Was previously true on tier=ultra "
+                    "unconditionally (UltraCanvasRoot.tsx's onCreated never called "
+                    "hq-motion-diag.ts#exposeSceneForDiag) -- fixed alongside this "
+                    "probe hardening pass by wiring it in behind the same ?diag=1 "
+                    "gate CanvasRoot.tsx's TV tier already used. If this is still "
+                    "false, either ?diag=1 is missing from the URL or the app fix "
+                    "did not land."
+                )
 
-        frame_timestamps_ms = page.evaluate("() => window.__probeRaf || []")
-        diag["console_error_count"] = len(console_errors)
-        diag["console_errors_sample"] = console_errors[:10]
+            diag["document_hidden_at_start"] = page.evaluate("() => document.hidden")
+            diag["mode_at_start"] = page.evaluate(
+                "async () => { try { const r = await fetch('/api/hq'); const j = await r.json(); "
+                "return j.mode ?? null; } catch (e) { return null; } }"
+            )
+            write_partial("post-readiness-gate")
 
-        context.close()
-        browser.close()
+            # Let the scene settle a moment before sampling begins.
+            page.wait_for_timeout(1000)
 
-    return {"samples": samples, "frame_timestamps_ms": frame_timestamps_ms, "diag": diag}
+            n_ticks = max(1, int((seconds * 1000) / interval_ms))
+            last_partial_write = time.time()
+            for _ in range(n_ticks):
+                tick_t0 = time.time()
+                try:
+                    result = page.evaluate(SAMPLE_SCRIPT)
+                except Exception as exc:  # noqa: BLE001
+                    result = {"pageAgents": [], "apiAgents": [], "apiError": str(exc), "calls": None, "buildId": None}
+                bid = result.get("buildId")
+                build_ids.append(bid)
+                samples.append({
+                    "t_ms": (time.time() - t0) * 1000.0,
+                    "page_agents": result.get("pageAgents") or [],
+                    "api_agents": result.get("apiAgents") or [],
+                    "calls": result.get("calls"),
+                    "document_hidden": result.get("documentHidden"),
+                    "api_error": result.get("apiError"),
+                })
+
+                if time.time() - last_partial_write >= PARTIAL_WRITE_INTERVAL_S:
+                    last_partial_write = time.time()
+                    write_partial("30s checkpoint")
+
+                elapsed = time.time() - tick_t0
+                sleep_s = max(0.0, (interval_ms / 1000.0) - elapsed)
+                time.sleep(sleep_s)
+
+            frame_timestamps_ms = page.evaluate("() => window.__probeRaf || []")
+            diag["console_error_count"] = len(console_errors)
+            diag["console_errors_sample"] = console_errors[:10]
+
+            end_build_id = page.evaluate(FETCH_BUILD_ID_SCRIPT)
+            diag["build_id_end"] = end_build_id
+            build_ids.append(end_build_id)
+
+            _close_quietly(context)
+            _close_quietly(browser)
+            context = None
+            browser = None
+
+        return {
+            "samples": samples,
+            "frame_timestamps_ms": frame_timestamps_ms,
+            "diag": diag,
+            "build_ids": build_ids,
+        }
+    finally:
+        # Every exit path -- normal return, exception, KeyboardInterrupt --
+        # lands here. See the atexit note above for what this can't cover.
+        _close_quietly(context)
+        _close_quietly(browser)
+        atexit.unregister(_atexit_partial)
 
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--url", default=DEFAULT_URL)
-    ap.add_argument("--seconds", type=int, default=240)
+    ap.add_argument("--seconds", type=int, default=200)
     ap.add_argument("--interval-ms", type=int, default=500)
     ap.add_argument("--out", default=str(OUT_PATH))
+    ap.add_argument("--scene-wait-ms", type=int, default=DEFAULT_SCENE_WAIT_MS)
+    ap.add_argument("--min-build-age-s", type=float, default=DEFAULT_MIN_BUILD_AGE_S)
+    ap.add_argument(
+        "--wait-for-stable-build",
+        type=float,
+        default=0.0,
+        help="poll up to N seconds for dashboard/.next/BUILD_ID to settle (no lock, min age met) before refusing (exit 3)",
+    )
     args = ap.parse_args()
 
-    run = launch_and_probe(args.url, args.seconds, args.interval_ms)
+    refuse_reason = wait_for_stable_build(args.wait_for_stable_build, args.min_build_age_s)
+    if refuse_reason:
+        print(f"REFUSED to start: {refuse_reason}", file=sys.stderr)
+        return 3
+
+    out_path = Path(args.out)
+    run = launch_and_probe(args.url, args.seconds, args.interval_ms, out_path, args.scene_wait_ms)
     samples = run["samples"]
     frame_ts = run["frame_timestamps_ms"]
-    verdicts = build_verdicts(samples, frame_ts)
+    build_ids = run["build_ids"]
+    diag = run["diag"]
+    scene_ready = diag.get("scene_ready", False)
+    calls_samples = [s.get("calls") for s in samples]
+    verdicts = build_verdicts(
+        samples, frame_ts, calls_samples=calls_samples, scene_ready=scene_ready, build_ids=build_ids
+    )
 
     report = {
         "run_started_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "partial": False,
         "url": args.url,
         "requested_seconds": args.seconds,
         "interval_ms": args.interval_ms,
         "sample_count": len(samples),
         "frame_count": len(frame_ts),
+        "build_id_start": diag.get("build_id_start"),
+        "build_id_end": diag.get("build_id_end"),
+        "build_id_distinct": sorted({b for b in build_ids if b}),
         "environment": {
             "headless": True,
             "gl_backend": "swiftshader (software) -- NOT the real GPU",
-            **run["diag"],
+            **diag,
         },
         "verdicts": verdicts,
     }
 
-    out_path = Path(args.out)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
 
     print(json.dumps(report, indent=2))
-    return 0
+    return 0 if verdicts.get("run_valid", True) else 2
 
 
 if __name__ == "__main__":
