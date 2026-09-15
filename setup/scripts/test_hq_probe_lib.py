@@ -23,6 +23,7 @@ from hq_probe_lib import (  # noqa: E402
     check_run_validity,
     check_spawn_latency,
     check_stand_slots,
+    check_waiting_separation,
     check_walk_out,
     check_walk_speed,
     check_walker_separation,
@@ -425,6 +426,40 @@ def test_stand_slots_no_data_single_agent():
     assert v["verdict"] == "NO-DATA", v
 
 
+def test_stand_slots_duplicate_epsilon_catches_float_noise():
+    # PROBE-12 (coordinator, 2026-09-15, run
+    # 20260915T085943Z-Da6D81TEcI6kH8JvM85Db): two agents at 1.159e-15u
+    # apart -- float noise from position math, not bit-exact 0 -- must still
+    # count as a duplicate. The old `d == 0` check missed this.
+    samples = [_s(0, page=[
+        _agent("a7195e62a4dda3d05", "working", [-0.2999999999999996, -1.599999999999999], target="zone-a"),
+        _agent("a1b95546df7c4703f", "working", [-0.3, -1.6], target="zone-a"),
+    ])]
+    v = check_stand_slots(samples)
+    assert v["verdict"] == "FAIL", v
+    assert v["detail"]["duplicate_position_count"] == 1
+    assert v["detail"]["violating_groups"] == 1
+    assert v["detail"]["violating_frac"] == 1.0
+    assert len(v["detail"]["worst_pairs"]) == 1
+    wp = v["detail"]["worst_pairs"][0]
+    assert {wp["a_id"], wp["b_id"]} == {"a7195e62a4dda3d05", "a1b95546df7c4703f"}
+    assert wp["target"] == "zone-a"
+
+
+def test_stand_slots_worst_pairs_reports_self_explaining_detail():
+    samples = [_s(1234, page=[
+        _agent("a1", "working", [0, 0], target="zone-a"),
+        _agent("a2", "working", [0.1, 0], target="zone-a"),
+    ])]
+    v = check_stand_slots(samples)
+    assert v["verdict"] == "FAIL", v
+    wp = v["detail"]["worst_pairs"][0]
+    assert wp["t_ms"] == 1234
+    assert wp["a_pos"] == [0, 0]
+    assert wp["b_pos"] == [0.1, 0]
+    assert wp["target"] == "zone-a"
+
+
 # 3b. walker separation -------------------------------------------------------------
 # Companion to stand_slots: catches two agents overlapping WHILE IN TRANSIT
 # (walking/leaving), which stand_slots can't see since neither is "working".
@@ -462,6 +497,76 @@ def test_walker_separation_no_data_single_walker():
     samples = [_s(0, page=[_agent("a1", "walking", [0, 0])])]
     v = check_walker_separation(samples)
     assert v["verdict"] == "NO-DATA", v
+
+
+# 3c. waiting separation -------------------------------------------------------------
+# Companion to stand_slots ("working") and walker_separation (walking/
+# leaving): PROBE-12's 3rd coverage gap, agents in a non-walking,
+# non-working state (e.g. "spawning", waiting at the campus-gate for their
+# CONVOY-STACK stagger slot). A SEPARATE check from walker_separation
+# (decision stated in hq_probe_lib.py's own header comment): stationary
+# wait-point coincidence is a deterministic placement bug, so it FAILs on
+# ANY violating tick, not walker_separation's >10%-of-ticks allowance.
+
+def test_waiting_separation_fail_coincident_wait_points():
+    # PROBE-12 live shape: two agents at the IDENTICAL wait point
+    # [21.65, 0.45] while both "spawning".
+    samples = [
+        _s(7505, page=[
+            _agent("session:abc", "spawning", [21.65, 0.45]),
+            _agent("ae892a7f7e3cf5a51", "spawning", [21.65, 0.45]),
+        ]),
+    ]
+    v = check_waiting_separation(samples)
+    assert v["verdict"] == "FAIL", v
+    assert v["detail"]["violating_ticks"] == 1
+    assert v["detail"]["min_pairwise_dist"] == 0.0
+    wp = v["detail"]["worst_pairs"][0]
+    assert {wp["a_id"], wp["b_id"]} == {"session:abc", "ae892a7f7e3cf5a51"}
+    assert wp["t_ms"] == 7505
+
+
+def test_waiting_separation_pass_well_separated():
+    samples = [
+        _s(0, page=[
+            _agent("a1", "spawning", [0, 0]),
+            _agent("a2", "spawning", [5, 0]),
+        ]),
+    ]
+    v = check_waiting_separation(samples)
+    assert v["verdict"] == "PASS", v
+    assert v["detail"]["violating_ticks"] == 0
+
+
+def test_waiting_separation_no_data_single_waiting_agent():
+    samples = [_s(0, page=[_agent("a1", "spawning", [0, 0])])]
+    v = check_waiting_separation(samples)
+    assert v["verdict"] == "NO-DATA", v
+
+
+def test_waiting_separation_ignores_walking_and_working_agents():
+    # A walking agent and a working agent standing at the SAME point as
+    # each other must never be judged by this check (that's
+    # walker_separation's and stand_slots's own job respectively) -- only
+    # >=2 simultaneously WAITING agents count.
+    samples = [_s(0, page=[
+        _agent("a1", "walking", [0, 0]),
+        _agent("a2", "working", [0, 0], target="zone-a"),
+    ])]
+    v = check_waiting_separation(samples)
+    assert v["verdict"] == "NO-DATA", v
+
+
+def test_waiting_separation_covers_future_non_literal_states():
+    # Built to catch ANY non-walking, non-working state -- not just the
+    # literal string "spawning" -- so a future "waiting" state (the
+    # coordinator's own example) is covered without another edit here.
+    samples = [_s(0, page=[
+        _agent("a1", "waiting", [0, 0]),
+        _agent("a2", "waiting", [0.01, 0]),
+    ])]
+    v = check_waiting_separation(samples)
+    assert v["verdict"] == "FAIL", v
 
 
 # 4. walk-out ---------------------------------------------------------------------
@@ -1047,7 +1152,7 @@ def test_motion_checks_no_data_below_fps_gate():
     ]
     out = build_verdicts(samples, _low_fps_frames(), calls_samples=[100, 100], scene_ready=True, build_ids=["b", "b"])
     assert out["run_valid"] is True, out
-    for key in ("walk_speed", "stand_slots", "walker_separation", "walk_out", "label_overlap"):
+    for key in ("walk_speed", "stand_slots", "walker_separation", "waiting_separation", "walk_out", "label_overlap"):
         assert out[key]["verdict"] == "NO-DATA", (key, out[key])
         assert "fps too low" in out[key]["detail"]["reason"]
     # not gated -- these have nothing to do with position/motion sampling
@@ -1170,7 +1275,7 @@ def test_build_verdicts_invalid_on_build_change_never_passes_perf():
     assert out["perf"]["verdict"] == "NO-DATA", out["perf"]
     for key in (
         "spawn_latency", "walk_speed", "stand_slots", "walker_separation",
-        "walk_out", "label_overlap", "page_api_parity", "bubbles",
+        "waiting_separation", "walk_out", "label_overlap", "page_api_parity", "bubbles",
     ):
         assert out[key]["verdict"] == "NO-DATA", (key, out[key])
 

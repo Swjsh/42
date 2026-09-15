@@ -33,6 +33,12 @@ RAW_SHELL_LEAK_RE = re.compile(r"Ran:|\\\\|/c/Users|&&")
 WALK_SPEED_DEFAULT = 0.7
 WALK_SPEED_TOL_DEFAULT = 0.15
 STAND_SLOT_MIN_DIST = 0.7
+# PROBE-12 (coordinator, 2026-09-15, run
+# 20260915T085943Z-Da6D81TEcI6kH8JvM85Db): `d == 0` missed a pair at
+# 1.159e-15u apart -- float noise from position math, not a real distinct
+# placement, but not bit-exact 0 either. Anything under this epsilon reads
+# as the same point.
+STAND_SLOT_DUPLICATE_EPS = 1e-3
 
 # check_walker_separation's collision bar -- same 0.7u bar STAND_SLOT_MIN_DIST
 # already uses for settled agents, applied to agents still in transit
@@ -467,6 +473,8 @@ def check_stand_slots(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
     min_dists: List[float] = []
     duplicate_count = 0
     groups_seen = 0
+    violating_groups = 0
+    worst_pairs: List[Dict[str, Any]] = []
 
     for s in samples:
         by_target: Dict[str, List[Dict[str, Any]]] = {}
@@ -480,22 +488,39 @@ def check_stand_slots(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
             if a.get("state") != "working":
                 continue
             by_target.setdefault(a.get("target"), []).append(a)
-        for _target, group in by_target.items():
+        for target, group in by_target.items():
             if len(group) < 2:
                 continue
             groups_seen += 1
+            group_violated = False
             for i in range(len(group)):
                 for j in range(i + 1, len(group)):
                     d = _dist(group[i]["pos"], group[j]["pos"])
                     min_dists.append(d)
-                    if d == 0:
+                    # PROBE-12: epsilon, not bit-exact 0 -- see
+                    # STAND_SLOT_DUPLICATE_EPS's own comment.
+                    if d < STAND_SLOT_DUPLICATE_EPS:
                         duplicate_count += 1
+                    if d < STAND_SLOT_MIN_DIST:
+                        group_violated = True
+                        worst_pairs.append({
+                            "a_id": group[i]["id"],
+                            "b_id": group[j]["id"],
+                            "t_ms": s.get("t_ms"),
+                            "a_pos": group[i]["pos"],
+                            "b_pos": group[j]["pos"],
+                            "target": target,
+                            "dist": round(d, 6),
+                        })
+            if group_violated:
+                violating_groups += 1
 
     if groups_seen == 0:
         return {"verdict": "NO-DATA", "detail": {"reason": "never >=2 agents shared a target"}}
 
     worst = min(min_dists)
     verdict = "PASS" if worst >= STAND_SLOT_MIN_DIST and duplicate_count == 0 else "FAIL"
+    worst_pairs.sort(key=lambda p: p["dist"])
     return {
         "verdict": verdict,
         "detail": {
@@ -503,6 +528,9 @@ def check_stand_slots(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
             "pair_count": len(min_dists),
             "min_pairwise_dist": worst,
             "duplicate_position_count": duplicate_count,
+            "violating_groups": violating_groups,
+            "violating_frac": round(violating_groups / groups_seen, 4),
+            "worst_pairs": worst_pairs[:5],
         },
     }
 
@@ -555,6 +583,86 @@ def check_walker_separation(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
         "verdict": verdict,
         "detail": {
             "multi_walker_ticks": multi_walker_ticks,
+            "violating_ticks": violating_ticks,
+            "violating_frac": round(violating_frac, 4),
+            "min_pairwise_dist": round(min(tick_min_dists), 4),
+            "worst_pairs": worst_pairs,
+        },
+    }
+
+
+# 3c. waiting separation ---------------------------------------------------------
+
+# PROBE-12 (coordinator, 2026-09-15, run
+# 20260915T085943Z-Da6D81TEcI6kH8JvM85Db): a 3rd coverage gap alongside
+# stand_slots ("working") and walker_separation (walking/leaving) --
+# page_agents' own "spawning" state (CONVOY-STACK v2's lane-offset wait
+# point, LiveAgents.tsx: an agent waiting for its stagger slot before it
+# starts walking) was judged by NOTHING. Two agents sat at the identical
+# point [21.65,0.45] for 4+ ticks around t=7.5s and no check flagged it. A
+# SEPARATE check rather than folding into walker_separation (decision,
+# per the coordinator's own "whichever is cleaner; state which"): a waiting
+# agent is STATIONARY at a fixed wait point, not in transit -- coinciding
+# there is a deterministic placement bug (same wait-point math handed to two
+# agents), not walker_separation's own motion-sampling jitter case, so it
+# gets its own strict zero-tolerance verdict instead of walker_separation's
+# >10%-of-ticks allowance. Built to cover ANY state that is neither a
+# walking state nor "working" (not just the literal string "spawning") so a
+# future third non-transit, non-settled state -- "waiting" was the
+# coordinator's own example -- is covered without another edit here.
+WAITING_MIN_DIST = WALKER_MIN_DIST  # same 0.7u bar stand_slots/walker_separation already use
+
+
+def _is_waiting_state(state: Optional[str]) -> bool:
+    return state is not None and state not in WALKING_STATES and state != "working"
+
+
+def check_waiting_separation(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
+    multi_waiting_ticks = 0
+    violating_ticks = 0
+    tick_min_dists: List[float] = []
+    all_pairs: List[Dict[str, Any]] = []
+
+    for s in samples:
+        waiting = [a for a in s.get("page_agents", []) if _is_waiting_state(a.get("state"))]
+        if len(waiting) < 2:
+            continue
+        multi_waiting_ticks += 1
+        tick_min = None
+        tick_violated = False
+        for i in range(len(waiting)):
+            for j in range(i + 1, len(waiting)):
+                d = _dist(waiting[i]["pos"], waiting[j]["pos"])
+                if tick_min is None or d < tick_min:
+                    tick_min = d
+                if d < WAITING_MIN_DIST:
+                    tick_violated = True
+                    all_pairs.append({
+                        "a_id": waiting[i]["id"],
+                        "b_id": waiting[j]["id"],
+                        "t_ms": s.get("t_ms"),
+                        "dist": round(d, 4),
+                        "a_pos": waiting[i]["pos"],
+                        "b_pos": waiting[j]["pos"],
+                        "state": waiting[i].get("state"),
+                    })
+        tick_min_dists.append(tick_min)
+        if tick_violated:
+            violating_ticks += 1
+
+    if multi_waiting_ticks == 0:
+        return {"verdict": "NO-DATA", "detail": {"reason": "no tick had >=2 non-walking, non-working agents"}}
+
+    violating_frac = violating_ticks / multi_waiting_ticks
+    worst_pairs = sorted(all_pairs, key=lambda p: p["dist"])[:5]
+    # Zero-tolerance: unlike walker_separation, ANY violating tick FAILs --
+    # see this section's own header for why (stationary wait points, not
+    # motion-sampling jitter).
+    verdict = "FAIL" if violating_ticks > 0 else "PASS"
+    return {
+        "verdict": verdict,
+        "detail": {
+            "multi_waiting_ticks": multi_waiting_ticks,
             "violating_ticks": violating_ticks,
             "violating_frac": round(violating_frac, 4),
             "min_pairwise_dist": round(min(tick_min_dists), 4),
@@ -1147,6 +1255,7 @@ def build_verdicts(
             "walk_speed": _no_data(),
             "stand_slots": _no_data(),
             "walker_separation": _no_data(),
+            "waiting_separation": _no_data(),
             "walk_out": _no_data(),
             "label_overlap": _no_data(),
             "page_api_parity": _no_data(),
@@ -1178,6 +1287,7 @@ def build_verdicts(
         ),
         "stand_slots": _motion_no_data() if motion_gated else check_stand_slots(samples),
         "walker_separation": _motion_no_data() if motion_gated else check_walker_separation(samples),
+        "waiting_separation": _motion_no_data() if motion_gated else check_waiting_separation(samples),
         "walk_out": _motion_no_data() if motion_gated else check_walk_out(samples),
         "label_overlap": _motion_no_data() if motion_gated else check_label_overlap(samples),
         "page_api_parity": check_page_api_parity(samples),
