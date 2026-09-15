@@ -274,7 +274,7 @@ def enforce_samples_retention(runs_dir: Path = SAMPLE_RUNS_DIR, keep: int = SAMP
     return deleted
 
 
-def rescore(samples_path: Path) -> int:
+def rescore(samples_path: Path, page_refresh_ms: Optional[int] = None) -> int:
     """Loads a previously written *.samples.json.gz and re-runs build_verdicts
     with the CURRENT verdict logic (never the logic that was live when the
     samples were captured). Never launches a browser / imports playwright --
@@ -290,6 +290,8 @@ def rescore(samples_path: Path) -> int:
         scene_ready=diag.get("scene_ready", False),
         build_ids=payload.get("build_ids", []),
         headless=diag.get("headless", True),
+        url=payload.get("url"),
+        page_refresh_ms=page_refresh_ms,
     )
     report = {
         "rescored": True,
@@ -319,6 +321,7 @@ def launch_and_probe(
     interval_ms: int,
     out_path: Path,
     scene_wait_ms: int,
+    page_refresh_ms: Optional[int] = None,
 ) -> Dict[str, Any]:
     from playwright.sync_api import sync_playwright
 
@@ -340,6 +343,8 @@ def launch_and_probe(
                 scene_ready=diag.get("scene_ready", False),
                 build_ids=build_ids,
                 headless=not diag.get("gl_is_hardware", False),
+                url=url,
+                page_refresh_ms=page_refresh_ms,
             )
             report = {
                 "run_started_utc": run_started_utc,
@@ -578,6 +583,16 @@ def main() -> int:
     ap.add_argument("--scene-wait-ms", type=int, default=DEFAULT_SCENE_WAIT_MS)
     ap.add_argument("--min-build-age-s", type=float, default=DEFAULT_MIN_BUILD_AGE_S)
     ap.add_argument(
+        "--page-refresh-ms",
+        type=int,
+        default=None,
+        help=(
+            "override the page's real data-refresh cadence spawn_latency judges "
+            "against (default: derived from --url's kiosk=1 query param -- "
+            "15000 normally, 60000 for kiosk; see dashboard/app/hq/page.tsx:34)"
+        ),
+    )
+    ap.add_argument(
         "--wait-for-stable-build",
         type=float,
         default=0.0,
@@ -597,7 +612,7 @@ def main() -> int:
     args = ap.parse_args()
 
     if args.rescore:
-        return rescore(Path(args.rescore))
+        return rescore(Path(args.rescore), page_refresh_ms=args.page_refresh_ms)
 
     refuse_reason = wait_for_stable_build(args.wait_for_stable_build, args.min_build_age_s)
     if refuse_reason:
@@ -605,7 +620,10 @@ def main() -> int:
         return 3
 
     out_path = Path(args.out)
-    run = launch_and_probe(args.url, args.seconds, args.interval_ms, out_path, args.scene_wait_ms)
+    run = launch_and_probe(
+        args.url, args.seconds, args.interval_ms, out_path, args.scene_wait_ms,
+        page_refresh_ms=args.page_refresh_ms,
+    )
     samples = run["samples"]
     frame_ts = run["frame_timestamps_ms"]
     build_ids = run["build_ids"]
@@ -619,6 +637,8 @@ def main() -> int:
         scene_ready=scene_ready,
         build_ids=build_ids,
         headless=not diag.get("gl_is_hardware", False),
+        url=args.url,
+        page_refresh_ms=args.page_refresh_ms,
     )
 
     report = {

@@ -9,6 +9,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from hq_probe_lib import (  # noqa: E402
+    PAGE_REFRESH_MS_DEFAULT,
+    PAGE_REFRESH_MS_KIOSK,
+    SPAWN_LATENCY_RENDER_SLACK_MS,
     build_verdicts,
     check_bubbles,
     check_page_api_parity,
@@ -18,6 +21,7 @@ from hq_probe_lib import (  # noqa: E402
     check_stand_slots,
     check_walk_out,
     check_walk_speed,
+    page_refresh_ms_from_url,
 )
 
 
@@ -31,28 +35,61 @@ def _agent(id_, state, pos, target="zone-a", bubble="working · x", raw="working
 
 
 # 1. spawn latency ------------------------------------------------------------
+# check_spawn_latency judges against the PAGE's real SWR refresh interval
+# (dashboard/app/hq/page.tsx:34 -- 15s normally, 60s for kiosk=1), not the
+# probe's own sample tick. See hq_probe_lib.py's PAGE_REFRESH_MS_* comments.
 
-def test_spawn_latency_pass_within_one_interval():
+def test_spawn_latency_pass_within_page_refresh():
+    # 3 spawns at 7.5s / 11.7s / 12.5s -- all comfortably inside the 15s
+    # default page refresh + 2s render slack (17s threshold).
     samples = [
         _s(0, page=[], api=[]),
-        _s(500, page=[], api=[{"id": "a1"}]),
-        _s(1000, page=[_agent("a1", "spawning", [0, 0])], api=[{"id": "a1"}]),
+        _s(0, page=[], api=[{"id": "a1"}, {"id": "a2"}, {"id": "a3"}]),
+        _s(7500, page=[_agent("a1", "spawning", [0, 0])],
+           api=[{"id": "a1"}, {"id": "a2"}, {"id": "a3"}]),
+        _s(11700, page=[_agent("a1", "spawning", [0, 0]), _agent("a2", "spawning", [0, 0])],
+           api=[{"id": "a1"}, {"id": "a2"}, {"id": "a3"}]),
+        _s(12500, page=[_agent("a1", "spawning", [0, 0]), _agent("a2", "spawning", [0, 0]),
+                         _agent("a3", "spawning", [0, 0])],
+           api=[{"id": "a1"}, {"id": "a2"}, {"id": "a3"}]),
     ]
     v = check_spawn_latency(samples)
     assert v["verdict"] == "PASS", v
-    assert v["detail"]["spawn_count"] == 1
+    assert v["detail"]["spawn_count"] == 3
+    assert v["detail"]["latencies_ms"] == [7500, 11700, 12500]
+    assert v["detail"]["page_refresh_ms"] == PAGE_REFRESH_MS_DEFAULT
+    assert v["detail"]["slack_ms"] == SPAWN_LATENCY_RENDER_SLACK_MS
+    # sample_tick_ms is reported for diagnostics but must never drive the verdict.
+    assert "sample_tick_ms" in v["detail"]
+    assert "poll_interval_ms" not in v["detail"]
 
 
-def test_spawn_latency_fail_when_late():
+def test_spawn_latency_fail_when_past_page_refresh_plus_slack():
+    # 17.1s exceeds the 15s default page refresh + 2s slack (17s threshold).
     samples = [
         _s(0, page=[], api=[]),
-        _s(500, page=[], api=[{"id": "a1"}]),
-        _s(1000, page=[], api=[{"id": "a1"}]),
-        _s(1500, page=[], api=[{"id": "a1"}]),
-        _s(2000, page=[_agent("a1", "spawning", [0, 0])], api=[{"id": "a1"}]),
+        _s(0, page=[], api=[{"id": "a1"}]),
+        _s(17100, page=[_agent("a1", "spawning", [0, 0])], api=[{"id": "a1"}]),
     ]
     v = check_spawn_latency(samples)
     assert v["verdict"] == "FAIL", v
+    assert v["detail"]["max_latency_ms"] == 17100
+
+
+def test_spawn_latency_kiosk_uses_60s_refresh():
+    assert page_refresh_ms_from_url("http://127.0.0.1:3000/hq?diag=1&kiosk=1") == PAGE_REFRESH_MS_KIOSK
+    assert page_refresh_ms_from_url("http://127.0.0.1:3000/hq?diag=1&tier=ultra") == PAGE_REFRESH_MS_DEFAULT
+
+    # The same 17.1s latency that FAILs against the 15s default page refresh
+    # PASSes against the 60s kiosk refresh.
+    samples = [
+        _s(0, page=[], api=[]),
+        _s(0, page=[], api=[{"id": "a1"}]),
+        _s(17100, page=[_agent("a1", "spawning", [0, 0])], api=[{"id": "a1"}]),
+    ]
+    v = check_spawn_latency(samples, page_refresh_ms=PAGE_REFRESH_MS_KIOSK)
+    assert v["verdict"] == "PASS", v
+    assert v["detail"]["page_refresh_ms"] == PAGE_REFRESH_MS_KIOSK
 
 
 def test_spawn_latency_no_data_when_nobody_spawns():

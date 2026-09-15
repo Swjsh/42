@@ -40,6 +40,33 @@ WALK_OUT_MAX_S = 15.0
 # and must report NO-DATA rather than PASS/FAIL.
 MOTION_MIN_FPS_P50 = 20.0
 
+# check_spawn_latency must judge against the PAGE's real data-refresh
+# cadence, not the probe's own sample tick. dashboard/app/hq/page.tsx:34
+# sets `refreshMs = kiosk ? 60_000 : 15_000` for its SWR poll of /api/hq --
+# that is when a spawned agent can actually first appear on the page. The
+# probe's own --interval-ms sample tick (reported separately as
+# sample_tick_ms) is unrelated and must never be used as the PASS/FAIL bar
+# (2026-09-15 bug: a 499.8ms sample tick judged 7.5-12.5s spawn latencies as
+# FAIL against a 15s page that was working correctly).
+PAGE_REFRESH_MS_DEFAULT = 15_000
+PAGE_REFRESH_MS_KIOSK = 60_000
+# Render/observation slack added on top of the page's refresh interval
+# before a spawn is judged late.
+SPAWN_LATENCY_RENDER_SLACK_MS = 2_000
+
+_KIOSK_QS_RE = re.compile(r"[?&]kiosk=1(?:&|$)")
+
+
+def page_refresh_ms_from_url(url: Optional[str]) -> int:
+    """Derives the page's real SWR refresh interval from the probe URL --
+    kiosk=1 in the query string means dashboard/app/hq/page.tsx:34 used the
+    60s branch, otherwise the 15s branch. Callers may still override this
+    explicitly (see --page-refresh-ms in hq_live_probe.py) for a page whose
+    refreshMs has changed since this comment was written."""
+    if url and _KIOSK_QS_RE.search(url):
+        return PAGE_REFRESH_MS_KIOSK
+    return PAGE_REFRESH_MS_DEFAULT
+
 
 def _page_ids(sample: Dict[str, Any]) -> set:
     return {a["id"] for a in sample.get("page_agents", [])}
@@ -55,7 +82,10 @@ def _dist(p1: Sequence[float], p2: Sequence[float]) -> float:
 
 # 1. spawn latency ------------------------------------------------------------
 
-def check_spawn_latency(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
+def check_spawn_latency(
+    samples: List[Dict[str, Any]],
+    page_refresh_ms: int = PAGE_REFRESH_MS_DEFAULT,
+) -> Dict[str, Any]:
     if len(samples) < 2:
         return {"verdict": "NO-DATA", "detail": {"reason": "fewer than 2 samples"}}
 
@@ -88,21 +118,26 @@ def check_spawn_latency(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
     if not latencies_ms:
         return {"verdict": "NO-DATA", "detail": {"reason": "no spawn observed this window"}}
 
-    poll_interval_ms = _median_poll_interval(samples)
+    sample_tick_ms = _median_sample_tick(samples)
     max_lat = max(latencies_ms)
-    verdict = "PASS" if max_lat <= poll_interval_ms + 1 else "FAIL"
+    threshold_ms = page_refresh_ms + SPAWN_LATENCY_RENDER_SLACK_MS
+    verdict = "PASS" if max_lat <= threshold_ms else "FAIL"
     return {
         "verdict": verdict,
         "detail": {
             "spawn_count": len(latencies_ms),
             "latencies_ms": latencies_ms,
             "max_latency_ms": max_lat,
-            "poll_interval_ms": poll_interval_ms,
+            "page_refresh_ms": page_refresh_ms,
+            "slack_ms": SPAWN_LATENCY_RENDER_SLACK_MS,
+            # The probe's own --interval-ms sample tick -- NOT the judging
+            # threshold. Reported for diagnostics only.
+            "sample_tick_ms": sample_tick_ms,
         },
     }
 
 
-def _median_poll_interval(samples: List[Dict[str, Any]]) -> float:
+def _median_sample_tick(samples: List[Dict[str, Any]]) -> float:
     deltas = [samples[i]["t_ms"] - samples[i - 1]["t_ms"] for i in range(1, len(samples))]
     if not deltas:
         return 500.0
@@ -546,11 +581,18 @@ def build_verdicts(
     scene_ready: bool = True,
     build_ids: Optional[Sequence[Optional[str]]] = None,
     headless: bool = True,
+    url: Optional[str] = None,
+    page_refresh_ms: Optional[int] = None,
 ) -> Dict[str, Any]:
     if calls_samples is None:
         calls_samples = [s.get("calls") for s in samples]
     build_ids = build_ids or []
     label = "HEADLESS" if headless else "GPU"
+    # Explicit --page-refresh-ms wins; otherwise derive from the probe URL's
+    # kiosk=1 query param (see page_refresh_ms_from_url docstring).
+    effective_page_refresh_ms = (
+        page_refresh_ms if page_refresh_ms is not None else page_refresh_ms_from_url(url)
+    )
 
     run_check = check_run_validity(build_ids, scene_ready)
     if not run_check["valid"]:
@@ -589,7 +631,7 @@ def build_verdicts(
     return {
         "run_valid": True,
         "invalid_reasons": [],
-        "spawn_latency": check_spawn_latency(samples),
+        "spawn_latency": check_spawn_latency(samples, page_refresh_ms=effective_page_refresh_ms),
         "walk_speed": _motion_no_data() if motion_gated else check_walk_speed(samples),
         "stand_slots": _motion_no_data() if motion_gated else check_stand_slots(samples),
         "walk_out": _motion_no_data() if motion_gated else check_walk_out(samples),
