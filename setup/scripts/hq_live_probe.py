@@ -170,6 +170,74 @@ async () => {
   } catch (e) {
     calls = null;
   }
+  // PROBE-11 (coordinator, 2026-09-15): speech-bubble overlap instrument.
+  // NO stable DOM hook exists for "a declutter-registered label" -- the
+  // registry (dashboard/components/hq/useLabelDeclutter.ts) is a
+  // module-scope Map of React refs, invisible to an outside page.evaluate()
+  // script, and no label/plaque wrapper carries a data attribute (only
+  // Hud.tsx's FIXED overlay chrome does, via [data-hq-obstacle] --
+  // LabelDeclutterManager.tsx's own OBSTACLE_SELECTOR comment). The most
+  // specific EXISTING selector is `.hq-beam` (the shared CSS class every
+  // label/plaque box's visible border/background lives on -- LiveAgents.tsx,
+  // Agent.tsx, GammaCharacter.tsx, BrainCore.tsx's plaque all use it) but it
+  // is NOT exclusive to declutter-managed labels (HoloChart.tsx,
+  // Scene.tsx's trade-action strip, and StationModule.tsx also render
+  // `.hq-beam` boxes that never register with useLabelDeclutter) -- read
+  // this as "every declutter label plus some non-label decoration", not
+  // "every declutter label and nothing else". No id is recoverable this
+  // way either (the declutter id -- e.g. "live:<agentId>" -- lives only in
+  // the React-side registry key, never written to the DOM), so
+  // check_label_overlap identifies live-agent bubbles by TEXT match against
+  // page_agents' own bubble string, not by id.
+  //
+  // Opacity: NEITHER the declutter resolver's own fade (written to the
+  // OUTER wrapper div) NOR the camera-distance fade (written to the
+  // measureRef div, `.hq-beam`'s parent in LiveAgents/Agent/
+  // GammaCharacter, or `.hq-beam` itself in BrainCore) land on `.hq-beam`
+  // as its OWN inline style -- getComputedStyle(el).opacity alone would
+  // always read "1". CSS opacity composites multiplicatively down the
+  // ancestor chain at render time, so the only way to recover the true
+  // ON-SCREEN opacity from outside React is to walk up and multiply each
+  // ancestor's own computed opacity (bounded to a few hops -- these label
+  // trees are shallow, and unbounded walking risks climbing into
+  // unrelated ancestors of a non-label `.hq-beam`).
+  function effectiveLabelOpacity(el) {
+    let o = 1;
+    let node = el;
+    let hops = 0;
+    while (node && node.nodeType === 1 && hops < 8) {
+      const cs = window.getComputedStyle(node);
+      if (cs.display === 'none' || cs.visibility === 'hidden') return 0;
+      const v = parseFloat(cs.opacity);
+      if (!Number.isNaN(v)) o *= v;
+      if (node === document.body) break;
+      node = node.parentElement;
+      hops += 1;
+    }
+    return o;
+  }
+  let labelRects = [];
+  try {
+    const nodes = document.querySelectorAll('.hq-beam');
+    for (let i = 0; i < nodes.length && labelRects.length < 60; i++) {
+      const el = nodes[i];
+      const r = el.getBoundingClientRect();
+      if (r.width === 0 && r.height === 0) continue;
+      const opacity = effectiveLabelOpacity(el);
+      labelRects.push({
+        id: null, // not discoverable from the DOM -- see comment above
+        text: (el.innerText || '').slice(0, 60),
+        x: r.left,
+        y: r.top,
+        w: r.width,
+        h: r.height,
+        opacity,
+        visible: opacity > 0.01 && r.width > 0 && r.height > 0,
+      });
+    }
+  } catch (e) {
+    labelRects = [];
+  }
   return {
     pageAgents,
     apiAgents: apiAgents.map((a) => ({ id: a.id, state: a.state })),
@@ -177,6 +245,7 @@ async () => {
     calls,
     buildId,
     documentHidden: document.hidden,
+    labelRects,
     // In-page timestamp, captured in the SAME evaluate() call that reads
     // window.__hqLiveAgents -- used by check_walk_speed instead of the
     // Python wall-clock time this CDP round-trip finishes (which has
@@ -547,7 +616,10 @@ def launch_and_probe(
                 try:
                     result = page.evaluate(SAMPLE_SCRIPT)
                 except Exception as exc:  # noqa: BLE001
-                    result = {"pageAgents": [], "apiAgents": [], "apiError": str(exc), "calls": None, "buildId": None}
+                    result = {
+                        "pageAgents": [], "apiAgents": [], "apiError": str(exc), "calls": None,
+                        "buildId": None, "labelRects": [],
+                    }
                 bid = result.get("buildId")
                 build_ids.append(bid)
                 host_t_ms = (time.time() - t0) * 1000.0
@@ -568,6 +640,13 @@ def launch_and_probe(
                     "calls": result.get("calls"),
                     "document_hidden": result.get("documentHidden"),
                     "api_error": result.get("apiError"),
+                    # PROBE-11: '.hq-beam' rects captured the SAME
+                    # evaluate() call as pageAgents -- see SAMPLE_SCRIPT's
+                    # own comment for the DOM-hook and opacity caveats.
+                    # Absent (None/[]) on any samples file captured before
+                    # this field existed -- check_label_overlap reports
+                    # NO-DATA in that case, never a false PASS/FAIL.
+                    "label_rects": result.get("labelRects") or [],
                 })
 
                 if time.time() - last_partial_write >= PARTIAL_WRITE_INTERVAL_S:

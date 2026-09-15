@@ -9,6 +9,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from hq_probe_lib import (  # noqa: E402
+    LABEL_OVERLAP_MIN_INTERSECTION_FRAC,
     PAGE_REFRESH_MS_DEFAULT,
     PAGE_REFRESH_MS_KIOSK,
     SPAWN_LATENCY_RENDER_SLACK_MS,
@@ -16,6 +17,7 @@ from hq_probe_lib import (  # noqa: E402
     WALKER_MIN_DIST,
     build_verdicts,
     check_bubbles,
+    check_label_overlap,
     check_page_api_parity,
     check_perf,
     check_run_validity,
@@ -29,8 +31,15 @@ from hq_probe_lib import (  # noqa: E402
 )
 
 
-def _s(t_ms, page=None, api=None, calls=None):
-    return {"t_ms": t_ms, "page_agents": page or [], "api_agents": api or [], "calls": calls}
+def _s(t_ms, page=None, api=None, calls=None, label_rects=None):
+    return {
+        "t_ms": t_ms, "page_agents": page or [], "api_agents": api or [], "calls": calls,
+        "label_rects": label_rects if label_rects is not None else [],
+    }
+
+
+def _label(text, x, y, w, h, opacity=1.0, id_=None):
+    return {"id": id_, "text": text, "x": x, "y": y, "w": w, "h": h, "opacity": opacity, "visible": opacity > 0.01}
 
 
 def _agent(id_, state, pos, target="zone-a", bubble="working · x", raw="working · x", onWalkable=True):
@@ -610,6 +619,102 @@ def test_walk_out_mixed_no_data_and_pass():
     assert v["verdict"] == "PASS", v
 
 
+# 4b. speech-bubble overlap ----------------------------------------------------------
+# PROBE-11: check_label_overlap works off '.hq-beam' rects captured by
+# SAMPLE_SCRIPT (hq_live_probe.py) -- no id is recoverable from the DOM, so
+# a live-agent bubble is identified by matching its captured text against
+# page_agents' own bubble string (same tick), per _live_agent_state_for_label.
+
+def test_label_overlap_fail_overlapping_live_agent_pair():
+    # Two live-agent bubbles fully coincident (worst case, matches the
+    # PROBE-11 screenshot shape) -- text matches each agent's own bubble
+    # field so the pair is correctly identified as involving live agents.
+    samples = [
+        _s(0,
+            page=[
+                _agent("a1", "working", [0, 0], bubble="reviewing PR", raw="reviewing PR"),
+                _agent("a2", "working", [1, 0], bubble="writing tests", raw="writing tests"),
+            ],
+            label_rects=[
+                _label("Coach · reviewing PR", 100, 100, 80, 20),
+                _label("Chef · writing tests", 100, 100, 80, 20),
+            ],
+        ),
+    ]
+    v = check_label_overlap(samples)
+    assert v["verdict"] == "FAIL", v
+    assert v["detail"]["violating_frac"] == 1.0
+    assert v["detail"]["worst_pairs"][0]["involves_live_agent"] is True
+    assert v["detail"]["worst_pairs"][0]["overlap_frac"] == 1.0
+
+
+def test_label_overlap_pass_disjoint_pair():
+    samples = [
+        _s(0,
+            page=[
+                _agent("a1", "working", [0, 0], bubble="reviewing PR", raw="reviewing PR"),
+                _agent("a2", "working", [1, 0], bubble="writing tests", raw="writing tests"),
+            ],
+            label_rects=[
+                _label("Coach · reviewing PR", 0, 0, 80, 20),
+                _label("Chef · writing tests", 500, 500, 80, 20),
+            ],
+        ),
+    ]
+    v = check_label_overlap(samples)
+    assert v["verdict"] == "PASS", v
+    assert v["detail"]["violating_frac"] == 0.0
+
+
+def test_label_overlap_no_data_when_no_rects_captured():
+    samples = [_s(0, page=[_agent("a1", "working", [0, 0])])]  # label_rects defaults to []
+    v = check_label_overlap(samples)
+    assert v["verdict"] == "NO-DATA", v
+
+
+def test_label_overlap_ignores_low_opacity_pair():
+    # Two fully-overlapping labels BOTH below LABEL_OVERLAP_MIN_OPACITY
+    # (0.5) must be excluded entirely -- a faded-out pair mid-declutter-fade
+    # is not what a screenshot reader would call "bubbles on top of each
+    # other". A second, disjoint, fully-visible pair in the SAME tick
+    # proves the low-opacity pair didn't silently starve the tick of data
+    # (verdict is PASS on the visible pair, not NO-DATA).
+    samples = [
+        _s(0,
+            page=[],
+            label_rects=[
+                _label("fading A", 0, 0, 10, 10, opacity=0.2),
+                _label("fading B", 0, 0, 10, 10, opacity=0.2),
+                _label("visible C", 100, 100, 10, 10, opacity=1.0),
+                _label("visible D", 200, 200, 10, 10, opacity=1.0),
+            ],
+        ),
+    ]
+    v = check_label_overlap(samples)
+    assert v["verdict"] == "PASS", v
+    assert v["detail"]["ticks"] == 1
+    assert v["detail"]["violating_ticks"] == 0
+
+
+def test_label_overlap_below_intersection_threshold_not_a_violation():
+    # Two visible labels that touch but overlap by less than
+    # LABEL_OVERLAP_MIN_INTERSECTION_FRAC of the smaller rect's area --
+    # "close together", not "on top of each other".
+    samples = [
+        _s(0,
+            page=[],
+            label_rects=[
+                _label("A", 0, 0, 100, 20),
+                _label("B", 95, 0, 100, 20),  # 5/100 = 5% overlap of either rect's area
+            ],
+        ),
+    ]
+    v = check_label_overlap(samples)
+    assert v["verdict"] == "PASS", v
+    assert v["detail"]["violating_ticks"] == 0
+    assert LABEL_OVERLAP_MIN_INTERSECTION_FRAC > 0.05  # sanity: threshold is above this pair's overlap
+
+
 # 5. page == API parity -------------------------------------------------------------
 
 def test_parity_pass_ten_consecutive():
@@ -942,7 +1047,7 @@ def test_motion_checks_no_data_below_fps_gate():
     ]
     out = build_verdicts(samples, _low_fps_frames(), calls_samples=[100, 100], scene_ready=True, build_ids=["b", "b"])
     assert out["run_valid"] is True, out
-    for key in ("walk_speed", "stand_slots", "walker_separation", "walk_out"):
+    for key in ("walk_speed", "stand_slots", "walker_separation", "walk_out", "label_overlap"):
         assert out[key]["verdict"] == "NO-DATA", (key, out[key])
         assert "fps too low" in out[key]["detail"]["reason"]
     # not gated -- these have nothing to do with position/motion sampling
@@ -1065,7 +1170,7 @@ def test_build_verdicts_invalid_on_build_change_never_passes_perf():
     assert out["perf"]["verdict"] == "NO-DATA", out["perf"]
     for key in (
         "spawn_latency", "walk_speed", "stand_slots", "walker_separation",
-        "walk_out", "page_api_parity", "bubbles",
+        "walk_out", "label_overlap", "page_api_parity", "bubbles",
     ):
         assert out[key]["verdict"] == "NO-DATA", (key, out[key])
 

@@ -700,6 +700,144 @@ def check_walk_out(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
     }
 
 
+# 4b. speech-bubble overlap ------------------------------------------------------
+
+# PROBE-11 (coordinator, 2026-09-15): a real-screen capture showed two
+# live-agent bubbles drawn on top of each other and on the BRAIN/Gamma
+# plaques at the hub, 35s after page load. A read-only diagnosis proved the
+# pure resolver (dashboard/components/hq/labelDeclutter.ts#resolveLabelOffsets)
+# already separates even exactly-coincident rects (its own test passes) --
+# the fault is upstream (suspected: LabelDeclutterManager.tsx:139-142's
+# natural-position back-calculation for MOVING near-coincident labels), but
+# unconfirmed. This check measures first: only visible labels (opacity >=
+# LABEL_OVERLAP_MIN_OPACITY, real area) count, and only a REAL geometric
+# overlap (intersection area >= LABEL_OVERLAP_MIN_INTERSECTION_FRAC of the
+# smaller rect) counts as a collision -- two labels merely close together is
+# not what a screenshot reader would call "on top of each other".
+LABEL_OVERLAP_MIN_OPACITY = 0.5
+LABEL_OVERLAP_MIN_INTERSECTION_FRAC = 0.15
+LABEL_OVERLAP_FAIL_FRAC = 0.05
+LABEL_OVERLAP_WORST_PAIRS_CAP = 5
+
+
+def _rect_area(r: Dict[str, Any]) -> float:
+    return max(0.0, r.get("w", 0.0)) * max(0.0, r.get("h", 0.0))
+
+
+def _rect_intersection_frac(r1: Dict[str, Any], r2: Dict[str, Any]) -> float:
+    """Intersection area as a fraction of the SMALLER rect's own area (0 if
+    disjoint or either rect has zero area) -- a small badge fully covered by
+    a big plaque and a big plaque mostly covering a small badge should both
+    read as a real collision, which a fraction-of-UNION metric would understate
+    for the badge's own case."""
+    x_left = max(r1.get("x", 0.0), r2.get("x", 0.0))
+    y_top = max(r1.get("y", 0.0), r2.get("y", 0.0))
+    x_right = min(r1.get("x", 0.0) + r1.get("w", 0.0), r2.get("x", 0.0) + r2.get("w", 0.0))
+    y_bottom = min(r1.get("y", 0.0) + r1.get("h", 0.0), r2.get("y", 0.0) + r2.get("h", 0.0))
+    if x_right <= x_left or y_bottom <= y_top:
+        return 0.0
+    inter_area = (x_right - x_left) * (y_bottom - y_top)
+    smaller = min(_rect_area(r1), _rect_area(r2))
+    if smaller <= 0:
+        return 0.0
+    return inter_area / smaller
+
+
+def _live_agent_state_for_label(label: Dict[str, Any], page_agents: List[Dict[str, Any]]) -> Optional[str]:
+    """Identifies whether a captured label rect IS a live-agent bubble, and
+    if so that agent's current state -- by id prefix 'live:<agentId>' (the
+    declutter id useLabelDeclutter.ts's LiveAgents.tsx call site uses) when
+    the label's `id` field is populated, else by substring-matching the
+    label's captured text against each live agent's own bubble string
+    (SAMPLE_SCRIPT's own comment: no stable DOM hook exposes the id, so
+    `id` is None from the live probe today -- this text-match path is the
+    one actually exercised against real samples). Returns None when the
+    label doesn't match any agent this tick (it's a persona/Gamma/plaque
+    label, or a live agent that already despawned)."""
+    label_id = label.get("id")
+    text = label.get("text") or ""
+    if label_id:
+        for a in page_agents:
+            if label_id == f"live:{a.get('id')}":
+                return a.get("state")
+        return None
+    for a in page_agents:
+        bubble = a.get("bubble") or a.get("rawDetail") or ""
+        if bubble and text and bubble in text:
+            return a.get("state")
+    return None
+
+
+def check_label_overlap(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
+    any_rects_captured = False
+    ticks_with_2plus_visible = 0
+    violating_ticks = 0
+    all_pairs: List[Dict[str, Any]] = []
+
+    for s in samples:
+        rects = s.get("label_rects") or []
+        if rects:
+            any_rects_captured = True
+        visible = [r for r in rects if (r.get("opacity") or 0) >= LABEL_OVERLAP_MIN_OPACITY and _rect_area(r) > 0]
+        if len(visible) < 2:
+            continue
+        ticks_with_2plus_visible += 1
+        page_agents = s.get("page_agents", [])
+        tick_has_live_violation = False
+        for i in range(len(visible)):
+            for j in range(i + 1, len(visible)):
+                frac = _rect_intersection_frac(visible[i], visible[j])
+                if frac < LABEL_OVERLAP_MIN_INTERSECTION_FRAC:
+                    continue
+                state_a = _live_agent_state_for_label(visible[i], page_agents)
+                state_b = _live_agent_state_for_label(visible[j], page_agents)
+                involves_live_agent = state_a is not None or state_b is not None
+                if involves_live_agent:
+                    tick_has_live_violation = True
+                all_pairs.append({
+                    "t": s.get("t_ms"),
+                    "texts": [visible[i].get("text"), visible[j].get("text")],
+                    "rects": [
+                        {k: visible[i].get(k) for k in ("x", "y", "w", "h")},
+                        {k: visible[j].get(k) for k in ("x", "y", "w", "h")},
+                    ],
+                    "overlap_frac": round(frac, 4),
+                    "involves_live_agent": involves_live_agent,
+                    # "walking" covers WALKING_STATES (walking/leaving);
+                    # any other page_agents state (working/spawning) reads
+                    # as settled. None means that side of the pair didn't
+                    # match a live agent at all (persona/Gamma/plaque).
+                    "live_agent_states": [state_a, state_b],
+                })
+        if tick_has_live_violation:
+            violating_ticks += 1
+
+    if not any_rects_captured:
+        return {
+            "verdict": "NO-DATA",
+            "detail": {"reason": "no label rects captured this run (older samples file, or the '.hq-beam' DOM hook found nothing)"},
+        }
+    if ticks_with_2plus_visible == 0:
+        return {
+            "verdict": "NO-DATA",
+            "detail": {"reason": "never >=2 visible (opacity >= {:.1f}) labels captured in the same tick".format(LABEL_OVERLAP_MIN_OPACITY)},
+        }
+
+    violating_frac = violating_ticks / ticks_with_2plus_visible
+    live_pairs = [p for p in all_pairs if p["involves_live_agent"]]
+    worst_pairs = sorted(live_pairs or all_pairs, key=lambda p: -p["overlap_frac"])[:LABEL_OVERLAP_WORST_PAIRS_CAP]
+    verdict = "FAIL" if violating_frac > LABEL_OVERLAP_FAIL_FRAC else "PASS"
+    return {
+        "verdict": verdict,
+        "detail": {
+            "ticks": ticks_with_2plus_visible,
+            "violating_ticks": violating_ticks,
+            "violating_frac": round(violating_frac, 4),
+            "worst_pairs": worst_pairs,
+        },
+    }
+
+
 # 5. page == API parity ---------------------------------------------------------
 
 def check_page_api_parity(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -1010,6 +1148,7 @@ def build_verdicts(
             "stand_slots": _no_data(),
             "walker_separation": _no_data(),
             "walk_out": _no_data(),
+            "label_overlap": _no_data(),
             "page_api_parity": _no_data(),
             "bubbles": _no_data(),
             "perf": {
@@ -1040,6 +1179,7 @@ def build_verdicts(
         "stand_slots": _motion_no_data() if motion_gated else check_stand_slots(samples),
         "walker_separation": _motion_no_data() if motion_gated else check_walker_separation(samples),
         "walk_out": _motion_no_data() if motion_gated else check_walk_out(samples),
+        "label_overlap": _motion_no_data() if motion_gated else check_label_overlap(samples),
         "page_api_parity": check_page_api_parity(samples),
         "bubbles": check_bubbles(samples),
         "perf": check_perf(frame_timestamps_ms, calls_samples, scene_ready=scene_ready, headless=headless),
