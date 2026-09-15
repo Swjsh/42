@@ -218,6 +218,16 @@ automation/state/crypto-twin/sim-bear-positions.json
 # risking a future `git add -A` committing multi-MB gz blobs to the public repo.
 automation/state/crypto-twin/archive/
 automation/state/crypto-twin/decisions.jsonl
+automation/state/crypto-twin/journal.jsonl
+automation/state/crypto-twin/challenger-h1.jsonl
+automation/state/crypto-twin/challenger-h1-summary.json
+automation/state/crypto-twin/challenger-watermark.json
+automation/state/crypto-twin/soak-log.jsonl
+automation/state/crypto-twin/soak-watermark.json
+automation/state/crypto-twin/resilience-ledger.jsonl
+automation/state/crypto-twin/path-coverage.json
+automation/state/crypto-twin/sim-bear-journal.jsonl
+automation/state/crypto-twin/incidents.jsonl
 automation/state/key-levels.json
 automation/state/sd-zones.json
 # sibling decision-gating state (C34): forward-clock eligibility for the SD_ZONE promotion
