@@ -100,7 +100,10 @@ export default function BaySign({ position, laneName, stateWord, color, dimFacto
         <planeGeometry args={[SIGN_WIDTH + SIGN_BORDER, SIGN_HEIGHT + SIGN_BORDER]} />
         <meshBasicMaterial color={color} toneMapped={false} transparent opacity={dimFactor} />
       </mesh>
-      <mesh>
+      {/* SCENE-AUDIT pass (2026-09-15): informational screen tag -- bay
+          signs are explicitly out of this pass's readability-FAIL scope
+          (task: "desk screens/bay signs are informational, not FAIL"). */}
+      <mesh userData={{ hqKind: "screen", hqLabel: "bay-sign", hqFaceLocalNormal: [0, 0, 1], hqInformational: true }}>
         <planeGeometry args={[SIGN_WIDTH, SIGN_HEIGHT]} />
         <meshBasicMaterial map={texture} toneMapped={false} transparent opacity={dimFactor} />
       </mesh>

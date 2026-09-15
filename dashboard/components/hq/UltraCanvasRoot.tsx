@@ -9,6 +9,13 @@ import PerfReporter from "./PerfReporter";
 import { HUD_RIGHT_COLUMN_WIDTH } from "./Hud";
 import type { HqApiResponse } from "./types";
 import { exposeSceneForDiag, recordAdvanceCall, recordTick } from "@/lib/hq-motion-diag";
+// SCENE-AUDIT pass (2026-09-15): wires window.__hqSceneAudit/
+// __hqSceneAuditWalkers behind the same ?diag=1 gate exposeSceneForDiag
+// already uses -- see hq-scene-audit.ts's own header. Called once at module
+// scope, same convention as hq-motion-diag.ts#installEarlyErrorCapture.
+import { installSceneAuditHooks } from "@/lib/hq-scene-audit";
+
+installSceneAuditHooks();
 
 // World-2 item 6 (2026-09-14, coordinator: "J's monitor is 480 Hz, so
 // requestAnimationFrame lets the page render 200+ frames/s and pins the

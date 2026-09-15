@@ -44,6 +44,48 @@ Usage:
     python setup/scripts/hq_live_probe.py --seconds 200
     python setup/scripts/hq_live_probe.py --seconds 5 --smoke   # quick check
     python setup/scripts/hq_live_probe.py --wait-for-stable-build 300
+    python setup/scripts/hq_live_probe.py --plausibility --out <path>
+
+Plausibility checks (SCENE-AUDIT pass, 2026-09-15, `--plausibility`):
+    J's own words, having watched a desk clipped into a wall, a pitched
+    unreadable smart board, and an agent pacing straight through a wall all
+    PASS every check that existed before this pass: "whatever's auditing it
+    isn't looking at it like a human would... the object was placed on the
+    screen, checkbox, move on." This flag runs a SEPARATE, smaller family
+    (~60-90s, no walker traffic required to get a verdict on the static
+    checks) that judges "would a human accept this room" instead of "is
+    this present" -- implements markdown/doctrine/FRONTEND-OPS.md's "HQ
+    scene acceptance" rubric items 2-4:
+      wall_penetration   -- any furniture/prop/screen clipping a wall slab
+                             (door gaps excluded) by >0.05u.
+      walker_wall_cross   -- any sampled live-agent path segment crossing a
+                             wall slab outside a real doorway.
+      screen_facing       -- cos(angle) between a screen's face normal and
+                             the camera, for the live default camera AND a
+                             synthetic top-down one; only screens meant to
+                             be readable (TwinMonitors, hub panels) gate the
+                             verdict -- desk screens/bay signs are
+                             informational only.
+      desk_clearance /
+      desk_orientation    -- every desk >=1.0u clear of the nearest wall and
+                             not overlapping other furniture; yaw within
+                             +-10deg of its own expected facing.
+      label_legibility    -- any visible head-label/plaque under 12px tall
+                             at the default camera.
+    The actual geometry (wall-slab construction with door gaps, AABB/segment
+    intersection, screen-facing cosine) lives in dashboard/lib/
+    hq-scene-audit.ts (unit-tested via `node --test
+    dashboard/tests/hq-scene-audit.test.ts`, including two regression pins
+    against real fixed bugs -- see that file's own header) and runs
+    IN-PAGE via window.__hqSceneAudit()/__hqSceneAuditWalkers()/
+    __hqSceneAuditWalkerCheck(); this script only launches the browser,
+    polls those hooks, and formats the verdicts in this probe's existing
+    PASS/FAIL/NO-DATA style. label_legibility alone is pure Python (reuses
+    the SAME `.hq-beam` DOM rects check_label_overlap already samples).
+    Included automatically inside a normal (non --plausibility) run too --
+    riding along in the report's environment.plausibility block (see
+    launch_and_probe's own call to compute_plausibility_verdicts near the
+    end of its sampling loop) rather than a second browser launch.
 
 Output: JSON to stdout AND automation/state/station/hq-probe-latest.json
 (partial checkpoints during the run, final report at the end).
@@ -69,6 +111,7 @@ from hq_probe_lib import (  # noqa: E402
     WALK_SPEED_DEFAULT,
     WALK_SPEED_TOL_DEFAULT,
     build_verdicts,
+    check_label_legibility,
     perf_headless_flag,
 )
 
@@ -267,6 +310,209 @@ async () => {
   };
 }
 """
+
+
+PLAUSIBILITY_SAMPLE_INTERVAL_S = 0.25  # <=4x/s per this pass's own task spec
+PLAUSIBILITY_DEFAULT_SECONDS = 60
+
+
+def _plausibility_no_data(reason: str) -> Dict[str, Any]:
+    return {"verdict": "NO-DATA", "detail": {"reason": reason}}
+
+
+def compute_plausibility_verdicts(page: Any, seconds: float, scene_ready: bool) -> Dict[str, Any]:
+    """Runs the "would a human accept this room" check family (see this
+    module's own docstring) against an ALREADY-NAVIGATED `page`. Shared by
+    BOTH run_plausibility's own short standalone run and launch_and_probe's
+    full run (called near the end of its own sampling loop) -- one code
+    path, never a second copy that could drift. Pure read-only page.evaluate
+    calls; never navigates, never touches dashboard/ source.
+
+    wall_penetration/screen_facing/desk_clearance/desk_orientation come from
+    ONE call to window.__hqSceneAudit() (dashboard/lib/hq-scene-audit.ts) --
+    the static scene geometry doesn't change tick-to-tick, so one snapshot
+    is sufficient (unlike walker_wall_cross, which needs a position HISTORY
+    to detect a crossing SEGMENT, not just a single point-in-time reading).
+    """
+    if not scene_ready:
+        no_data = _plausibility_no_data("scene never became ready")
+        return {
+            "wall_penetration": no_data, "walker_wall_cross": no_data, "screen_facing": no_data,
+            "desk_clearance": no_data, "desk_orientation": no_data, "label_legibility": no_data,
+        }
+
+    try:
+        static_report = page.evaluate(
+            "async () => (window.__hqSceneAudit ? await window.__hqSceneAudit() : { ok: false, reason: 'window.__hqSceneAudit is not set -- ?diag=1 missing or scene not mounted' })"
+        ) or {}
+    except Exception as exc:  # noqa: BLE001
+        static_report = {"ok": False, "reason": f"window.__hqSceneAudit() threw: {exc!r}"}
+
+    if not static_report.get("ok"):
+        no_hook = _plausibility_no_data(str(static_report.get("reason", "window.__hqSceneAudit unavailable")))
+        return {
+            "wall_penetration": no_hook, "walker_wall_cross": no_hook, "screen_facing": no_hook,
+            "desk_clearance": no_hook, "desk_orientation": no_hook, "label_legibility": no_hook,
+        }
+
+    # Walker positions + label rects: sampled over time (a wall CROSSING is
+    # a property of a SEGMENT between two ticks, not a single point) at
+    # <=4x/s -- deliberately cheap, this is a DOM/JS-array read per tick,
+    # never a screenshot or a full page.evaluate of the whole scene graph.
+    label_samples: List[Dict[str, Any]] = []
+    n_ticks = max(1, int(seconds / PLAUSIBILITY_SAMPLE_INTERVAL_S))
+    for _ in range(n_ticks):
+        tick_t0 = time.time()
+        try:
+            page.evaluate("() => { if (window.__hqSceneAuditWalkers) window.__hqSceneAuditWalkers(); }")
+        except Exception:  # noqa: BLE001
+            pass
+        try:
+            rects = page.evaluate(
+                "() => Array.from(document.querySelectorAll('.hq-beam')).slice(0, 60).map((el) => { "
+                "const r = el.getBoundingClientRect(); "
+                "return { h: r.height, text: (el.innerText || '').slice(0, 60), visible: r.width > 0 && r.height > 0 }; })"
+            )
+        except Exception:  # noqa: BLE001
+            rects = []
+        label_samples.append({"label_rects": rects})
+        elapsed = time.time() - tick_t0
+        time.sleep(max(0.0, PLAUSIBILITY_SAMPLE_INTERVAL_S - elapsed))
+
+    try:
+        tracks_raw = page.evaluate(
+            "() => window.__hqSceneAuditWalkers ? window.__hqSceneAuditWalkers() : { tracks: [] }"
+        ) or {}
+        tracks = tracks_raw.get("tracks", []) if isinstance(tracks_raw, dict) else []
+    except Exception:  # noqa: BLE001
+        tracks = []
+
+    if tracks:
+        try:
+            walker_wall_cross = page.evaluate(
+                "async (tracks) => (window.__hqSceneAuditWalkerCheck "
+                "? await window.__hqSceneAuditWalkerCheck(tracks) "
+                ": { verdict: 'NO-DATA', detail: { reason: 'window.__hqSceneAuditWalkerCheck is not set' } })",
+                tracks,
+            )
+        except Exception as exc:  # noqa: BLE001
+            walker_wall_cross = _plausibility_no_data(f"__hqSceneAuditWalkerCheck threw: {exc!r}")
+    else:
+        walker_wall_cross = _plausibility_no_data("no live agents were on window.__hqLiveAgents this run -- nothing to trace")
+
+    return {
+        "wall_penetration": static_report.get("wallPenetration", _plausibility_no_data("missing from __hqSceneAudit() report")),
+        "screen_facing": static_report.get("screenFacing", _plausibility_no_data("missing from __hqSceneAudit() report")),
+        "desk_clearance": static_report.get("deskClearance", _plausibility_no_data("missing from __hqSceneAudit() report")),
+        "desk_orientation": static_report.get("deskOrientation", _plausibility_no_data("missing from __hqSceneAudit() report")),
+        "walker_wall_cross": walker_wall_cross,
+        "label_legibility": check_label_legibility(label_samples),
+    }
+
+
+def print_plausibility_lines(plausibility: Dict[str, Any]) -> None:
+    """PASS/FAIL/NO-DATA <check>: <one-line evidence> -- same style every
+    other check_* verdict in this probe already prints via main()'s own
+    json.dumps of the report (this is the human-skimmable stderr/stdout
+    echo, not a second source of truth)."""
+    for name, result in plausibility.items():
+        verdict = result.get("verdict", "NO-DATA")
+        detail = result.get("detail", {})
+        if verdict == "NO-DATA":
+            evidence = detail.get("reason", "no evidence")
+        elif verdict == "FAIL":
+            violations = detail.get("violations") or []
+            evidence = f"{len(violations)} violation(s) -- first: {violations[0]}" if violations else json.dumps(detail)[:160]
+        else:
+            evidence = json.dumps({k: v for k, v in detail.items() if k not in ("violations",)})[:160]
+        print(f"{verdict} {name}: {evidence}")
+
+
+def run_plausibility(url: str, seconds: float, out_path: Path, scene_wait_ms: int, min_build_age_s: float) -> int:
+    """Standalone ~60-90s path (--plausibility): launches its OWN headless
+    page (lighter than launch_and_probe's full RAF-hook/build-drift-guarded
+    session -- this check family doesn't need frame timestamps or draw-call
+    counts), waits for window.__hqSceneAudit to exist, then delegates all
+    real work to compute_plausibility_verdicts (the SAME function
+    launch_and_probe's full run calls) so there is exactly one
+    implementation of "what counts as plausible", never two."""
+    from playwright.sync_api import sync_playwright
+
+    refuse_reason = check_build_stable(min_build_age_s)
+    if refuse_reason:
+        print(f"REFUSED to start: {refuse_reason}", file=sys.stderr)
+        return 3
+
+    diag: Dict[str, Any] = {}
+    plausibility: Dict[str, Any] = {}
+    browser = None
+    context = None
+    try:
+        with sync_playwright() as pw:
+            try:
+                browser = pw.chromium.launch(headless=True, args=HARDWARE_GL_ARGS)
+                context = browser.new_context(viewport={"width": 1600, "height": 900})
+                page = context.new_page()
+                gl_renderer = page.evaluate(GL_RENDERER_SCRIPT)
+                gl_is_hardware = bool(gl_renderer) and "nvidia" in gl_renderer.lower()
+            except Exception as exc:  # noqa: BLE001
+                gl_is_hardware = False
+                diag["gl_fallback_reason"] = f"hardware GL launch raised {exc!r}"
+            if not gl_is_hardware:
+                diag.setdefault("gl_fallback_reason", "hardware GL probe did not report an NVIDIA renderer -- falling back to SwiftShader")
+                _close_quietly(context)
+                _close_quietly(browser)
+                browser = pw.chromium.launch(headless=True, args=SOFTWARE_GL_ARGS)
+                context = browser.new_context(viewport={"width": 1600, "height": 900})
+                page = context.new_page()
+            diag["gl_is_hardware"] = gl_is_hardware
+
+            page.goto(url, wait_until="load", timeout=60000)
+            scene_ready = True
+            try:
+                # Waits for at least one FURNITURE-tagged object, not just
+                # window.__hqScene's existence -- HubRoom's table/chair
+                # InstancedKitPool mounts are wrapped in <Suspense> (GLTF
+                # loads async), so __hqScene can exist with the room shell
+                # already tagged "wall" well before furniture finishes
+                # loading. Calling window.__hqSceneAudit() during that gap
+                # is exactly what produced a false "no furniture/screen
+                # objects" NO-DATA on this pass's own first real run.
+                page.wait_for_function(
+                    "() => window.__hqSceneAudit !== undefined && !!window.__hqScene && !!document.querySelector('canvas') "
+                    "&& (() => { let found = false; window.__hqScene.traverse((o) => { "
+                    "if (o.userData && o.userData.hqKind === 'furniture') found = true; }); return found; })()",
+                    timeout=scene_wait_ms,
+                )
+            except Exception as exc:  # noqa: BLE001
+                scene_ready = False
+                diag["scene_ready_wait_error"] = str(exc)
+            diag["scene_ready"] = scene_ready
+
+            plausibility = compute_plausibility_verdicts(page, seconds, scene_ready)
+
+            _close_quietly(context)
+            _close_quietly(browser)
+            context = None
+            browser = None
+    finally:
+        _close_quietly(context)
+        _close_quietly(browser)
+
+    print_plausibility_lines(plausibility)
+    report = {
+        "run_started_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "plausibility_only": True,
+        "url": url,
+        "requested_seconds": seconds,
+        "environment": {"headless": True, **diag},
+        "plausibility": plausibility,
+    }
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
+    print(json.dumps(report, indent=2))
+    any_fail = any(v.get("verdict") == "FAIL" for v in plausibility.values())
+    return 1 if any_fail else 0
 
 
 def check_build_stable(min_age_s: float = DEFAULT_MIN_BUILD_AGE_S) -> Optional[str]:
@@ -685,6 +931,22 @@ def launch_and_probe(
             diag["build_id_end"] = end_build_id
             build_ids.append(end_build_id)
 
+            # SCENE-AUDIT pass (2026-09-15): the "would a human accept this
+            # room" check family (see this module's own docstring), riding
+            # along on this ALREADY-OPEN page rather than a second browser
+            # launch. Capped at 30s regardless of --seconds -- the static
+            # checks (wall/screen/desk) only need one snapshot, and 30s of
+            # walker-position sampling at 4x/s is plenty to catch a real
+            # wall-crossing without meaningfully extending a 200s run.
+            # Wrapped so a failure here NEVER takes down the primary run
+            # this function exists to protect (same "checkpoint failures
+            # must never crash the run" discipline write_partial already
+            # uses above).
+            try:
+                diag["plausibility"] = compute_plausibility_verdicts(page, min(30.0, float(seconds)), diag.get("scene_ready", False))
+            except Exception as exc:  # noqa: BLE001
+                diag["plausibility"] = {"error": f"compute_plausibility_verdicts threw: {exc!r}"}
+
             # Final raw-sample write with the complete frame_timestamps_ms +
             # end build_id -- the 30s periodic checkpoints above may have
             # missed the last <30s of ticks.
@@ -778,7 +1040,28 @@ def main() -> int:
             "--url/--seconds/build-stability args apply"
         ),
     )
+    ap.add_argument(
+        "--plausibility",
+        action="store_true",
+        help=(
+            "run ONLY the 'would a human accept this room' check family "
+            "(wall_penetration/walker_wall_cross/screen_facing/"
+            "desk_clearance/desk_orientation/label_legibility -- see this "
+            "module's own docstring) in ~60-90s, no full sampling run. A "
+            "normal run without this flag still runs the same family, "
+            "riding along in environment.plausibility."
+        ),
+    )
+    ap.add_argument(
+        "--plausibility-seconds",
+        type=float,
+        default=PLAUSIBILITY_DEFAULT_SECONDS,
+        help="walker-position sampling window for --plausibility's own walker_wall_cross check (default 60s)",
+    )
     args = ap.parse_args()
+
+    if args.plausibility:
+        return run_plausibility(args.url, args.plausibility_seconds, Path(args.out), args.scene_wait_ms, args.min_build_age_s)
 
     if args.rescore:
         return rescore(
@@ -842,6 +1125,10 @@ def main() -> int:
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
+
+    plausibility = diag.get("plausibility")
+    if isinstance(plausibility, dict) and "error" not in plausibility:
+        print_plausibility_lines(plausibility)
 
     print(json.dumps(report, indent=2))
     return 0 if verdicts.get("run_valid", True) else 2

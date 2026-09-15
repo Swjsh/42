@@ -275,13 +275,22 @@ interface KitPropProps {
   emissive?: { color: string; intensity: number };
   castShadow?: boolean;
   receiveShadow?: boolean;
+  /** SCENE-AUDIT pass (2026-09-15): light, additive tagging so
+   * dashboard/lib/hq-scene-audit.ts's live-scene traversal can tell a wall
+   * shell from a door from a piece of furniture without guessing from GLB
+   * path strings. Omit for zero behavior change -- untagged props (the
+   * overwhelming majority) are simply invisible to the audit, never
+   * mis-tagged as anything. See that file's own header for the full
+   * convention + which call sites set which kind. */
+  hqKind?: "wall" | "door" | "furniture" | "screen" | "prop";
+  hqLabel?: string;
 }
 
 /** Generic placer for any single static kit GLB -- one `useGLTF` call (drei
  * caches by path, so the 8 bays sharing e.g. `table.glb` parse it ONCE, not
  * 8 times) + a per-instance clone. This is the one building block every
  * component below is made of. */
-export function KitProp({ path, scale = 1, position, rotation, tint, tintStrength = 0.15, emissive, castShadow, receiveShadow }: KitPropProps) {
+export function KitProp({ path, scale = 1, position, rotation, tint, tintStrength = 0.15, emissive, castShadow, receiveShadow, hqKind, hqLabel }: KitPropProps) {
   // useDraco=false EXPLICITLY -- verified this session by reading drei's own
   // useGLTF source (node_modules/@react-three/drei/core/Gltf.js): omitting
   // the arg defaults it to `true`, which points a DRACOLoader at a
@@ -302,6 +311,12 @@ export function KitProp({ path, scale = 1, position, rotation, tint, tintStrengt
       if (receiveShadow) obj.receiveShadow = true;
     });
   }, [cloned, castShadow, receiveShadow]);
+
+  useEffect(() => {
+    if (!hqKind) return;
+    cloned.userData.hqKind = hqKind;
+    cloned.userData.hqLabel = hqLabel ?? hqKind;
+  }, [cloned, hqKind, hqLabel]);
 
   return <primitive object={cloned} scale={scale} position={position} rotation={rotation} />;
 }
@@ -439,13 +454,22 @@ interface InstancedKitPoolProps {
    * affects which InstancedMesh(es) this POOL renders; never mutates the
    * shared GLTF scene/geometry itself. */
   excludeMeshNames?: readonly string[];
+  /** SCENE-AUDIT pass (2026-09-15): tags EVERY InstancedMesh this pool
+   * mounts (one per mesh primitive in the GLB) -- since a pool's placements
+   * are fed from many call sites sharing one (path,variant), the audit
+   * traversal reads this at the pool/InstancedMesh level, then expands each
+   * INSTANCE's own matrix into its own world AABB (dashboard/lib/
+   * hq-scene-audit.ts's own expansion logic) rather than needing a tag per
+   * placement. See KitProp's own hqKind doc for the shared convention. */
+  hqKind?: "wall" | "door" | "furniture" | "screen" | "prop";
+  hqLabel?: string;
 }
 
 /** Renders ONE real InstancedMesh per mesh primitive in `path`'s GLB (minus
  * any name in `excludeMeshNames`), fed by every placement currently
  * registered under (path, variant) -- see this section's own header.
  * Mounted once per (path, variant) combo, from HubRoom below. */
-export function InstancedKitPool({ path, variant, tintColor, tintStrength = 0, castShadow, receiveShadow, excludeMeshNames }: InstancedKitPoolProps) {
+export function InstancedKitPool({ path, variant, tintColor, tintStrength = 0, castShadow, receiveShadow, excludeMeshNames, hqKind, hqLabel }: InstancedKitPoolProps) {
   const version = useSyncExternalStore(subscribePool, getPoolVersion, getPoolVersion);
   const { scene } = useGLTF(path, false);
   const key: PoolKey = makePoolKey(path, variant);
@@ -504,6 +528,7 @@ export function InstancedKitPool({ path, variant, tintColor, tintStrength = 0, c
           castShadow={castShadow}
           receiveShadow={receiveShadow}
           frustumCulled={false}
+          userData={hqKind ? { hqKind, hqLabel: hqLabel ?? hqKind } : undefined}
         />
       ))}
     </>
@@ -626,6 +651,8 @@ export function HubRoom({ dayFactor = 1 }: { dayFactor?: number }) {
         tintStrength={0.08}
         emissive={hubEmissive}
         receiveShadow
+        hqKind="wall"
+        hqLabel="hub-shell"
       />
       <pointLight position={[0, HUB_CEILING_Y * 0.7, 0]} color="#ffd9a0" intensity={6 * lampFactor} distance={16} decay={1.5} />
       {[0, 90, 180, 270].map((deg) => {
@@ -662,7 +689,7 @@ export function HubRoom({ dayFactor = 1 }: { dayFactor?: number }) {
         <InstancedKitPool path={KIT_PATHS.architecture.corridor} variant="tinted" tintColor={archPlateColor} tintStrength={0.6} receiveShadow />
         <InstancedKitPool path={KIT_PATHS.architecture.corridor} variant="native" receiveShadow />
         <InstancedKitPool path={KIT_PATHS.architecture.corridorWide} variant="tinted" tintColor={archPlateColor} tintStrength={0.6} receiveShadow />
-        <InstancedKitPool path={KIT_PATHS.architecture.gateDoor} variant="native" castShadow />
+        <InstancedKitPool path={KIT_PATHS.architecture.gateDoor} variant="native" castShadow hqKind="door" hqLabel="gate-door" />
         {/* GATE-PROP-OPEN pass (2026-09-15): frame-only pool feeding
             CampusGate's own "frame-only" registration above -- excludes
             mesh "door" (the leaf slab that made the campus gate read as
@@ -676,12 +703,19 @@ export function HubRoom({ dayFactor = 1 }: { dayFactor?: number }) {
           variant="frame-only"
           excludeMeshNames={GATE_DOOR_LEAF_MESH_NAMES}
           castShadow
+          hqKind="door"
+          hqLabel="campus-gate"
         />
         <InstancedKitPool path={KIT_PATHS.architecture.corridorIntersection} variant="native" receiveShadow />
-        <InstancedKitPool path={KIT_PATHS.architecture.roomSmall} variant="native" receiveShadow />
+        <InstancedKitPool path={KIT_PATHS.architecture.roomSmall} variant="native" receiveShadow hqKind="wall" hqLabel="bay-shell" />
         <InstancedKitPool path={KIT_PATHS.lights} variant="native" />
-        <InstancedKitPool path={KIT_PATHS.furniture.table} variant="native" receiveShadow />
-        <InstancedKitPool path={KIT_PATHS.furniture.chair} variant="native" castShadow />
+        {/* SCENE-AUDIT pass: tagged "furniture"/"desk" -- this ONE pool feeds
+            every table placement in the scene (hub persona desks, Gamma's
+            desk, the meeting table, and all 8 bay desks via DeskCluster
+            below), so wall_penetration/desk_clearance/desk_orientation see
+            every table this scene ever places, not just one subset. */}
+        <InstancedKitPool path={KIT_PATHS.furniture.table} variant="native" receiveShadow hqKind="furniture" hqLabel="desk" />
+        <InstancedKitPool path={KIT_PATHS.furniture.chair} variant="native" castShadow hqKind="furniture" hqLabel="chair" />
       </Suspense>
     </>
   );

@@ -19,8 +19,10 @@ from hq_probe_lib import (  # noqa: E402
     SPAWN_LATENCY_RENDER_SLACK_MS,
     WALK_OUT_MAX_S,
     WALKER_MIN_DIST,
+    LABEL_MIN_HEIGHT_PX,
     build_verdicts,
     check_bubbles,
+    check_label_legibility,
     check_label_overlap,
     check_page_api_parity,
     check_perf,
@@ -1910,6 +1912,33 @@ def test_retention_noop_when_under_cap(tmp_path):
     deleted = hq_live_probe.enforce_samples_retention(tmp_path, keep=20)
     assert deleted == []
     assert len(list(tmp_path.glob("*.samples.json.gz"))) == 5
+
+
+# ─── SCENE-AUDIT pass (2026-09-15): check_label_legibility ─────────────────
+
+def test_check_label_legibility_no_data_with_no_visible_labels():
+    result = check_label_legibility([_s(0, label_rects=[])])
+    assert result["verdict"] == "NO-DATA"
+
+
+def test_check_label_legibility_pass_when_all_visible_labels_meet_the_height_floor():
+    samples = [_s(0, label_rects=[{"h": LABEL_MIN_HEIGHT_PX + 2, "text": "ok", "visible": True}])]
+    result = check_label_legibility(samples)
+    assert result["verdict"] == "PASS"
+
+
+def test_check_label_legibility_fails_a_too_short_visible_label():
+    samples = [_s(0, label_rects=[{"h": LABEL_MIN_HEIGHT_PX - 1, "text": "tiny", "visible": True}])]
+    result = check_label_legibility(samples)
+    assert result["verdict"] == "FAIL"
+    assert result["detail"]["violation_count"] == 1
+    assert result["detail"]["violations"][0]["text"] == "tiny"
+
+
+def test_check_label_legibility_ignores_non_visible_rects():
+    samples = [_s(0, label_rects=[{"h": 1.0, "text": "hidden", "visible": False}])]
+    result = check_label_legibility(samples)
+    assert result["verdict"] == "NO-DATA", "a non-visible rect must never count as sampled evidence"
 
 
 if __name__ == "__main__":

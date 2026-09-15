@@ -116,8 +116,16 @@ function FlatScreen({ x, title, lines, dimFactor }: { x: number; title: string; 
         <boxGeometry args={[SCREEN_WIDTH, SCREEN_HEIGHT, BEZEL_DEPTH]} />
         <meshStandardMaterial color={PALETTE.deskDark} roughness={0.5} metalness={0.3} />
       </mesh>
-      {/* Content face. */}
-      <mesh position={[0, 0, CONTENT_Z]}>
+      {/* Content face. SCENE-AUDIT tag: this is the ONE screen family this
+          pass's task explicitly requires to be readable ("two large flat
+          monitors... facing the camera and readable") -- hqInformational
+          stays unset (readable:true) so hq-scene-audit.ts's screen_facing
+          check actually gates on it. Local normal +Z, the plane's own
+          default front face; the parent <Billboard> re-orients the WHOLE
+          group (this mesh included) to face whichever camera is active
+          every frame, so the traversal's world-transformed normal is
+          exactly the camera-facing direction by construction. */}
+      <mesh position={[0, 0, CONTENT_Z]} userData={{ hqKind: "screen", hqLabel: "twin-monitor", hqFaceLocalNormal: [0, 0, 1] }}>
         <planeGeometry args={[SCREEN_WIDTH - BEZEL_MARGIN * 2, SCREEN_HEIGHT - BEZEL_MARGIN * 2]} />
         <meshBasicMaterial map={texture} toneMapped={false} transparent opacity={dimFactor} />
       </mesh>

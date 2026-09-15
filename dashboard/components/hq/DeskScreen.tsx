@@ -97,5 +97,19 @@ export default function DeskScreen({ path, position, rotation = [0, Math.PI, 0],
     material.dispose();
   }, [texture, material]);
 
+  useEffect(() => {
+    // SCENE-AUDIT pass (2026-09-15): tagged "screen"/informational -- a real
+    // computer-screen.glb mesh, not a flat plane, so this pass has no exact
+    // measured face normal for it (ASSUMPTION: approximated as local +Z,
+    // the GLTF's own front on every other kit piece in this tree). Per this
+    // pass's own task scope ("desk screens/bay signs are informational, not
+    // FAIL"), hqInformational:true means screen_facing reports its number
+    // but never gates the verdict on it.
+    cloned.userData.hqKind = "screen";
+    cloned.userData.hqLabel = "desk-screen";
+    cloned.userData.hqFaceLocalNormal = [0, 0, 1];
+    cloned.userData.hqInformational = true;
+  }, [cloned]);
+
   return <primitive object={cloned} position={position} rotation={rotation} scale={scale} />;
 }

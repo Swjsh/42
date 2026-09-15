@@ -1368,6 +1368,57 @@ def check_label_overlap(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
     }
 
 
+# 4b. label legibility (SCENE-AUDIT pass, 2026-09-15) ---------------------------
+# "would a human accept this room" rubric item 4 (markdown/doctrine/
+# FRONTEND-OPS.md's "HQ scene acceptance" section, appended 2026-09-15):
+# unreadable text at the viewing distance is a FAIL, not merely "present".
+# Reuses the SAME `.hq-beam` DOM rects SAMPLE_SCRIPT already captures for
+# check_label_overlap above -- zero new capture cost, and the SAME
+# LABEL_MIN_HEIGHT_PX (12px) that function already uses to gate "is this
+# rect big enough to be a real label" (never introduces a second, slightly
+# different magic number for what is functionally the same "too small to
+# read" judgment).
+
+
+def check_label_legibility(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """FAILs any visible `.hq-beam` label/plaque rendered under
+    LABEL_MIN_HEIGHT_PX tall. NO-DATA if the run never captured a single
+    visible label (camera too far, no agents/labels this run) -- never a
+    false PASS on zero evidence, same discipline every other check_* in this
+    module already follows. Screen-face/label overlap (a label's rect
+    intersecting a screen's own projected rect) is NOT checked here: this
+    probe has no cheap way to project a 3D screen's world AABB into the
+    SAME 2D DOM pixel space these bubbles render in without a second
+    Playwright round-trip per tick -- left as a stated, not silently
+    skipped, follow-up (see the returned detail's own "note" field)."""
+    visible_heights: List[float] = []
+    violations: List[Dict[str, Any]] = []
+    for s in samples:
+        rects = s.get("label_rects") or []
+        for r in rects:
+            if not r.get("visible", True):
+                continue
+            h = r.get("h") or 0.0
+            if h <= 0:
+                continue
+            visible_heights.append(h)
+            if h < LABEL_MIN_HEIGHT_PX:
+                violations.append({"text": r.get("text"), "height_px": round(h, 2)})
+    if not visible_heights:
+        return {"verdict": "NO-DATA", "detail": {"reason": "no visible labels sampled this run"}}
+    verdict = "FAIL" if violations else "PASS"
+    return {
+        "verdict": verdict,
+        "detail": {
+            "sampled": len(visible_heights),
+            "min_height_px": LABEL_MIN_HEIGHT_PX,
+            "violation_count": len(violations),
+            "violations": violations[:20],
+            "note": "does not check label-vs-screen-face overlap (no cheap 3D->DOM projection this pass) -- see this function's own docstring",
+        },
+    }
+
+
 # 5. page == API parity ---------------------------------------------------------
 
 def check_page_api_parity(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
