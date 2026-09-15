@@ -109,7 +109,18 @@ const CORE_GROUP_SCALE = 1.15;
 // its <Html position=...> and the clamp-factor call for it below, so the two
 // can never disagree.
 const GAUGE_GROUP_Y = -1.6;
-const GAUGE_LABEL_Y = -0.22; // relative to GAUGE_GROUP_Y
+// POLISH-3 (2026-09-15, real-capture, camdist=36 07:46:56 ET): was -0.22 --
+// real evidence showed the MEM text partly clipped by the BRAIN plaque's own
+// lower edge at that overview framing (bubbleCounterScale grows a label's
+// on-screen footprint substantially at long camera distance -- see
+// LabelDeclutterManager.tsx's own "OVERVIEW-FLOOR fix" note -- so a world-
+// space gap that reads as generous up close can still read as touching once
+// both labels are counter-scaled up at overview zoom). -0.34 adds further
+// real clearance below the gauge bar (away from PLAQUE_Y, which sits above
+// the core); paired with the label's own small transparent padding below
+// (belt-and-suspenders "min gap" for the declutter resolver's own rect
+// overlap check, per the coordinator's own suggested fix shape).
+const GAUGE_LABEL_Y = -0.34; // relative to GAUGE_GROUP_Y
 // PLAQUE_Y/PULSE_PLAQUE_Y/GAMING_PLAQUE_Y raised (2026-09-14, coordinator
 // regression capture scale-verify-0106.png): old PLAQUE_Y=1.75 -> world
 // 1.75*CORE_GROUP_SCALE(1.15)=2.0125, landing squarely in the live-agent
@@ -236,6 +247,31 @@ export default function BrainCore({
     "brain-gauge",
     PRIORITY.LANE,
     () => [0, (GAUGE_GROUP_Y + GAUGE_LABEL_Y) * CORE_GROUP_SCALE, 0] as [number, number, number],
+  );
+  // POLISH-3 (2026-09-15, real-GPU probe: automation/state/station/hq-probe-
+  // runs/20260915T114713Z-n6xD1qb0i4bfCDjMZ9s9l.samples.json.gz) --
+  // label_overlap FAILed on "general-purpose"/"Claude (you)" live-agent
+  // bubbles vs "STATION BRIEF -- ALL HANDS" (35 ticks/16 segments, up to
+  // 2.5s runs). ROOT CAUSE: this pulse plaque was left out of the 2026-09-14
+  // DECLUTTER pass entirely (see the comment on `declutterRef` above --
+  // "only the main status plaque registers... the pulse/gaming plaques are
+  // rare/conditional overlays, out of this pass's own scope") -- it renders
+  // a real .hq-beam plaque (same visual weight as the always-on status
+  // plaque just above it) but the resolver had no registered rect for it,
+  // so it could never be nudged away from a live-agent bubble drifting
+  // through the hub, or vice versa. PRIORITY.PLAQUE (same tier the main
+  // status plaque already uses, per the coordinator's own "whatever
+  // BrainCore's plaque uses" instruction) -- a fixed board announcement
+  // should keep its resting position while live bubbles nudge around it,
+  // not the other way around. Same wrapperRef/measureRef pattern as every
+  // other registrant in this file. Conditional on `pulsing` (this plaque
+  // only exists then) -- registering/unregistering on mount/unmount is
+  // exactly what useLabelDeclutter.ts's own cleanup already handles (see
+  // its header: "a label that unmounts and remounts... starts fresh").
+  const { wrapperRef: pulseDeclutterRef, measureRef: pulseDeclutterMeasureRef } = useLabelDeclutter(
+    "brain-pulse-plaque",
+    PRIORITY.PLAQUE,
+    () => [0, PULSE_PLAQUE_Y * CORE_GROUP_SCALE, 0] as [number, number, number],
   );
 
   const utilFrac = clamp01((utilPct ?? 0) / 100);
@@ -409,7 +445,14 @@ export default function BrainCore({
         </mesh>
         <Html position={[0, GAUGE_LABEL_Y, 0]} center distanceFactor={9} style={{ pointerEvents: "none" }}>
           <div ref={gaugeDeclutterRef} style={{ transformOrigin: "50% 100%" }}>
-            <div ref={mergeRefs(gaugeLabelRef, gaugeDeclutterMeasureRef)} style={{ color: "#7f93b0", fontSize: 26, fontFamily: "system-ui, sans-serif", whiteSpace: "nowrap" }}>
+            {/* POLISH-3: transparent vertical padding inflates THIS div's own
+                measured rect (the resolver reads size from `measureRef`'s
+                real getBoundingClientRect -- see useLabelDeclutter.ts's own
+                header) without changing anything visible -- a "min gap" the
+                declutter resolver's strict rect-overlap check now honors
+                even for a near-touch against the plaque above, not only a
+                true pixel overlap. */}
+            <div ref={mergeRefs(gaugeLabelRef, gaugeDeclutterMeasureRef)} style={{ color: "#7f93b0", fontSize: 26, fontFamily: "system-ui, sans-serif", whiteSpace: "nowrap", padding: "10px 0" }}>
               MEM {memUsedMib ?? "?"}/{memTotalMib ?? "?"} MiB
             </div>
           </div>
@@ -464,7 +507,12 @@ export default function BrainCore({
         // was bumped 15px->26px for the roster-label-size floor, so this
         // needs more clearance to stay a clean stack, not an overlap.
         <Html position={[0, PULSE_PLAQUE_Y, 0]} center distanceFactor={9} style={{ pointerEvents: "none" }}>
-          <div ref={pulseRef} className="hq-beam" style={{ "--beam-color": manager?.color ?? PALETTE.hubRing, borderRadius: 8 } as CSSProperties}>
+          {/* DECLUTTER pass (POLISH-3): outer wrapper the shared resolver
+              owns, kept separate from `pulseRef`'s own existing
+              bubbleCounterScale close-camera scale-clamp -- see the main
+              plaque's identical two-wrapper convention/comment above. */}
+          <div ref={pulseDeclutterRef} style={{ transformOrigin: "50% 100%" }}>
+          <div ref={mergeRefs(pulseRef, pulseDeclutterMeasureRef)} className="hq-beam" style={{ "--beam-color": manager?.color ?? PALETTE.hubRing, borderRadius: 8 } as CSSProperties}>
             <div
               style={{
                 color: "#fff2fa", fontSize: 20, fontWeight: 800, fontFamily: "system-ui, sans-serif",
@@ -474,6 +522,7 @@ export default function BrainCore({
             >
               📋 STATION BRIEF — ALL HANDS
             </div>
+          </div>
           </div>
         </Html>
       )}
