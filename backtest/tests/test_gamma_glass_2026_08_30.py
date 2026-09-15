@@ -80,45 +80,50 @@ class TestBookDoesNotDoubleCount:
 
 
 class TestPositionHonesty:
-    """`flat` and `nobody-is-writing-the-file` must never look the same."""
+    """`flat` and `nobody-is-writing-the-file` must never look the same.
 
-    def test_stale_position_file_reports_unknown_not_flat(self, monkeypatch):
-        monkeypatch.setattr(gg, "_age_h", lambda p: gg.POSITION_STALE_H + 1)
-        monkeypatch.setattr(gg, "_read", lambda p: {"status": None})
+    HQ-POSITION-TRUTH (2026-09-15): group_position() was repointed off the dead
+    current-position.json (nothing wrote it since the LLM heartbeat retired
+    2026-06-25 -- it sat 2499h stale while safe-2/bold-2 held real positions for
+    hours the same day) onto live_positions.py (exit-state.json per arm, the LIVE
+    truth). These tests were rewritten to mock live_positions.read_open_positions
+    instead of the old _age_h/_read(POSITION_FILE) pair -- same honesty contract
+    (open/flat/unknown, never a guessed flat), new source of truth.
+    """
+
+    def test_both_arms_unreadable_is_unknown_not_flat(self, monkeypatch):
+        def _raise(arm):
+            raise gg.live_positions.LivePositionsError(f"exit-state file missing for arm {arm!r}")
+        monkeypatch.setattr(gg.live_positions, "read_open_positions", _raise)
         monkeypatch.setattr(gg, "_today_fills", lambda: [])
         out = gg.group_position()
         assert out["state"] == "unknown"
         assert out["note"], "an unknown state must say WHY it is unknown"
 
-    def test_fresh_and_empty_is_flat(self, monkeypatch):
-        monkeypatch.setattr(gg, "_age_h", lambda p: 0.1)
-        monkeypatch.setattr(gg, "_read", lambda p: {"status": None})
+    def test_both_arms_empty_is_flat(self, monkeypatch):
+        monkeypatch.setattr(gg.live_positions, "read_open_positions", lambda arm: [])
         monkeypatch.setattr(gg, "_today_fills", lambda: [])
         assert gg.group_position()["state"] == "flat"
 
-    @pytest.mark.parametrize("status", ["long_call", "short_put", "open", "LONG"])
-    def test_fresh_with_a_real_status_is_open(self, monkeypatch, status):
-        monkeypatch.setattr(gg, "_age_h", lambda p: 0.1)
-        monkeypatch.setattr(gg, "_read", lambda p: {"status": status})
+    def test_either_arm_with_open_legs_is_open(self, monkeypatch):
+        def _rows(arm):
+            return [{"symbol": "SPY260915P00757000", "qty": 3}] if arm == "safe-2" else []
+        monkeypatch.setattr(gg.live_positions, "read_open_positions", _rows)
         monkeypatch.setattr(gg, "_today_fills", lambda: [])
         assert gg.group_position()["state"] == "open"
 
-    @pytest.mark.parametrize("status", ["flat", "FLAT", "closed", "none", " out "])
-    def test_a_flat_WORD_is_flat_not_open(self, monkeypatch, status):
-        """`if d.get("status")` treated ANY truthy string as a position, so the
-        literal "flat" rendered IN A TRADE. Flagged by an adversarial review."""
-        monkeypatch.setattr(gg, "_age_h", lambda p: 0.1)
-        monkeypatch.setattr(gg, "_read", lambda p: {"status": status})
-        monkeypatch.setattr(gg, "_today_fills", lambda: [])
-        assert gg.group_position()["state"] == "flat"
-
-    def test_no_file_at_all_is_unknown_not_flat(self, monkeypatch):
-        """Nobody has told us anything. That is not the same as being flat."""
-        monkeypatch.setattr(gg, "_age_h", lambda p: None)
-        monkeypatch.setattr(gg, "_read", lambda p: None)
+    def test_one_arm_unreadable_the_other_flat_still_reports_flat_with_a_note(self, monkeypatch):
+        """Partial read failure must not hide behind a clean 'flat' -- but a real
+        flat readback from the arm that DID answer is still worth reporting."""
+        def _mixed(arm):
+            if arm == "safe-2":
+                raise gg.live_positions.LivePositionsError("exit-state file missing for arm 'safe-2'")
+            return []
+        monkeypatch.setattr(gg.live_positions, "read_open_positions", _mixed)
         monkeypatch.setattr(gg, "_today_fills", lambda: [])
         out = gg.group_position()
-        assert out["state"] == "unknown" and out["note"]
+        assert out["state"] == "flat"
+        assert out["note"] and "safe-2" in out["note"]
 
     def test_real_call_returns_a_known_state(self):
         assert gg.group_position()["state"] in {"open", "flat", "unknown"}

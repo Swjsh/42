@@ -260,8 +260,16 @@ def lane_prospector() -> dict:
 
 
 def lane_spy() -> dict:
-    """The live engine. Its pulse is the decision ledger, not a status file."""
-    cands = [STATE / "decisions.jsonl", STATE / "current-position.json",
+    """The live engine. Its pulse is the decision ledger, not a status file.
+
+    HQ-POSITION-TRUTH (2026-09-15): current-position.json used to sit in this
+    freshness candidate list but nothing has written it since the LLM heartbeat
+    retired 2026-06-25 -- it never won the newest-of-3 comparison, so it was
+    inert rather than misleading, but it also contributed nothing. Swapped for
+    automation/state/fleet/safe-2/exit-state.json, which the live engine's
+    exit_manager actually writes on every position change.
+    """
+    cands = [STATE / "decisions.jsonl", STATE / "fleet" / "safe-2" / "exit-state.json",
              STATE / "today-bias.json"]
     newest, age = _newest([c for c in cands if c.exists()])
     tasks = _task_states(("HeartbeatCore", "SightBeacon", "EodFlatten"))

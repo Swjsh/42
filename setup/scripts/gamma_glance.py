@@ -14,7 +14,8 @@ Reads only:
   - automation/state/self-check-last.json     -> self-check verdict + problems
   - automation/state/core-decisions.jsonl     -> ENGINE TODAY (entries, dominant SKIP, age)
   - automation/state/fleet/<arm>/decisions.jsonl -> FUNNEL (via fill_funnel.py; exit_pass = fill truth)
-  - automation/state/*current-position*.json  -> filled / flat detection
+  - automation/state/fleet/<arm>/exit-state.json -> filled / flat detection (LIVE truth,
+    via live_positions.py -- repointed 2026-09-15, see _arms()'s own comment)
   - automation/state/key-levels.json          -> level integrity (via self_check)
   - automation/state/today-bias.json          -> premarket bias freshness
   - automation/state/news.json                -> news freshness (days)
@@ -40,6 +41,8 @@ try:
 except Exception:  # noqa: BLE001
     def et_now() -> dt.datetime:  # fail-open ET fallback (rig is on Mountain; ET=local+2)
         return dt.datetime.now(ZoneInfo("America/New_York")).replace(tzinfo=None)
+
+import live_positions  # noqa: E402 -- HQ-POSITION-TRUTH (2026-09-15), see _arms()
 
 GREEN = "[GREEN]"
 RED = "[RED]"
@@ -307,18 +310,32 @@ def _push_status() -> list[str]:
     ]
 
 
+def _pos_label(arm: str) -> str:
+    """"FLAT", "OPEN xN", or "UNKNOWN" (read failure -- never silently FLAT).
+    HQ-POSITION-TRUTH (2026-09-15): repointed off current-position-{safe,bold}.json
+    (nothing has written those since the LLM heartbeat retired 2026-06-25 -- they
+    read all-null all day 2026-09-15 while safe-2/bold-2 held real positions for
+    hours) onto live_positions.py (exit-state.json, the LIVE truth)."""
+    try:
+        rows = live_positions.read_open_positions(arm)
+    except live_positions.LivePositionsError:
+        return "UNKNOWN"
+    return "FLAT" if not rows else f"OPEN x{len(rows)}"
+
+
 def _arms() -> list[str]:
     """ARMS block: which arms are live=true + flat."""
     fa = _j(STATE / "fleet" / "accounts.json") or {}
     arms = fa.get("arms", []) if isinstance(fa.get("arms"), list) else []
     live = [a.get("id") for a in arms if a.get("live") is True]
-    safe_pos = (_j(STATE / "current-position-safe.json") or {}).get("status")
-    bold_pos = (_j(STATE / "current-position-bold.json") or {}).get("status")
-    flat = (not safe_pos) and (not bold_pos)
+    safe_pos = _pos_label("safe-2")
+    bold_pos = _pos_label("bold-2")
+    ok = safe_pos in ("FLAT",) and bold_pos in ("FLAT",)
+    unknown = "UNKNOWN" in (safe_pos, bold_pos)
+    tag = f"   {GRAY}" if unknown else (f"   {GREEN}" if ok else f"   {RED}")
     return [
         f"  arms configured: {len(arms)}   live=true: {len(live)} {live or ''}",
-        f"  controls flat?  : safe={'FLAT' if not safe_pos else safe_pos}  bold={'FLAT' if not bold_pos else bold_pos}"
-        + ("   [GREEN]" if flat else "   [RED]"),
+        f"  controls flat?  : safe={safe_pos}  bold={bold_pos}" + tag,
     ]
 
 

@@ -42,6 +42,7 @@ _HERE = Path(__file__).resolve().parent
 if str(_HERE) not in sys.path:
     sys.path.insert(0, str(_HERE))
 import market_calendar  # noqa: E402 -- shared holidays+early-closes cache (B2, 2026-09-01)
+import live_positions  # noqa: E402 -- HQ-POSITION-TRUTH (2026-09-15), see check_position()
 
 # ---------------------------------------------------------------------------
 # Repo layout anchors (OP-27: anchor to __file__, never bare relative)
@@ -1295,14 +1296,22 @@ def check_rth_tick_gaps(et: datetime) -> dict:
                 critical=True)
 
 
-def check_position(name: str, path: Path) -> dict:
-    data, err = _read_json(path)
-    if data is None:
-        return _chk(name, "YELLOW", f"position file {err}", critical=False)
-    if "status" not in data:
-        return _chk(name, "YELLOW", "no 'status' key", critical=False)
-    status = data.get("status")
-    return _chk(name, "GREEN", "flat" if status is None else f"status={status}", critical=False)
+def check_position(name: str, arm: str) -> dict:
+    """HQ-POSITION-TRUTH (2026-09-15): this used to read current-position*.json,
+    which nothing has written since the LLM heartbeat retired 2026-06-25 --
+    every fire read GREEN "flat" regardless of the real broker state (2026-09-15:
+    safe-2/bold-2 both held real positions for hours while this check kept
+    reporting GREEN). Repointed to live_positions.py (exit-state.json, the LIVE
+    truth). A read failure is now YELLOW "unknown" -- never GREEN "flat" -- per
+    failure-honesty (an unreadable source is not evidence of no position)."""
+    try:
+        rows = live_positions.read_open_positions(arm)
+    except live_positions.LivePositionsError as e:
+        return _chk(name, "YELLOW", f"position read failed: {e}", critical=False)
+    if not rows:
+        return _chk(name, "GREEN", "flat", critical=False)
+    legs = ", ".join(f"{r.get('symbol')}x{r.get('qty')}" for r in rows)
+    return _chk(name, "GREEN", f"open: {legs}", critical=False)
 
 
 # ---------------------------------------------------------------------------
@@ -1380,8 +1389,8 @@ def build_report() -> dict:
                              BREAKER_DATE_FIELD["breaker_rearm_safe"], mkt, et),
         check_breaker_rearm("breaker_rearm_bold", AGG / "circuit-breaker.json",
                              BREAKER_DATE_FIELD["breaker_rearm_bold"], mkt, et),
-        check_position("position_safe", STATE / "current-position.json"),
-        check_position("position_bold", STATE / "current-position-bold.json"),
+        check_position("position_safe", "safe-2"),
+        check_position("position_bold", "bold-2"),
         # NON-CRITICAL research-data continuity watcher (2026-06-29): surfaces a silent
         # GEX-accrual death without ever trade-halting or RED-ing the critical verdict.
         check_gex_archive(et),

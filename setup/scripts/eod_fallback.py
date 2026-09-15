@@ -325,8 +325,11 @@ def _prompt_analyst(date_str: str) -> tuple[str, list[str]]:
                       _read_file_safe(REPO / "journal" / f"{today}.md")),
         _inline_block("today-bias.json",
                       _read_file_safe(STATE_DIR / "today-bias.json", 20_000)),
-        _inline_block("current-position.json",
-                      _read_file_safe(STATE_DIR / "current-position.json", 5_000)),
+        # HQ-POSITION-TRUTH (2026-09-15): current-position.json hasn't been written
+        # since the LLM heartbeat retired 2026-06-25; repointed to exit-state.json,
+        # the LIVE per-arm position truth (heartbeat_core.py's exit_manager).
+        _inline_block("fleet/safe-2/exit-state.json (LIVE position truth)",
+                      _read_file_safe(STATE_DIR / "fleet" / "safe-2" / "exit-state.json", 5_000)),
         _inline_block("scout_output.json",
                       _read_file_safe(REPO / "automation" / "scout" / "state" / "scout_output.json", 20_000)),
         _inline_block("swarm_output.json",
@@ -396,10 +399,13 @@ def _prompt_manager(date_str: str) -> tuple[str, list[str]]:
                       _quant_section(today)),
         _inline_block("today-bias.json",
                       _read_file_safe(STATE_DIR / "today-bias.json", 15_000)),
-        _inline_block("current-position.json",
-                      _read_file_safe(STATE_DIR / "current-position.json", 5_000)),
-        _inline_block("current-position-bold.json",
-                      _read_file_safe(STATE_DIR / "current-position-bold.json", 5_000)),
+        # HQ-POSITION-TRUTH (2026-09-15): current-position*.json hasn't been written
+        # since the LLM heartbeat retired 2026-06-25; repointed to exit-state.json,
+        # the LIVE per-arm position truth (heartbeat_core.py's exit_manager).
+        _inline_block("fleet/safe-2/exit-state.json (LIVE position truth)",
+                      _read_file_safe(STATE_DIR / "fleet" / "safe-2" / "exit-state.json", 5_000)),
+        _inline_block("fleet/bold-2/exit-state.json (LIVE position truth)",
+                      _read_file_safe(STATE_DIR / "fleet" / "bold-2" / "exit-state.json", 5_000)),
         _inline_block(f"journal/{today}.md",
                       _read_file_safe(REPO / "journal" / f"{today}.md", 40_000)),
         _inline_block(f"analysis/eod/{today}.md (if analyst already ran)",

@@ -34,6 +34,7 @@ if _os.path.basename(_sys.executable).lower() == "pythonw.exe":
 import datetime as dt
 import json
 import logging
+import sys
 import time
 from pathlib import Path
 
@@ -44,19 +45,30 @@ WATCHER_STATE_PATH = STATE_DIR / ".discord-watcher-state.json"
 PID_PATH = STATE_DIR / "discord-watcher.pid"
 CFG_PATH = STATE_DIR / ".discord-config.json"
 
+SCRIPTS = Path(__file__).resolve().parent
+if str(SCRIPTS) not in sys.path:
+    sys.path.insert(0, str(SCRIPTS))
+import live_positions  # noqa: E402
+
 POLL_INTERVAL_SEC = 30
 
-# Per-account wiring: (ledger, [position files, first existing wins], circuit-breaker, label)
+# Per-account wiring: (ledger, live_positions arm id, circuit-breaker, label).
+# HQ-POSITION-TRUTH (2026-09-15): "position" used to point at
+# current-position-{safe,bold}.json, which nothing has written since the LLM
+# heartbeat retired 2026-06-25 -- those files stayed all-null all day
+# 2026-09-15 while safe-2/bold-2 held real broker positions for hours, so
+# every ENTER/TP1/STOP message silently lost its strike/qty/price detail.
+# Repointed to live_positions.py (exit-state.json, the LIVE truth).
 ACCOUNTS = {
     "safe": {
         "ledger": STATE_DIR / "decisions.jsonl",
-        "position": [STATE_DIR / "current-position-safe.json", STATE_DIR / "current-position.json"],
+        "arm": "safe-2",
         "cb": STATE_DIR / "circuit-breaker.json",
         "label": "Safe",
     },
     "bold": {
         "ledger": STATE_DIR / "aggressive" / "decisions.jsonl",
-        "position": [STATE_DIR / "current-position-bold.json"],
+        "arm": "bold-2",
         "cb": STATE_DIR / "aggressive" / "circuit-breaker.json",
         "label": "Bold",
     },
@@ -120,11 +132,30 @@ def _read_json(path: Path) -> dict | None:
 
 
 def _read_position(acct: dict) -> dict:
-    for p in acct["position"]:
-        d = _read_json(p)
-        if d and d.get("status"):  # only a live (non-null) position is useful for detail
-            return d
-    return {}
+    """First OPEN leg for this account, live from exit-state.json, remapped to the
+    key names compose_trade_message() expects. `{}` on flat OR on a read failure --
+    a message that can't get detail still fires with the generic fallback text
+    rather than the watcher going silent; scan_ledger() logs read failures via
+    live_positions raising, which is visible in the watcher's own logs."""
+    try:
+        rows = live_positions.read_open_positions(acct["arm"])
+    except live_positions.LivePositionsError as e:
+        logger.warning("live_positions read failed for %s: %s", acct["arm"], e)
+        return {}
+    if not rows:
+        return {}
+    row = rows[0]
+    strike = row.get("strike")
+    if isinstance(strike, float) and strike == int(strike):
+        strike = int(strike)  # 757.0 -> 757 for message formatting
+    return {
+        "strike": strike,
+        "qty": row.get("qty"),
+        "contracts": row.get("qty"),
+        "entry_price": row.get("entry_premium"),
+        "stop_price": row.get("runner_stop_premium"),
+        "setup_name": row.get("strategy"),
+    }
 
 
 def _num(v):

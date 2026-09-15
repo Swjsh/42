@@ -33,6 +33,7 @@ ROOT = Path(__file__).resolve().parents[2]
 STATE = ROOT / "automation" / "state"
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from et_clock import ET_TZ as ET  # noqa: E402
+import live_positions  # noqa: E402 -- HQ-POSITION-TRUTH (2026-09-15), see group_position()
 
 # The arms whose money is real enough to show. Sourced from the fleet registry at import
 # rather than hardcoded, so retiring an arm cannot leave a ghost row on the glass.
@@ -75,7 +76,10 @@ def _age_h(path: Path):
 
 def _src(path: Path) -> dict:
     """Provenance travels with every group, so the page can name its own inputs."""
-    rel = str(path.relative_to(ROOT)).replace("\\", "/")
+    try:
+        rel = str(path.relative_to(ROOT)).replace("\\", "/")
+    except ValueError:
+        rel = str(path)  # not under ROOT (e.g. a test double) -- absolute is still honest
     a = _age_h(path)
     return {"path": rel, "age_h": round(a, 2) if a is not None else None,
             "exists": path.exists()}
@@ -194,13 +198,16 @@ def _today_fills() -> list:
 def group_position() -> dict:
     """Open or flat -- and honest about not knowing.
 
-    Three states, not two. `unknown` exists because the position file goes stale when the
-    engine is not running, and a stale file that says flat is indistinguishable from a
-    real flat unless the age is checked. Reporting `unknown` on a weekend is correct;
-    reporting `flat` from a 2000-hour-old file would be a guess wearing a fact's clothes.
+    HQ-POSITION-TRUTH (2026-09-15): previously read current-position.json, which
+    stopped being written when the LLM heartbeat retired 2026-06-25 (last write
+    2499h old as of this fix) -- this function's own 24h staleness gate already
+    caught that and reported "unknown" rather than a false "flat", so this was
+    never the false-GREEN incident, but "unknown" all day every day is not useful
+    either. Repointed to live_positions.py (exit-state.json per arm, the LIVE
+    truth, written every engine tick) so a real flat/open state renders instead
+    of a permanent shrug. `unknown` is kept for a genuine read failure on BOTH
+    arms -- still three states, still honest about not knowing.
     """
-    age = _age_h(POSITION_FILE)
-    d = _read(POSITION_FILE)
     fills = _today_fills()
     last = None
     for line in reversed(_tail_lines(FILLS_FILE, 40)):
@@ -212,36 +219,32 @@ def group_position() -> dict:
                 "qty": r.get("qty"), "price": r.get("price"), "ts_et": r.get("ts_et")}
         break
 
-    if age is None:
-        # No file at all. That is not flat -- nobody has told us anything.
+    open_legs: list[dict] = []
+    errors: list[str] = []
+    for arm in ("safe-2", "bold-2"):
+        try:
+            open_legs.extend(live_positions.read_open_positions(arm))
+        except live_positions.LivePositionsError as e:
+            errors.append(f"{arm}: {e}")
+
+    if len(errors) == 2:
+        # Both arms unreadable -- genuinely don't know, same honesty contract as before.
         return {"ok": True, "state": "unknown",
-                "note": "no position file has ever been written",
+                "note": "exit-state.json unreadable for both arms: " + "; ".join(errors),
                 "raw_status": None, "fills_today": len(fills), "last_fill": last,
                 "source": _src(POSITION_FILE), "fills_source": _src(FILLS_FILE)}
-    if age > POSITION_STALE_H:
-        state = "unknown"
-        note = ("nobody has written the position file in {:.0f}h, so I cannot say "
-                "whether we are flat").format(age)
-    elif isinstance(d, dict) and str(d.get("status") or "").strip().lower() in FLAT_WORDS:
-        # The original test was `if d.get("status")` -- ANY truthy string -- so the
-        # literal "flat" or "closed" would have rendered IN A TRADE. Named flat-words
-        # rather than an open-word whitelist: the engine writes real statuses like
-        # "long_call" that no whitelist would have guessed, and being wrong in the
-        # open->flat direction is the dangerous one.
-        state = "flat"
-        note = None
-    elif isinstance(d, dict) and d.get("status"):
-        state = "open"
-        note = None
-    else:
-        state = "flat"
-        note = None
+
+    state = "open" if open_legs else "flat"
+    note = "; ".join(errors) if errors else None  # one arm unreadable: say so, don't hide it
+    raw_status = ", ".join(f"{r.get('symbol')}x{r.get('qty')}" for r in open_legs) or None
 
     return {"ok": True, "state": state, "note": note,
-            "raw_status": (d or {}).get("status") if isinstance(d, dict) else None,
+            "raw_status": raw_status,
             "fills_today": len(fills),
             "last_fill": last,
-            "source": _src(POSITION_FILE), "fills_source": _src(FILLS_FILE)}
+            "source": {"safe-2": _src(live_positions.ARM_EXIT_STATE["safe-2"]),
+                       "bold-2": _src(live_positions.ARM_EXIT_STATE["bold-2"])},
+            "fills_source": _src(FILLS_FILE)}
 
 
 # --- what the engine thinks -------------------------------------------------------------
