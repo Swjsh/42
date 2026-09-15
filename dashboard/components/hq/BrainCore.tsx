@@ -71,6 +71,65 @@ const PULSE_DURATION_MS = 10_000;
 // yielded/RTH window, must never read as "thinking").
 const THINKING_UTIL_THRESHOLD = 30;
 
+// ─── P1 fix (POLISH-1, 2026-09-14, coordinator, real capture
+// world6-chart-closeup3.png -- "the BRAIN plaque covering the chart at close
+// range") ────────────────────────────────────────────────────────────────
+// Every plaque below is a drei <Html distanceFactor={9}>. Read
+// node_modules/@react-three/drei/web/Html.js#objectScale this session (not
+// assumed): it scales content by `distanceFactor / (2*tan(fov/2)*dist)` every
+// frame, i.e. STRICTLY inversely proportional to the real world distance from
+// camera to the Html's own anchor point -- correct at the tuned preset-0
+// distance, but blows a plaque up to ~10% of the screen at any closer camera
+// (hub-interior presets, `?cam=` close-ups), exactly the chart-closeup3
+// capture's symptom.
+//
+// Fix: each plaque's own wrapper div gets a ref, mutated in the useFrame
+// below to carry an ADDITIONAL `scale(min(1, camDist/preset0Dist))` CSS
+// transform. This composes with (does not fight) drei's own scale -- Html.js's
+// own DOM nesting is `el` (drei's scale) > styles-div (the `center` transform)
+// > this component's own child (our ref) -- and the algebra is exact: at
+// camDist>=preset0Dist the factor clamps to 1, so the far look (preset 0 and
+// beyond) is BYTE-IDENTICAL to today; below preset0Dist,
+// (distanceFactor/camDist)*(camDist/preset0Dist) = distanceFactor/preset0Dist,
+// a CONSTANT regardless of how much closer the camera gets -- i.e. exactly
+// the preset-0 on-screen size, never larger. Zero React state (ref mutation
+// only).
+//
+// PRESET0_CAM_* is the real preset-0 camera position, cross-referenced from
+// Scene.tsx (read-only -- never imported, same "duplicate a small derived
+// constant, comment its source" convention HubInterior.tsx#facingHubRotationY
+// already uses for Scene.tsx-adjacent math): sin/cos(BASE_AZIMUTH=
+// atan2(16,20)) * CAMERA_DIST_ULTRA(45), CAMERA_HEIGHT_ULTRA(31) -- all 3
+// read directly from that file this session. BrainCore's own mount in
+// Scene.tsx carries no position offset (verified by reading that call site
+// too -- `<group {...clickableGroupProps(...)}><BrainCore .../></group>`,
+// no `position`), so the hub center IS world origin and every plaque's world
+// X/Z stay 0 -- only Y varies, by each plaque's own local-Y * CORE_GROUP_SCALE
+// below.
+const PRESET0_CAM_X = 28.1113;
+const PRESET0_CAM_Y = 31;
+const PRESET0_CAM_Z = 35.1391;
+
+function presetZeroClampFactor(camX: number, camY: number, camZ: number, worldY: number): number {
+  const camDist = Math.hypot(camX, camY - worldY, camZ);
+  const preset0Dist = Math.hypot(PRESET0_CAM_X, PRESET0_CAM_Y - worldY, PRESET0_CAM_Z);
+  return Math.min(1, camDist / preset0Dist);
+}
+
+// Outer core-group scale (the `<group scale={...}>` wrapping the sphere/
+// rings/plaques below) -- named so the clamp math above can convert each
+// Html's own LOCAL y into the real world-Y `presetZeroClampFactor` needs,
+// without a second hardcoded "1.15" ever drifting from the JSX below.
+const CORE_GROUP_SCALE = 1.15;
+// Each plaque/label's own local Y (pre-CORE_GROUP_SCALE) -- shared between
+// its <Html position=...> and the clamp-factor call for it below, so the two
+// can never disagree.
+const GAUGE_GROUP_Y = -1.6;
+const GAUGE_LABEL_Y = -0.22; // relative to GAUGE_GROUP_Y
+const PLAQUE_Y = 1.75;
+const PULSE_PLAQUE_Y = 2.8;
+const GAMING_PLAQUE_Y = 3.5;
+
 /** First token of a loop-ledger `reason`, e.g. "rth_window" from
  * "rth_window (weekday 09:30-15:55 ET)" -- byte-identical helper to
  * GammaCharacter.tsx's own `shortReason` (duplicated, not imported, same
@@ -143,6 +202,16 @@ export default function BrainCore({
   const coreMat = useRef<THREE.MeshMatcapMaterial | THREE.MeshPhysicalMaterial>(null);
   const matcap = useMemo(() => makeMatcapTexture(), []);
   const glowMat = useRef<THREE.SpriteMaterial>(null);
+  // P1 fix -- plaque-scale-clamp wrapper refs, one per Html this fix covers
+  // (see presetZeroClampFactor's own header). Each is the actual rendered
+  // wrapper div (the ".hq-beam" div for 3 of the 4; the gauge label has no
+  // beam wrapper, so its own <div> gets the ref directly) -- null whenever
+  // that Html isn't currently mounted (pulse/gaming are conditional),
+  // guarded the same way coreMat/glowMat already are below.
+  const gaugeLabelRef = useRef<HTMLDivElement>(null);
+  const plaqueRef = useRef<HTMLDivElement>(null);
+  const pulseRef = useRef<HTMLDivElement>(null);
+  const gamingRef = useRef<HTMLDivElement>(null);
 
   const utilFrac = clamp01((utilPct ?? 0) / 100);
   const memFrac = memUsedMib && memTotalMib ? clamp01(memUsedMib / memTotalMib) : 0;
@@ -198,12 +267,37 @@ export default function BrainCore({
     // brightness flicker/glow-sprite breathing below.
     if (coreMat.current) coreMat.current.color.set(PALETTE.hubCore).multiplyScalar(baseGlow + flicker);
     if (glowMat.current) glowMat.current.opacity = clamp01(0.35 + utilFrac * 0.5) * dimFactor;
+
+    // P1 fix -- see presetZeroClampFactor's own header comment. camera
+    // position is read once per frame (state.camera has no parent transform
+    // in this tree, so .position IS its real world position); worldY per
+    // plaque is its own local Y * CORE_GROUP_SCALE (this component's own
+    // outer <group> scale).
+    const camX = state.camera.position.x;
+    const camY = state.camera.position.y;
+    const camZ = state.camera.position.z;
+    if (gaugeLabelRef.current) {
+      const f = presetZeroClampFactor(camX, camY, camZ, (GAUGE_GROUP_Y + GAUGE_LABEL_Y) * CORE_GROUP_SCALE);
+      gaugeLabelRef.current.style.transform = `scale(${f})`;
+    }
+    if (plaqueRef.current) {
+      const f = presetZeroClampFactor(camX, camY, camZ, PLAQUE_Y * CORE_GROUP_SCALE);
+      plaqueRef.current.style.transform = `scale(${f})`;
+    }
+    if (pulseRef.current) {
+      const f = presetZeroClampFactor(camX, camY, camZ, PULSE_PLAQUE_Y * CORE_GROUP_SCALE);
+      pulseRef.current.style.transform = `scale(${f})`;
+    }
+    if (gamingRef.current) {
+      const f = presetZeroClampFactor(camX, camY, camZ, GAMING_PLAQUE_Y * CORE_GROUP_SCALE);
+      gamingRef.current.style.transform = `scale(${f})`;
+    }
   });
 
   const gaugeColor = memFrac > 0.85 ? "#ff3b3b" : memFrac > 0.6 ? "#ffb020" : "#22ff88";
 
   return (
-    <group scale={1.15}>
+    <group scale={CORE_GROUP_SCALE}>
       {/* Kit rebuild (2026-09-13, HQ-SCENE-PLAN.md): "brain core = a glowing
           reactor built from kit pieces + emissive core" -- 4 pipe/pipe-bend
           props radiating from the EXISTING sphere/rings (kept unchanged,
@@ -273,7 +367,7 @@ export default function BrainCore({
       </sprite>
 
       {/* Memory gauge: background + fill, anchored left */}
-      <group position={[0, -1.6, 0]}>
+      <group position={[0, GAUGE_GROUP_Y, 0]}>
         <mesh>
           <boxGeometry args={[GAUGE_WIDTH, 0.09, 0.05]} />
           <meshBasicMaterial color="#0e1626" transparent opacity={0.9} />
@@ -282,8 +376,8 @@ export default function BrainCore({
           <boxGeometry args={[GAUGE_WIDTH * Math.max(memFrac, 0.02), 0.09, 0.05]} />
           <meshBasicMaterial color={gaugeColor} toneMapped={false} />
         </mesh>
-        <Html position={[0, -0.22, 0]} center distanceFactor={9} style={{ pointerEvents: "none" }}>
-          <div style={{ color: "#7f93b0", fontSize: 26, fontFamily: "system-ui, sans-serif", whiteSpace: "nowrap" }}>
+        <Html position={[0, GAUGE_LABEL_Y, 0]} center distanceFactor={9} style={{ pointerEvents: "none" }}>
+          <div ref={gaugeLabelRef} style={{ color: "#7f93b0", fontSize: 26, fontFamily: "system-ui, sans-serif", whiteSpace: "nowrap" }}>
             MEM {memUsedMib ?? "?"}/{memTotalMib ?? "?"} MiB
           </div>
         </Html>
@@ -293,8 +387,8 @@ export default function BrainCore({
           brain's own status line, must read clearly across a room on the 4K
           panel. Wrapped in .hq-beam (Border Beam, see Hud.tsx's shared
           <style>) since this is the hub's own HUD-adjacent plaque. */}
-      <Html position={[0, 1.75, 0]} center distanceFactor={9} style={{ pointerEvents: "none" }}>
-        <div className="hq-beam" style={{ "--beam-color": "#7ad9ff", borderRadius: 8 } as CSSProperties}>
+      <Html position={[0, PLAQUE_Y, 0]} center distanceFactor={9} style={{ pointerEvents: "none" }}>
+        <div ref={plaqueRef} className="hq-beam" style={{ "--beam-color": "#7ad9ff", borderRadius: 8 } as CSSProperties}>
           <div
             style={{
               color: "#dff3ff", fontSize: 34, fontWeight: 700, fontFamily: "system-ui, sans-serif",
@@ -330,8 +424,8 @@ export default function BrainCore({
         // plaque directly below grew taller once its manager-caption line
         // was bumped 15px->26px for the roster-label-size floor, so this
         // needs more clearance to stay a clean stack, not an overlap.
-        <Html position={[0, 2.8, 0]} center distanceFactor={9} style={{ pointerEvents: "none" }}>
-          <div className="hq-beam" style={{ "--beam-color": manager?.color ?? PALETTE.hubRing, borderRadius: 8 } as CSSProperties}>
+        <Html position={[0, PULSE_PLAQUE_Y, 0]} center distanceFactor={9} style={{ pointerEvents: "none" }}>
+          <div ref={pulseRef} className="hq-beam" style={{ "--beam-color": manager?.color ?? PALETTE.hubRing, borderRadius: 8 } as CSSProperties}>
             <div
               style={{
                 color: "#fff2fa", fontSize: 20, fontWeight: 800, fontFamily: "system-ui, sans-serif",
@@ -347,8 +441,9 @@ export default function BrainCore({
 
       {/* Gaming-mode plaque */}
       {gaming && (
-        <Html position={[0, 3.5, 0]} center distanceFactor={9} style={{ pointerEvents: "none" }}>
+        <Html position={[0, GAMING_PLAQUE_Y, 0]} center distanceFactor={9} style={{ pointerEvents: "none" }}>
           <div
+            ref={gamingRef}
             style={{
               color: "#ffb020", fontSize: 18, fontWeight: 700, fontFamily: "system-ui, sans-serif",
               background: "rgba(40,26,0,0.75)", padding: "6px 18px", borderRadius: 8,
