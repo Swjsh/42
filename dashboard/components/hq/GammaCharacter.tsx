@@ -175,7 +175,7 @@ export default function GammaCharacter({
       <group position={deskCenter} rotation={[0, rotationY, 0]}>
         <group position={[0, 0, BAY_DESK_OFFSET_Z]}>
           <Suspense fallback={null}>
-            <DeskCluster accentColor={accentColor} screenTitle="GAMMA" screenLines={screenLines} />
+            <DeskCluster position={deskCenter} rotationY={rotationY} accentColor={accentColor} screenTitle="GAMMA" screenLines={screenLines} />
           </Suspense>
         </group>
       </group>

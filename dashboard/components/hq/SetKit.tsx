@@ -385,7 +385,28 @@ interface PoolPlacement {
    * instance's matrix if the array ever reordered). */
   id: string;
   position: [number, number, number];
-  rotation: [number, number, number];
+  /** Euler XYZ (three.js default order). Every placement pooled so far
+   * (corridor/gate-door/junction/room, and DeskCluster's table+chair below)
+   * needs at most ONE non-zero axis (a plain Y-facing rotation), where
+   * axis order is moot -- use this field for those. Mutually exclusive
+   * with `quaternion`; exactly one of the two must be given. */
+  rotation?: [number, number, number];
+  /** Precomposed world quaternion -- for a placement whose rotation is a
+   * composition of axes that three.js's default XYZ Euler order can't
+   * express directly. CeilingLight is the case that needs this: its own
+   * local orientation is a pure X-axis flip, nested inside a Y-rotated
+   * parent (a department bay's own `rotationY`; 0 for the hub's 4
+   * fixtures, which have no parent rotation) -- the real nested-group
+   * composition is `Ry(rotationY) * Rx(Math.PI)` (apply the fixture's own
+   * flip first, THEN the bay's rotation, matching how two nested
+   * `<group rotation=[...]>` transforms actually multiply). A single Euler
+   * triple `[Math.PI, rotationY, 0]` under the default 'XYZ' order instead
+   * composes to `Rx(Math.PI) * Ry(rotationY)` (apply Ry first, then Rx) --
+   * the WRONG order whenever rotationY != 0 -- so this case computes the
+   * quaternion explicitly via real quaternion multiplication instead (see
+   * `ceilingLightWorldQuaternion` below). Mutually exclusive with
+   * `rotation`. */
+  quaternion?: THREE.Quaternion;
   scale: number;
 }
 
@@ -398,7 +419,12 @@ interface PoolPlacement {
 function usePooledKitProps(path: string, variant: string, placements: PoolPlacement[]): void {
   const key: PoolKey = `${path}::${variant}`;
   const depsKey = placements
-    .map((p) => `${p.id}:${p.position[0]},${p.position[1]},${p.position[2]}:${p.rotation[0]},${p.rotation[1]},${p.rotation[2]}:${p.scale}`)
+    .map((p) => {
+      const rot = p.quaternion
+        ? `q:${p.quaternion.x},${p.quaternion.y},${p.quaternion.z},${p.quaternion.w}`
+        : `e:${p.rotation![0]},${p.rotation![1]},${p.rotation![2]}`;
+      return `${p.id}:${p.position[0]},${p.position[1]},${p.position[2]}:${rot}:${p.scale}`;
+    })
     .join("|");
   useEffect(() => {
     let pool = poolRegistry.get(key);
@@ -407,9 +433,10 @@ function usePooledKitProps(path: string, variant: string, placements: PoolPlacem
       poolRegistry.set(key, pool);
     }
     for (const p of placements) {
+      const q = p.quaternion ?? _poolQuat.setFromEuler(_poolEuler.set(p.rotation![0], p.rotation![1], p.rotation![2]));
       const m = new THREE.Matrix4().compose(
         _poolPos.set(p.position[0], p.position[1], p.position[2]),
-        _poolQuat.setFromEuler(_poolEuler.set(p.rotation[0], p.rotation[1], p.rotation[2])),
+        q,
         _poolScale.set(p.scale, p.scale, p.scale),
       );
       pool.set(p.id, { matrix: m });
@@ -527,9 +554,26 @@ function interiorLampFactor(dayFactor: number): number {
   return lerp(1, 0.15, dayFactor);
 }
 
+// P3 perf pass, item 2 (POLISH-1 follow-up, 2026-09-14): CeilingLight is
+// now pooled the SAME way -- see PoolPlacement's own `quaternion` field
+// header for why this needs a real quaternion multiply rather than a
+// single Euler triple. `CEILING_LIGHT_LOCAL_QUAT` is the fixture's own
+// fixed local orientation (CeilingLight's old KitProp always passed
+// `rotation={[Math.PI, 0, 0]}`, never anything else); a fresh Y-axis
+// quaternion multiplies it PER CALL (never mutating this shared constant --
+// `.multiply` runs on the fresh per-call quaternion, matching the
+// immutability convention every other pooled placement in this file
+// already follows for its own scratch math).
+const _ceilingLightYAxis = new THREE.Vector3(0, 1, 0);
+const CEILING_LIGHT_LOCAL_QUAT = new THREE.Quaternion().setFromEuler(new THREE.Euler(Math.PI, 0, 0));
+function ceilingLightWorldQuaternion(rotationY: number): THREE.Quaternion {
+  return new THREE.Quaternion().setFromAxisAngle(_ceilingLightYAxis, rotationY).multiply(CEILING_LIGHT_LOCAL_QUAT);
+}
+
 export function HubRoom({ dayFactor = 1 }: { dayFactor?: number }) {
   const lightRadius = 4;
   const lampFactor = interiorLampFactor(dayFactor);
+  const instanceIdBase = useId();
   // Memoized on dayFactor alone (not every render) -- same "rebuild only
   // when the value the object depends on actually changes" discipline
   // SkyDome.tsx's own useMemo-on-dayFactor uses; a fresh object literal
@@ -545,6 +589,25 @@ export function HubRoom({ dayFactor = 1 }: { dayFactor?: number }) {
   // of them shares this exact value in any one render -- see this file's
   // own "P3 perf pass" header for the verification).
   const archPlateColor = useMemo(() => _plazaColor.copy(PLAZA_NIGHT).lerp(PLAZA_DAY, dayFactor).getStyle(), [dayFactor]);
+  // P3 perf pass, item 2 (POLISH-1 follow-up, 2026-09-14): the hub's 4
+  // ceiling-light fixtures, registered into the SAME pool the 8 department
+  // bays' own single fixture each (DepartmentBayShell below) also register
+  // into -- called at the component's own top level (never inside a nested
+  // closure/JSX callback -- rules of hooks), same convention every other
+  // usePooledKitProps call site in this file already follows.
+  const ceilingLightPlacements = useMemo(
+    () => [0, 90, 180, 270].map((deg) => {
+      const rad = (deg * Math.PI) / 180;
+      return {
+        id: `${instanceIdBase}-hub-ceiling-${deg}`,
+        position: [Math.cos(rad) * lightRadius, HUB_CEILING_Y, Math.sin(rad) * lightRadius] as [number, number, number],
+        quaternion: ceilingLightWorldQuaternion(0),
+        scale: FURNITURE_SCALE * 0.6,
+      };
+    }),
+    [instanceIdBase, lightRadius],
+  );
+  usePooledKitProps(KIT_PATHS.lights, "native", ceilingLightPlacements);
   return (
     <>
       {/* Pass F emissive fix (2026-09-13, coordinator's real-monitor
@@ -602,11 +665,13 @@ export function HubRoom({ dayFactor = 1 }: { dayFactor?: number }) {
         const pos: [number, number, number] = [Math.cos(rad) * lightRadius, HUB_CEILING_Y, Math.sin(rad) * lightRadius];
         return (
           <group key={deg}>
-            <CeilingLight position={pos} />
             {/* World pass A: 2 of the 4 hub fixtures are REAL warm-white
                 pointLights (the other 2 stay decorative-only greeble) --
                 part of the "~10-12 total" budget alongside each bay's own
-                single pointLight (StationModule.tsx). */}
+                single pointLight (StationModule.tsx). The fixture's own
+                GEOMETRY is registered into the shared CeilingLight pool
+                below instead of a direct <CeilingLight> mount (P3 perf
+                pass, item 2, POLISH-1 follow-up, 2026-09-14). */}
             {(deg === 0 || deg === 180) && (
               <pointLight position={pos} color="#ffe9c2" intensity={4 * lampFactor} distance={9} decay={2} />
             )}
@@ -622,7 +687,9 @@ export function HubRoom({ dayFactor = 1 }: { dayFactor?: number }) {
           once per hallway/bay, which IS the draw-call win. Suspense-scoped
           (world pass A convention, see ReactorGreeble's own comment in
           BrainCore.tsx) so a still-loading pool never unmounts HubRoom's
-          own shell/lights above. */}
+          own shell/lights above. P3 item 2 follow-up: CeilingLight
+          (hub+bay fixtures) and DeskCluster's table/chair (8 bays each)
+          join the same pool set here. */}
       <Suspense fallback={null}>
         <InstancedKitPool path={KIT_PATHS.architecture.corridor} variant="tinted" tintColor={archPlateColor} tintStrength={0.6} receiveShadow />
         <InstancedKitPool path={KIT_PATHS.architecture.corridor} variant="native" receiveShadow />
@@ -630,6 +697,9 @@ export function HubRoom({ dayFactor = 1 }: { dayFactor?: number }) {
         <InstancedKitPool path={KIT_PATHS.architecture.gateDoor} variant="native" castShadow />
         <InstancedKitPool path={KIT_PATHS.architecture.corridorIntersection} variant="native" receiveShadow />
         <InstancedKitPool path={KIT_PATHS.architecture.roomSmall} variant="native" receiveShadow />
+        <InstancedKitPool path={KIT_PATHS.lights} variant="native" />
+        <InstancedKitPool path={KIT_PATHS.furniture.table} variant="native" receiveShadow />
+        <InstancedKitPool path={KIT_PATHS.furniture.chair} variant="native" castShadow />
       </Suspense>
     </>
   );
@@ -671,14 +741,46 @@ export function DepartmentBayShell({ position, rotationY }: { position: [number,
   );
   usePooledKitProps(KIT_PATHS.architecture.gateDoor, "native", doorPlacements);
 
-  return (
-    <>
-      <CeilingLight position={[0, BAY_CEILING_Y, BAY_DESK_OFFSET_Z * 0.5]} />
-    </>
+  // P3 perf pass, item 2 (POLISH-1 follow-up, 2026-09-14): this bay's own
+  // ceiling light, into the SAME shared pool the hub's 4 fixtures also
+  // register into (see HubRoom's own registration + PoolPlacement's
+  // `quaternion` field header for why a real quaternion multiply is
+  // required here, unlike every OTHER pooled piece in this file). The
+  // fixture used to be a direct `<CeilingLight position={...} />` child of
+  // this component, itself nested inside StationModule.tsx's own
+  // `<group position={position} rotation={[0, rotationY, 0]}>` -- so its
+  // effective world rotation was already `Ry(rotationY) * Rx(Math.PI)` (the
+  // nested group's own rotation applied AFTER the fixture's local flip).
+  // Reproduced explicitly here since the pooled instance now renders from
+  // HubRoom, a sibling elsewhere in the tree.
+  const ceilingLightWorldPos = useMemo(
+    () => localToWorld(position, rotationY, [0, BAY_CEILING_Y, BAY_DESK_OFFSET_Z * 0.5]),
+    [position, rotationY],
   );
+  const ceilingLightQuat = useMemo(() => ceilingLightWorldQuaternion(rotationY), [rotationY]);
+  const ceilingLightPlacements = useMemo(
+    () => [{ id: `${instanceIdBase}-ceiling`, position: ceilingLightWorldPos, quaternion: ceilingLightQuat, scale: FURNITURE_SCALE * 0.6 }],
+    [instanceIdBase, ceilingLightWorldPos, ceilingLightQuat],
+  );
+  usePooledKitProps(KIT_PATHS.lights, "native", ceilingLightPlacements);
+
+  return null;
 }
 
 interface DeskClusterProps {
+  /** P3 perf pass, item 2 (POLISH-1 follow-up, 2026-09-14): the SAME
+   * `position`/`rotationY` StationModule.tsx's own outer
+   * `<group position={position} rotation={[0, rotationY, 0]}>` already
+   * applies -- REQUIRED (same convention as DepartmentBayShell's own props
+   * above) because the table/chair below no longer mount as KitProp
+   * children of that group; they register into the shared cross-scene pool
+   * instead, rendered from HubRoom, a sibling elsewhere in the tree. The
+   * computer/screen below stay LOCAL KitProp/DeskScreen mounts (unaffected,
+   * still nested under the caller's own group) -- they carry per-instance
+   * tint/canvas content an InstancedMesh's one shared material can't
+   * represent, this task's own explicit "leave it" case. */
+  position: [number, number, number];
+  rotationY: number;
   /** Health/accent color, subtly tinted onto the furniture (kept faint --
    * the SAME reasoning as useTintedClone: real furniture should still read
    * as furniture, the strong health signal stays on the dedicated emissive
@@ -719,18 +821,47 @@ export const BAY_SEAT_LOCAL: [number, number, number] = [0, 0, BAY_DESK_OFFSET_Z
  * (which way the character/screen actually face) is a COSMETIC assumption,
  * not yet confirmed against a render -- see HQ-SCENE-PLAN.md; flip the
  * `Math.PI` on computer-screen/chair if a screenshot shows it backwards. */
-export function DeskCluster({ accentColor, screenTitle, screenLines }: DeskClusterProps) {
+export function DeskCluster({ position, rotationY, accentColor, screenTitle, screenLines }: DeskClusterProps) {
   const SCREEN_POSITION: [number, number, number] = [0, DESK_TOP_HEIGHT, 0.55 * FURNITURE_SCALE];
+  const instanceIdBase = useId();
+
+  // P3 perf pass, item 2: table+chair pooled the SAME way SetKit's
+  // architecture pieces already are (see this file's own "P3 perf pass"
+  // header). Both had IDENTITY within this component's own local space
+  // (table: no own rotation; chair: a plain Y-axis rotation) nested inside
+  // the caller's `<group position={[0,0,BAY_DESK_OFFSET_Z]}>` (itself
+  // inside StationModule's own `<group position={position} rotation={[0,
+  // rotationY, 0]}>`) -- since every rotation in that chain is a plain
+  // Y-axis rotation, world rotation is just the SUM of the Y angles (no
+  // quaternion needed here, unlike CeilingLight's X+Y case -- see that
+  // fixture's own `quaternion` field for why it's different). World
+  // position folds BAY_DESK_OFFSET_Z into the local offset before
+  // `localToWorld` rotates it by the bay's own rotationY, reproducing the
+  // exact nested-group math this used to get for free from JSX nesting.
+  const tablePlacements = useMemo(
+    () => [{
+      id: `${instanceIdBase}-table`,
+      position: localToWorld(position, rotationY, [0, 0, BAY_DESK_OFFSET_Z + 0.3 * FURNITURE_SCALE]),
+      rotation: [0, rotationY, 0] as [number, number, number],
+      scale: FURNITURE_SCALE,
+    }],
+    [instanceIdBase, position, rotationY],
+  );
+  usePooledKitProps(KIT_PATHS.furniture.table, "native", tablePlacements);
+
+  const chairPlacements = useMemo(
+    () => [{
+      id: `${instanceIdBase}-chair`,
+      position: localToWorld(position, rotationY, [DESK_SEAT_LOCAL[0], DESK_SEAT_LOCAL[1], BAY_DESK_OFFSET_Z + DESK_SEAT_LOCAL[2]]),
+      rotation: [0, rotationY + Math.PI, 0] as [number, number, number],
+      scale: FURNITURE_SCALE,
+    }],
+    [instanceIdBase, position, rotationY],
+  );
+  usePooledKitProps(KIT_PATHS.furniture.chair, "native", chairPlacements);
+
   return (
     <group>
-      <KitProp path={KIT_PATHS.furniture.table} scale={FURNITURE_SCALE} position={[0, 0, 0.3 * FURNITURE_SCALE]} receiveShadow />
-      <KitProp
-        path={KIT_PATHS.furniture.chair}
-        scale={FURNITURE_SCALE}
-        position={DESK_SEAT_LOCAL}
-        rotation={[0, Math.PI, 0]}
-        castShadow
-      />
       <KitProp
         path={KIT_PATHS.furniture.computer}
         scale={FURNITURE_SCALE}
@@ -1136,12 +1267,11 @@ export function ReactorGreeble() {
   );
 }
 
-/** KayKit ceiling light fixture -- decorative greeble only, no dynamic
- * THREE.Light attached (cost discipline: this scene stays at 1 hemisphere +
- * 1 directional total, per every prior HQ pass). */
-export function CeilingLight({ position }: { position: [number, number, number] }) {
-  return <KitProp path={KIT_PATHS.lights} scale={FURNITURE_SCALE * 0.6} position={position} rotation={[Math.PI, 0, 0]} />;
-}
+// P3 perf pass, item 2 (POLISH-1 follow-up, 2026-09-14): the old
+// `CeilingLight` component (a plain KitProp, `rotation={[Math.PI, 0, 0]}`)
+// is gone -- both its call sites (HubRoom, DepartmentBayShell above) now
+// register directly into the shared `KIT_PATHS.lights` pool instead (see
+// `ceilingLightWorldQuaternion` and each call site's own registration).
 
 // Preload the small, always-visible set eagerly (drei's suspense cache) --
 // characters are preloaded per-body from KitAgent.tsx instead, since which

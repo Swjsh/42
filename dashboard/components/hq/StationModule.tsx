@@ -163,7 +163,7 @@ export default function StationModule({
           <Suspense fallback={null}>
             <DepartmentBayShell position={position} rotationY={rotationY} />
             <group position={[0, 0, BAY_DESK_OFFSET_Z]}>
-              <DeskCluster accentColor={color} screenTitle={row.lane} screenLines={screenLines} />
+              <DeskCluster position={position} rotationY={rotationY} accentColor={color} screenTitle={row.lane} screenLines={screenLines} />
             </group>
             {/* S3 bay-interiors pass (2026-09-14, MODELS builder): 2nd
                 chair+screen, container corner, interior lane sign, floor mat

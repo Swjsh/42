@@ -2007,6 +2007,8 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
                 <group position={slot.position} rotation={[0, slot.rotationY, 0]}>
                   <group position={[0, 0, BAY_DESK_OFFSET_Z]}>
                     <DeskCluster
+                      position={slot.position}
+                      rotationY={slot.rotationY}
                       accentColor={personaStatusColor(persona.status)}
                       screenTitle={isPilot ? "PILOT" : deskInfo ? persona.name.toUpperCase() : undefined}
                       screenLines={isPilot ? pilotScreenLines : deskScreenLines}
