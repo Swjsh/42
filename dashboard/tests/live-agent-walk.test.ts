@@ -35,6 +35,7 @@ import {
   computeStandSlot,
   STAND_RING_RADIUS,
   reconcileLiveAgentRoster,
+  shouldWriteLiveAgentDiag,
 } from "../components/hq/liveAgentWalk.ts";
 
 // ─── pathDistance ───────────────────────────────────────────────────────────
@@ -399,4 +400,56 @@ test("reconcileLiveAgentRoster: never mutates the `prev` map it was given", () =
   const prev = new Map<string, FakeDisplayed>([["a1", { id: "a1", targetNodeId: "hub-center", leaving: false }]]);
   reconcileLiveAgentRoster(prev, [], buildFakeDisplayed);
   assert.equal(prev.get("a1")?.leaving, false, "prev must stay untouched -- React state must never be mutated in place");
+});
+
+// ─── shouldWriteLiveAgentDiag (DIAG-GHOST FIX) ──────────────────────────────
+//
+// ROOT CAUSE (coordinator probe 20260915T072901Z, RTX 5080 hardware run, 60fps):
+// session a094022ec6e8790ff entered "leaving" at ~64.5s, walked to hub-center,
+// arrived at ~67.0s -- and then sat there, state "leaving", pos frozen at
+// [0,0], for the REMAINING ~181s of the run (through the recorded window
+// end), despawn_ms null the whole time. LiveAgents.tsx's own useFrame runs, in
+// order, every frame: (1) the arrival check, which on the FIRST frame with
+// progress>=1 calls fireDespawn() -- which synchronously calls
+// onDespawnedRef.current() (LiveAgents.tsx's own handleDespawned), which
+// calls diagStore.delete(id) THEN schedules the React setDisplayed() removal
+// -- and (2) an UNCONDITIONAL tail-end `diagStore.set(liveAgentId, {...})`
+// that runs every frame regardless of whether despawn just fired THIS SAME
+// FRAME. Because React's actual unmount (which would stop useFrame from
+// running again) only lands on a LATER render, every frame between "despawn
+// fired" and "React actually unmounts the avatar" re-writes the diagStore
+// entry that was just deleted -- and the LAST such write, from the final
+// frame before unmount, is never cleaned up again (nothing ever calls
+// diagStore.delete(id) a second time). The result: a permanent ghost row in
+// window.__hqLiveAgents (and therefore every consumer of it, including this
+// task's own hq-probe) frozen at the avatar's arrival position forever, even
+// though the avatar's REAL React tree node (and its 3D mesh) is already gone.
+//
+// FIX: LiveAgents.tsx's useFrame must stop writing to diagStore the instant
+// `despawned.current` is true, so the frame that fires fireDespawn() is also
+// the LAST frame that ever touches diagStore for that id -- the delete from
+// handleDespawned then sticks. This pure predicate is the guard; see this
+// file's own "pure geometry/math, no React" convention for why it's
+// extracted here rather than inlined in the useFrame body.
+test("shouldWriteLiveAgentDiag: writes while alive, stops the instant despawn fires (prevents the ghost-entry resurrection bug)", () => {
+  assert.equal(shouldWriteLiveAgentDiag(false), true, "still alive -- must keep publishing its diag snapshot");
+  assert.equal(shouldWriteLiveAgentDiag(true), false, "despawned this frame or earlier -- must never resurrect the just-deleted diag entry");
+});
+
+test("shouldWriteLiveAgentDiag: models the exact bug -- delete-then-unconditional-set resurrects, delete-then-guarded-set does not", () => {
+  const diagStore = new Map<string, { pos: [number, number] }>();
+  diagStore.set("a094022ec6e8790ff", { pos: [-0.29, -1.6] });
+
+  // The frame arrival + fireDespawn() happens in: delete fires first...
+  diagStore.delete("a094022ec6e8790ff");
+  // ...then this same frame's tail-end write. THE BUG (unconditional):
+  const buggyWrite = true; // pre-fix: no guard at all, always writes
+  if (buggyWrite) diagStore.set("a094022ec6e8790ff", { pos: [0, 0] });
+  assert.equal(diagStore.has("a094022ec6e8790ff"), true, "documents the bug: unconditional write resurrects the just-deleted ghost entry");
+
+  // THE FIX: guard the same write with shouldWriteLiveAgentDiag(despawned).
+  diagStore.delete("a094022ec6e8790ff");
+  const despawnedThisFrame = true;
+  if (shouldWriteLiveAgentDiag(despawnedThisFrame)) diagStore.set("a094022ec6e8790ff", { pos: [0, 0] });
+  assert.equal(diagStore.has("a094022ec6e8790ff"), false, "guarded write must never resurrect the entry once despawned");
 });

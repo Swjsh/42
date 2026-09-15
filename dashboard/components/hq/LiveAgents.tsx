@@ -53,7 +53,7 @@ import type { LiveAgent } from "./types";
 import type { LiveAgentState } from "@/lib/hq-agents";
 import {
   computeStandSlot, decideNextWalk, ENTRY_NODE_ID, pathDistance, poseAlongPath, reconcileLiveAgentRoster,
-  STAND_BUBBLE_Y_STEP, STAND_RING_RADIUS,
+  shouldWriteLiveAgentDiag, STAND_BUBBLE_Y_STEP, STAND_RING_RADIUS,
 } from "./liveAgentWalk";
 
 // 8 distinct, saturated hues, cycled by arrival order -- deliberately NOT
@@ -370,6 +370,20 @@ function LiveAgentAvatar({
       const k = bubbleCounterScale(dist);
       el.style.transform = Math.abs(k - 1) > 0.01 ? `scale(${k.toFixed(3)})` : "";
     }
+
+    // DIAG-GHOST FIX (2026-09-15, coordinator probe 20260915T072901Z, RTX
+    // 5080 hardware run): fireDespawn() above (arrival check or the hard
+    // backstop) may have fired THIS SAME frame, synchronously deleting this
+    // avatar's diagStore entry via onDespawned -- but React's actual unmount
+    // (which would stop this useFrame from running again) only lands on a
+    // later render. Without this guard, the write below ran unconditionally
+    // every frame in between and resurrected the just-deleted entry; the
+    // LAST such write, from the final frame before unmount, was never
+    // cleaned up again, leaving a permanent ghost row in
+    // window.__hqLiveAgents forever (see liveAgentWalk.ts#shouldWriteLiveAgentDiag
+    // for the full root-cause writeup + probe evidence). Once despawned,
+    // this avatar must never publish another diag snapshot.
+    if (!shouldWriteLiveAgentDiag(despawned.current)) return;
 
     const diagState: LiveAgentDiagEntry["state"] =
       leavingRef.current ? "leaving" : phase.current === "walking" ? "walking" : serverState === "spawning" ? "spawning" : "working";

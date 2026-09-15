@@ -241,6 +241,34 @@ export function reconcileLiveAgentRoster<A extends { id: string }, D extends Ros
   return next;
 }
 
+// ─── Diag-write guard (DIAG-GHOST FIX, 2026-09-15) ─────────────────────────
+//
+// ROOT CAUSE (coordinator probe 20260915T072901Z, RTX 5080 hardware, 60fps):
+// LiveAgents.tsx's useFrame runs, every frame, in this order: (1) the arrival
+// check, which on the first frame with progress>=1 calls fireDespawn() --
+// synchronously deleting this avatar's window.__hqLiveAgents diag entry via
+// LiveAgents.tsx's own handleDespawned, then scheduling the React
+// setDisplayed() removal -- and (2) an UNCONDITIONAL tail-end
+// `diagStore.set(liveAgentId, {...})` that used to run every frame
+// regardless of whether despawn just fired THIS SAME frame. React's actual
+// unmount (which stops useFrame from running again) only lands on a LATER
+// render, so every frame between "despawn fired" and "React actually
+// unmounts" re-wrote the entry that was just deleted -- and the LAST such
+// write, from the final frame before unmount, was never cleaned up again
+// (nothing else ever calls diagStore.delete for that id). Result: a
+// permanent ghost row frozen at the avatar's arrival position forever, even
+// though its real React/Three node was already gone -- exactly what probe
+// 20260915T072901Z recorded for session a094022ec6e8790ff (leaving at
+// ~64.5s, arrived at hub-center ~67.0s, still present with despawn_ms null
+// at the window's own end ~248s later).
+//
+// FIX: gate the tail-end diagStore write on this predicate. Once an avatar
+// has despawned (this frame or any earlier one), it must never publish
+// another diag snapshot -- the delete that already ran then sticks.
+export function shouldWriteLiveAgentDiag(despawned: boolean): boolean {
+  return !despawned;
+}
+
 export function computeStandSlot(
   groupIds: readonly string[],
   id: string,
