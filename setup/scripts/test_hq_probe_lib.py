@@ -458,6 +458,149 @@ def test_build_verdicts_shape():
         assert out[key]["verdict"] in ("PASS", "FAIL", "NO-DATA", "INFO")
 
 
+# raw-sample round-trip + retention (hq_live_probe.py, not hq_probe_lib.py) --------
+
+def test_rescore_roundtrip_matches_original_verdicts(tmp_path):
+    """write_samples_gz -> rescore() on the same data must reproduce
+    build_verdicts' output exactly (same logic, same inputs)."""
+    import importlib
+    import sys as _sys
+    from pathlib import Path as _Path
+
+    _sys.path.insert(0, str(_Path(__file__).resolve().parent))
+    hq_live_probe = importlib.import_module("hq_live_probe")
+
+    samples = [
+        _s(0, page=[], api=[]),
+        _s(500, page=[], api=[{"id": "a1"}]),
+        _s(1000, page=[_agent("a1", "walking", [0, 0])], api=[{"id": "a1"}]),
+        _s(1500, page=[_agent("a1", "walking", [0.5, 0])], api=[{"id": "a1"}]),
+    ]
+    frame_ts = [i * 16.667 for i in range(120)]
+    build_ids = ["build-x", "build-x", "build-x", "build-x", "build-x"]
+    diag = {"scene_ready": True, "headless": True, "build_id_start": "build-x"}
+
+    expected = build_verdicts(
+        samples, frame_ts, calls_samples=[s.get("calls") for s in samples],
+        scene_ready=True, build_ids=build_ids, headless=True,
+    )
+
+    gz_path = tmp_path / "20260914T000000Z-build_x.samples.json.gz"
+    hq_live_probe.write_samples_gz(
+        gz_path, "2026-09-14T00:00:00Z", "http://x/hq", diag, samples, frame_ts, build_ids,
+    )
+    assert gz_path.exists()
+
+    payload = hq_live_probe.load_samples_gz(gz_path)
+    got = build_verdicts(
+        payload["samples"], payload["frame_timestamps_ms"],
+        calls_samples=[s.get("calls") for s in payload["samples"]],
+        scene_ready=payload["environment"].get("scene_ready", False),
+        build_ids=payload["build_ids"],
+        headless=payload["environment"].get("headless", True),
+    )
+    assert got == expected, (got, expected)
+
+
+def test_rescore_cli_path_prints_verdicts(tmp_path, capsys):
+    import importlib
+    import sys as _sys
+    from pathlib import Path as _Path
+
+    _sys.path.insert(0, str(_Path(__file__).resolve().parent))
+    hq_live_probe = importlib.import_module("hq_live_probe")
+
+    samples = [_s(0), _s(500)]
+    diag = {"scene_ready": True, "headless": True, "build_id_start": "build-y"}
+    gz_path = tmp_path / "run.samples.json.gz"
+    hq_live_probe.write_samples_gz(
+        gz_path, "2026-09-14T00:00:00Z", "http://x/hq", diag, samples, [0.0, 16.0], ["build-y", "build-y"],
+    )
+
+    exit_code = hq_live_probe.rescore(gz_path)
+    out = capsys.readouterr().out
+    report = __import__("json").loads(out)
+    assert report["rescored"] is True
+    assert report["source_file"] == str(gz_path)
+    assert "verdicts" in report
+    assert exit_code in (0, 2)
+
+
+def test_rescore_never_imports_playwright(tmp_path, monkeypatch):
+    """rescore() must not touch playwright at all -- guard against a future
+    change accidentally launching a browser on the rescore path."""
+    import importlib
+    import sys as _sys
+    from pathlib import Path as _Path
+
+    _sys.path.insert(0, str(_Path(__file__).resolve().parent))
+    hq_live_probe = importlib.import_module("hq_live_probe")
+
+    # Poison playwright.sync_api so any attempt to import/use it blows up
+    # loudly instead of silently launching a real browser.
+    class _PoisonedModule:
+        def __getattr__(self, name):
+            raise AssertionError(f"rescore() must never touch playwright (accessed {name!r})")
+
+    monkeypatch.setitem(_sys.modules, "playwright", _PoisonedModule())
+    monkeypatch.setitem(_sys.modules, "playwright.sync_api", _PoisonedModule())
+
+    samples = [_s(0), _s(500)]
+    diag = {"scene_ready": True, "headless": True, "build_id_start": "build-z"}
+    gz_path = tmp_path / "run.samples.json.gz"
+    hq_live_probe.write_samples_gz(
+        gz_path, "2026-09-14T00:00:00Z", "http://x/hq", diag, samples, [0.0, 16.0], ["build-z", "build-z"],
+    )
+
+    # Must not raise -- proves rescore() never imported the poisoned modules.
+    hq_live_probe.rescore(gz_path)
+
+
+def test_retention_keeps_newest_20(tmp_path):
+    import importlib
+    import sys as _sys
+    import time as _time
+    from pathlib import Path as _Path
+
+    _sys.path.insert(0, str(_Path(__file__).resolve().parent))
+    hq_live_probe = importlib.import_module("hq_live_probe")
+
+    for i in range(25):
+        p = tmp_path / f"file-{i:02d}.samples.json.gz"
+        p.write_bytes(b"x")
+        # force distinct, increasing mtimes regardless of filesystem clock granularity
+        mtime = _time.time() + i
+        import os
+        os.utime(p, (mtime, mtime))
+
+    deleted = hq_live_probe.enforce_samples_retention(tmp_path, keep=20)
+    remaining = sorted(tmp_path.glob("*.samples.json.gz"))
+    assert len(remaining) == 20, remaining
+    assert len(deleted) == 5
+    # the 5 oldest (file-00..file-04) must be the ones removed
+    remaining_names = {p.name for p in remaining}
+    for i in range(5):
+        assert f"file-{i:02d}.samples.json.gz" not in remaining_names
+    for i in range(5, 25):
+        assert f"file-{i:02d}.samples.json.gz" in remaining_names
+
+
+def test_retention_noop_when_under_cap(tmp_path):
+    import importlib
+    import sys as _sys
+    from pathlib import Path as _Path
+
+    _sys.path.insert(0, str(_Path(__file__).resolve().parent))
+    hq_live_probe = importlib.import_module("hq_live_probe")
+
+    for i in range(5):
+        (tmp_path / f"file-{i}.samples.json.gz").write_bytes(b"x")
+
+    deleted = hq_live_probe.enforce_samples_retention(tmp_path, keep=20)
+    assert deleted == []
+    assert len(list(tmp_path.glob("*.samples.json.gz"))) == 5
+
+
 if __name__ == "__main__":
     import pytest
 

@@ -55,7 +55,9 @@ from __future__ import annotations
 
 import argparse
 import atexit
+import gzip
 import json
+import re
 import sys
 import time
 from pathlib import Path
@@ -66,6 +68,8 @@ from hq_probe_lib import build_verdicts  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 OUT_PATH = REPO_ROOT / "automation" / "state" / "station" / "hq-probe-latest.json"
+SAMPLE_RUNS_DIR = REPO_ROOT / "automation" / "state" / "station" / "hq-probe-runs"
+SAMPLE_RUNS_RETENTION_KEEP = 20
 DASHBOARD_DIR = REPO_ROOT / "dashboard"
 BUILD_ID_PATH = DASHBOARD_DIR / ".next" / "BUILD_ID"
 BUILD_LOCK_PATH = DASHBOARD_DIR / ".build.lock"
@@ -160,6 +164,102 @@ def wait_for_stable_build(max_wait_s: float, min_age_s: float, poll_s: float = 5
     return reason
 
 
+def _safe_build_id_for_filename(build_id: Optional[str]) -> str:
+    if not build_id:
+        return "unknown"
+    return re.sub(r"[^A-Za-z0-9_.-]", "_", str(build_id))[:64]
+
+
+def samples_gz_path_for_run(run_started_utc_fs_safe: str, build_id: Optional[str], runs_dir: Path = SAMPLE_RUNS_DIR) -> Path:
+    return runs_dir / f"{run_started_utc_fs_safe}-{_safe_build_id_for_filename(build_id)}.samples.json.gz"
+
+
+def write_samples_gz(
+    path: Path,
+    run_started_utc: str,
+    url: str,
+    diag: Dict[str, Any],
+    samples: List[Dict[str, Any]],
+    frame_timestamps_ms: List[float],
+    build_ids: List[Optional[str]],
+) -> None:
+    """Writes the RAW per-tick data every check_* function in hq_probe_lib
+    consumes -- everything build_verdicts needs to be re-run later against a
+    changed verdict function, without re-launching a browser. This is the gap
+    hq-probe-latest.json alone leaves: that file keeps only the AGGREGATED
+    verdict, so when 3d7681b4 changed check_walk_out's grace-window logic,
+    the previous run's raw walk_out samples were gone and it could not be
+    re-scored -- only re-run live."""
+    payload = {
+        "run_started_utc": run_started_utc,
+        "url": url,
+        "environment": diag,
+        "samples": samples,
+        "frame_timestamps_ms": frame_timestamps_ms,
+        "build_ids": build_ids,
+    }
+    path.parent.mkdir(parents=True, exist_ok=True)
+    data = json.dumps(payload).encode("utf-8")
+    tmp_path = path.with_suffix(path.suffix + ".tmp")
+    with gzip.open(tmp_path, "wb") as f:
+        f.write(data)
+    tmp_path.replace(path)
+
+
+def load_samples_gz(path: Path) -> Dict[str, Any]:
+    with gzip.open(path, "rb") as f:
+        return json.loads(f.read().decode("utf-8"))
+
+
+def enforce_samples_retention(runs_dir: Path = SAMPLE_RUNS_DIR, keep: int = SAMPLE_RUNS_RETENTION_KEEP) -> List[Path]:
+    """Deletes all but the newest `keep` *.samples.json.gz files (by mtime).
+    Returns the paths deleted (empty list if within the cap or dir absent)."""
+    if not runs_dir.exists():
+        return []
+    files = sorted(runs_dir.glob("*.samples.json.gz"), key=lambda p: p.stat().st_mtime)
+    excess = len(files) - keep
+    if excess <= 0:
+        return []
+    deleted: List[Path] = []
+    for f in files[:excess]:
+        try:
+            f.unlink()
+            deleted.append(f)
+        except OSError:
+            pass
+    return deleted
+
+
+def rescore(samples_path: Path) -> int:
+    """Loads a previously written *.samples.json.gz and re-runs build_verdicts
+    with the CURRENT verdict logic (never the logic that was live when the
+    samples were captured). Never launches a browser / imports playwright --
+    that import only happens inside launch_and_probe, which this path never
+    calls."""
+    payload = load_samples_gz(samples_path)
+    diag = payload.get("environment", {}) or {}
+    samples = payload.get("samples", [])
+    verdicts = build_verdicts(
+        samples,
+        payload.get("frame_timestamps_ms", []),
+        calls_samples=[s.get("calls") for s in samples],
+        scene_ready=diag.get("scene_ready", False),
+        build_ids=payload.get("build_ids", []),
+        headless=diag.get("headless", True),
+    )
+    report = {
+        "rescored": True,
+        "rescored_at_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "source_file": str(samples_path),
+        "run_started_utc": payload.get("run_started_utc"),
+        "url": payload.get("url"),
+        "sample_count": len(samples),
+        "verdicts": verdicts,
+    }
+    print(json.dumps(report, indent=2))
+    return 0 if verdicts.get("run_valid", True) else 2
+
+
 def _close_quietly(obj: Any) -> None:
     if obj is None:
         return
@@ -182,7 +282,10 @@ def launch_and_probe(
     diag: Dict[str, Any] = {}
     build_ids: List[Optional[str]] = []
     frame_timestamps_ms: List[float] = []
-    run_started_utc = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    now_struct = time.gmtime()
+    run_started_utc = time.strftime("%Y-%m-%dT%H:%M:%SZ", now_struct)
+    run_started_fs_safe = time.strftime("%Y%m%dT%H%M%SZ", now_struct)
+    samples_gz_state: Dict[str, Optional[Path]] = {"path": None}
 
     def write_partial(reason: str) -> None:
         try:
@@ -210,6 +313,32 @@ def launch_and_probe(
             out_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
         except Exception:  # noqa: BLE001
             # Checkpoint failures must never crash the run they're protecting.
+            pass
+
+        # Raw per-tick samples, so a later verdict-logic change can be
+        # re-scored against THIS run without a browser (see write_samples_gz
+        # docstring). Isolated in its own try -- a gz-write hiccup must not
+        # take down the aggregated checkpoint above.
+        try:
+            if samples_gz_state["path"] is None:
+                samples_gz_state["path"] = samples_gz_path_for_run(
+                    run_started_fs_safe, diag.get("build_id_start")
+                )
+            write_samples_gz(
+                samples_gz_state["path"],
+                run_started_utc,
+                url,
+                {
+                    "headless": True,
+                    "gl_backend": "swiftshader (software) -- NOT the real GPU",
+                    **diag,
+                },
+                samples,
+                frame_timestamps_ms,
+                build_ids,
+            )
+            enforce_samples_retention()
+        except Exception:  # noqa: BLE001
             pass
 
     # Best-effort last-gasp checkpoint. NOTE (verify-don't-claim): this
@@ -341,6 +470,11 @@ def launch_and_probe(
             diag["build_id_end"] = end_build_id
             build_ids.append(end_build_id)
 
+            # Final raw-sample write with the complete frame_timestamps_ms +
+            # end build_id -- the 30s periodic checkpoints above may have
+            # missed the last <30s of ticks.
+            write_partial("final capture")
+
             _close_quietly(context)
             _close_quietly(browser)
             context = None
@@ -374,7 +508,21 @@ def main() -> int:
         default=0.0,
         help="poll up to N seconds for dashboard/.next/BUILD_ID to settle (no lock, min age met) before refusing (exit 3)",
     )
+    ap.add_argument(
+        "--rescore",
+        default=None,
+        metavar="PATH",
+        help=(
+            "re-run build_verdicts against a previously written "
+            "*.samples.json.gz file with the CURRENT verdict logic, print "
+            "the verdict JSON, and exit -- no browser is launched, no "
+            "--url/--seconds/build-stability args apply"
+        ),
+    )
     args = ap.parse_args()
+
+    if args.rescore:
+        return rescore(Path(args.rescore))
 
     refuse_reason = wait_for_stable_build(args.wait_for_stable_build, args.min_build_age_s)
     if refuse_reason:
