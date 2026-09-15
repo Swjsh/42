@@ -126,9 +126,20 @@ const CORE_GROUP_SCALE = 1.15;
 // can never disagree.
 const GAUGE_GROUP_Y = -1.6;
 const GAUGE_LABEL_Y = -0.22; // relative to GAUGE_GROUP_Y
-const PLAQUE_Y = 1.75;
-const PULSE_PLAQUE_Y = 2.8;
-const GAMING_PLAQUE_Y = 3.5;
+// PLAQUE_Y/PULSE_PLAQUE_Y/GAMING_PLAQUE_Y raised (2026-09-14, coordinator
+// regression capture scale-verify-0106.png): old PLAQUE_Y=1.75 -> world
+// 1.75*CORE_GROUP_SCALE(1.15)=2.0125, landing squarely in the live-agent
+// bubble band (GammaCharacter.tsx's own bubbleWorld = seatWorld +
+// CHARACTER_TARGET_HEIGHT(1.8) + 0.4 = ~2.2; LiveAgents.tsx's
+// ULTRA_HEAD_Y=1.71 + its own bubble offset lands in the same ~2.0-2.3
+// range) -- the real capture showed the "BRAIN * wrote brief" plaque
+// literally painted mid-word over the "session" agent's own bubble at the
+// hub center. +0.65 to each keeps the same relative stack (plaque < pulse <
+// gaming) while clearing that band with margin (new PLAQUE_Y world =
+// 2.4*1.15=2.76, > 2.3 by 0.46).
+const PLAQUE_Y = 2.4;
+const PULSE_PLAQUE_Y = 3.4;
+const GAMING_PLAQUE_Y = 4.1;
 
 /** First token of a loop-ledger `reason`, e.g. "rth_window" from
  * "rth_window (weekday 09:30-15:55 ET)" -- byte-identical helper to

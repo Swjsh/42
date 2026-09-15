@@ -316,8 +316,27 @@ export function computeBrainWallMount(armIndex: number): WallMount {
   // "FLOATING smart board" framing than flush-on-the-wall anyway.
   // HUB_WALL_RADIUS is kept as the reference point in this comment (not the
   // formula below) so a future reader can still find the wall's own radius.
-  const radius = 4.9;
-  const position: [number, number, number] = [Math.cos(segCenterAngle) * radius, 0.5, Math.sin(segCenterAngle) * radius];
+  // FIX (2026-09-14, coordinator regression capture scale-before-mid.png vs
+  // scale-verify-0106.png, after SmartBoard.tsx's BOARD_SCALE 8->11 bump):
+  // radius=4.9/y=0.5 put the enlarged board's face right in the hub's
+  // walking/bubble zone (GammaCharacter.tsx's bubble ~y=2.2, LiveAgents.tsx's
+  // head+bubble band ~y=1.7-2.3) -- Gamma's own bubble and the chart price
+  // labels painted over the board face, and the board visually rose behind
+  // standing characters. Two changes, per this file's own already-verified
+  // LOS math above (radius 6.8 near-wall = ~3.3 min visible Y; radius 3.4
+  // near-center = ~4.9 min visible Y, roughly linear between): radius 6.3
+  // (near the wall again, reads as a mounted wall screen, not a
+  // floating-in-the-room panel) needs a min visible Y of roughly
+  // 3.3+0.47*(6.8-6.3)=3.535 to clear the SAME near-wall occlusion the old
+  // 6.8 attempt hit -- y=2.6 (bottom-anchored) puts the board's face band
+  // (FACE_Y=0.27 raw * BOARD_SCALE=11 = ~2.97 above the mount, i.e. face
+  // center world Y ~5.57) comfortably above both that clearance line AND
+  // every character-bubble Y (~1.7-2.3), so the two no longer share the same
+  // screen-space band. Reads as a screen mounted up near the wall's own top
+  // rather than a floor-level panel -- verify via a fresh
+  // hq_capture.ps1 pass if this segment's wall/ceiling geometry ever changes.
+  const radius = 6.3;
+  const position: [number, number, number] = [Math.cos(segCenterAngle) * radius, 2.6, Math.sin(segCenterAngle) * radius];
   return { position, yaw: rotationYFacing(position, HUB) + Math.PI, width: 3.3 };
 }
 

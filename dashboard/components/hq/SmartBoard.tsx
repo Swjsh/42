@@ -82,6 +82,16 @@ const FACE_Y = 0.27;
 const FRONT_Z = 0.075;
 const GLOW_Z = 0.069;
 
+// Downward pitch (2026-09-14, coordinator regression fix, paired with
+// layout.ts#computeBrainWallMount's radius/y raise): applied on local X
+// BEFORE the yaw below (THREE's default XYZ euler order), so this tilts the
+// face down toward the room from its now-higher mount, the way a real
+// wall-hung display angled for a shorter viewer would sit -- reinforces the
+// "wall screen," not "floating panel," read the mount move alone targets.
+// Small (~9deg) -- SmartBoard's content plane is flat 2D text, not
+// legible if tilted hard.
+const BOARD_PITCH = -0.16;
+
 // Canvas resolution for the board's own content texture -- NOT
 // palette.ts#createScreenCanvas's shared 256x160 (that size is tuned for a
 // desk monitor's 2-3 short lines; this board needs up to 7: title + <=5
@@ -190,7 +200,7 @@ export default function SmartBoard({ cards, dimFactor, rotationY = 0 }: SmartBoa
   const ledColor = newest[0] ? ideaStatusColor(newest[0].status) : "#3a4a63";
 
   return (
-    <group rotation={[0, rotationY, 0]} scale={BOARD_SCALE}>
+    <group rotation={[BOARD_PITCH, rotationY, 0]} scale={BOARD_SCALE}>
       {/* Bezel/stand body -- the found CC0 piece, used as-authored (no
           rotation -- see FRONT_Z's own comment on the backwards-fix path). */}
       <primitive object={cloned} castShadow receiveShadow />
