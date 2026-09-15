@@ -1,0 +1,10 @@
+{
+  "ts_et": "2026-09-15 08:52:29 ET",
+  "loggedIn": false,
+  "authMethod": "none",
+  "refresh_expires_at_local": "2026-09-14 12:25:04 ET",
+  "hours_left": -20.46,
+  "verdict": "LOGGED_OUT",
+  "fix_hint": "run `claude` then /login in a terminal (J credential step)",
+  "errors": null
+}
