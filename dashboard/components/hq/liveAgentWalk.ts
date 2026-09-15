@@ -473,7 +473,7 @@ export function shouldWriteLiveAgentDiag(despawned: boolean): boolean {
   return !despawned;
 }
 
-// ─── Lane offset (CONVOY-STACK fix, 2026-09-15) ────────────────────────────
+// ─── Lane offset (CONVOY-STACK fix, 2026-09-15; CONVOY-STACK v2, same day) ─
 //
 // ROOT CAUSE (probe 20260915T081521Z/20260915T082114Z, real-GPU headless
 // run): every avatar that is already live when the page mounts starts its
@@ -491,56 +491,99 @@ export function shouldWriteLiveAgentDiag(despawned: boolean): boolean {
 // (computeStandSlot) -- there was no equivalent separation for the WALKING
 // leg of a path.
 //
-// FIX (smallest of the two options this task's own brief offered): a
-// permanent per-id lateral lane offset on every interior waypoint, rather
-// than a spawn-order stagger. A lane offset needs nothing beyond the
-// avatar's own id -- no roster-order bookkeeping to keep in sync as agents
-// join/leave, no interaction with the existing `needsWalkStart`/
-// `walkStartT`/leave-hard-timeout-margin timing math (a stagger would have
-// to delay `walkStartT.current` itself, which every one of those derived
-// values assumes starts the instant the walk decision fires). A lane offset
-// also keeps separating agents for the WHOLE shared corridor, not just the
-// first second or two after a staggered start. The endpoints are never
-// touched (see `applyLaneOffsets`'s own doc) so this cannot perturb the
-// existing stand-slot ring placement (DEFECT 1's own fix) or the despawn
-// destination.
-export const LANE_OFFSET_MAGNITUDE_U = 0.4;
+// V1 FIX (this same day, superseded below): a permanent per-id lateral lane
+// offset on every interior waypoint, using a CONTINUOUS string-hash mapped
+// to [-1, 1]. A follow-up real-GPU probe (20260915T084211Z) found this
+// insufficient: two real ids (a93582c1, ab416fc0) hashed to nearly the same
+// continuous value (0.01u apart, nowhere near the 0.7u stand-slot bar), and
+// separately, every agent present at page load starts its walk in the SAME
+// React effect pass -- same wall-clock instant, same waypoints, same speed
+// -- so with only a near-identical perpendicular nudge they still render in
+// lockstep (identical x every tick; probe measured 54/54 multi-walker ticks
+// with a pair under 0.3u).
+//
+// V2 FIX (this pass): two independent, complementary mechanisms, matching
+// the coordinator's own required outcome (any two same-time walkers stay
+// >=0.7u apart, the same bar as stand slots, except transiently at a
+// corridor crossing):
+//   1. STAGGER (see computeBatchStaggerDelays below) -- agents that begin a
+//      walk from the same node in the same reconcile batch/poll get a
+//      stable-order start delay of STAGGER_DELAY_S each. This is the
+//      PRIMARY guarantee: two same-batch walkers on an IDENTICAL straight
+//      path segment are exactly `STAGGER_DELAY_S * WALK_SPEED` apart in
+//      arc-length at every shared instant (1.05u at the default 1.5s/0.7u/s
+//      -- comfortably over the 0.7u bar), by simple algebra: position(t) =
+//      poseAlongPath(path, (t - delay)/duration), so two agents on the same
+//      path differ in progress by exactly `(delay_j - delay_i)` seconds of
+//      travel = `WALK_SPEED * |delay_j - delay_i|` units of arc length. On
+//      a STRAIGHT segment, arc-length separation equals Euclidean
+//      separation exactly -- the bound is provable there. It is NOT
+//      provable through a sharp corner (chord < arc near a bend), which is
+//      exactly the "except transiently where corridors cross" carve-out in
+//      the required outcome -- not a gap in this fix, a named exception to
+//      it.
+//   2. DISCRETE LANES (this section, below) -- replaces the V1 continuous
+//      hash with a small FIXED set of lane values (LANE_VALUES), so two ids
+//      either land on the exact SAME lane (fine -- the stagger's temporal
+//      separation still applies whenever they're both genuinely walking) or
+//      on one of only 2 other values, at least LANE_STEP_U apart -- never a
+//      near-miss. Kept alongside the stagger (not skipped) for two reasons
+//      the stagger alone cannot cover: (a) a MID-LIFE retarget (an agent
+//      that changes target zone after it has already settled somewhere) has
+//      no batch to stagger against -- if it happens to share a corridor leg
+//      with another agent already walking, only the lane offset separates
+//      them; (b) discrete lanes remove the near-collision failure mode this
+//      v1 postmortem is actually about, independent of whatever the
+//      stagger does. The endpoints are still never touched (see
+//      `applyLaneOffsets`'s own doc) so this cannot perturb the existing
+//      stand-slot ring placement (DEFECT 1's own fix) or the despawn
+//      destination.
+export const LANE_STEP_U = 0.45;
+/** Fixed, discrete lane values -- deliberately NOT a continuous range. Two
+ * ids either collide exactly (harmless: the stagger's temporal separation
+ * still applies to any pair that is actually walking at the same time) or
+ * land LANE_STEP_U apart -- there is no near-miss value between these three
+ * a hash could land on. */
+export const LANE_VALUES: readonly number[] = [0, LANE_STEP_U, -LANE_STEP_U];
 
-/** Deterministic, roster-independent per-id lane value in [-1, 1] -- a
- * plain string hash (same shape this tree already uses elsewhere for
- * stable derived-from-id values, e.g. KitAgent.tsx's own laneSeed). Only
- * has to SEPARATE agents most of the time, not guarantee a collision-free
- * lane per id -- a rare shared value is cosmetically fine, not a
- * correctness requirement. */
-export function laneOffsetUnit(id: string): number {
+/** Deterministic, roster-independent per-id lane INDEX into `LANE_VALUES`
+ * (same plain string-hash shape this tree already uses elsewhere for
+ * stable derived-from-id values, e.g. KitAgent.tsx's own laneSeed) --
+ * `Math.abs` + modulo, so it is always a valid array index regardless of
+ * the hash's sign. */
+export function laneIndexForId(id: string, laneCount: number = LANE_VALUES.length): number {
   let h = 0;
   for (let i = 0; i < id.length; i++) {
     h = (h * 31 + id.charCodeAt(i)) | 0;
   }
-  return ((h & 0xffff) / 0xffff) * 2 - 1;
+  return Math.abs(h) % laneCount;
+}
+
+/** This id's fixed lane offset (one of `LANE_VALUES`). */
+export function laneValueForId(id: string): number {
+  return LANE_VALUES[laneIndexForId(id)];
 }
 
 /** Nudges every INTERIOR waypoint of `waypoints` (indices 1..length-2)
- * sideways, perpendicular to its local path direction, by a fixed
- * `laneOffsetUnit(id) * magnitude` amount. The FIRST waypoint (a caller's
- * own live current position -- see LiveAgents.tsx's own `livePos`, so a
- * mid-walk retarget still starts exactly where the avatar visually is) and
- * the LAST waypoint (the caller's own stand-slot-nudged destination, or the
- * raw despawn node position -- either way, a value this function must never
- * further perturb) are always returned unchanged. A waypoint list shorter
- * than 3 points has no interior leg at all (a direct one-hop path) and is
+ * sideways, perpendicular to its local path direction, by this id's fixed
+ * `laneValueForId(id)`. The FIRST waypoint (a caller's own live current
+ * position -- see LiveAgents.tsx's own `livePos`, so a mid-walk retarget
+ * still starts exactly where the avatar visually is) and the LAST waypoint
+ * (the caller's own stand-slot-nudged destination, or the raw despawn node
+ * position -- either way, a value this function must never further
+ * perturb) are always returned unchanged. A waypoint list shorter than 3
+ * points has no interior leg at all (a direct one-hop path) and is
  * returned unchanged too -- there is no shared corridor segment to
- * separate. Magnitude is capped well inside every real corridor's own 4u
+ * separate. LANE_STEP_U is capped well inside every real corridor's own 4u
  * raw XZ footprint (layout.ts#buildWalkGraph's own corridor.glb/
  * corridor-intersection.glb footprint comment), so a nudged waypoint always
  * stays on walkable floor. */
 export function applyLaneOffsets(
   waypoints: ReadonlyArray<readonly [number, number, number]>,
   id: string,
-  magnitude: number = LANE_OFFSET_MAGNITUDE_U,
 ): [number, number, number][] {
   if (waypoints.length < 3) return waypoints.map((wp) => [...wp] as [number, number, number]);
-  const offset = laneOffsetUnit(id) * magnitude;
+  const offset = laneValueForId(id);
   return waypoints.map((wp, i) => {
     if (i === 0 || i === waypoints.length - 1) return [...wp] as [number, number, number];
     const prev = waypoints[i - 1];
@@ -552,6 +595,59 @@ export function applyLaneOffsets(
     const perpZ = dx / len;
     return [wp[0] + perpX * offset, wp[1], wp[2] + perpZ * offset];
   });
+}
+
+// ─── Batch stagger (CONVOY-STACK v2, 2026-09-15) ───────────────────────────
+//
+// See the lane-offset section above for the full root-cause + design
+// writeup. This is mechanism 1 (the PRIMARY separation guarantee): every id
+// beginning a walk from the same node in the same reconcile poll (LiveAgents
+// .tsx's own "newly added this poll" batch for a fresh spawn, or "newly
+// flipped leaving this poll" batch for a mass departure) gets a stable-order
+// start delay, so same-batch walkers are never at the same progress along
+// an identical path at the same wall-clock instant.
+export const STAGGER_DELAY_S = 1.5;
+
+/** Given a batch of ids all beginning a walk from the SAME origin node in
+ * the same reconcile poll, returns each id's stable stagger delay in
+ * seconds: 0 for the first (sorted) id, STAGGER_DELAY_S for the second, and
+ * so on. Sorted lexicographically by id -- the same stable-order convention
+ * every other group-based function in this module already uses (see
+ * computeStandSlot's own sorted group). Pure and roster-order-independent:
+ * calling this with the same set of ids (any input order, duplicates
+ * collapsed) always assigns the same delay to the same id. */
+export function computeBatchStaggerDelays(ids: readonly string[]): Map<string, number> {
+  const sorted = [...new Set(ids)].sort();
+  return new Map(sorted.map((id, i) => [id, i * STAGGER_DELAY_S]));
+}
+
+/** The visual "waiting for my stagger slot" point: `origin` nudged by this
+ * id's own lane offset, perpendicular to the direction toward `next` (the
+ * first real hallway waypoint the avatar will walk toward once its delay
+ * elapses). Used only to render a delayed avatar's stationary pose --
+ * without this, every same-batch avatar waiting out its stagger would
+ * render stacked exactly on the shared origin node (the first waypoint is
+ * deliberately left unoffset by `applyLaneOffsets` for path-continuity
+ * reasons -- see that function's own doc), which would still fail the
+ * required outcome's >=0.7u bar even though none of them are numerically
+ * "walking" yet (LiveAgents.tsx's own `phase.current` is set to "walking"
+ * for the entire wait+walk sequence, since the wait is implemented as a
+ * negative-elapsed clamp on the SAME walk, not a separate phase -- see that
+ * file's own useFrame comment). Falls back to `origin` unmodified if
+ * `origin` and `next` coincide (no real direction to be perpendicular to). */
+export function computeWaitPoint(
+  origin: readonly [number, number, number],
+  next: readonly [number, number, number],
+  id: string,
+): [number, number, number] {
+  const dx = next[0] - origin[0];
+  const dz = next[2] - origin[2];
+  const len = Math.hypot(dx, dz);
+  if (len < 1e-9) return [...origin] as [number, number, number];
+  const perpX = -dz / len;
+  const perpZ = dx / len;
+  const offset = laneValueForId(id);
+  return [origin[0] + perpX * offset, origin[1], origin[2] + perpZ * offset];
 }
 
 export function computeStandSlot(

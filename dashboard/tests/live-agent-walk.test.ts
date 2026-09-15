@@ -40,16 +40,21 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   applyLaneOffsets,
+  computeBatchStaggerDelays,
   computeMaxPathDurationS,
+  computeWaitPoint,
   ENTRY_NODE_ID,
   findWalkPath,
-  laneOffsetUnit,
-  LANE_OFFSET_MAGNITUDE_U,
+  laneIndexForId,
+  laneValueForId,
+  LANE_STEP_U,
+  LANE_VALUES,
   LEAVE_TIMEOUT_MARGIN_S,
   pathDistance,
   poseAlongPath,
   decideNextWalk,
   computeStandSlot,
+  STAGGER_DELAY_S,
   STAND_RING_RADIUS,
   reconcileLiveAgentRoster,
   shouldWriteLiveAgentDiag,
@@ -279,22 +284,31 @@ test("decideNextWalk: isWalking also guards the leaving-settle shortcut (same me
   assert.deepEqual(d, { action: "walk", dest: ENTRY_NODE_ID, despawn: true });
 });
 
-// ─── laneOffsetUnit / applyLaneOffsets (CONVOY-STACK fix, 2026-09-15) ──────
+// ─── laneIndexForId / laneValueForId / applyLaneOffsets ────────────────────
+// (CONVOY-STACK fix, 2026-09-15; CONVOY-STACK v2, same day -- discrete lanes
+// replace the v1 continuous hash, which let 2 real ids land 0.01u apart,
+// nowhere near the 0.7u stand-slot bar -- see liveAgentWalk.ts's own header
+// for the full v1->v2 postmortem.)
 
-test("laneOffsetUnit: deterministic -- same id always yields the same value", () => {
-  assert.equal(laneOffsetUnit("session-a1"), laneOffsetUnit("session-a1"));
+test("laneIndexForId: deterministic -- same id always yields the same index", () => {
+  assert.equal(laneIndexForId("session-a1"), laneIndexForId("session-a1"));
 });
 
-test("laneOffsetUnit: different ids usually yield different values", () => {
-  const ids = ["a06954b44dcea322f", "a3f93d37e2266fd28", "dcc3d160-abc-a8b2", "7252", "aa69", "345c"];
-  const values = ids.map(laneOffsetUnit);
-  assert.ok(new Set(values).size > 1, "a real roster of distinct ids must not collapse to one lane value");
+test("laneIndexForId: always a valid LANE_VALUES index", () => {
+  for (const id of ["a", "session-xyz-123", "", "z".repeat(50), "a93582c1", "ab416fc0"]) {
+    const idx = laneIndexForId(id);
+    assert.ok(idx >= 0 && idx < LANE_VALUES.length, `laneIndexForId(${JSON.stringify(id)}) = ${idx} out of range`);
+  }
 });
 
-test("laneOffsetUnit: always stays within [-1, 1]", () => {
-  for (const id of ["a", "session-xyz-123", "", "z".repeat(50)]) {
-    const v = laneOffsetUnit(id);
-    assert.ok(v >= -1 && v <= 1, `laneOffsetUnit(${JSON.stringify(id)}) = ${v} out of range`);
+test("laneValueForId: only ever returns one of the fixed LANE_VALUES -- no near-miss between them", () => {
+  // THE v1->v2 FIX: exactly what broke real ids a93582c1/ab416fc0 (0.01u
+  // apart under the old continuous hash) -- with a discrete set, every id
+  // lands EXACTLY on one of 3 known values, never something in between.
+  const ids = ["a06954b44dcea322f", "a3f93d37e2266fd28", "dcc3d160-abc-a8b2", "7252", "aa69", "345c", "a93582c1", "ab416fc0"];
+  for (const id of ids) {
+    const v = laneValueForId(id);
+    assert.ok(LANE_VALUES.includes(v), `laneValueForId(${id}) = ${v} is not one of LANE_VALUES`);
   }
 });
 
@@ -305,26 +319,14 @@ test("applyLaneOffsets: leaves the first and last waypoint exactly unchanged", (
   assert.deepEqual(out[out.length - 1], wp[wp.length - 1]);
 });
 
-test("applyLaneOffsets: nudges interior waypoints perpendicular to the local path direction", () => {
+test("applyLaneOffsets: nudges interior waypoints perpendicular to the local path direction, by exactly this id's discrete lane value", () => {
   const wp: [number, number, number][] = [[0, 0, 0], [10, 0, 0], [20, 0, 0]];
-  const out = applyLaneOffsets(wp, "lane-test-id", 0.4);
+  const out = applyLaneOffsets(wp, "lane-test-id");
   // Path runs along +X, so any nudge must be purely in Z (perpendicular),
-  // never changing X, and its exact magnitude must equal this id's own
-  // laneOffsetUnit scaled by the requested 0.4u magnitude.
-  const expected = laneOffsetUnit("lane-test-id") * 0.4;
+  // never changing X.
+  const expected = laneValueForId("lane-test-id");
   assert.equal(out[1][0], 10);
   assert.ok(Math.abs(out[1][2] - expected) < 1e-9, `expected offset=${expected}, got ${out[1][2]}`);
-});
-
-test("applyLaneOffsets: two different ids sharing the same corridor waypoints end up on DIFFERENT points (the actual convoy-stack fix)", () => {
-  // Mirrors the probe's exact measured shape: 4 live agents all leaving
-  // campus-gate through the same first hallway leg, all reporting the same
-  // XZ point mid-walk. Two distinct ids walking the identical raw path must
-  // no longer collapse onto the same interior waypoint.
-  const rawPath: [number, number, number][] = [[21.6, 0, 0], [17.4, 0, 0], [17.4, 0, 5.4]];
-  const a = applyLaneOffsets(rawPath, "session-a06954b44dcea322f");
-  const b = applyLaneOffsets(rawPath, "session-a3f93d37e2266fd28");
-  assert.notDeepEqual(a[1], b[1], "two distinct ids must not share the exact same nudged interior waypoint");
 });
 
 test("applyLaneOffsets: a path with no interior waypoint (direct 2-point hop) is returned unchanged", () => {
@@ -333,13 +335,115 @@ test("applyLaneOffsets: a path with no interior waypoint (direct 2-point hop) is
   assert.deepEqual(out, wp);
 });
 
-test("applyLaneOffsets: nudge magnitude never exceeds the configured LANE_OFFSET_MAGNITUDE_U", () => {
+test("applyLaneOffsets: nudge magnitude never exceeds LANE_STEP_U", () => {
   const wp: [number, number, number][] = [[0, 0, 0], [10, 0, 0], [20, 0, 0]];
   for (const id of ["a", "bb", "ccc", "dddd", "session-real-id-0001"]) {
     const out = applyLaneOffsets(wp, id);
     const dz = Math.abs(out[1][2] - wp[1][2]);
-    assert.ok(dz <= LANE_OFFSET_MAGNITUDE_U + 1e-9, `id=${id} produced a ${dz}u nudge, exceeding LANE_OFFSET_MAGNITUDE_U`);
+    assert.ok(dz <= LANE_STEP_U + 1e-9, `id=${id} produced a ${dz}u nudge, exceeding LANE_STEP_U`);
   }
+});
+
+// ─── computeWaitPoint (CONVOY-STACK v2) ─────────────────────────────────────
+
+test("computeWaitPoint: nudges the origin perpendicular to the direction toward `next`, by this id's lane value", () => {
+  const origin: [number, number, number] = [21.6, 0, 0];
+  const next: [number, number, number] = [17.4, 0, 0]; // due -X
+  const wp = computeWaitPoint(origin, next, "wait-test-id");
+  // direction origin->next is due -X (dx=-4.2, dz=0); perp = (-dz, dx)/len =
+  // (0, -1), so the offset lands entirely on Z, with the sign this exact
+  // rotation convention produces (matches applyLaneOffsets's own formula).
+  const expectedZ = -laneValueForId("wait-test-id");
+  assert.equal(wp[0], origin[0]);
+  assert.ok(Math.abs(wp[2] - expectedZ) < 1e-9, `expected z-offset ${expectedZ}, got ${wp[2]}`);
+});
+
+test("computeWaitPoint: falls back to the bare origin when origin and next coincide (no direction to be perpendicular to)", () => {
+  const origin: [number, number, number] = [5, 0, 5];
+  const wp = computeWaitPoint(origin, origin, "any-id");
+  assert.deepEqual(wp, origin);
+});
+
+// ─── computeBatchStaggerDelays (CONVOY-STACK v2) ────────────────────────────
+
+test("computeBatchStaggerDelays: sorted-order ids get 0, STAGGER_DELAY_S, 2*STAGGER_DELAY_S, ...", () => {
+  const delays = computeBatchStaggerDelays(["zeta", "alpha", "mu"]);
+  assert.equal(delays.get("alpha"), 0);
+  assert.equal(delays.get("mu"), STAGGER_DELAY_S);
+  assert.equal(delays.get("zeta"), 2 * STAGGER_DELAY_S);
+});
+
+test("computeBatchStaggerDelays: is independent of input order (stable sort)", () => {
+  const a = computeBatchStaggerDelays(["c", "a", "b"]);
+  const b = computeBatchStaggerDelays(["a", "b", "c"]);
+  assert.deepEqual(Array.from(a.entries()).sort(), Array.from(b.entries()).sort());
+});
+
+test("computeBatchStaggerDelays: a lone id in its own batch gets delay 0", () => {
+  const delays = computeBatchStaggerDelays(["solo"]);
+  assert.equal(delays.get("solo"), 0);
+});
+
+test("computeBatchStaggerDelays: duplicate ids collapse (a Set), never inflate the delay count", () => {
+  const delays = computeBatchStaggerDelays(["a", "a", "b"]);
+  assert.equal(delays.size, 2);
+  assert.equal(delays.get("a"), 0);
+  assert.equal(delays.get("b"), STAGGER_DELAY_S);
+});
+
+// ─── THE REQUIRED PROOF: same-batch walkers on a shared corridor stay ──────
+// >=0.7u apart after the first ~0.2s (coordinator's own required outcome,
+// CONVOY-STACK v2). Models exactly LiveAgents.tsx's own position(t) formula
+// for a staggered walk -- `elapsed = t - (walkStart + delay)`, clamped to
+// [0,1] progress by poseAlongPath itself -- using only the exported pure
+// functions, no React/DOM needed. Proven algebraically in
+// liveAgentWalk.ts's own CONVOY-STACK v2 header: on a straight segment, two
+// same-speed walkers separated by `delay` seconds are separated by exactly
+// `WALK_SPEED * delay` units of Euclidean distance at every instant both are
+// actively progressing -- this test exercises that mechanism against the
+// REAL poseAlongPath/computeBatchStaggerDelays functions, with a straight
+// multi-leg corridor (no sharp corner) so the algebraic guarantee applies
+// throughout, not just on one leg.
+test("STAGGER PROOF: 4 same-batch ids walking an identical shared corridor stay >=0.7u apart from ~0.2s onward", () => {
+  const ids = ["agent-a", "agent-b", "agent-c", "agent-d"];
+  const delays = computeBatchStaggerDelays(ids);
+  const WALK_SPEED_FIXTURE = 0.7;
+  // A long straight corridor (no corner) -- the shared "gate -> hallway"
+  // leg every real batch-spawn walk actually shares (layout.ts's own single
+  // corridor out of campus-gate).
+  const path: [number, number, number][] = [[21.6, 0, 0], [0, 0, 0]];
+  const duration = pathDistance(path) / WALK_SPEED_FIXTURE;
+
+  const REQUIRED_MIN_SEPARATION_U = 0.7; // same bar as STAND_RING_RADIUS/stand slots
+  const sampleTimes = [0.2, 0.5, 1, 2, 4, 6, 8, 10, 15, 20, 25];
+  let checkedAnyActivePair = false;
+  for (const t of sampleTimes) {
+    const positions = ids.map((id) => {
+      const delay = delays.get(id)!;
+      const elapsed = t - delay;
+      const progress = elapsed / duration; // poseAlongPath clamps to [0,1] itself
+      return { id, elapsed, position: poseAlongPath(path, progress).position };
+    });
+    for (let i = 0; i < positions.length; i++) {
+      for (let j = i + 1; j < positions.length; j++) {
+        const a = positions[i];
+        const b = positions[j];
+        // The required bound only applies while BOTH are actively walking
+        // (elapsed > 0 for both, i.e. progress > 0 -- neither is still
+        // waiting at a clamped, possibly-shared endpoint, nor has one
+        // already arrived while the other hasn't started).
+        const bothActive = a.elapsed > 0 && a.elapsed < duration && b.elapsed > 0 && b.elapsed < duration;
+        if (!bothActive) continue;
+        checkedAnyActivePair = true;
+        const dist = Math.hypot(a.position[0] - b.position[0], a.position[2] - b.position[2]);
+        assert.ok(
+          dist >= REQUIRED_MIN_SEPARATION_U - 1e-9,
+          `t=${t}s: ${a.id} (elapsed ${a.elapsed.toFixed(2)}s) and ${b.id} (elapsed ${b.elapsed.toFixed(2)}s) are only ${dist.toFixed(3)}u apart, below the required ${REQUIRED_MIN_SEPARATION_U}u`,
+        );
+      }
+    }
+  }
+  assert.ok(checkedAnyActivePair, "sanity: the sample window must actually exercise at least one both-walking pair, or this test would vacuously pass");
 });
 
 // ─── Despawn destination must be the raw gate node, not a ring-nudged point ─
