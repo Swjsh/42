@@ -47,7 +47,7 @@ import { findWalkPath, type WalkGraph } from "./layout";
 import { truncateOneLine } from "./palette";
 import { bubbleCounterScale } from "./bubbleText";
 import { PRIORITY } from "./labelDeclutter";
-import { useLabelDeclutter } from "./useLabelDeclutter";
+import { mergeRefs, useLabelDeclutter } from "./useLabelDeclutter";
 import { CHARACTER_SCALE, CHARACTER_TARGET_HEIGHT } from "./SetKit";
 import type { LiveAgent } from "./types";
 import type { LiveAgentState } from "@/lib/hq-agents";
@@ -358,7 +358,7 @@ function LiveAgentAvatar({
     },
     [bubbleY],
   );
-  const declutterRef = useLabelDeclutter(`live:${liveAgentId}`, PRIORITY.LIVE_AGENT, declutterWorldPos);
+  const { wrapperRef: declutterRef, measureRef: declutterMeasureRef } = useLabelDeclutter(`live:${liveAgentId}`, PRIORITY.LIVE_AGENT, declutterWorldPos);
 
   return (
     <group ref={group}>
@@ -370,7 +370,7 @@ function LiveAgentAvatar({
             separate from `bubbleWrapRef`'s own camera-distance fade/scale --
             see Agent.tsx's identical convention/comment. */}
         <div ref={declutterRef} style={{ transformOrigin: "50% 100%" }}>
-        <div ref={bubbleWrapRef} style={{ position: "relative", transformOrigin: "50% 100%" }}>
+        <div ref={mergeRefs(bubbleWrapRef, declutterMeasureRef)} style={{ position: "relative", transformOrigin: "50% 100%" }}>
           <div className="hq-beam" style={{ "--beam-color": accentColor, borderRadius: 6 } as CSSProperties}>
             <div
               style={{

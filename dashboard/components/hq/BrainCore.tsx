@@ -11,7 +11,7 @@ import { clamp01, lerp, makeMatcapTexture, PALETTE, personaStatusColor } from ".
 import { ReactorGreeble } from "./SetKit";
 import HubInterior from "./HubInterior";
 import { PRIORITY } from "./labelDeclutter";
-import { useLabelDeclutter } from "./useLabelDeclutter";
+import { mergeRefs, useLabelDeclutter } from "./useLabelDeclutter";
 
 /** Mirrors GammaCharacter.tsx's own local `GammaLoopRow` shape (that file's
  * own comment: "the SAME loop-ledger row the crew panel's own pill
@@ -232,7 +232,7 @@ export default function BrainCore({
   // own scope (smallest-correct-change). World position is static (PLAQUE_Y
   // scaled by this component's own outer CORE_GROUP_SCALE, matching
   // presetZeroClampFactor's own worldY convention just above).
-  const declutterRef = useLabelDeclutter(
+  const { wrapperRef: declutterRef, measureRef: declutterMeasureRef } = useLabelDeclutter(
     "brain-plaque",
     PRIORITY.PLAQUE,
     () => [0, PLAQUE_Y * CORE_GROUP_SCALE, 0] as [number, number, number],
@@ -418,7 +418,7 @@ export default function BrainCore({
             existing presetZeroClampFactor close-camera scale-clamp -- see
             Agent.tsx's identical two-wrapper convention/comment. */}
         <div ref={declutterRef} style={{ transformOrigin: "50% 100%" }}>
-        <div ref={plaqueRef} className="hq-beam" style={{ "--beam-color": "#7ad9ff", borderRadius: 8 } as CSSProperties}>
+        <div ref={mergeRefs(plaqueRef, declutterMeasureRef)} className="hq-beam" style={{ "--beam-color": "#7ad9ff", borderRadius: 8 } as CSSProperties}>
           <div
             style={{
               color: "#dff3ff", fontSize: 34, fontWeight: 700, fontFamily: "system-ui, sans-serif",

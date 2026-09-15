@@ -57,19 +57,28 @@ export default function LabelDeclutterManager(): null {
     const measured = new Map<string, { naturalX: number; naturalY: number; width: number; height: number; scale: number }>();
 
     for (const entry of registry.values()) {
-      const el = entry.wrapperRef.current;
-      if (!el) continue;
-      const domRect = el.getBoundingClientRect();
-      if (domRect.width === 0 && domRect.height === 0) continue; // not yet laid out this tick
-      const offsetWidth = el.offsetWidth || domRect.width || 1;
-      // Ancestor (drei distanceFactor) scale -- translateY on THIS wrapper
-      // doesn't affect its own offsetWidth, so this ratio isolates purely
-      // the ancestor's scale even after we've already applied our own
-      // transform on a prior tick. See this file's own header.
-      const ancestorScale = offsetWidth > 0 ? domRect.width / offsetWidth : 1;
+      const wrapperEl = entry.wrapperRef.current;
+      const measureEl = entry.measureRef.current;
+      if (!wrapperEl || !measureEl) continue;
+      // ROOT-CAUSE FIX (see RegisteredLabel.measureRef's own comment):
+      // SIZE/POSITION come from `measureEl` (the label's own inner,
+      // already-scaled bubble/plaque node) -- its own getBoundingClientRect
+      // reflects any transform ON IT (bubbleCounterScale), which the OUTER
+      // `wrapperEl` could never see since a descendant's transform doesn't
+      // resize an ancestor's layout box. `wrapperEl` is used ONLY to derive
+      // the ancestor (drei distanceFactor) scale we must divide by to turn
+      // a desired SCREEN-pixel offset into the right LOCAL transform units
+      // for `wrapperEl` itself (translate on an ancestor of measureEl still
+      // composes correctly regardless of measureEl's own extra scale).
+      const wrapperRect = wrapperEl.getBoundingClientRect();
+      const measureRect = measureEl.getBoundingClientRect();
+      if (measureRect.width === 0 && measureRect.height === 0) continue; // not yet laid out this tick
+      const offsetWidth = wrapperEl.offsetWidth || wrapperRect.width || 1;
+      const ancestorScale = offsetWidth > 0 ? wrapperRect.width / offsetWidth : 1;
+      const prevScreenDx = entry.lastLocalDx * ancestorScale;
       const prevScreenDy = entry.lastLocalDy * ancestorScale;
-      const naturalX = domRect.left;
-      const naturalY = domRect.top - prevScreenDy;
+      const naturalX = measureRect.left - prevScreenDx;
+      const naturalY = measureRect.top - prevScreenDy;
 
       const rawPos = entry.getWorldPos();
       const wx = Array.isArray(rawPos) ? rawPos[0] : rawPos.x;
@@ -78,8 +87,8 @@ export default function LabelDeclutterManager(): null {
       scratch.current.set(wx, wy, wz);
       const distance = scratch.current.distanceTo(camPos);
 
-      measured.set(entry.id, { naturalX, naturalY, width: domRect.width, height: domRect.height, scale: ancestorScale });
-      rects.push({ id: entry.id, priority: entry.priority, distance, x: naturalX, y: naturalY, width: domRect.width, height: domRect.height });
+      measured.set(entry.id, { naturalX, naturalY, width: measureRect.width, height: measureRect.height, scale: ancestorScale });
+      rects.push({ id: entry.id, priority: entry.priority, distance, x: naturalX, y: naturalY, width: measureRect.width, height: measureRect.height });
     }
 
     if (rects.length === 0) return;
@@ -89,13 +98,18 @@ export default function LabelDeclutterManager(): null {
       const m = measured.get(entry.id);
       const el = entry.wrapperRef.current;
       if (!m || !el) continue;
-      const target = offsets.get(entry.id) ?? { dy: 0, opacity: 1 };
-      const targetScreenDy = target.dy;
+      const target = offsets.get(entry.id) ?? { dx: 0, dy: 0, opacity: 1 };
+      const prevScreenDx = entry.lastLocalDx * m.scale;
       const prevScreenDy = entry.lastLocalDy * m.scale;
-      const smoothedScreenDy = prevScreenDy + (targetScreenDy - prevScreenDy) * SMOOTH_FACTOR;
+      const smoothedScreenDx = prevScreenDx + (target.dx - prevScreenDx) * SMOOTH_FACTOR;
+      const smoothedScreenDy = prevScreenDy + (target.dy - prevScreenDy) * SMOOTH_FACTOR;
+      const localDx = m.scale > 0 ? smoothedScreenDx / m.scale : 0;
       const localDy = m.scale > 0 ? smoothedScreenDy / m.scale : 0;
+      entry.lastLocalDx = localDx;
       entry.lastLocalDy = localDy;
-      el.style.transform = Math.abs(localDy) > 0.5 ? `translateY(${localDy.toFixed(2)}px)` : "";
+      el.style.transform = Math.abs(localDx) > 0.5 || Math.abs(localDy) > 0.5
+        ? `translate(${localDx.toFixed(2)}px, ${localDy.toFixed(2)}px)`
+        : "";
       el.style.opacity = target.opacity.toFixed(2);
     }
 

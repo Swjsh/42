@@ -17,7 +17,7 @@ import { recordAgentSample } from "@/lib/hq-motion-diag";
 import type { WalkPlan } from "./types";
 import { bubbleCounterScale } from "./bubbleText";
 import { PRIORITY } from "./labelDeclutter";
-import { useLabelDeclutter } from "./useLabelDeclutter";
+import { mergeRefs, useLabelDeclutter } from "./useLabelDeclutter";
 
 export type AgentBehavior = "working" | "idle" | "alert" | "frozen";
 // MOTION-2 V2: "waypoints" added -- a walk driven by a real LAYOUT-supplied
@@ -1157,7 +1157,7 @@ export default function Agent({
     },
     [bubbleY],
   );
-  const declutterRef = useLabelDeclutter(declutterId, bubblePriority, declutterWorldPos);
+  const { wrapperRef: declutterRef, measureRef: declutterMeasureRef } = useLabelDeclutter(declutterId, bubblePriority, declutterWorldPos);
 
   return (
     <group ref={group}>
@@ -1236,7 +1236,7 @@ export default function Agent({
               as before (see labelDeclutter.ts's own header for why these
               must be two different DOM nodes). */}
           <div ref={declutterRef} style={{ transformOrigin: "50% 100%" }}>
-          <div ref={bubbleWrapRef} style={{ position: "relative", transformOrigin: "50% 100%" }}>
+          <div ref={mergeRefs(bubbleWrapRef, declutterMeasureRef)} style={{ position: "relative", transformOrigin: "50% 100%" }}>
             <div className="hq-beam" style={{ "--beam-color": accentColor, borderRadius: 6 } as CSSProperties}>
               <div
                 style={{

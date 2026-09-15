@@ -32,6 +32,22 @@ export interface RegisteredLabel {
    * label's own inner markup already does (camera-distance scale/fade stay
    * exactly as each file already implements them, on an INNER node). */
   wrapperRef: RefObject<HTMLDivElement | null>;
+  /** ROOT-CAUSE FIX (coordinator, 2026-09-15, read at 1:1 from
+   * declutter-overview.png): CSS `transform` on a DESCENDANT never resizes
+   * an ANCESTOR's own layout box, so `wrapperRef`'s own
+   * getBoundingClientRect() never reflected the inner bubble's own
+   * bubbleCounterScale transform (bubbleScale.ts) -- at the overview
+   * camera that scale grows up to 2.6x to compensate for distance, so the
+   * measured rect was far smaller than the real on-screen box and the
+   * resolver saw no collision to fix. `measureRef` is the label's own
+   * EXISTING inner scaled element (bubbleWrapRef in Agent.tsx/
+   * GammaCharacter.tsx/LiveAgents.tsx, plaqueRef in BrainCore.tsx) --
+   * transform affects an element's OWN getBoundingClientRect, so reading
+   * THIS element gives the true, fully-composed visual box. `wrapperRef`
+   * stays the node the manager WRITES the resolved offset onto (an
+   * ancestor of `measureRef`, so the offset composes correctly with
+   * whatever scale `measureRef` already carries). */
+  measureRef: RefObject<HTMLDivElement | null>;
   /** Called at most once per throttled tick -- return this label's CURRENT
    * world position (a moving character's group.position, or a fixed
    * literal for a static plaque). Never cached across ticks by the
@@ -40,7 +56,10 @@ export interface RegisteredLabel {
   /** Local, per-label smoothing state -- the manager owns writing this, no
    * caller ever reads or sets it. Kept ON the registry entry (not a
    * separate Map keyed by id) so a label that unmounts and remounts under
-   * the same id starts fresh rather than inheriting stale smoothing. */
+   * the same id starts fresh rather than inheriting stale smoothing.
+   * Tracks BOTH axes -- see labelDeclutter.ts's own header for why a label
+   * is nudged along exactly one axis at a time (the other always stays 0). */
+  lastLocalDx: number;
   lastLocalDy: number;
 }
 
@@ -59,17 +78,21 @@ export function getLabelRegistry(): ReadonlyMap<string, RegisteredLabel> {
  * logical label (a persona name, a live-agent id, "gamma", "brain-plaque")
  * -- a changing id looks like a despawn+respawn to the resolver, which is
  * harmless (just loses that one label's smoothing state for a tick) but
- * never correct. Returns the wrapper ref the caller must attach to a NEW
- * outer `<div>` wrapping its existing bubble/plaque JSX -- see this file's
- * own header for why that has to be a separate node from any existing
- * camera-distance scale/fade wrapper.
+ * never correct. Returns `{ wrapperRef, measureRef }`: `wrapperRef` is a
+ * NEW outer `<div>` the caller wraps around its existing bubble/plaque
+ * JSX (the manager writes offset/opacity here); `measureRef` must be
+ * attached to that SAME existing inner element that already carries the
+ * label's own camera-distance scale/fade (bubbleWrapRef/plaqueRef) -- see
+ * `RegisteredLabel.measureRef`'s own comment for why the manager reads
+ * size from there, not from `wrapperRef`.
  */
 export function useLabelDeclutter(
   id: string,
   priority: number,
   getWorldPos: () => THREE.Vector3 | [number, number, number],
-): RefObject<HTMLDivElement | null> {
+): { wrapperRef: RefObject<HTMLDivElement | null>; measureRef: RefObject<HTMLDivElement | null> } {
   const wrapperRef = useRef<HTMLDivElement | null>(null);
+  const measureRef = useRef<HTMLDivElement | null>(null);
   // Refs so the registered closure always calls the LATEST getWorldPos/
   // priority without re-registering every render (a walking character's
   // getWorldPos closes over a `group` ref that never changes identity, but
@@ -86,7 +109,9 @@ export function useLabelDeclutter(
         return priorityRef.current;
       },
       wrapperRef,
+      measureRef,
       getWorldPos: () => getWorldPosRef.current(),
+      lastLocalDx: 0,
       lastLocalDy: 0,
     };
     registry.set(id, entry);
@@ -100,5 +125,17 @@ export function useLabelDeclutter(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  return wrapperRef;
+  return { wrapperRef, measureRef };
+}
+
+/** Small helper: attaches BOTH `a` and `b` (React refs of the SAME
+ * underlying type) to one DOM node via a single callback ref -- every
+ * `measureRef` from `useLabelDeclutter` must point at the SAME element as
+ * the caller's own existing scale/fade ref (bubbleWrapRef/plaqueRef), and
+ * a plain JSX element can only take one `ref` prop. */
+export function mergeRefs<T>(a: RefObject<T | null>, b: RefObject<T | null>): (el: T | null) => void {
+  return (el) => {
+    a.current = el;
+    b.current = el;
+  };
 }

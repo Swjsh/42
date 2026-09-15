@@ -11,7 +11,13 @@
 // screen-space declutter every Html label producer (Agent.tsx,
 // GammaCharacter.tsx, LiveAgents.tsx, BrainCore.tsx) now routes through via
 // useLabelDeclutter.ts. Covers exactly the 5 cases the task brief named: no
-// overlap, a pair, a chain of 4, the cap+fade, and frame-to-frame stability.
+// overlap, a pair, a chain of 4, the cap+fade, and frame-to-frame stability
+// -- plus (coordinator fix, 2026-09-15) a side-by-side overlap at overview-
+// camera scale, the case the vertical-only version of this resolver could
+// not clear (see labelDeclutter.ts's own header for the root cause: rects
+// were measured pre-counter-scale, so overview-camera collisions were
+// under-sized and often missed entirely; separately, this resolver now
+// picks whichever axis clears a REAL collision with less displacement).
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -118,6 +124,31 @@ test("defaults match the module's exported constants", () => {
   assert.ok(anyClamped, "6 large overlapping labels should hit the default cap at least once");
   const faded = [...out.values()].find((o) => o.opacity === DEFAULT_FADE_OPACITY);
   assert.ok(faded, "a clamped label should carry the default fade opacity");
+});
+
+test("a side-by-side overlap at overview-camera (0.5x) scale resolves via the cheaper horizontal nudge", () => {
+  // Dimensions halved from a typical ~140x24 hub bubble -- the real
+  // overview-camera regime this fix targets, where drei's own 1/dist
+  // shrink plus bubbleCounterScale's compensation can still land two
+  // ADJACENT labels (same row, small x-overlap) at roughly the same y.
+  // Overlap along x is only 5px (170..175, since a=[100,170] b=[165,235]);
+  // clearing it needs dx>=5 (one 6px step). Clearing along y instead would
+  // need dy>=h=12 (two 6px steps) since the rects sit at the identical y --
+  // horizontal is strictly cheaper, and per this file's own "smaller
+  // displacement wins" rule must be the one chosen.
+  const a = rect("coach", PRIORITY.PERSONA, 40, 100, 100, 70, 12);
+  const b = rect("general-purpose", PRIORITY.LANE, 42, 165, 100, 70, 12);
+  const out = resolveLabelOffsets([a, b]);
+  const oa = out.get("coach")!;
+  const ob = out.get("general-purpose")!;
+  assert.equal(oa.dx, 0);
+  assert.equal(oa.dy, 0);
+  assert.equal(ob.dy, 0, "the cheaper axis (x) should be chosen, not y");
+  assert.ok(ob.dx > 0, "lower-precedence label should be nudged horizontally");
+  assert.equal(ob.opacity, 1, "a 6px nudge should not need to fade");
+  // Must actually be clear post-resolve.
+  const clear = a.x + a.width <= b.x + ob.dx || b.x + ob.dx + b.width <= a.x || a.y + a.height <= b.y + ob.dy || b.y + ob.dy + b.height <= a.y;
+  assert.ok(clear, "coach and general-purpose still overlap after resolve");
 });
 
 test("stable order across frames: identical input always yields identical output (no jitter)", () => {

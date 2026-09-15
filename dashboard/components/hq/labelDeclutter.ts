@@ -25,12 +25,22 @@
 // to the camera wins a same-priority tie) then by `id` (fully deterministic
 // tie-break so two calls with identical input NEVER produce different
 // output -- this is what makes the label's on-screen position STABLE frame
-// to frame, the "no jitter" requirement). Walk that order; each label is
-// nudged straight down in fixed NUDGE_STEP_PX increments until its
-// (offset) rect no longer overlaps any ALREADY-PLACED (higher-precedence)
-// rect. Beyond `maxNudgePx` the offset clamps there and the label's own
-// opacity drops to `fadeOpacity` instead of stacking forever (brief's own
-// "beyond the cap, lower-priority labels fade" rule).
+// to frame, the "no jitter" requirement). Walk that order; for each label,
+// try nudging along EACH axis independently in fixed NUDGE_STEP_PX
+// increments until its (offset) rect no longer overlaps any ALREADY-PLACED
+// (higher-precedence) rect -- then take whichever axis cleared the
+// collision with the SMALLER total displacement (coordinator fix,
+// 2026-09-15: a vertical-only nudge could not resolve two labels sitting
+// side by side in the SAME row within a small cap -- e.g. two ~26px-tall,
+// ~140px-wide bubbles offset mostly in X need ~140px of vertical travel to
+// clear fully, but often far less horizontal travel, since the real-world
+// overlap that trips this is usually two ADJACENT columns, not a dead-on
+// stack). If NEITHER axis clears within `maxNudgePx`, the smaller-
+// displacement axis is still used (closest to resolved) and the label
+// fades instead of stacking forever (brief's own "beyond the cap,
+// lower-priority labels fade" rule). A label is nudged along exactly ONE
+// axis, never both -- diagonal nudges would make the stack read as
+// scattered rather than an intentional list.
 
 export interface LabelRect {
   /** Stable identity across frames (e.g. "persona:Coach", "live:abc123",
@@ -54,13 +64,18 @@ export interface LabelRect {
 }
 
 export interface LabelOffset {
-  /** Vertical pixel nudge to apply on top of the label's own resting
-   * screen position (positive = further down the screen). 0 for a label
-   * that never collided with anything higher-precedence. */
+  /** Horizontal pixel nudge (positive = further right). Mutually exclusive
+   * with `dy` -- a label is nudged along exactly ONE axis (whichever
+   * clears the collision with the smaller total displacement -- see this
+   * file's own header), never both, so it never drifts diagonally. 0 for a
+   * label that never collided, or one nudged along `dy` instead. */
+  dx: number;
+  /** Vertical pixel nudge (positive = further down). See `dx`'s own
+   * comment for the "exactly one axis" rule. */
   dy: number;
-  /** 1 normally; drops to the caller's `fadeOpacity` once `dy` has been
-   * clamped at `maxNudgePx` (this label is still colliding even at the cap,
-   * so it fades instead of stacking further). */
+  /** 1 normally; drops to the caller's `fadeOpacity` once the CHOSEN axis's
+   * offset has been clamped at `maxNudgePx` and the label is STILL
+   * colliding at the cap (fades instead of stacking further). */
   opacity: number;
 }
 
@@ -85,6 +100,38 @@ function rectsOverlap(
   return ax < bx + bw && ax + aw > bx && ay < by + bh && ay + ah > by;
 }
 
+interface PlacedLabel {
+  rect: LabelRect;
+  dx: number;
+  dy: number;
+}
+
+function overlapsAnyPlaced(
+  rect: LabelRect, dx: number, dy: number, placed: readonly PlacedLabel[],
+): boolean {
+  return placed.some((p) =>
+    rectsOverlap(
+      rect.x + dx, rect.y + dy, rect.width, rect.height,
+      p.rect.x + p.dx, p.rect.y + p.dy, p.rect.width, p.rect.height,
+    ),
+  );
+}
+
+/** Walks ONE axis in fixed `NUDGE_STEP_PX` increments until `rect` (nudged
+ * by the growing offset on that axis alone) no longer overlaps any placed
+ * label, or the cap is hit. Returns the offset reached and whether it
+ * actually cleared every collision. */
+function resolveAxis(
+  rect: LabelRect, placed: readonly PlacedLabel[], axis: "x" | "y", maxNudgePx: number,
+): { value: number; cleared: boolean } {
+  let d = 0;
+  const collides = (dd: number) =>
+    axis === "x" ? overlapsAnyPlaced(rect, dd, 0, placed) : overlapsAnyPlaced(rect, 0, dd, placed);
+  while (d < maxNudgePx && collides(d)) d += NUDGE_STEP_PX;
+  const finalD = Math.min(d, maxNudgePx);
+  return { value: finalD, cleared: !collides(finalD) };
+}
+
 /**
  * Resolves overlaps for one frame's worth of label rects. Pure: same input
  * always produces the same output (see this file's own header for why that
@@ -106,26 +153,35 @@ export function resolveLabelOffsets(
     return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
   });
 
-  const placed: { rect: LabelRect; dy: number }[] = [];
+  const placed: PlacedLabel[] = [];
   const out = new Map<string, LabelOffset>();
 
   for (const rect of order) {
-    let dy = 0;
-    while (
-      dy < maxNudgePx &&
-      placed.some((p) =>
-        rectsOverlap(
-          rect.x, rect.y + dy, rect.width, rect.height,
-          p.rect.x, p.rect.y + p.dy, p.rect.width, p.rect.height,
-        ),
-      )
-    ) {
-      dy += NUDGE_STEP_PX;
+    if (!overlapsAnyPlaced(rect, 0, 0, placed)) {
+      placed.push({ rect, dx: 0, dy: 0 });
+      out.set(rect.id, { dx: 0, dy: 0, opacity: 1 });
+      continue;
     }
-    const clamped = dy >= maxNudgePx;
-    const finalDy = Math.min(dy, maxNudgePx);
-    placed.push({ rect, dy: finalDy });
-    out.set(rect.id, { dy: finalDy, opacity: clamped ? fadeOpacity : 1 });
+
+    const yTry = resolveAxis(rect, placed, "y", maxNudgePx);
+    const xTry = resolveAxis(rect, placed, "x", maxNudgePx);
+    // Prefer whichever axis actually CLEARED the collision; between two
+    // that both cleared (or neither did), take the smaller displacement --
+    // ties go to Y (this file's own historical default, and the natural
+    // read for a stack of bubbles above one head). See this file's own
+    // header for why the axis choice matters for the real overview-camera
+    // side-by-side case this fix targets.
+    let axis: "x" | "y";
+    if (yTry.cleared && xTry.cleared) axis = yTry.value <= xTry.value ? "y" : "x";
+    else if (yTry.cleared) axis = "y";
+    else if (xTry.cleared) axis = "x";
+    else axis = yTry.value <= xTry.value ? "y" : "x";
+
+    const chosen = axis === "y" ? yTry : xTry;
+    const dx = axis === "x" ? chosen.value : 0;
+    const dy = axis === "y" ? chosen.value : 0;
+    placed.push({ rect, dx, dy });
+    out.set(rect.id, { dx, dy, opacity: chosen.cleared ? 1 : fadeOpacity });
   }
 
   return out;
