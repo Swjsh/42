@@ -1,6 +1,6 @@
-﻿{
+{
   "_doc": "Per-fire brain routing for automation launchers that dot-source setup/scripts/_brain.ps1 (GAMMA-STATION item 8). mode=local -> those fires run Claude Code against Ollama via the no-think proxy (zero Anthropic tokens); mode=claude -> nothing changes. J's interactive tools never read this file. Revoke = set mode to claude.",
-  "mode": "local",
+  "mode": "claude",
   "map": {
     "sonnet": "gamma-planner-fast",
     "opus": "gamma-planner-fast",
@@ -8,6 +8,7 @@
   },
   "proxy_port": 11435,
   "ollama_port": 11434,
-  "changed_et": "2026-09-13 14:45",
-  "changed_by": "Fable (GOAL-GAMMA-STATION-2026-09-13)"
+  "changed_et": "2026-09-15 19:4x",
+  "changed_by": "Opus (J flagged the claude-* Ollama aliases; local brain was never Claude-graded per OP-32)",
+  "_revoke_note": "Set mode back to 'local' only after free_model_audit.py grades gamma-planner-fast at the >=85%/>=15-evidence bar. Routing machinery is intact and unchanged."
 }
