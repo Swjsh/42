@@ -1007,6 +1007,16 @@ def launch_and_probe(
 
 
 def main() -> int:
+    # 2026-09-15: a label text containing an emoji (the head-label model
+    # glyph, e.g. U+1F3E0) crashed print_plausibility_lines with
+    # UnicodeEncodeError under Windows' cp1252 console AFTER the run had
+    # already recorded -- the motion check lines were lost (C7: audit the
+    # output, not the exit code). Force UTF-8 stdout with replacement so a
+    # glyph can never take the verdict lines down with it.
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is not None:
+            reconfigure(encoding="utf-8", errors="replace")
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--url", default=DEFAULT_URL)
     ap.add_argument("--seconds", type=int, default=200)
