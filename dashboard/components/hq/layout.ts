@@ -682,6 +682,23 @@ export function computeMonitorMount(armIndex: number): MonitorMount {
  * BRAIN_WALL_MOUNT above. */
 export const MONITOR_MOUNT: MonitorMount = computeMonitorMount(0);
 
+// ─── Hub table radius (2026-09-16, HUB-LAYOUT-PROPS worker, J: "the chart
+// is dope, but it is not laid out cleanly") ─────────────────────────────────
+// ENVIRONMENT-PLAN.md's "Command-center pass 2026-09-16" section A: pull the
+// round table + HoloChart inward from 2.5 to 2.1 (same 45deg segment-center
+// angle, unchanged) so the chart reads as the room's own centrepiece
+// in front of the monitor corner from the default camera, "table-then-
+// monitors" front-to-back like an operator row facing a video wall.
+// HubInterior.tsx#TABLE_CENTER derives from this rather than a re-typed
+// literal. Checked against BrainCore's own glow reach (~2.24 world radius,
+// Scene.tsx's own GAMMA_RADIUS comment) at this radius: table's nearest
+// point to the hub sits well inside that glow band both at the OLD radius
+// (2.5) and this new one (2.1) -- the glow is a non-colliding additive
+// <sprite> (BrainCore.tsx), not solid geometry, so this is a pre-existing,
+// already-shipped soft overlap, not a new regression introduced by this
+// move; flagged here rather than silently ignored, per OP-33.
+export const HUB_TABLE_RADIUS = 2.1;
+
 export interface PersonaWallSlot {
   position: [number, number, number];
   rotationY: number; // faces the hub center, same -Z-front convention as every other kit placement
@@ -816,6 +833,15 @@ export interface WalkGraphInput {
    * every walk destination this scene has ever used, not just the new
    * cross-shaped ones, resolves through the SAME single structure. */
   ambientPoints: Record<string, [number, number, number]>;
+  /** CREW-WORKING pass (2026-09-15/16): the round table's real world center
+   * (HUB_TABLE_RADIUS above, at the brain wall's own 45deg segment-center
+   * angle -- the SAME derivation HubInterior.tsx#TABLE_CENTER uses, computed
+   * by Scene.tsx since `armAngle`/the brain-wall arm index already live
+   * there, never a re-typed literal here). Feeds a new "hub-table" walk
+   * node so a huddle-pair walk (Scene.tsx's own new behavior) can route
+   * through the SAME graph every other walk already does, rather than a
+   * one-off straight line to a point the graph doesn't know about. */
+  tableCenterPos: [number, number, number];
 }
 
 /** Builds the full walk graph from a layout snapshot. Pure data -- call
@@ -880,6 +906,12 @@ export function buildWalkGraph(input: WalkGraphInput): WalkGraph {
     addNode(`ambient-${name}`, pos);
     addEdge("hub-center", `ambient-${name}`);
   });
+  // CREW-WORKING pass: the round table, one hop off hub-center -- same
+  // "hub-interior leaf" shape as every ambient-point/persona-desk/gamma-desk
+  // node above, so a huddle-pair walk (Scene.tsx) resolves through
+  // `findWalkPath` exactly like every other walk in this scene.
+  addNode("hub-table", input.tableCenterPos);
+  addEdge("hub-center", "hub-table");
 
   return { nodes, adjacency };
 }

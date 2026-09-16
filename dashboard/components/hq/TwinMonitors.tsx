@@ -55,25 +55,42 @@ import { drawScreenLines, ideaStatusColor, PALETTE, type ScreenLine } from "./pa
 // size bump below is the rest -- bigger glass + bigger text). Sized up
 // 60% (2.0->3.2w / 1.2->1.8h) -- top edge lands at SCREEN_BOTTOM_Y(1.2) +
 // 1.8 = 3.0u, under SetKit.tsx's true room ceiling (raw 4.25 *
-// ARCHITECTURE_SCALE_HUB(0.75) ~= 3.19u per layout.ts's own
-// computeBrainWallMount header) with a ~0.19u margin -- the group's
+// ARCHITECTURE_SCALE_HUB(0.75) ~= 3.19) with a ~0.19u margin -- the group's
 // <Billboard> can only pitch the panel MORE vertical toward the default
 // orbit's elevation (~35deg) than the worst-case fully-upright pose used
-// for this calc, so 3.0u is a safe upper bound, not a typical one. Bottom
-// dropped 1.5->1.2 to buy back some of that headroom (pedestal shrinks by
-// the same 0.3u). Angular footprint at the new width, MONITOR_STAND_RADIUS
-// 5.6 (layout.ts): atan((2*OFFSET_X+3.2)/2 / 5.6) ~= 31deg either side of
-// the 45deg segment center -- this is the FIXED PEDESTAL's own thin post
-// (0.3u wide, effectively 0 angular width) that stays put; only the
-// billboarded GLASS sweeps that arc, well clear of the desk ring (centred
-// r5.5 on segments 1-3, this stand sits on the free segment 0) and clear
-// of HubInterior's cable greeble in height (cables are a floor-level
-// greeble; the glass floats at y 1.2-3.0) even though its 28deg angle now
-// falls inside the glass's angular sweep -- no radial/vertical overlap.
-const SCREEN_WIDTH = 3.2;
-const SCREEN_HEIGHT = 1.8;
+// for this calc, so 3.0u is a safe upper bound, not a typical one.
+//
+// COMMAND-CENTER pass (2026-09-16, HUB-LAYOUT-PROPS worker, J: "make the
+// floating 2 large monitors a bit bigger"). ENVIRONMENT-PLAN.md's own
+// "Command-center pass 2026-09-16" section B ran the same projected-width
+// math for 2 candidates: 3.6x2.0 (Candidate 1, this pass) clears the
+// 3.19u ceiling with a bottom edge dropped 1.2->1.0 (top = 1.0+2.0 = 3.0,
+// SAME 0.19u margin the prior pass already proved safe); the 4.0x2.25
+// candidate does NOT clear it (top would land at 3.25, 0.06u over) even at
+// the lowest allowable bottom edge, so it was rejected as "not a valid
+// bigger, it clips." Widened WITHOUT growing height is the only path to
+// bigger-without-ceiling-risk if a future pass wants more still.
+// Angular footprint at the new width, MONITOR_STAND_RADIUS 5.6 (layout.ts):
+// atan((SCREEN_WIDTH+SCREEN_GAP/2) / 5.6) ~= 33.6deg either side of the
+// 45deg segment center (up from ~30.5deg at the old 3.2u width) -- this is
+// the FIXED PEDESTAL's own thin post (0.3u wide, effectively 0 angular
+// width) that stays put; only the billboarded GLASS sweeps that arc. At
+// this wider footprint the worst-case sweep ([11.3, 78.7]deg) now brackets
+// ALL THREE of HubInterior's cable clusters (12/28/78deg, previously only
+// 28deg fell inside the old [14.5, 75.5]deg span) -- accepted for the SAME
+// reason the prior pass already accepted the 28deg case: cables.glb is a
+// floor-level greeble (raw height 0.160 * CABLE_SCALE(0.34) = 0.054u world
+// height, verified via glb_extents.mjs this session) while the glass now
+// floats at y 1.0-3.0 -- ~0.95u of vertical clearance, no volumetric
+// overlap regardless of the angular sweep. tests/hq-hub-layout.test.ts's
+// own TWIN-MONITORS cable test is updated to check this vertical-clearance
+// invariant directly (its old MONITOR_SCREEN_HALF_WIDTH literal used a
+// stale single-screen-offset formula, not the actual full-pair half-width
+// this header always used -- see that test's own updated comment).
+const SCREEN_WIDTH = 3.6;
+const SCREEN_HEIGHT = 2.0;
 const SCREEN_GAP = 0.25;
-const SCREEN_BOTTOM_Y = 1.2;
+const SCREEN_BOTTOM_Y = 1.0;
 const SCREEN_CENTER_Y = SCREEN_BOTTOM_Y + SCREEN_HEIGHT / 2;
 const SCREEN_OFFSET_X = (SCREEN_WIDTH + SCREEN_GAP) / 2;
 const BEZEL_MARGIN = 0.05;
@@ -91,19 +108,23 @@ const PEDESTAL_BASE_DEPTH = 0.4;
 // below it read fine (monitors-overview-1948.png). 36 -- clearly bigger
 // than the desk-screen default, still small enough to read as a header
 // row rather than competing with the 64px body content for attention.
-const MONITOR_TITLE_SIZE = 36;
+// COMMAND-CENTER pass (2026-09-16): glass grew 3.2->3.6u (12.5% wider);
+// bumped 36->40 proportionally so the header keeps the same relative size
+// on the bigger canvas rather than shrinking relative to the 64px body.
+const MONITOR_TITLE_SIZE = 40;
 
 function createMonitorCanvas(): { canvas: HTMLCanvasElement; texture: THREE.CanvasTexture } {
   if (typeof document === "undefined") {
     throw new Error("createMonitorCanvas() called outside a browser -- never call this during SSR");
   }
   const canvas = document.createElement("canvas");
-  // MONITORS-READABLE pass: 512x288 -> 768x432 (matches the new 3.2x1.8
-  // screen aspect exactly, same 1.778 ratio as before) so the headline-
-  // scale text below (size>=56, spec floor 64 on the biggest line) has
-  // physical canvas pixels to render into rather than being upscaled soft.
-  canvas.width = 768;
-  canvas.height = 432;
+  // MONITORS-READABLE pass: 512x288 -> 768x432 (matched the 3.2x1.8 screen
+  // aspect, 1.778 ratio). COMMAND-CENTER pass (2026-09-16): screen resized
+  // to 3.6x2.0 (ratio 1.8, per ENVIRONMENT-PLAN.md section B's own spec)
+  // -> canvas 864x480 (same 1.8 ratio, spec-given size) so the >=64px body
+  // text still has real canvas pixels behind it, not an upscaled 768x432.
+  canvas.width = 864;
+  canvas.height = 480;
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
   return { canvas, texture };

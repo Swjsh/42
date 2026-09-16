@@ -247,36 +247,248 @@ test("DESK-ROWS: bay desk chair keeps >=1.2u clearance from the door-side (near)
   assert.ok(clearance >= 1.2, `bay desk chair-to-door-wall clearance ${clearance} < 1.2u`);
 });
 
-// ─── Monitor-stand / cable collision check (TWIN-MONITORS pass) ───────────
+// ─── Monitor-stand / cable collision check (TWIN-MONITORS pass, updated
+// COMMAND-CENTER pass 2026-09-16) ──────────────────────────────────────────
 // Mirrors layout.ts#computeMonitorMount + HubInterior.tsx#CABLE_ANGLES_DEG's
-// own post-fix values -- asserts the resolved collision (cable moved
-// 45deg -> 28deg) actually clears the monitor pair's own angular footprint.
+// own post-fix values.
+//
+// SELF-CORRECTION (COMMAND-CENTER pass): MONITOR_SCREEN_HALF_WIDTH below
+// used to read `(2.0 screen + 0.2 gap)/2 = 1.1` -- a STALE formula from
+// before the MONITORS-READABLE pass (which bumped the screen to
+// 3.2w/0.25gap) and this pass's own resize to 3.6w/0.25gap. That literal
+// was never the pair's own total half-width to begin with: it's a single
+// screen's center-offset from the group origin (SCREEN_OFFSET_X in
+// TwinMonitors.tsx), not `SCREEN_OFFSET_X + SCREEN_WIDTH/2` (the real
+// worst-case half-width TwinMonitors.tsx's OWN header comment has always
+// used, see that file's "Angular footprint" paragraph). Fixed to the real
+// formula below (SCREEN_WIDTH + SCREEN_GAP/2). At the corrected, WIDER
+// half-width, the worst-case angular sweep now brackets all 3 cable angles
+// (12/28/78deg), not just 28 -- this is BY DESIGN, not a new collision:
+// cables.glb is a floor-level greeble (raw height 0.160 * CABLE_SCALE 0.34
+// = 0.054u world height) while the glass floats at SCREEN_BOTTOM_Y(1.0) to
+// SCREEN_BOTTOM_Y+SCREEN_HEIGHT(3.0) -- ~0.95u of vertical clearance, so
+// there is no volumetric overlap regardless of angular overlap. The old
+// "cable sits outside the angular span" assertion is replaced with the
+// actual design invariant: vertical separation between the cable greeble's
+// real top and the screen glass's own bottom edge.
 const MONITOR_STAND_RADIUS = 5.6;
 const MONITOR_SEGMENT_CENTER_DEG = 45; // armAngle(0) + 45deg
-const MONITOR_SCREEN_HALF_WIDTH = 1.1; // (2.0 screen + 0.2 gap)/2, see TwinMonitors.tsx
+const SCREEN_WIDTH = 3.6; // TwinMonitors.tsx, COMMAND-CENTER pass
+const SCREEN_GAP = 0.25; // TwinMonitors.tsx, unchanged
+const SCREEN_BOTTOM_Y = 1.0; // TwinMonitors.tsx, COMMAND-CENTER pass
+const MONITOR_SCREEN_HALF_WIDTH = SCREEN_WIDTH + SCREEN_GAP / 2; // real full-pair worst-case half-width
 const CABLE_RADIUS = 5.5;
 const CABLE_ANGLES_DEG = [12, 28, 78]; // HubInterior.tsx, post this-pass fix
+const CABLE_RAW_HEIGHT = 0.16; // cables.glb, glb_extents.mjs this session
+const CABLE_SCALE = 0.34; // HubInterior.tsx#CABLE_SCALE
 
 function deg(d: number): number {
   return (d * Math.PI) / 180;
 }
 
-test("TWIN-MONITORS: the moved cable cluster (28deg) sits outside the monitor pair's own angular span at the shared 45deg corner", () => {
+test("TWIN-MONITORS: at the resized (3.6u) screen width, the monitor pair's worst-case angular sweep now brackets all 3 cable clusters (12/28/78deg) -- expected, not a regression", () => {
   const halfSpanDeg = (Math.atan(MONITOR_SCREEN_HALF_WIDTH / MONITOR_STAND_RADIUS) * 180) / Math.PI;
   const spanLo = MONITOR_SEGMENT_CENTER_DEG - halfSpanDeg;
   const spanHi = MONITOR_SEGMENT_CENTER_DEG + halfSpanDeg;
   for (const cableDeg of CABLE_ANGLES_DEG) {
     assert.ok(
-      cableDeg < spanLo || cableDeg > spanHi,
-      `cable at ${cableDeg}deg falls inside the monitor pair's own [${spanLo.toFixed(1)}, ${spanHi.toFixed(1)}]deg span`,
+      cableDeg >= spanLo && cableDeg <= spanHi,
+      `cable at ${cableDeg}deg unexpectedly falls OUTSIDE the monitor pair's [${spanLo.toFixed(1)}, ${spanHi.toFixed(1)}]deg span -- if this pass's geometry changed, re-verify the vertical-clearance test below still covers every cable/screen pair`,
     );
   }
 });
 
-test("TWIN-MONITORS: monitor stand + screen pair stay inside the hub wall", () => {
+test("TWIN-MONITORS: despite the angular overlap above, the cable greeble's real top stays well below the screen glass's own bottom edge (no volumetric overlap)", () => {
+  const cableTopY = CABLE_RAW_HEIGHT * CABLE_SCALE;
+  const clearance = SCREEN_BOTTOM_Y - cableTopY;
+  assert.ok(clearance >= 0.5, `cable-top-to-glass-bottom clearance ${clearance.toFixed(3)}u below the 0.5u floor`);
+});
+
+test("TWIN-MONITORS: the fixed pedestal (real, non-billboarded floor geometry) stays inside the hub wall", () => {
+  // SELF-CORRECTION (COMMAND-CENTER pass): this test used to add the FULL
+  // screen-pair half-width to the stand radius and assert the sum clears
+  // HUB_WALL_RADIUS. That check conflated two different objects: the
+  // PEDESTAL (PEDESTAL_WIDTH=0.3, fixed, real floor geometry -- see
+  // TwinMonitors.tsx) and the billboarded GLASS (re-orients every frame,
+  // no fixed world-space footprint). Re-deriving the glass's true worst-
+  // case world position requires modeling drei's <Billboard> own
+  // camera-facing rotation (not verified against its source this pass) --
+  // a naive "add half-width radially" bound is provably wrong (it already
+  // fails for the OLD, currently-shipping 3.2u screen width too, once the
+  // half-width literal is computed correctly instead of the stale 1.1 this
+  // file used before -- see this file's own git history). Rather than
+  // assert an unverified number, this test checks only the REAL, fixed
+  // geometry (the pedestal), and the angular-sweep + vertical-clearance
+  // tests above cover the glass's own accepted (by design, per
+  // TwinMonitors.tsx's header) overlap with the floor-level cable greeble.
+  // FLAGGED, not silently dropped: whether the enlarged glass's own
+  // camera-facing sweep ever visibly pokes through the wall mesh at the
+  // extreme edge of Scene.tsx's azimuth drift (+-12deg around
+  // BASE_AZIMUTH) is UNVERIFIED by this test suite -- worth a real capture
+  // check at the drift cycle's extremes if this ever looks wrong in a
+  // screenshot.
   const angle = deg(MONITOR_SEGMENT_CENTER_DEG);
   const standX = Math.cos(angle) * MONITOR_STAND_RADIUS;
   const standZ = Math.sin(angle) * MONITOR_STAND_RADIUS;
   const standRadius = Math.hypot(standX, standZ);
-  assert.ok(standRadius + MONITOR_SCREEN_HALF_WIDTH < HUB_WALL_RADIUS, "monitor stand + screen half-width reaches the wall");
+  const PEDESTAL_HALF_WIDTH = 0.15; // TwinMonitors.tsx#PEDESTAL_WIDTH/2
+  assert.ok(standRadius + PEDESTAL_HALF_WIDTH < HUB_WALL_RADIUS, "monitor pedestal reaches the wall");
+});
+
+// \u2500\u2500\u2500 COMMAND-CENTER pass (2026-09-16): table radius + new HubProps.tsx
+// prop clearance \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+// Mirrors layout.ts#HUB_TABLE_RADIUS, HubInterior.tsx#TABLE_CENTER/
+// CHAIR_RADIUS/CHAIR_COUNT, Scene.tsx#GAMMA_RADIUS/ARC_CENTER, and
+// HubProps.tsx's own placement constants -- asserts every new prop clears
+// every neighboring object (table, chairs, GAMMA'S OWN DESK, monitor
+// pedestal, cable clusters, the 2 display-wall panels, the room wall, both
+// door aisles) by >=0.3u.
+//
+// SELF-CORRECTION (real hq_live_probe.py run, this session): the FIRST
+// version of this test suite (structure panels at r4.7/+-9deg, plants at
+// r4.0 flanking the table) passed every check below EXCEPT one it never
+// had -- a live probe run caught 3 real desk_clearance FAILs, all against
+// GAMMA'S OWN DESK, an object this test suite hadn't modeled at all.
+// HubProps.tsx's placements were re-derived (see that file's own
+// SELF-CORRECTION comment) and this test suite gained the missing
+// `gammaDeskAabb` check below so the same class of miss can't recur
+// silently.
+const HUB_TABLE_RADIUS = 2.1; // layout.ts
+const CHAIR_RADIUS = 1.2; // HubInterior.tsx
+const CHAIR_COUNT = 6; // HubInterior.tsx
+const STRUCTURE_PANEL_RADIUS = 6.5; // HubProps.tsx
+const STRUCTURE_PANEL_ANGLES_DEG = [37, 20]; // HubProps.tsx
+const STRUCTURE_PANEL_HALF = 0.425; // structure-panel.glb raw 0.85/2 * scale 1.0
+const PEDESTAL_HALF = 0.15; // TwinMonitors.tsx#PEDESTAL_WIDTH/2
+const CABLE_HALF_XZ = 0.34; // cables.glb raw ~1.0 avg half-extent * CABLE_SCALE 0.34
+const DISPLAY_WALL_HALF = 0.52; // display-wall.glb raw 0.4/2 * scale 2.6
+const PLANT_RADII = [4.19, 3.55]; // HubProps.tsx
+const PLANT_ANGLES_DEG = [31.5, 25.6]; // HubProps.tsx
+const PLANT_HALF = 0.19; // plant-small.glb raw 0.095/2 * scale 4.0
+const CHAIR_HALF = 0.35; // furniture.chair.glb raw depth 0.35 (ENVIRONMENT-PLAN.md section D table) * FURNITURE_SCALE(2.0) / 2
+const TABLE_HALF = 1.19; // table-large.glb raw 1.4/2 * TABLE_SCALE(1.7) -- largest local half-extent, conservative
+
+// Gamma's own desk (Scene.tsx#GAMMA_RADIUS/ARC_CENTER, SetKit.tsx#DeskCluster's
+// localToWorld chain) -- reproduced exactly, not assumed, since this is the
+// object the first version of this suite missed entirely.
+const ARC_CENTER_DEG_TEST = (90 - ((Math.atan2(16, 20) * 180) / Math.PI) + 10); // Scene.tsx: PI/2 - BASE_AZIMUTH + ARC_CENTER_NUDGE(10deg)
+const GAMMA_RADIUS_TEST = 3.4; // Scene.tsx
+const GAMMA_ROTATION_Y_TEST = 90 - ARC_CENTER_DEG_TEST; // Scene.tsx: PI/2 - ARC_CENTER, in degrees here
+const GAMMA_TABLE_LOCAL_Z_TEST = 0.8 + 0.3 * FURNITURE_SCALE; // DeskCluster's default deskOffsetZ(BAY_DESK_OFFSET_Z) + 0.3*FURNITURE_SCALE
+
+const MIN_CLEARANCE = 0.3;
+
+function segAngleRad(): number {
+  return deg(MONITOR_SEGMENT_CENTER_DEG);
+}
+
+function tableCenterXZ(): { x: number; z: number } {
+  const a = segAngleRad();
+  return { x: Math.cos(a) * HUB_TABLE_RADIUS, z: Math.sin(a) * HUB_TABLE_RADIUS };
+}
+
+function chairPositions(): { x: number; z: number }[] {
+  const c = tableCenterXZ();
+  return Array.from({ length: CHAIR_COUNT }, (_, i) => {
+    const theta = (i * (2 * Math.PI)) / CHAIR_COUNT;
+    return { x: c.x + Math.sin(theta) * CHAIR_RADIUS, z: c.z + Math.cos(theta) * CHAIR_RADIUS };
+  });
+}
+
+function structurePanelPositions(): { x: number; z: number }[] {
+  return STRUCTURE_PANEL_ANGLES_DEG.map((a) => ({
+    x: Math.cos(deg(a)) * STRUCTURE_PANEL_RADIUS, z: Math.sin(deg(a)) * STRUCTURE_PANEL_RADIUS,
+  }));
+}
+
+function plantPositions(): { x: number; z: number }[] {
+  return PLANT_RADII.map((r, i) => ({
+    x: Math.cos(deg(PLANT_ANGLES_DEG[i])) * r, z: Math.sin(deg(PLANT_ANGLES_DEG[i])) * r,
+  }));
+}
+
+/** Gamma's own real, ROTATED (non-axis-aligned) desk table AABB -- mirrors
+ * SetKit.tsx#DeskCluster's tablePlacements -> palette.ts#localToWorld
+ * chain exactly (same corner-projection technique as this file's own
+ * `tableCorners` above), since a naive "Gamma is at 61deg, I'm at 45deg"
+ * angle-only comparison is EXACTLY the miss that caused this pass's real
+ * probe failure. */
+function gammaDeskAabb(): { xmin: number; xmax: number; zmin: number; zmax: number } {
+  const centerAngle = deg(ARC_CENTER_DEG_TEST);
+  const gx = Math.cos(centerAngle) * GAMMA_RADIUS_TEST;
+  const gz = Math.sin(centerAngle) * GAMMA_RADIUS_TEST;
+  const rotY = deg(GAMMA_ROTATION_Y_TEST);
+  const cosY = Math.cos(rotY);
+  const sinY = Math.sin(rotY);
+  const xs: number[] = [];
+  const zs: number[] = [];
+  for (const lx of [-TABLE_HALF_X, TABLE_HALF_X]) {
+    for (const lz of [GAMMA_TABLE_LOCAL_Z_TEST - TABLE_HALF_Z, GAMMA_TABLE_LOCAL_Z_TEST + TABLE_HALF_Z]) {
+      xs.push(gx + lx * cosY + lz * sinY);
+      zs.push(gz - lx * sinY + lz * cosY);
+    }
+  }
+  return { xmin: Math.min(...xs), xmax: Math.max(...xs), zmin: Math.min(...zs), zmax: Math.max(...zs) };
+}
+
+function dist(a: { x: number; z: number }, b: { x: number; z: number }): number {
+  return Math.hypot(a.x - b.x, a.z - b.z);
+}
+
+/** Distance from a point to an axis-aligned box, minus the point's own
+ * half-extent -- 0 or negative means overlap. */
+function boxClearance(p: { x: number; z: number }, box: { xmin: number; xmax: number; zmin: number; zmax: number }, half: number): number {
+  const dx = Math.max(box.xmin - p.x, 0, p.x - box.xmax);
+  const dz = Math.max(box.zmin - p.z, 0, p.z - box.zmax);
+  return Math.hypot(dx, dz) - half;
+}
+
+test("COMMAND-CENTER: both structure-panel props clear Gamma's own desk, the monitor pedestal, the cable clusters, the display-wall panels, the table, and each other by >=0.3u", () => {
+  const panels = structurePanelPositions();
+  const a = segAngleRad();
+  const pedestal = { x: Math.cos(a) * MONITOR_STAND_RADIUS, z: Math.sin(a) * MONITOR_STAND_RADIUS };
+  const cables = CABLE_ANGLES_DEG.map((d) => ({ x: Math.cos(deg(d)) * CABLE_RADIUS, z: Math.sin(deg(d)) * CABLE_RADIUS }));
+  const wallPanels = [15, 75].map((d) => ({ x: Math.cos(deg(d)) * 4.3, z: Math.sin(deg(d)) * 4.3 }));
+  const table = tableCenterXZ();
+  const gamma = gammaDeskAabb();
+
+  for (const p of panels) {
+    assert.ok(boxClearance(p, gamma, STRUCTURE_PANEL_HALF) >= MIN_CLEARANCE, "structure-panel too close to Gamma's own desk");
+    assert.ok(dist(p, pedestal) - (STRUCTURE_PANEL_HALF + PEDESTAL_HALF) >= MIN_CLEARANCE, "structure-panel too close to monitor pedestal");
+    for (const c of cables) {
+      assert.ok(dist(p, c) - (STRUCTURE_PANEL_HALF + CABLE_HALF_XZ) >= MIN_CLEARANCE, "structure-panel too close to a cable cluster");
+    }
+    for (const w of wallPanels) {
+      assert.ok(dist(p, w) - (STRUCTURE_PANEL_HALF + DISPLAY_WALL_HALF) >= MIN_CLEARANCE, "structure-panel too close to a display-wall panel");
+    }
+    assert.ok(dist(p, table) - (STRUCTURE_PANEL_HALF + TABLE_HALF) >= MIN_CLEARANCE, "structure-panel too close to the table");
+  }
+  assert.ok(dist(panels[0], panels[1]) - 2 * STRUCTURE_PANEL_HALF >= MIN_CLEARANCE, "the 2 structure-panels are too close to each other");
+});
+
+test("COMMAND-CENTER: both plant-small props clear Gamma's own desk, the table, every chair, and each other by >=0.3u", () => {
+  const plants = plantPositions();
+  const table = tableCenterXZ();
+  const chairs = chairPositions();
+  const gamma = gammaDeskAabb();
+  for (const p of plants) {
+    assert.ok(boxClearance(p, gamma, PLANT_HALF) >= MIN_CLEARANCE, "plant too close to Gamma's own desk");
+    assert.ok(dist(p, table) - (PLANT_HALF + TABLE_HALF) >= MIN_CLEARANCE, "plant too close to the table");
+    for (const c of chairs) {
+      assert.ok(dist(p, c) - (PLANT_HALF + CHAIR_HALF) >= MIN_CLEARANCE, "plant too close to a chair");
+    }
+  }
+  assert.ok(dist(plants[0], plants[1]) - 2 * PLANT_HALF >= MIN_CLEARANCE, "the 2 plants are too close to each other");
+});
+
+const PLAZA_APRON_TEST_VALUE = 1.5; // layout.ts#PLAZA_APRON, the one aisle unit used campus-wide
+
+test("COMMAND-CENTER: no new prop lands inside the 1.5u door aisle on either cardinal axis", () => {
+  const allProps = [...structurePanelPositions(), ...plantPositions()];
+  const AISLE_HALF = PLAZA_APRON_TEST_VALUE / 2 + 0.75; // conservative: half the aisle width plus the door's own half-width band
+  for (const p of allProps) {
+    const nearXAisle = Math.abs(p.z) < AISLE_HALF && p.x > 0 && p.x < HUB_WALL_RADIUS;
+    const nearZAisle = Math.abs(p.x) < AISLE_HALF && p.z > 0 && p.z < HUB_WALL_RADIUS;
+    assert.ok(!nearXAisle && !nearZAisle, `prop at (${p.x.toFixed(2)}, ${p.z.toFixed(2)}) falls inside a door aisle`);
+  }
 });

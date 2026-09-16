@@ -8,7 +8,9 @@ import { drawScreenLines, PALETTE, truncateOneLine, type ScreenLine } from "./pa
 import { formatLiveSpyLine, formatEngineBarClause } from "@/lib/hq-market-pure";
 import { formatPositionClause } from "@/lib/hq-positions-pure";
 import { KIT_PATHS, KitProp, FURNITURE_SCALE, InstancedKitPool, usePooledKitProps } from "./SetKit";
+import { HUB_TABLE_RADIUS } from "./layout";
 import HoloChart from "./HoloChart";
+import HubProps from "./HubProps";
 
 // ─── S2 hub interior pass (2026-09-14, MODELS builder) ─────────────────────
 // "the hub needs to look real": a central round table + chairs for the
@@ -76,19 +78,26 @@ const BRAIN_SEGMENT_CENTER_DEG = 45;
 const CHAIR_RADIUS = 1.2; // was 1.85 -- tightened so the table+chairs footprint clears the board's own front face (see TABLE_CENTER's own comment)
 const CHAIR_COUNT = 6;
 
-/** Round table + 6 chairs for the all-hands, radius 2.5 on the SAME
- * segment-center angle (45deg) the smart board itself sits on (now radius
- * 4.9, layout.ts#BRAIN_WALL_MOUNT) -- reads as a meeting table facing the
- * wall board. Table+chairs reach ~2.5+1.2+0.3(chair footprint)=4.0 outward;
- * the board's own front face reaches ~4.9-0.36=4.54 inward -- 0.54 clear.
- * Overlaps the all-hands ring-around-the-core floor marking (radius 3.2)
- * at this one angle -- accepted as a minor cosmetic overlap (a thin floor
- * ring partly under a table leg), not a walk-blocking one: the ring is
- * decorative geometry, not a collider. */
+/** Round table + 6 chairs for the all-hands, radius HUB_TABLE_RADIUS (2.1,
+ * layout.ts) on the SAME segment-center angle (45deg) the smart board
+ * itself sits on (now radius 4.9, layout.ts#BRAIN_WALL_MOUNT) -- reads as a
+ * meeting table facing the wall board.
+ *
+ * COMMAND-CENTER pass (2026-09-16, HUB-LAYOUT-PROPS worker): pulled in from
+ * 2.5 to 2.1 (layout.ts#HUB_TABLE_RADIUS's own header has the full
+ * reasoning + the BrainCore-glow-overlap disclosure) so the table+HoloChart
+ * reads as the room's centrepiece in front of the monitor corner from the
+ * default camera. Table+chairs now reach ~2.1+1.2+0.3(chair footprint)=3.6
+ * outward (was 4.0); the board's own front face reaches ~4.9-0.36=4.54
+ * inward -- 0.94 clear (was 0.54, MORE headroom at the smaller radius, not
+ * less). Overlaps the all-hands ring-around-the-core floor marking (radius
+ * 3.2) at this one angle -- accepted as a minor cosmetic overlap (a thin
+ * floor ring partly under a table leg), not a walk-blocking one: the ring
+ * is decorative geometry, not a collider. */
 const TABLE_CENTER: [number, number, number] = [
-  Math.cos((BRAIN_SEGMENT_CENTER_DEG * Math.PI) / 180) * 2.5,
+  Math.cos((BRAIN_SEGMENT_CENTER_DEG * Math.PI) / 180) * HUB_TABLE_RADIUS,
   0,
-  Math.sin((BRAIN_SEGMENT_CENTER_DEG * Math.PI) / 180) * 2.5,
+  Math.sin((BRAIN_SEGMENT_CENTER_DEG * Math.PI) / 180) * HUB_TABLE_RADIUS,
 ];
 const TABLE_SCALE = FURNITURE_SCALE * 0.85; // slightly under desk-scale so 6 chairs fit comfortably
 
@@ -484,6 +493,11 @@ export default function HubInterior({ utilPct, memUsedMib, memTotalMib, modelNam
 
       {/* W2 (2026-09-14): interior plants flanking the table. */}
       <HubPlants />
+
+      {/* COMMAND-CENTER pass (2026-09-16): ops-room dressing props (desk
+          screens/computers, a low console accent, an extra plant pair) --
+          see HubProps.tsx's own header for the full placement writeup. */}
+      <HubProps />
 
       {/* All-hands gathering ring -- floor marking, dim emissive, no light. */}
       <mesh position={[0, 0.006, 0]} rotation={[-Math.PI / 2, 0, 0]}>
