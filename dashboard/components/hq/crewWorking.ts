@@ -85,3 +85,48 @@ export function huddleStandPoints(
   const faceYawB = Math.atan2(b[0] - a[0], b[2] - a[2]);
   return { a, b, faceYawA, faceYawB };
 }
+
+// BLOCKY-FIXES pass (2026-09-16, worker: HQ blocky-fixes build) -- Defect 2
+// from a real capture (crew-desk2-0120.png, J AWAY): "neighbor" purposeful
+// walks (palette.ts#computePurposefulWalk's own `destination: "neighbor"`
+// case) resolved to `findWalkPath(walkGraph, persona-A, persona-B)?.pop()`
+// (Scene.tsx) -- the LAST node on that path is `persona-B`'s own graph node,
+// which layout.ts registers at EXACTLY `personaGeometry[i].agentHome`, the
+// neighbor's own seat world position (Scene.tsx's
+// `personaSlots: innerPersonas.map(... position: agentHome ...)`, confirmed
+// by reading both call sites this session). So a visiting persona was
+// literally parked ON TOP OF the seated neighbor -- two bodies at one point,
+// exactly the "two personas on one desk" defect. Root cause is (b) from the
+// task brief: a purposeful walk parking a visitor at the neighbor's own seat
+// point, not (a) a `computePersonaWallSlots` slot-index collision (that
+// function's own candidate list has zero duplicate indices, confirmed by
+// inspection) and not (c) `crewWorking.ts`'s own huddle logic (huddle uses
+// `huddleStandPoints` above, a table-side point, never a desk node at all).
+//
+// Fix: a visitor stands `lateralOffset` units to the SIDE of the neighbor's
+// own seat, along the desk's own tangent (parallel-to-the-wall) direction --
+// the SAME `tangentX = cos(rotationY), tangentZ = -sin(rotationY)` formula
+// layout.ts#computePersonaWallSlots already uses to lay out two desks
+// side-by-side on one wall (reproduced here rather than imported so this
+// module keeps its own zero-SetKit-dependency, node-testable shape -- see
+// this file's own header). 1.0u is well inside the 4.6u
+// PERSONA_WALL_LATERAL_OFFSET gap between two adjacent desks on the same
+// wall, so the stand point can never land on a THIRD persona's own desk
+// either. Keeps the same world-Y and the same "room-side" depth the seat
+// already sits at (no extra toward-hub/toward-wall offset needed -- the
+// seat is already on the room side of its own desk, see DESK_SEAT_LOCAL's
+// own comment in SetKit.tsx), so the visitor reads as "standing next to the
+// desk," never "standing in the wall" or "standing on the table."
+export function neighborStandPoint(
+  neighborSeatPos: [number, number, number],
+  neighborRotationY: number,
+  lateralOffset = 1.0,
+): [number, number, number] {
+  const tangentX = Math.cos(neighborRotationY);
+  const tangentZ = -Math.sin(neighborRotationY);
+  return [
+    neighborSeatPos[0] + lateralOffset * tangentX,
+    neighborSeatPos[1],
+    neighborSeatPos[2] + lateralOffset * tangentZ,
+  ];
+}

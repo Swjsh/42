@@ -41,6 +41,7 @@ import type { PersonaId } from "@/lib/hq-agents";
 import type { PersonaState } from "@/lib/personas";
 import type { AgentBehavior } from "./Agent";
 import Agent from "./Agent";
+import DeskNameplate from "./DeskNameplate";
 import { modelGlyph } from "./headLabelModel";
 import BrainCore from "./BrainCore";
 import StationModule from "./StationModule";
@@ -78,7 +79,7 @@ import {
 // CREW-WORKING pass (2026-09-15/16): pure huddle-pair helpers -- see that
 // module's own header for why they live outside this .tsx file (node --test
 // importability, same reason liveAgentWalk.ts/liveAgentIdentity.ts do).
-import { detectHuddleTrigger, huddleStandPoints, type HuddleCandidate } from "./crewWorking";
+import { detectHuddleTrigger, huddleStandPoints, neighborStandPoint, type HuddleCandidate } from "./crewWorking";
 // World-2 coordinator review (2026-09-14, "GAMMA'S BUBBLE... must derive it
 // from the same truth as the panel"): the SAME pure function Hud.tsx's own
 // crew-panel "next:" line already uses for Gamma, reused here (not
@@ -1682,22 +1683,36 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
   // table's own radius, not out in the open room.
   const huddleSpots = activeHuddle ? huddleStandPoints(tableCenter, HUB, HUB_TABLE_RADIUS - 1.0, 1.2) : null;
   const purposefulWalks = innerPersonas.map((persona, i) => {
-    const neighbor = innerPersonas.length > 1 ? innerPersonas[(i + 1) % innerPersonas.length] : null;
+    const neighborIndex = innerPersonas.length > 1 ? (i + 1) % innerPersonas.length : -1;
+    const neighbor = neighborIndex >= 0 ? innerPersonas[neighborIndex] : null;
     const walk = computePurposefulWalk(persona.name, nowMsForWalks, ideasCount, persona.lastFireISO, neighbor?.name ?? null);
     // LAYOUT builder pass: both branches now resolve through walkGraph
     // instead of a separate PURPOSEFUL_TARGETS-only lookup + a direct
-    // personaGeometry read -- see walkGraph's own comment above. The
-    // "neighbor" case is a genuine 2-hop graph query (self -> hub-center ->
-    // neighbor's desk); only the FINAL waypoint feeds Agent.tsx's existing
-    // single-point prop today (same value the old direct lookup produced --
-    // both personas sit on hub-interior graph leaves, so the resolved
-    // endpoint is unchanged), with the full path ready for MOTION-2's own
-    // Agent.tsx upgrade to consume via WalkPlan.
+    // personaGeometry read -- see walkGraph's own comment above.
+    //
+    // BLOCKY-FIXES pass (2026-09-16): the "neighbor" case used to be
+    // `findWalkPath(walkGraph, persona-A, persona-B)?.pop()` -- the LAST
+    // node on that path is `persona-B`'s own walk-graph node, registered at
+    // EXACTLY the neighbor's own seat position (layout.ts's
+    // `addNode(persona-${p.name}, p.position)`, fed
+    // `innerPersonas.map(... position: agentHome ...)` below -- i.e. the
+    // neighbor's own chair). A visiting persona was parked ON the seated
+    // neighbor -- two bodies at one point, the real "two personas on one
+    // desk" defect a live capture caught (crew-desk2-0120.png). Fixed by
+    // standing 1.0u to the SIDE of the neighbor's seat instead
+    // (crewWorking.ts#neighborStandPoint, same tangent formula
+    // computePersonaWallSlots already uses to space two desks on one wall)
+    // -- `personaGeometry[neighborIndex]` (defined below in this same
+    // render, one hub-interior leaf per persona) has both the seat position
+    // AND the desk's own rotationY this needs.
     const fallback = findPersonaHome(persona.name) ?? HUB;
+    const neighborGeom = neighborIndex >= 0 ? personaGeometry[neighborIndex] : undefined;
     const target: [number, number, number] =
-      walk.destination === "neighbor" && neighbor
-        ? findWalkPath(walkGraph, `persona-${persona.name}`, `persona-${neighbor.name}`)?.pop() ?? fallback
-        : walkGraph.nodes.get(`ambient-${walk.destination}`)?.position ?? PURPOSEFUL_TARGETS.lounge;
+      walk.destination === "neighbor" && neighbor && neighborGeom
+        ? neighborStandPoint(neighborGeom.agentHome, neighborGeom.rotationY)
+        : walk.destination === "neighbor"
+          ? fallback
+          : walkGraph.nodes.get(`ambient-${walk.destination}`)?.position ?? PURPOSEFUL_TARGETS.lounge;
     return { walk, target };
   });
 
@@ -2459,6 +2474,24 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
                 // (Agent.tsx's own null/undefined guard on `walkPlanKey`).
                 walkPlanKey={huddleWalkPlanKey}
                 walkPlan={huddleWalkPlan}
+              />
+            )}
+            {/* U4 usability fix (2026-09-16): the IDLE counterpart to the
+                <Agent> mount just above -- an empty desk still needs a
+                legible nameplate answering "what is this persona doing?"
+                (see DeskNameplate.tsx's own header for the FAIL this
+                fixes). `deriveCrewPill` is the SAME quiet-reason/next-fire
+                derivation Hud.tsx's roster panel and the hover panel below
+                already use, so this label's hover text can never disagree
+                with either. */}
+            {!showAgent && (
+              <DeskNameplate
+                name={persona.name}
+                position={slot.position}
+                glyph={modelGlyphByPersona.get(persona.name)?.glyph ?? "?"}
+                glyphTitle={modelGlyphByPersona.get(persona.name)?.title ?? "unclassified"}
+                detail={deriveCrewPill(persona, nowMsForWalks).reason}
+                detailKey={`${persona.status}|${deriveCrewPill(persona, nowMsForWalks).reason}`}
               />
             )}
             {/* Item 2c (LIVE-1): Pilot's desk pulse -- RTH-only (CLAUDE.md's

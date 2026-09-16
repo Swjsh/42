@@ -287,3 +287,28 @@ every poly.pizza model page was read directly (`get_page_text`) for its own
 `dashboard/scripts/glb_extents.mjs` before being placed in any component — see
 `BaseProps.tsx`/`HubInterior.tsx`/`BayInterior.tsx`'s own placement comments for the
 per-piece raw bounds and the scale/offset derived from them.
+
+## Update 2026-09-16 (BLOCKY-FIXES builder, white-body texture-atlas fix)
+
+Defect found in real captures (`crew-desk2-0120.png`, `crew-hub-0120.png`, J AWAY):
+every Blocky Characters body rendered pure flat white. Root cause verified by parsing
+`character-a.glb`'s own JSON chunk directly (Python `struct`/`json`, this session):
+`images[0].uri` = `Textures/texture-a.png` (an EXTERNAL relative URI, not embedded in the
+GLB's binary buffer — `buffers[0].byteLength` only covers geometry) — the
+2026-09-15 BLOCKY-CHARACTERS builder copied the 4 `.glb` files but never copied the
+per-letter texture atlas each one references, so three.js's GLTFLoader got a 404 on the
+texture fetch and fell back to the material's default `baseColorFactor` (white),
+compounded by `KHR_materials_unlit` (no shading variation) — exactly the flat-white
+flat-shaded look in both captures. Re-downloaded the same zip from the same URL row 11
+already cites (`https://kenney.nl/media/pages/assets/blocky-characters/8369c0cf30-1749547469/kenney_blocky-characters_20.zip`,
+byte-identical 2,148,510 B to the prior pass's own recorded size — confirms same asset,
+not a different version), re-read `License.txt` (same CC0 text), and copied the 4 atlas
+PNGs the shipped `.glb`s actually need — `Models/GLB format/Textures/texture-{a,b,c,e}.png`
+— into `kenney-blocky-characters/Textures/` (matching the GLB's own relative `uri` exactly,
+so no code path change needed). `cmp` confirmed the already-shipped `character-a.glb` is
+byte-identical to the fresh zip's own copy (not a stray/corrupted file). Sizes: texture-a
+20,171 B, texture-b 15,606 B, texture-c 12,829 B, texture-e 14,509 B (total 63,115 B,
+0.06 MB). `tintObjectMaterials` (SetKit.tsx) was ruled out as a contributing cause — it
+only `.lerp()`s the material's `color` factor by 0.12, never touches `map`, so once the
+atlas is present it multiplies the texture color by a 12%-tint-blended white/accent factor
+as designed, not a wash-out.

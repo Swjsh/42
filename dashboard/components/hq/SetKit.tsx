@@ -984,10 +984,36 @@ export const BAY_SEAT_LOCAL_BAY: [number, number, number] = [0, 0, BAY_DESK_OFFS
 /** Table + chair + desk terminal + wall-mounted screen, arranged along one
  * local-Z axis: chair (near side, faces +Z toward the table) -> table ->
  * standing computer console (beside the table) -> computer-screen (mounted
- * above the table's far edge, facing back toward the chair). Orientation
- * (which way the character/screen actually face) is a COSMETIC assumption,
- * not yet confirmed against a render -- see HQ-SCENE-PLAN.md; flip the
- * `Math.PI` on computer-screen/chair if a screenshot shows it backwards. */
+ * above the table's far edge, facing back toward the chair).
+ *
+ * BLOCKY-FIXES pass (2026-09-16, Defect 3): the chair mesh's own rotation
+ * used to be `rotationY + Math.PI` -- this file's own original docstring
+ * flagged the whole orientation as "a COSMETIC assumption, not yet confirmed
+ * against a render... flip the Math.PI ... if a screenshot shows it
+ * backwards," and a later RED test (tests/hq-crew-working.test.ts) pinned
+ * the measured fact: Agent.tsx's `deskFacing` (the SEATED CHARACTER's own
+ * yaw, `atan2(hub-home)+PI`, screenshot-verified once already for lane-bay
+ * agents, "World-4 fix (P6)") and this chair rotation were exactly PI (180
+ * deg) apart -- the character sits facing the exact opposite way from the
+ * chair prop it's sitting in. Algebraically (see that test's own header
+ * derivation, reproduced in this commit's test update): `deskFacing(home,
+ * hub) === rotationY` for a persona/bay desk built via
+ * `rotationYFacing(anchor≈home, hub-or-tCenter)` -- i.e. the ALREADY-
+ * verified character facing equals `rotationY` exactly, not `rotationY +
+ * PI`. Since deskFacing had the real screenshot verification and the chair
+ * rotation never did, this pass drops the chair's own `+ Math.PI` (below)
+ * so chair yaw === rotationY === deskFacing, matching this task's own
+ * acceptance bar ("seat yaw == chair yaw == desk facing") -- the character
+ * now sits facing the SAME way the chair itself visually faces, both toward
+ * the table/screen (which sit further along local +Z, the wall side -- see
+ * DESK_SEAT_LOCAL/BAY_DESK_OFFSET_Z's own comments), not away from it. Only
+ * the chair PROP's visual orientation changes here -- its world POSITION
+ * (DESK_SEAT_LOCAL, unchanged) still sits on the room side of the table, so
+ * this is a pure yaw fix with zero placement/collision risk. The
+ * computer-screen's own `Math.PI` (below, unchanged) was already internally
+ * consistent -- it flips the screen's own local convention to face back
+ * toward local -Z (where the chair sits), independent of this chair-only
+ * bug, so it needs no matching change. */
 export function DeskCluster({ position, rotationY, accentColor, screenTitle, screenLines, deskOffsetZ = BAY_DESK_OFFSET_Z }: DeskClusterProps) {
   const SCREEN_POSITION: [number, number, number] = [0, DESK_TOP_HEIGHT, 0.55 * FURNITURE_SCALE];
   const instanceIdBase = useId();
@@ -1020,7 +1046,11 @@ export function DeskCluster({ position, rotationY, accentColor, screenTitle, scr
     () => [{
       id: `${instanceIdBase}-chair`,
       position: localToWorld(position, rotationY, [DESK_SEAT_LOCAL[0], DESK_SEAT_LOCAL[1], deskOffsetZ + DESK_SEAT_LOCAL[2]]),
-      rotation: [0, rotationY + Math.PI, 0] as [number, number, number],
+      // BLOCKY-FIXES pass (2026-09-16): was `rotationY + Math.PI` -- see this
+      // function's own docstring above for the deskFacing-vs-chair-rotation
+      // derivation this drops the +PI to fix (chair yaw === rotationY ===
+      // the seated character's own deskFacing yaw, all three now agree).
+      rotation: [0, rotationY, 0] as [number, number, number],
       scale: FURNITURE_SCALE,
     }],
     [instanceIdBase, position, rotationY, deskOffsetZ],

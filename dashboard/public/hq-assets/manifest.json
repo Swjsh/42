@@ -313,6 +313,23 @@
       ],
       "rawBoundsHeight": 2.7,
       "scaleHint": 0.6667
+    },
+    {
+      "file": "kenney-blocky-characters/Textures/texture-a.png",
+      "sizeBytes": 20171,
+      "note": "External atlas character-a.glb's images[0].uri references by relative path -- missing from the 2026-09-15 BLOCKY-CHARACTERS pass (glb-only copy), which rendered every body flat white (KHR_materials_unlit + default baseColorFactor with no texture). Fixed 2026-09-16 BLOCKY-FIXES builder, re-downloaded from the same zip URL row 11 (LICENSES.md) already cites."
+    },
+    {
+      "file": "kenney-blocky-characters/Textures/texture-b.png",
+      "sizeBytes": 15606
+    },
+    {
+      "file": "kenney-blocky-characters/Textures/texture-c.png",
+      "sizeBytes": 12829
+    },
+    {
+      "file": "kenney-blocky-characters/Textures/texture-e.png",
+      "sizeBytes": 14509
     }
   ],
   "props": [
