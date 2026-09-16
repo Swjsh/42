@@ -29,6 +29,7 @@ import {
   resolveLabelOffsets,
   rectsOverlap,
   isBelowLegibilityFloor,
+  ndcCornersToViewportRect,
   smoothLabelOffset,
   smoothLabelOffsetAvoidingOverlap,
   type LabelRect,
@@ -284,6 +285,80 @@ test("a label pinned against an obstacle past the cap fades instead of stacking 
   const o = out.get(label.id)!;
   assert.ok(Math.abs(o.dx) === maxNudge || Math.abs(o.dy) === maxNudge, "should clamp exactly at the cap");
   assert.equal(o.opacity, fade, "a label that cannot clear an obstacle within the cap must fade");
+});
+
+// ─── SCREEN KEEP-OUT (2026-09-16, probe 20260916T005621Z label_vs_screen_
+// overlap FAIL, twin-monitor-33/34): commit 77e8308f shipped the AUDIT
+// check but never actually fed the two readable TwinMonitors screens into
+// this resolver's own `obstacles` argument -- LabelDeclutterManager.tsx
+// only ever read `[data-hq-obstacle]` DOM HUD chrome. The runtime fix
+// (LabelDeclutterManager.tsx's new `readScreenObstacleRects`, not unit-
+// tested here -- it needs a real THREE.Camera/scene) projects each screen's
+// world AABB to a viewport rect via `ndcCornersToViewportRect` (this
+// file's pure half, mirrors hq-scene-audit.ts's own
+// `projectAabbToViewportRect` exactly) and passes it into the SAME
+// `obstacles` argument every HUD rect already goes through -- so the
+// resolver's own pre-existing "an obstacle always outranks every label,
+// priority included" guarantee (see the LIVE_AGENT/GAMMA test above)
+// applies to a screen exactly as it does to a HUD panel. These tests pin
+// (a) the NDC->pixel projection math and (b) the exact "label centred on a
+// keep-out rect" case named in the brief, using Gamma's own real priority
+// tier and label id shape from the FAIL evidence.
+
+test("ndcCornersToViewportRect: a screen's 8 world-AABB corners project to the expected viewport rect", () => {
+  // A screen spanning the dead center 50% of NDC space on both axes
+  // (x,y in [-0.5, 0.5]) at a single depth (z irrelevant to the 2D rect).
+  const corners: [number, number][] = [
+    [-0.5, -0.5], [0.5, -0.5], [-0.5, 0.5], [0.5, 0.5],
+  ];
+  const rect = ndcCornersToViewportRect(corners, 1000, 800);
+  assert.ok(rect);
+  // NDC x=-0.5 -> px=((−0.5+1)/2)*1000=250; x=0.5 -> px=750.
+  assert.equal(rect!.x, 250);
+  assert.equal(rect!.width, 500);
+  // NDC y=0.5 (up) -> screen top py=((1-0.5)/2)*800=200; y=-0.5 -> py=600.
+  assert.equal(rect!.y, 200);
+  assert.equal(rect!.height, 400);
+});
+
+test("ndcCornersToViewportRect: returns null for a zero-area viewport or a non-finite corner (camera not ready)", () => {
+  assert.equal(ndcCornersToViewportRect([[0, 0]], 0, 800), null);
+  assert.equal(ndcCornersToViewportRect([[NaN, 0]], 1000, 800), null);
+  assert.equal(ndcCornersToViewportRect([], 1000, 800), null);
+});
+
+test("screen keep-out: a label rect CENTRED on a keep-out rect resolves fully outside it (or fades to 0) -- the twin-monitor-33/34 FAIL shape, both Gamma-tier and a live-agent label", () => {
+  const screen = obstacle("screen-twin-monitor-0", 700, 400, 260, 150);
+  const centerX = screen.x + screen.width / 2;
+  const centerY = screen.y + screen.height / 2;
+
+  // Gamma's own head label -- PRIORITY.GAMMA (0), the tier the brief calls
+  // out as "must not be exempt just because it's top priority".
+  const gamma = rect("gamma", PRIORITY.GAMMA, 5, centerX - 30, centerY - 10, 60, 20);
+  // A live-agent label, same priority tier, centred on the SAME screen --
+  // the reported twin-monitor-34 "general-purpo... " overlap.
+  const liveAgent = rect("live:general-purpose", PRIORITY.LIVE_AGENT, 6, centerX - 10, centerY - 10, 140, 22);
+
+  const out = resolveLabelOffsets([gamma, liveAgent], DEFAULT_MAX_NUDGE_PX, DEFAULT_FADE_OPACITY, [screen]);
+
+  for (const label of [gamma, liveAgent]) {
+    const o = out.get(label.id)!;
+    const finalX = label.x + o.dx;
+    const finalY = label.y + o.dy;
+    const stillOverlapsScreen =
+      finalX < screen.x + screen.width && finalX + label.width > screen.x &&
+      finalY < screen.y + screen.height && finalY + label.height > screen.y;
+    assert.ok(
+      !stillOverlapsScreen || o.opacity === 0 || o.opacity === DEFAULT_FADE_OPACITY,
+      `${label.id}: must resolve fully outside the screen's own rect, or fade, regardless of top priority -- got dx=${o.dx} dy=${o.dy} opacity=${o.opacity}`,
+    );
+    // The core requirement, stated exactly as the brief names it: unless
+    // faded, the resolved rect is FULLY outside the keep-out rect -- not
+    // just "moved a little".
+    if (o.opacity === 1) {
+      assert.ok(!stillOverlapsScreen, `${label.id}: at full opacity the resolved rect must not intersect the screen's own rect at all`);
+    }
+  }
 });
 
 test("stable order across frames: identical input always yields identical output (no jitter)", () => {

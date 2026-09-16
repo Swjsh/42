@@ -25,7 +25,7 @@ import { useThrottledFrame } from "./useThrottledFrame";
 import { useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { useRef } from "react";
-import { resolveLabelOffsets, smoothLabelOffsetAvoidingOverlap, DEFAULT_MAX_NUDGE_PX, DEFAULT_FADE_OPACITY, MIN_LEGIBLE_PX, type LabelRect, type ObstacleRect, type OverlapRect } from "./labelDeclutter";
+import { resolveLabelOffsets, smoothLabelOffsetAvoidingOverlap, ndcCornersToViewportRect, DEFAULT_MAX_NUDGE_PX, DEFAULT_FADE_OPACITY, MIN_LEGIBLE_PX, type LabelRect, type ObstacleRect, type OverlapRect } from "./labelDeclutter";
 import { getLabelRegistry } from "./useLabelDeclutter";
 import { isMotionDiagEnabled } from "../../lib/hq-motion-diag";
 import { isHoloPricePlaqueId, setLevelPlaquesBelowFloor } from "./legibilityFloor";
@@ -82,6 +82,57 @@ function readObstacleRects(): ObstacleRect[] {
     const r = el.getBoundingClientRect();
     if (r.width === 0 && r.height === 0) return; // not laid out / hidden this tick
     out.push({ id: el.getAttribute("data-hq-obstacle") || `obstacle-${i}`, x: r.left, y: r.top, width: r.width, height: r.height });
+  });
+  return out;
+}
+
+// SCREEN KEEP-OUT (2026-09-16, probe 20260916T005621Z label_vs_screen_
+// overlap FAIL): commit 77e8308f shipped the AUDIT check
+// (hq-scene-audit.ts#checkLabelScreenOverlap) but never actually wired a
+// runtime keep-out here -- `readObstacleRects` above only ever covers
+// `[data-hq-obstacle]` DOM HUD chrome, never the two readable TwinMonitors
+// screens (a real 3D mesh pair, not a DOM node), so a label could sit
+// directly on top of either screen and never be nudged at all. FIX: the
+// SAME `userData.hqKind === "screen"` / `userData.hqInformational` tags
+// hq-scene-audit.ts's own OFFLINE traversal already relies on (TwinMonitors
+// .tsx already sets these -- no change needed there, and none made) are
+// walked here too, every tick, against the LIVE camera -- so this always
+// reflects the screens' REAL current on-screen position/size (the
+// Billboard-following pair moves with the camera), never a stale snapshot.
+// Reuses `ndcCornersToViewportRect` (labelDeclutter.ts) for the actual
+// NDC->pixel math, the exact same formula hq-scene-audit.ts's own
+// `projectAabbToViewportRect` uses for the OFFLINE probe check, so the
+// runtime keep-out and the probe's own PASS/FAIL agree on what "the
+// screen's own rect" means. Screens are appended to the SAME `obstacles`
+// array as the DOM HUD rects below -- `resolveLabelOffsets`'s existing
+// precedence rule ("an obstacle always outranks every label, priority
+// included") already covers this correctly (see labelDeclutter.ts's own
+// pre-existing tests for that rule) with zero change to the resolver
+// itself.
+const SCREEN_KEEP_OUT_SELECTOR = "screen";
+const screenBox = new THREE.Box3();
+const screenNdcVec = new THREE.Vector3();
+
+function readScreenObstacleRects(scene: THREE.Object3D, camera: THREE.Camera, viewportW: number, viewportH: number): ObstacleRect[] {
+  const out: ObstacleRect[] = [];
+  let counter = 0;
+  scene.traverse((obj) => {
+    const userData = obj.userData as { hqKind?: string; hqLabel?: string; hqInformational?: boolean } | undefined;
+    if (userData?.hqKind !== SCREEN_KEEP_OUT_SELECTOR || userData.hqInformational) return;
+    obj.updateWorldMatrix(true, false);
+    screenBox.setFromObject(obj);
+    if (screenBox.isEmpty()) return;
+    const { min, max } = screenBox;
+    const corners: [number, number, number][] = [
+      [min.x, min.y, min.z], [max.x, min.y, min.z], [min.x, max.y, min.z], [min.x, min.y, max.z],
+      [max.x, max.y, min.z], [max.x, min.y, max.z], [min.x, max.y, max.z], [max.x, max.y, max.z],
+    ];
+    const ndc: [number, number][] = corners.map(([x, y, z]) => {
+      screenNdcVec.set(x, y, z).project(camera);
+      return [screenNdcVec.x, screenNdcVec.y];
+    });
+    const rect = ndcCornersToViewportRect(ndc, viewportW, viewportH);
+    if (rect) out.push({ id: `screen-${userData.hqLabel ?? "unknown"}-${counter++}`, ...rect });
   });
   return out;
 }
@@ -211,7 +262,7 @@ export default function LabelDeclutterManager(): null {
     const heightRatio = tallestHeight > NUDGE_BASELINE_HEIGHT_PX ? tallestHeight / NUDGE_BASELINE_HEIGHT_PX : 1;
     const worstCaseChainPx = tallestHeight * rects.length * NUDGE_CHAIN_MARGIN;
     const maxNudgePx = Math.max(DEFAULT_MAX_NUDGE_PX * heightRatio, worstCaseChainPx, DEFAULT_MAX_NUDGE_PX);
-    const obstacles = readObstacleRects();
+    const obstacles = readObstacleRects().concat(readScreenObstacleRects(store.scene, camera, size.width, size.height));
     const offsets = resolveLabelOffsets(rects, maxNudgePx, DEFAULT_FADE_OPACITY, obstacles);
 
     // NEVER-LERP-INTO-OVERLAP FIX (see labelDeclutter.ts's own header on
@@ -253,7 +304,6 @@ export default function LabelDeclutterManager(): null {
     }
 
     if (diagOn) recordTickCost(performance.now() - perfStart);
-    void size; // referenced for clarity/future use (screen-bound clamping); not needed by the algorithm today
     void t;
   }, TICK_HZ);
 

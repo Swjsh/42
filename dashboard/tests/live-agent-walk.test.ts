@@ -41,8 +41,10 @@ import assert from "node:assert/strict";
 import {
   applyFollowCap,
   applyLaneOffsets,
+  advanceCoalescedSpawnBatch,
   computeBatchOrder,
   computeBatchStaggerDelays,
+  SPAWN_BATCH_COALESCE_MS,
   computeMaxPathDurationS,
   computeSidestepPlan,
   computeWaitPoint,
@@ -1827,6 +1829,60 @@ test("computeBatchStaggerDelays: duplicate ids collapse (a Set), never inflate t
   assert.equal(delays.size, 2);
   assert.equal(delays.get("a"), 0);
   assert.equal(delays.get("b"), STAGGER_DELAY_S);
+});
+
+// ─── advanceCoalescedSpawnBatch (CONVOY-STACK v15, 2026-09-16): pins the ──
+// walker_separation FAIL from probe 20260916T005621Z -- two ids
+// (a974762c.../a154676b...) that were each the FIRST new id in their OWN
+// poll (different reconcile polls, well within SPAWN_BATCH_COALESCE_MS of
+// each other) both got batch index 0 from a cold `computeBatchOrder(newIds)`
+// call per poll, so they never got a relative stagger delay at all despite
+// spawning close enough in wall time to walk the shared gate corridor in
+// lockstep. These tests pin the fix: two ids first seen in DIFFERENT polls
+// (not the same `newIds` array) within the coalesce window must still get
+// DISTINCT, increasing batch indices.
+test("advanceCoalescedSpawnBatch: two ids first seen in DIFFERENT polls within the coalesce window get distinct, increasing indices (the exact probe 20260916T005621Z shape)", () => {
+  const t0 = 1_000_000;
+  const first = advanceCoalescedSpawnBatch(undefined, ["a154676bc0"], t0);
+  assert.equal(first.assignments.get("a154676bc0"), 0, "first poll's sole new id starts the batch at index 0");
+
+  // Second poll, a few hundred ms later (well inside the coalesce window),
+  // with a DIFFERENT id that is the only "new" one in ITS OWN poll -- the
+  // exact cross-poll shape the old cold-per-poll computeBatchOrder call
+  // could not distinguish from an unrelated, much-later solo spawn.
+  const second = advanceCoalescedSpawnBatch(first.nextState, ["a974762cd9"], t0 + 400);
+  assert.equal(second.assignments.get("a974762cd9"), 1, "second poll's new id continues the SAME batch, not a fresh index 0");
+  assert.notEqual(
+    first.assignments.get("a154676bc0"),
+    second.assignments.get("a974762cd9"),
+    "two ids spawning within the coalesce window must never collide on the same batch index",
+  );
+});
+
+test("advanceCoalescedSpawnBatch: a poll arriving AFTER the coalesce window starts a fresh batch at index 0, never an ever-growing delay", () => {
+  const t0 = 2_000_000;
+  const first = advanceCoalescedSpawnBatch(undefined, ["early-bird"], t0);
+  const muchLater = advanceCoalescedSpawnBatch(first.nextState, ["late-arrival"], t0 + SPAWN_BATCH_COALESCE_MS + 1);
+  assert.equal(muchLater.assignments.get("late-arrival"), 0, "a spawn well outside the coalesce window is its own fresh batch, not appended to a stale one");
+});
+
+test("advanceCoalescedSpawnBatch: multiple ids within ONE poll are still ordered lexicographically among themselves, same tie-break as computeBatchOrder", () => {
+  const { assignments } = advanceCoalescedSpawnBatch(undefined, ["zeta", "alpha", "mu"], 5_000_000);
+  assert.equal(assignments.get("alpha"), 0);
+  assert.equal(assignments.get("mu"), 1);
+  assert.equal(assignments.get("zeta"), 2);
+});
+
+test("advanceCoalescedSpawnBatch: an empty poll leaves the batch state untouched (never resets, never advances)", () => {
+  const first = advanceCoalescedSpawnBatch(undefined, ["solo"], 9_000_000);
+  const empty = advanceCoalescedSpawnBatch(first.nextState, [], 9_000_100);
+  assert.deepEqual(empty.nextState, first.nextState, "a poll with nothing new must not perturb the running batch state");
+  assert.equal(empty.assignments.size, 0);
+
+  // The batch is still alive afterward -- a real next spawn right after the
+  // empty poll still coalesces against the ORIGINAL batch, not a reset one.
+  const next = advanceCoalescedSpawnBatch(empty.nextState, ["second"], 9_000_200);
+  assert.equal(next.assignments.get("second"), 1, "an empty poll in between must not have reset the batch's own index");
 });
 
 // ─── THE REQUIRED PROOF: same-batch walkers on a shared corridor stay ──────

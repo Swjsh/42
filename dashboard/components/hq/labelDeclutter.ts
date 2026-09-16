@@ -164,6 +164,56 @@ export function isBelowLegibilityFloor(heightPx: number, floorPx: number = MIN_L
   return heightPx < floorPx;
 }
 
+// ─── Screen keep-out (2026-09-16, probe 20260916T005621Z label_vs_screen_
+// overlap FAIL) ──────────────────────────────────────────────────────────
+//
+// ROOT CAUSE: commit 77e8308f ("screen keep-out and label_vs_screen_overlap
+// audit") shipped the CHECK (hq-scene-audit.ts#checkLabelScreenOverlap,
+// hq_probe_lib.py) but never actually wired a runtime keep-out -- that
+// commit's own diff touches labelDeclutter.ts/LabelDeclutterManager.tsx
+// only for the UNRELATED legibility-floor fix in the same pass. The
+// resolver's own `ObstacleRect` mechanism (above) already handles "a
+// fixed rect always outranks every label, regardless of priority" --
+// correctly, per this file's own pre-existing tests -- but
+// LabelDeclutterManager.tsx only ever fed it `[data-hq-obstacle]` DOM HUD
+// overlays (help bar, panels), never the two readable TwinMonitors screens.
+// Gamma's own head label and a live agent's label were therefore never
+// nudged clear of either screen at all -- not "nudged but insufficiently",
+// literally never checked against them.
+//
+// FIX: `ndcCornersToViewportRect` here is the pure half (mirrors
+// hq-scene-audit.ts's own `projectAabbToViewportRect` exactly, so the
+// runtime keep-out and the offline probe check agree on what "the
+// screen's own rect" means) -- LabelDeclutterManager.tsx's own new
+// `readScreenObstacleRects` (three.js/scene-traversal half, not pure, not
+// unit-tested here) calls a real THREE.Camera's `.project()` to get each
+// screen's NDC corners, then this function turns those into a viewport
+// pixel rect and LabelDeclutterManager.tsx passes it into
+// `resolveLabelOffsets`'s existing `obstacles` argument -- no change to
+// the resolver's own precedence rules (screens already outrank every
+// label, priority included, the same way any other obstacle does).
+export function ndcCornersToViewportRect(
+  ndcCorners: ReadonlyArray<readonly [number, number]>,
+  viewportW: number,
+  viewportH: number,
+): { x: number; y: number; width: number; height: number } | null {
+  if (viewportW <= 0 || viewportH <= 0 || ndcCorners.length === 0) return null;
+  let pxMin = Infinity;
+  let pxMax = -Infinity;
+  let pyMin = Infinity;
+  let pyMax = -Infinity;
+  for (const [nx, ny] of ndcCorners) {
+    if (!Number.isFinite(nx) || !Number.isFinite(ny)) return null;
+    const px = ((nx + 1) / 2) * viewportW;
+    const py = ((1 - ny) / 2) * viewportH;
+    pxMin = Math.min(pxMin, px);
+    pxMax = Math.max(pxMax, px);
+    pyMin = Math.min(pyMin, py);
+    pyMax = Math.max(pyMax, py);
+  }
+  return { x: pxMin, y: pyMin, width: pxMax - pxMin, height: pyMax - pyMin };
+}
+
 // COLD-START SNAP FIX (2026-09-15, real-GPU probe evidence: samples file
 // 20260915T090312Z-Da6D81TEcI6kH8JvM85Db.samples.json.gz). Root cause: the
 // manager (LabelDeclutterManager.tsx) unconditionally lerps a label's

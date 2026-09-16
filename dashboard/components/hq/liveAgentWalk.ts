@@ -829,6 +829,95 @@ export function computeBatchStaggerDelays(ids: readonly string[]): Map<string, n
   return new Map(Array.from(order.entries()).map(([id, i]) => [id, i * STAGGER_DELAY_S]));
 }
 
+// ─── Cross-poll spawn coalescing (CONVOY-STACK v15, 2026-09-16) ───────────
+//
+// ROOT CAUSE (walker_separation FAIL, probe 20260916T005621Z, build
+// AIUCqlpwtxiI7kYDCb1aJ): min pairwise separation 0.19u (bar is 0.7u),
+// worst pair a974762c.../a154676b... -- both "spawning" at the SAME sample
+// tick (t=45.9s), both flip to "walking" at the SAME next tick (t=47.4s),
+// and then walk the shared gate-exit corridor in lockstep (same speed,
+// ~0.2-0.4u apart) all the way out to where their paths finally diverge
+// (ambient-core vs hub-center -- two DIFFERENT final targets, so
+// `findCarAhead`'s own `destKey` pre-filter never engages between them
+// either -- checked explicitly: that mechanism only ever separates two
+// walkers converging on the SAME eventual destination, by design, and is
+// not a gap in this fix). Lockstep-from-the-same-instant is exactly what
+// `computeBatchStaggerDelays` exists to prevent -- so why didn't it?
+//
+// Because `computeBatchOrder`/`computeBatchStaggerDelays` (above) are pure
+// functions of whatever `ids` array LiveAgents.tsx's reconcile effect
+// passes them, and that effect recomputes `newIds` -- and therefore
+// restarts the batch's own order at 0 -- FRESH on every single poll (see
+// the effect's own `const newIds = agents.map(...).filter((id) =>
+// !prev.has(id))`). Two agents that are each the FIRST new id in their OWN
+// poll (e.g. one arrives on poll N, the other on poll N+1 a few hundred ms
+// later, well within the same reported "spawned within the same second")
+// each get batch index 0 -- and therefore the identical 0s stagger delay
+// -- despite spawning close enough in wall-clock time to still be walking
+// the same shared corridor leg in lockstep. The batch mechanism's own
+// guarantee ("same-batch walkers are never at the same progress at the
+// same instant") is real and correct; it just never covered CROSS-poll
+// near-simultaneous spawns, only same-poll ones, and this probe's build
+// happened to split what a human would call "one spawn burst" across two
+// (or more) reconcile polls.
+//
+// FIX: `advanceCoalescedSpawnBatch`, a pure reducer LiveAgents.tsx's
+// reconcile effect threads through a ref (see that effect's own
+// `spawnBatchRef`) instead of calling `computeBatchOrder(newIds)` cold
+// every poll. It carries the batch's own running index FORWARD across
+// polls that land within `SPAWN_BATCH_COALESCE_MS` of the previous poll
+// that added anyone -- so two ids arriving in different polls but close
+// enough in wall time to still share the corridor get DISTINCT, increasing
+// indices (and therefore distinct stagger delays), exactly as if they'd
+// landed in one poll's `newIds` together. A poll with no new ids, or one
+// that arrives after a `SPAWN_BATCH_COALESCE_MS` gap since the last spawn
+// (the ordinary case: sporadic single spawns, seconds apart, never need
+// coalescing), resets the running index back to 0 -- so an ordinary lone
+// spawn late in a long session still gets delay 0, never an ever-growing
+// wait inherited from unrelated spawns much earlier. `computeBatchOrder`/
+// `computeBatchStaggerDelays` themselves are UNCHANGED (their own existing
+// tests, and every other caller of the same-poll-only contract, stay
+// valid) -- this is a new, additional layer LiveAgents.tsx opts into for
+// the spawn path specifically.
+export const SPAWN_BATCH_COALESCE_MS = 2000;
+
+export interface SpawnBatchState {
+  /** The next 0-based batch index to hand out. */
+  nextIndex: number;
+  /** Wall-clock ms (Date.now()/performance.now() -- whatever the caller's
+   * own clock is; only ever compared to another value from the SAME
+   * clock) this batch last grew. */
+  lastGrowthMs: number;
+}
+
+/** Pure reducer: given the batch's PREVIOUS state (`undefined` if no batch
+ * has ever started, or none is currently active) and this poll's `newIds`
+ * (ids genuinely new to the roster this poll -- the same set LiveAgents.tsx
+ * already computes), returns each new id's own stable batch index (sorted
+ * lexicographically among just `newIds`, the same tie-break convention
+ * `computeBatchOrder` uses -- ids within ONE poll are still ordered by id,
+ * never by arrival order within that poll) plus the batch's next state.
+ * Continues the running index from `prevState.nextIndex` when `nowMs` is
+ * within `SPAWN_BATCH_COALESCE_MS` of `prevState.lastGrowthMs` (this poll's
+ * spawns are still part of the same real-world burst); starts a fresh
+ * batch at index 0 otherwise (`prevState` absent, or the gap is too old).
+ * Returns an empty assignment map (batch state unchanged) when `newIds` is
+ * empty -- a poll with nothing new never resets or advances the batch. */
+export function advanceCoalescedSpawnBatch(
+  prevState: SpawnBatchState | undefined,
+  newIds: readonly string[],
+  nowMs: number,
+): { assignments: Map<string, number>; nextState: SpawnBatchState | undefined } {
+  if (newIds.length === 0) {
+    return { assignments: new Map(), nextState: prevState };
+  }
+  const coalescing = prevState !== undefined && nowMs - prevState.lastGrowthMs <= SPAWN_BATCH_COALESCE_MS;
+  const base = coalescing ? prevState!.nextIndex : 0;
+  const sorted = [...new Set(newIds)].sort();
+  const assignments = new Map<string, number>(sorted.map((id, i) => [id, base + i]));
+  return { assignments, nextState: { nextIndex: base + sorted.length, lastGrowthMs: nowMs } };
+}
+
 // ─── Wait point (CONVOY-STACK v3, 2026-09-15) ──────────────────────────────
 //
 // ROOT CAUSE (probe 20260915T085943Z): computeWaitPoint (v2) placed a

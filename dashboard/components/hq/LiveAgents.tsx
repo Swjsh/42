@@ -58,12 +58,12 @@ import { CHARACTER_SCALE, CHARACTER_TARGET_HEIGHT } from "./SetKit";
 import type { LiveAgent } from "./types";
 import type { LiveAgentState } from "@/lib/hq-agents";
 import {
-  applyFollowCap, applyLaneOffsets, clampFrameDelta, computeBatchOrder, computeBatchStaggerDelays, computeMaxPathDurationS,
+  advanceCoalescedSpawnBatch, applyFollowCap, applyLaneOffsets, clampFrameDelta, computeMaxPathDurationS,
   computeSidestepPlan, computeWaitPoint, decideNextWalk, ENTRY_NODE_ID, findCarAhead, findRetargetPath, FOLLOW_GAP_U,
-  isPointOccupied, LEAVE_TIMEOUT_MARGIN_S,
+  isPointOccupied, LEAVE_TIMEOUT_MARGIN_S, STAGGER_DELAY_S,
   pathDistance, poseAlongPath, rampVectorOffset, reconcileLiveAgentRoster, resolveMutualHoldWinner, rightOf,
   shouldBreakStarvation, shouldWriteLiveAgentDiag,
-  stableSlotOffset, STAND_BUBBLE_Y_STEP, updateStableSlotAssignments, type WalkerSnapshot,
+  stableSlotOffset, STAND_BUBBLE_Y_STEP, updateStableSlotAssignments, type SpawnBatchState, type WalkerSnapshot,
 } from "./liveAgentWalk";
 
 // AGENT-IDENTITY pass (2026-09-15): color used to cycle by ARRIVAL ORDER
@@ -1316,6 +1316,21 @@ export default function LiveAgents({ agents, walkGraph, ultra, reducedMotion }: 
   // the correct assignment -- never a render where a child's props are
   // stale relative to this ref.
   const slotAssignmentsRef = useRef<Map<string, Map<string, number>>>(new Map());
+  // CROSS-POLL SPAWN COALESCING fix (CONVOY-STACK v15, 2026-09-16, probe
+  // 20260916T005621Z walker_separation FAIL): `computeBatchOrder(newIds)`
+  // alone restarts its own index at 0 on EVERY poll, so two ids that are
+  // each the first new id in their OWN poll -- e.g. one arrives on poll N,
+  // the other on poll N+1 a few hundred ms later -- get the IDENTICAL 0s
+  // stagger delay despite spawning close enough in wall time to still walk
+  // the shared gate-exit corridor in lockstep. These two refs carry the
+  // running batch index FORWARD across such near-simultaneous polls (see
+  // liveAgentWalk.ts#advanceCoalescedSpawnBatch's own header for the full
+  // mechanism + why it self-resets after a real gap, never accumulating an
+  // ever-growing delay across an entire session). Separate refs for
+  // spawn vs. leave -- they are two independent batch timelines, exactly
+  // as spawnDelayS/leaveDelayS already are two independent fields below.
+  const spawnBatchStateRef = useRef<SpawnBatchState | undefined>(undefined);
+  const leaveBatchStateRef = useRef<SpawnBatchState | undefined>(undefined);
 
   useEffect(() => {
     ensureDiagInterval();
@@ -1343,8 +1358,11 @@ export default function LiveAgents({ agents, walkGraph, ultra, reducedMotion }: 
   useEffect(() => {
     setDisplayed((prev) => {
       const newIds = agents.map((a) => a.id).filter((id) => !prev.has(id));
-      const spawnDelays = computeBatchStaggerDelays(newIds);
-      const spawnOrder = computeBatchOrder(newIds);
+      const { assignments: spawnOrder, nextState: nextSpawnBatchState } = advanceCoalescedSpawnBatch(
+        spawnBatchStateRef.current, newIds, Date.now(),
+      );
+      spawnBatchStateRef.current = nextSpawnBatchState;
+      const spawnDelays = new Map(Array.from(spawnOrder.entries()).map(([id, i]) => [id, i * STAGGER_DELAY_S]));
 
       const next = reconcileLiveAgentRoster(prev, agents, (a, existing) => {
         const bubble = `${a.state === "spawning" ? "arrived" : a.state === "cooling" ? "wrapping up" : "working"} · ${a.lastDetail}`;
@@ -1373,8 +1391,11 @@ export default function LiveAgents({ agents, walkGraph, ultra, reducedMotion }: 
         .filter(([id, d]) => d.leaving && !(prev.get(id)?.leaving ?? false))
         .map(([id]) => id);
       if (newlyLeavingIds.length > 0) {
-        const leaveDelays = computeBatchStaggerDelays(newlyLeavingIds);
-        const leaveOrder = computeBatchOrder(newlyLeavingIds);
+        const { assignments: leaveOrder, nextState: nextLeaveBatchState } = advanceCoalescedSpawnBatch(
+          leaveBatchStateRef.current, newlyLeavingIds, Date.now(),
+        );
+        leaveBatchStateRef.current = nextLeaveBatchState;
+        const leaveDelays = new Map(Array.from(leaveOrder.entries()).map(([id, i]) => [id, i * STAGGER_DELAY_S]));
         for (const id of newlyLeavingIds) {
           const d = next.get(id)!;
           next.set(id, { ...d, leaveDelayS: leaveDelays.get(id) ?? 0, leaveIndex: leaveOrder.get(id) ?? 0 });
