@@ -366,6 +366,12 @@ const TV_PERSONA_SEAT_LOCAL: [number, number, number] = [0, 0, -0.1];
 // Verify via the final real capture; if still clipped, document honestly
 // rather than guess a third angle.
 const ARC_CENTER_NUDGE = (10 * Math.PI) / 180;
+// BLOCKY-FIXES pass (2026-09-16, Defect B): see the `deskCollidesWithOccupiedNeighbor`
+// call site's own comment (innerPersonas.map, below) for the full derivation --
+// layout.ts#computePersonaWallSlots' corner-sharing desk pairs land exactly
+// 0.85 world units apart (verified numerically), against >=9.2u for every
+// other pair.
+const NAMEPLATE_COLLISION_CLEARANCE = 2.0;
 // ARC_CENTER is still "the direction that faces the camera most directly"
 // -- Gamma's own desk (gammaDeskCenter below, UNCHANGED by this pass) and
 // BrainCore both anchor off it. ARC_SPAN (the old 230deg lane-ring arc this
@@ -2125,6 +2131,18 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
                 laneSeed={row.lane}
                 home={slot.agentHome}
                 hub={HUB}
+                // BLOCKY-FIXES pass (2026-09-16, Defect A): `slot.rotationY`
+                // is the bay's OWN furniture yaw (layout.ts#computeBaySlot,
+                // the exact angle DeskCluster's table/chair/screen already
+                // render at) -- passed straight through as `deskYaw` so the
+                // seated character's front axis lands on the SAME world
+                // direction as its own screen, not the `atan2(hub-home)+PI`
+                // approximation (Agent.tsx's own `deskYaw` doc comment has
+                // the numeric proof: a bay sits SIDE_SPAN=8.1 off its own
+                // T-junction, so "hub direction from this bay" and "this
+                // bay's own facing" diverge by ~66.5deg here, not the small
+                // perturbation the old hub-only formula assumed).
+                deskYaw={slot.rotationY}
                 behavior={behavior}
                 accentColor={healthColor(row.health)}
                 reducedMotion={reducedMotion}
@@ -2173,6 +2191,42 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
         // maps BOTH YELLOW and IDLE to the same "idle" Agent animation, and
         // YELLOW ("acknowledging") must keep its body.
         const showAgent = persona.status !== "IDLE";
+        // BLOCKY-FIXES pass (2026-09-16, Defect B): real capture
+        // blockyfix-desk3-0135.png showed "Analyst" ✦'s nameplate floating
+        // right over Coach's OCCUPIED desk. Traced the full chain (this
+        // component's own `innerPersonas.map` index `i` -> `personaGeometry
+        // [i]` -> both the <Agent> below AND <DeskNameplate> read the SAME
+        // `slot` from the SAME iteration, and lib/personas.ts#collectCompany
+        // always returns `[gamma, scout, coach, pilot, analyst, chef,
+        // treasurer]` -- Gamma fixed at index 0, so `allPersonas.slice(1)`
+        // never drifts) -- NOT an index/slice bug, every persona's nameplate
+        // already anchors at ITS OWN slot. Real root cause, found by
+        // computing actual world distances between all 6 persona homes:
+        // layout.ts#computePersonaWallSlots' own "2-2-2-1, corner-sharing"
+        // scheme (each wall's "high corner" desk and the NEXT wall's "low
+        // corner" desk are built to sit at the SAME shared hub corner) lands
+        // 3 desk PAIRS just 0.85 world units apart -- Scout/Chef, Coach/
+        // Analyst, Pilot/Treasurer (verified numerically, not assumed; see
+        // tests/hq-desk-facing.test.ts) -- against a ~9.2-13.9u gap for
+        // every non-corner-sharing pair. That geometry lives in layout.ts
+        // (out of this pass' scope -- would also move every other consumer
+        // of PERSONA_WALL_RADIUS/PERSONA_WALL_LATERAL_OFFSET). Mitigated
+        // here instead, at the one place that's actually broken for the
+        // viewer: an IDLE persona's nameplate never renders when its own
+        // desk sits within `NAMEPLATE_COLLISION_CLEARANCE` of another
+        // persona's CURRENTLY-OCCUPIED desk -- comfortably above the 0.85u
+        // real collision distance, comfortably below the ~9.2u normal
+        // spacing, so this can never suppress a nameplate that isn't
+        // actually about to read as sitting on someone else's desk.
+        const deskCollidesWithOccupiedNeighbor =
+          !showAgent &&
+          innerPersonas.some((other, j) => {
+            if (j === i || other.status === "IDLE") return false;
+            const otherSlot = personaGeometry[j] ?? personaGeometry[0];
+            const dx = slot.position[0] - otherSlot.position[0];
+            const dz = slot.position[2] - otherSlot.position[2];
+            return Math.hypot(dx, dz) < NAMEPLATE_COLLISION_CLEARANCE;
+          });
         // Pilot's desk screen: see the isPilot block below (item 1
         // follow-up, 2026-09-14) for the CURRENT mechanism -- superseded
         // the original Pass B (2026-09-13) recentOutput-based design, then
@@ -2392,6 +2446,17 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
                 laneSeed={persona.name}
                 home={slot.agentHome}
                 hub={HUB}
+                // BLOCKY-FIXES pass (2026-09-16, Defect A): `slot.rotationY`
+                // is this persona wall-desk's OWN furniture yaw
+                // (layout.ts#computePersonaWallSlots, the exact angle
+                // SetKit.tsx#DeskCluster's table/chair/screen already
+                // render at) -- see Agent.tsx's own `deskYaw` prop doc
+                // comment for the full derivation (character GLB's true
+                // front axis + the numeric proof this hub-approximation was
+                // ~35-50deg off for every persona slot, root-causing the
+                // real capture that showed Coach's face to a camera meant
+                // to stand behind him).
+                deskYaw={slot.rotationY}
                 behavior={behavior}
                 accentColor={personaStatusColor(persona.status)}
                 reducedMotion={reducedMotion}
@@ -2484,7 +2549,7 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
                 derivation Hud.tsx's roster panel and the hover panel below
                 already use, so this label's hover text can never disagree
                 with either. */}
-            {!showAgent && (
+            {!showAgent && !deskCollidesWithOccupiedNeighbor && (
               <DeskNameplate
                 name={persona.name}
                 position={slot.position}

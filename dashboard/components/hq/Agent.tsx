@@ -42,6 +42,36 @@ interface AgentProps {
   laneSeed: string;
   home: [number, number, number];
   hub: [number, number, number];
+  /** BLOCKY-FIXES pass (2026-09-16, Defect A): the seated character's own
+   * desk-facing yaw, taken DIRECTLY from the desk's own furniture rotation
+   * (layout.ts#PersonaWallSlot.rotationY / BaySlot.rotationY -- the SAME
+   * value SetKit.tsx#DeskCluster already renders its table/chair/screen at,
+   * see that component's own docstring). When given, this REPLACES the
+   * `atan2(hub-home)+Math.PI` hub-approximation below outright (never
+   * blended/averaged with it) -- that approximation only equals the desk's
+   * true facing when `home` sits exactly on the ray from `hub` through the
+   * wall/T-junction's own normal point, which breaks down hard for a
+   * persona wall-slot desk (PERSONA_WALL_LATERAL_OFFSET=4.6 against
+   * PERSONA_WALL_RADIUS=5.1 -- a lateral offset comparable to the radius
+   * itself, not a small perturbation): numerically verified this pass (see
+   * tests/hq-desk-facing.test.ts) that `atan2(hub-home)+PI` lands
+   * 35-50deg off the desk's real `rotationY` for every one of today's 6
+   * persona slots -- enough to put a room-side camera almost level with the
+   * character's shoulder instead of squarely behind, which is what let
+   * capture automation/state/station/captures/blockyfix-desk3-0135.png
+   * show Coach's FACE (confirmed via the character GLB's own UV atlas: the
+   * local +Z quad, both on `character-a.glb`'s head AND torso meshes, maps
+   * to the face/collar texture region, never the plain-hood/backpack -Z
+   * quad -- local +Z is this rig's true front, independent of any
+   * hub-relative reasoning) from a camera meant to stand behind him.
+   * `rotationY` is exact BY CONSTRUCTION (DeskCluster's own table/chair/
+   * screen are rendered at this exact yaw -- see SetKit.tsx), so passing it
+   * here makes the seated character's front axis land on EXACTLY the same
+   * world direction as the screen it's meant to be looking at, with zero
+   * hub-geometry approximation. Omitted (bay/lane agents, unchanged) keeps
+   * today's already-screenshot-verified hub-based formula -- this prop is
+   * additive, never a behavior change for any caller that doesn't pass it. */
+  deskYaw?: number;
   behavior: AgentBehavior;
   accentColor: string;
   reducedMotion: boolean;
@@ -471,7 +501,7 @@ let lastGlobalWalkStartT = -Infinity;
  * (no timer, no destination) and stay as-is.
  */
 export default function Agent({
-  laneSeed, home, hub, behavior, accentColor, reducedMotion, walkEventKey, walkKind, allHandsEventKey, purposefulWalkEventKey, pointEventKey, purposefulTarget, eventWalkEventKey, eventWalkTarget, walkPlanKey, walkPlan, presenceMode, facingYaw,
+  laneSeed, home, hub, deskYaw, behavior, accentColor, reducedMotion, walkEventKey, walkKind, allHandsEventKey, purposefulWalkEventKey, pointEventKey, purposefulTarget, eventWalkEventKey, eventWalkTarget, walkPlanKey, walkPlan, presenceMode, facingYaw,
   scheduleDim = 1,
   ultra = false,
   bubbleText, purposefulReason, eventWalkReason, auditVerdict,
@@ -1135,8 +1165,13 @@ export default function Agent({
       // World-4 fix (P6, 2026-09-14, J: "the bottom bays show characters not
       // facing their desks"): see the original fix's own comment (git
       // history) -- desk-facing is `atan2(hub-home) + PI`, never a leftover
-      // walk heading.
-      const deskFacing = Math.atan2(hub[0] - home[0], hub[2] - home[2]) + Math.PI;
+      // walk heading. BLOCKY-FIXES pass (2026-09-16, Defect A): `deskYaw`
+      // (the desk's own furniture rotation, exact by construction -- see
+      // this prop's own doc comment above) now REPLACES this hub-based
+      // approximation whenever the caller has it, which is every persona
+      // wall-slot desk today; bay/lane agents (no `deskYaw` passed) keep
+      // this exact formula unchanged.
+      const deskFacing = deskYaw ?? Math.atan2(hub[0] - home[0], hub[2] - home[2]) + Math.PI;
       if (behavior === "working") {
         if (armL.current) armL.current.rotation.x = Math.sin(t * 10) * 0.35;
         if (armR.current) armR.current.rotation.x = Math.sin(t * 10 + Math.PI) * 0.35;
