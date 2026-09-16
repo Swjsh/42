@@ -2184,6 +2184,26 @@ class TestUsabilityU5:
         r = check_usability_u5(m, self.API)
         assert r["verdict"] == "PASS"
 
+    def test_pass_real_truncated_dom_shape_regression(self):
+        # U5 check fix (2026-09-16, USABILITY-FIXES worker): pinned
+        # regression for the real ca5d7813 FAIL -- root cause was
+        # check_usability_u5 searching for label[:14] (14 RAW characters,
+        # "general-purpos") when HeadLabel.tsx's truncateName() actually
+        # renders any name over 14 chars as `name[:13] + "…"`, i.e. the
+        # DOM literally reads "general-purpo…" (13 real chars + ellipsis,
+        # matching real captures crew-hub-0110.png/hubprops-hub-0041.png).
+        # The OLD 14-char needle was never a substring of that truncated
+        # text -- a false FAIL on a label that was genuinely on screen.
+        # The prior test_pass above (using the untruncated full name) never
+        # caught this because it doesn't model what the DOM actually
+        # contains; this test does.
+        m = {
+            "label_rects": [_label_rect("general-purpo…")],
+            "hover_probes": [{"kind": "agent", "key": "a1", "revealed": True}],
+        }
+        r = check_usability_u5(m, self.API)
+        assert r["verdict"] == "PASS", r["detail"]
+
 
 class TestUsabilityU6:
     def test_no_data_no_fill(self):

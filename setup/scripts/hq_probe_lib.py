@@ -1978,6 +1978,30 @@ def build_verdicts(
 USABILITY_LABEL_MIN_HEIGHT_PX = LABEL_MIN_HEIGHT_PX  # same 12px floor, one number
 HOVER_REVEAL_MIN_CHARS = 8  # smallest realistic "detail" tooltip growth
 
+# U5 usability check fix (2026-09-16, USABILITY-FIXES worker): real run
+# (commit ca5d7813) FAILed U5 ("live-agent head label not legible") for
+# every liveAgent whose id/label is longer than 14 raw characters -- e.g.
+# "general-purpose" (16 chars). Root cause was a needle/haystack truncation
+# MISMATCH, not a missing label: HeadLabel.tsx's own truncateName()
+# (headLabelModel.ts) renders `name.slice(0, 13) + "…"` for any name over
+# 14 chars -- so the real DOM text for "general-purpose" is literally
+# "general-purpo…" (13 real chars + an ellipsis glyph, confirmed against
+# real captures crew-hub-0110.png/hubprops-hub-0041.png, which show
+# "general-purpo… <>" tags plainly on screen). This module (and
+# hq_live_probe.py's own hover-probe center-finder) used to search for
+# `label[:14]` -- the first 14 RAW characters, e.g. "general-purpos" --
+# which is NEVER a substring of "general-purpo…" (the 14th rendered
+# character is the ellipsis, not the source string's 14th letter). The
+# scene was rendering correctly the whole time; only the check's own mirror
+# of the truncation math was off by one. Fixed by matching on the first 13
+# characters only (USABILITY_LABEL_NAME_PREFIX_LEN) -- a true prefix of
+# BOTH the untruncated name (len<=14, rendered verbatim) and the truncated
+# one (rendered as `name[:13] + "…"`), so it can never miss a real label
+# again. Pinned by test_hq_probe_lib.py's own TestUsabilityU5 regression
+# test using the REAL truncated DOM shape, not the untruncated name the
+# pre-fix tests used (which is why they never caught this).
+USABILITY_LABEL_NAME_PREFIX_LEN = 13
+
 
 def _u_no_data(reason: str) -> Dict[str, Any]:
     return {"verdict": "NO-DATA", "detail": {"reason": reason}}
@@ -2101,7 +2125,7 @@ def check_usability_u4(measurements: Dict[str, Any], api: Dict[str, Any]) -> Dic
     for p in personas:
         name = p.get("name", "")
         short = name.split(" (")[0].strip()
-        matches = [r for r in label_rects if r.get("visible", True) and short and short[:14].lower() in (r.get("text") or "").lower()]
+        matches = [r for r in label_rects if r.get("visible", True) and short and short[:USABILITY_LABEL_NAME_PREFIX_LEN].lower() in (r.get("text") or "").lower()]
         if not matches or _tallest(matches) < USABILITY_LABEL_MIN_HEIGHT_PX:
             missing_label.append(name)
             continue
@@ -2131,7 +2155,7 @@ def check_usability_u5(measurements: Dict[str, Any], api: Dict[str, Any]) -> Dic
     for a in agents:
         aid = a.get("id") or a.get("label") or ""
         label = a.get("label") or ""
-        matches = [r for r in label_rects if r.get("visible", True) and label and label[:14].lower() in (r.get("text") or "").lower()]
+        matches = [r for r in label_rects if r.get("visible", True) and label and label[:USABILITY_LABEL_NAME_PREFIX_LEN].lower() in (r.get("text") or "").lower()]
         if not matches or _tallest(matches) < USABILITY_LABEL_MIN_HEIGHT_PX:
             missing_label.append(aid)
             continue

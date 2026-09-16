@@ -25,6 +25,51 @@ const BLOCKED_SOURCE_LABEL: Record<string, string> = {
   goal_blocked: "Goal",
 };
 
+// ─── U8 usability fix (2026-09-16, USABILITY-FIXES worker): real run
+//     (hq_live_probe.py --usability, commit ca5d7813) FAILed U8 -- 3 real
+//     broken flags (Futures lane red, Multi-symbol options zombie, Weekly
+//     options frozen) had NO legible surface anywhere on the default view.
+//     `buildBrokenFlags` mirrors hq_probe_lib.py#check_usability_u8's own
+//     field-reading EXACTLY (same 3 sources, same shapes) so this panel and
+//     that check can never disagree about what counts as "broken":
+//       1. desks[name].stale (lib/desk-content.ts#DeskContent.stale)
+//       2. sectors.rows[].health in (red, zombie, frozen)
+//       3. liveAgentsError (a single string, not per-agent)
+//     Deliberately does NOT flag health "amber" (the probe's own regex
+//     never asks for it either -- amber is a caution, not a "broken"
+//     condition this instrument tracks). Pure function, no component
+//     state -- recomputed every render off `data`, same convention as
+//     buildTradingStrip/buildHqBuildLine above. */
+interface BrokenFlag {
+  key: string;
+  label: string;
+  /** The literal evidence word (STALE/ZOMBIE/FROZEN/ERROR) -- this is what
+   * makes the rendered row match hq_probe_lib.py's own
+   * `stale|dead|zombie|frozen|\berror\b|broken` surface regex; never
+   * reworded to something the check wouldn't recognize. */
+  evidence: string;
+}
+
+function buildBrokenFlags(data: HqApiResponse | undefined): BrokenFlag[] {
+  if (!data) return [];
+  const flags: BrokenFlag[] = [];
+  const desks = data.desks;
+  if (desks && typeof desks === "object") {
+    for (const [name, d] of Object.entries(desks)) {
+      if (d?.stale) flags.push({ key: `desk:${name}`, label: `Desk: ${name}`, evidence: "STALE" });
+    }
+  }
+  for (const r of data.sectors?.rows ?? []) {
+    if (r.health === "red" || r.health === "zombie" || r.health === "frozen") {
+      flags.push({ key: `lane:${r.lane}:${r.health}`, label: r.lane, evidence: r.health.toUpperCase() });
+    }
+  }
+  if (data.liveAgentsError) {
+    flags.push({ key: "liveAgentsError", label: "Live agents", evidence: `ERROR: ${data.liveAgentsError}` });
+  }
+  return flags;
+}
+
 // ─── LIVE-1 item 5 (2026-09-14, coordinator-directed mid-task addition):
 //     trading status strip -- "are we ready to trade today?" answered
 //     without J asking. Pure functions, no component state -- recomputed
@@ -728,6 +773,9 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
       : "Loading...";
   const personas = data?.company?.personas ?? [];
   const blockedItems = data?.blocked ?? [];
+  // U8 usability fix: see buildBrokenFlags's own header for the exact
+  // 3-source mirror of hq_probe_lib.py#check_usability_u8.
+  const brokenFlags = buildBrokenFlags(data);
   // CREW-2 (roster): one "now" reference per render, shared by the feed's
   // sort/day-prefix logic and every card's pill/next: line (lib/crew.ts's
   // functions take explicit time, never Date.now() buried inside) -- this
@@ -1239,7 +1287,7 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
             >
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 4 }}>
                 <span style={{ color: "#7ad9ff", fontSize: 12, fontWeight: 700, letterSpacing: 0.5, fontFamily: HUD_FONT }}>
-                  FLEET P&amp;L · TODAY
+                  FLEET P&amp;L · TODAY · gross
                 </span>
                 <span style={{ color: bookColor, fontSize: 14, fontWeight: 800, fontFamily: HUD_FONT }}>
                   {fleetPnl.bookRealizedUsd >= 0 ? "+" : "-"}${Math.abs(Math.round(fleetPnl.bookRealizedUsd))}
@@ -1283,6 +1331,35 @@ export default function Hud({ data, error, kiosk, isValidating, motionEvents, ti
                 <span style={{ color: "#ffb020", fontWeight: 700 }}>[{BLOCKED_SOURCE_LABEL[item.source] ?? item.source}]</span>{" "}
                 {item.text}
                 <span style={{ color: "#c99457" }}> &middot; {item.age}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* BROKEN strip (U8 usability fix, 2026-09-16): "is anything
+            broken?" answered as an always-visible red surface, next to
+            NEEDS-J, never animated (static per this item's own spec --
+            a genuinely broken condition doesn't need extra motion to be
+            taken seriously). Hidden entirely when brokenFlags is empty, per
+            the SAME "nothing to say on a clean day" convention NEEDS-J
+            already follows just above. See buildBrokenFlags's own header
+            for the exact 3-field mirror of hq_probe_lib.py#
+            check_usability_u8 that keeps this panel and that check from
+            ever disagreeing about what "broken" means. */}
+        {brokenFlags.length > 0 && (
+          <div
+            style={{
+              background: "rgba(40,0,0,0.75)", border: "1px solid #ff3b3b", borderRadius: 8,
+              padding: "8px 14px", flexShrink: 0,
+            }}
+          >
+            <div style={{ color: "#ff3b3b", fontSize: 18, fontWeight: 800, letterSpacing: 0.5, marginBottom: 4 }}>
+              BROKEN ({brokenFlags.length})
+            </div>
+            {brokenFlags.map((f) => (
+              <div key={f.key} style={{ fontSize: 14, color: "#ffb3b3", marginTop: 2, lineHeight: 1.3 }}>
+                <span style={{ fontWeight: 700 }}>{f.label}</span>
+                <span style={{ color: "#ff8080" }}> &middot; {f.evidence}</span>
               </div>
             ))}
           </div>

@@ -667,11 +667,21 @@ def collect_usability_measurements(page: Any, url: str, api: Dict[str, Any]) -> 
         return None
 
     # U4/U5: hover every persona + live agent whose head label is on screen.
+    # Prefix length matches hq_probe_lib.USABILITY_LABEL_NAME_PREFIX_LEN's
+    # own header comment (13, not 14) -- see that constant for the root
+    # cause: HeadLabel.tsx's truncateName() renders a name over 14 chars as
+    # `name[:13] + "…"`, so a 14-raw-char needle (e.g. "general-purpos")
+    # was never a substring of the real DOM text ("general-purpo…") and
+    # this hover probe silently found no center to click at all -- fixed
+    # the same way check_usability_u4/u5 were, one prefix length shared by
+    # both the hover-probe finder here and the pure legibility check.
+    from hq_probe_lib import USABILITY_LABEL_NAME_PREFIX_LEN
+
     personas = ((api.get("company") or {}).get("personas")) or []
     for p in personas:
         name = p.get("name", "")
         short = name.split(" (")[0].strip()
-        center = _center_of(short[:14]) if short else None
+        center = _center_of(short[:USABILITY_LABEL_NAME_PREFIX_LEN]) if short else None
         if center is None:
             continue
         probe = probe_hover_reveal(page, center[0], center[1], body_text)
@@ -681,7 +691,7 @@ def collect_usability_measurements(page: Any, url: str, api: Dict[str, Any]) -> 
     agents = api.get("liveAgents") or []
     for a in agents:
         label = a.get("label") or ""
-        center = _center_of(label[:14]) if label else None
+        center = _center_of(label[:USABILITY_LABEL_NAME_PREFIX_LEN]) if label else None
         if center is None:
             continue
         probe = probe_hover_reveal(page, center[0], center[1], body_text)
@@ -783,6 +793,43 @@ def run_usability(url: str, out_path: Path, scene_wait_ms: int, min_build_age_s:
             diag["scene_ready"] = scene_ready
 
             if scene_ready:
+                # U4/U5 check fix (2026-09-16, USABILITY-FIXES worker): real
+                # runs FAILed U4/U5 non-deterministically (same URL, same
+                # live data, flip-flopping PASS/FAIL run to run) -- root
+                # cause was a measurement RACE, not a scene bug: the
+                # scene_ready wait above only requires ONE furniture mesh to
+                # exist in the scene graph, which fires as soon as the room
+                # shell mounts -- well before the persona ring's Suspense-
+                # loaded KitAgentBody characters and live-agent walk-ins
+                # finish mounting/positioning their own HeadLabel `<Html>`
+                # portals (and before the shared declutter manager's first
+                # throttled pass nudges them into their final on-screen
+                # spot). A direct manual replay of this exact
+                # fetch+collect+compute sequence immediately after
+                # scene_ready sometimes caught Pilot/Analyst/live-agent
+                # labels mid-mount; a flat page.wait_for_timeout(1500) (this
+                # file's existing settle-wait convention, reused from the U6
+                # preset=1 fallback below) cut the flake rate but did not
+                # eliminate it -- 7 personas' worth of `.hq-beam` nodes
+                # sometimes still weren't all mounted at 1500ms on this
+                # SwiftShader-class run. Replaced with a bounded POLL for
+                # the real observable condition (at least 7 `.hq-beam`
+                # nodes present -- the fixed persona-ring count; live
+                # agents are additive and never required to already be
+                # mounted, since U5's own check is separately NO-DATA-safe
+                # when liveAgents is empty) instead of guessing a duration.
+                # Bounded at 8s and best-effort: on timeout this proceeds
+                # anyway with whatever mounted so far, exactly like every
+                # other wait in this file (never blocks the run forever) --
+                # a genuine remaining gap then surfaces as an honest FAIL,
+                # not a hang.
+                try:
+                    page.wait_for_function(
+                        "() => document.querySelectorAll('.hq-beam').length >= 7",
+                        timeout=8000,
+                    )
+                except Exception as exc:  # noqa: BLE001
+                    diag["usability_label_settle_wait_error"] = str(exc)
                 api = fetch_usability_api(page)
                 measurements = collect_usability_measurements(page, url, api)
                 usability = compute_usability_verdicts(measurements, api)
