@@ -1,4 +1,4 @@
-# CANDIDATE: test-unblocking-require-bearish-fill-bar-reval-set-require-b
+# CANDIDATE: run-walk-forward-validation-on-the-top-5-sniper-stage2-grind
 
 **Filed:** 2026-09-15
 **Filer:** kitchen-daemon (Stage-1-gated cook, GOAL-KITCHEN-RUNNER-IN-LOOP-2026-09-05)
@@ -6,11 +6,11 @@
 
 ## Hypothesis
 
-Test unblocking REQUIRE_BEARISH_FILL_BAR_REVAL (set require_bearish_fill_bar=false) and measure impact on bear trade P&L, win rate, and equity curve across 2025-01-02 to 2026-06-18.
+Run walk-forward validation on the top 5 SNIPER_STAGE2_GRINDER keepers across 2025-Q3 and 2026-Q1, then simulate real-fills using simulator_real.py to confirm edge and stability.
 
 ## Provenance
 
-provenance: C:\Users\jackw\Desktop\42\backtest\.venv\Scripts\python.exe C:\Users\jackw\Desktop\42\setup\scripts\kitchen_stage1_runner.py --combo-json {} --slug test-unblocking-require-bearish-fill-bar-reval-set-require-b --task-id 4cc1588a-5030-403a-b4ce-bdd27d10b1e4 --timeout-s 480.0 -> RUNNER-FAILED (single_worker_lock_held -- another Stage-1 run is in flight)
+provenance: C:\Users\jackw\Desktop\42\backtest\.venv\Scripts\python.exe C:\Users\jackw\Desktop\42\setup\scripts\kitchen_stage1_runner.py --combo-json {} --slug run-walk-forward-validation-on-the-top-5-sniper-stage2-grind --task-id 93ca8738-8cc6-47b6-bbb9-2e211e7fadc2 --timeout-s 480.0 -> RUNNER-FAILED (single_worker_lock_held -- another Stage-1 run is in flight)
 status: RUNNER-FAILED (single_worker_lock_held -- another Stage-1 run is in flight)
 engine_note: MECHANISM EVIDENCE ONLY -- BS-synthetic option pricing over historical SPY/VIX bars (backtest.autoresearch.overnight_grinder.evaluate_combo -> lib.pricing.black_scholes). NOT real-fills evidence. Per memory project_free_kitchen_plan_b_hardened.md.
 

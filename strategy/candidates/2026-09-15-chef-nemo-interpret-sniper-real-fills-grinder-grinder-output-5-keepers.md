@@ -10,7 +10,7 @@ Interpret sniper_real_fills_grinder grinder output: 5 keepers found. Top: wide_p
 
 ## Provenance
 
-provenance: C:\Users\jackw\Desktop\42\backtest\.venv\Scripts\python.exe C:\Users\jackw\Desktop\42\setup\scripts\kitchen_stage1_runner.py --combo-json {} --slug interpret-sniper-real-fills-grinder-grinder-output-5-keepers --task-id 4ec34358-94ff-4768-90b8-14011181a98b --timeout-s 480.0 -> RUNNER-FAILED (single_worker_lock_held -- another Stage-1 run is in flight)
+provenance: C:\Users\jackw\Desktop\42\backtest\.venv\Scripts\python.exe C:\Users\jackw\Desktop\42\setup\scripts\kitchen_stage1_runner.py --combo-json {} --slug interpret-sniper-real-fills-grinder-grinder-output-5-keepers --task-id 79564d02-e574-43e5-a79f-8320e2a03709 --timeout-s 480.0 -> RUNNER-FAILED (single_worker_lock_held -- another Stage-1 run is in flight)
 status: RUNNER-FAILED (single_worker_lock_held -- another Stage-1 run is in flight)
 engine_note: MECHANISM EVIDENCE ONLY -- BS-synthetic option pricing over historical SPY/VIX bars (backtest.autoresearch.overnight_grinder.evaluate_combo -> lib.pricing.black_scholes). NOT real-fills evidence. Per memory project_free_kitchen_plan_b_hardened.md.
 

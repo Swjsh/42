@@ -10,7 +10,7 @@ Interpret shotgun_scalper_stage5 grinder output: 5 keepers found. Top: wide_pnl=
 
 ## Provenance
 
-provenance: C:\Users\jackw\Desktop\42\backtest\.venv\Scripts\python.exe C:\Users\jackw\Desktop\42\setup\scripts\kitchen_stage1_runner.py --combo-json {} --slug interpret-shotgun-scalper-stage5-grinder-output-5-keepers-fo --task-id 6c6997b9-1709-4bc5-af7b-19fca8b243eb --timeout-s 480.0 -> RUNNER-FAILED (single_worker_lock_held -- another Stage-1 run is in flight)
+provenance: C:\Users\jackw\Desktop\42\backtest\.venv\Scripts\python.exe C:\Users\jackw\Desktop\42\setup\scripts\kitchen_stage1_runner.py --combo-json {} --slug interpret-shotgun-scalper-stage5-grinder-output-5-keepers-fo --task-id a1365283-65b6-417e-94f8-d82011ca3fd3 --timeout-s 480.0 -> RUNNER-FAILED (single_worker_lock_held -- another Stage-1 run is in flight)
 status: RUNNER-FAILED (single_worker_lock_held -- another Stage-1 run is in flight)
 engine_note: MECHANISM EVIDENCE ONLY -- BS-synthetic option pricing over historical SPY/VIX bars (backtest.autoresearch.overnight_grinder.evaluate_combo -> lib.pricing.black_scholes). NOT real-fills evidence. Per memory project_free_kitchen_plan_b_hardened.md.
 
