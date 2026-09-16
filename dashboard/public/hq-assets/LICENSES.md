@@ -8,7 +8,7 @@ public repo. No Mixamo/Synty/Sketchfab-store/NC/ND content is used anywhere belo
 
 | # | Pack | Author | Source URL | License | License URL | Downloaded | Files kept | Attribution (voluntary) |
 |---|---|---|---|---|---|---|---|---|
-| 1 | Mini Characters (1.0) | Kenney | https://kenney.nl/assets/mini-characters | CC0 1.0 | https://creativecommons.org/publicdomain/zero/1.0/ | 2026-09-13 | `character-male-a.glb`, `character-female-a.glb`, `character-male-b.glb` | "Kenney" / "www.kenney.nl" |
+| 1 | Mini Characters (1.0) — **RETIRED 2026-09-15**, see row 11 | Kenney | https://kenney.nl/assets/mini-characters | CC0 1.0 | https://creativecommons.org/publicdomain/zero/1.0/ | 2026-09-13 | `character-male-a.glb`, `character-female-a.glb`, `character-male-b.glb` (kept on disk, unused by default — one-line revert, see SetKit.tsx#CHARACTER_PACK) | "Kenney" / "www.kenney.nl" |
 | 2 | Space Station Kit (1.0) | Kenney | https://kenney.nl/assets/space-station-kit | CC0 1.0 | https://creativecommons.org/publicdomain/zero/1.0/ | 2026-09-13 | `table.glb`, `table-inset.glb`, `table-large.glb`, `chair.glb`, `chair-armrest.glb`, `computer.glb`, `computer-screen.glb`, `pipe.glb`, `pipe-bend.glb`, `door-single.glb`, `door-double.glb`, `container.glb`, `wall-window.glb`, `structure-panel.glb`, `display-wall.glb` | "Kenney" / "www.kenney.nl" |
 | 3 | Modular Space Kit (1.0) | Kenney | https://kenney.nl/assets/modular-space-kit | CC0 1.0 | https://creativecommons.org/publicdomain/zero/1.0/ | 2026-09-13 | `corridor.glb`, `corridor-corner.glb`, `corridor-intersection.glb`, `corridor-wide.glb`, `room-small.glb`, `room-large.glb`, `gate-door.glb`, `cables.glb` | "Kenney" / "www.kenney.nl" |
 | 4 | Space Kit (2.0) | Kenney | https://kenney.nl/assets/space-kit | CC0 1.0 | https://creativecommons.org/publicdomain/zero/1.0/ | 2026-09-13; terrain/prop pieces added 2026-09-14 | `astronautA.glb`, `barrels.glb`, `rock.glb`, `rocks_smallA.glb`, `rock_largeA.glb`, `rock_largeB.glb`, `crater.glb`, `craterLarge.glb`, `satelliteDish.glb`, `satelliteDish_large.glb`, `rover.glb`, `structure.glb`, `supports_high.glb`, `pipe_straight.glb`, `pipe_corner.glb` | "Kenney" / "www.kenney.nl" |
@@ -18,6 +18,58 @@ public repo. No Mixamo/Synty/Sketchfab-store/NC/ND content is used anywhere belo
 | 8 | Spaceship (mirror) | Quaternius | https://poly.pizza/m/PQzePrvBCD (Quaternius's own model, re-hosted by Poly Pizza's static CDN) | CC0 1.0 | https://poly.pizza/m/PQzePrvBCD (page states "Public Domain (CC0)") | 2026-09-14 | `shuttle.glb` (renamed from the source's own generic "Spaceship" title) | "Quaternius" |
 | 9 | Scifi Computer (mirror) | Quaternius | https://poly.pizza/m/U0xmt6tUlL | CC0 1.0 | https://poly.pizza/m/U0xmt6tUlL (page states "Public Domain (CC0)") | 2026-09-14 | `scifi-computer.glb` | "Quaternius" |
 | 10 | Pipes Panel (mirror) | Quaternius | https://poly.pizza/m/rzvuy93JU3 | CC0 1.0 | https://poly.pizza/m/rzvuy93JU3 (page states "Public Domain (CC0)") | 2026-09-14 | `pipes-panel.glb` | "Quaternius" |
+| 11 | Blocky Characters (2.0) — **ACTIVE character pack**, see Update note below | Kenney | https://kenney.nl/assets/blocky-characters | CC0 1.0 | https://creativecommons.org/publicdomain/zero/1.0/ | 2026-09-15 | `character-a.glb`, `character-b.glb`, `character-c.glb`, `character-e.glb` (4 of 18 letters; GLB format from the zip) | "Kenney" / "www.kenney.nl" |
+
+## Update 2026-09-15 (BLOCKY-CHARACTERS builder, character body swap)
+
+J, live on `/hq`: "find different character models, I don't like the current
+ones" -- the Kenney Mini Characters rig's thin, straight-cylinder arms read
+as "walking sticks." Fetched the Blocky Characters page directly this session
+(WebFetch, not assumed from memory): license line quoted verbatim
+`"Creative Commons CC0"`, download URL
+`https://kenney.nl/media/pages/assets/blocky-characters/8369c0cf30-1749547469/kenney_blocky-characters_20.zip`.
+`curl -L`'d the zip (2,148,510 bytes) to the session scratchpad, extracted,
+and re-read the zip's own `License.txt` verbatim -- matches row 1's license
+text word-for-word (CC0, "You can use this content for personal, educational,
+and commercial purposes").
+
+Inspected 5 of 18 letter variants (`character-a` through `character-e`) by
+parsing each GLB's own JSON chunk directly (same from-the-binary technique
+this file's prior passes use, via a small one-off Node script + the existing
+`dashboard/scripts/glb_extents.mjs` for bounding-box height) and by eyeballing
+each letter's own `Previews/character-*.png` thumbnail for wardrobe: all 5
+share the IDENTICAL rig (8 nodes: `root/leg-left/leg-right/torso/arm-left/
+arm-right/head` under a `character-<letter>` root; 6 meshes; 0 skins -- this
+pack animates rigid body-part nodes directly via keyframed node TRS, not
+mesh skinning, so `SkeletonUtils.clone` still applies cleanly as a plain
+hierarchy clone) and the SAME 27-clip animation list. No mesh node in any of
+the 5 bodies represents a held item/prop -- the "holding-*"/"attack-*"
+animation *names* exist (shared across every letter, since it's one shared
+rig) but only pose the empty hands, since no weapon/tool mesh ships in the
+model itself. `character-d`'s preview reads as a hazmat/coverall suit
+(rejected -- not office-appropriate); `character-a/b/c/e` all read as plain
+civilian clothing (jacket, hoodie, sweater, cardigan) and were kept --
+4 bodies total, one more than the retired 3-body Mini Characters roster, all
+`pickCharacterBody`'s seeded hash needs. Raw bounding-box height (root-space
+AABB via `glb_extents.mjs`): all 4 measure **Y = 2.700** identically (same
+shared rig) -- legs 0.0-1.0, torso 1.0-1.9, head 1.9-2.7 in the model's own
+native units; `characterScale()` (SetKit.tsx) derives each body's world scale
+as `CHARACTER_TARGET_HEIGHT(1.8) / 2.7 = 0.6667` automatically, same formula
+as before, no hardcoded scale added.
+
+Every `KitAgent.tsx#CLIP_TABLE` clip name this project's animation states use
+(`sit`, `emote-no`, `emote-yes`, `interact-right`, `interact-left`, `walk`,
+`idle`) is present verbatim on all 4 kept bodies -- zero substitute/fabricated
+clip names needed, a cleaner result than the retired Mini Characters pack's
+seated-pose gaps (see `KitAgent.tsx`'s own LIVE-1 item 2a comment).
+
+Total added: 4 files, 448,368 bytes (0.43 MB) under
+`kenney-blocky-characters/` -- well under the 3 MB session budget. The
+2,148,510-byte raw zip and the other 14 unused letters stay in the session
+scratchpad, never committed. `SetKit.tsx#CHARACTER_PACK = "blocky"` is the one
+flag switching KIT_PATHS/CHARACTER_BODY_IDS/CHARACTER_RAW_HEIGHT between the
+two packs -- flipping it back to `"mini"` is a complete, tested revert since
+every Mini Characters file stays on disk untouched (row 1 above).
 
 ## Update 2026-09-14 (MODELS builder, smart-board asset hunt)
 

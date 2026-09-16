@@ -9,13 +9,25 @@ import {
   pickCharacterBody, tintObjectMaterials, type CharacterBodyId,
 } from "./SetKit";
 
-// ─── HQ kit rebuild (2026-09-13) -- real rigged Kenney Mini Characters ──────
+// ─── HQ kit rebuild (2026-09-13) -- real rigged Kenney character bodies ─────
 // replacing Agent.tsx's procedural capsule/visor body. ULTRA TIER ONLY (see
 // Agent.tsx's own tier branch -- the TV tier keeps the existing procedural
 // body unchanged). Agent.tsx still owns ALL position/walk-phase state
 // (unchanged) and now also derives a coarse animation-state that drives
 // which baked clip plays here -- see the CLIP_TABLE export below, which
 // doubles as this file's own documentation of the event->clip mapping.
+//
+// BLOCKY-CHARACTERS swap (2026-09-15, J: "I don't like the current ones" --
+// Mini Characters' thin straight-arm rig read as "walking sticks"). Body
+// source is now Kenney's "Blocky Characters" (SetKit.tsx#CHARACTER_PACK) --
+// same useGLTF + SkeletonUtils.clone + useAnimations pipeline below, no
+// pipeline change needed. Every CLIP_TABLE name this file references
+// (sit/emote-no/emote-yes/interact-right/interact-left/walk/idle) was
+// re-verified present on the new pack by parsing each chosen GLB's own JSON
+// chunk this session (all 4 bodies share one identical animation list and
+// rig -- Kenney ships one shared skeleton across every "Blocky Characters"
+// letter, only the texture atlas differs) -- zero substitute clips needed,
+// unlike the Mini Characters pack's seated-pose gaps documented below.
 
 export type KitAnimState =
   | "resting-idle" | "resting-idle-look" | "resting-idle-nod"
@@ -23,11 +35,10 @@ export type KitAnimState =
   | "walking" | "alert" | "alert-pause" | "thinking";
 
 /** Event -> clip mapping (also quoted verbatim in the final task report).
- * Every clip name is verified present on all 3 bodies via manifest.json's
- * own per-character animation list -- no per-body existence guard needed
- * ("interact-right" confirmed present on character-male-b, the body Gamma
- * uses, by parsing the GLB's own JSON chunk this session -- not assumed
- * from the pack's generic marketing copy). `thinking` (Pass B, 2026-09-13):
+ * Every clip name is verified present on all 4 BLOCKY-CHARACTERS bodies
+ * (2026-09-15 pass) via a direct per-GLB JSON-chunk parse -- no per-body
+ * existence guard needed ("interact-right" confirmed present on
+ * character-b, the body Gamma uses, same way). `thinking` (Pass B, 2026-09-13):
  * Gamma's own state when brainVitals.gpu.util_pct > 30 -- the kit's
  * "interact" gesture reads as "working at the console" better than
  * `sit`+`resting-working`'s arm-typing loop (which GammaCharacter.tsx
@@ -35,7 +46,8 @@ export type KitAnimState =
  * the pack's own gesture clip instead).
  *
  * LIVE-1 item 2a (2026-09-14, J: "it still a 'Dead' world" -- seated
- * employees must never freeze): the pack's full 31-clip list (manifest.json)
+ * employees must never freeze): the (retired) Mini Characters pack's full
+ * 31-clip list (BLOCKY-CHARACTERS' own list is 27 clips, manifest.json)
  * has exactly one literal seated pose ("sit") -- no "type"/"stretch" clip
  * exists to seat-lock onto, so the -look/-nod/-type/-type-alt variants below
  * are the closest honest substitutes from the REAL clip set rather than a

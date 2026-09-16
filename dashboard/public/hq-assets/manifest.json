@@ -1,8 +1,8 @@
 {
   "generated": "2026-09-13",
   "generatedBy": "asset-curator worker session",
-  "updated": "2026-09-14",
-  "updatedBy": "WORLD-6 builder (W2 pass) -- added shuttle.glb/scifi-computer.glb/pipes-panel.glb (Quaternius, via poly.pizza's own static CDN mirror) and potted-plant.glb/plant-small.glb (Kenney Furniture Kit) for BaseProps.tsx/HubInterior.tsx/BayInterior.tsx. Prior entry: ENVIRONMENT builder (World-3 pass, J: \"grey abyss... space theme or a park or something real\") -- added 13 kenney-space-kit terrain/prop pieces (rocks, craters, dishes, rover, solar-support, pipes) for Ground.tsx/Rocks.tsx/BaseProps.tsx. See LICENSES.md's own updated verification note.",
+  "updated": "2026-09-15",
+  "updatedBy": "BLOCKY-CHARACTERS builder -- added kenney-blocky-characters/character-{a,b,c,e}.glb (Kenney \"Blocky Characters\" 2.0, CC0) replacing kenney-mini-characters as the active body pack (SetKit.tsx#CHARACTER_PACK=\"blocky\"; mini pack files stay on disk, untouched, for one-line revert). Prior entry: WORLD-6 builder (W2 pass) -- added shuttle.glb/scifi-computer.glb/pipes-panel.glb (Quaternius, via poly.pizza's own static CDN mirror) and potted-plant.glb/plant-small.glb (Kenney Furniture Kit) for BaseProps.tsx/HubInterior.tsx/BayInterior.tsx. Prior entry: ENVIRONMENT builder (World-3 pass, J: \"grey abyss... space theme or a park or something real\") -- added 13 kenney-space-kit terrain/prop pieces (rocks, craters, dishes, rover, solar-support, pipes) for Ground.tsx/Rocks.tsx/BaseProps.tsx. See LICENSES.md's own updated verification note.",
   "note": "Kept-file manifest for dashboard/public/hq-assets. All packs CC0 1.0 -- see LICENSES.md for full provenance. scaleHint on each character is (0.88 / rawBoundsHeight): 0.88 approximates the current procedural Agent.tsx body height (capsule top + visor) in this scene's own units -- a starting point to eyeball/tune visually, not a verified render.",
   "packs": [
     {
@@ -10,10 +10,24 @@
       "author": "Kenney",
       "license": "CC0-1.0",
       "sourceUrl": "https://kenney.nl/assets/mini-characters",
+      "note": "RETIRED as the active character pack 2026-09-15 (SetKit.tsx#CHARACTER_PACK=\"blocky\") -- files kept on disk, untouched, for one-line revert.",
       "files": [
         "character-male-a.glb",
         "character-female-a.glb",
         "character-male-b.glb"
+      ]
+    },
+    {
+      "slug": "kenney-blocky-characters",
+      "author": "Kenney",
+      "license": "CC0-1.0",
+      "sourceUrl": "https://kenney.nl/assets/blocky-characters",
+      "note": "ACTIVE character pack (SetKit.tsx#CHARACTER_PACK=\"blocky\", 2026-09-15). 4 of 18 letters kept (a/b/c/e -- office-appropriate, no weapon/armor variants); GLB format from the zip's Models/GLB format/ folder.",
+      "files": [
+        "character-a.glb",
+        "character-b.glb",
+        "character-c.glb",
+        "character-e.glb"
       ]
     },
     {
@@ -243,6 +257,62 @@
       ],
       "rawBoundsHeight": 0.6613,
       "scaleHint": 1.331
+    },
+    {
+      "file": "kenney-blocky-characters/character-a.glb",
+      "sizeBytes": 113596,
+      "animations": [
+        "static", "idle", "walk", "sprint", "sit", "drive", "die", "pick-up",
+        "emote-yes", "emote-no", "holding-right", "holding-left", "holding-both",
+        "holding-right-shoot", "holding-left-shoot", "holding-both-shoot",
+        "attack-melee-right", "attack-melee-left", "attack-kick-right", "attack-kick-left",
+        "interact-right", "interact-left", "wheelchair-sit", "wheelchair-move-forward",
+        "wheelchair-move-back", "wheelchair-move-left", "wheelchair-move-right"
+      ],
+      "rawBoundsHeight": 2.7,
+      "scaleHint": 0.6667
+    },
+    {
+      "file": "kenney-blocky-characters/character-b.glb",
+      "sizeBytes": 113596,
+      "animations": [
+        "static", "idle", "walk", "sprint", "sit", "drive", "die", "pick-up",
+        "emote-yes", "emote-no", "holding-right", "holding-left", "holding-both",
+        "holding-right-shoot", "holding-left-shoot", "holding-both-shoot",
+        "attack-melee-right", "attack-melee-left", "attack-kick-right", "attack-kick-left",
+        "interact-right", "interact-left", "wheelchair-sit", "wheelchair-move-forward",
+        "wheelchair-move-back", "wheelchair-move-left", "wheelchair-move-right"
+      ],
+      "rawBoundsHeight": 2.7,
+      "scaleHint": 0.6667
+    },
+    {
+      "file": "kenney-blocky-characters/character-c.glb",
+      "sizeBytes": 113580,
+      "animations": [
+        "static", "idle", "walk", "sprint", "sit", "drive", "die", "pick-up",
+        "emote-yes", "emote-no", "holding-right", "holding-left", "holding-both",
+        "holding-right-shoot", "holding-left-shoot", "holding-both-shoot",
+        "attack-melee-right", "attack-melee-left", "attack-kick-right", "attack-kick-left",
+        "interact-right", "interact-left", "wheelchair-sit", "wheelchair-move-forward",
+        "wheelchair-move-back", "wheelchair-move-left", "wheelchair-move-right"
+      ],
+      "rawBoundsHeight": 2.7,
+      "scaleHint": 0.6667
+    },
+    {
+      "file": "kenney-blocky-characters/character-e.glb",
+      "sizeBytes": 113596,
+      "animations": [
+        "static", "idle", "walk", "sprint", "sit", "drive", "die", "pick-up",
+        "emote-yes", "emote-no", "holding-right", "holding-left", "holding-both",
+        "holding-right-shoot", "holding-left-shoot", "holding-both-shoot",
+        "attack-melee-right", "attack-melee-left", "attack-kick-right", "attack-kick-left",
+        "interact-right", "interact-left", "wheelchair-sit", "wheelchair-move-forward",
+        "wheelchair-move-back", "wheelchair-move-left", "wheelchair-move-right"
+      ],
+      "rawBoundsHeight": 2.7,
+      "scaleHint": 0.6667
     }
   ],
   "props": [

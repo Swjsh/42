@@ -90,7 +90,9 @@ function hhmmEt(ms: number): string {
  * reusing Agent.tsx -- Gamma never walks (Agent's whole state machine is
  * walk-phase plumbing this character doesn't need) and needs her own
  * speech-bubble content logic Agent.tsx has no notion of. Body is FORCED to
- * "character-male-b" (the brief's own spec) via KitAgentBody's
+ * a specific pack body ("character-b" under the BLOCKY-CHARACTERS pack,
+ * 2026-09-15 -- was "character-male-b" under the retired Mini Characters
+ * pack, see SetKit.tsx#CHARACTER_PACK) via KitAgentBody's
  * `forceBodyId`, bypassing the deterministic-per-seed pick every other
  * character uses -- Gamma is not "a random lane's agent," she's a specific
  * person. Reuses the exact same DeskCluster/BAY_SEAT_LOCAL/
@@ -197,7 +199,7 @@ export default function GammaCharacter({
         <Suspense fallback={null}>
           <KitAgentBody
             laneSeed="gamma-manager"
-            forceBodyId="character-male-b"
+            forceBodyId="character-b"
             animState={animState}
             accentColor={accentColor}
             frozen={gaming}

@@ -39,12 +39,56 @@ import {
 
 const KIT_BASE = "/hq-assets";
 
-export const KIT_PATHS = {
-  characters: {
-    "character-male-a": `${KIT_BASE}/kenney-mini-characters/character-male-a.glb`,
-    "character-female-a": `${KIT_BASE}/kenney-mini-characters/character-female-a.glb`,
-    "character-male-b": `${KIT_BASE}/kenney-mini-characters/character-male-b.glb`,
+// ─── BLOCKY-CHARACTERS swap (2026-09-15, J live: "find different character
+// models, I don't like the current ones" -- the Mini Characters' thin
+// straight-line arms read as "walking sticks"). Kenney's "Blocky Characters"
+// (2.0, CC0, see LICENSES.md row 11) replaces the body geometry only --
+// same GLB-per-body / useGLTF / SkeletonUtils.clone pipeline in KitAgent.tsx,
+// same CLIP_TABLE event names in that file (every clip this project uses --
+// sit/emote-no/emote-yes/interact-right/interact-left/walk/idle -- verified
+// present via this session's own GLB JSON-chunk parse, see the task report;
+// no substitute names needed). CHARACTER_PACK is the ONE flag a future
+// revert flips: back to "mini" restores the old KIT_PATHS.characters/
+// CHARACTER_BODY_IDS/CHARACTER_RAW_HEIGHT below unchanged (still present,
+// commented, on disk under kenney-mini-characters/ -- never deleted).
+export const CHARACTER_PACK: "blocky" | "mini" = "blocky";
+
+const CHARACTER_PACKS = {
+  blocky: {
+    characters: {
+      "character-a": `${KIT_BASE}/kenney-blocky-characters/character-a.glb`,
+      "character-b": `${KIT_BASE}/kenney-blocky-characters/character-b.glb`,
+      "character-c": `${KIT_BASE}/kenney-blocky-characters/character-c.glb`,
+      "character-e": `${KIT_BASE}/kenney-blocky-characters/character-e.glb`,
+    },
+    // Raw bounding-box height (Y axis), parsed from each GLB's own node-tree
+    // AABB this session (dashboard/scripts/glb_extents.mjs) -- all 4 chosen
+    // bodies share the identical rest-pose rig (Kenney ships one shared
+    // skeleton across every "Blocky Characters" letter, only the texture
+    // atlas differs), so all 4 raw heights are the same measured value.
+    rawHeight: {
+      "character-a": 2.7,
+      "character-b": 2.7,
+      "character-c": 2.7,
+      "character-e": 2.7,
+    },
   },
+  mini: {
+    characters: {
+      "character-male-a": `${KIT_BASE}/kenney-mini-characters/character-male-a.glb`,
+      "character-female-a": `${KIT_BASE}/kenney-mini-characters/character-female-a.glb`,
+      "character-male-b": `${KIT_BASE}/kenney-mini-characters/character-male-b.glb`,
+    },
+    rawHeight: {
+      "character-male-a": 0.671,
+      "character-female-a": 0.7755,
+      "character-male-b": 0.6613,
+    },
+  },
+} as const;
+
+export const KIT_PATHS = {
+  characters: CHARACTER_PACKS[CHARACTER_PACK].characters,
   furniture: {
     table: `${KIT_BASE}/kenney-space-station-kit/table.glb`,
     chair: `${KIT_BASE}/kenney-space-station-kit/chair.glb`,
@@ -101,17 +145,14 @@ export const KIT_PATHS = {
 } as const;
 
 export type CharacterBodyId = keyof typeof KIT_PATHS.characters;
-export const CHARACTER_BODY_IDS: CharacterBodyId[] = ["character-male-a", "character-female-a", "character-male-b"];
+export const CHARACTER_BODY_IDS = Object.keys(KIT_PATHS.characters) as CharacterBodyId[];
 
-// Raw bounding-box height (Y axis), parsed from each GLB's own POSITION
-// accessor min/max this session -- see HQ-SCENE-PLAN.md. Used to derive a
-// per-body scale that lands every body at the SAME 1.8-unit standing height
-// despite their slightly different native proportions.
-export const CHARACTER_RAW_HEIGHT: Record<CharacterBodyId, number> = {
-  "character-male-a": 0.671,
-  "character-female-a": 0.7755,
-  "character-male-b": 0.6613,
-};
+// Raw bounding-box height (Y axis), parsed from each GLB's own node-tree AABB
+// this session (blocky) / POSITION accessor min/max (mini, HQ-SCENE-PLAN.md).
+// Used to derive a per-body scale that lands every body at the SAME 1.8-unit
+// standing height despite their slightly different native proportions.
+export const CHARACTER_RAW_HEIGHT: Record<CharacterBodyId, number> =
+  CHARACTER_PACKS[CHARACTER_PACK].rawHeight as Record<CharacterBodyId, number>;
 
 export const CHARACTER_TARGET_HEIGHT = 1.8;
 
