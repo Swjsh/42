@@ -162,7 +162,10 @@ export default function GammaCharacter({
   // DECLUTTER pass: Gamma never walks -- bubbleWorld is stable per render,
   // so the getter can just close over it directly (no ref indirection
   // needed the way a moving Agent/LiveAgentAvatar requires).
-  const { wrapperRef: declutterRef, measureRef: declutterMeasureRef } = useLabelDeclutter("gamma", PRIORITY.GAMMA, () => bubbleWorld);
+  // U5-LEGIBLE-LABELS (2026-09-16): Gamma's own head label is answer-
+  // bearing (identity, not decoration) -- see labelDeclutter.ts's own
+  // `LabelRect.mustStayLegible` header.
+  const { wrapperRef: declutterRef, measureRef: declutterMeasureRef } = useLabelDeclutter("gamma", PRIORITY.GAMMA, () => bubbleWorld, undefined, true);
   // Same on-screen size policy as every other head bubble (bubbleText.ts#
   // bubbleCounterScale): ref mutation in useFrame, never React state.
   const bubbleWrapRef = useRef<HTMLDivElement>(null);

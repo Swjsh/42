@@ -78,6 +78,29 @@ export interface LabelRect {
    * orderKey in the same group, after collision offsets are applied. See
    * `enforceGroupOrder` below for the exact guarantee. */
   orderKey?: number;
+  /** LEGIBLE-LABELS fix (2026-09-16, real probe FAIL U5: "live-agent head
+   * label not legible on the default view" -- a live agent standing at its
+   * core stand slot in the camera->monitor sightline had its head label
+   * faded to 0 by the SCREEN-KEEP-OUT HARDENING above, because a capped
+   * nudge could not clear the screen rect within `maxNudgePx`). ROOT CAUSE:
+   * the screen keep-out (see `ObstacleRect.isScreen`'s own header) is
+   * correct for DECORATIVE labels -- a level plaque or lane sign quietly
+   * fading rather than occluding the monitor face is the right call -- but
+   * for an "answer-bearing" label (a live agent's own identity, a persona's
+   * head label, a desk nameplate, the BRAIN plaque) fading is not an
+   * acceptable outcome: the whole point of the label is to say WHO this is,
+   * and a legible-but-elsewhere label beats an invisible one every time.
+   * When true, `resolveLabelOffsets` below gives this label a much larger
+   * nudge budget (MUST_STAY_LEGIBLE_MAX_NUDGE_PX, not the caller's
+   * `maxNudgePx`) and tries the vertical axis, then the lateral axis, at
+   * that larger budget BEFORE falling back to the normal smaller-
+   * displacement axis choice -- and never fades this label to 0/fadeOpacity
+   * for a screen (or any) obstacle collision, even if the larger nudge still
+   * doesn't fully clear (best-effort placement beats invisibility). Default
+   * undefined/false preserves every existing label's exact prior behavior
+   * (decorative labels still fade past the cap, screens still win a
+   * collision, nothing about non-flagged labels changes). */
+  mustStayLegible?: boolean;
 }
 
 /** A fixed DOM rect the resolver must never place a label on top of, but
@@ -150,6 +173,16 @@ export const PRIORITY = {
 export const DEFAULT_MAX_NUDGE_PX = 60;
 export const DEFAULT_FADE_OPACITY = 0.35;
 const NUDGE_STEP_PX = 6;
+
+// LEGIBLE-LABELS fix (2026-09-16) -- see `LabelRect.mustStayLegible`'s own
+// header for the full evidence. This budget is deliberately far larger than
+// the tallest realistic on-screen obstacle (a projected TwinMonitors screen
+// rect at the overview camera distance, per this file's own capture
+// evidence, rarely exceeds a few hundred px) so a flagged label almost
+// always finds room above/beside the glass rather than merely getting
+// closer and still fading -- see the resolver's own "best-effort placement
+// beats invisibility" fallback below for the rare case it still can't.
+export const MUST_STAY_LEGIBLE_MAX_NUDGE_PX = 600;
 
 // LEGIBILITY-FLOOR fix (2026-09-15, real-probe evidence: hq_live_probe.py
 // --plausibility, label_legibility FAIL 20 violation(s), first violation
@@ -459,40 +492,77 @@ export function resolveLabelOffsets(
       continue;
     }
 
-    const yTry = resolveAxis(rect, placed, "y", maxNudgePx);
-    const xTry = resolveAxis(rect, placed, "x", maxNudgePx);
-    // Prefer whichever axis actually CLEARED the collision; between two
-    // that both cleared (or neither did), take the smaller displacement --
-    // ties go to Y (this file's own historical default, and the natural
-    // read for a stack of bubbles above one head). See this file's own
-    // header for why the axis choice matters for the real overview-camera
-    // side-by-side case this fix targets.
+    // LEGIBLE-LABELS fix (2026-09-16, see `LabelRect.mustStayLegible`'s own
+    // header): an answer-bearing label gets its own much larger nudge
+    // budget and a strict "vertical, then lateral" resolution order --
+    // never the normal smaller-displacement axis race -- and is never
+    // faded for failing to clear, even at that larger budget (best-effort
+    // placement beats invisibility). Every other label keeps the exact
+    // pre-existing algorithm below, byte-for-byte.
     let axis: "x" | "y";
-    if (yTry.cleared && xTry.cleared) axis = yTry.value <= xTry.value ? "y" : "x";
-    else if (yTry.cleared) axis = "y";
-    else if (xTry.cleared) axis = "x";
-    else axis = yTry.value <= xTry.value ? "y" : "x";
+    let chosen: { value: number; cleared: boolean };
+    let dx: number;
+    let dy: number;
+    let opacity: number;
 
-    const chosen = axis === "y" ? yTry : xTry;
-    const dx = axis === "x" ? chosen.value : 0;
-    const dy = axis === "y" ? chosen.value : 0;
-    placed.push({ rect, dx, dy });
-    // SCREEN-KEEP-OUT HARDENING (see ObstacleRect.isScreen's own header):
-    // a label that is STILL colliding with a screen specifically after the
-    // capped nudge fades all the way to 0, never the generic fadeOpacity --
-    // partial-opacity clutter sitting on a readable monitor face is still a
-    // counted violation downstream (hq_probe_lib.py's opacity>=0.05 floor),
-    // so "did its best" is not good enough for THIS obstacle kind. A label
-    // that only failed to clear another LABEL, or a non-screen (HUD)
-    // obstacle, keeps the original fadeOpacity behavior unchanged.
-    let opacity = 1;
-    if (!chosen.cleared) {
-      const stillOverlapsScreen = placed.some(
-        (p) =>
-          p.isScreenObstacle &&
-          rectsOverlap(rect.x + dx, rect.y + dy, rect.width, rect.height, p.rect.x + p.dx, p.rect.y + p.dy, p.rect.width, p.rect.height),
-      );
-      opacity = stillOverlapsScreen ? 0 : fadeOpacity;
+    if (rect.mustStayLegible) {
+      const yTry = resolveAxis(rect, placed, "y", MUST_STAY_LEGIBLE_MAX_NUDGE_PX);
+      if (yTry.cleared) {
+        axis = "y";
+        chosen = yTry;
+      } else {
+        const xTry = resolveAxis(rect, placed, "x", MUST_STAY_LEGIBLE_MAX_NUDGE_PX);
+        if (xTry.cleared) {
+          axis = "x";
+          chosen = xTry;
+        } else {
+          // Neither axis fully cleared even at the larger budget -- take
+          // whichever got closer (smaller residual overlap is still a
+          // better outcome than the untried axis) and stay fully opaque
+          // per this label's own "never fade" contract.
+          axis = yTry.value <= xTry.value ? "y" : "x";
+          chosen = axis === "y" ? yTry : xTry;
+        }
+      }
+      dx = axis === "x" ? chosen.value : 0;
+      dy = axis === "y" ? chosen.value : 0;
+      opacity = 1;
+      placed.push({ rect, dx, dy });
+    } else {
+      const yTry = resolveAxis(rect, placed, "y", maxNudgePx);
+      const xTry = resolveAxis(rect, placed, "x", maxNudgePx);
+      // Prefer whichever axis actually CLEARED the collision; between two
+      // that both cleared (or neither did), take the smaller displacement --
+      // ties go to Y (this file's own historical default, and the natural
+      // read for a stack of bubbles above one head). See this file's own
+      // header for why the axis choice matters for the real overview-camera
+      // side-by-side case this fix targets.
+      if (yTry.cleared && xTry.cleared) axis = yTry.value <= xTry.value ? "y" : "x";
+      else if (yTry.cleared) axis = "y";
+      else if (xTry.cleared) axis = "x";
+      else axis = yTry.value <= xTry.value ? "y" : "x";
+
+      chosen = axis === "y" ? yTry : xTry;
+      dx = axis === "x" ? chosen.value : 0;
+      dy = axis === "y" ? chosen.value : 0;
+      placed.push({ rect, dx, dy });
+      // SCREEN-KEEP-OUT HARDENING (see ObstacleRect.isScreen's own header):
+      // a label that is STILL colliding with a screen specifically after the
+      // capped nudge fades all the way to 0, never the generic fadeOpacity --
+      // partial-opacity clutter sitting on a readable monitor face is still a
+      // counted violation downstream (hq_probe_lib.py's opacity>=0.05 floor),
+      // so "did its best" is not good enough for THIS obstacle kind. A label
+      // that only failed to clear another LABEL, or a non-screen (HUD)
+      // obstacle, keeps the original fadeOpacity behavior unchanged.
+      opacity = 1;
+      if (!chosen.cleared) {
+        const stillOverlapsScreen = placed.some(
+          (p) =>
+            p.isScreenObstacle &&
+            rectsOverlap(rect.x + dx, rect.y + dy, rect.width, rect.height, p.rect.x + p.dx, p.rect.y + p.dy, p.rect.width, p.rect.height),
+        );
+        opacity = stillOverlapsScreen ? 0 : fadeOpacity;
+      }
     }
     out.set(rect.id, { dx, dy, opacity });
   }

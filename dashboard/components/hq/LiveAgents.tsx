@@ -1200,7 +1200,13 @@ function LiveAgentAvatar({
     },
     [bubbleY],
   );
-  const { wrapperRef: declutterRef, measureRef: declutterMeasureRef } = useLabelDeclutter(`live:${liveAgentId}`, PRIORITY.LIVE_AGENT, declutterWorldPos);
+  // U5-LEGIBLE-LABELS (2026-09-16, real probe FAIL U5: a live agent
+  // standing at its core stand slot in the camera->monitor sightline had
+  // its head label faded to 0 by the screen keep-out): a live-agent label
+  // is answer-bearing (identity, not decoration) -- see labelDeclutter.ts's
+  // own `LabelRect.mustStayLegible` header for why it nudges clear of the
+  // screen instead of fading.
+  const { wrapperRef: declutterRef, measureRef: declutterMeasureRef } = useLabelDeclutter(`live:${liveAgentId}`, PRIORITY.LIVE_AGENT, declutterWorldPos, undefined, true);
 
   return (
     <group ref={group}>

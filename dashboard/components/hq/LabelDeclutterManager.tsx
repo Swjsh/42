@@ -234,7 +234,7 @@ export default function LabelDeclutterManager(): null {
       measured.set(entry.id, { naturalX, naturalY, width: measureRect.width, height: measureRect.height, scale: ancestorScale });
       rects.push({
         id: entry.id, priority: entry.priority, distance, x: naturalX, y: naturalY, width: measureRect.width, height: measureRect.height,
-        orderGroup: entry.orderGroup, orderKey: entry.orderKey,
+        orderGroup: entry.orderGroup, orderKey: entry.orderKey, mustStayLegible: entry.mustStayLegible,
       });
     }
 

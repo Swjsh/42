@@ -60,6 +60,15 @@ export interface RegisteredLabel {
    * no such constraint. */
   orderGroup?: string;
   orderKey?: number;
+  /** LEGIBLE-LABELS fix (2026-09-16) -- forwarded verbatim to
+   * `LabelRect.mustStayLegible` (see that field's own comment in
+   * labelDeclutter.ts for the full evidence + resolver behavior). True for
+   * answer-bearing labels (live-agent/persona head labels, desk nameplates,
+   * the BRAIN plaque) registered with that flag via `useLabelDeclutter`'s
+   * own new parameter below; undefined/false for every decorative label
+   * (HoloChart's level/trade/summary/session plaques), which keeps the
+   * pre-existing fade-past-cap behavior unchanged. */
+  mustStayLegible?: boolean;
   /** Local, per-label smoothing state -- the manager owns writing this, no
    * caller ever reads or sets it. Kept ON the registry entry (not a
    * separate Map keyed by id) so a label that unmounts and remounts under
@@ -98,6 +107,7 @@ export function useLabelDeclutter(
   priority: number,
   getWorldPos: () => THREE.Vector3 | [number, number, number],
   order?: { orderGroup: string; orderKey: number },
+  mustStayLegible?: boolean,
 ): { wrapperRef: RefObject<HTMLDivElement | null>; measureRef: RefObject<HTMLDivElement | null> } {
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const measureRef = useRef<HTMLDivElement | null>(null);
@@ -111,6 +121,8 @@ export function useLabelDeclutter(
   priorityRef.current = priority;
   const orderRef = useRef(order);
   orderRef.current = order;
+  const mustStayLegibleRef = useRef(mustStayLegible);
+  mustStayLegibleRef.current = mustStayLegible;
 
   useEffect(() => {
     const entry: RegisteredLabel = {
@@ -123,6 +135,9 @@ export function useLabelDeclutter(
       },
       get orderKey() {
         return orderRef.current?.orderKey;
+      },
+      get mustStayLegible() {
+        return mustStayLegibleRef.current;
       },
       wrapperRef,
       measureRef,

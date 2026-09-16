@@ -756,3 +756,93 @@ test("legibility floor never disturbs unrelated legible labels sharing a tick", 
   assert.equal(out.get("tiny")!.opacity, 0);
   assert.equal(out.get("legible")!.opacity, 1);
 });
+
+// ─── U5-LEGIBLE-LABELS (2026-09-16, real probe FAIL U5: "live-agent head
+// label not legible on the default view" -- a live agent standing at its
+// core stand slot in the camera->monitor sightline had its head label faded
+// to 0 by the SCREEN-KEEP-OUT HARDENING above). See labelDeclutter.ts's own
+// `LabelRect.mustStayLegible` header for the full root cause + fix: an
+// answer-bearing label (mustStayLegible: true) gets a much larger nudge
+// budget and is NEVER faded for a screen collision, while a decorative
+// label at the identical spot keeps the pre-existing fade behavior exactly
+// as the two tests above already pin.
+test("mustStayLegible: a label centred on a screen rect resolves to opacity 1 and fully outside the rect", () => {
+  const screen = screenObstacle("screen-twin-monitor-core", 500, 300, 400, 300);
+  const centerX = screen.x + screen.width / 2;
+  const centerY = screen.y + screen.height / 2;
+  const liveAgent: LabelRect = {
+    id: "live:session-d4259a2a",
+    priority: PRIORITY.LIVE_AGENT,
+    distance: 8,
+    x: centerX - 40,
+    y: centerY - 12,
+    width: 80,
+    height: 24,
+    mustStayLegible: true,
+  };
+
+  const out = resolveLabelOffsets([liveAgent], DEFAULT_MAX_NUDGE_PX, DEFAULT_FADE_OPACITY, [screen]);
+  const o = out.get(liveAgent.id)!;
+  const finalX = liveAgent.x + o.dx;
+  const finalY = liveAgent.y + o.dy;
+  const stillOverlapsScreen =
+    finalX < screen.x + screen.width && finalX + liveAgent.width > screen.x &&
+    finalY < screen.y + screen.height && finalY + liveAgent.height > screen.y;
+
+  assert.equal(o.opacity, 1, "an answer-bearing label must never fade for a screen collision");
+  assert.ok(!stillOverlapsScreen, "an answer-bearing label must fully clear the screen's own rect given the larger nudge budget");
+});
+
+test("mustStayLegible does not regress the decorative fade: a non-flagged label in the identical spot still fades fully to 0", () => {
+  const screen = screenObstacle("screen-twin-monitor-core", 500, 300, 400, 300);
+  const centerX = screen.x + screen.width / 2;
+  const centerY = screen.y + screen.height / 2;
+  const decorative = rect("holo-level:resistance:757.44", PRIORITY.PLAQUE, 8, centerX - 40, centerY - 12, 80, 24);
+
+  const out = resolveLabelOffsets([decorative], DEFAULT_MAX_NUDGE_PX, DEFAULT_FADE_OPACITY, [screen]);
+  const o = out.get(decorative.id)!;
+  assert.equal(o.opacity, 0, "a decorative label (no mustStayLegible flag) must keep the pre-existing screen-keep-out fade-to-0 behavior");
+});
+
+test("mustStayLegible resolves vertical-first: a clean vertical clear is preferred over a lateral one even when lateral would be smaller", () => {
+  // A screen that is WIDE (small vertical travel needed) but the label sits
+  // dead-center, so a small dy would clear it -- assert the chosen axis is
+  // "y" (dx===0) even though the resolver tries y before x in the
+  // mustStayLegible branch regardless of relative displacement size.
+  const screen = screenObstacle("screen-wide", 0, 0, 1000, 40);
+  const label: LabelRect = {
+    id: "live:vertical-check",
+    priority: PRIORITY.LIVE_AGENT,
+    distance: 5,
+    x: 460,
+    y: 10,
+    width: 80,
+    height: 20,
+    mustStayLegible: true,
+  };
+  const out = resolveLabelOffsets([label], DEFAULT_MAX_NUDGE_PX, DEFAULT_FADE_OPACITY, [screen]);
+  const o = out.get(label.id)!;
+  assert.equal(o.dx, 0, "vertical-first resolution: dx must stay 0 when the vertical axis alone clears the screen");
+  assert.ok(o.dy !== 0, "the label must have moved along the vertical axis to clear the screen");
+  assert.equal(o.opacity, 1);
+});
+
+test("mustStayLegible falls back to lateral when vertical alone cannot clear within the larger budget", () => {
+  // A screen that is TALL (vertical travel would exceed even the larger
+  // mustStayLegible budget) but narrow, so lateral clears easily.
+  const screen = screenObstacle("screen-tall", 400, -2000, 200, 4000);
+  const label: LabelRect = {
+    id: "live:lateral-check",
+    priority: PRIORITY.LIVE_AGENT,
+    distance: 5,
+    x: 460,
+    y: 10,
+    width: 80,
+    height: 20,
+    mustStayLegible: true,
+  };
+  const out = resolveLabelOffsets([label], DEFAULT_MAX_NUDGE_PX, DEFAULT_FADE_OPACITY, [screen]);
+  const o = out.get(label.id)!;
+  assert.ok(o.dx !== 0, "must fall back to the lateral axis once vertical cannot clear a screen this tall");
+  assert.equal(o.opacity, 1, "still never fades even after falling back to the lateral axis");
+});

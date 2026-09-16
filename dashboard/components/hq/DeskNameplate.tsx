@@ -94,7 +94,10 @@ export default function DeskNameplate({ name, position, glyph, glyphTitle, detai
   );
   const declutterId = `persona:${name}`;
   const declutterWorldPos = useMemo(() => () => headWorldPos, [headWorldPos]);
-  const { wrapperRef: declutterRef, measureRef: declutterMeasureRef } = useLabelDeclutter(declutterId, PRIORITY.PERSONA, declutterWorldPos);
+  // U5-LEGIBLE-LABELS (2026-09-16): a desk nameplate is answer-bearing
+  // (identity, not decoration) -- see labelDeclutter.ts's own
+  // `LabelRect.mustStayLegible` header.
+  const { wrapperRef: declutterRef, measureRef: declutterMeasureRef } = useLabelDeclutter(declutterId, PRIORITY.PERSONA, declutterWorldPos, undefined, true);
 
   // Camera-distance fade + counter-scale -- identical policy to every other
   // label producer's own updateBubbleFade (see this file's own import

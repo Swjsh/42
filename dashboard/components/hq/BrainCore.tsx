@@ -236,10 +236,16 @@ export default function BrainCore({
   // own scope (smallest-correct-change). World position is static (PLAQUE_Y
   // scaled by this component's own outer CORE_GROUP_SCALE, matching
   // bubbleCounterScale's own worldY convention just above).
+  // U5-LEGIBLE-LABELS (2026-09-16): the BRAIN plaque is answer-bearing
+  // (identity/status, not decoration) -- see labelDeclutter.ts's own
+  // `LabelRect.mustStayLegible` header for why it nudges clear of a screen
+  // instead of fading.
   const { wrapperRef: declutterRef, measureRef: declutterMeasureRef } = useLabelDeclutter(
     "brain-plaque",
     PRIORITY.PLAQUE,
     () => [0, PLAQUE_Y * CORE_GROUP_SCALE, 0] as [number, number, number],
+    undefined,
+    true,
   );
   // LABELS pass (2026-09-15): the separate floating "MEM ... MiB" readout
   // (Queue item h's own gauge-declutter registration, below the core) is
@@ -270,10 +276,14 @@ export default function BrainCore({
   // only exists then) -- registering/unregistering on mount/unmount is
   // exactly what useLabelDeclutter.ts's own cleanup already handles (see
   // its header: "a label that unmounts and remounts... starts fresh").
+  // U5-LEGIBLE-LABELS (2026-09-16): same answer-bearing rationale as the
+  // main plaque above.
   const { wrapperRef: pulseDeclutterRef, measureRef: pulseDeclutterMeasureRef } = useLabelDeclutter(
     "brain-pulse-plaque",
     PRIORITY.PLAQUE,
     () => [0, PULSE_PLAQUE_Y * CORE_GROUP_SCALE, 0] as [number, number, number],
+    undefined,
+    true,
   );
 
   const utilFrac = clamp01((utilPct ?? 0) / 100);
