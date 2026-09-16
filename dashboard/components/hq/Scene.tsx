@@ -382,7 +382,16 @@ const ARC_CENTER_NUDGE = (10 * Math.PI) / 180;
 // now would let two nameplates that sit 1.994u apart (visually close,
 // even though their DESKS no longer touch per the new >=1.5u edge gap)
 // render on top of each other again. Left in place, unchanged.
-const NAMEPLATE_COLLISION_CLEARANCE = 2.0;
+// 2026-09-16 03:0x ET (orchestrator): the usability audit (U4) FAILed
+// deterministically 5/5 with missing_label ["Pilot","Analyst"] -- both
+// IDLE, both sitting 1.994u from an occupied corner neighbour, so this
+// 2.0u rule hid their nameplates and the default view could no longer
+// answer "what is Pilot doing?". The nameplate is a declutter-managed
+// label (LabelDeclutterManager nudges overlapping labels apart), so the
+// suppression only needs to cover genuinely co-located desks: 1.5u
+// (= the layout's own minimum desk edge gap) keeps the old protection
+// for any future <1.5u collision while letting the corner pairs show.
+const NAMEPLATE_COLLISION_CLEARANCE = 1.5;
 // ARC_CENTER is still "the direction that faces the camera most directly"
 // -- Gamma's own desk (gammaDeskCenter below, UNCHANGED by this pass) and
 // BrainCore both anchor off it. ARC_SPAN (the old 230deg lane-ring arc this
