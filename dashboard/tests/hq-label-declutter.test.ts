@@ -24,9 +24,11 @@ import assert from "node:assert/strict";
 import {
   DEFAULT_FADE_OPACITY,
   DEFAULT_MAX_NUDGE_PX,
+  MIN_LEGIBLE_PX,
   PRIORITY,
   resolveLabelOffsets,
   rectsOverlap,
+  isBelowLegibilityFloor,
   smoothLabelOffset,
   smoothLabelOffsetAvoidingOverlap,
   type LabelRect,
@@ -581,4 +583,60 @@ test("orderGroup/orderKey: longer level-interaction plaque text ('N touches · h
       assert.ok(!overlap, `${ri.id} and ${rj.id} still overlap at the new longer widths (${ri.width}px/${rj.width}px)`);
     }
   }
+});
+
+// ─── LEGIBILITY-FLOOR (2026-09-15, real-probe evidence: hq_live_probe.py
+// --plausibility, label_legibility FAIL 20 violations, first
+// `{'text': '757.38 · last close', 'height_px': 7.77}`) ────────────────────
+
+test("isBelowLegibilityFloor: matches MIN_LEGIBLE_PX exactly, boundary is exclusive", () => {
+  assert.equal(isBelowLegibilityFloor(7.77), true);
+  assert.equal(isBelowLegibilityFloor(MIN_LEGIBLE_PX), false); // exactly-at-floor is legible
+  assert.equal(isBelowLegibilityFloor(MIN_LEGIBLE_PX - 0.01), true);
+  assert.equal(isBelowLegibilityFloor(24), false);
+});
+
+test("legibility floor: a label measured under MIN_LEGIBLE_PX fades to opacity 0 even with zero collisions", () => {
+  const tiny = rect("holo-lastclose", PRIORITY.PLAQUE, 50, 0, 0, 120, 7.77);
+  const out = resolveLabelOffsets([tiny]);
+  const o = out.get("holo-lastclose")!;
+  assert.equal(o.opacity, 0);
+  assert.equal(o.dx, 0, "legibility fade never nudges position, only opacity");
+  assert.equal(o.dy, 0);
+});
+
+test("legibility floor: a label at/above MIN_LEGIBLE_PX is unaffected (no floor false-positive)", () => {
+  const ok = rect("holo-level:support:757.93", PRIORITY.PLAQUE, 50, 0, 0, 120, 24);
+  const out = resolveLabelOffsets([ok]);
+  assert.equal(out.get("holo-level:support:757.93")!.opacity, 1);
+});
+
+test("legibility floor overrides a collision-clear result (opacity 1 from clearing does not un-fade a too-small label)", () => {
+  const tinyA = rect("a", PRIORITY.PLAQUE, 10, 0, 0, 100, 6);
+  const tinyB = rect("b", PRIORITY.PERSONA, 12, 500, 500, 100, 6); // far away, no collision
+  const out = resolveLabelOffsets([tinyA, tinyB]);
+  assert.equal(out.get("a")!.opacity, 0);
+  assert.equal(out.get("b")!.opacity, 0);
+});
+
+test("legibility floor composes with the fade-past-cap case: still opacity 0, not double-counted", () => {
+  const a = rect("a", PRIORITY.LIVE_AGENT, 10, 0, 0, 100, 5);
+  const b = rect("b", PRIORITY.PLAQUE, 12, 0, 0, 100, 5); // fully overlapping, tiny, and will fade past cap too
+  const out = resolveLabelOffsets([a, b], 0, DEFAULT_FADE_OPACITY); // maxNudgePx=0 forces b to fade-past-cap
+  assert.equal(out.get("a")!.opacity, 0, "below floor even though it never collided");
+  assert.equal(out.get("b")!.opacity, 0, "below floor beats the 0.35 fade-past-cap opacity");
+});
+
+test("legibilityFloorPx=0 disables the floor entirely (opt-out param, for callers that never want it)", () => {
+  const tiny = rect("a", PRIORITY.PLAQUE, 10, 0, 0, 100, 5);
+  const out = resolveLabelOffsets([tiny], DEFAULT_MAX_NUDGE_PX, DEFAULT_FADE_OPACITY, [], 0);
+  assert.equal(out.get("a")!.opacity, 1);
+});
+
+test("legibility floor never disturbs unrelated legible labels sharing a tick", () => {
+  const tiny = rect("tiny", PRIORITY.PLAQUE, 10, 0, 0, 100, 6);
+  const legible = rect("legible", PRIORITY.PERSONA, 12, 800, 800, 100, 24);
+  const out = resolveLabelOffsets([tiny, legible]);
+  assert.equal(out.get("tiny")!.opacity, 0);
+  assert.equal(out.get("legible")!.opacity, 1);
 });

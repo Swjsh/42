@@ -97,6 +97,31 @@ export interface ScreenInfo {
   readable: boolean;
 }
 
+/** A screen face already projected into 2D viewport-pixel space for this
+ * frame (SCREEN-KEEP-OUT pass, 2026-09-15) -- same coordinate convention as
+ * the DOM label rects hq_live_probe.py's `.hq-beam` query already captures
+ * (x,y = top-left corner, CSS pixels). Computed browser-side (needs the
+ * live camera's real projection matrix + current viewport size, see
+ * computeScreenViewportRect below), consumed by the PURE
+ * checkLabelScreenOverlap so the actual FAIL/PASS math stays unit-testable
+ * without three.js or a DOM. */
+export interface ScreenViewportRect {
+  id: string;
+  label: string;
+  readable: boolean;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+export interface ViewportLabelRect {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 export interface CameraInfo {
   position: Vec3;
 }
@@ -328,14 +353,50 @@ export function checkScreenFacing(screens: ScreenInfo[], liveCamera: CameraInfo,
   };
 }
 
-export function checkDeskClearance(desks: ObjectAabb[], slabs: WallSlab[], allFurniture: ObjectAabb[], minClearanceU = 1.0): CheckResult {
+/** Back-wall clearance band, u: a desk genuinely backed against a wall
+ * (DESKS-AGAINST-WALLS pass) should sit CLOSE to it (0.2-0.6u, "against it,
+ * not floating away") -- the OLD blanket "clearance >= 1.0u from ANY wall"
+ * rule (still the default below, `backWallBandU` undefined) would FAIL a
+ * correctly-placed against-the-wall desk on its own near wall, which is
+ * exactly backwards from what "backed against the wall" means. */
+export interface WallBand {
+  min: number;
+  max: number;
+}
+
+export function checkDeskClearance(
+  desks: ObjectAabb[],
+  slabs: WallSlab[],
+  allFurniture: ObjectAabb[],
+  minClearanceU = 1.0,
+  backWallBandU?: WallBand,
+): CheckResult {
   if (desks.length === 0) return { verdict: "NO-DATA", detail: { reason: "no desks supplied" } };
   const violations: Array<{ id: string; issue: string; valueU: number }> = [];
   for (const desk of desks) {
     let minWallDist = Infinity;
     for (const slab of slabs) minWallDist = Math.min(minWallDist, aabbDistance(desk.aabb, slab.aabb));
-    if (Number.isFinite(minWallDist) && minWallDist < minClearanceU) {
-      violations.push({ id: desk.id, issue: "closer than min wall clearance", valueU: Math.round(minWallDist * 1000) / 1000 });
+    if (Number.isFinite(minWallDist)) {
+      if (backWallBandU) {
+        // The nearest wall IS this desk's own back wall by construction (it
+        // was placed to sit close to exactly one) -- band-check that one,
+        // then require every OTHER wall (chair-side, side walls) to still
+        // clear the normal minClearanceU, same "real obstacle" bar as
+        // before.
+        if (minWallDist < backWallBandU.min) {
+          violations.push({ id: desk.id, issue: "back edge closer than the wall band's own minimum (reads as INSIDE the wall)", valueU: Math.round(minWallDist * 1000) / 1000 });
+        } else if (minWallDist > backWallBandU.max) {
+          violations.push({ id: desk.id, issue: "back edge further than the wall band's own maximum (reads as floating, not backed against the wall)", valueU: Math.round(minWallDist * 1000) / 1000 });
+        }
+        for (const slab of slabs) {
+          const dist = aabbDistance(desk.aabb, slab.aabb);
+          if (dist > minWallDist + 1e-6 && dist < minClearanceU) {
+            violations.push({ id: desk.id, issue: `closer than min clearance ${minClearanceU}u to wall ${slab.id} (not its own back wall)`, valueU: Math.round(dist * 1000) / 1000 });
+          }
+        }
+      } else if (minWallDist < minClearanceU) {
+        violations.push({ id: desk.id, issue: "closer than min wall clearance", valueU: Math.round(minWallDist * 1000) / 1000 });
+      }
     }
     for (const other of allFurniture) {
       if (other.id === desk.id) continue;
@@ -345,13 +406,53 @@ export function checkDeskClearance(desks: ObjectAabb[], slabs: WallSlab[], allFu
       // overlap sub-check specifically was a real false-positive found by
       // this pass's own first live probe run (16/16 desks flagged for
       // "overlapping" their own chair) -- only a desk overlapping ANOTHER
-      // desk or a non-chair prop still fails.
+      // desk or a non-chair prop still fails. Real desks stay axis-aligned
+      // (DESKS-AGAINST-WALLS: every yaw is a multiple of 90deg by
+      // construction) so an AABB overlap test is exact here, never the
+      // 45deg-inflated false positive the old diagonal-corner layout hit.
       if (other.label === "chair") continue;
       if (aabbsOverlap(desk.aabb, other.aabb)) violations.push({ id: desk.id, issue: `overlaps ${other.id}`, valueU: 0 });
     }
   }
-  return { verdict: violations.length > 0 ? "FAIL" : "PASS", detail: { checked: desks.length, minClearanceU, violations: violations.slice(0, 20) } };
+  return { verdict: violations.length > 0 ? "FAIL" : "PASS", detail: { checked: desks.length, minClearanceU, backWallBandU, violations: violations.slice(0, 20) } };
 }
+
+/** INDEPENDENT expected yaw for a desk sitting near one of the HUB's own
+ * real walls (DESKS-AGAINST-WALLS pass, J: "put the object... against the
+ * wall"). Deliberately does NOT call layout.ts#computePersonaWallSlots or
+ * read its rotationY -- that would make checkDeskOrientation tautological
+ * (a desk always "passes" by construction if the expected value is just
+ * whatever the layout code itself already computed for it, the exact gap
+ * this pass's own task named: "not matches the layout's own yaw"). Instead
+ * this re-derives the nearest wall from RAW POSITION alone, via the SAME
+ * axis-aligned-square Chebyshev model buildHubSlabs already uses, and
+ * returns the yaw that makes the desk's own local-Z axis perpendicular to
+ * that wall (long axis parallel to it) -- a desk sitting on the room's
+ * DIAGONAL (the old DESK-RING/DESK-ROWS corner model) computes a nearest
+ * wall whose own normal is 45deg off the desk's real placement angle, and
+ * correctly FAILs this check even though it "matched" a layout-derived
+ * target under the old tautological pairing. */
+export function nearestHubWallYaw(position: Vec3): number {
+  const absX = Math.abs(position[0]);
+  const absZ = Math.abs(position[2]);
+  let wallArmAngle: number;
+  if (absX >= absZ) {
+    wallArmAngle = position[0] >= 0 ? 0 : Math.PI;
+  } else {
+    wallArmAngle = position[2] >= 0 ? Math.PI / 2 : (3 * Math.PI) / 2;
+  }
+  // Same identity layout.ts's own header documents: rotationYFacing(a point
+  // on a ray through the origin, HUB) reduces exactly to PI/2 - angle.
+  return Math.PI / 2 - wallArmAngle;
+}
+
+/** How close (Chebyshev, matching the square-room model) a position must be
+ * to the HUB's own outer wall before nearestHubWallYaw's "which wall is
+ * this desk backed against" classification is trusted -- desks genuinely
+ * near the room's center (Gamma's own hub desk, radius 3.4) have no real
+ * "nearest wall" in the backed-against-it sense and must fall back to a
+ * looser heuristic instead (see computeSceneAuditReport's own caller). */
+export const HUB_WALL_ADJACENCY_BAND_U = 3.0;
 
 /** Verifies every desk's yaw is within `tolDeg` of ITS OWN expected facing
  * (caller supplies the pairing -- see computeExpectedDeskYaw below for how
@@ -362,6 +463,69 @@ export function checkDeskOrientation(desks: Array<{ id: string; actualYaw: numbe
     .map((d) => ({ id: d.id, diffDeg: Math.round((wrapAngleRad(d.actualYaw - d.targetYaw) * 180) / Math.PI * 10) / 10 }))
     .filter((d) => Math.abs(d.diffDeg) > tolDeg);
   return { verdict: violations.length > 0 ? "FAIL" : "PASS", detail: { tolDeg, checked: desks.length, violations } };
+}
+
+/** Fraction of `screen`'s own area covered by its intersection with `label`
+ * -- "how much of the SCREEN does this label sit on", not the reverse (a
+ * huge label barely clipping a small screen's corner should read as a
+ * small violation of the screen's readability, not a small violation of
+ * the label). Both rects share the SAME 2D viewport-pixel space (top-left
+ * x,y convention) -- no unit conversion needed, unlike the 3D AABB checks
+ * above. Returns 0 for zero/negative-area screens (never divides by 0). */
+export function rectOverlapFractionOfScreen(label: ViewportLabelRect, screen: ScreenViewportRect): number {
+  const screenArea = screen.width * screen.height;
+  if (screenArea <= 0) return 0;
+  const ix0 = Math.max(label.x, screen.x);
+  const iy0 = Math.max(label.y, screen.y);
+  const ix1 = Math.min(label.x + label.width, screen.x + screen.width);
+  const iy1 = Math.min(label.y + label.height, screen.y + screen.height);
+  const iw = ix1 - ix0;
+  const ih = iy1 - iy0;
+  if (iw <= 0 || ih <= 0) return 0;
+  return (iw * ih) / screenArea;
+}
+
+/** SCREEN-KEEP-OUT pass (2026-09-15) -- the sub-check hq_live_probe.py's own
+ * check_label_legibility docstring explicitly named as a stated, not
+ * silently skipped, follow-up ("does not check label-vs-screen-face
+ * overlap"). A world label (a persona bubble, a HoloChart plaque, the
+ * BRAIN plaque) drifting across a screen's own face reads as visual
+ * clutter ON TOP of readable content -- the monitors worker's own real-
+ * capture observation named exactly this (Gamma's head label covering the
+ * IDEAS BOARD title). FAILs any label/READABLE-screen pair whose overlap
+ * exceeds `maxFrac` of the screen's own area -- informational screens (desk
+ * monitors, bay signs, `readable: false`) are reported but never gate the
+ * verdict, same convention checkScreenFacing already established. NO-DATA
+ * with no screens or no labels supplied (never a false PASS on zero
+ * evidence, matching every other check_* in this module). */
+export function checkLabelScreenOverlap(
+  labels: readonly ViewportLabelRect[],
+  screens: readonly ScreenViewportRect[],
+  maxFrac = 0.1,
+): CheckResult {
+  if (screens.length === 0) return { verdict: "NO-DATA", detail: { reason: "no screens supplied" } };
+  if (labels.length === 0) return { verdict: "NO-DATA", detail: { reason: "no labels supplied" } };
+
+  const violations: Array<{ screenId: string; screenLabel: string; overlapFrac: number }> = [];
+  for (const screen of screens) {
+    let worst = 0;
+    for (const label of labels) {
+      worst = Math.max(worst, rectOverlapFractionOfScreen(label, screen));
+    }
+    if (screen.readable && worst > maxFrac) {
+      violations.push({ screenId: screen.id, screenLabel: screen.label, overlapFrac: Math.round(worst * 1000) / 1000 });
+    }
+  }
+  return {
+    verdict: violations.length > 0 ? "FAIL" : "PASS",
+    detail: {
+      maxFrac,
+      screenCount: screens.length,
+      labelCount: labels.length,
+      violations,
+      note: "informational screens (readable:false -- desk monitors, bay signs) are reported via raw screen data but never gate this verdict, same convention checkScreenFacing already uses",
+    },
+  };
 }
 
 // ─── Live-scene constants ───────────────────────────────────────────────
@@ -467,16 +631,68 @@ function extractYawFromMatrix(THREE: typeof import("three"), matrix: InstanceTyp
   return euler.y;
 }
 
+/** SCREEN-KEEP-OUT pass: projects a world-space AABB's 8 corners through
+ * the live camera (real THREE.Camera instance off window.__hqCamera --
+ * project() needs the actual object, not just its position) and returns
+ * the bounding rect of those 8 projected points in viewport CSS pixels
+ * (top-left convention, matching hq_live_probe.py's own `.hq-beam` DOM
+ * rect capture). Using the world AABB's corners (rather than the screen
+ * mesh's own tighter local-space rect) is deliberately the SAME
+ * approximation checkWallPenetration etc. already make for a billboarded
+ * plane -- a slightly larger, axis-aligned bound around the true rotated
+ * rectangle, never a tight fit but never an UNDER-report either, which is
+ * the safe direction for a "don't let a label sit here" keep-out zone.
+ * Returns null if any corner fails to project (camera not ready) or the
+ * viewport has zero area. */
+function projectAabbToViewportRect(
+  THREE: typeof import("three"),
+  aabb: AABB,
+  camera: unknown,
+  viewportW: number,
+  viewportH: number,
+): { x: number; y: number; width: number; height: number } | null {
+  if (viewportW <= 0 || viewportH <= 0) return null;
+  const cam = camera as InstanceType<typeof THREE.Camera> | undefined;
+  if (!cam || !(cam as unknown as { isCamera?: boolean }).isCamera) return null;
+  const [minX, minY, minZ] = aabb.min;
+  const [maxX, maxY, maxZ] = aabb.max;
+  const corners: Vec3[] = [
+    [minX, minY, minZ], [maxX, minY, minZ], [minX, maxY, minZ], [minX, minY, maxZ],
+    [maxX, maxY, minZ], [maxX, minY, maxZ], [minX, maxY, maxZ], [maxX, maxY, maxZ],
+  ];
+  let pxMin = Infinity;
+  let pxMax = -Infinity;
+  let pyMin = Infinity;
+  let pyMax = -Infinity;
+  const v = new THREE.Vector3();
+  for (const [x, y, z] of corners) {
+    v.set(x, y, z).project(cam);
+    if (!Number.isFinite(v.x) || !Number.isFinite(v.y)) return null;
+    const px = ((v.x + 1) / 2) * viewportW;
+    const py = ((1 - v.y) / 2) * viewportH;
+    pxMin = Math.min(pxMin, px);
+    pxMax = Math.max(pxMax, px);
+    pyMin = Math.min(pyMin, py);
+    pyMax = Math.max(pyMax, py);
+  }
+  return { x: pxMin, y: pyMin, width: pxMax - pxMin, height: pyMax - pyMin };
+}
+
 async function computeSceneAuditReport(): Promise<Record<string, unknown>> {
   const scene = (window as unknown as { __hqScene?: TaggedObject3D }).__hqScene;
   const camera = (window as unknown as { __hqCamera?: { position?: { x: number; y: number; z: number } } }).__hqCamera;
+  const gl = (window as unknown as { __hqGl?: { domElement?: { clientWidth?: number; clientHeight?: number } } }).__hqGl;
   if (!scene) return { ok: false, reason: "window.__hqScene is not set -- ?diag=1 missing or scene not mounted yet" };
 
   const THREE = await loadThree();
   const layout = await loadLayout();
 
+  const viewportW = gl?.domElement?.clientWidth || (typeof window !== "undefined" ? window.innerWidth : 0);
+  const viewportH = gl?.domElement?.clientHeight || (typeof window !== "undefined" ? window.innerHeight : 0);
+
   const furniture: ObjectAabb[] = [];
   const screens: ScreenInfo[] = [];
+  const screenViewportRects: ScreenViewportRect[] = [];
   const doors: ObjectAabb[] = [];
   const deskCandidates: Array<{ id: string; position: Vec3; yaw: number }> = [];
   let counter = 0;
@@ -527,13 +743,16 @@ async function computeSceneAuditReport(): Promise<Record<string, unknown>> {
       const localNormal = obj.userData?.hqFaceLocalNormal ?? [0, 0, 1];
       vNormal.set(localNormal[0], localNormal[1], localNormal[2]);
       vNormal.transformDirection(obj.matrixWorld as InstanceType<typeof THREE.Matrix4>);
+      const readable = !obj.userData?.hqInformational;
       screens.push({
         id,
         label,
         position: [vPos.x, vPos.y, vPos.z],
         normal: [vNormal.x, vNormal.y, vNormal.z],
-        readable: !obj.userData?.hqInformational,
+        readable,
       });
+      const rect = projectAabbToViewportRect(THREE, aabb, camera, viewportW, viewportH);
+      if (rect) screenViewportRects.push({ id, label, readable, ...rect });
     } else if (kind === "furniture") {
       furniture.push({ id, label, aabb });
     } else if (kind === "door") {
@@ -617,7 +836,17 @@ async function computeSceneAuditReport(): Promise<Record<string, unknown>> {
     screenFacing,
     deskClearance,
     deskOrientation,
-    raw: { furnitureCount: furniture.length, screenCount: screens.length, doorCount: doors.length, wallSlabCount: slabs.length, deskCount: deskCandidates.length },
+    // SCREEN-KEEP-OUT pass: this frame's own screen viewport rects, for
+    // setup/scripts/hq_live_probe.py to combine with its OWN `.hq-beam` DOM
+    // label rects via window.__hqSceneAuditLabelScreenOverlap() below --
+    // exposed raw (not pre-joined with labels) since the static report is
+    // captured once while label rects are sampled repeatedly over the run.
+    screenViewportRects,
+    raw: {
+      furnitureCount: furniture.length, screenCount: screens.length, doorCount: doors.length,
+      wallSlabCount: slabs.length, deskCount: deskCandidates.length,
+      viewport: { width: viewportW, height: viewportH },
+    },
   };
 }
 

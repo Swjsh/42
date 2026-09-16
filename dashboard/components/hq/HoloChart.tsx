@@ -61,7 +61,7 @@
 // Everything else (candle bodies, wicks, level planes, the base plate, every
 // label) is drawn once per data change and then sits still.
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import * as THREE from "three";
@@ -70,6 +70,7 @@ import { PALETTE } from "./palette";
 import { PRIORITY } from "./labelDeclutter";
 import { useLabelDeclutter } from "./useLabelDeclutter";
 import { bubbleCounterScale } from "./bubbleText";
+import { getLevelPlaquesBelowFloor } from "./legibilityFloor";
 import {
   deriveTradeArmLabel, formatGroupedTradeLines, groupTradesByBarAndSide,
   computeLevelInteraction, formatLevelInteractionText, isLevelLive,
@@ -866,6 +867,64 @@ function LastPriceMarker({
   );
 }
 
+// LEGIBILITY-FLOOR summary plaque (2026-09-15, real-probe evidence: see
+// labelDeclutter.ts's own MIN_LEGIBLE_PX header). When LabelDeclutterManager
+// .tsx's shared resolver fades one or more of this file's own level/
+// last-price plaques below the legibility floor (overview camera distance),
+// showing NOTHING would silently drop real information ("6 levels" and
+// "last close" both vanish with no replacement) -- this is the one
+// combined, ALWAYS-legible stand-in the task brief calls for: "SPY · N
+// levels · last {price}", anchored at the chart's own local origin so it
+// reads as "this whole table" rather than pointing at any one bar. Detail
+// (the individual plaques) returns automatically once the camera closes in
+// enough that they clear the floor again -- this component polls the SAME
+// floor flag every throttled tick and simply stops rendering.
+function LevelSummaryPlaque({
+  levelCount, priceText, dimFactor, origin,
+}: { levelCount: number; priceText: string | null; dimFactor: number; origin: [number, number, number] }) {
+  const [visible, setVisible] = useState(false);
+  const originVec = useMemo(() => new THREE.Vector3(...origin), [origin]);
+  const lastPollRef = useRef(0);
+  useFrame((state) => {
+    // 10Hz poll -- same cadence LabelDeclutterManager.tsx's own resolver
+    // tick already runs at, no point reading the flag more often than it
+    // can change. setState with an unchanged boolean is a React no-op
+    // (Object.is bail-out), so this never re-renders every frame in the
+    // (overwhelmingly common) case where the flag isn't flapping.
+    const now = state.clock.elapsedTime;
+    if (now - lastPollRef.current < 0.1) return;
+    lastPollRef.current = now;
+    setVisible(getLevelPlaquesBelowFloor());
+  });
+  const worldPos = useMemo(() => origin, [origin]);
+  const { wrapperRef, measureRef } = useLabelDeclutter("holo-level-summary", PRIORITY.PLAQUE, () => worldPos);
+  useFrame((state) => {
+    const el = measureRef.current;
+    if (!el) return;
+    const dist = state.camera.position.distanceTo(originVec);
+    const k = bubbleCounterScale(dist);
+    el.style.transform = Math.abs(k - 1) > 0.01 ? `scale(${k.toFixed(3)})` : "";
+  });
+  if (!visible || levelCount === 0) return null;
+  return (
+    <Html position={[0, 0.02, 0]} center distanceFactor={7} style={{ pointerEvents: "none" }}>
+      <div ref={wrapperRef}>
+        <div ref={measureRef} className="hq-beam" style={{ ["--beam-color" as string]: PALETTE.hubCore, borderRadius: 6, opacity: dimFactor }}>
+          <div
+            style={{
+              fontFamily: "system-ui, sans-serif", whiteSpace: "nowrap", color: "#dff3ff",
+              background: "rgba(3,4,10,0.82)", padding: "4px 11px", borderRadius: 5,
+              fontSize: 16, fontWeight: 700, letterSpacing: 0.2,
+            }}
+          >
+            SPY · {levelCount} level{levelCount === 1 ? "" : "s"}{priceText ? ` · last ${priceText}` : ""}
+          </div>
+        </div>
+      </div>
+    </Html>
+  );
+}
+
 export interface HoloChartProps {
   /** World-space position of the ribbon's own local origin -- the round
    * table's top surface, passed in by HubInterior.tsx (which already
@@ -980,6 +1039,12 @@ export default function HoloChart({ origin, facingYaw, dimFactor }: HoloChartPro
           />
           <TradeMarkers trades={data.trades} bars={data.bars} domain={domain} dimFactor={dimFactor} origin={origin} facingYaw={facingYaw} />
           <LastPriceMarker data={data} domain={domain} dimFactor={dimFactor} origin={origin} facingYaw={facingYaw} />
+          <LevelSummaryPlaque
+            levelCount={data.levels.length}
+            priceText={data.live ? data.live.price.toFixed(2) : data.lastClose ? data.lastClose.price.toFixed(2) : null}
+            dimFactor={dimFactor}
+            origin={origin}
+          />
           <Html position={[0, -0.22, 0]} center distanceFactor={7} style={{ pointerEvents: "none" }}>
             {/* DECLUTTER pass (POLISH-2): outer wrapper the shared resolver
                 owns, kept separate from this div's own opacity/dimFactor

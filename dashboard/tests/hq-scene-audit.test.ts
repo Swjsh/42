@@ -36,8 +36,12 @@ import {
   checkScreenFacing,
   checkDeskClearance,
   checkDeskOrientation,
+  rectOverlapFractionOfScreen,
+  checkLabelScreenOverlap,
   type AABB,
   type WallSlab,
+  type ScreenViewportRect,
+  type ViewportLabelRect,
 } from "../lib/hq-scene-audit.ts";
 
 // ─── buildRoomWallSlabs: door-gap construction ─────────────────────────────
@@ -283,4 +287,68 @@ test("REGRESSION PIN (d3da0581): walker_wall_cross FAILs the old toward-hub aler
   const newTrack = [{ id: "alert-agent-new", points: [{ t: 0, pos: [bay.agentHome[0], bay.agentHome[2]] as [number, number] }, { t: 1, pos: [bay.doorWorldPos[0], bay.doorWorldPos[2]] as [number, number] }] }];
   const newResult = checkWalkerWallCross(newTrack, slabs);
   assert.equal(newResult.verdict, "PASS", "the fixed home->door route must stay clear of every wall slab");
+});
+
+// ─── SCREEN-KEEP-OUT pass (2026-09-15): checkLabelScreenOverlap ────────────
+// FAIL/PASS pins for the missing "label-vs-screen-face overlap" sub-check
+// check_label_legibility's own docstring named as a stated follow-up.
+
+function screenRect(id: string, x: number, y: number, width: number, height: number, readable = true): ScreenViewportRect {
+  return { id, label: "twin-monitor", readable, x, y, width, height };
+}
+function labelRect(x: number, y: number, width: number, height: number): ViewportLabelRect {
+  return { x, y, width, height };
+}
+
+test("rectOverlapFractionOfScreen: half the screen covered reads as 0.5, no overlap reads as 0", () => {
+  const screen = screenRect("s1", 0, 0, 100, 100);
+  const halfCover = labelRect(0, 0, 100, 50); // covers exactly the top half
+  assert.equal(rectOverlapFractionOfScreen(halfCover, screen), 0.5);
+  const noCover = labelRect(200, 200, 50, 50);
+  assert.equal(rectOverlapFractionOfScreen(noCover, screen), 0);
+});
+
+test("rectOverlapFractionOfScreen: fraction is of the SCREEN's area, not the label's (a huge label barely clipping a corner is a small fraction)", () => {
+  const screen = screenRect("s1", 0, 0, 100, 100);
+  const hugeLabelClippingCorner = labelRect(-1000, -1000, 1010, 1010); // covers only the [0,0]-[10,10] corner of the screen
+  const frac = rectOverlapFractionOfScreen(hugeLabelClippingCorner, screen);
+  assert.ok(frac > 0 && frac < 0.02, `expected a tiny fraction of the screen, got ${frac}`);
+});
+
+test("checkLabelScreenOverlap: FAIL -- a label covering >10% of a READABLE screen (real scenario: a head label drifting over TwinMonitors' glass)", () => {
+  const screen = screenRect("twin-monitor-left", 800, 400, 300, 180);
+  const gammaHeadLabel = labelRect(820, 410, 160, 70); // (160*70)/(300*180) ~= 21% of the screen, well over the 10% threshold
+  const result = checkLabelScreenOverlap([gammaHeadLabel], [screen]);
+  assert.equal(result.verdict, "FAIL");
+  const violations = result.detail.violations as Array<{ screenId: string }>;
+  assert.equal(violations.length, 1);
+  assert.equal(violations[0].screenId, "twin-monitor-left");
+});
+
+test("checkLabelScreenOverlap: PASS -- every label sits clear of every readable screen", () => {
+  const screen = screenRect("twin-monitor-left", 800, 400, 300, 180);
+  const farLabel = labelRect(0, 0, 140, 30);
+  const result = checkLabelScreenOverlap([farLabel], [screen]);
+  assert.equal(result.verdict, "PASS");
+  assert.equal((result.detail.violations as unknown[]).length, 0);
+});
+
+test("checkLabelScreenOverlap: an informational screen (readable:false) never gates the verdict even when fully covered", () => {
+  const deskMonitor = screenRect("desk-screen-3", 100, 100, 50, 50, false);
+  const coveringLabel = labelRect(100, 100, 50, 50);
+  const result = checkLabelScreenOverlap([coveringLabel], [deskMonitor]);
+  assert.equal(result.verdict, "PASS", "informational screens are reported, never a FAIL gate");
+});
+
+test("checkLabelScreenOverlap: a small overlap under the 10% threshold PASSes", () => {
+  const screen = screenRect("twin-monitor-right", 0, 0, 1000, 1000);
+  const tinyClip = labelRect(-50, -50, 60, 60); // ~ (10*10)/(1000*1000), well under 10%
+  const result = checkLabelScreenOverlap([tinyClip], [screen]);
+  assert.equal(result.verdict, "PASS");
+});
+
+test("checkLabelScreenOverlap: NO-DATA with no screens or no labels supplied", () => {
+  const screen = screenRect("s1", 0, 0, 100, 100);
+  assert.equal(checkLabelScreenOverlap([labelRect(0, 0, 10, 10)], []).verdict, "NO-DATA");
+  assert.equal(checkLabelScreenOverlap([], [screen]).verdict, "NO-DATA");
 });

@@ -71,7 +71,14 @@ Plausibility checks (SCENE-AUDIT pass, 2026-09-15, `--plausibility`):
                              not overlapping other furniture; yaw within
                              +-10deg of its own expected facing.
       label_legibility    -- any visible head-label/plaque under 12px tall
-                             at the default camera.
+                             at the default camera (excludes a label the
+                             runtime declutter resolver already faded to
+                             ~0 opacity for being too small -- handled, not
+                             an unaddressed violation).
+      label_vs_screen_overlap -- (SCREEN-KEEP-OUT pass, 2026-09-15) any
+                             visible label covering >10% of a READABLE
+                             screen's own projected viewport rect (e.g. a
+                             head label drifting over TwinMonitors' glass).
     The actual geometry (wall-slab construction with door gaps, AABB/segment
     intersection, screen-facing cosine) lives in dashboard/lib/
     hq-scene-audit.ts (unit-tested via `node --test
@@ -112,6 +119,7 @@ from hq_probe_lib import (  # noqa: E402
     WALK_SPEED_TOL_DEFAULT,
     build_verdicts,
     check_label_legibility,
+    check_label_screen_overlap,
     perf_headless_flag,
 )
 
@@ -339,6 +347,7 @@ def compute_plausibility_verdicts(page: Any, seconds: float, scene_ready: bool) 
         return {
             "wall_penetration": no_data, "walker_wall_cross": no_data, "screen_facing": no_data,
             "desk_clearance": no_data, "desk_orientation": no_data, "label_legibility": no_data,
+            "label_vs_screen_overlap": no_data,
         }
 
     try:
@@ -353,6 +362,7 @@ def compute_plausibility_verdicts(page: Any, seconds: float, scene_ready: bool) 
         return {
             "wall_penetration": no_hook, "walker_wall_cross": no_hook, "screen_facing": no_hook,
             "desk_clearance": no_hook, "desk_orientation": no_hook, "label_legibility": no_hook,
+            "label_vs_screen_overlap": no_hook,
         }
 
     # Walker positions + label rects: sampled over time (a wall CROSSING is
@@ -368,10 +378,26 @@ def compute_plausibility_verdicts(page: Any, seconds: float, scene_ready: bool) 
         except Exception:  # noqa: BLE001
             pass
         try:
+            # LEGIBILITY-FLOOR fix (2026-09-15): opacity now travels with
+            # each rect, via the SAME ancestor-walk `effectiveLabelOpacity`
+            # already uses a few lines above for the richer (non-
+            # plausibility) capture -- CSS opacity composites down the
+            # declutter wrapper chain (see that function's own comment),
+            # so a plain getComputedStyle(el).opacity here would always
+            # read "1" even for a label the resolver just faded to 0.
+            # check_label_legibility uses this to exclude a label the
+            # runtime already hid for being too small, rather than double-
+            # counting it as an unaddressed violation.
             rects = page.evaluate(
                 "() => Array.from(document.querySelectorAll('.hq-beam')).slice(0, 60).map((el) => { "
                 "const r = el.getBoundingClientRect(); "
-                "return { h: r.height, text: (el.innerText || '').slice(0, 60), visible: r.width > 0 && r.height > 0 }; })"
+                "let o = 1; let node = el; let hops = 0; "
+                "while (node && node.nodeType === 1 && hops < 8) { "
+                "const cs = window.getComputedStyle(node); "
+                "if (cs.display === 'none' || cs.visibility === 'hidden') { o = 0; break; } "
+                "const v = parseFloat(cs.opacity); if (!Number.isNaN(v)) o *= v; "
+                "if (node === document.body) break; node = node.parentElement; hops += 1; } "
+                "return { x: r.left, y: r.top, w: r.width, h: r.height, text: (el.innerText || '').slice(0, 60), visible: r.width > 0 && r.height > 0, opacity: o }; })"
             )
         except Exception:  # noqa: BLE001
             rects = []
@@ -400,6 +426,7 @@ def compute_plausibility_verdicts(page: Any, seconds: float, scene_ready: bool) 
     else:
         walker_wall_cross = _plausibility_no_data("no live agents were on window.__hqLiveAgents this run -- nothing to trace")
 
+    screen_viewport_rects = static_report.get("screenViewportRects", [])
     return {
         "wall_penetration": static_report.get("wallPenetration", _plausibility_no_data("missing from __hqSceneAudit() report")),
         "screen_facing": static_report.get("screenFacing", _plausibility_no_data("missing from __hqSceneAudit() report")),
@@ -407,6 +434,7 @@ def compute_plausibility_verdicts(page: Any, seconds: float, scene_ready: bool) 
         "desk_orientation": static_report.get("deskOrientation", _plausibility_no_data("missing from __hqSceneAudit() report")),
         "walker_wall_cross": walker_wall_cross,
         "label_legibility": check_label_legibility(label_samples),
+        "label_vs_screen_overlap": check_label_screen_overlap(label_samples, screen_viewport_rects),
     }
 
 
@@ -1046,7 +1074,8 @@ def main() -> int:
         help=(
             "run ONLY the 'would a human accept this room' check family "
             "(wall_penetration/walker_wall_cross/screen_facing/"
-            "desk_clearance/desk_orientation/label_legibility -- see this "
+            "desk_clearance/desk_orientation/label_legibility/"
+            "label_vs_screen_overlap -- see this "
             "module's own docstring) in ~60-90s, no full sampling run. A "
             "normal run without this flag still runs the same family, "
             "riding along in environment.plausibility."

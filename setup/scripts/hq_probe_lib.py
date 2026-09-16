@@ -1118,6 +1118,16 @@ LABEL_OVERLAP_WORST_PAIRS_CAP = 5
 LABEL_MIN_HEIGHT_PX = 12.0
 LABEL_MIN_WIDTH_PX = 40.0
 
+# LEGIBILITY-FLOOR fix (2026-09-15): pinned to the SAME value as
+# dashboard/components/hq/labelDeclutter.ts's own MIN_LEGIBLE_PX -- the
+# runtime declutter resolver now fades any registered label below this
+# height to CSS opacity 0 (never unmounted -- getBoundingClientRect() still
+# reports its real, still-too-small height). A properly-faded label is
+# INTENTIONALLY invisible; check_label_legibility below must not count it as
+# a violation just because its DOM rect is still measurable -- that's
+# exactly what LABEL_LEGIBILITY_MIN_OPACITY gates on.
+LABEL_LEGIBILITY_MIN_OPACITY = 0.05
+
 
 def _rect_area(r: Dict[str, Any]) -> float:
     return max(0.0, r.get("w", 0.0)) * max(0.0, r.get("h", 0.0))
@@ -1382,17 +1392,19 @@ def check_label_overlap(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
 
 def check_label_legibility(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
     """FAILs any visible `.hq-beam` label/plaque rendered under
-    LABEL_MIN_HEIGHT_PX tall. NO-DATA if the run never captured a single
-    visible label (camera too far, no agents/labels this run) -- never a
-    false PASS on zero evidence, same discipline every other check_* in this
-    module already follows. Screen-face/label overlap (a label's rect
-    intersecting a screen's own projected rect) is NOT checked here: this
-    probe has no cheap way to project a 3D screen's world AABB into the
-    SAME 2D DOM pixel space these bubbles render in without a second
-    Playwright round-trip per tick -- left as a stated, not silently
-    skipped, follow-up (see the returned detail's own "note" field)."""
+    LABEL_MIN_HEIGHT_PX tall AND not already faded below
+    LABEL_LEGIBILITY_MIN_OPACITY by the runtime declutter resolver (a label
+    the resolver already hid for being too small is a handled case, not an
+    unaddressed one -- see LABEL_LEGIBILITY_MIN_OPACITY's own header).
+    NO-DATA if the run never captured a single visible label (camera too
+    far, no agents/labels this run) -- never a false PASS on zero evidence,
+    same discipline every other check_* in this module already follows.
+    Screen-face/label overlap (a label's rect intersecting a screen's own
+    projected rect) is now its own separate check -- see
+    check_label_screen_overlap below / hq-scene-audit.ts#checkLabelScreenOverlap."""
     visible_heights: List[float] = []
     violations: List[Dict[str, Any]] = []
+    faded_count = 0
     for s in samples:
         rects = s.get("label_rects") or []
         for r in rects:
@@ -1400,6 +1412,18 @@ def check_label_legibility(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
                 continue
             h = r.get("h") or 0.0
             if h <= 0:
+                continue
+            # LEGIBILITY-FLOOR fix: a label the runtime declutter resolver
+            # already faded to ~0 opacity (labelDeclutter.ts's own
+            # MIN_LEGIBLE_PX floor, same threshold as LABEL_MIN_HEIGHT_PX
+            # below) is INTENTIONALLY hidden, not an unaddressed violation --
+            # opacity defaults to 1.0 for elements this capture never read a
+            # computed style from (older samples / non-declutter labels),
+            # so this can only ever EXCLUDE a rect, never manufacture a
+            # false PASS for one that was never faded.
+            opacity = r.get("opacity")
+            if opacity is not None and opacity < LABEL_LEGIBILITY_MIN_OPACITY:
+                faded_count += 1
                 continue
             visible_heights.append(h)
             if h < LABEL_MIN_HEIGHT_PX:
@@ -1414,7 +1438,100 @@ def check_label_legibility(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
             "min_height_px": LABEL_MIN_HEIGHT_PX,
             "violation_count": len(violations),
             "violations": violations[:20],
-            "note": "does not check label-vs-screen-face overlap (no cheap 3D->DOM projection this pass) -- see this function's own docstring",
+            "faded_excluded_count": faded_count,
+            "note": "label-vs-screen-face overlap is now a separate check (label_vs_screen_overlap) -- see hq-scene-audit.ts#checkLabelScreenOverlap",
+        },
+    }
+
+
+# LABEL_VS_SCREEN_OVERLAP_MAX_FRAC pinned to the SAME 10% default
+# dashboard/lib/hq-scene-audit.ts#checkLabelScreenOverlap uses -- one
+# threshold, two enforcement points (mirrors LABEL_MIN_HEIGHT_PX's own
+# already-established "same number on both sides" discipline for
+# label_legibility above).
+LABEL_VS_SCREEN_OVERLAP_MAX_FRAC = 0.1
+
+
+def _rect_overlap_fraction_of_screen(label: Dict[str, Any], screen: Dict[str, Any]) -> float:
+    """Fraction of `screen`'s own area covered by its intersection with
+    `label` -- mirrors hq-scene-audit.ts#rectOverlapFractionOfScreen exactly
+    (same "tiny local duplication over a cross-file/cross-language
+    dependency" convention this codebase already uses -- see e.g.
+    TwinMonitors.tsx/DeskScreen.tsx's own duplicated etStamp()). Both rects
+    share the SAME 2D viewport-pixel space (top-left x/y), label as
+    {x,y,w,h} (this probe's own `.hq-beam` capture convention) and screen as
+    {x,y,width,height} (hq-scene-audit.ts's own ScreenViewportRect field
+    names, passed through verbatim from window.__hqSceneAudit())."""
+    screen_area = screen.get("width", 0.0) * screen.get("height", 0.0)
+    if screen_area <= 0:
+        return 0.0
+    lx, ly, lw, lh = label.get("x", 0.0), label.get("y", 0.0), label.get("w", 0.0), label.get("h", 0.0)
+    sx, sy, sw, sh = screen["x"], screen["y"], screen["width"], screen["height"]
+    ix0, iy0 = max(lx, sx), max(ly, sy)
+    ix1, iy1 = min(lx + lw, sx + sw), min(ly + lh, sy + sh)
+    iw, ih = ix1 - ix0, iy1 - iy0
+    if iw <= 0 or ih <= 0:
+        return 0.0
+    return (iw * ih) / screen_area
+
+
+# 4c. label-vs-screen-face overlap (SCREEN-KEEP-OUT pass, 2026-09-15) -----------
+# The sub-check check_label_legibility's own earlier docstring named as a
+# stated follow-up ("no cheap 3D->DOM projection this pass"). Now possible
+# because hq-scene-audit.ts's own computeSceneAuditReport projects every
+# tagged screen face's world AABB through the LIVE camera into the SAME
+# viewport-pixel space this probe's `.hq-beam` DOM capture already uses
+# (window.__hqSceneAudit()'s own `screenViewportRects` field) -- this
+# function just combines the two, over every sampled tick, the same
+# "accumulate over the run" shape check_label_overlap above already uses.
+
+
+def check_label_screen_overlap(samples: List[Dict[str, Any]], screen_rects: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """FAILs any tick where a visible, opacity>=LABEL_LEGIBILITY_MIN_OPACITY
+    label's rect covers more than LABEL_VS_SCREEN_OVERLAP_MAX_FRAC of a
+    READABLE screen's own projected rect (informational screens -- desk
+    monitors, bay signs -- are reported but never gate this verdict, same
+    convention screen_facing already uses). NO-DATA if no screens were
+    captured this run (e.g. TwinMonitors not yet mounted / ?diag=1 missing)
+    or no labels were ever sampled -- never a false PASS on zero evidence."""
+    readable_screens = [s for s in screen_rects if s.get("readable")]
+    if not screen_rects:
+        return {"verdict": "NO-DATA", "detail": {"reason": "no screens captured this run (window.__hqSceneAudit() returned none)"}}
+
+    worst_by_screen: Dict[str, float] = {}
+    worst_label_by_screen: Dict[str, Optional[str]] = {}
+    any_label_sampled = False
+    for s in samples:
+        for r in s.get("label_rects") or []:
+            if not r.get("visible", True):
+                continue
+            opacity = r.get("opacity")
+            if opacity is not None and opacity < LABEL_LEGIBILITY_MIN_OPACITY:
+                continue
+            any_label_sampled = True
+            for screen in readable_screens:
+                frac = _rect_overlap_fraction_of_screen(r, screen)
+                sid = screen["id"]
+                if frac > worst_by_screen.get(sid, 0.0):
+                    worst_by_screen[sid] = frac
+                    worst_label_by_screen[sid] = r.get("text")
+
+    if not any_label_sampled:
+        return {"verdict": "NO-DATA", "detail": {"reason": "no visible labels sampled this run"}}
+
+    violations = [
+        {"screenId": sid, "overlapFrac": round(frac, 4), "worstLabel": worst_label_by_screen.get(sid)}
+        for sid, frac in worst_by_screen.items()
+        if frac > LABEL_VS_SCREEN_OVERLAP_MAX_FRAC
+    ]
+    return {
+        "verdict": "FAIL" if violations else "PASS",
+        "detail": {
+            "maxFrac": LABEL_VS_SCREEN_OVERLAP_MAX_FRAC,
+            "readableScreenCount": len(readable_screens),
+            "screenCount": len(screen_rects),
+            "violations": violations,
+            "note": "informational screens (readable:false) are counted in screenCount but never gate this verdict",
         },
     }
 

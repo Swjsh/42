@@ -25,9 +25,10 @@ import { useThrottledFrame } from "./useThrottledFrame";
 import { useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { useRef } from "react";
-import { resolveLabelOffsets, smoothLabelOffsetAvoidingOverlap, DEFAULT_MAX_NUDGE_PX, DEFAULT_FADE_OPACITY, type LabelRect, type ObstacleRect, type OverlapRect } from "./labelDeclutter";
+import { resolveLabelOffsets, smoothLabelOffsetAvoidingOverlap, DEFAULT_MAX_NUDGE_PX, DEFAULT_FADE_OPACITY, MIN_LEGIBLE_PX, type LabelRect, type ObstacleRect, type OverlapRect } from "./labelDeclutter";
 import { getLabelRegistry } from "./useLabelDeclutter";
 import { isMotionDiagEnabled } from "../../lib/hq-motion-diag";
+import { isHoloPricePlaqueId, setLevelPlaquesBelowFloor } from "./legibilityFloor";
 
 // TICK-COST DIAG (DECLUTTER v2, 2026-09-15): read-only perf sample so the
 // "should this move to per-frame?" question from the coordinator's fix
@@ -188,8 +189,16 @@ export default function LabelDeclutterManager(): null {
 
     if (rects.length === 0) {
       if (diagOn) recordTickCost(performance.now() - perfStart);
+      setLevelPlaquesBelowFloor(false);
       return;
     }
+
+    // LEGIBILITY-FLOOR bridge (see legibilityFloor.ts's own header): this
+    // is the ONE place in the tree that measures every price plaque's REAL
+    // on-screen height each tick, so it is also the one place that can
+    // tell HoloChart.tsx's summary-plaque fallback whether any of its own
+    // individual plaques just got faded for being too small to read.
+    setLevelPlaquesBelowFloor(rects.some((r) => isHoloPricePlaqueId(r.id) && r.height < MIN_LEGIBLE_PX));
     // See this file's own header (NUDGE_BASELINE_HEIGHT_PX + the SECOND FIX
     // note above it): grow the nudge cap by BOTH how much bigger the
     // tallest label this tick is than the tuned baseline, AND how many

@@ -19,6 +19,7 @@ from hq_probe_lib import (  # noqa: E402
     SPAWN_LATENCY_RENDER_SLACK_MS,
     WALK_OUT_MAX_S,
     WALKER_MIN_DIST,
+    LABEL_LEGIBILITY_MIN_OPACITY,
     LABEL_MIN_HEIGHT_PX,
     build_verdicts,
     check_bubbles,
@@ -1939,6 +1940,49 @@ def test_check_label_legibility_ignores_non_visible_rects():
     samples = [_s(0, label_rects=[{"h": 1.0, "text": "hidden", "visible": False}])]
     result = check_label_legibility(samples)
     assert result["verdict"] == "NO-DATA", "a non-visible rect must never count as sampled evidence"
+
+
+# ─── LEGIBILITY-FLOOR fix (2026-09-15): a too-short label the runtime
+# declutter resolver already faded to ~0 opacity (labelDeclutter.ts's own
+# MIN_LEGIBLE_PX, pinned to the SAME LABEL_MIN_HEIGHT_PX this file already
+# used) must be EXCLUDED, not counted as an unaddressed violation. ─────────
+
+def test_check_label_legibility_excludes_a_faded_too_short_label():
+    samples = [_s(0, label_rects=[
+        {"h": LABEL_MIN_HEIGHT_PX - 5, "text": "757.38 . last close", "visible": True, "opacity": 0.0},
+    ])]
+    result = check_label_legibility(samples)
+    assert result["verdict"] == "NO-DATA", "the only sample was faded below the floor -- zero real evidence, not a PASS"
+    assert result["detail"]["reason"] == "no visible labels sampled this run"
+
+
+def test_check_label_legibility_still_fails_a_too_short_label_at_full_opacity():
+    samples = [_s(0, label_rects=[{"h": LABEL_MIN_HEIGHT_PX - 1, "text": "tiny", "visible": True, "opacity": 1.0}])]
+    result = check_label_legibility(samples)
+    assert result["verdict"] == "FAIL", "an unfaded too-short label is still a real violation"
+
+
+def test_check_label_legibility_faded_and_legible_labels_together_passes_and_reports_excluded_count():
+    samples = [_s(0, label_rects=[
+        {"h": LABEL_MIN_HEIGHT_PX - 5, "text": "757.38 . last close", "visible": True, "opacity": 0.0},
+        {"h": LABEL_MIN_HEIGHT_PX + 10, "text": "SPY . 6 levels . last 757.38", "visible": True, "opacity": 1.0},
+    ])]
+    result = check_label_legibility(samples)
+    assert result["verdict"] == "PASS"
+    assert result["detail"]["faded_excluded_count"] == 1
+    assert result["detail"]["sampled"] == 1
+
+
+def test_check_label_legibility_opacity_just_above_the_min_still_counts_as_visible_evidence():
+    # LABEL_LEGIBILITY_MIN_OPACITY is a "definitely faded" floor, not a
+    # generic dimness gate -- a legibility-floor label that dips just under
+    # it excludes; a label merely dim (e.g. isLive=false's own 0.72 alpha
+    # already used elsewhere in HoloChart.tsx) must still be judged on its
+    # real height.
+    above_floor_opacity = LABEL_LEGIBILITY_MIN_OPACITY + 0.5
+    samples = [_s(0, label_rects=[{"h": LABEL_MIN_HEIGHT_PX - 1, "text": "dim-but-not-faded", "visible": True, "opacity": above_floor_opacity}])]
+    result = check_label_legibility(samples)
+    assert result["verdict"] == "FAIL", "opacity above the legibility-faded floor must not exempt a genuinely too-short label"
 
 
 if __name__ == "__main__":

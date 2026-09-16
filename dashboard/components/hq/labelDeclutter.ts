@@ -129,6 +129,41 @@ export const DEFAULT_MAX_NUDGE_PX = 60;
 export const DEFAULT_FADE_OPACITY = 0.35;
 const NUDGE_STEP_PX = 6;
 
+// LEGIBILITY-FLOOR fix (2026-09-15, real-probe evidence: hq_live_probe.py
+// --plausibility, label_legibility FAIL 20 violation(s), first violation
+// `{'text': '757.38 · last close', 'height_px': 7.77}`). HoloChart's level/
+// last-close/trade-marker plaques (drei `<Html>` with a plain
+// `distanceFactor`, no counter-scale floor the way Agent.tsx/
+// GammaCharacter.tsx/LiveAgents.tsx's head bubbles already have via
+// bubbleScale.ts) shrink without bound as the overview camera pulls back --
+// at that distance a human sees unreadable noise, not information. Any
+// registered label this resolver measures below MIN_LEGIBLE_PX is faded to
+// opacity 0 UNCONDITIONALLY, same "never unmounted" convention every other
+// fade in this file already uses (the DOM node stays mounted/measurable --
+// callers needing "is legibility hiding me" for a summary-plaque fallback
+// read this same floor via isBelowLegibilityFloor, not a second signal).
+// This is independent of, and applied AFTER, the collision-avoidance
+// dx/dy/opacity above -- a label can be too small to read even with zero
+// collisions.
+// Pinned to the SAME value as setup/scripts/hq_probe_lib.py's own
+// LABEL_MIN_HEIGHT_PX (12.0, PROBE-13's pre-existing size gate) rather than
+// the round "11px" first named for this fix -- the probe's own
+// check_label_legibility FAILs on `h < LABEL_MIN_HEIGHT_PX`, and this
+// runtime floor exists specifically to make that check PASS; a 1px gap
+// between the two constants would leave a dead band (11-12px) this fix
+// renders as "legible" while the probe still calls it a violation. One
+// floor, two enforcement points, always in agreement.
+export const MIN_LEGIBLE_PX = 12;
+
+/** True when a measured label height (CSS px, as read from the label's own
+ * `measureRef.getBoundingClientRect()`) falls below the floor every
+ * registered label is held to. Exported so callers (HoloChart's summary-
+ * plaque fallback) can react to the SAME threshold this resolver enforces,
+ * never a second hand-tuned number. */
+export function isBelowLegibilityFloor(heightPx: number, floorPx: number = MIN_LEGIBLE_PX): boolean {
+  return heightPx < floorPx;
+}
+
 // COLD-START SNAP FIX (2026-09-15, real-GPU probe evidence: samples file
 // 20260915T090312Z-Da6D81TEcI6kH8JvM85Db.samples.json.gz). Root cause: the
 // manager (LabelDeclutterManager.tsx) unconditionally lerps a label's
@@ -323,6 +358,7 @@ export function resolveLabelOffsets(
   maxNudgePx: number = DEFAULT_MAX_NUDGE_PX,
   fadeOpacity: number = DEFAULT_FADE_OPACITY,
   obstacles: readonly ObstacleRect[] = [],
+  legibilityFloorPx: number = MIN_LEGIBLE_PX,
 ): Map<string, LabelOffset> {
   const order = [...rects].sort((a, b) => {
     if (a.priority !== b.priority) return a.priority - b.priority;
@@ -366,6 +402,22 @@ export function resolveLabelOffsets(
   }
 
   enforceGroupOrder(rects, out);
+
+  // LEGIBILITY-FLOOR: applied last, unconditionally, over whatever the
+  // collision pass above decided -- see this file's own MIN_LEGIBLE_PX
+  // header. A label under the floor is unreadable regardless of whether it
+  // collided with anything, so this always wins over a `1` collision-clear
+  // opacity but never fights the fade-past-cap value (both express "don't
+  // show this" the same way).
+  if (legibilityFloorPx > 0) {
+    for (const r of rects) {
+      if (r.height < legibilityFloorPx) {
+        const existing = out.get(r.id) ?? { dx: 0, dy: 0, opacity: 1 };
+        out.set(r.id, { ...existing, opacity: 0 });
+      }
+    }
+  }
+
   return out;
 }
 
