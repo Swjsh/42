@@ -22,3 +22,22 @@ J: "The fact that I had to point all this out tells me whatever's auditing it is
 5. **A repeat of the same complaint from J = a missing check.** Add it to the audit the same session (OP-25 / repeated-question rule), never just fix the instance.
 
 Provenance: memory `feedback_hq_audit_like_a_human_not_checkbox_2026_09_15`; design references live in `dashboard/components/hq/ENVIRONMENT-PLAN.md`.
+
+## HQ usability — the questions the default view must answer (J 2026-09-16, appended 2026-09-16 00:11:42 Wednesday EDT)
+
+J, after the plausibility pass: "it still needs a lot of design work to look good and be actually usable." Passing every plausibility check is necessary, not sufficient. Usable = the scene answers J's questions at a glance (default view, no interaction) or in ONE click. This list is the spec for the `usability` check family in `hq_live_probe.py` (each question → one check that FAILs when the answer is not legible ≥12 px from the default camera, or needs more than one click):
+
+| # | Question | Where the answer must live |
+|---|---|---|
+| U1 | Is the market open, and when is the next open/close? | banner, always visible |
+| U2 | Book P&L today, per active arm (gross, labelled) | fleet panel or the right monitor |
+| U3 | Which lane is RED, and why (one line) | that bay's sign + one click on the bay |
+| U4 | What is each persona doing right now, and on what model? | head label (dot+name+glyph) + hover/click |
+| U5 | Which live Claude agents are here, and what are they working on? | head label + hover; walking = real events |
+| U6 | Last fill: arm, side, price, result | HoloChart marker + plaque |
+| U7 | What needs J? | NEEDS-J panel, always visible, count in the banner |
+| U8 | Is anything broken? (stale data, dead task, RED health) | one place, red, never buried |
+
+Rules: every answer surface is either always-visible or exactly one click away from the default view; no answer may require reading the flat HUD panel to disambiguate the 3D scene (they must agree); when a check fails, the layout changes, not the threshold.
+
+Visual direction: "looks good" is J's taste call — every look pass starts from 2–3 external references with screenshots that J picks between (design-starts-at-external-reference rule); workers build to the picked reference, never to their own output.
