@@ -7,12 +7,15 @@ import { Html } from "@react-three/drei";
 import * as THREE from "three";
 import type { PersonaState } from "@/lib/personas";
 import type { SectorsSnapshot, TradingStatus } from "@/lib/hq";
-import { clamp01, lerp, makeMatcapTexture, PALETTE, personaStatusColor } from "./palette";
+import { clamp01, lerp, makeMatcapTexture, PALETTE } from "./palette";
 import { ReactorGreeble } from "./SetKit";
 import HubInterior from "./HubInterior";
 import { PRIORITY } from "./labelDeclutter";
 import { mergeRefs, useLabelDeclutter } from "./useLabelDeclutter";
 import { bubbleCounterScale } from "./bubbleText";
+import HeadLabel from "./HeadLabel";
+import { modelGlyph, statusDotColor } from "./headLabelModel";
+import { useIsKiosk } from "./LiveAgents";
 
 /** Mirrors GammaCharacter.tsx's own local `GammaLoopRow` shape (that file's
  * own comment: "the SAME loop-ledger row the crew panel's own pill
@@ -125,18 +128,11 @@ const CORE_GROUP_SCALE = 1.15;
 // its <Html position=...> and the clamp-factor call for it below, so the two
 // can never disagree.
 const GAUGE_GROUP_Y = -1.6;
-// POLISH-3 (2026-09-15, real-capture, camdist=36 07:46:56 ET): was -0.22 --
-// real evidence showed the MEM text partly clipped by the BRAIN plaque's own
-// lower edge at that overview framing (bubbleCounterScale grows a label's
-// on-screen footprint substantially at long camera distance -- see
-// LabelDeclutterManager.tsx's own "OVERVIEW-FLOOR fix" note -- so a world-
-// space gap that reads as generous up close can still read as touching once
-// both labels are counter-scaled up at overview zoom). -0.34 adds further
-// real clearance below the gauge bar (away from PLAQUE_Y, which sits above
-// the core); paired with the label's own small transparent padding below
-// (belt-and-suspenders "min gap" for the declutter resolver's own rect
-// overlap check, per the coordinator's own suggested fix shape).
-const GAUGE_LABEL_Y = -0.34; // relative to GAUGE_GROUP_Y
+// GAUGE_LABEL_Y (was -0.34, positioned the MEM text's own Html label below
+// the gauge bar) removed with the LABELS pass, 2026-09-15 -- that text no
+// longer floats as its own label; it's folded into the compact BRAIN
+// HeadLabel's hover `detail` (see `brainDetail` below). Kept the gauge BAR
+// mesh's own position (GAUGE_GROUP_Y, unchanged) for the at-a-glance visual.
 // PLAQUE_Y/PULSE_PLAQUE_Y/GAMING_PLAQUE_Y raised (2026-09-14, coordinator
 // regression capture scale-verify-0106.png): old PLAQUE_Y=1.75 -> world
 // 1.75*CORE_GROUP_SCALE(1.15)=2.0125, landing squarely in the live-agent
@@ -230,7 +226,6 @@ export default function BrainCore({
   // beam wrapper, so its own <div> gets the ref directly) -- null whenever
   // that Html isn't currently mounted (pulse/gaming are conditional),
   // guarded the same way coreMat/glowMat already are below.
-  const gaugeLabelRef = useRef<HTMLDivElement>(null);
   const plaqueRef = useRef<HTMLDivElement>(null);
   const pulseRef = useRef<HTMLDivElement>(null);
   const gamingRef = useRef<HTMLDivElement>(null);
@@ -246,24 +241,15 @@ export default function BrainCore({
     PRIORITY.PLAQUE,
     () => [0, PLAQUE_Y * CORE_GROUP_SCALE, 0] as [number, number, number],
   );
-  // Queue item h (2026-09-15, real-screen 1920x1080 capture): the MEM gauge
-  // readout (below the core, GAUGE_GROUP_Y+GAUGE_LABEL_Y) sat directly under
-  // a persona speech bubble ("Scout -- scanning 5 feeds...") near the hub --
-  // it never joined the declutter system the plaque above already uses, so
-  // the resolver had no idea it existed and never nudged either label clear.
-  // PRIORITY.LANE (lowest precedence) -- it is a minor ambient readout, not
-  // a plaque or a live conversation bubble, so it should be the one that
-  // yields/fades if the hub gets crowded, matching the tier ordering
-  // labelDeclutter.ts's own header documents ("live-agent bubbles and Gamma
-  // > persona bubbles > plaque > lane labels"). NOT wrapped in .hq-beam --
-  // that class is reserved for the Border Beam treatment on real plaques;
-  // this stays the plain text node it always was, per the task's own "don't
-  // add hq-beam to tiny ticks" guidance.
-  const { wrapperRef: gaugeDeclutterRef, measureRef: gaugeDeclutterMeasureRef } = useLabelDeclutter(
-    "brain-gauge",
-    PRIORITY.LANE,
-    () => [0, (GAUGE_GROUP_Y + GAUGE_LABEL_Y) * CORE_GROUP_SCALE, 0] as [number, number, number],
-  );
+  // LABELS pass (2026-09-15): the separate floating "MEM ... MiB" readout
+  // (Queue item h's own gauge-declutter registration, below the core) is
+  // REMOVED as its own Html label -- folded into the single compact
+  // HeadLabel's hover `detail` below instead (see `brainDetail` above),
+  // same "wordy text moves to hover, not a second floating line" fix
+  // GammaCharacter.tsx's HEAD-LABELS pass already shipped. The gauge BAR
+  // meshes (background + fill, just above) stay -- only the text label is
+  // gone, so at-a-glance mem pressure is still visible as a bar, the exact
+  // number is one hover away.
   // POLISH-3 (2026-09-15, real-GPU probe: automation/state/station/hq-probe-
   // runs/20260915T114713Z-n6xD1qb0i4bfCDjMZ9s9l.samples.json.gz) --
   // label_overlap FAILed on "general-purpose"/"Claude (you)" live-agent
@@ -298,6 +284,29 @@ export default function BrainCore({
   // reads.
   const thinking = brainBusy;
   const wallStatusLine = brainWallStatusLine(lastRow, nextLine, thinking, briefMtimeMs);
+  // LABELS pass (2026-09-15, coordinator mid-task correction: the
+  // "BRAIN · wrote brief ..." plaque + separate floating "MEM ... MiB"
+  // line were the biggest label mass in every capture, sitting directly
+  // over the new TwinMonitors -- same "labels too big and wordy" fix
+  // GammaCharacter.tsx already shipped for Gamma's own bubble (HEAD-LABELS
+  // pass, same session). Folds BOTH plaques into one compact HeadLabel:
+  // dot + "BRAIN" + house glyph (local Ollama, modelGlyph("local-llm", ...)
+  // -- same glyph GammaCharacter.tsx uses for the same brain), with the
+  // full wordy status (wallStatusLine, unchanged derivation) + manager name
+  // + the MEM readout folded into the hover-only `detail` string, never
+  // fabricated text. dotColor reuses manager's own PERSONA_STATUS_COLOR
+  // when a manager row exists (statusDotColor("persona", ...), same map
+  // Hud.tsx's roster panel reads) so the dot never disagrees with the
+  // crew panel; falls back to the accent cyan the plaque always used when
+  // no manager row is present yet.
+  const isKiosk = useIsKiosk();
+  const { glyph: brainGlyph, title: brainGlyphTitle } = modelGlyph("local-llm", null, modelName);
+  const brainDotColor = manager ? statusDotColor("persona", manager.status) : "#7ad9ff";
+  const brainDetail = [
+    wallStatusLine,
+    manager ? `${manager.emoji} ${manager.name}` : null,
+    `MEM ${memUsedMib ?? "?"}/${memTotalMib ?? "?"} MiB`,
+  ].filter(Boolean).join(" · ");
 
   // All-hands pulse (Company Mode step 6, 2026-09-13): fires ~10s of
   // doubled ring speed + a plaque when station-brief.md's mtime
@@ -358,11 +367,6 @@ export default function BrainCore({
     const camX = state.camera.position.x;
     const camY = state.camera.position.y;
     const camZ = state.camera.position.z;
-    if (gaugeLabelRef.current) {
-      const worldY = (GAUGE_GROUP_Y + GAUGE_LABEL_Y) * CORE_GROUP_SCALE;
-      const k = bubbleCounterScale(Math.hypot(camX, camY - worldY, camZ));
-      gaugeLabelRef.current.style.transform = `scale(${k})`;
-    }
     if (plaqueRef.current) {
       const worldY = PLAQUE_Y * CORE_GROUP_SCALE;
       const k = bubbleCounterScale(Math.hypot(camX, camY - worldY, camZ));
@@ -452,7 +456,11 @@ export default function BrainCore({
         <spriteMaterial ref={glowMat} color={PALETTE.hubCore} transparent opacity={0.5} depthWrite={false} blending={THREE.AdditiveBlending} />
       </sprite>
 
-      {/* Memory gauge: background + fill, anchored left */}
+      {/* Memory gauge bar -- background + fill only, anchored left. The
+          text readout used to float as its own Html label right below this
+          (Queue item h); it's gone now -- see `brainDetail` above, folded
+          into the compact HeadLabel's hover detail alongside the wall
+          status line. */}
       <group position={[0, GAUGE_GROUP_Y, 0]}>
         <mesh>
           <boxGeometry args={[GAUGE_WIDTH, 0.09, 0.05]} />
@@ -462,57 +470,39 @@ export default function BrainCore({
           <boxGeometry args={[GAUGE_WIDTH * Math.max(memFrac, 0.02), 0.09, 0.05]} />
           <meshBasicMaterial color={gaugeColor} toneMapped={false} />
         </mesh>
-        <Html position={[0, GAUGE_LABEL_Y, 0]} center distanceFactor={9} style={{ pointerEvents: "none" }}>
-          <div ref={gaugeDeclutterRef} style={{ transformOrigin: "50% 100%" }}>
-            {/* POLISH-3: transparent vertical padding inflates THIS div's own
-                measured rect (the resolver reads size from `measureRef`'s
-                real getBoundingClientRect -- see useLabelDeclutter.ts's own
-                header) without changing anything visible -- a "min gap" the
-                declutter resolver's strict rect-overlap check now honors
-                even for a near-touch against the plaque above, not only a
-                true pixel overlap. */}
-            <div ref={mergeRefs(gaugeLabelRef, gaugeDeclutterMeasureRef)} style={{ color: "#7f93b0", fontSize: 26, fontFamily: "system-ui, sans-serif", whiteSpace: "nowrap", padding: "10px 0" }}>
-              MEM {memUsedMib ?? "?"}/{memTotalMib ?? "?"} MiB
-            </div>
-          </div>
-        </Html>
       </group>
 
-      {/* Model plaque -- 10-foot-readability sizing (2026-09-13): ~34px, the
-          brain's own status line, must read clearly across a room on the 4K
-          panel. Wrapped in .hq-beam (Border Beam, see Hud.tsx's shared
-          <style>) since this is the hub's own HUD-adjacent plaque. */}
+      {/* LABELS pass (2026-09-15): the old "10-foot-readability" wordy
+          plaque (34px status line + 26px manager caption, both always-on)
+          is replaced with the SAME compact HeadLabel convention
+          GammaCharacter.tsx's HEAD-LABELS pass already shipped for Gamma's
+          own bubble -- dot + "BRAIN" + house glyph (modelGlyph("local-llm",
+          ...), the identical glyph Gamma's own label uses for the same
+          local Ollama brain), full status text moved to hover-only
+          `detail` (`brainDetail` above: wallStatusLine + manager name + MEM
+          reading, never a fabricated string). This was measurably the
+          single largest label in every HQ capture and sat directly over
+          the new TwinMonitors' screen region (coordinator-flagged,
+          2026-09-15) -- shrinking it is also most of the fix for that
+          overlap, on top of matching the rest of the scene's now-compact
+          label convention. */}
       <Html position={[0, PLAQUE_Y, 0]} center distanceFactor={9} style={{ pointerEvents: "none" }}>
         {/* DECLUTTER pass: outer wrapper the shared resolver owns (vertical
             nudge + fade-beyond-cap), kept separate from `plaqueRef`'s own
             existing bubbleCounterScale close-camera scale-clamp -- see
             Agent.tsx's identical two-wrapper convention/comment. */}
         <div ref={declutterRef} style={{ transformOrigin: "50% 100%" }}>
-        <div ref={mergeRefs(plaqueRef, declutterMeasureRef)} className="hq-beam" style={{ "--beam-color": "#7ad9ff", borderRadius: 8 } as CSSProperties}>
-          <div
-            style={{
-              color: "#dff3ff", fontSize: 34, fontWeight: 700, fontFamily: "system-ui, sans-serif",
-              background: "rgba(3,4,10,0.7)", padding: "4px 20px", borderRadius: 7,
-              whiteSpace: "nowrap", textAlign: "center",
-            }}
-          >
-            {/* World-4 fix (P3): was `{modelName || "BRAIN IDLE"}` -- a
-                model-loaded check, not a manager-activity one, so it read
-                "IDLE" during a deliberate RTH yield. `wallStatusLine` above
-                derives from the identical loop-ledger row the crew panel's
-                pill and Gamma's own bubble already read, so this can no
-                longer disagree with either. */}
-            <div>{wallStatusLine}</div>
-            {/* Manager caption (Company Mode item 9, 2026-09-13): one added
-                line naming the hub as the "Gamma (Manager)" persona, with
-                its own live status color -- no 8th desk, the hub itself is
-                persona #7's home. */}
-            {manager && (
-              <div style={{ fontSize: 26, fontWeight: 600, color: personaStatusColor(manager.status), marginTop: 2 }}>
-                {manager.emoji} {manager.name}
-              </div>
-            )}
-          </div>
+        <div ref={mergeRefs(plaqueRef, declutterMeasureRef)} style={{ position: "relative", transformOrigin: "50% 100%", pointerEvents: isKiosk ? "none" : "auto" }}>
+          <HeadLabel
+            name="BRAIN"
+            glyph={brainGlyph}
+            glyphTitle={brainGlyphTitle}
+            dotColor={brainDotColor}
+            accentColor="#7ad9ff"
+            detail={brainDetail}
+            detailKey={brainDetail}
+            interactive={!isKiosk}
+          />
         </div>
         </div>
       </Html>

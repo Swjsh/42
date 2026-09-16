@@ -12,7 +12,7 @@ import { recordCameraSample } from "@/lib/hq-motion-diag";
 // `?camtarget=`/`?tour=0` -- CAM_DIST_MIN/CAM_DIST_MAX replace this file's
 // own former FREE_CAM_MIN_DISTANCE/FREE_CAM_MAX_DISTANCE literals below (one
 // source of truth for the clamp, shared with the unit-testable parser).
-import { CAM_DIST_MAX, CAM_DIST_MIN, parseCameraParams } from "@/lib/hq-camera-params";
+import { CAM_DIST_MAX, CAM_DIST_MIN, parseCameraParams, shouldParkTourAtOverview } from "@/lib/hq-camera-params";
 // UX-1 U5 (2026-09-14): reports the exact frame the cinematic auto-orbit
 // resumes after FREE_CAM_IDLE_RESUME_S of user idle -- Hud.tsx (outside
 // <Canvas>) subscribes to this SAME external store to show a brief "camera
@@ -63,7 +63,7 @@ import { PRIORITY } from "./labelDeclutter";
 import { laneBubbleAction, personaBubbleAction } from "./bubbleText";
 import { liveAgentIdentity } from "./liveAgentIdentity";
 import { computePurposefulWalk, dayNightFactor, healthColor, hhmmFromEtIso, isParkedState, isRegularTradingHours, lerp, localToWorld, minutesSinceEvidence, nowEtDayOfWeek, nowEtMinutes, PALETTE, personaStatusColor, scheduleOnShift, truncateOneLine, type ScreenLine } from "./palette";
-import { BAY_DESK_OFFSET_Z, BAY_SEAT_LOCAL, CampusGate, CHARACTER_SCALE, CHARACTER_TARGET_HEIGHT, CorridorRun, DeskCluster, HubRoom, HUB_WALL_RADIUS, Plaza, TJunction } from "./SetKit";
+import { BAY_DESK_OFFSET_Z, BAY_SEAT_LOCAL, BAY_SEAT_LOCAL_BAY, CampusGate, CHARACTER_SCALE, CHARACTER_TARGET_HEIGHT, CorridorRun, DeskCluster, HubRoom, HUB_WALL_RADIUS, Plaza, TJunction } from "./SetKit";
 // LAYOUT builder pass (2026-09-14, campus-cross rebuild): pure geometry/math
 // module (no React/Three deps) shared with SetKit.tsx -- see that module's
 // own header for why the dependency runs this direction only (layout.ts ->
@@ -649,11 +649,34 @@ function CameraRig({ reducedMotion, rows, geometry, briefMtimeMs, ultra, cameraP
     if (!ultra) return;
     const controls = controlsRef.current;
     if (!controls) return;
-    const params = parseCameraParams(new URLSearchParams(window.location.search));
+    const searchParams = new URLSearchParams(window.location.search);
+    const params = parseCameraParams(searchParams);
     if (params.tour) return;
+    // BUG FIX (2026-09-15, orchestrator captures design-default-1910.png
+    // [broken -- inside the hub, near the core/arms] vs
+    // design-default-camdist-1940.png [correct overview, via &camdist=48]):
+    // `?tour=0` ALONE parked the camera in userFree with NO position write
+    // -- it just froze wherever the Canvas' own initial camera happened to
+    // be, which is nowhere near the overview pose. `?camdist=`/`?camtarget=`
+    // (effect above) and `?cam=` (effect below) each write a real pose
+    // before parking; this one didn't. Fix: when NEITHER of those other
+    // overrides is present, write the exact SAME pose key "0" already
+    // resolves to (OVERVIEW_CAM_POS/DEFAULT_LOOKAT, see
+    // resolveCameraPresetKey above) before parking, so a bare `?tour=0`
+    // capture matches the proven `?camdist=48` framing byte-for-byte
+    // instead of landing inside the hub. Guarded off when camdist/camtarget
+    // already ran (never fight that effect's own pose) -- `?cam=`'s own
+    // effect is declared AFTER this one, so it still wins if both are
+    // present together, same "last-declared override wins" ordering the
+    // preset effect below already relies on.
+    if (shouldParkTourAtOverview(params, searchParams.get("cam") !== null)) {
+      camera.position.set(...OVERVIEW_CAM_POS);
+      controls.target.set(DEFAULT_LOOKAT.x, DEFAULT_LOOKAT.y, DEFAULT_LOOKAT.z);
+      camera.lookAt(controls.target);
+    }
     mode.current = "userFree";
     idleSince.current = null;
-  }, [ultra]);
+  }, [ultra, camera]);
 
   // HALLWAY-FIX builder pass (2026-09-14): `?cam=x,y,z,tx,ty,tz` (ultra tier
   // only, dev/capture only) -- an arbitrary camera pose for a headless
@@ -1187,11 +1210,15 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
   // them into useMemo/useEffect dependency arrays, and an unstable
   // reference there would reset a mid-walk agent back to its desk on every
   // single poll instead of only reacting to real data changes.
-  // Kit rebuild: the ultra tier's real chair sits at BAY_SEAT_LOCAL (inside
-  // a <DeskCluster> offset BAY_DESK_OFFSET_Z back from the module's own
-  // local origin -- see StationModule.tsx), NOT the old -0.15 tuned for the
-  // TV tier's bare procedural desk box. TV tier is unchanged.
-  const seatLocal = ultra ? BAY_SEAT_LOCAL : TV_LANE_SEAT_LOCAL;
+  // Kit rebuild: the ultra tier's real chair sits at BAY_SEAT_LOCAL_BAY
+  // (inside a <DeskCluster> offset BAY_DESK_OFFSET_Z_BAY back from the
+  // module's own local origin -- see StationModule.tsx), NOT the old -0.15
+  // tuned for the TV tier's bare procedural desk box. TV tier is unchanged.
+  // DESK-ROWS pass (2026-09-15): BAY_SEAT_LOCAL_BAY (not the shared
+  // BAY_SEAT_LOCAL persona desks/Gamma's own desk still use) -- keeps this
+  // agentHome in sync with StationModule.tsx's own desk offset fix
+  // (audit desk_clearance) without moving any hub-side desk's own seat.
+  const seatLocal = ultra ? BAY_SEAT_LOCAL_BAY : TV_LANE_SEAT_LOCAL;
 
   const slotCount = Math.max(rows.length, 1);
   // LAYOUT builder pass (2026-09-14, campus-cross rebuild): each bay's own

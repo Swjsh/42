@@ -68,3 +68,21 @@ function parseCamTarget(raw: string | null): string | undefined {
   const trimmed = raw.trim();
   return trimmed === "" ? undefined : trimmed;
 }
+
+/** MONITORS-READABLE pass (2026-09-15): pure predicate for the `?tour=0`
+ * bug fix -- a bare `?tour=0` (no `camdist`/`camtarget`/`cam`) must land on
+ * the SAME overview pose `?camdist=48`-style captures already prove
+ * correct (Scene.tsx#CameraRig's own tour effect writes OVERVIEW_CAM_POS/
+ * DEFAULT_LOOKAT when this returns `true`, then parks either way); when any
+ * other override is present, that override's OWN effect already wrote a
+ * real pose, so this returns `false` and the tour effect only parks
+ * without touching position -- never fighting `?camdist=`/`?camtarget=`/
+ * `?cam=`. `hasRawCamParam` is the caller's own `searchParams.get("cam")
+ * !== null` check -- `cam` has no place in `CameraParams` (it's 6 raw
+ * numbers fully replacing position+target, parsed/validated in its own
+ * effect, not this module) so the presence check stays the caller's job;
+ * this function only combines it with the two params this module DOES
+ * parse. */
+export function shouldParkTourAtOverview(params: Pick<CameraParams, "camDist" | "camTarget">, hasRawCamParam: boolean): boolean {
+  return params.camDist === undefined && params.camTarget === undefined && !hasRawCamParam;
+}

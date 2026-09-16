@@ -55,7 +55,11 @@ agents walking in and out, the HoloChart with today's SPY candles, levels and tr
   motion = real events only, never wake the TV, not-PS2 visual bar.
 - **Verification = real-screen capture**, only when `setup/scripts/gamma_mode.ps1 -Mode status`
   is not gaming/off AND `automation/state/station/presence.json` has `present:false`:
-  `powershell -NoProfile -ExecutionPolicy Bypass -File setup/scripts/hq_capture.ps1 -Out <png> -Url "http://127.0.0.1:3000/hq?tour=0" -SettleSec 35`,
+  `powershell -NoProfile -ExecutionPolicy Bypass -File setup/scripts/hq_capture.ps1 -Out <png> -Url "http://127.0.0.1:3000/hq?tour=0" -SettleSec 35`
+  (MONITORS-READABLE fix, 2026-09-15: `?tour=0` alone now lands on the SAME
+  overview pose `?camdist=48` proves -- previously it parked wherever the
+  Canvas' initial camera happened to be, inside the hub near the core; see
+  `Scene.tsx#CameraRig`'s tour effect + `lib/hq-camera-params.ts#shouldParkTourAtOverview`),
   then Read the PNG. The in-app Browser pane runs hidden and pauses the canvas, so its numbers don't
   count. For motion, also run the live-agent probe per memory
   `reference_hq_live_agent_probe_procedure_2026_09_15` (11 checks; last all-green ~10:50 ET 09-15).

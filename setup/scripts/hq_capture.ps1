@@ -1,4 +1,9 @@
 # hq_capture.ps1 -- full-resolution REAL-SCREEN capture of the live HQ world (the only proof a scene change counts; the Browser pane hides tabs and pauses the canvas). Moved into the repo 2026-09-14 from the overnight scratchpad so every builder and the Station loop use ONE tool.
+# `?tour=0` (no other cam param) is the documented OVERVIEW shot -- lands on the exact
+# OVERVIEW_CAM_POS/DEFAULT_LOOKAT pose (MONITORS-READABLE fix, 2026-09-15: this was previously
+# bugged -- `?tour=0` alone parked wherever the Canvas' initial camera happened to be, inside the
+# hub near the core, not the overview; fixed in Scene.tsx#CameraRig + lib/hq-camera-params.ts
+# #shouldParkTourAtOverview). Add `&cam=x,y,z,tx,ty,tz` for an arbitrary pose instead.
 # Opens ONE private kiosk Edge window on the PC monitor (no sync dialog, no profile), waits
 # for the world to load and settle, copies the primary screen to a PNG, then kills only the
 # Edge process tree it launched (matched by the unique --user-data-dir it was given).

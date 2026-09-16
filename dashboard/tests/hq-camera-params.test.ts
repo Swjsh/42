@@ -16,7 +16,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { CAM_DIST_MAX, CAM_DIST_MIN, parseCameraParams } from "../lib/hq-camera-params.ts";
+import { CAM_DIST_MAX, CAM_DIST_MIN, parseCameraParams, shouldParkTourAtOverview } from "../lib/hq-camera-params.ts";
 
 function params(entries: Record<string, string>): URLSearchParams {
   return new URLSearchParams(entries);
@@ -114,4 +114,29 @@ test("tour: any other value (\"1\", \"false\", \"no\") leaves the tour ON -- onl
 test("combined: camdist + camtarget + tour=0 all parse independently in one call", () => {
   const out = parseCameraParams(params({ camdist: "36", camtarget: "hub-center", tour: "0" }));
   assert.deepEqual(out, { camDist: 36, camTarget: "hub-center", tour: false });
+});
+
+// MONITORS-READABLE pass (2026-09-15): regression pin for the `?tour=0`
+// alone camera-parking bug (real captures design-default-1910.png [broken,
+// inside the hub] vs design-default-camdist-1940.png [correct overview]) --
+// shouldParkTourAtOverview is the pure predicate Scene.tsx#CameraRig's
+// tour effect now gates its OVERVIEW_CAM_POS/DEFAULT_LOOKAT write on.
+test("shouldParkTourAtOverview: tour=0 alone (no camdist/camtarget/cam) -> true, must land on the overview pose", () => {
+  const out = parseCameraParams(params({ tour: "0" }));
+  assert.equal(shouldParkTourAtOverview(out, false), true);
+});
+
+test("shouldParkTourAtOverview: camdist present alongside tour=0 -> false, never fight that effect's own pose", () => {
+  const out = parseCameraParams(params({ tour: "0", camdist: "36" }));
+  assert.equal(shouldParkTourAtOverview(out, false), false);
+});
+
+test("shouldParkTourAtOverview: camtarget present alongside tour=0 -> false", () => {
+  const out = parseCameraParams(params({ tour: "0", camtarget: "hub-center" }));
+  assert.equal(shouldParkTourAtOverview(out, false), false);
+});
+
+test("shouldParkTourAtOverview: raw ?cam= present alongside tour=0 -> false (caller passes hasRawCamParam=true)", () => {
+  const out = parseCameraParams(params({ tour: "0" }));
+  assert.equal(shouldParkTourAtOverview(out, true), false);
 });

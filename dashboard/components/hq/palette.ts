@@ -601,7 +601,7 @@ export function createScreenCanvas(): { canvas: HTMLCanvasElement; texture: THRE
  * screenshot. Omitted (every OTHER caller of this shared drawer -- none
  * currently exist besides DeskScreen.tsx, but the signature stays
  * backward-compatible) for zero layout change. */
-export function drawScreenLines(canvas: HTMLCanvasElement, texture: THREE.CanvasTexture, title: string | null, lines: ScreenLine[], liveStamp?: string): void {
+export function drawScreenLines(canvas: HTMLCanvasElement, texture: THREE.CanvasTexture, title: string | null, lines: ScreenLine[], liveStamp?: string, titleSize = 15): void {
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
   const w = canvas.width;
@@ -611,10 +611,22 @@ export function drawScreenLines(canvas: HTMLCanvasElement, texture: THREE.Canvas
   ctx.textBaseline = "top";
   let y = 10;
   if (title) {
+    // MONITORS-READABLE pass (2026-09-15): `titleSize` optional param
+    // (default 15, the original hardcoded value -- every existing caller,
+    // DeskScreen.tsx/HubInterior.tsx, gets byte-identical rendering) lets
+    // TwinMonitors.tsx ask for a headline-scale header on its own much
+    // bigger physical screen -- a 15px header was legible on the small
+    // desk screens this function was built for, but unreadable at overview
+    // distance on TwinMonitors' 3.2u pair (real capture evidence:
+    // monitors-overview-*.png's own title row measured illegible while the
+    // 64px body lines below it read fine). maxTitleChars scales with size
+    // the same way the body-line truncation below already does, so a
+    // bigger title doesn't overrun the canvas width.
     ctx.fillStyle = "#5f7a99";
-    ctx.font = "bold 15px system-ui, sans-serif";
-    ctx.fillText(title.length > 26 ? `${title.slice(0, 25)}…` : title, 12, y);
-    y += 22;
+    ctx.font = `bold ${titleSize}px system-ui, sans-serif`;
+    const maxTitleChars = Math.floor((w - 24) / (titleSize * 0.56));
+    ctx.fillText(title.length > maxTitleChars ? `${title.slice(0, Math.max(1, maxTitleChars - 1))}…` : title, 12, y);
+    y += titleSize + 7;
     ctx.strokeStyle = "rgba(122,217,255,0.25)";
     ctx.beginPath();
     ctx.moveTo(12, y);
