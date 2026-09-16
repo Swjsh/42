@@ -22,6 +22,7 @@ PASS/FAIL threshold (see check_perf).
 """
 from __future__ import annotations
 
+import json
 import re
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
@@ -1933,3 +1934,343 @@ def build_verdicts(
         "bubbles": check_bubbles(samples),
         "perf": check_perf(frame_timestamps_ms, calls_samples, scene_ready=scene_ready, headless=headless),
     }
+
+
+# ─── Usability check family (U1-U8) ────────────────────────────────────────
+# markdown/doctrine/FRONTEND-OPS.md "HQ usability -- the questions the
+# default view must answer" (J, 2026-09-16): "it still needs a lot of design
+# work to look good and be actually usable." Every plausibility check
+# (wall_penetration etc above) can PASS while the room is still unusable --
+# these 8 checks measure the SEPARATE question "does the default view (or
+# one click/hover from it) answer J's 8 questions", per DOM+API evidence
+# only (no LLM, no pixel/OCR judgment) -- same discipline as every check_*
+# above: never PASS without evidence, NO-DATA beats a fabricated PASS.
+#
+# hq_live_probe.py's collect_usability_measurements() does all the browser
+# work (DOM leaf-text scan, .hq-beam label sampling, real page.mouse.move()
+# hover probes, window.__hqSceneAuditScreens() calls) and hands this module
+# ONE plain `measurements` dict (no Playwright/page object ever reaches
+# this file) + the raw /api/hq (and /api/hq-chart) JSON as `api` -- so
+# every function below is pure and unit-testable against synthetic dicts
+# (see test_hq_probe_lib.py), matching every other check_* in this module.
+#
+# measurements shape (all keys optional -- a missing key reads as "not
+# captured this run", never crashes a check):
+#   leaf_texts: [{"text": str, "h": float, "w": float}, ...]   -- every
+#       leaf DOM element's own text + bounding-rect size, default view.
+#   body_text: str                                              -- full
+#       document.body.innerText, default view (cheap substring checks,
+#       e.g. the literal word "gross").
+#   label_rects: [{"text","h","w","opacity","visible"}, ...]   -- the SAME
+#       .hq-beam capture check_label_legibility already uses.
+#   hover_probes: [{"kind": "persona"|"agent"|"bay", "key": str,
+#                    "label_h": float, "revealed": bool, "diff": str}, ...]
+#       -- one entry per persona/live-agent/RED-bay this run attempted a
+#       real page.mouse.move() hover against; `revealed` is True only when
+#       body innerText grew by >= HOVER_REVEAL_MIN_CHARS after the hover
+#       (see hq_live_probe.py#probe_hover_reveal) -- never inferred from
+#       React internals, only the observable DOM.
+#   screens: raw window.__hqSceneAuditScreens() result, or None.
+#   preset1_label_rects / preset1_body_text: same as label_rects/body_text
+#       but captured after navigating to ?preset=1 -- U6's "or after one
+#       click" fallback. Absent if the default view already answered U6.
+
+USABILITY_LABEL_MIN_HEIGHT_PX = LABEL_MIN_HEIGHT_PX  # same 12px floor, one number
+HOVER_REVEAL_MIN_CHARS = 8  # smallest realistic "detail" tooltip growth
+
+
+def _u_no_data(reason: str) -> Dict[str, Any]:
+    return {"verdict": "NO-DATA", "detail": {"reason": reason}}
+
+
+def _leaf_matches(leaf_texts: List[Dict[str, Any]], pattern) -> List[Dict[str, Any]]:
+    return [r for r in (leaf_texts or []) if r.get("text") and pattern.search(r["text"])]
+
+
+def _tallest(rects: List[Dict[str, Any]]) -> float:
+    return max((r.get("h") or 0.0) for r in rects) if rects else 0.0
+
+
+MARKET_BANNER_RE = re.compile(r"MARKET\s+(OPEN|CLOSED)")
+MARKET_TIME_RE = re.compile(r"\d{1,2}:\d{2}\s*ET|09:30\s*ET")
+
+
+def check_usability_u1(measurements: Dict[str, Any]) -> Dict[str, Any]:
+    """Is the market open, and when is the next open/close? -- a legible
+    (>=12px) DOM element on the default view naming both the state
+    (OPEN/CLOSED) and a time (Hud.tsx#buildTradingStrip's own "next open
+    <weekday> 09:30 ET" / "engine ticking HH:MM ET" text)."""
+    leaf_texts = measurements.get("leaf_texts")
+    if leaf_texts is None:
+        return _u_no_data("no leaf_texts captured this run")
+    banner_hits = _leaf_matches(leaf_texts, MARKET_BANNER_RE)
+    if not banner_hits:
+        return {"verdict": "FAIL", "detail": {"reason": "no element on the default view contains 'MARKET OPEN'/'MARKET CLOSED'"}}
+    time_hits = [r for r in banner_hits if MARKET_TIME_RE.search(r["text"])]
+    tallest = _tallest(banner_hits)
+    if not time_hits:
+        return {"verdict": "FAIL", "detail": {"reason": "MARKET OPEN/CLOSED banner found but no open/close time in the same text", "banner_text": banner_hits[0]["text"][:200], "height_px": round(tallest, 2)}}
+    if tallest < USABILITY_LABEL_MIN_HEIGHT_PX:
+        return {"verdict": "FAIL", "detail": {"reason": f"banner height {tallest:.1f}px below {USABILITY_LABEL_MIN_HEIGHT_PX}px floor", "banner_text": banner_hits[0]["text"][:200]}}
+    return {"verdict": "PASS", "detail": {"banner_text": banner_hits[0]["text"][:200], "height_px": round(tallest, 2)}}
+
+
+def check_usability_u2(measurements: Dict[str, Any], api: Dict[str, Any]) -> Dict[str, Any]:
+    """Book P&L today, per active arm, gross-labelled -- fleet panel rows
+    legible, one row per /api/hq trading.fleetPnl.arms entry, AND the
+    literal word "gross" present somewhere in that labelling (J's own
+    spec line: "(gross, labelled)") -- a P&L number with no gross/net
+    label is a real ambiguity, not a nitpick, so this FAILs on a missing
+    word rather than assuming "P&L" means gross."""
+    fleet = ((api or {}).get("trading") or {}).get("fleetPnl") or {}
+    arms = fleet.get("arms") or []
+    if not arms:
+        return _u_no_data("no arms in /api/hq trading.fleetPnl -- fleet roster failed to resolve this poll")
+    leaf_texts = measurements.get("leaf_texts") or []
+    body_text = measurements.get("body_text") or ""
+    missing_arms = []
+    for arm in arms:
+        arm_id = arm.get("armId", "")
+        matches = [r for r in leaf_texts if arm_id and arm_id in (r.get("text") or "")]
+        if not matches or _tallest(matches) < USABILITY_LABEL_MIN_HEIGHT_PX:
+            missing_arms.append(arm_id)
+    has_gross = "gross" in body_text.lower()
+    if missing_arms:
+        return {"verdict": "FAIL", "detail": {"reason": "arm row(s) not legible on the default view", "missing_arms": missing_arms, "has_gross_label": has_gross}}
+    if not has_gross:
+        return {"verdict": "FAIL", "detail": {"reason": "every arm's P&L row is legible but the word 'gross' never appears -- number is unlabelled gross-vs-net", "arm_count": len(arms)}}
+    return {"verdict": "PASS", "detail": {"arm_count": len(arms), "has_gross_label": True}}
+
+
+def check_usability_u3(measurements: Dict[str, Any], api: Dict[str, Any]) -> Dict[str, Any]:
+    """Which lane is RED, and why (one line) -- every /api/hq sectors.rows
+    entry with health=="red" needs a legible bay sign on the default view
+    (BaySign.tsx's own userData.hqKind="screen" mesh, projected via
+    window.__hqSceneAuditScreens() -- bay signs carry no per-bay id in that
+    projection today, only the generic label "bay-sign", so this matches
+    RED rows to screens by ORDINAL POSITION in sectors.rows == scene
+    creation order, the same assumption Scene.tsx's own
+    rows[hoveredTarget.index] bakes in; ASSUMPTION, stated once here, not
+    independently re-verified) AND a one-click/hover reveal of that row's
+    own `evidence` string (hover_probes kind="bay")."""
+    rows = ((api or {}).get("sectors") or {}).get("rows") or []
+    red_indices = [i for i, r in enumerate(rows) if r.get("health") == "red"]
+    if not red_indices:
+        return _u_no_data("no RED lane in /api/hq sectors.rows this poll -- nothing to check")
+    screens = measurements.get("screens")
+    bay_screens = [s for s in (screens.get("screenViewportRects") or []) if s.get("label") == "bay-sign"] if isinstance(screens, dict) else None
+    if not bay_screens:
+        return {"verdict": "FAIL", "detail": {"reason": "no bay-sign screens captured via window.__hqSceneAuditScreens() -- RED lane has no measurable on-screen sign", "red_lanes": [rows[i]["lane"] for i in red_indices]}}
+    probes = {p.get("key"): p for p in (measurements.get("hover_probes") or []) if p.get("kind") == "bay"}
+    missing_sign = []
+    missing_reason = []
+    for i in red_indices:
+        sign = bay_screens[i] if i < len(bay_screens) else None
+        if not sign or sign.get("width", 0) < USABILITY_LABEL_MIN_HEIGHT_PX or sign.get("height", 0) < USABILITY_LABEL_MIN_HEIGHT_PX:
+            missing_sign.append(rows[i]["lane"])
+        probe = probes.get(i)
+        if not probe or not probe.get("revealed"):
+            missing_reason.append(rows[i]["lane"])
+    if missing_sign or missing_reason:
+        return {
+            "verdict": "FAIL",
+            "detail": {
+                "reason": "RED lane sign not legible and/or its one-line reason not reachable in one hover/click",
+                "missing_sign": missing_sign,
+                "missing_reason": missing_reason,
+                "assumption": "bay-sign screen[i] <-> sectors.rows[i] by ordinal position (bay signs carry no per-bay id)",
+            },
+        }
+    return {"verdict": "PASS", "detail": {"red_lanes": [rows[i]["lane"] for i in red_indices]}}
+
+
+def check_usability_u4(measurements: Dict[str, Any], api: Dict[str, Any]) -> Dict[str, Any]:
+    """Every persona (/api/hq company.personas) needs a legible head
+    label (name >=12px) on the default view, and its detail (what it's
+    doing + model, HeadLabel.tsx's own `detail` prop) reachable via a real
+    hover (hover_probes kind="persona"/"gamma")."""
+    personas = ((api or {}).get("company") or {}).get("personas") or []
+    if not personas:
+        return _u_no_data("no personas in /api/hq company.personas this poll")
+    label_rects = measurements.get("label_rects")
+    if label_rects is None:
+        return _u_no_data("no label_rects (.hq-beam) captured this run")
+    probes = {p.get("key"): p for p in (measurements.get("hover_probes") or []) if p.get("kind") in ("persona", "gamma")}
+    missing_label = []
+    missing_detail = []
+    for p in personas:
+        name = p.get("name", "")
+        short = name.split(" (")[0].strip()
+        matches = [r for r in label_rects if r.get("visible", True) and short and short[:14].lower() in (r.get("text") or "").lower()]
+        if not matches or _tallest(matches) < USABILITY_LABEL_MIN_HEIGHT_PX:
+            missing_label.append(name)
+            continue
+        probe = probes.get(name)
+        if not probe or not probe.get("revealed"):
+            missing_detail.append(name)
+    if missing_label:
+        return {"verdict": "FAIL", "detail": {"reason": "persona head label not legible on the default view", "missing_label": missing_label}}
+    if missing_detail:
+        return {"verdict": "FAIL", "detail": {"reason": "persona head label legible but hover reveals no detail text", "missing_detail": missing_detail}}
+    return {"verdict": "PASS", "detail": {"persona_count": len(personas)}}
+
+
+def check_usability_u5(measurements: Dict[str, Any], api: Dict[str, Any]) -> Dict[str, Any]:
+    """Every live Claude agent (/api/hq liveAgents) needs a legible head
+    label + hover detail -- same shape as U4, over liveAgents instead of
+    personas."""
+    agents = (api or {}).get("liveAgents") or []
+    if not agents:
+        return _u_no_data("no liveAgents in /api/hq this poll -- nothing running to check")
+    label_rects = measurements.get("label_rects")
+    if label_rects is None:
+        return _u_no_data("no label_rects (.hq-beam) captured this run")
+    probes = {p.get("key"): p for p in (measurements.get("hover_probes") or []) if p.get("kind") == "agent"}
+    missing_label = []
+    missing_detail = []
+    for a in agents:
+        aid = a.get("id") or a.get("label") or ""
+        label = a.get("label") or ""
+        matches = [r for r in label_rects if r.get("visible", True) and label and label[:14].lower() in (r.get("text") or "").lower()]
+        if not matches or _tallest(matches) < USABILITY_LABEL_MIN_HEIGHT_PX:
+            missing_label.append(aid)
+            continue
+        probe = probes.get(aid)
+        if not probe or not probe.get("revealed"):
+            missing_detail.append(aid)
+    if missing_label:
+        return {"verdict": "FAIL", "detail": {"reason": "live-agent head label not legible on the default view", "missing_label": missing_label}}
+    if missing_detail:
+        return {"verdict": "FAIL", "detail": {"reason": "live-agent head label legible but hover reveals no detail text", "missing_detail": missing_detail}}
+    return {"verdict": "PASS", "detail": {"agent_count": len(agents)}}
+
+
+def check_usability_u6(measurements: Dict[str, Any], api: Dict[str, Any]) -> Dict[str, Any]:
+    """Last fill: arm, side, price, result -- a legible HoloChart marker
+    plaque naming the newest fill, on the default view OR after ?preset=1
+    (falls back to measurements.preset1_label_rects/preset1_body_text if
+    present). NO-DATA if there were no fills today (per the task's own
+    spec: a quiet day is not a usability failure)."""
+    last_fill = (api or {}).get("last_fill")
+    if not last_fill:
+        return _u_no_data("no fills today (/api/hq-chart trades empty) -- nothing to check")
+    needles = [str(v) for v in (last_fill.get("armId"), last_fill.get("side"), last_fill.get("price")) if v not in (None, "")]
+    if not needles:
+        return _u_no_data("last_fill present but has no armId/side/price to search for")
+
+    def _found(label_rects, body_text) -> bool:
+        label_rects = label_rects or []
+        body_text = body_text or ""
+        for n in needles:
+            in_label = any(n.lower() in (r.get("text") or "").lower() and (r.get("h") or 0) >= USABILITY_LABEL_MIN_HEIGHT_PX for r in label_rects)
+            in_body = n.lower() in body_text.lower()
+            if not (in_label or in_body):
+                return False
+        return True
+
+    if _found(measurements.get("label_rects"), measurements.get("body_text")):
+        return {"verdict": "PASS", "detail": {"last_fill": last_fill, "view": "default"}}
+    if "preset1_label_rects" in measurements or "preset1_body_text" in measurements:
+        if _found(measurements.get("preset1_label_rects"), measurements.get("preset1_body_text")):
+            return {"verdict": "PASS", "detail": {"last_fill": last_fill, "view": "preset=1"}}
+    return {"verdict": "FAIL", "detail": {"reason": "newest fill's arm/side/price not found on the default view or after ?preset=1", "last_fill": last_fill}}
+
+
+NEEDS_J_RE = re.compile(r"NEEDS\s*J\s*\((\d+)\)", re.IGNORECASE)
+
+
+def check_usability_u7(measurements: Dict[str, Any], api: Dict[str, Any]) -> Dict[str, Any]:
+    """What needs J? -- the NEEDS-J panel is always-visible on the default
+    view (per Hud.tsx's own "U6: pinned in the header" comment) with a
+    count that must match /api/hq's own `blocked` array length."""
+    blocked = (api or {}).get("blocked") or []
+    leaf_texts = measurements.get("leaf_texts")
+    if leaf_texts is None:
+        return _u_no_data("no leaf_texts captured this run")
+    hits = [r for r in leaf_texts if r.get("text") and NEEDS_J_RE.search(r["text"])]
+    if not blocked:
+        # Hud.tsx hides the card entirely when blockedItems.length===0 --
+        # that is CORRECT behaviour (nothing needs J), not a failure to
+        # show a count, so a clean day is NO-DATA, never a fabricated FAIL.
+        if hits:
+            return {"verdict": "PASS", "detail": {"note": "blocked list empty but panel still present", "text": hits[0]["text"][:100]}}
+        return _u_no_data("no items in /api/hq blocked this poll -- panel correctly hidden, nothing to verify the count against")
+    if not hits:
+        return {"verdict": "FAIL", "detail": {"reason": "no legible 'NEEDS J (N)' element on the default view despite /api/hq blocked having items", "blocked_count": len(blocked)}}
+    m = NEEDS_J_RE.search(hits[0]["text"])
+    shown_count = int(m.group(1)) if m else None
+    tallest = _tallest(hits)
+    if tallest < USABILITY_LABEL_MIN_HEIGHT_PX:
+        return {"verdict": "FAIL", "detail": {"reason": f"NEEDS-J panel height {tallest:.1f}px below {USABILITY_LABEL_MIN_HEIGHT_PX}px floor"}}
+    if shown_count != len(blocked):
+        return {"verdict": "FAIL", "detail": {"reason": "NEEDS-J count disagrees with /api/hq blocked length", "shown_count": shown_count, "api_count": len(blocked)}}
+    return {"verdict": "PASS", "detail": {"shown_count": shown_count, "height_px": round(tallest, 2)}}
+
+
+def check_usability_u8(measurements: Dict[str, Any], api: Dict[str, Any]) -> Dict[str, Any]:
+    """Is anything broken? -- every flagged condition (desks[].stale,
+    sectors health red/zombie/frozen, liveAgentsError) must be surfaced by
+    a legible red-ish DOM element on the default view; FAIL if a flagged
+    condition has no surface at all. Never claims pixel color -- "red-ish"
+    here means the literal words this run's own broken conditions would
+    produce (stale/dead/red/zombie/frozen/error/broken), matched against
+    the SAME evidence text /api/hq itself reports, never an invented
+    generic word list."""
+    api = api or {}
+    flags: List[str] = []
+    desks = api.get("desks")
+    if isinstance(desks, dict):
+        for name, d in desks.items():
+            if isinstance(d, dict) and d.get("stale"):
+                flags.append(f"desk:{name}")
+    elif isinstance(desks, list):
+        for d in desks:
+            if isinstance(d, dict) and d.get("stale"):
+                flags.append(f"desk:{d.get('id') or d.get('name')}")
+    rows = ((api.get("sectors") or {}).get("rows")) or []
+    for r in rows:
+        if r.get("health") in ("red", "zombie", "frozen"):
+            flags.append(f"lane:{r.get('lane')}:{r.get('health')}")
+    if api.get("liveAgentsError"):
+        flags.append("liveAgentsError")
+    if not flags:
+        return _u_no_data("no stale/red/zombie/frozen/error flags in /api/hq this poll -- nothing broken to surface")
+    leaf_texts = measurements.get("leaf_texts") or []
+    broken_word_re = re.compile(r"stale|dead|zombie|frozen|\berror\b|broken", re.IGNORECASE)
+    surfaces = [r for r in leaf_texts if r.get("text") and broken_word_re.search(r["text"]) and (r.get("h") or 0) >= USABILITY_LABEL_MIN_HEIGHT_PX]
+    if not surfaces:
+        return {"verdict": "FAIL", "detail": {"reason": "flagged broken condition(s) with no legible surface anywhere on the default view", "flags": flags}}
+    return {"verdict": "PASS", "detail": {"flags": flags, "surface_count": len(surfaces), "sample_surface": surfaces[0]["text"][:120]}}
+
+
+def compute_usability_verdicts(measurements: Dict[str, Any], api: Dict[str, Any]) -> Dict[str, Any]:
+    """Runs the full U1-U8 family (see this module's own header block just
+    above) against ONE already-collected `measurements` dict + the raw
+    /api/hq JSON. Pure -- no I/O, matches every other compute_*_verdicts
+    in this module."""
+    return {
+        "U1": check_usability_u1(measurements),
+        "U2": check_usability_u2(measurements, api),
+        "U3": check_usability_u3(measurements, api),
+        "U4": check_usability_u4(measurements, api),
+        "U5": check_usability_u5(measurements, api),
+        "U6": check_usability_u6(measurements, api),
+        "U7": check_usability_u7(measurements, api),
+        "U8": check_usability_u8(measurements, api),
+    }
+
+
+def print_usability_lines(usability: Dict[str, Any]) -> None:
+    """Same stdout-echo convention as print_plausibility_lines above --
+    one PASS/FAIL/NO-DATA <check>: <evidence> line per check, in U1..U8
+    order (dict insertion order from compute_usability_verdicts)."""
+    for name, result in usability.items():
+        verdict = result.get("verdict", "NO-DATA")
+        detail = result.get("detail", {})
+        if verdict == "NO-DATA":
+            evidence = detail.get("reason", "no evidence")
+        elif verdict == "FAIL":
+            evidence = detail.get("reason") or json.dumps(detail)[:200]
+        else:
+            evidence = json.dumps(detail)[:200]
+        print(f"{verdict} {name}: {evidence}")

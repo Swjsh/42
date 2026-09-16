@@ -120,7 +120,9 @@ from hq_probe_lib import (  # noqa: E402
     build_verdicts,
     check_label_legibility,
     check_label_screen_overlap,
+    compute_usability_verdicts,
     perf_headless_flag,
+    print_usability_lines,
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -565,6 +567,276 @@ def run_plausibility(url: str, seconds: float, out_path: Path, scene_wait_ms: in
     out_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
     print(json.dumps(report, indent=2))
     any_fail = any(v.get("verdict") == "FAIL" for v in plausibility.values())
+    return 1 if any_fail else 0
+
+
+USABILITY_LEAF_TEXT_SCRIPT = """
+() => {
+  const out = [];
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_ELEMENT, null);
+  let node = walker.currentNode;
+  while (node) {
+    if (node.children.length === 0 && node.textContent && node.textContent.trim()) {
+      const r = node.getBoundingClientRect();
+      if (r.width > 0 && r.height > 0) {
+        out.push({ text: node.textContent.trim().slice(0, 300), h: r.height, w: r.width, x: r.left, y: r.top });
+      }
+    }
+    node = walker.nextNode();
+  }
+  return out;
+}
+"""
+
+USABILITY_LABEL_RECTS_SCRIPT = """
+() => Array.from(document.querySelectorAll('.hq-beam')).slice(0, 80).map((el) => {
+  const r = el.getBoundingClientRect();
+  let o = 1; let node = el; let hops = 0;
+  while (node && node.nodeType === 1 && hops < 8) {
+    const cs = window.getComputedStyle(node);
+    if (cs.display === 'none' || cs.visibility === 'hidden') { o = 0; break; }
+    const v = parseFloat(cs.opacity); if (!Number.isNaN(v)) o *= v;
+    if (node === document.body) break; node = node.parentElement; hops += 1;
+  }
+  return { text: (el.innerText || '').slice(0, 200), x: r.left, y: r.top, w: r.width, h: r.height, opacity: o, visible: o > 0.01 && r.width > 0 && r.height > 0 };
+})
+"""
+
+
+def _u_evaluate(page: Any, script: str, default: Any = None) -> Any:
+    try:
+        return page.evaluate(script)
+    except Exception:  # noqa: BLE001
+        return default
+
+
+def probe_hover_reveal(page: Any, cx: float, cy: float, before_text: str) -> Dict[str, Any]:
+    """Moves a REAL synthetic mouse to (cx, cy) -- Playwright dispatches this
+    via the same CDP Input domain a genuine user event arrives through, so
+    it is indistinguishable from a real hover to the page's own React
+    onMouseEnter handlers (HeadLabel.tsx) or r3f's canvas pointermove-driven
+    raycast (Scene.tsx's clickableGroupProps/hoveredTarget) -- never a
+    fabricated signal. `revealed` is judged purely by document.body.innerText
+    growing by >= HOVER_REVEAL_MIN_CHARS, the same "observe the DOM, don't
+    infer React internals" discipline check_label_legibility etc already
+    use. Mouse is returned to a neutral corner afterward so the next probe
+    starts clean."""
+    from hq_probe_lib import HOVER_REVEAL_MIN_CHARS
+
+    try:
+        page.mouse.move(cx, cy)
+        page.wait_for_timeout(350)
+        after_text = page.evaluate("() => document.body.innerText") or ""
+        page.mouse.move(2, 2)
+        page.wait_for_timeout(50)
+    except Exception as exc:  # noqa: BLE001
+        return {"revealed": False, "diff": f"hover probe threw: {exc!r}"}
+    grew = len(after_text) - len(before_text)
+    diff = after_text[len(before_text):] if grew > 0 and after_text.startswith(before_text[: min(len(before_text), 200)]) else ""
+    return {"revealed": grew >= HOVER_REVEAL_MIN_CHARS, "diff": diff[:200], "grew_chars": grew}
+
+
+def collect_usability_measurements(page: Any, url: str, api: Dict[str, Any]) -> Dict[str, Any]:
+    """Browser-side half of the usability check family (U1-U8, see
+    hq_probe_lib.py's own header comment for the full spec) -- gathers ONE
+    plain, JSON-serialisable `measurements` dict from the ALREADY-NAVIGATED
+    `page` and hands it to hq_probe_lib.compute_usability_verdicts, which
+    does all the actual scoring (pure, unit-tested). This function does the
+    I/O only: DOM leaf-text scan, `.hq-beam` label sampling, real
+    page.mouse.move() hover probes against personas/live-agents/RED bays,
+    and window.__hqSceneAuditScreens() for the bay-sign geometry U3 needs."""
+    measurements: Dict[str, Any] = {}
+    measurements["leaf_texts"] = _u_evaluate(page, USABILITY_LEAF_TEXT_SCRIPT, default=[]) or []
+    measurements["body_text"] = _u_evaluate(page, "() => document.body.innerText", default="") or ""
+    label_rects = _u_evaluate(page, USABILITY_LABEL_RECTS_SCRIPT, default=[]) or []
+    measurements["label_rects"] = label_rects
+    measurements["screens"] = _u_evaluate(
+        page,
+        "async () => (window.__hqSceneAuditScreens ? await window.__hqSceneAuditScreens() : null)",
+        default=None,
+    )
+
+    hover_probes: List[Dict[str, Any]] = []
+    body_text = measurements["body_text"]
+
+    def _center_of(text_needle: str) -> Optional[tuple]:
+        text_needle = text_needle.lower()
+        for r in label_rects:
+            if r.get("visible", True) and text_needle in (r.get("text") or "").lower():
+                return (r["x"] + r["w"] / 2.0, r["y"] + r["h"] / 2.0)
+        return None
+
+    # U4/U5: hover every persona + live agent whose head label is on screen.
+    personas = ((api.get("company") or {}).get("personas")) or []
+    for p in personas:
+        name = p.get("name", "")
+        short = name.split(" (")[0].strip()
+        center = _center_of(short[:14]) if short else None
+        if center is None:
+            continue
+        probe = probe_hover_reveal(page, center[0], center[1], body_text)
+        probe.update({"kind": "gamma" if "gamma" in short.lower() else "persona", "key": name})
+        hover_probes.append(probe)
+
+    agents = api.get("liveAgents") or []
+    for a in agents:
+        label = a.get("label") or ""
+        center = _center_of(label[:14]) if label else None
+        if center is None:
+            continue
+        probe = probe_hover_reveal(page, center[0], center[1], body_text)
+        probe.update({"kind": "agent", "key": a.get("id") or label})
+        hover_probes.append(probe)
+
+    # U3: hover every RED-health bay's own sign, matched by ordinal position
+    # against sectors.rows == scene creation order (see
+    # hq_probe_lib.check_usability_u3's own docstring for this assumption).
+    rows = ((api.get("sectors") or {}).get("rows")) or []
+    screens = measurements.get("screens")
+    bay_screens = (
+        [s for s in (screens.get("screenViewportRects") or []) if s.get("label") == "bay-sign"]
+        if isinstance(screens, dict)
+        else []
+    )
+    for i, row in enumerate(rows):
+        if row.get("health") != "red" or i >= len(bay_screens):
+            continue
+        sign = bay_screens[i]
+        cx = sign.get("x", 0) + sign.get("width", 0) / 2.0
+        cy = sign.get("y", 0) + sign.get("height", 0) / 2.0
+        probe = probe_hover_reveal(page, cx, cy, body_text)
+        probe.update({"kind": "bay", "key": i})
+        hover_probes.append(probe)
+
+    measurements["hover_probes"] = hover_probes
+    return measurements
+
+
+def fetch_usability_api(page: Any) -> Dict[str, Any]:
+    """Reads /api/hq (ground truth for U2-U5/U7/U8) + /api/hq-chart's newest
+    trade (U6) via the page's own same-origin fetch -- no extra HTTP client,
+    no credentials, matches this whole probe's read-only contract."""
+    api = _u_evaluate(page, "async () => (await fetch('/api/hq')).json()", default={}) or {}
+    chart = _u_evaluate(page, "async () => (await fetch('/api/hq-chart')).json()", default={}) or {}
+    trades = chart.get("trades") if isinstance(chart, dict) else None
+    last_fill = None
+    if isinstance(trades, list) and trades:
+        last_fill = trades[-1]
+    api["last_fill"] = last_fill
+    return api
+
+
+def run_usability(url: str, out_path: Path, scene_wait_ms: int, min_build_age_s: float) -> int:
+    """Standalone --usability path: launches its own headless page (same
+    lighter setup run_plausibility above uses -- no frame-timestamp/draw-
+    call instrumentation needed), waits for the scene to be ready, then
+    measures the U1-U8 "does the default view answer J's questions" family
+    from markdown/doctrine/FRONTEND-OPS.md. Bounded well under the spec's
+    120s budget: one page load + up to ~10 short hover probes (<=400ms
+    each)."""
+    from playwright.sync_api import sync_playwright
+
+    refuse_reason = check_build_stable(min_build_age_s)
+    if refuse_reason:
+        print(f"REFUSED to start: {refuse_reason}", file=sys.stderr)
+        return 3
+
+    t0 = time.time()
+    diag: Dict[str, Any] = {}
+    usability: Dict[str, Any] = {}
+    api: Dict[str, Any] = {}
+    measurements: Dict[str, Any] = {}
+    browser = None
+    context = None
+    try:
+        with sync_playwright() as pw:
+            try:
+                browser = pw.chromium.launch(headless=True, args=HARDWARE_GL_ARGS)
+                context = browser.new_context(viewport={"width": 1600, "height": 900})
+                page = context.new_page()
+                gl_renderer = page.evaluate(GL_RENDERER_SCRIPT)
+                gl_is_hardware = bool(gl_renderer) and "nvidia" in gl_renderer.lower()
+            except Exception as exc:  # noqa: BLE001
+                gl_is_hardware = False
+                diag["gl_fallback_reason"] = f"hardware GL launch raised {exc!r}"
+            if not gl_is_hardware:
+                diag.setdefault("gl_fallback_reason", "hardware GL probe did not report an NVIDIA renderer -- falling back to SwiftShader")
+                _close_quietly(context)
+                _close_quietly(browser)
+                browser = pw.chromium.launch(headless=True, args=SOFTWARE_GL_ARGS)
+                context = browser.new_context(viewport={"width": 1600, "height": 900})
+                page = context.new_page()
+            diag["gl_is_hardware"] = gl_is_hardware
+
+            page.goto(url, wait_until="load", timeout=60000)
+            scene_ready = True
+            try:
+                page.wait_for_function(
+                    "() => window.__hqSceneAudit !== undefined && !!window.__hqScene && !!document.querySelector('canvas') "
+                    "&& (() => { let found = false; window.__hqScene.traverse((o) => { "
+                    "if (o.userData && o.userData.hqKind === 'furniture') found = true; }); return found; })()",
+                    timeout=scene_wait_ms,
+                )
+            except Exception as exc:  # noqa: BLE001
+                scene_ready = False
+                diag["scene_ready_wait_error"] = str(exc)
+            diag["scene_ready"] = scene_ready
+
+            if scene_ready:
+                api = fetch_usability_api(page)
+                measurements = collect_usability_measurements(page, url, api)
+                usability = compute_usability_verdicts(measurements, api)
+
+                # U6 preset=1 fallback -- only bother if the default view
+                # didn't already answer it (avoids a second page load on
+                # the common case).
+                if usability.get("U6", {}).get("verdict") == "FAIL":
+                    try:
+                        preset_url = url + ("&" if "?" in url else "?") + "preset=1"
+                        page.goto(preset_url, wait_until="load", timeout=30000)
+                        page.wait_for_function(
+                            "() => window.__hqSceneAudit !== undefined && !!document.querySelector('canvas')",
+                            timeout=scene_wait_ms,
+                        )
+                        page.wait_for_timeout(1500)
+                        measurements["preset1_label_rects"] = _u_evaluate(page, USABILITY_LABEL_RECTS_SCRIPT, default=[]) or []
+                        measurements["preset1_body_text"] = _u_evaluate(page, "() => document.body.innerText", default="") or ""
+                        usability["U6"] = compute_usability_verdicts(measurements, api)["U6"]
+                    except Exception as exc:  # noqa: BLE001
+                        usability["U6"]["detail"]["preset1_error"] = str(exc)
+            else:
+                no_data = {"verdict": "NO-DATA", "detail": {"reason": "scene never became ready"}}
+                usability = {f"U{i}": no_data for i in range(1, 9)}
+
+            _close_quietly(context)
+            _close_quietly(browser)
+            context = None
+            browser = None
+    finally:
+        _close_quietly(context)
+        _close_quietly(browser)
+
+    runtime_s = time.time() - t0
+    print_usability_lines(usability)
+    report = {
+        "run_started_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "usability_only": True,
+        "url": url,
+        "runtime_s": round(runtime_s, 1),
+        "environment": {"headless": True, **diag},
+        "usability": usability,
+        "api_snapshot": {
+            "sectors_health": [r.get("health") for r in ((api.get("sectors") or {}).get("rows") or [])],
+            "persona_count": len(((api.get("company") or {}).get("personas")) or []),
+            "live_agent_count": len(api.get("liveAgents") or []),
+            "blocked_count": len(api.get("blocked") or []),
+            "last_fill": api.get("last_fill"),
+        },
+    }
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
+    print(json.dumps(report, indent=2))
+    any_fail = any(v.get("verdict") == "FAIL" for v in usability.values())
     return 1 if any_fail else 0
 
 
@@ -1122,10 +1394,25 @@ def main() -> int:
         default=PLAUSIBILITY_DEFAULT_SECONDS,
         help="walker-position sampling window for --plausibility's own walker_wall_cross check (default 60s)",
     )
+    ap.add_argument(
+        "--usability",
+        action="store_true",
+        help=(
+            "run ONLY the U1-U8 'does the default view answer J's "
+            "questions' family (markdown/doctrine/FRONTEND-OPS.md's "
+            "'HQ usability' section) against the live default /hq view -- "
+            "market state, fleet P&L, RED-lane reason, persona/live-agent "
+            "detail, last fill, NEEDS-J count, broken surfaces. One page "
+            "load + real hover probes, bounded well under 120s."
+        ),
+    )
     args = ap.parse_args()
 
     if args.plausibility:
         return run_plausibility(args.url, args.plausibility_seconds, Path(args.out), args.scene_wait_ms, args.min_build_age_s)
+
+    if args.usability:
+        return run_usability(args.url, Path(args.out), args.scene_wait_ms, args.min_build_age_s)
 
     if args.rescore:
         return rescore(

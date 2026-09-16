@@ -38,6 +38,15 @@ from hq_probe_lib import (  # noqa: E402
     check_walker_separation,
     page_refresh_ms_from_url,
     perf_headless_flag,
+    check_usability_u1,
+    check_usability_u2,
+    check_usability_u3,
+    check_usability_u4,
+    check_usability_u5,
+    check_usability_u6,
+    check_usability_u7,
+    check_usability_u8,
+    compute_usability_verdicts,
 )
 
 
@@ -2036,6 +2045,207 @@ def test_label_screen_overlap_no_data_when_neither_per_tick_nor_global_screens_e
     samples = [{"label_rects": [_label("Coach", 100, 100, 80, 20)]}]
     result = check_label_screen_overlap(samples, [])
     assert result["verdict"] == "NO-DATA", result
+
+
+def _leaf(text, h=20.0, w=100.0):
+    return {"text": text, "h": h, "w": w}
+
+
+def _label_rect(text, h=20.0, visible=True):
+    return {"text": text, "h": h, "w": 100.0, "visible": visible, "opacity": 1.0}
+
+
+class TestUsabilityU1:
+    def test_no_data_no_capture(self):
+        assert check_usability_u1({})["verdict"] == "NO-DATA"
+
+    def test_fail_no_banner(self):
+        r = check_usability_u1({"leaf_texts": [_leaf("hello world")]})
+        assert r["verdict"] == "FAIL"
+
+    def test_fail_banner_no_time(self):
+        r = check_usability_u1({"leaf_texts": [_leaf("MARKET OPEN · engine ticking")]})
+        assert r["verdict"] == "FAIL"
+
+    def test_fail_banner_too_short(self):
+        r = check_usability_u1({"leaf_texts": [_leaf("MARKET OPEN · 09:35 ET", h=8.0)]})
+        assert r["verdict"] == "FAIL"
+
+    def test_pass(self):
+        r = check_usability_u1({"leaf_texts": [_leaf("MARKET OPEN · engine ticking 09:35 ET · safe HOLD")]})
+        assert r["verdict"] == "PASS"
+
+
+class TestUsabilityU2:
+    API = {"trading": {"fleetPnl": {"arms": [{"armId": "safe-2"}, {"armId": "bold-2"}]}}}
+
+    def test_no_data_no_arms(self):
+        r = check_usability_u2({}, {"trading": {"fleetPnl": {"arms": []}}})
+        assert r["verdict"] == "NO-DATA"
+
+    def test_fail_missing_arm_row(self):
+        r = check_usability_u2({"leaf_texts": [_leaf("safe-2 +$10 (1t)")], "body_text": "gross"}, self.API)
+        assert r["verdict"] == "FAIL"
+        assert "bold-2" in r["detail"]["missing_arms"]
+
+    def test_fail_no_gross_word(self):
+        r = check_usability_u2(
+            {"leaf_texts": [_leaf("safe-2 +$10"), _leaf("bold-2 +$5")], "body_text": "FLEET P&L TODAY"},
+            self.API,
+        )
+        assert r["verdict"] == "FAIL"
+
+    def test_pass(self):
+        r = check_usability_u2(
+            {"leaf_texts": [_leaf("safe-2 +$10"), _leaf("bold-2 +$5")], "body_text": "gross P&L today"},
+            self.API,
+        )
+        assert r["verdict"] == "PASS"
+
+
+class TestUsabilityU3:
+    API = {"sectors": {"rows": [{"lane": "green-lane", "health": "green", "evidence": "fine"}, {"lane": "red-lane", "health": "red", "evidence": "gate RED"}]}}
+
+    def test_no_data_no_red(self):
+        api = {"sectors": {"rows": [{"lane": "a", "health": "green"}]}}
+        assert check_usability_u3({}, api)["verdict"] == "NO-DATA"
+
+    def test_fail_no_screens(self):
+        r = check_usability_u3({"screens": None}, self.API)
+        assert r["verdict"] == "FAIL"
+
+    def test_fail_no_reason_revealed(self):
+        m = {
+            "screens": {"screenViewportRects": [
+                {"label": "bay-sign", "width": 40, "height": 20},
+                {"label": "bay-sign", "width": 40, "height": 20},
+            ]},
+            "hover_probes": [],
+        }
+        r = check_usability_u3(m, self.API)
+        assert r["verdict"] == "FAIL"
+        assert "red-lane" in r["detail"]["missing_reason"]
+
+    def test_pass(self):
+        m = {
+            "screens": {"screenViewportRects": [
+                {"label": "bay-sign", "width": 40, "height": 20},
+                {"label": "bay-sign", "width": 40, "height": 20},
+            ]},
+            "hover_probes": [{"kind": "bay", "key": 1, "revealed": True}],
+        }
+        r = check_usability_u3(m, self.API)
+        assert r["verdict"] == "PASS"
+
+
+class TestUsabilityU4:
+    API = {"company": {"personas": [{"name": "Scout"}, {"name": "Gamma (Manager)"}]}}
+
+    def test_no_data_no_personas(self):
+        assert check_usability_u4({}, {"company": {"personas": []}})["verdict"] == "NO-DATA"
+
+    def test_fail_missing_label(self):
+        r = check_usability_u4({"label_rects": [_label_rect("Scout")]}, self.API)
+        assert r["verdict"] == "FAIL"
+        assert "Gamma (Manager)" in r["detail"]["missing_label"]
+
+    def test_fail_missing_hover_detail(self):
+        m = {"label_rects": [_label_rect("Scout"), _label_rect("Gamma")], "hover_probes": []}
+        r = check_usability_u4(m, self.API)
+        assert r["verdict"] == "FAIL"
+
+    def test_pass(self):
+        m = {
+            "label_rects": [_label_rect("Scout"), _label_rect("Gamma")],
+            "hover_probes": [
+                {"kind": "persona", "key": "Scout", "revealed": True},
+                {"kind": "gamma", "key": "Gamma (Manager)", "revealed": True},
+            ],
+        }
+        r = check_usability_u4(m, self.API)
+        assert r["verdict"] == "PASS"
+
+
+class TestUsabilityU5:
+    API = {"liveAgents": [{"id": "a1", "label": "general-purpose"}]}
+
+    def test_no_data_no_agents(self):
+        assert check_usability_u5({}, {"liveAgents": []})["verdict"] == "NO-DATA"
+
+    def test_fail_missing_label(self):
+        r = check_usability_u5({"label_rects": []}, self.API)
+        assert r["verdict"] == "FAIL"
+
+    def test_pass(self):
+        m = {
+            "label_rects": [_label_rect("general-purpose")],
+            "hover_probes": [{"kind": "agent", "key": "a1", "revealed": True}],
+        }
+        r = check_usability_u5(m, self.API)
+        assert r["verdict"] == "PASS"
+
+
+class TestUsabilityU6:
+    def test_no_data_no_fill(self):
+        assert check_usability_u6({}, {"last_fill": None})["verdict"] == "NO-DATA"
+
+    def test_fail_not_found(self):
+        api = {"last_fill": {"armId": "safe-2", "side": "call", "price": 1.23}}
+        r = check_usability_u6({"leaf_texts": [], "body_text": "nothing here"}, api)
+        assert r["verdict"] == "FAIL"
+
+    def test_pass_default_view(self):
+        api = {"last_fill": {"armId": "safe-2", "side": "call", "price": 1.23}}
+        m = {"body_text": "safe-2 call 1.23 filled"}
+        r = check_usability_u6(m, api)
+        assert r["verdict"] == "PASS"
+        assert r["detail"]["view"] == "default"
+
+    def test_pass_preset1_fallback(self):
+        api = {"last_fill": {"armId": "safe-2", "side": "call", "price": 1.23}}
+        m = {"body_text": "nothing", "preset1_body_text": "safe-2 call 1.23 filled"}
+        r = check_usability_u6(m, api)
+        assert r["verdict"] == "PASS"
+        assert r["detail"]["view"] == "preset=1"
+
+
+class TestUsabilityU7:
+    def test_no_data_clean_day(self):
+        r = check_usability_u7({"leaf_texts": []}, {"blocked": []})
+        assert r["verdict"] == "NO-DATA"
+
+    def test_fail_no_panel(self):
+        r = check_usability_u7({"leaf_texts": [_leaf("hello")]}, {"blocked": [{"text": "x"}]})
+        assert r["verdict"] == "FAIL"
+
+    def test_fail_count_mismatch(self):
+        r = check_usability_u7({"leaf_texts": [_leaf("NEEDS J (1)")]}, {"blocked": [{"text": "a"}, {"text": "b"}]})
+        assert r["verdict"] == "FAIL"
+
+    def test_pass(self):
+        r = check_usability_u7({"leaf_texts": [_leaf("NEEDS J (2)")]}, {"blocked": [{"text": "a"}, {"text": "b"}]})
+        assert r["verdict"] == "PASS"
+
+
+class TestUsabilityU8:
+    def test_no_data_nothing_broken(self):
+        assert check_usability_u8({}, {})["verdict"] == "NO-DATA"
+
+    def test_fail_no_surface(self):
+        api = {"sectors": {"rows": [{"lane": "x", "health": "red"}]}}
+        r = check_usability_u8({"leaf_texts": [_leaf("all fine")]}, api)
+        assert r["verdict"] == "FAIL"
+
+    def test_pass(self):
+        api = {"sectors": {"rows": [{"lane": "x", "health": "zombie"}]}}
+        r = check_usability_u8({"leaf_texts": [_leaf("lane x is STALE")]}, api)
+        assert r["verdict"] == "PASS"
+
+
+def test_compute_usability_verdicts_shape():
+    result = compute_usability_verdicts({}, {})
+    assert list(result.keys()) == ["U1", "U2", "U3", "U4", "U5", "U6", "U7", "U8"]
+    assert all(v["verdict"] in ("PASS", "FAIL", "NO-DATA") for v in result.values())
 
 
 if __name__ == "__main__":
