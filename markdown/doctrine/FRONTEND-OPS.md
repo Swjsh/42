@@ -42,3 +42,7 @@ J, after the plausibility pass: "it still needs a lot of design work to look goo
 Rules: every answer surface is either always-visible or exactly one click away from the default view; no answer may require reading the flat HUD panel to disambiguate the 3D scene (they must agree); when a check fails, the layout changes, not the threshold.
 
 Visual direction: "looks good" is J's taste call — every look pass starts from 2–3 external references with screenshots that J picks between (design-starts-at-external-reference rule); workers build to the picked reference, never to their own output.
+
+## Never run `next dev` inside dashboard/ (incident 2026-09-16 02:18:59 Wednesday EDT)
+
+A worker used the in-app preview server (Next dev mode on another port) — dev mode rewrites `dashboard/.next` in place, wiping the production build's BUILD_ID and static chunks while `next start` on :3000 kept serving from memory; every chunk request then returned 400 and the live /hq was broken for ~8 min until a full deploy rebuilt it. Rules: the ONLY way to run the dashboard is the deployed production server on :3000 (`setup/scripts/dashboard_deploy.ps1`); verification is `hq_capture.ps1` / `hq_live_probe.py`; never `preview_start`, `npm run dev`, or `next dev` in `dashboard/`. If a dev server is ever needed, it must use a separate `distDir`.
