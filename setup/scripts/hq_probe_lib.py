@@ -1129,6 +1129,37 @@ LABEL_MIN_WIDTH_PX = 40.0
 # exactly what LABEL_LEGIBILITY_MIN_OPACITY gates on.
 LABEL_LEGIBILITY_MIN_OPACITY = 0.05
 
+# STEADY-STATE SAMPLING fix (PROBE-DEFLAKE, 2026-09-16): root cause of the
+# label_legibility / label_vs_screen_overlap PASS/FAIL flip across identical
+# runs was that both checks used to fold EVERY tick of the whole
+# --plausibility window (up to ~240 ticks at PLAUSIBILITY_SAMPLE_INTERVAL_S)
+# into one flat "any violation anywhere ever = FAIL" scan. labelDeclutter.ts's
+# own fade (a label crossing MIN_LEGIBLE_PX) and nudge (a label sliding off a
+# screen face) resolvers run their pass over several frames, not instantly --
+# so a label that is legible/clear for 99% of the run but was caught by ONE
+# tick mid-transition tripped a FAIL that a re-run (different tick landed
+# mid-transition, or none did) would not reproduce. Score only the STEADY
+# state instead: take the tail STEADY_SAMPLE_COUNT ticks of the run (the
+# declutter/nudge resolvers have had the whole run to settle by then) and
+# require a real violation to be observed in >= STEADY_SAMPLE_MIN_RATIO
+# (4-of-5) of the ticks that actually sampled that label/pair -- a single
+# transitional tick can never flip the verdict on its own, and a genuinely
+# broken label (persistently too small / persistently overlapping) still
+# fails every time. Per-key sample histories are recorded in the evidence so
+# a real intermittent flap (as opposed to a settled failure) stays visible
+# rather than being silently averaged away.
+STEADY_SAMPLE_COUNT = 5
+STEADY_SAMPLE_MIN_RATIO = 0.8  # 4-of-5
+
+
+def _steady_state_window(samples: List[Dict[str, Any]], n: int = STEADY_SAMPLE_COUNT) -> List[Dict[str, Any]]:
+    """The tail `n` ticks of `samples` (or all of them if the run captured
+    fewer than `n`) -- the window every steady-state check below scores
+    against, instead of the whole run."""
+    if n <= 0 or len(samples) <= n:
+        return list(samples)
+    return list(samples[-n:])
+
 
 def _rect_area(r: Dict[str, Any]) -> float:
     return max(0.0, r.get("w", 0.0)) * max(0.0, r.get("h", 0.0))
@@ -1402,11 +1433,25 @@ def check_label_legibility(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
     same discipline every other check_* in this module already follows.
     Screen-face/label overlap (a label's rect intersecting a screen's own
     projected rect) is now its own separate check -- see
-    check_label_screen_overlap below / hq-scene-audit.ts#checkLabelScreenOverlap."""
-    visible_heights: List[float] = []
-    violations: List[Dict[str, Any]] = []
+    check_label_screen_overlap below / hq-scene-audit.ts#checkLabelScreenOverlap.
+
+    STEADY-STATE fix (PROBE-DEFLAKE, 2026-09-16): scores only the tail
+    STEADY_SAMPLE_COUNT ticks (see that constant's own header) and, within
+    that window, tallies violations PER LABEL TEXT -- a label only counts as
+    a real violation if it measured under-height in >= STEADY_SAMPLE_MIN_RATIO
+    of the ticks that sampled it, so a single mid-fade tick can no longer
+    flip the whole check's verdict run-to-run on an otherwise-unchanged
+    build. Per-label histories (`seen`/`under_height` tick counts + the raw
+    bool sequence) are always recorded, including for labels that stayed
+    under the ratio (so a real intermittent flap is visible in the
+    evidence, not silently averaged into a PASS)."""
+    window = _steady_state_window(samples)
+    all_visible_heights: List[float] = []
     faded_count = 0
-    for s in samples:
+    # label text -> list[bool] (True == under-height this tick), in tick order.
+    histories: Dict[str, List[bool]] = {}
+    last_height_by_label: Dict[str, float] = {}
+    for s in window:
         rects = s.get("label_rects") or []
         for r in rects:
             if not r.get("visible", True):
@@ -1426,20 +1471,40 @@ def check_label_legibility(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
             if opacity is not None and opacity < LABEL_LEGIBILITY_MIN_OPACITY:
                 faded_count += 1
                 continue
-            visible_heights.append(h)
-            if h < LABEL_MIN_HEIGHT_PX:
-                violations.append({"text": r.get("text"), "height_px": round(h, 2)})
-    if not visible_heights:
-        return {"verdict": "NO-DATA", "detail": {"reason": "no visible labels sampled this run"}}
+            all_visible_heights.append(h)
+            text = r.get("text") or "<no-text>"
+            histories.setdefault(text, []).append(h < LABEL_MIN_HEIGHT_PX)
+            last_height_by_label[text] = h
+
+    if not all_visible_heights:
+        return {"verdict": "NO-DATA", "detail": {"reason": "no visible labels sampled in the steady-state window"}}
+
+    violations: List[Dict[str, Any]] = []
+    for text, hist in histories.items():
+        seen = len(hist)
+        under = sum(hist)
+        if seen == 0 or (under / seen) < STEADY_SAMPLE_MIN_RATIO:
+            continue
+        violations.append({
+            "text": text,
+            "height_px": round(last_height_by_label[text], 2),
+            "seen": seen,
+            "under_height_count": under,
+            "history": hist,
+        })
+
     verdict = "FAIL" if violations else "PASS"
     return {
         "verdict": verdict,
         "detail": {
-            "sampled": len(visible_heights),
+            "sampled": len(all_visible_heights),
+            "steady_window_ticks": len(window),
             "min_height_px": LABEL_MIN_HEIGHT_PX,
+            "steady_min_ratio": STEADY_SAMPLE_MIN_RATIO,
             "violation_count": len(violations),
             "violations": violations[:20],
             "faded_excluded_count": faded_count,
+            "label_histories": {t: h for t, h in list(histories.items())[:40]},
             "note": "label-vs-screen-face overlap is now a separate check (label_vs_screen_overlap) -- see hq-scene-audit.ts#checkLabelScreenOverlap",
         },
     }
@@ -1512,24 +1577,42 @@ def check_label_screen_overlap(samples: List[Dict[str, Any]], screen_rects: List
     with no `screen_rects` key (older *.samples.json.gz captured before
     this fix, or a per-tick eval that failed) -- never a false NO-DATA/PASS
     from a single dropped tick when the rest of the run has real per-tick
-    data."""
+    data.
+
+    STEADY-STATE fix (PROBE-DEFLAKE, 2026-09-16): identical root cause and
+    identical fix shape to check_label_legibility's own steady-state fix
+    above -- a nudged-off-screen label crossing a screen's projected rect
+    mid-transition used to be able to trip a one-tick "worst frac ever seen"
+    FAIL that a re-run would not reproduce. Now scores only the tail
+    STEADY_SAMPLE_COUNT ticks and requires a screen to be over
+    LABEL_VS_SCREEN_OVERLAP_MAX_FRAC in >= STEADY_SAMPLE_MIN_RATIO (4-of-5)
+    of the ticks in that window that actually captured it, with the full
+    per-tick overlap-fraction history recorded per screen in the evidence."""
     if not screen_rects and not any(s.get("screen_rects") for s in samples):
         return {"verdict": "NO-DATA", "detail": {"reason": "no screens captured this run (window.__hqSceneAudit()/__hqSceneAuditScreens() returned none)"}}
 
     fallback_readable_screens = [s for s in screen_rects if s.get("readable")]
+    window = _steady_state_window(samples)
 
-    worst_by_screen: Dict[str, float] = {}
-    worst_label_by_screen: Dict[str, Optional[str]] = {}
     seen_screen_ids: set = set()
     seen_readable_screen_ids: set = set()
     any_label_sampled = False
-    for s in samples:
+    # screen id -> list[float] (this tick's worst overlap frac against that
+    # screen, in tick order) -- only ticks where the screen was actually
+    # captured contribute an entry, so `seen` below only counts real reads.
+    frac_history_by_screen: Dict[str, List[float]] = {}
+    worst_label_by_screen: Dict[str, Optional[str]] = {}
+
+    for s in window:
         tick_screens = s.get("screen_rects")
         readable_screens = [sc for sc in tick_screens if sc.get("readable")] if tick_screens else fallback_readable_screens
         for sc in (tick_screens if tick_screens else screen_rects):
             seen_screen_ids.add(sc.get("id"))
             if sc.get("readable"):
                 seen_readable_screen_ids.add(sc.get("id"))
+
+        tick_worst: Dict[str, float] = {}
+        tick_worst_label: Dict[str, Optional[str]] = {}
         for r in s.get("label_rects") or []:
             if not r.get("visible", True):
                 continue
@@ -1540,22 +1623,44 @@ def check_label_screen_overlap(samples: List[Dict[str, Any]], screen_rects: List
             for screen in readable_screens:
                 frac = _rect_overlap_fraction_of_screen(r, screen)
                 sid = screen["id"]
-                if frac > worst_by_screen.get(sid, 0.0):
-                    worst_by_screen[sid] = frac
-                    worst_label_by_screen[sid] = r.get("text")
+                if frac > tick_worst.get(sid, 0.0):
+                    tick_worst[sid] = frac
+                    tick_worst_label[sid] = r.get("text")
+
+        # Every readable screen this tick captured gets a history entry
+        # (0.0 if no label overlapped it at all this tick) -- a screen
+        # missing from tick_worst is a real "no overlap" observation, not a
+        # gap, so it must still count toward that screen's `seen` total.
+        for screen in readable_screens:
+            sid = screen["id"]
+            frac_history_by_screen.setdefault(sid, []).append(tick_worst.get(sid, 0.0))
+            if sid in tick_worst:
+                worst_label_by_screen[sid] = tick_worst_label.get(sid)
 
     if not any_label_sampled:
-        return {"verdict": "NO-DATA", "detail": {"reason": "no visible labels sampled this run"}}
+        return {"verdict": "NO-DATA", "detail": {"reason": "no visible labels sampled in the steady-state window"}}
 
-    violations = [
-        {"screenId": sid, "overlapFrac": round(frac, 4), "worstLabel": worst_label_by_screen.get(sid)}
-        for sid, frac in worst_by_screen.items()
-        if frac > LABEL_VS_SCREEN_OVERLAP_MAX_FRAC
-    ]
+    violations: List[Dict[str, Any]] = []
+    for sid, history in frac_history_by_screen.items():
+        seen = len(history)
+        over = sum(1 for f in history if f > LABEL_VS_SCREEN_OVERLAP_MAX_FRAC)
+        if seen == 0 or (over / seen) < STEADY_SAMPLE_MIN_RATIO:
+            continue
+        violations.append({
+            "screenId": sid,
+            "overlapFrac": round(max(history), 4),
+            "worstLabel": worst_label_by_screen.get(sid),
+            "seen": seen,
+            "over_threshold_count": over,
+            "history": [round(f, 4) for f in history],
+        })
+
     return {
         "verdict": "FAIL" if violations else "PASS",
         "detail": {
             "maxFrac": LABEL_VS_SCREEN_OVERLAP_MAX_FRAC,
+            "steady_window_ticks": len(window),
+            "steady_min_ratio": STEADY_SAMPLE_MIN_RATIO,
             "readableScreenCount": len(seen_readable_screen_ids),
             "screenCount": len(seen_screen_ids),
             "violations": violations,

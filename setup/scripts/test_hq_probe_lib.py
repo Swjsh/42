@@ -1963,7 +1963,9 @@ def test_check_label_legibility_excludes_a_faded_too_short_label():
     ])]
     result = check_label_legibility(samples)
     assert result["verdict"] == "NO-DATA", "the only sample was faded below the floor -- zero real evidence, not a PASS"
-    assert result["detail"]["reason"] == "no visible labels sampled this run"
+    # Reason string updated by the PROBE-DEFLAKE steady-state fix (2026-09-16)
+    # -- NO-DATA now explicitly names the steady-state window it scored.
+    assert result["detail"]["reason"] == "no visible labels sampled in the steady-state window"
 
 
 def test_check_label_legibility_still_fails_a_too_short_label_at_full_opacity():
@@ -1981,6 +1983,46 @@ def test_check_label_legibility_faded_and_legible_labels_together_passes_and_rep
     assert result["verdict"] == "PASS"
     assert result["detail"]["faded_excluded_count"] == 1
     assert result["detail"]["sampled"] == 1
+
+
+# ─── STEADY-STATE fix (PROBE-DEFLAKE, 2026-09-16): check_label_legibility now
+# scores only the tail STEADY_SAMPLE_COUNT ticks, per label text, and
+# requires >= STEADY_SAMPLE_MIN_RATIO (4-of-5) of the ticks that sampled a
+# label to be under-height before it counts as a real violation -- a single
+# mid-fade tick can no longer flip PASS<->FAIL on an unchanged build. ───────
+
+def test_check_label_legibility_steady_state_does_not_fail_on_a_single_transitional_tick():
+    legible = {"label_rects": [{"h": LABEL_MIN_HEIGHT_PX + 5, "text": "SPY . 6 levels", "visible": True, "opacity": 1.0}]}
+    transitional_fade = {"label_rects": [{"h": LABEL_MIN_HEIGHT_PX - 3, "text": "SPY . 6 levels", "visible": True, "opacity": 1.0}]}
+    samples = [legible, legible, legible, legible, transitional_fade]
+    result = check_label_legibility(samples)
+    assert result["verdict"] == "PASS", result
+
+
+def test_check_label_legibility_steady_state_fails_a_persistently_too_short_label():
+    too_short = {"label_rects": [{"h": LABEL_MIN_HEIGHT_PX - 3, "text": "tiny", "visible": True, "opacity": 1.0}]}
+    legible = {"label_rects": [{"h": LABEL_MIN_HEIGHT_PX + 5, "text": "tiny", "visible": True, "opacity": 1.0}]}
+    samples = [too_short, too_short, too_short, too_short, legible]
+    result = check_label_legibility(samples)
+    assert result["verdict"] == "FAIL", result
+    violations = result["detail"]["violations"]
+    assert len(violations) == 1
+    assert violations[0]["seen"] == 5
+    assert violations[0]["under_height_count"] == 4
+    assert violations[0]["history"] == [True, True, True, True, False]
+
+
+def test_check_label_legibility_only_scores_the_tail_steady_window():
+    # A run with MANY ticks (more than STEADY_SAMPLE_COUNT) where the label
+    # was too-short early (settling) but has been legible for the whole
+    # steady tail -- only the tail matters, so this must PASS even though
+    # the label violated earlier in the run.
+    too_short = {"label_rects": [{"h": LABEL_MIN_HEIGHT_PX - 3, "text": "settling", "visible": True, "opacity": 1.0}]}
+    legible = {"label_rects": [{"h": LABEL_MIN_HEIGHT_PX + 5, "text": "settling", "visible": True, "opacity": 1.0}]}
+    samples = [too_short, too_short, too_short] + [legible] * 10
+    result = check_label_legibility(samples)
+    assert result["verdict"] == "PASS", result
+    assert result["detail"]["steady_window_ticks"] == 5
 
 
 def test_check_label_legibility_opacity_just_above_the_min_still_counts_as_visible_evidence():
@@ -2017,10 +2059,21 @@ def test_label_screen_overlap_uses_per_tick_screen_rects_when_present():
     # test's own worst-case fraction would not distinguish, so the real
     # assertion is on overlapFrac magnitude staying tied to tick 0's own
     # (bigger) overlap, not an inflated/averaged value from mixing ticks.
-    samples = [
-        {"label_rects": [_label("Coach", 100, 100, 80, 20)], "screen_rects": [_screen("s1", 90, 90, 100, 100)]},
-        {"label_rects": [_label("Coach", 100, 100, 80, 20)], "screen_rects": [_screen("s1", 400, 400, 100, 100)]},
-    ]
+    #
+    # STEADY-STATE fix (PROBE-DEFLAKE, 2026-09-16) updated this test's shape,
+    # labeled explicitly: the check now requires a violation in >= 4-of-5 of
+    # the ticks that captured a screen, not "any single tick ever" -- a
+    # 1-of-2 violation (as this test originally set up) is no longer enough
+    # to FAIL on its own (that was exactly the mid-transition flake this
+    # pass exists to kill). Extended to 5 ticks, 4 of which keep the screen
+    # at its overlapping position and 1 of which moves it away (the
+    # steady-state MAJORITY, matching a real persistent overlap), so this
+    # test still proves per-tick pairing (the moved tick correctly
+    # contributes zero overlap, not an inflated/stale value) while also
+    # exercising the 4-of-5 threshold honestly.
+    overlapping = {"label_rects": [_label("Coach", 100, 100, 80, 20)], "screen_rects": [_screen("s1", 90, 90, 100, 100)]}
+    moved_away = {"label_rects": [_label("Coach", 100, 100, 80, 20)], "screen_rects": [_screen("s1", 400, 400, 100, 100)]}
+    samples = [overlapping, overlapping, overlapping, overlapping, moved_away]
     result = check_label_screen_overlap(samples, [])
     assert result["verdict"] == "FAIL", result
     # Only tick 0's overlap should be reflected -- tick 1 contributes zero
@@ -2028,6 +2081,20 @@ def test_label_screen_overlap_uses_per_tick_screen_rects_when_present():
     violations = result["detail"]["violations"]
     assert len(violations) == 1
     assert violations[0]["screenId"] == "s1"
+    assert violations[0]["seen"] == 5
+    assert violations[0]["over_threshold_count"] == 4
+
+
+def test_label_screen_overlap_steady_state_does_not_fail_on_a_single_transitional_tick():
+    # The mirror case: a screen that overlaps in only 1-of-5 ticks (the
+    # nudge-resolver mid-transition tick) must NOT fail -- this is the exact
+    # flake (label_vs_screen_overlap flipping PASS/FAIL across identical
+    # re-runs) PROBE-DEFLAKE's steady-state fix targets.
+    clear = {"label_rects": [_label("Coach", 100, 100, 80, 20)], "screen_rects": [_screen("s1", 400, 400, 100, 100)]}
+    transitional_overlap = {"label_rects": [_label("Coach", 100, 100, 80, 20)], "screen_rects": [_screen("s1", 90, 90, 100, 100)]}
+    samples = [clear, clear, clear, clear, transitional_overlap]
+    result = check_label_screen_overlap(samples, [])
+    assert result["verdict"] == "PASS", result
 
 
 def test_label_screen_overlap_falls_back_to_global_screen_rects_when_sample_lacks_per_tick_data():
@@ -2266,6 +2333,89 @@ def test_compute_usability_verdicts_shape():
     result = compute_usability_verdicts({}, {})
     assert list(result.keys()) == ["U1", "U2", "U3", "U4", "U5", "U6", "U7", "U8"]
     assert all(v["verdict"] in ("PASS", "FAIL", "NO-DATA") for v in result.values())
+
+
+# ─── HOVER-RACE fix (PROBE-DEFLAKE, 2026-09-16): probe_hover_reveal now polls
+# document.body.innerText (bounded, HOVER_POLL_TIMEOUT_MS at
+# HOVER_POLL_INTERVAL_MS steps) instead of a single fixed-wait read -- a
+# detail that commits LATE (after the old fixed 350ms) is now still a PASS
+# (with its real latency recorded), and a detail that never arrives is a
+# real, bounded FAIL rather than a race. ────────────────────────────────────
+
+def _import_hq_live_probe():
+    import importlib
+    import sys as _sys
+    from pathlib import Path as _Path
+
+    _sys.path.insert(0, str(_Path(__file__).resolve().parent))
+    hq_live_probe = importlib.import_module("hq_live_probe")
+    importlib.reload(hq_live_probe)
+    return hq_live_probe
+
+
+class _FakeHoverPage:
+    """Simulates document.body.innerText growing to `final_text` after
+    `reveal_after_polls` polls (0 == already revealed on the first read) --
+    never revealing if reveal_after_polls is None."""
+
+    def __init__(self, before_text: str, final_text: str, reveal_after_polls):
+        self._before = before_text
+        self._final = final_text
+        self._reveal_after = reveal_after_polls
+        self._poll_count = 0
+        self.moves = []
+
+    class _Mouse:
+        def __init__(self, outer):
+            self._outer = outer
+
+        def move(self, x, y):
+            self._outer.moves.append((x, y))
+
+    def __post_init_mouse(self):
+        pass
+
+    @property
+    def mouse(self):
+        return _FakeHoverPage._Mouse(self)
+
+    def wait_for_timeout(self, ms):
+        pass
+
+    def evaluate(self, script):
+        if self._reveal_after is not None and self._poll_count >= self._reveal_after:
+            text = self._final
+        else:
+            text = self._before
+        self._poll_count += 1
+        return text
+
+
+def test_probe_hover_reveal_passes_on_a_late_arriving_detail():
+    # The detail text commits on the 3rd poll (100-150ms in), well past the
+    # OLD fixed 350ms-then-read-once window would sometimes miss under load
+    # -- must still PASS, with the real latency recorded.
+    hq_live_probe = _import_hq_live_probe()
+    before = "some page text"
+    after = before + "revealed detail text that is definitely long enough"
+    page = _FakeHoverPage(before, after, reveal_after_polls=3)
+    result = hq_live_probe.probe_hover_reveal(page, 10, 20, before)
+    assert result["revealed"] is True, result
+    assert result["revealed_after_ms"] is not None
+    assert result["grew_chars"] > 0
+
+
+def test_probe_hover_reveal_fails_after_the_poll_bound_with_no_reveal():
+    # The detail never arrives (a real missing-hover-reveal bug) -- must be
+    # a bounded FAIL, not an infinite wait.
+    hq_live_probe = _import_hq_live_probe()
+    before = "some page text"
+    page = _FakeHoverPage(before, before, reveal_after_polls=None)
+    result = hq_live_probe.probe_hover_reveal(page, 10, 20, before)
+    assert result["revealed"] is False, result
+    assert result["revealed_after_ms"] is None
+    # Mouse returned to the neutral corner even on a non-reveal.
+    assert page.moves[-1] == (2, 2)
 
 
 if __name__ == "__main__":

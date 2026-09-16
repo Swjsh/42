@@ -367,6 +367,22 @@ def compute_plausibility_verdicts(page: Any, seconds: float, scene_ready: bool) 
             "label_vs_screen_overlap": no_hook,
         }
 
+    # SETTLED-STATE wait (PROBE-DEFLAKE, 2026-09-16): scene_ready above only
+    # requires the room shell + at least one furniture-tagged mesh to exist
+    # -- it says nothing about whether the shared label-declutter manager
+    # (labelDeclutter.ts) has run even ONE throttled pass yet. Without this,
+    # the very FIRST label_samples tick could land before any fade/nudge
+    # resolution at all, feeding check_label_legibility/
+    # check_label_screen_overlap's steady-state window a tick that is not
+    # representative of the settled scene. 2s is this file's own existing
+    # settle-wait convention (reused from the U6 preset=1 fallback and the
+    # U4/U5 mount-race fix's own bounded wait); best-effort only -- never
+    # blocks the run if the page never quiesces.
+    try:
+        page.wait_for_timeout(2000)
+    except Exception:  # noqa: BLE001
+        pass
+
     # Walker positions + label rects: sampled over time (a wall CROSSING is
     # a property of a SEGMENT between two ticks, not a single point) at
     # <=4x/s -- deliberately cheap, this is a DOM/JS-array read per tick,
@@ -610,6 +626,10 @@ def _u_evaluate(page: Any, script: str, default: Any = None) -> Any:
         return default
 
 
+HOVER_POLL_TIMEOUT_MS = 1500
+HOVER_POLL_INTERVAL_MS = 50
+
+
 def probe_hover_reveal(page: Any, cx: float, cy: float, before_text: str) -> Dict[str, Any]:
     """Moves a REAL synthetic mouse to (cx, cy) -- Playwright dispatches this
     via the same CDP Input domain a genuine user event arrives through, so
@@ -620,20 +640,50 @@ def probe_hover_reveal(page: Any, cx: float, cy: float, before_text: str) -> Dic
     growing by >= HOVER_REVEAL_MIN_CHARS, the same "observe the DOM, don't
     infer React internals" discipline check_label_legibility etc already
     use. Mouse is returned to a neutral corner afterward so the next probe
-    starts clean."""
+    starts clean.
+
+    HOVER-RACE fix (PROBE-DEFLAKE, 2026-09-16, root cause: the detail text a
+    hover reveals is produced by a React effect (onMouseEnter -> state
+    update -> re-render -> DOM commit), which does not complete inside the
+    same event-loop turn the mouse.move() CDP dispatch returns on -- a
+    single fixed 350ms wait_for_timeout() then one-shot read was a coin
+    flip between "the effect committed by 350ms" and "it didn't yet",
+    exactly the U3/U4 flake this pass exists to kill. Replaced with a
+    bounded POLL: read document.body.innerText every HOVER_POLL_INTERVAL_MS
+    up to HOVER_POLL_TIMEOUT_MS, returning as soon as it grows by
+    >= HOVER_REVEAL_MIN_CHARS (latency recorded as `revealed_after_ms` for a
+    PASS) rather than on a fixed clock. A detail that is STILL missing once
+    the bound is hit is a real FAIL, not a race -- same "NO-DATA/FAIL beats
+    a lucky-timing PASS" discipline every other check_* in this module
+    already follows."""
     from hq_probe_lib import HOVER_REVEAL_MIN_CHARS
 
     try:
         page.mouse.move(cx, cy)
-        page.wait_for_timeout(350)
-        after_text = page.evaluate("() => document.body.innerText") or ""
+        poll_start = time.time()
+        deadline = poll_start + HOVER_POLL_TIMEOUT_MS / 1000.0
+        after_text = before_text
+        grew = 0
+        while True:
+            page.wait_for_timeout(HOVER_POLL_INTERVAL_MS)
+            after_text = page.evaluate("() => document.body.innerText") or ""
+            grew = len(after_text) - len(before_text)
+            if grew >= HOVER_REVEAL_MIN_CHARS or time.time() >= deadline:
+                break
+        elapsed_ms = round((time.time() - poll_start) * 1000.0, 1)
         page.mouse.move(2, 2)
         page.wait_for_timeout(50)
     except Exception as exc:  # noqa: BLE001
         return {"revealed": False, "diff": f"hover probe threw: {exc!r}"}
-    grew = len(after_text) - len(before_text)
+    revealed = grew >= HOVER_REVEAL_MIN_CHARS
     diff = after_text[len(before_text):] if grew > 0 and after_text.startswith(before_text[: min(len(before_text), 200)]) else ""
-    return {"revealed": grew >= HOVER_REVEAL_MIN_CHARS, "diff": diff[:200], "grew_chars": grew}
+    return {
+        "revealed": revealed,
+        "diff": diff[:200],
+        "grew_chars": grew,
+        "revealed_after_ms": elapsed_ms if revealed else None,
+        "poll_timeout_ms": HOVER_POLL_TIMEOUT_MS,
+    }
 
 
 def collect_usability_measurements(page: Any, url: str, api: Dict[str, Any]) -> Dict[str, Any]:
@@ -885,6 +935,136 @@ def run_usability(url: str, out_path: Path, scene_wait_ms: int, min_build_age_s:
     print(json.dumps(report, indent=2))
     any_fail = any(v.get("verdict") == "FAIL" for v in usability.values())
     return 1 if any_fail else 0
+
+
+def _launch_headless_page(pw: Any) -> tuple:
+    """Shared GL-fallback launch logic run_plausibility/run_usability/
+    run_repeat all need (hardware NVIDIA GL first, SwiftShader fallback) --
+    factored out so run_repeat can launch ONE browser/context/page and reuse
+    it across --repeat iterations instead of relaunching chromium N times."""
+    diag: Dict[str, Any] = {}
+    browser = context = page = None
+    try:
+        browser = pw.chromium.launch(headless=True, args=HARDWARE_GL_ARGS)
+        context = browser.new_context(viewport={"width": 1600, "height": 900})
+        page = context.new_page()
+        gl_renderer = page.evaluate(GL_RENDERER_SCRIPT)
+        gl_is_hardware = bool(gl_renderer) and "nvidia" in gl_renderer.lower()
+    except Exception as exc:  # noqa: BLE001
+        gl_is_hardware = False
+        diag["gl_fallback_reason"] = f"hardware GL launch raised {exc!r}"
+    if not gl_is_hardware:
+        diag.setdefault("gl_fallback_reason", "hardware GL probe did not report an NVIDIA renderer -- falling back to SwiftShader")
+        _close_quietly(context)
+        _close_quietly(browser)
+        browser = pw.chromium.launch(headless=True, args=SOFTWARE_GL_ARGS)
+        context = browser.new_context(viewport={"width": 1600, "height": 900})
+        page = context.new_page()
+    diag["gl_is_hardware"] = gl_is_hardware
+    return browser, context, page, diag
+
+
+SCENE_READY_WAIT_SCRIPT = (
+    "() => window.__hqSceneAudit !== undefined && !!window.__hqScene && !!document.querySelector('canvas') "
+    "&& (() => { let found = false; window.__hqScene.traverse((o) => { "
+    "if (o.userData && o.userData.hqKind === 'furniture') found = true; }); return found; })()"
+)
+
+
+def run_repeat(kind: str, url: str, plausibility_seconds: float, out_path: Path, scene_wait_ms: int, min_build_age_s: float, repeat: int) -> int:
+    """--repeat N wrapper (PROBE-DEFLAKE, 2026-09-16): runs the --plausibility
+    or --usability check family N times against the SAME build, in ONE
+    browser session (one chromium launch via _launch_headless_page, `repeat`
+    page.goto()s -- never N separate browser launches), and prints a
+    per-check PASS/FAIL/NO-DATA agreement table. This is the determinism
+    PROOF this pass exists to produce: a check that flips verdict across
+    the N runs is FLAKY (every run's own verdict is listed so the differing
+    run stays visible, never just "something differed"); a check whose N
+    runs are all identical is DETERMINISTIC. Never loosens a threshold to
+    get there -- an honest FLAKY stays FLAKY in this table."""
+    from playwright.sync_api import sync_playwright
+
+    refuse_reason = check_build_stable(min_build_age_s)
+    if refuse_reason:
+        print(f"REFUSED to start: {refuse_reason}", file=sys.stderr)
+        return 3
+
+    runs: List[Dict[str, Any]] = []
+    browser = None
+    context = None
+    try:
+        with sync_playwright() as pw:
+            browser, context, page, launch_diag = _launch_headless_page(pw)
+            for i in range(repeat):
+                page.goto(url, wait_until="load", timeout=60000)
+                scene_ready = True
+                try:
+                    page.wait_for_function(SCENE_READY_WAIT_SCRIPT, timeout=scene_wait_ms)
+                except Exception:  # noqa: BLE001
+                    scene_ready = False
+
+                if kind == "plausibility":
+                    verdicts = compute_plausibility_verdicts(page, plausibility_seconds, scene_ready)
+                else:  # usability
+                    if scene_ready:
+                        try:
+                            page.wait_for_function("() => document.querySelectorAll('.hq-beam').length >= 7", timeout=8000)
+                        except Exception:  # noqa: BLE001
+                            pass
+                        api = fetch_usability_api(page)
+                        measurements = collect_usability_measurements(page, url, api)
+                        verdicts = compute_usability_verdicts(measurements, api)
+                    else:
+                        no_data = {"verdict": "NO-DATA", "detail": {"reason": "scene never became ready"}}
+                        verdicts = {f"U{n}": no_data for n in range(1, 9)}
+
+                runs.append(verdicts)
+                print(f"--- repeat {i + 1}/{repeat} ({kind}) ---")
+                if kind == "plausibility":
+                    print_plausibility_lines(verdicts)
+                else:
+                    print_usability_lines(verdicts)
+
+            _close_quietly(context)
+            _close_quietly(browser)
+            context = None
+            browser = None
+    finally:
+        _close_quietly(context)
+        _close_quietly(browser)
+
+    check_names = sorted({name for r in runs for name in r.keys()})
+    agreement: Dict[str, Any] = {}
+    all_deterministic = True
+    for name in check_names:
+        verdict_seq = [r.get(name, {}).get("verdict", "NO-DATA") for r in runs]
+        deterministic = len(set(verdict_seq)) <= 1
+        all_deterministic = all_deterministic and deterministic
+        agreement[name] = {
+            "runs": verdict_seq,
+            "deterministic": deterministic,
+            "agreement": f"{verdict_seq.count(verdict_seq[0]) if verdict_seq else 0}/{len(verdict_seq)}",
+        }
+
+    print(f"\n=== --repeat agreement table ({kind}, N={repeat}) ===")
+    for name in check_names:
+        a = agreement[name]
+        tag = "DETERMINISTIC" if a["deterministic"] else "FLAKY"
+        print(f"{tag:14s} {name}: {a['runs']}")
+
+    report = {
+        "repeat": repeat,
+        "kind": kind,
+        "url": url,
+        "run_started_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "environment": {"headless": True, **launch_diag},
+        "runs": runs,
+        "agreement": agreement,
+        "all_deterministic": all_deterministic,
+    }
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
+    return 0 if all_deterministic else 1
 
 
 def check_build_stable(min_age_s: float = DEFAULT_MIN_BUILD_AGE_S) -> Optional[str]:
@@ -1453,7 +1633,29 @@ def main() -> int:
             "load + real hover probes, bounded well under 120s."
         ),
     )
+    ap.add_argument(
+        "--repeat",
+        type=int,
+        default=1,
+        help=(
+            "run --plausibility or --usability N times against the SAME "
+            "build, in ONE browser session, and print a per-check "
+            "PASS/FAIL/NO-DATA agreement table (DETERMINISTIC if all N "
+            "runs agree, else FLAKY with every run's verdict listed) -- "
+            "the determinism proof for this check family. Requires "
+            "--plausibility or --usability; ignored (treated as 1) "
+            "otherwise."
+        ),
+    )
     args = ap.parse_args()
+
+    if args.repeat > 1:
+        if args.plausibility:
+            return run_repeat("plausibility", args.url, args.plausibility_seconds, Path(args.out), args.scene_wait_ms, args.min_build_age_s, args.repeat)
+        if args.usability:
+            return run_repeat("usability", args.url, args.plausibility_seconds, Path(args.out), args.scene_wait_ms, args.min_build_age_s, args.repeat)
+        print("REFUSED to start: --repeat requires --plausibility or --usability", file=sys.stderr)
+        return 3
 
     if args.plausibility:
         return run_plausibility(args.url, args.plausibility_seconds, Path(args.out), args.scene_wait_ms, args.min_build_age_s)
