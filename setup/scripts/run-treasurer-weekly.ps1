@@ -21,18 +21,27 @@ if (-not (Test-Path $treasuryDir)) { New-Item -ItemType Directory -Path $treasur
 
 Write-TaskLog -TaskName $task -Message "treasurer-weekly: START"
 
+# Resolve the brain BEFORE building the prompt (not at the Invoke-Claude call site) so the
+# human-readable brain stamp can be embedded in the prompt text itself -- analysis/treasury/
+# {today}.md is written by the spawned agent per instruction 5 below, so the stamp has to
+# travel IN the prompt.
+$brainModel = Resolve-BrainModel "sonnet" -TaskName $task
+$brainStamp = $env:GAMMA_BRAIN_STAMP
+if (-not $brainStamp) { $brainStamp = "$brainModel (anthropic, stamp unavailable)" }
+
 # Write prompt to temp file
 $today = (Get-Date).ToString("yyyy-MM-dd")
 $promptFile = Join-Path $env:TEMP "treasurer-prompt-$today.txt"
 @"
 Execute your weekly audit routine for $today. Fire is automatic (Gamma_TreasurerWeekly Sunday 16:00 ET).
+Brain: $brainStamp
 
 Your job (per .claude/agents/treasurer.md):
 1. Pull both account balances via Alpaca MCP: safe-2 through the `alpaca` server, bold-2 through `alpaca_aggressive`. Account numbers, aliases and equity tiers come from automation/state/fleet/accounts.json (the source of truth) -- never from memory or this prompt.
 2. Audit sizing math: per-trade risk %, daily kill-switch thresholds, account tier vs current equity
 3. Check PDT awareness: trades remaining in rolling 5-day window
 4. Review any account-tier transitions needed ($1K->$2K->$10K->$25K)
-5. Write analysis/treasury/{today}.md with full audit
+5. Write analysis/treasury/{today}.md with full audit -- include the line "Brain: $brainStamp" near the top, verbatim.
 6. Write DRAFT params changes if needed (analysis/treasury/draft-params-changes.md) -- NEVER modify params*.json directly
 7. Return the audit summary with any recommended changes.
 "@ | Out-File -FilePath $promptFile -Encoding UTF8
@@ -51,7 +60,7 @@ $exitCode = Invoke-Claude `
     -PromptFile $promptFile `
     -TaskName $task `
     -MaxBudgetUsd 2.00 `
-    -Model (Resolve-BrainModel "sonnet" -TaskName $task) `
+    -Model $brainModel `
     -Effort "medium" `
     -TimeoutSec 540 `
     -AgentName "treasurer"

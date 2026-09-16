@@ -776,6 +776,19 @@ function Invoke-Claude {
         $nowEt = (Get-EtNow).ToString("yyyy-MM-ddTHH:mm:ss")
         $todayEt = (Get-EtNow).ToString("yyyy-MM-dd")
         $weekday = (Get-EtNow).DayOfWeek.ToString()
+        # BRAIN PROVENANCE (2026-09-15, OP-32 free-model trust gate): _brain.ps1's
+        # Resolve-BrainModel sets $env:GAMMA_BRAIN_STAMP on every call (local AND Claude
+        # paths, including its fail-open catch) to a short human string identifying which
+        # brain actually resolved for this fire (e.g. "gamma-planner-fast (local)" /
+        # "sonnet (anthropic)"). This header is the ONE place every launcher's prompt text
+        # passes through (Invoke-Claude, whether called directly or via
+        # Invoke-ClaudeWithRetry) -- so surfacing it here, once, reaches conductor.md /
+        # conductor-weekend's STATUS.md writes without editing that shared prompt file, and
+        # reinforces the per-task inline stamps run-analyst-eod.ps1 / run-treasurer-weekly.ps1
+        # already embed in their own prompt text. A wrapper that never dot-sourced _brain.ps1
+        # (this var stays unset) gets the honest fallback label below -- never a blank line.
+        $brainStamp = $env:GAMMA_BRAIN_STAMP
+        if (-not $brainStamp) { $brainStamp = "$Model (brain routing not wired for this task)" }
         $contextHeader = @"
 # RUNTIME CONTEXT (injected by wrapper, $TaskName)
 - Current ET time: $nowEt
@@ -783,7 +796,13 @@ function Invoke-Claude {
 - Weekday: $weekday
 - Task: $TaskName
 - Model: $Model
+- Brain: $brainStamp
 - Working directory: $WorkDir
+
+If this fire writes a human-readable artifact (a digest, journal entry, audit, or STATUS.md
+line), include a "Brain: $brainStamp" line in it near the top so the artifact records which
+brain actually produced it -- a local-model-authored analysis must never be indistinguishable
+from a Claude-authored one in our own records.
 
 ---
 

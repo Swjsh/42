@@ -46,15 +46,24 @@ if ($freeTierResult.ExitCode -eq 0) {
 Write-TaskLog -TaskName $task -Message "analyst-eod: free-tier failed exit=$($freeTierResult.ExitCode) -- escalating to Claude"
 
 # ── STEP 2: Claude fallback (only if entire free-tier ladder failed) ──
+# Resolve the brain BEFORE building the prompt (not at the Invoke-ClaudeWithRetry call site)
+# so the human-readable brain stamp can be embedded in the prompt text itself -- this is the
+# actual write point for analysis/eod/$today.md (the spawned agent writes it per instruction
+# 4 below), so the stamp has to travel IN the prompt, not be bolted on after the fact.
+$brainModel = Resolve-BrainModel "sonnet" -TaskName $task
+$brainStamp = $env:GAMMA_BRAIN_STAMP
+if (-not $brainStamp) { $brainStamp = "$brainModel (anthropic, stamp unavailable)" }
+
 $promptFile = Join-Path $env:TEMP "analyst-prompt-$today.txt"
 @"
 Execute your EOD routine for $today. Fire is automatic (Gamma_AnalystEodReview at 16:45 ET).
+Brain: $brainStamp
 
 Your job (per .claude/agents/analyst.md):
 1. Read today's journal, trades.csv, decisions.jsonl, EOD summary, gym scorecard, heartbeat tick audit
 2. Review every trade taken and skipped against the 10 rules
 3. Mine patterns from journal/trades.csv (archetypes, tape assistance, counterfactuals)
-4. Write digest to analysis/eod/$today.md
+4. Write digest to analysis/eod/$today.md -- include the line "Brain: $brainStamp" near the top of the digest, verbatim.
 5. Route findings to the correct skill-pipeline inboxes:
    - Engine foot-guns -> _validator-inbox/
    - New diagnostic skills -> _skill-inbox/
@@ -69,7 +78,7 @@ $exitCode = Invoke-ClaudeWithRetry `
     -PromptFile $promptFile `
     -TaskName $task `
     -MaxBudgetUsd 0.60 `
-    -Model (Resolve-BrainModel "sonnet" -TaskName $task) `
+    -Model $brainModel `
     -Effort "medium" `
     -AgentName "analyst" `
     -MaxRateLimitWaitSec 7200
