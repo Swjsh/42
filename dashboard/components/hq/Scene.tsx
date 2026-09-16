@@ -675,7 +675,10 @@ function CameraRig({ reducedMotion, rows, geometry, briefMtimeMs, ultra, cameraP
     // effect is declared AFTER this one, so it still wins if both are
     // present together, same "last-declared override wins" ordering the
     // preset effect below already relies on.
-    if (shouldParkTourAtOverview(params, searchParams.get("cam") !== null)) {
+    // `?preset=` counts as a pose param too (2026-09-16): the preset effect
+    // below is declared AFTER this one and must win -- see
+    // hq-camera-params.ts#shouldParkTourAtOverview's own comment.
+    if (shouldParkTourAtOverview(params, searchParams.get("cam") !== null || searchParams.get("preset") !== null)) {
       camera.position.set(...OVERVIEW_CAM_POS);
       controls.target.set(DEFAULT_LOOKAT.x, DEFAULT_LOOKAT.y, DEFAULT_LOOKAT.z);
       camera.lookAt(controls.target);

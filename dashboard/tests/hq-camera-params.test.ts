@@ -136,7 +136,18 @@ test("shouldParkTourAtOverview: camtarget present alongside tour=0 -> false", ()
   assert.equal(shouldParkTourAtOverview(out, false), false);
 });
 
-test("shouldParkTourAtOverview: raw ?cam= present alongside tour=0 -> false (caller passes hasRawCamParam=true)", () => {
+test("shouldParkTourAtOverview: raw ?cam= present alongside tour=0 -> false (caller passes hasRawPoseParam=true)", () => {
   const out = parseCameraParams(params({ tour: "0" }));
   assert.equal(shouldParkTourAtOverview(out, true), false);
+});
+
+// 2026-09-16 regression: `?tour=0&preset=2` must NOT park at the overview --
+// the caller passes hasRawPoseParam=true whenever ?preset= is present (the
+// preset effect owns the pose). Real captures crew-desk2-0110.png and
+// crew-hub-0110.png were both the overview before this pin.
+test("shouldParkTourAtOverview: ?preset= present alongside tour=0 -> false (caller passes hasRawPoseParam=true for preset too)", () => {
+  const out = parseCameraParams(params({ tour: "0", preset: "2" }));
+  const hasRawPoseParam = params({ tour: "0", preset: "2" }).get("cam") !== null || params({ tour: "0", preset: "2" }).get("preset") !== null;
+  assert.equal(hasRawPoseParam, true);
+  assert.equal(shouldParkTourAtOverview(out, hasRawPoseParam), false);
 });

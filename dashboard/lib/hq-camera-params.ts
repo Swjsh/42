@@ -83,6 +83,12 @@ function parseCamTarget(raw: string | null): string | undefined {
  * effect, not this module) so the presence check stays the caller's job;
  * this function only combines it with the two params this module DOES
  * parse. */
-export function shouldParkTourAtOverview(params: Pick<CameraParams, "camDist" | "camTarget">, hasRawCamParam: boolean): boolean {
-  return params.camDist === undefined && params.camTarget === undefined && !hasRawCamParam;
+/** `hasRawPoseParam` = the caller saw a raw `?cam=` OR `?preset=` in the URL.
+ * 2026-09-16 fix: the first version only checked `?cam=`, so
+ * `?tour=0&preset=N` snapped to the overview and silently ignored the preset
+ * -- every "close-up" capture after e5a0bf99 was really the overview
+ * (crew-desk2-0110.png == crew-hub-0110.png == overview), and the
+ * DESK-PRESETS worker's "preset framed a door" report was this bug. */
+export function shouldParkTourAtOverview(params: Pick<CameraParams, "camDist" | "camTarget">, hasRawPoseParam: boolean): boolean {
+  return params.camDist === undefined && params.camTarget === undefined && !hasRawPoseParam;
 }
