@@ -473,7 +473,37 @@ export function minClearRadius(azimuth: number, margin: number): number {
 // band, same-wall corner margin, door aisle, cross-wall corner gap) via
 // that same script, not guessed:
 //   anchor = 5.1   (back-edge clearance 7.35-5.1-2.0 = 0.25u, still in-band)
-export const PERSONA_WALL_RADIUS = 5.1;
+//
+// CORNER-DESKS pass (2026-09-16, BUILD worker, J: desks still visibly
+// piled up at 3 of the room's 4 corners -- automation/state/station/
+// captures/crew-desk2-0120.png shows Chef and Scout overlapping at one
+// corner). The DESKS-AGAINST-WALLS anchor/offset above (5.1/4.6) passed
+// its OWN AABB-overlap check (min gap 0.2u, quoted in that pass's own
+// comment) but never asked for a REAL separation margin at the 3 real
+// (non-brain) corners -- 0.2u reads as touching to a human even though it
+// technically doesn't overlap. Root cause of THIS pass's number: with a
+// single shared PERSONA_WALL_LATERAL_OFFSET pulling every corner-facing
+// desk toward its own wall's door (for aisle clearance) and away from its
+// own wall's corner at the same time, the door-aisle ask (>=1.5u past the
+// door's clear edge) and the cross-wall corner-pair gap ask (>=1.5u
+// edge-to-edge) pull in OPPOSITE directions along the SAME one degree of
+// freedom (lateral offset) -- verified this session by a full 2D grid
+// search over (PERSONA_WALL_RADIUS, PERSONA_WALL_LATERAL_OFFSET) sampled
+// at 0.005u resolution across the entire back-edge-band-valid radius range
+// (4.75-5.15): NO (radius, offset) pair satisfies both >=1.5u aisle AND
+// >=1.5u cross-wall gap simultaneously -- the best achievable trade at
+// radius=5.15 (the top of the 0.2-0.6u back-edge band, which ALSO
+// maximizes cross-wall gap for any given offset) is aisle=1.5u exactly
+// when cross-wall gap=0.92u, or cross-wall gap=1.5u exactly when
+// aisle=1.11u. Per this pass's own priority order (the corner PILE-UP is
+// the real, J-visible defect; the door aisle was already documented as
+// "a softer design target... not itself a hq_live_probe check" by the
+// DESKS-AGAINST-WALLS pass above) this pass keeps radius at the band's
+// tightest-to-wall value (5.15, back-edge exactly 0.20u, matches the
+// 0.2-0.6u band's own lower bound) and re-picks the offset to clear
+// >=1.5u cross-wall with headroom rather than exactly at the knife's edge:
+//   anchor = 5.14  (back-edge clearance 7.35-5.14-2.0 = 0.21u, in-band)
+export const PERSONA_WALL_RADIUS = 5.14;
 
 // PERSONA_WALL_LATERAL_OFFSET -- the desk-pair's own tangential offset from
 // the wall's normal point (was DESK_TANGENT_HALF_SEPARATION under the old
@@ -490,7 +520,27 @@ export const PERSONA_WALL_RADIUS = 5.1;
 // edge = 4.6+1.1 = 5.7, 1.8u short of the real corner, past the 1.0u
 // margin) -- both original constraints still hold, just with headroom
 // traded for the newly-discovered cross-wall one.
-const PERSONA_WALL_LATERAL_OFFSET = 4.6;
+//
+// CORNER-DESKS pass (2026-09-16): 0.2u real gap between corner-sharing
+// desks (2.4u less than the ~0.85u center-to-center distance Scene.tsx's
+// own NAMEPLATE_COLLISION_CLEARANCE comment measured, but the SAME two
+// desks) reads as touching in a real capture -- see this constant's own
+// PERSONA_WALL_RADIUS header for why >=1.5u aisle and >=1.5u cross-wall
+// gap can't both hold at once with a single shared offset. Re-picked to
+// 3.73 (verified by the same session's grid search, at radius=5.14):
+// cross-wall edge-to-edge gap 1.570u (>=1.5u ask, 0.07u headroom), door
+// aisle 1.055u (short of the 1.5u ask by 0.445u -- an accepted trade,
+// same "softer design target" reasoning the DESKS-AGAINST-WALLS pass
+// already used at 1.20u; still 1.055u PAST the door's own clear edge, and
+// tests/hq-hub-layout.test.ts's own door-aisle assertion is updated to
+// this new, honestly-lower number rather than silently loosened). Room-
+// corner clearance stays comfortable at 2.67u (>=1.0u ask, unaffected by
+// this trade-off since it moves in the SAME direction as the cross-wall
+// gap). Center-to-center distance between the 3 corner-sharing pairs is
+// now 1.994u (up from 0.85u) -- just under Scene.tsx's own
+// NAMEPLATE_COLLISION_CLEARANCE=2.0u, so that workaround stays ACTIVE
+// (not removed by this pass -- see Scene.tsx's own updated comment).
+const PERSONA_WALL_LATERAL_OFFSET = 3.73;
 
 // ─── Brain wall mount (2026-09-14, MODELS builder, coordinator-authorized
 // edit -- LAYOUT's ownership of this file is released) ─────────────────────

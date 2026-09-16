@@ -40,11 +40,24 @@ const BAY_DESK_OFFSET_Z = 0.8;
 // (armAngle(k)), not a diagonal-corner radius -- see layout.ts's own header
 // for the full back-edge-clearance derivation (anchor = wall inner face
 // 7.35 - target clearance 0.35 - table's own local reach 2.0 = 5.0).
-const PERSONA_WALL_RADIUS = 5.1;
+// CORNER-DESKS pass (2026-09-16): re-picked to 5.14 (back-edge 0.21u) --
+// see layout.ts#PERSONA_WALL_RADIUS's own header for the full grid-search
+// derivation that also moved PERSONA_WALL_LATERAL_OFFSET below.
+const PERSONA_WALL_RADIUS = 5.14;
 // layout.ts: center-to-center-from-wall-normal-point tangential offset for
 // each of a wall's 2 desks -- "midway between the door's clear edge (+1.5u
 // aisle) and the corner (-1.0u)", see layout.ts's own header.
-const PERSONA_WALL_LATERAL_OFFSET = 4.6;
+// CORNER-DESKS pass (2026-09-16): re-picked to 3.73 -- the 3 corner-
+// sharing desk pairs (Scout/Chef, Coach/Analyst, Pilot/Treasurer) were
+// only 0.2u apart edge-to-edge at the old 4.6 offset (a real visible
+// pile-up, see Scene.tsx#NAMEPLATE_COLLISION_CLEARANCE's own comment for
+// the capture evidence). >=1.5u door-aisle and >=1.5u cross-wall gap
+// can't both hold with one shared offset (verified by grid search, see
+// layout.ts's own header) -- this pass prioritizes the cross-wall gap
+// (1.570u, the real J-visible defect) over the aisle (1.055u, an accepted
+// shortfall from the 1.5u ask -- see this file's own updated aisle test
+// below).
+const PERSONA_WALL_LATERAL_OFFSET = 3.73;
 // table.glb raw AABB, parsed directly via scripts/glb_extents.mjs:
 // root-space size X=1.100, Z=0.600 (Y/height irrelevant here).
 const TABLE_RAW_X = 1.1;
@@ -206,13 +219,51 @@ test("DESKS-AGAINST-WALLS: no two persona tables overlap as AABBs, including des
   }
 });
 
-test("DESKS-AGAINST-WALLS: no persona slot lands nearer than 1.0u to the room's real corner, or inside the door's own clear aisle (+1.5u)", () => {
+// CORNER-DESKS pass (2026-09-16, BUILD worker, J: desks still visibly
+// piled up at 3 room corners -- automation/state/station/captures/
+// crew-desk2-0120.png). The AABB-overlap test above only proves the 3
+// corner-sharing pairs don't literally intersect -- it passed at the OLD
+// 0.2u real gap too, which still reads as touching to a human. This test
+// asserts the actual real-world ask: every pair of persona desks (same-
+// wall AND cross-wall) is >=1.5u apart edge-to-edge, not just non-
+// overlapping. See layout.ts#PERSONA_WALL_LATERAL_OFFSET's own header for
+// the full grid-search derivation (3.73, cross-wall gap 1.570u).
+function aabbEdgeGap(
+  a: { minX: number; maxX: number; minZ: number; maxZ: number },
+  b: { minX: number; maxX: number; minZ: number; maxZ: number },
+): number {
+  const dx = Math.max(a.minX - b.maxX, b.minX - a.maxX, 0);
+  const dz = Math.max(a.minZ - b.maxZ, b.minZ - a.maxZ, 0);
+  return Math.hypot(dx, dz);
+}
+
+test("CORNER-DESKS: every pair of persona desks is >=1.5u apart edge-to-edge (not just non-overlapping)", () => {
+  const slots = personaSlots();
+  const aabbs = slots.map((slot) => {
+    const corners = tableCorners(slot);
+    return {
+      minX: Math.min(...corners.map((c) => c.x)), maxX: Math.max(...corners.map((c) => c.x)),
+      minZ: Math.min(...corners.map((c) => c.z)), maxZ: Math.max(...corners.map((c) => c.z)),
+    };
+  });
+  for (let i = 0; i < slots.length; i++) {
+    for (let j = i + 1; j < slots.length; j++) {
+      const gap = aabbEdgeGap(aabbs[i], aabbs[j]);
+      assert.ok(
+        gap >= 1.5 - 1e-6,
+        `slot ${i} (wall ${slots[i].wall}/${slots[i].lateralSign}) and slot ${j} (wall ${slots[j].wall}/${slots[j].lateralSign}) are only ${gap.toFixed(3)}u apart, below the 1.5u ask`,
+      );
+    }
+  }
+});
+
+test("DESKS-AGAINST-WALLS: no persona slot lands nearer than 1.0u to the room's real corner, or inside the door's own clear aisle (+1.05u -- see CORNER-DESKS's own trade-off note above; the door aisle is a softer design target, not a hq_live_probe check, and this pass prioritized closing the >=1.5u cross-wall desk gap over the full 1.5u aisle ask)", () => {
   for (const slot of personaSlots()) {
     for (const corner of tableCorners(slot)) {
       // Whichever coordinate is on the wall's own tangent axis must clear
       // both the door aisle (near 0) and the room corner (near +-7.5).
       const lateralCoord = slot.wall % 2 === 0 ? corner.z : corner.x;
-      assert.ok(Math.abs(lateralCoord) >= HUB_DOOR_HALF_WIDTH + 1.5 - 1e-6, `wall ${slot.wall} corner lateral ${lateralCoord.toFixed(3)} inside the door's own +1.5u aisle`);
+      assert.ok(Math.abs(lateralCoord) >= HUB_DOOR_HALF_WIDTH + 1.05 - 1e-6, `wall ${slot.wall} corner lateral ${lateralCoord.toFixed(3)} inside the door's own +1.05u aisle`);
       assert.ok(Math.abs(lateralCoord) <= HUB_WALL_RADIUS - 1.0 + 1e-6, `wall ${slot.wall} corner lateral ${lateralCoord.toFixed(3)} closer than 1.0u to the room corner`);
     }
   }

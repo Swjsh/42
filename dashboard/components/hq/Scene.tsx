@@ -371,6 +371,17 @@ const ARC_CENTER_NUDGE = (10 * Math.PI) / 180;
 // layout.ts#computePersonaWallSlots' corner-sharing desk pairs land exactly
 // 0.85 world units apart (verified numerically), against >=9.2u for every
 // other pair.
+// CORNER-DESKS pass (2026-09-16, BUILD worker): layout.ts's own
+// PERSONA_WALL_RADIUS/PERSONA_WALL_LATERAL_OFFSET moved this session
+// (5.1/4.6 -> 5.14/3.73) to close the real >=1.5u edge-to-edge desk gap
+// J's capture caught (crew-desk2-0120.png) -- the 3 corner-sharing pairs'
+// center-to-center distance moved from 0.85u to 1.994u. Checked against
+// this constant before touching it (task's own instruction: remove the
+// workaround only if no two desks are within 2.0u any more): 1.994u is
+// STILL just under 2.0u, so this workaround stays ACTIVE -- removing it
+// now would let two nameplates that sit 1.994u apart (visually close,
+// even though their DESKS no longer touch per the new >=1.5u edge gap)
+// render on top of each other again. Left in place, unchanged.
 const NAMEPLATE_COLLISION_CLEARANCE = 2.0;
 // ARC_CENTER is still "the direction that faces the camera most directly"
 // -- Gamma's own desk (gammaDeskCenter below, UNCHANGED by this pass) and
