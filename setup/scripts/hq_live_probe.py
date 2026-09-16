@@ -120,6 +120,7 @@ from hq_probe_lib import (  # noqa: E402
     build_verdicts,
     check_label_legibility,
     check_label_screen_overlap,
+    check_seated_pose,
     compute_usability_verdicts,
     perf_headless_flag,
     print_usability_lines,
@@ -349,7 +350,7 @@ def compute_plausibility_verdicts(page: Any, seconds: float, scene_ready: bool) 
         return {
             "wall_penetration": no_data, "walker_wall_cross": no_data, "screen_facing": no_data,
             "desk_clearance": no_data, "desk_orientation": no_data, "label_legibility": no_data,
-            "label_vs_screen_overlap": no_data,
+            "label_vs_screen_overlap": no_data, "seated_pose": no_data,
         }
 
     try:
@@ -364,7 +365,7 @@ def compute_plausibility_verdicts(page: Any, seconds: float, scene_ready: bool) 
         return {
             "wall_penetration": no_hook, "walker_wall_cross": no_hook, "screen_facing": no_hook,
             "desk_clearance": no_hook, "desk_orientation": no_hook, "label_legibility": no_hook,
-            "label_vs_screen_overlap": no_hook,
+            "label_vs_screen_overlap": no_hook, "seated_pose": no_hook,
         }
 
     # SETTLED-STATE wait (PROBE-DEFLAKE, 2026-09-16): scene_ready above only
@@ -382,6 +383,37 @@ def compute_plausibility_verdicts(page: Any, seconds: float, scene_ready: bool) 
         page.wait_for_timeout(2000)
     except Exception:  # noqa: BLE001
         pass
+
+    # SEATED-POSE-AUDIT pass (2026-09-16): persona roster + expected seats
+    # fetched ONCE before the tick loop (static this run -- the roster
+    # doesn't change mid-probe, same "one snapshot" reasoning wall_penetration
+    # /screen_facing/desk_clearance/desk_orientation already apply to their
+    # own single __hqSceneAudit() call above). `personas` is /api/hq's own
+    # `company.personas` order (index 0 = Gamma -- Scene.tsx's own
+    # `allPersonas[0]` convention); `seated_pose_expected` is
+    # hq-scene-audit.ts#computeSeatedPoseExpectedReport's per-persona
+    # {seat,yaw,wallSlotIndex}, keyed by name, for every persona EXCEPT
+    # Gamma (she has no wall slot).
+    try:
+        seated_pose_api = page.evaluate("async () => { try { const r = await fetch('/api/hq', { cache: 'no-store' }); const j = await r.json(); return (j.company && j.company.personas) || []; } catch (e) { return []; } }") or []
+    except Exception:  # noqa: BLE001
+        seated_pose_api = []
+    seated_pose_names = [p.get("name") for p in seated_pose_api if isinstance(p, dict) and p.get("name")]
+    try:
+        seated_pose_expected = page.evaluate(
+            "async (names) => (window.__hqSceneAuditSeatedPose ? await window.__hqSceneAuditSeatedPose(names) : {})",
+            seated_pose_names,
+        ) or {}
+    except Exception:  # noqa: BLE001
+        seated_pose_expected = {}
+    seated_pose_status_by_name = {p.get("name"): p.get("status") for p in seated_pose_api if isinstance(p, dict) and p.get("name")}
+    # KNOWN GAP (see check_seated_pose's own header): no live signal exists
+    # for "this resident persona is mid-walk right now" without editing
+    # Agent.tsx/KitAgent.tsx (off-limits to this pass) -- walking is always
+    # reported False here, which means a persona genuinely walking between
+    # neighbor desks during the sampling window reads as a real FAIL rather
+    # than an EXEMPT tick. Stated, not silently assumed away.
+    seated_pose_ticks: List[Dict[str, Any]] = []
 
     # Walker positions + label rects: sampled over time (a wall CROSSING is
     # a property of a SEGMENT between two ticks, not a single point) at
@@ -445,6 +477,33 @@ def compute_plausibility_verdicts(page: Any, seconds: float, scene_ready: bool) 
         except Exception:  # noqa: BLE001
             tick_screen_rects = None
         label_samples.append({"label_rects": rects, "screen_rects": tick_screen_rects})
+        # SEATED-POSE-AUDIT: this tick's own window.__hqMotion.agents
+        # position read (Agent.tsx's EXISTING recordAgentSample publish,
+        # gated behind the SAME ?diag=1 this whole --plausibility run
+        # already requires) -- id==persona.name for a resident desk agent
+        # (Scene.tsx's own `laneSeed={persona.name}`). `walking` is always
+        # False -- see this function's own stated-gap comment above.
+        try:
+            motion_agents = page.evaluate(
+                "() => (window.__hqMotion && window.__hqMotion.agents ? window.__hqMotion.agents.slice(-200) : [])"
+            ) or []
+        except Exception:  # noqa: BLE001
+            motion_agents = []
+        latest_pos_by_id: Dict[str, List[float]] = {}
+        for a in motion_agents:
+            if isinstance(a, dict) and a.get("id"):
+                latest_pos_by_id[a["id"]] = [a.get("x"), a.get("y"), a.get("z")]
+        seated_pose_ticks.append({
+            "personas": [
+                {
+                    "name": name,
+                    "status": seated_pose_status_by_name.get(name),
+                    "walking": False,
+                    "pos": latest_pos_by_id.get(name),
+                }
+                for name in seated_pose_names
+            ]
+        })
         elapsed = time.time() - tick_t0
         time.sleep(max(0.0, PLAUSIBILITY_SAMPLE_INTERVAL_S - elapsed))
 
@@ -478,6 +537,7 @@ def compute_plausibility_verdicts(page: Any, seconds: float, scene_ready: bool) 
         "walker_wall_cross": walker_wall_cross,
         "label_legibility": check_label_legibility(label_samples),
         "label_vs_screen_overlap": check_label_screen_overlap(label_samples, screen_viewport_rects),
+        "seated_pose": check_seated_pose(seated_pose_ticks, seated_pose_expected),
     }
 
 
@@ -516,6 +576,7 @@ def run_plausibility(url: str, seconds: float, out_path: Path, scene_wait_ms: in
 
     diag: Dict[str, Any] = {}
     plausibility: Dict[str, Any] = {}
+    presets: Dict[str, str] = {}
     browser = None
     context = None
     try:
@@ -562,6 +623,26 @@ def run_plausibility(url: str, seconds: float, out_path: Path, scene_wait_ms: in
 
             plausibility = compute_plausibility_verdicts(page, seconds, scene_ready)
 
+            # SEATED-POSE-AUDIT: persona -> keyboard "1".."7" preset map, so
+            # a human can fly straight to the right desk without guessing
+            # (task's own "tonight three captures hit a pacing RED persona
+            # and an empty desk" complaint). Scene.tsx's own `cameraPresets`
+            # array is index-aligned with /api/hq's `company.personas` order
+            # UNCHANGED -- key "1" = cameraPresets[0] = allPersonas[0] =
+            # Gamma, key N = allPersonas[N-1] (that file's own
+            # "[Gamma, ...6 personas]" comment) -- computed here directly
+            # from the SAME persona order already fetched for seated_pose,
+            # never a second roster read or a Scene.tsx edit.
+            try:
+                preset_personas = page.evaluate(
+                    "async () => { try { const r = await fetch('/api/hq', { cache: 'no-store' }); const j = await r.json(); return (j.company && j.company.personas) || []; } catch (e) { return []; } }"
+                ) or []
+                for i, p in enumerate(preset_personas):
+                    if isinstance(p, dict) and p.get("name") and i <= 6:
+                        presets[str(i + 1)] = p["name"]
+            except Exception:  # noqa: BLE001
+                presets = {}
+
             _close_quietly(context)
             _close_quietly(browser)
             context = None
@@ -571,6 +652,8 @@ def run_plausibility(url: str, seconds: float, out_path: Path, scene_wait_ms: in
         _close_quietly(browser)
 
     print_plausibility_lines(plausibility)
+    if presets:
+        print(f"presets: {json.dumps(presets)}")
     report = {
         "run_started_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "plausibility_only": True,
@@ -578,6 +661,7 @@ def run_plausibility(url: str, seconds: float, out_path: Path, scene_wait_ms: in
         "requested_seconds": seconds,
         "environment": {"headless": True, **diag},
         "plausibility": plausibility,
+        "presets": presets,
     }
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(report, indent=2), encoding="utf-8")

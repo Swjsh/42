@@ -46,6 +46,10 @@ from hq_probe_lib import (  # noqa: E402
     check_usability_u6,
     check_usability_u7,
     check_usability_u8,
+    check_seated_pose,
+    SEATED_POS_TOL_U,
+    SEATED_Y_TOL_U,
+    SEATED_SEAT_HEIGHT_U,
     compute_usability_verdicts,
 )
 
@@ -2416,6 +2420,111 @@ def test_probe_hover_reveal_fails_after_the_poll_bound_with_no_reveal():
     assert result["revealed_after_ms"] is None
     # Mouse returned to the neutral corner even on a non-reveal.
     assert page.moves[-1] == (2, 2)
+
+
+# ─── SEATED-POSE-AUDIT pass (2026-09-16) ────────────────────────────────
+# check_seated_pose fixtures: PASS (seated at seat, within tolerance), FAIL
+# (standing beside the desk, 1.0u off), EXEMPT (RED pacing / walking this
+# tick), and floating/clipping (y off by 0.3u, beyond SEATED_Y_TOL_U).
+# Steady-state: 5 ticks, >=4/5 PASS required (STEADY_SAMPLE_MIN_RATIO),
+# same bar check_label_legibility's own steady-state tests already pin.
+
+_SCOUT_EXPECTED = {"Scout": {"seat": [1.0, 0.0, 2.0], "yaw": 0.5, "wallSlotIndex": 0}}
+
+
+def _seated_tick(name="Scout", status="GREEN", walking=False, pos=None):
+    return {"personas": [{"name": name, "status": status, "walking": walking, "pos": pos}]}
+
+
+def test_check_seated_pose_no_data_with_no_ticks():
+    result = check_seated_pose([], _SCOUT_EXPECTED)
+    assert result["verdict"] == "NO-DATA", result
+
+
+def test_check_seated_pose_no_data_with_no_expected_seats():
+    ticks = [_seated_tick(pos=[1.0, SEATED_SEAT_HEIGHT_U, 2.0])] * 5
+    result = check_seated_pose(ticks, {})
+    assert result["verdict"] == "NO-DATA", result
+
+
+def test_check_seated_pose_pass_seated_at_seat():
+    ticks = [_seated_tick(pos=[1.0, SEATED_SEAT_HEIGHT_U, 2.0])] * 5
+    result = check_seated_pose(ticks, _SCOUT_EXPECTED)
+    assert result["verdict"] == "PASS", result
+    assert result["detail"]["evidence"]["Scout"]["verdict"] == "PASS"
+
+
+def test_check_seated_pose_fail_standing_beside_own_desk():
+    # 1.0u off in X -- well beyond SEATED_POS_TOL_U (0.25u), the "standing
+    # next to the desk, not sitting in the chair" shape the task's own
+    # done-test describes.
+    off_pos = [1.0 + 1.0, SEATED_SEAT_HEIGHT_U, 2.0]
+    ticks = [_seated_tick(pos=off_pos)] * 5
+    result = check_seated_pose(ticks, _SCOUT_EXPECTED)
+    assert result["verdict"] == "FAIL", result
+    evidence = result["detail"]["evidence"]["Scout"]
+    assert evidence["verdict"] == "FAIL"
+    last = evidence["last_sample"]
+    assert last["pos_ok"] is False
+    assert last["pos_error_u"] > SEATED_POS_TOL_U
+
+
+def test_check_seated_pose_exempt_red_pacing():
+    ticks = [_seated_tick(status="RED", pos=None)] * 5
+    result = check_seated_pose(ticks, _SCOUT_EXPECTED)
+    assert result["verdict"] == "NO-DATA", result
+    assert result["detail"]["evidence"]["Scout"]["verdict"] == "EXEMPT"
+
+
+def test_check_seated_pose_exempt_walking():
+    ticks = [_seated_tick(walking=True, pos=[5.0, 0.0, 5.0])] * 5
+    result = check_seated_pose(ticks, _SCOUT_EXPECTED)
+    assert result["verdict"] == "NO-DATA", result
+    assert result["detail"]["evidence"]["Scout"]["verdict"] == "EXEMPT"
+
+
+def test_check_seated_pose_fail_floating_off_seat_height():
+    # y off by 0.3u -- beyond SEATED_Y_TOL_U (0.1u), the "floating/clipping"
+    # shape the task's own done-test names; XZ position is dead-on.
+    floating_pos = [1.0, SEATED_SEAT_HEIGHT_U + 0.3, 2.0]
+    ticks = [_seated_tick(pos=floating_pos)] * 5
+    result = check_seated_pose(ticks, _SCOUT_EXPECTED)
+    assert result["verdict"] == "FAIL", result
+    last = result["detail"]["evidence"]["Scout"]["last_sample"]
+    assert last["pos_ok"] is True
+    assert last["y_ok"] is False
+    assert last["y_error_u"] > SEATED_Y_TOL_U
+
+
+def test_check_seated_pose_no_data_persona_with_no_wall_slot():
+    # e.g. Gamma -- never in the wall-slot roster.
+    ticks = [_seated_tick(name="Gamma", pos=[0.0, 0.0, 0.0])] * 5
+    result = check_seated_pose(ticks, _SCOUT_EXPECTED)
+    assert result["verdict"] == "NO-DATA", result
+    assert result["detail"]["evidence"]["Gamma"]["verdict"] == "NO-DATA"
+
+
+def test_check_seated_pose_steady_state_does_not_fail_on_a_single_transitional_tick():
+    seated = _seated_tick(pos=[1.0, SEATED_SEAT_HEIGHT_U, 2.0])
+    off = _seated_tick(pos=[1.0 + 1.0, SEATED_SEAT_HEIGHT_U, 2.0])
+    ticks = [seated, seated, seated, seated, off]
+    result = check_seated_pose(ticks, _SCOUT_EXPECTED)
+    assert result["verdict"] == "PASS", result
+
+
+def test_check_seated_pose_steady_state_fails_persistently_off_seat():
+    seated = _seated_tick(pos=[1.0, SEATED_SEAT_HEIGHT_U, 2.0])
+    off = _seated_tick(pos=[1.0 + 1.0, SEATED_SEAT_HEIGHT_U, 2.0])
+    ticks = [off, off, off, off, seated]
+    result = check_seated_pose(ticks, _SCOUT_EXPECTED)
+    assert result["verdict"] == "FAIL", result
+
+
+def test_check_seated_pose_no_position_sample_is_no_data_not_fail():
+    ticks = [_seated_tick(pos=None)] * 5
+    result = check_seated_pose(ticks, _SCOUT_EXPECTED)
+    assert result["verdict"] == "NO-DATA", result
+    assert result["detail"]["evidence"]["Scout"]["verdict"] == "NO-DATA"
 
 
 if __name__ == "__main__":

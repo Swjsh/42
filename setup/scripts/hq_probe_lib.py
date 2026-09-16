@@ -1669,6 +1669,150 @@ def check_label_screen_overlap(samples: List[Dict[str, Any]], screen_rects: List
     }
 
 
+# 4d. seated pose (SEATED-POSE-AUDIT pass, 2026-09-16) ---------------------------
+# Task: "people actually working" measured, not eyeballed. Every resident
+# persona whose /api/hq `company.personas[].status` is GREEN/IDLE/YELLOW
+# (RED paces -- exempt; a persona reported `walking` this tick -- exempt for
+# that tick) should be sitting AT its own desk, not standing beside a
+# neighbor's or floating/clipping through the chair. Mirrors
+# hq-scene-audit.ts#checkSeatedPose's pure per-sample logic exactly (same
+# "tiny local duplication over a cross-file/cross-language dependency"
+# convention this module's own check_label_screen_overlap/
+# _rect_overlap_fraction_of_screen already use for the TS<->PY boundary),
+# then applies THIS module's own steady-state window (STEADY_SAMPLE_COUNT/
+# STEADY_SAMPLE_MIN_RATIO, the exact same >=4-of-5 bar check_label_legibility
+# uses) on top, per this pass's own task spec ("5 samples, >=4/5 to FAIL").
+#
+# STATED GAP, not a fabricated verdict (OP-33/failure-honesty): Agent.tsx's
+# existing window.__hqMotion.agents publish (recordAgentSample) carries only
+# {id,x,y,z,clipSpeed} -- no body YAW and no exact animation-clip name, and
+# this pass's own scope excludes editing Agent.tsx/KitAgent.tsx to add
+# either. Position (XZ distance to the expected seat) and height (Y vs the
+# expected seat-pan height) are judged for real; yaw/clip are reported as
+# their own NO-DATA sub-fields in the evidence, every tick, rather than
+# guessed or silently dropped.
+SEATED_POS_TOL_U = 0.25
+SEATED_Y_TOL_U = 0.1
+# Chair seat-pan height, world units. chair.glb (dashboard/public/hq-assets/
+# kenney-space-station-kit/chair.glb) measured via `node dashboard/scripts/
+# glb_extents.mjs`: root-space AABB height 0.550 (ONE fused mesh node named
+# "chair" -- no separate seat-pan sub-mesh exists in this GLB to measure
+# directly). Scaled by SetKit.tsx#FURNITURE_SCALE=2.0 and this task's own
+# stated 0.40-0.45 seat-pan-fraction-of-chair-height estimate (midpoint
+# 0.42, since the GLB itself can't resolve which sub-fraction is the pan):
+# 0.550 * 2.0 * 0.42 = 0.462. Duplicated (not imported) in
+# hq-scene-audit.ts#SEATED_SEAT_HEIGHT_U -- same number, stated derivation,
+# both sides of the TS/Python boundary.
+SEATED_SEAT_HEIGHT_U = 0.462
+
+
+def _check_seated_pose_tick(personas: List[Dict[str, Any]], expected_by_name: Dict[str, Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
+    """One tick's per-persona verdict -- mirrors hq-scene-audit.ts#
+    checkSeatedPose's per-sample logic exactly. `personas`: [{"name",
+    "status","walking":bool,"pos":[x,y,z]|None}, ...] (Python's own already-
+    merged view of that tick's /api/hq status + window.__hqMotion.agents
+    position, built by hq_live_probe.py's sampling loop). Pure, no I/O."""
+    out: Dict[str, Dict[str, Any]] = {}
+    for p in personas:
+        name = p.get("name")
+        if not name:
+            continue
+        status = p.get("status")
+        if status == "RED":
+            out[name] = {"verdict": "EXEMPT", "reason": "RED paces, seated pose does not apply"}
+            continue
+        if p.get("walking"):
+            out[name] = {"verdict": "EXEMPT", "reason": "walking this tick"}
+            continue
+        expected = expected_by_name.get(name)
+        if not expected:
+            out[name] = {"verdict": "NO-DATA", "reason": "no expected seat (not in the wall-slot roster, e.g. Gamma)"}
+            continue
+        pos = p.get("pos")
+        if not pos:
+            out[name] = {"verdict": "NO-DATA", "reason": "no window.__hqMotion position sample this tick"}
+            continue
+        seat = expected["seat"]
+        pos_error_u = ((pos[0] - seat[0]) ** 2 + (pos[2] - seat[2]) ** 2) ** 0.5
+        y_error_u = abs(pos[1] - SEATED_SEAT_HEIGHT_U)
+        pos_ok = pos_error_u <= SEATED_POS_TOL_U
+        y_ok = y_error_u <= SEATED_Y_TOL_U
+        out[name] = {
+            "verdict": "PASS" if (pos_ok and y_ok) else "FAIL",
+            "pos_error_u": round(pos_error_u, 4),
+            "y_error_u": round(y_error_u, 4),
+            "pos_ok": pos_ok,
+            "y_ok": y_ok,
+            "yaw_error_deg": "NO-DATA (Agent.tsx does not publish body yaw)",
+            "clip": "NO-DATA (Agent.tsx does not publish the exact animation-clip name)",
+            "expected_seat": seat,
+            "actual_pos": pos,
+        }
+    return out
+
+
+def check_seated_pose(seated_ticks: List[Dict[str, Any]], expected_by_name: Dict[str, Dict[str, Any]]) -> Dict[str, Any]:
+    """`seated_ticks`: one entry per sampled tick, each
+    {"personas": [{"name","status","walking","pos"}, ...]}. `expected_by_name`:
+    window.__hqSceneAuditSeatedPose()'s own report ({name: {"seat":[x,y,z],
+    "yaw":..., "wallSlotIndex":...}}), captured ONCE (static geometry,
+    same convention wall_penetration/screen_facing/desk_clearance/
+    desk_orientation already use their own single __hqSceneAudit() snapshot
+    for). Steady-state over the tail STEADY_SAMPLE_COUNT ticks, >=4/5
+    PASS-or-EXEMPT-or-NO-DATA-excluded-from-denominator required per
+    persona, matching check_label_legibility's own established bar."""
+    if not seated_ticks:
+        return {"verdict": "NO-DATA", "detail": {"reason": "no seated-pose ticks sampled this run"}}
+    if not expected_by_name:
+        return {"verdict": "NO-DATA", "detail": {"reason": "no expected seats (window.__hqSceneAuditSeatedPose unavailable or empty roster)"}}
+
+    window = _steady_state_window(seated_ticks)
+    per_tick = [_check_seated_pose_tick(t.get("personas") or [], expected_by_name) for t in window]
+
+    names: set = set()
+    for tick in per_tick:
+        names.update(tick.keys())
+
+    evidence: Dict[str, Any] = {}
+    any_judged = False
+    any_fail = False
+    for name in sorted(names):
+        verdicts = [tick.get(name) for tick in per_tick if name in tick]
+        judged = [v for v in verdicts if v and v["verdict"] in ("PASS", "FAIL")]
+        exempt_or_nodata = [v for v in verdicts if v and v["verdict"] in ("EXEMPT", "NO-DATA")]
+        if not judged:
+            reason = exempt_or_nodata[-1]["verdict"] if exempt_or_nodata else "no data"
+            evidence[name] = {"verdict": exempt_or_nodata[-1]["verdict"] if exempt_or_nodata else "NO-DATA", "detail": exempt_or_nodata[-1] if exempt_or_nodata else {"reason": "no ticks sampled this persona"}}
+            continue
+        any_judged = True
+        pass_count = sum(1 for v in judged if v["verdict"] == "PASS")
+        ratio = pass_count / len(judged)
+        persona_verdict = "PASS" if ratio >= STEADY_SAMPLE_MIN_RATIO else "FAIL"
+        if persona_verdict == "FAIL":
+            any_fail = True
+        evidence[name] = {
+            "verdict": persona_verdict,
+            "pass_ratio": round(ratio, 3),
+            "judged_ticks": len(judged),
+            "last_sample": judged[-1],
+        }
+
+    if not any_judged:
+        return {"verdict": "NO-DATA", "detail": {"reason": "every persona was exempt or had no data every steady-state tick", "evidence": evidence}}
+
+    return {
+        "verdict": "FAIL" if any_fail else "PASS",
+        "detail": {
+            "pos_tol_u": SEATED_POS_TOL_U,
+            "y_tol_u": SEATED_Y_TOL_U,
+            "seat_height_u": SEATED_SEAT_HEIGHT_U,
+            "steady_window_ticks": len(window),
+            "steady_min_ratio": STEADY_SAMPLE_MIN_RATIO,
+            "evidence": evidence,
+        },
+    }
+
+
 # 5. page == API parity ---------------------------------------------------------
 
 def check_page_api_parity(samples: List[Dict[str, Any]]) -> Dict[str, Any]:

@@ -465,6 +465,127 @@ export function checkDeskOrientation(desks: Array<{ id: string; actualYaw: numbe
   return { verdict: violations.length > 0 ? "FAIL" : "PASS", detail: { tolDeg, checked: desks.length, violations } };
 }
 
+// ─── SEATED-POSE-AUDIT pass (2026-09-16) ────────────────────────────────
+// Task: "people actually working" measured, not eyeballed -- every persona
+// whose /api/hq status is GREEN/IDLE/YELLOW (RED paces, walking is exempt
+// for that tick) should be sitting AT its own desk, facing its own screen,
+// not floating/clipping through the chair. Split the same way every other
+// check in this file is: a PURE per-sample verdict function below (no
+// THREE/window, unit-testable), fed by a BROWSER-side expected-seat lookup
+// (computeSeatedPoseExpectedReport, near installSceneAuditHooks) and by
+// setup/scripts/hq_live_probe.py's own sampling of window.__hqMotion.agents
+// (Agent.tsx's EXISTING recordAgentSample call, LiveAgents/Agent/KitAgent
+// are off-limits to this pass so this reuses that already-published x/y/z
+// rather than adding new instrumentation there).
+//
+// KNOWN GAP, stated rather than faked (OP-33/failure-honesty): Agent.tsx's
+// recordAgentSample only ever published `{id,x,y,z,clipSpeed}` -- no body
+// YAW and no exact animation-clip name, and this pass's own scope excludes
+// editing Agent.tsx/KitAgent.tsx to add either. `checkSeatedPose` below
+// therefore verdicts POSITION (XZ-plane distance to the expected seat) and
+// HEIGHT (Y vs the expected seat-pan height) for real, and reports yaw/clip
+// as their own NO-DATA sub-verdicts with the reason stated -- never a
+// fabricated PASS on data this rig doesn't expose. See hq_probe_lib.py's
+// own check_seated_pose (setup/scripts side) for how the two are combined
+// into one per-persona steady-state verdict.
+export interface SeatedPoseExpected {
+  /** World-space seat point (SetKit.tsx#BAY_SEAT_LOCAL through the SAME
+   * layout.ts#computePersonaWallSlots slot + palette.ts#localToWorld the
+   * live scene itself uses -- see computeSeatedPoseExpectedReport below). */
+  seat: Vec3;
+  /** Desk/screen-facing yaw, radians -- Agent.tsx's own `deskYaw` prop,
+   * which Scene.tsx passes as `slot.rotationY` unchanged (BLOCKY-FIXES,
+   * commit 1333a8f6). */
+  yaw: number;
+  wallSlotIndex: number;
+}
+
+export interface SeatedPoseSample {
+  name: string;
+  /** /api/hq `company.personas[].status` -- "RED" is exempt (pacing, not
+   * seated, by design). */
+  status: string;
+  /** True on any tick the walker hook (or another live signal) reports
+   * this persona mid-walk -- exempt for that tick, not a FAIL. */
+  walking?: boolean;
+  /** One tick's worth of window.__hqMotion.agents position for this
+   * persona id (Agent.tsx's laneSeed === persona.name for a resident
+   * desk agent, same convention check_page_api_parity already relies on
+   * elsewhere in this probe). Absent entirely = no motion-diag sample
+   * this tick (?diag=1 off, or the persona hasn't rendered a frame yet). */
+  pos?: Vec3;
+}
+
+export const SEATED_POS_TOL_U = 0.25;
+export const SEATED_Y_TOL_U = 0.1;
+/** Chair seat-pan height, world units -- see setup/scripts/hq_probe_lib.py's
+ * own SEATED_SEAT_HEIGHT_U for the full glb_extents.mjs derivation (this
+ * constant is duplicated, not imported, across the TS/Python boundary same
+ * as every other probe threshold pair in this codebase). chair.glb's root
+ * AABB height is 0.550 (a single fused mesh -- no separate seat-pan
+ * sub-node exists to measure directly), scaled by FURNITURE_SCALE=2.0 and
+ * this task's own 0.40-0.45 seat-pan-fraction estimate (midpoint 0.42):
+ * 0.550 * 2.0 * 0.42 = 0.462. */
+export const SEATED_SEAT_HEIGHT_U = 0.462;
+
+/** Pure per-sample seated-pose verdict for ONE persona -- steady-state
+ * aggregation (>=4/5 like every other check_* in this file's Python
+ * sibling) is hq_probe_lib.py's own job, not this function's; this judges
+ * a single already-resolved sample against its expected seat. */
+export function checkSeatedPose(
+  samples: SeatedPoseSample[],
+  expectedByName: Record<string, SeatedPoseExpected>,
+  posTolU = SEATED_POS_TOL_U,
+  yTolU = SEATED_Y_TOL_U,
+  seatHeightU = SEATED_SEAT_HEIGHT_U,
+): CheckResult {
+  if (samples.length === 0) return { verdict: "NO-DATA", detail: { reason: "no samples supplied" } };
+  const evidence: Record<string, unknown> = {};
+  let anyFail = false;
+  let anyJudged = false;
+  for (const s of samples) {
+    if (s.status === "RED") {
+      evidence[s.name] = { verdict: "EXEMPT", reason: "RED paces, seated pose does not apply" };
+      continue;
+    }
+    if (s.walking) {
+      evidence[s.name] = { verdict: "EXEMPT", reason: "walking this tick" };
+      continue;
+    }
+    const expected = expectedByName[s.name];
+    if (!expected) {
+      evidence[s.name] = { verdict: "NO-DATA", reason: "no expected seat (not in the wall-slot roster, e.g. Gamma)" };
+      continue;
+    }
+    if (!s.pos) {
+      evidence[s.name] = { verdict: "NO-DATA", reason: "no window.__hqMotion position sample this tick" };
+      continue;
+    }
+    const posErrorU = Math.hypot(s.pos[0] - expected.seat[0], s.pos[2] - expected.seat[2]);
+    const yErrorU = Math.abs(s.pos[1] - seatHeightU);
+    const posOk = posErrorU <= posTolU;
+    const yOk = yErrorU <= yTolU;
+    anyJudged = true;
+    const verdict = posOk && yOk ? "PASS" : "FAIL";
+    if (verdict === "FAIL") anyFail = true;
+    evidence[s.name] = {
+      verdict,
+      pos_error_u: Math.round(posErrorU * 1000) / 1000,
+      y_error_u: Math.round(yErrorU * 1000) / 1000,
+      pos_ok: posOk,
+      y_ok: yOk,
+      // Stated gap, not a fabricated verdict -- see this section's own
+      // header comment for why yaw/clip aren't measured here.
+      yaw_error_deg: "NO-DATA (Agent.tsx does not publish body yaw)",
+      clip: "NO-DATA (Agent.tsx does not publish the exact animation-clip name)",
+      expected_seat: expected.seat,
+      actual_pos: s.pos,
+    };
+  }
+  if (!anyJudged) return { verdict: "NO-DATA", detail: { reason: "every persona this tick was exempt or had no data", evidence } };
+  return { verdict: anyFail ? "FAIL" : "PASS", detail: { posTolU, yTolU, seatHeightU, evidence } };
+}
+
 /** Fraction of `screen`'s own area covered by its intersection with `label`
  * -- "how much of the SCREEN does this label sit on", not the reverse (a
  * huge label barely clipping a small screen's corner should read as a
@@ -620,6 +741,14 @@ async function loadLayout() {
   // header. Only ever called from inside installSceneAuditHooks()'s
   // returned closures, which node --test never invokes.
   return import("../components/hq/layout");
+}
+
+async function loadPalette() {
+  // palette.ts's own top-level imports are plain ("three" + no .tsx), so a
+  // static top-level import here would actually be safe under `node --test`
+  // -- kept dynamic anyway for the SAME symmetry/zero-side-effect-at-import
+  // reason loadThree() above already states, not because it's required.
+  return import("../components/hq/palette");
 }
 
 function extractYawFromMatrix(THREE: typeof import("three"), matrix: InstanceType<typeof import("three").Matrix4>): number {
@@ -981,6 +1110,48 @@ async function computeWalkerWallCrossReport(tracks: WalkerTrack[]): Promise<Chec
   return checkWalkerWallCross(tracks, slabs);
 }
 
+/** Expected seat position + desk-facing yaw for each of /api/hq's own
+ * `company.personas` (excluding index 0, Gamma, who has no wall slot --
+ * see Scene.tsx's `allPersonas[0]`/`innerPersonas` convention), derived
+ * from the SAME layout.ts#computePersonaWallSlots + palette.ts#localToWorld
+ * calls Scene.tsx itself uses to place `<DeskCluster>`/`<Agent
+ * deskYaw={slot.rotationY}>` -- never a second, independently-guessed
+ * geometry. `personaNames` must be passed by the caller in /api/hq's own
+ * order (hq_live_probe.py already fetches that JSON for other checks) --
+ * this function never re-derives the roster itself.
+ *
+ * BAY_SEAT_LOCAL=[0,0,0.1] and BRAIN_WALL_ARM_INDEX=0 are hardcoded here
+ * rather than imported: SetKit.tsx (BAY_SEAT_LOCAL's real source) and
+ * Scene.tsx (BRAIN_WALL_ARM_INDEX's real source) are both off-limits to
+ * this pass. Scene.tsx's own `personaSeatLocal = ultra ? BAY_SEAT_LOCAL :
+ * TV_PERSONA_SEAT_LOCAL` picks BAY_SEAT_LOCAL whenever `?tier=ultra` is
+ * set -- hq_live_probe.py's DEFAULT_URL always sets it -- and
+ * BAY_SEAT_LOCAL = [0,0, BAY_DESK_OFFSET_Z(0.8) + DESK_SEAT_LOCAL[2](-0.35 *
+ * FURNITURE_SCALE(2.0) = -0.7)] = [0,0,0.1] (SetKit.tsx's own constants,
+ * read not guessed). BRAIN_WALL_ARM_INDEX=0 is "today's" value per
+ * layout.ts's own BRAIN_WALL_MOUNT/MONITOR_MOUNT constants, which already
+ * duplicate this exact literal for the identical off-limits-file reason --
+ * this is a third, consistent duplication, not a new convention. */
+async function computeSeatedPoseExpectedReport(personaNames: string[]): Promise<Record<string, SeatedPoseExpected>> {
+  const layout = await loadLayout();
+  const palette = await loadPalette();
+  const inner = personaNames.slice(1);
+  const count = Math.max(inner.length, 1);
+  const BRAIN_WALL_ARM_INDEX = 0;
+  const BAY_SEAT_LOCAL: Vec3 = [0, 0, 0.1];
+  const slots = layout.computePersonaWallSlots(count, BRAIN_WALL_ARM_INDEX);
+  const out: Record<string, SeatedPoseExpected> = {};
+  inner.forEach((name: string, i: number) => {
+    const slot = slots[i % slots.length];
+    out[name] = {
+      seat: palette.localToWorld(slot.position, slot.rotationY, BAY_SEAT_LOCAL),
+      yaw: slot.rotationY,
+      wallSlotIndex: i,
+    };
+  });
+  return out;
+}
+
 let installed = false;
 
 /** Wires window.__hqSceneAudit / window.__hqSceneAuditWalkers /
@@ -999,4 +1170,8 @@ export function installSceneAuditHooks(): void {
   // own header. Cheap enough to call every plausibility tick (4x/s), unlike
   // __hqSceneAudit's full wall/desk/furniture traversal.
   (window as unknown as { __hqSceneAuditScreens?: () => Promise<Record<string, unknown>> }).__hqSceneAuditScreens = computeScreenViewportRectsReport;
+  // SEATED-POSE-AUDIT pass -- see computeSeatedPoseExpectedReport's own
+  // header. Takes the caller's /api/hq persona-name order (hq_live_probe.py
+  // already fetches that JSON) rather than re-deriving the roster here.
+  (window as unknown as { __hqSceneAuditSeatedPose?: (personaNames: string[]) => Promise<Record<string, SeatedPoseExpected>> }).__hqSceneAuditSeatedPose = computeSeatedPoseExpectedReport;
 }

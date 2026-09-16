@@ -39,10 +39,16 @@ import {
   nearestHubWallYaw,
   rectOverlapFractionOfScreen,
   checkLabelScreenOverlap,
+  checkSeatedPose,
+  SEATED_POS_TOL_U,
+  SEATED_Y_TOL_U,
+  SEATED_SEAT_HEIGHT_U,
   type AABB,
   type WallSlab,
   type ScreenViewportRect,
   type ViewportLabelRect,
+  type SeatedPoseExpected,
+  type SeatedPoseSample,
 } from "../lib/hq-scene-audit.ts";
 
 // ─── buildRoomWallSlabs: door-gap construction ─────────────────────────────
@@ -412,4 +418,70 @@ test("checkLabelScreenOverlap: NO-DATA with no screens or no labels supplied", (
   const screen = screenRect("s1", 0, 0, 100, 100);
   assert.equal(checkLabelScreenOverlap([labelRect(0, 0, 10, 10)], []).verdict, "NO-DATA");
   assert.equal(checkLabelScreenOverlap([], [screen]).verdict, "NO-DATA");
+});
+
+// ─── checkSeatedPose (SEATED-POSE-AUDIT pass, 2026-09-16) ──────────────────
+// Per-sample verdict only (no steady-state aggregation -- that's
+// hq_probe_lib.py#check_seated_pose's own job, Python-side). Fixtures:
+// PASS at the seat, FAIL standing off it, EXEMPT for RED/walking, NO-DATA
+// for no expected seat / no position sample.
+
+const scoutExpected: Record<string, SeatedPoseExpected> = {
+  Scout: { seat: [1.0, 0, 2.0], yaw: 0.5, wallSlotIndex: 0 },
+};
+
+function seatedSample(overrides: Partial<SeatedPoseSample> = {}): SeatedPoseSample {
+  return { name: "Scout", status: "GREEN", ...overrides };
+}
+
+test("checkSeatedPose: PASS when the persona is seated at its own expected seat", () => {
+  const result = checkSeatedPose([seatedSample({ pos: [1.0, SEATED_SEAT_HEIGHT_U, 2.0] })], scoutExpected);
+  assert.equal(result.verdict, "PASS");
+});
+
+test("checkSeatedPose: FAIL when standing 1.0u off (beside the desk, not in the chair)", () => {
+  const result = checkSeatedPose([seatedSample({ pos: [1.0 + 1.0, SEATED_SEAT_HEIGHT_U, 2.0] })], scoutExpected);
+  assert.equal(result.verdict, "FAIL");
+  const ev = result.detail.evidence as Record<string, { pos_ok: boolean; pos_error_u: number }>;
+  assert.equal(ev.Scout.pos_ok, false);
+  assert.ok(ev.Scout.pos_error_u > SEATED_POS_TOL_U);
+});
+
+test("checkSeatedPose: FAIL when floating/clipping (y off, xz correct)", () => {
+  const result = checkSeatedPose([seatedSample({ pos: [1.0, SEATED_SEAT_HEIGHT_U + 0.3, 2.0] })], scoutExpected);
+  assert.equal(result.verdict, "FAIL");
+  const ev = result.detail.evidence as Record<string, { pos_ok: boolean; y_ok: boolean; y_error_u: number }>;
+  assert.equal(ev.Scout.pos_ok, true);
+  assert.equal(ev.Scout.y_ok, false);
+  assert.ok(ev.Scout.y_error_u > SEATED_Y_TOL_U);
+});
+
+test("checkSeatedPose: EXEMPT for a RED (pacing) persona", () => {
+  const result = checkSeatedPose([seatedSample({ status: "RED", pos: undefined })], scoutExpected);
+  assert.equal(result.verdict, "NO-DATA");
+  const ev = result.detail.evidence as Record<string, { verdict: string }>;
+  assert.equal(ev.Scout.verdict, "EXEMPT");
+});
+
+test("checkSeatedPose: EXEMPT for a persona walking this tick", () => {
+  const result = checkSeatedPose([seatedSample({ walking: true, pos: [9, 0, 9] })], scoutExpected);
+  assert.equal(result.verdict, "NO-DATA");
+  const ev = result.detail.evidence as Record<string, { verdict: string }>;
+  assert.equal(ev.Scout.verdict, "EXEMPT");
+});
+
+test("checkSeatedPose: NO-DATA for a persona with no expected seat (e.g. Gamma)", () => {
+  const result = checkSeatedPose([seatedSample({ name: "Gamma", pos: [0, 0, 0] })], scoutExpected);
+  assert.equal(result.verdict, "NO-DATA");
+});
+
+test("checkSeatedPose: NO-DATA (not FAIL) when there is no position sample this tick", () => {
+  const result = checkSeatedPose([seatedSample({ pos: undefined })], scoutExpected);
+  assert.equal(result.verdict, "NO-DATA");
+  const ev = result.detail.evidence as Record<string, { verdict: string }>;
+  assert.equal(ev.Scout.verdict, "NO-DATA");
+});
+
+test("checkSeatedPose: NO-DATA with zero samples supplied", () => {
+  assert.equal(checkSeatedPose([], scoutExpected).verdict, "NO-DATA");
 });
