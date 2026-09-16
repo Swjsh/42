@@ -6,16 +6,15 @@
 // works around the same constraint). Purely a syntax-erasure pragma -- has
 // no effect on what actually runs.
 //
-// DESK-ROWS pass (2026-09-15, BUILD worker, J top-down feedback: "no
-// intentional layout... rotated radially at 6 different angles... needs
-// consistent orientation, clear aisles"). Supersedes the DESK-RING pass's
-// own tests below (that pass fixed wall clearance but placed each of the 6
-// persona desks at ITS OWN individual angle -- 6 different yaws, the exact
-// "scattered" look J flagged). This pass makes both desks in a segment
-// share ONE yaw and sit side by side along the wall's own tangent --
-// asserts the VISIBLE table geometry (not just the abstract slot position)
-// stays wall-clear AND reads as an intentional mirrored row, for every
-// persona desk slot the current 6-persona roster produces.
+// DESKS-AGAINST-WALLS pass (2026-09-15, BUILD worker, J: "put the computer
+// in a way that it would actually be... up against the wall, not inside the
+// wall"). Supersedes the DESK-ROWS pass's own tests below (that pass fixed
+// wall clearance and shared yaw, but still placed both desks of a segment
+// on the room's DIAGONAL -- the "why are the desks diagonal in the middle
+// of the room" shape). This pass moves persona desks onto the 4 real WALLS
+// themselves (one on each side of that wall's own door), axis-aligned --
+// asserts the VISIBLE table geometry backs against a real wall, in a
+// 0.2-0.6u band, with the 2 slots nearest the brain corner dropped.
 //
 // All constants below are literal reproductions of the real, currently-
 // shipping values in SetKit.tsx/layout.ts/HubInterior.tsx (never invented) --
@@ -33,29 +32,19 @@ import assert from "node:assert/strict";
 // SetKit.tsx: ARCHITECTURE_SCALE_HUB=0.75 -> HUB_WALL_RADIUS=10*0.75=7.5.
 const HUB_WALL_RADIUS = 7.5;
 // SetKit.tsx: FURNITURE_SCALE=2.0, BAY_DESK_OFFSET_Z=0.8 (persona/Gamma
-// desks -- NOT touched by the DESK-ROWS pass, only the bay-specific
-// BAY_DESK_OFFSET_Z_BAY constant tested separately below is new).
+// desks -- unchanged by this pass).
 const FURNITURE_SCALE = 2.0;
 const BAY_DESK_OFFSET_Z = 0.8;
-// layout.ts (DESK-ROWS pass, this session): PERSONA_WALL_RADIUS re-derived
-// 4.1 -> 3.8 -- the DESK-RING pass's own 4.1 assumed a flat diagonal wall at
-// each segment; re-reading lib/hq-scene-audit.ts#buildHubSlabs this pass
-// shows the hub is a plain AXIS-ALIGNED SQUARE (the SAME geometry
-// hq_live_probe.py's desk_clearance/wall_penetration checks run against),
-// so a segment is a real room CORNER, not a flat wall -- see layout.ts's
-// own header for the full combined derivation (no-overlap vs wall-clearance
-// vs door-aisle trade-off) this radius and the separation below were
-// jointly chosen to balance.
-const PERSONA_WALL_RADIUS = 3.8;
-// layout.ts (DESK-ROWS pass): center-to-center tangential offset between
-// the 2 desks in a row. MUST exceed TABLE_HALF_X + TABLE_HALF_Z (=1.7,
-// below) for two 45deg-rotated tables' AXIS-ALIGNED bounding boxes (what
-// checkDeskClearance actually compares, not their true oriented rectangles)
-// to clear on at least one axis -- this pass's own first live-probe run
-// FAILed 6/6 persona desks as "overlaps" at the old value (1.4), which
-// this identity explains exactly (see layout.ts's own header for the
-// full algebra).
-const DESK_TANGENT_HALF_SEPARATION = 1.8;
+// layout.ts (DESKS-AGAINST-WALLS pass): PERSONA_WALL_RADIUS is now the
+// anchor's distance from hub-center along the WALL'S OWN outward normal
+// (armAngle(k)), not a diagonal-corner radius -- see layout.ts's own header
+// for the full back-edge-clearance derivation (anchor = wall inner face
+// 7.35 - target clearance 0.35 - table's own local reach 2.0 = 5.0).
+const PERSONA_WALL_RADIUS = 5.1;
+// layout.ts: center-to-center-from-wall-normal-point tangential offset for
+// each of a wall's 2 desks -- "midway between the door's clear edge (+1.5u
+// aisle) and the corner (-1.0u)", see layout.ts's own header.
+const PERSONA_WALL_LATERAL_OFFSET = 4.6;
 // table.glb raw AABB, parsed directly via scripts/glb_extents.mjs:
 // root-space size X=1.100, Z=0.600 (Y/height irrelevant here).
 const TABLE_RAW_X = 1.1;
@@ -66,10 +55,11 @@ const TABLE_RAW_Z = 0.6;
 // verified by reading that component directly, not assumed.
 const TABLE_LOCAL_Z_OFFSET = BAY_DESK_OFFSET_Z + 0.3 * FURNITURE_SCALE;
 const TABLE_HALF_X = (TABLE_RAW_X * FURNITURE_SCALE) / 2; // world half-width (tangential axis)
-const TABLE_HALF_Z = (TABLE_RAW_Z * FURNITURE_SCALE) / 2; // world half-depth (radial axis)
+const TABLE_HALF_Z = (TABLE_RAW_Z * FURNITURE_SCALE) / 2; // world half-depth (radial/wall-normal axis)
 // lib/hq-scene-audit.ts's own literals -- the hub is modeled there as a
 // plain axis-aligned square, HUB_WALL_RADIUS wide, WALL_THICKNESS thick.
 const HUB_INNER_WALL_FACE = HUB_WALL_RADIUS - 0.3 / 2;
+const HUB_DOOR_HALF_WIDTH = (4.2 * 0.75) / 2; // gate-door.glb raw 4.2 * ARCHITECTURE_SCALE_HUB(0.75), /2
 
 /** Mirrors layout.ts#armAngle. */
 function armAngle(k: number): number {
@@ -80,43 +70,56 @@ interface PersonaSlot {
   x: number;
   z: number;
   rotationY: number;
-  segment: number;
-  side: -1 | 1;
+  wall: number;
+  lateralSign: -1 | 1;
 }
 
-/** Mirrors layout.ts#computePersonaWallSlots's own math EXACTLY (DESK-ROWS
- * pass): ONE shared yaw per segment (evaluated at the segment's own
- * wall-normal point, not per desk), both desks offset along the tangent to
- * that normal by +-DESK_TANGENT_HALF_SEPARATION. brainWallArmIndex=0 --
- * today's BRAIN_WALL_ARM_INDEX, per Scene.tsx. */
-function personaSlot(i: number): PersonaSlot {
-  const brainSegment = 0;
-  const otherSegments = [0, 1, 2, 3].filter((k) => k !== brainSegment);
-  const segment = otherSegments[Math.floor(i / 2) % otherSegments.length];
-  const side = (i % 2 === 0 ? -1 : 1) as -1 | 1;
-  const segCenterAngle = armAngle(segment) + Math.PI / 4;
-  const wallX = Math.cos(segCenterAngle) * PERSONA_WALL_RADIUS;
-  const wallZ = Math.sin(segCenterAngle) * PERSONA_WALL_RADIUS;
-  // rotationYFacing(wallPoint, HUB) for a point on a ray through the origin
-  // reduces to Math.PI/2 - segCenterAngle (layout.ts's own documented
-  // identity).
-  const rotationY = Math.PI / 2 - segCenterAngle;
-  const tangentX = Math.cos(rotationY);
-  const tangentZ = -Math.sin(rotationY);
-  return {
-    x: wallX + side * DESK_TANGENT_HALF_SEPARATION * tangentX,
-    z: wallZ + side * DESK_TANGENT_HALF_SEPARATION * tangentZ,
-    rotationY,
-    segment,
-    side,
-  };
+/** Mirrors layout.ts#computePersonaWallSlots's own math EXACTLY
+ * (DESKS-AGAINST-WALLS pass): ONE shared yaw per WALL (evaluated at the
+ * wall's own outward-normal point, not per desk), both desks offset along
+ * the wall's own tangent by +-PERSONA_WALL_LATERAL_OFFSET. Drops the one
+ * candidate on `brainWall` nearest its OWN high corner (lateralSign=-1) and
+ * the one on `brainWall+1` nearest ITS OWN low corner (lateralSign=+1) --
+ * both the SAME 45deg corner the monitor stand/BrainCore/Gamma's desk
+ * already occupy. brainWallArmIndex=0 -- today's BRAIN_WALL_ARM_INDEX, per
+ * Scene.tsx. */
+function personaSlots(): PersonaSlot[] {
+  const brainWall = 0;
+  const highCornerWall = (brainWall + 1) % 4;
+  const candidates: Array<{ wall: number; lateralSign: -1 | 1 }> = [];
+  for (let offset = 0; offset < 4; offset++) {
+    const wall = (brainWall + offset) % 4;
+    for (const lateralSign of [-1, 1] as const) {
+      if (wall === brainWall && lateralSign === -1) continue;
+      if (wall === highCornerWall && lateralSign === 1) continue;
+      candidates.push({ wall, lateralSign });
+    }
+  }
+  return candidates.map(({ wall, lateralSign }) => {
+    const wallAngle = armAngle(wall);
+    const wallX = Math.cos(wallAngle) * PERSONA_WALL_RADIUS;
+    const wallZ = Math.sin(wallAngle) * PERSONA_WALL_RADIUS;
+    // rotationYFacing(wallNormalPoint, HUB) for a point on a ray through the
+    // origin reduces to Math.PI/2 - wallAngle (layout.ts's own documented
+    // identity).
+    const rotationY = Math.PI / 2 - wallAngle;
+    const tangentX = Math.cos(rotationY);
+    const tangentZ = -Math.sin(rotationY);
+    return {
+      x: wallX + lateralSign * PERSONA_WALL_LATERAL_OFFSET * tangentX,
+      z: wallZ + lateralSign * PERSONA_WALL_LATERAL_OFFSET * tangentZ,
+      rotationY,
+      wall,
+      lateralSign,
+    };
+  });
 }
 
 /** The table's own 4 world-space corners for a persona slot -- mirrors
  * DeskCluster's real local->world chain: slot position -> table center
  * offset by TABLE_LOCAL_Z_OFFSET along the slot's own local +Z (outward,
- * away from the hub) -> +-TABLE_HALF_X/+-TABLE_HALF_Z corners in the
- * table's own local frame, rotated by the shared yaw. */
+ * away from the hub, toward the wall) -> +-TABLE_HALF_X/+-TABLE_HALF_Z
+ * corners in the table's own local frame, rotated by the shared yaw. */
 function tableCorners(slot: PersonaSlot): { x: number; z: number }[] {
   const cornersLocal = [
     [-TABLE_HALF_X, TABLE_LOCAL_Z_OFFSET - TABLE_HALF_Z],
@@ -136,97 +139,89 @@ function tableCorners(slot: PersonaSlot): { x: number; z: number }[] {
   }));
 }
 
-function radius(p: { x: number; z: number }): number {
-  return Math.hypot(p.x, p.z);
-}
+test("DESKS-AGAINST-WALLS: exactly 6 persona slots, one per real wall side minus the 2 dropped at the brain corner", () => {
+  const slots = personaSlots();
+  assert.equal(slots.length, 6);
+  const perWall = [0, 1, 2, 3].map((w) => slots.filter((s) => s.wall === w).length);
+  // brainWall(0) keeps 1, highCornerWall(1) keeps 1, the other two keep 2 each.
+  assert.deepEqual(perWall, [1, 1, 2, 2], `expected [1,1,2,2] desks per wall, got [${perWall.join(",")}]`);
+});
 
-test("DESK-ROWS: every persona table corner clears the hub's REAL axis-aligned wall (Chebyshev distance, matches lib/hq-scene-audit.ts#buildHubSlabs) by >=1.0u", () => {
-  for (let i = 0; i < 6; i++) {
-    const slot = personaSlot(i);
-    for (const corner of tableCorners(slot)) {
-      // The hub is a plain axis-aligned square (buildHubSlabs) -- distance
-      // to the nearest wall is HUB_INNER_WALL_FACE minus whichever of |x|/
-      // |z| is larger (Chebyshev), NOT a dot-product against one segment's
-      // own radial normal (that flat-diagonal-wall model was this test's
-      // own DESK-RING-era bug, see layout.ts's own header for the full
-      // writeup of why it under-counted real wall proximity).
-      const wallClearance = HUB_INNER_WALL_FACE - Math.max(Math.abs(corner.x), Math.abs(corner.z));
-      assert.ok(wallClearance >= 1.0, `slot ${i} corner (${corner.x.toFixed(3)},${corner.z.toFixed(3)}) wall clearance ${wallClearance.toFixed(3)} < 1.0u`);
+test("DESKS-AGAINST-WALLS: every persona table's BACK edge (the side nearest its own wall) sits 0.2-0.6u off the hub's real axis-aligned wall", () => {
+  for (const slot of personaSlots()) {
+    const corners = tableCorners(slot);
+    // The back edge is whichever corner pair sits FARTHEST from hub-center
+    // along the wall's own normal -- for an axis-aligned desk this is
+    // simply the corner set with the largest Chebyshev coordinate.
+    const wallClearances = corners.map((c) => HUB_INNER_WALL_FACE - Math.max(Math.abs(c.x), Math.abs(c.z)));
+    const backEdgeClearance = Math.min(...wallClearances);
+    assert.ok(
+      backEdgeClearance >= 0.2 - 1e-9 && backEdgeClearance <= 0.6 + 1e-9,
+      `wall ${slot.wall} side ${slot.lateralSign} back-edge clearance ${backEdgeClearance.toFixed(3)} outside [0.2,0.6]u`,
+    );
+  }
+});
+
+test("DESKS-AGAINST-WALLS: every persona table is axis-aligned (yaw a multiple of 90deg) -- long axis parallel to its own wall", () => {
+  for (const slot of personaSlots()) {
+    const normalized = ((slot.rotationY % (Math.PI / 2)) + Math.PI / 2) % (Math.PI / 2);
+    const distToAxis = Math.min(normalized, Math.PI / 2 - normalized);
+    assert.ok(distToAxis < 1e-9, `wall ${slot.wall} side ${slot.lateralSign} rotationY ${slot.rotationY} is not a multiple of 90deg`);
+  }
+});
+
+test("DESKS-AGAINST-WALLS: the two desks sharing a wall share exactly one yaw", () => {
+  for (let w = 0; w < 4; w++) {
+    const slots = personaSlots().filter((s) => s.wall === w);
+    if (slots.length < 2) continue;
+    assert.ok(Math.abs(slots[0].rotationY - slots[1].rotationY) < 1e-9, `wall ${w} desks have different yaws`);
+  }
+});
+
+// SELF-CORRECTION regression pin (see layout.ts#PERSONA_WALL_RADIUS's own
+// header): the first derivation of these two constants (5.0/4.7875) passed
+// every SAME-wall check above but a real hq_live_probe --plausibility run
+// FAILed desk_clearance 6/6 -- TWO desks from ADJACENT, PERPENDICULAR walls
+// both reach toward the SAME real room corner (the 3 corners this pass
+// doesn't reserve for the brain wall) and their axis-aligned AABBs clip by
+// up to 0.09u there, a cross-wall interaction no same-wall-only check (like
+// the one just above) can ever catch. This test checks EVERY pair, not
+// just same-wall pairs.
+test("DESKS-AGAINST-WALLS: no two persona tables overlap as AABBs, including desks on DIFFERENT (perpendicular) walls sharing a real room corner", () => {
+  const slots = personaSlots();
+  const aabbs = slots.map((slot) => {
+    const corners = tableCorners(slot);
+    return {
+      minX: Math.min(...corners.map((c) => c.x)), maxX: Math.max(...corners.map((c) => c.x)),
+      minZ: Math.min(...corners.map((c) => c.z)), maxZ: Math.max(...corners.map((c) => c.z)),
+    };
+  });
+  for (let i = 0; i < slots.length; i++) {
+    for (let j = i + 1; j < slots.length; j++) {
+      const a = aabbs[i], b = aabbs[j];
+      const overlapsX = a.minX <= b.maxX && a.maxX >= b.minX;
+      const overlapsZ = a.minZ <= b.maxZ && a.maxZ >= b.minZ;
+      assert.ok(!(overlapsX && overlapsZ), `slot ${i} (wall ${slots[i].wall}) overlaps slot ${j} (wall ${slots[j].wall})`);
     }
   }
 });
 
-test("DESK-ROWS: the two persona tables in a segment never overlap as AXIS-ALIGNED bounding boxes (the exact shape checkDeskClearance's own 'overlaps' violation checks)", () => {
-  for (let seg = 1; seg <= 3; seg++) {
-    const slots = [0, 1, 2, 3, 4, 5].map(personaSlot).filter((s) => s.segment === seg);
-    const aabbs = slots.map((slot) => {
-      const corners = tableCorners(slot);
-      return {
-        minX: Math.min(...corners.map((c) => c.x)),
-        maxX: Math.max(...corners.map((c) => c.x)),
-        minZ: Math.min(...corners.map((c) => c.z)),
-        maxZ: Math.max(...corners.map((c) => c.z)),
-      };
-    });
-    const [a, b] = aabbs;
-    const overlapsX = a.minX <= b.maxX && a.maxX >= b.minX;
-    const overlapsZ = a.minZ <= b.maxZ && a.maxZ >= b.minZ;
-    assert.ok(!(overlapsX && overlapsZ), `segment ${seg} desk pair's own AABBs overlap (X:[${a.minX.toFixed(2)},${a.maxX.toFixed(2)}] vs [${b.minX.toFixed(2)},${b.maxX.toFixed(2)}], Z:[${a.minZ.toFixed(2)},${a.maxZ.toFixed(2)}] vs [${b.minZ.toFixed(2)},${b.maxZ.toFixed(2)}])`);
-  }
-});
-
-test("DESK-ROWS: the two desks in each segment share EXACTLY one yaw (the 'consistent orientation' J asked for)", () => {
-  for (let seg = 0; seg < 4; seg++) {
-    if (seg === 0) continue; // brain-wall segment carries no persona desks
-    const slots = [0, 1, 2, 3, 4, 5].map(personaSlot).filter((s) => s.segment === seg);
-    assert.equal(slots.length, 2, `segment ${seg} should carry exactly 2 persona desks`);
-    assert.ok(Math.abs(slots[0].rotationY - slots[1].rotationY) < 1e-9, `segment ${seg} desks have different yaws (${slots[0].rotationY} vs ${slots[1].rotationY})`);
-  }
-});
-
-test("DESK-ROWS: the two desks in each segment are mirror-symmetric about the segment's own center line", () => {
-  for (let seg = 1; seg <= 3; seg++) {
-    const slots = [0, 1, 2, 3, 4, 5].map(personaSlot).filter((s) => s.segment === seg);
-    const segCenterAngle = armAngle(seg) + Math.PI / 4;
-    const wallX = Math.cos(segCenterAngle) * PERSONA_WALL_RADIUS;
-    const wallZ = Math.sin(segCenterAngle) * PERSONA_WALL_RADIUS;
-    // Midpoint of the two desk positions must land exactly on the
-    // segment's own wall-normal point (the mirror axis).
-    const midX = (slots[0].x + slots[1].x) / 2;
-    const midZ = (slots[0].z + slots[1].z) / 2;
-    assert.ok(Math.abs(midX - wallX) < 1e-9 && Math.abs(midZ - wallZ) < 1e-9, `segment ${seg} desk pair midpoint (${midX},${midZ}) != wall-normal point (${wallX},${wallZ})`);
-    // Desk-to-desk (table center to table center) separation clears the
-    // requested 0.6u gap between the two tables' own facing edges.
-    const dx = slots[0].x - slots[1].x;
-    const dz = slots[0].z - slots[1].z;
-    const centerToCenter = Math.hypot(dx, dz);
-    assert.ok(centerToCenter - TABLE_RAW_X * FURNITURE_SCALE >= 0.6 - 1e-9, `segment ${seg} desk gap ${(centerToCenter - TABLE_RAW_X * FURNITURE_SCALE).toFixed(3)} < 0.6u`);
-  }
-});
-
-test("DESK-ROWS: no persona slot falls inside segment 0 (armAngle(0)..armAngle(1), 0..90deg) -- the reserved brain-wall segment carrying BrainCore/meeting-table/Gamma-desk/cables/monitor-stand", () => {
-  for (let i = 0; i < 6; i++) {
-    const slot = personaSlot(i);
-    assert.notEqual(slot.segment, 0, `slot ${i} assigned to segment 0 (reserved for fixed hub furniture)`);
-  }
-});
-
-test("DESK-ROWS: every persona desk keeps clearance from both flanking doorway aisles (the X/Z axes doors sit on), and it isn't shrinking below the value this pass measured", () => {
-  // Task target was >=1.5u; the joint no-overlap + real-wall-clearance
-  // derivation (layout.ts's own header) leaves ~1.20u here as the best
-  // simultaneous fit -- not itself a hq_live_probe check (no literal aisle
-  // check exists there; walker_wall_cross, the real walked-path check,
-  // passes at 0/480 regardless, since no walk edge routes through this
-  // exact spot). Pinned at the measured value so a future change can't
-  // silently shrink it further without this test moving too.
-  const ASILE_MIN = 1.2;
-  for (let i = 0; i < 6; i++) {
-    const slot = personaSlot(i);
+test("DESKS-AGAINST-WALLS: no persona slot lands nearer than 1.0u to the room's real corner, or inside the door's own clear aisle (+1.5u)", () => {
+  for (const slot of personaSlots()) {
     for (const corner of tableCorners(slot)) {
-      assert.ok(Math.abs(corner.x) >= ASILE_MIN - 1e-9, `slot ${i} corner x=${corner.x} closer than ${ASILE_MIN}u to the Z-axis door aisle (doors at armAngle 1/3)`);
-      assert.ok(Math.abs(corner.z) >= ASILE_MIN - 1e-9, `slot ${i} corner z=${corner.z} closer than ${ASILE_MIN}u to the X-axis door aisle (doors at armAngle 0/2)`);
+      // Whichever coordinate is on the wall's own tangent axis must clear
+      // both the door aisle (near 0) and the room corner (near +-7.5).
+      const lateralCoord = slot.wall % 2 === 0 ? corner.z : corner.x;
+      assert.ok(Math.abs(lateralCoord) >= HUB_DOOR_HALF_WIDTH + 1.5 - 1e-6, `wall ${slot.wall} corner lateral ${lateralCoord.toFixed(3)} inside the door's own +1.5u aisle`);
+      assert.ok(Math.abs(lateralCoord) <= HUB_WALL_RADIUS - 1.0 + 1e-6, `wall ${slot.wall} corner lateral ${lateralCoord.toFixed(3)} closer than 1.0u to the room corner`);
     }
   }
+});
+
+test("DESKS-AGAINST-WALLS: no persona slot falls on the brain wall's own reserved high corner or the neighboring wall's low corner (BrainCore/meeting-table/Gamma-desk/cables/monitor-stand keep-out)", () => {
+  const slots = personaSlots();
+  assert.equal(slots.filter((s) => s.wall === 0 && s.lateralSign === -1).length, 0, "brainWall(0) high-corner slot must be dropped");
+  assert.equal(slots.filter((s) => s.wall === 1 && s.lateralSign === 1).length, 0, "highCornerWall(1) low-corner slot must be dropped");
 });
 
 // ─── Bay desk clearance (DESK-ROWS pass, audit desk_clearance FAIL fix) ───

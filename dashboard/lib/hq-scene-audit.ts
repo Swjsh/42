@@ -761,33 +761,23 @@ async function computeSceneAuditReport(): Promise<Record<string, unknown>> {
   });
 
   const baySlots = layout.computeAllBaySlots(8);
-  // DESK-ROWS pass (2026-09-15): the 6 persona wall slots, SAME
-  // brainWallArmIndex=0 convention BRAIN_WALL_MOUNT/MONITOR_MOUNT already
-  // hardcode as their own "today's BRAIN_WALL_ARM_INDEX" convenience const
-  // (Scene.tsx's real BRAIN_WALL_ARM_INDEX is a runtime value derived from
-  // ARC_CENTER that this pure/dynamic-import module has no access to --
-  // same constraint those two consts document). Needed below so a persona
-  // desk's expected yaw is the segment's own SHARED wall-facing direction,
-  // not a per-desk radial-facing guess computed from that one desk's own
-  // (now tangentially offset) position -- see this section's own updated
-  // comment for why the old per-position guess broke under DESK-ROWS.
-  const personaSlots = layout.computePersonaWallSlots(6, 0);
   const slabs: WallSlab[] = [
     ...buildHubSlabs(),
     ...baySlots.flatMap((slot) => buildBaySlabs(`bay-${slot.index}`, [slot.position[0], slot.position[2]], slot.rotationY)),
   ];
 
-  // Desk-orientation pairing: classify each desk as belonging to whichever
-  // bay's own agentHome-ish area it's nearest to (within a generous 2.2u --
-  // DeskCluster mounts a bay's table ~1.4u outward from its own seat slot,
-  // per layout.ts#PERSONA_WALL_RADIUS's own header), else whichever persona
-  // wall slot it's nearest to (DESK-ROWS pass, same 2.2u band -- a persona
-  // table sits ~1.4-1.75u from its own slot's seat point, tangential
-  // row-offset included), else fall back to the old "faces toward or away
-  // from hub center" heuristic for anything neither (Gamma's own hub desk).
-  // This mirrors the live geometry without requiring a THIRD tagging pass
-  // (per-slot ids) on top of the coarse furniture/desk tag already added --
-  // see this file's own header.
+  // Desk-orientation pairing (DESKS-AGAINST-WALLS pass, made INDEPENDENT of
+  // layout.ts's own output -- see nearestHubWallYaw's own header for why the
+  // old "ask layout.ts what this slot's rotationY should be" pairing was
+  // tautological): a bay desk still pairs against its OWN bay's rotationY
+  // (bay walls are rotated per-bay, not axis-aligned in world space, so a
+  // from-scratch geometric derivation isn't practical here without also
+  // reading each bay's own rotation -- out of this pass's scope, bay
+  // desk orientation is unchanged); a desk near one of the HUB's own real
+  // (axis-aligned, world-space) walls gets the fully independent
+  // nearestHubWallYaw treatment instead; anything else (Gamma's own hub
+  // desk, near the core, backed against nothing) keeps the old "faces
+  // toward or away from hub center" heuristic.
   const deskOrientationInput = deskCandidates.map((d) => {
     let nearestBay: { dist: number; rotationY: number } | null = null;
     for (const slot of baySlots) {
@@ -797,13 +787,9 @@ async function computeSceneAuditReport(): Promise<Record<string, unknown>> {
     if (nearestBay && nearestBay.dist < 2.2) {
       return { id: d.id, actualYaw: d.yaw, targetYaw: nearestBay.rotationY };
     }
-    let nearestPersona: { dist: number; rotationY: number } | null = null;
-    for (const slot of personaSlots) {
-      const dist = Math.hypot(d.position[0] - slot.position[0], d.position[2] - slot.position[2]);
-      if (!nearestPersona || dist < nearestPersona.dist) nearestPersona = { dist, rotationY: slot.rotationY };
-    }
-    if (nearestPersona && nearestPersona.dist < 2.2) {
-      return { id: d.id, actualYaw: d.yaw, targetYaw: nearestPersona.rotationY };
+    const chebyshevWallDist = HUB_HALF_EXTENT - Math.max(Math.abs(d.position[0]), Math.abs(d.position[2]));
+    if (chebyshevWallDist >= 0 && chebyshevWallDist < HUB_WALL_ADJACENCY_BAND_U) {
+      return { id: d.id, actualYaw: d.yaw, targetYaw: nearestHubWallYaw(d.position) };
     }
     const towardHub = layout.rotationYFacing(d.position, layout.HUB);
     const diffToward = Math.abs(wrapAngleRad(d.yaw - towardHub));
@@ -824,10 +810,37 @@ async function computeSceneAuditReport(): Promise<Record<string, unknown>> {
     return { id: d.id, label: "desk", aabb: { min: [d.position[0] - bboxHalf, 0, d.position[2] - bboxHalf], max: [d.position[0] + bboxHalf, 1.2, d.position[2] + bboxHalf] } as AABB };
   });
   const deskAabbs = furniture.filter((f) => f.label === "desk");
+  const deskSource = deskAabbs.length ? deskAabbs : desks;
 
   const wallPenetration = checkWallPenetration([...furniture, ...screens.map((s) => ({ id: s.id, label: s.label, aabb: { min: s.position, max: s.position } }))], slabs);
   const screenFacing = checkScreenFacing(screens, liveCamera, topDownCamera);
-  const deskClearance = checkDeskClearance(deskAabbs.length ? deskAabbs : desks, slabs, furniture);
+  // DESKS-AGAINST-WALLS pass: split desks into "backed against a real HUB
+  // wall" (same Chebyshev classification checkDeskOrientation's own pairing
+  // above uses, keyed by id via deskCandidates rather than re-measuring) vs
+  // everything else (bay desks, Gamma's own hub desk) -- the FIRST group
+  // wants the tight 0.2-0.6u back-wall band (see checkDeskClearance's own
+  // header for why a blanket >=1.0u would wrongly FAIL a correctly-placed
+  // against-the-wall desk); the SECOND group keeps the original >=1.0u-from-
+  // any-wall rule unchanged, matching every bay-desk test already pinned.
+  const deskPositionById = new Map(deskCandidates.map((d) => [d.id, d.position] as const));
+  const HUB_BACK_WALL_BAND: WallBand = { min: 0.15, max: 0.7 }; // generous real-capture tolerance around the 0.2-0.6u design ask
+  const hubWallDesks: ObjectAabb[] = [];
+  const otherDesks: ObjectAabb[] = [];
+  for (const d of deskSource) {
+    const pos = deskPositionById.get(d.id);
+    const chebyshevWallDist = pos ? HUB_HALF_EXTENT - Math.max(Math.abs(pos[0]), Math.abs(pos[2])) : -Infinity;
+    if (chebyshevWallDist >= 0 && chebyshevWallDist < HUB_WALL_ADJACENCY_BAND_U) hubWallDesks.push(d);
+    else otherDesks.push(d);
+  }
+  const deskClearanceHub = checkDeskClearance(hubWallDesks, slabs, furniture, 1.0, HUB_BACK_WALL_BAND);
+  const deskClearanceOther = checkDeskClearance(otherDesks, slabs, furniture);
+  const deskClearance: CheckResult =
+    deskClearanceHub.verdict === "NO-DATA" ? deskClearanceOther :
+    deskClearanceOther.verdict === "NO-DATA" ? deskClearanceHub :
+    {
+      verdict: deskClearanceHub.verdict === "FAIL" || deskClearanceOther.verdict === "FAIL" ? "FAIL" : "PASS",
+      detail: { hub: deskClearanceHub.detail, other: deskClearanceOther.detail },
+    };
   const deskOrientation = checkDeskOrientation(deskOrientationInput);
 
   return {

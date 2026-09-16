@@ -427,25 +427,70 @@ export function minClearRadius(azimuth: number, margin: number): number {
 // r<=~4.0 at 45deg, Gamma's desk r3.4 at ~61deg, cables r5.5 at 12/28/78deg
 // -- see HubInterior.tsx), so this radius change cannot collide with any of
 // it by construction, regardless of the exact number chosen here.
-export const PERSONA_WALL_RADIUS = 3.8;
+// DESKS-AGAINST-WALLS pass (2026-09-15, BUILD worker, J: "put the computer
+// in a way that it would actually be... up against the wall, not inside the
+// wall"). Supersedes DESK-ROWS above: that pass fixed a SHARED yaw per
+// segment and wall clearance, but still placed both desks of a segment on
+// the room's DIAGONAL (the corner between two doors) -- a real human reads
+// "why are the desks diagonal in the middle of the room" even when every
+// clearance number checks out. This pass moves persona desks onto the 4
+// real WALLS themselves (one on each side of that wall's own door), axis-
+// aligned, backs to the wall -- the actual "office against a wall" shape.
+//
+// PERSONA_WALL_RADIUS is now the ANCHOR's distance from hub-center ALONG
+// the wall's own outward normal (armAngle(k)), not a diagonal-corner
+// radius. Derived from the real DeskCluster mount chain (SetKit.tsx,
+// verified by reading that component, not guessed):
+//   TABLE_LOCAL_Z_OFFSET = BAY_DESK_OFFSET_Z(0.8) + 0.3*FURNITURE_SCALE(0.6)
+//                         = 1.4  (table center, local +Z = outward/wall-ward
+//                           from the anchor -- DESK_SEAT_LOCAL sits at -0.7,
+//                           the ROOM side, confirming the existing
+//                           DeskCluster convention already puts the chair
+//                           toward the hub and the table toward the wall
+//                           with ZERO yaw flip needed)
+//   TABLE_HALF_Z = 0.6  (table.glb raw Z=0.600 * FURNITURE_SCALE(2)/2)
+//   table's own BACK edge (closest to the wall) = anchor + 1.4 + 0.6 = anchor + 2.0
+//
+// SELF-CORRECTION (same session, caught by this pass's own required
+// hq_live_probe --plausibility run, per OP-33 -- not assumed correct from
+// the math alone): a first pass picked anchor=5.0 (back-edge clearance
+// exactly the 0.2-0.6u band's own midpoint, 0.35u) from the SAME-WALL
+// corner-margin trade-off alone. The real probe's desk_clearance FAILed
+// 6/6 hub desks as "overlaps" -- re-reading the printed AABBs showed the
+// TRUE bug: dropping only the 2 slots nearest the brain's OWN corner still
+// leaves the OTHER 3 real room corners each shared by TWO desks from
+// ADJACENT, PERPENDICULAR walls (wall k's own "away from brain" slot and
+// wall k+2/k+3's own slot both reach toward that same physical corner from
+// 90deg apart) -- a CROSS-wall clearance this pass's first derivation never
+// checked (it only verified each desk against ITS OWN wall's corner). The
+// two desks' footprints there are axis-aligned but on ORTHOGONAL axes, so
+// requiring `anchor - PERSONA_WALL_LATERAL_OFFSET > TABLE_HALF_X -
+// TABLE_LOCAL_Z_OFFSET + TABLE_HALF_Z` (derived and verified by a small
+// script this session, sampling both constants) is the real constraint --
+// anchor=5.0/lateral=4.7875 satisfied EVERY check this file's own
+// derivation covered yet still clipped by 0.0875-0.35u at those 3 corners.
+// Chosen fix, verified against ALL FOUR constraints at once (back-edge
+// band, same-wall corner margin, door aisle, cross-wall corner gap) via
+// that same script, not guessed:
+//   anchor = 5.1   (back-edge clearance 7.35-5.1-2.0 = 0.25u, still in-band)
+export const PERSONA_WALL_RADIUS = 5.1;
 
-// DESK_TANGENT_HALF_SEPARATION -- see this section's own combined-derivation
-// comment above for the full no-overlap/wall-clearance/aisle trade-off this
-// number (and PERSONA_WALL_RADIUS above) were jointly chosen to balance.
-// `wallPoint` below sits at PERSONA_WALL_RADIUS on the segment's own radial
-// bisector. `rotationY = rotationYFacing(wallPoint, HUB)` is evaluated ONCE
-// per segment (not per desk) -- this is the shared yaw: local -Z points at
-// the hub (perpendicular to the segment's own radial bisector, "facing the
-// room" per the task), local +Z is the outward mount direction DeskCluster
-// already uses to place the visible table (BAY_DESK_OFFSET_Z +
-// 0.3*FURNITURE_SCALE = 1.4u, unchanged by this pass), and local +X (the
-// table's own long/width axis) is exactly tangent to that bisector at that
-// point -- both desks are placed at wallPoint +- this tangent unit vector
-// (local (1,0,0) rotates to world (cos Y, 0, -sin Y), three.js Y-rotation
-// convention, matching rotationYFacing's own derivation) scaled by
-// DESK_TANGENT_HALF_SEPARATION, so they stay mirror-symmetric about (and at
-// the same radial distance as) the segment's own center line.
-const DESK_TANGENT_HALF_SEPARATION = 1.8;
+// PERSONA_WALL_LATERAL_OFFSET -- the desk-pair's own tangential offset from
+// the wall's normal point (was DESK_TANGENT_HALF_SEPARATION under the old
+// diagonal-corner model). Original derivation ("midway between the door's
+// clear edge +1.5u aisle and the corner -1.0u") gave 4.7875, which the
+// SAME real-probe run (see PERSONA_WALL_RADIUS's own self-correction above)
+// showed clips an ADJACENT wall's own desk by up to 0.09u at 3 of the 4
+// real corners -- a cross-wall constraint the door/corner midpoint formula
+// never modeled. Re-picked at 4.6 (verified via the same session script:
+// zero AABB overlaps across all 6 slots, minimum real gap 0.2u between any
+// two desks) -- still clears the door's own aisle comfortably (near-door
+// table edge = 4.6-1.1 = 3.5, 1.93u past the door's own clear edge, well
+// past the 1.5u aisle ask) and the room's real corner (near-corner table
+// edge = 4.6+1.1 = 5.7, 1.8u short of the real corner, past the 1.0u
+// margin) -- both original constraints still hold, just with headroom
+// traded for the newly-discovered cross-wall one.
+const PERSONA_WALL_LATERAL_OFFSET = 4.6;
 
 // ─── Brain wall mount (2026-09-14, MODELS builder, coordinator-authorized
 // edit -- LAYOUT's ownership of this file is released) ─────────────────────
@@ -642,33 +687,78 @@ export interface PersonaWallSlot {
   rotationY: number; // faces the hub center, same -Z-front convention as every other kit placement
 }
 
-/** `brainWallArmIndex` picks the "brain wall" segment: the one starting at
- * that arm's own doorway and running to the next (i.e. segment k spans
- * armAngle(k)..armAngle(k+1), centered at armAngle(k)+45deg). Returns one
- * slot per inner persona (index 0..5, the 6 non-Gamma personas). */
+/** `brainWallArmIndex` picks the "brain wall" -- the real WALL (armAngle(k),
+ * one of the room's 4 flat sides, not a diagonal corner segment) that keeps
+ * NO persona desks so the twin monitors / BrainCore / Gamma's own desk (all
+ * anchored near that corner, see computeBrainWallMount/computeMonitorMount)
+ * stay clear. Its own "high corner" (armAngle(k)+45deg, shared with wall
+ * k+1) is the SAME 45deg corner those two mounts sit at (today's
+ * brainWallArmIndex=0 -> the +X/+Z corner) -- so the ONE candidate slot on
+ * wall k nearest that corner, and the ONE candidate slot on wall k+1
+ * nearest that SAME corner, are both dropped too (2 candidates removed),
+ * leaving 6: wall k keeps only its far-corner slot, wall k+1 keeps only its
+ * far-corner slot, walls k+2/k+3 (the two walls with no monitor/brain
+ * furniture at all) keep both of theirs. Returns one slot per inner
+ * persona (index 0..5, the 6 non-Gamma personas), in this fixed
+ * wall-then-side order so a persona never jumps walls between polls. */
 export function computePersonaWallSlots(count: number, brainWallArmIndex: number): PersonaWallSlot[] {
-  const brainSegment = ((brainWallArmIndex % 4) + 4) % 4;
-  const otherSegments = [0, 1, 2, 3].filter((k) => k !== brainSegment);
+  const brainWall = ((brainWallArmIndex % 4) + 4) % 4;
+  const highCornerWall = (brainWall + 1) % 4; // shares the brain wall's OWN "+45deg" corner
+  // Candidate (wall, lateralSign) pairs, in stable order. `lateralSign`
+  // follows the ACTUAL tangent direction rotationYFacing produces (verified
+  // numerically this pass, not assumed): lateralSign=-1 walks toward
+  // armAngle(wall)+45deg (the wall's "high" corner, shared with wall+1),
+  // lateralSign=+1 toward armAngle(wall)-45deg (its "low" corner, shared
+  // with wall-1) -- the SIGN is the opposite of the naive
+  // "+1 = increasing angle" guess because rotationYFacing's own tangent
+  // basis (cos(rotationY), -sin(rotationY)) is the negation of the
+  // standard d/dtheta(cos,sin) direction at this wall's angle; confirmed by
+  // computing both and dotting them (dot < 0) rather than assumed. Drop
+  // brainWall's OWN high-corner slot (lateralSign=-1) and highCornerWall's
+  // OWN low-corner slot (lateralSign=+1) -- both sit at the identical
+  // 45deg corner the monitor stand/BrainCore/Gamma's desk already occupy.
+  const candidates: Array<{ wall: number; lateralSign: -1 | 1 }> = [];
+  for (let offset = 0; offset < 4; offset++) {
+    const wall = (brainWall + offset) % 4;
+    for (const lateralSign of [-1, 1] as const) {
+      if (wall === brainWall && lateralSign === -1) continue;
+      if (wall === highCornerWall && lateralSign === 1) continue;
+      candidates.push({ wall, lateralSign });
+    }
+  }
+  // 4 walls * 2 sides - 2 dropped = 6, matching today's 6-persona roster
+  // exactly -- see this function's own header for why those 2 specific
+  // slots are the ones dropped.
   const out: PersonaWallSlot[] = [];
   for (let i = 0; i < count; i++) {
-    const segment = otherSegments[Math.floor(i / 2) % otherSegments.length];
-    const side = i % 2 === 0 ? -1 : 1;
-    const segCenterAngle = armAngle(segment) + Math.PI / 4;
-    // The segment's own wall-normal point (unchanged radius from the
-    // DESK-RING pass) -- ONE reference point per segment, not per desk.
-    const wallPoint: [number, number, number] = [
-      Math.cos(segCenterAngle) * PERSONA_WALL_RADIUS, 0, Math.sin(segCenterAngle) * PERSONA_WALL_RADIUS,
+    const { wall, lateralSign } = candidates[i % candidates.length];
+    const wallAngle = armAngle(wall);
+    // The wall's own normal-point (radius PERSONA_WALL_RADIUS along the
+    // wall's outward normal) -- ONE reference point per WALL, not per desk,
+    // so both of a wall's desks share exactly one yaw (same fix DESK-ROWS
+    // already established for the diagonal-corner model, reapplied here to
+    // the real wall's own normal instead of a segment's diagonal bisector).
+    const wallNormalPoint: [number, number, number] = [
+      Math.cos(wallAngle) * PERSONA_WALL_RADIUS, 0, Math.sin(wallAngle) * PERSONA_WALL_RADIUS,
     ];
-    // Shared yaw for BOTH desks in this segment -- see this section's own
-    // header for why this must be evaluated once here, not per desk.
-    const rotationY = rotationYFacing(wallPoint, HUB);
-    // Tangent-to-the-wall unit direction for that yaw (local +X -> world).
+    // rotationYFacing(wallNormalPoint, HUB) points local -Z from the wall
+    // toward hub-center -- table.glb's own mount (DeskCluster, local +Z
+    // outward) then lands the visible table BEHIND that point, i.e. toward
+    // the wall, and DESK_SEAT_LOCAL (local -0.7z) lands the chair in FRONT,
+    // toward the hub/room -- exactly "chair on the room side, desk backed
+    // against the wall" with NO yaw flip needed (verified against
+    // SetKit.tsx#DeskCluster's real local offsets, not assumed -- see this
+    // section's PERSONA_WALL_RADIUS derivation above).
+    const rotationY = rotationYFacing(wallNormalPoint, HUB);
+    // Tangent-to-the-wall unit direction (local +X -> world, three.js
+    // Y-rotation convention) -- both desks on a wall sit at
+    // wallNormalPoint +- this tangent scaled by the lateral offset.
     const tangentX = Math.cos(rotationY);
     const tangentZ = -Math.sin(rotationY);
     const position: [number, number, number] = [
-      wallPoint[0] + side * DESK_TANGENT_HALF_SEPARATION * tangentX,
+      wallNormalPoint[0] + lateralSign * PERSONA_WALL_LATERAL_OFFSET * tangentX,
       0,
-      wallPoint[2] + side * DESK_TANGENT_HALF_SEPARATION * tangentZ,
+      wallNormalPoint[2] + lateralSign * PERSONA_WALL_LATERAL_OFFSET * tangentZ,
     ];
     out.push({ position, rotationY });
   }

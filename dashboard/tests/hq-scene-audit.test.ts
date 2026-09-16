@@ -36,6 +36,7 @@ import {
   checkScreenFacing,
   checkDeskClearance,
   checkDeskOrientation,
+  nearestHubWallYaw,
   rectOverlapFractionOfScreen,
   checkLabelScreenOverlap,
   type AABB,
@@ -203,6 +204,66 @@ test("checkDeskOrientation: FAILs a desk whose yaw is more than tolDeg off its o
   ], 10);
   assert.equal(result.verdict, "FAIL");
   assert.equal((result.detail.violations as unknown[]).length, 1);
+});
+
+// ═══ DESKS-AGAINST-WALLS pass (2026-09-15) ══════════════════════════════
+// nearestHubWallYaw is the INDEPENDENT (not layout.ts-derived) target this
+// pass added specifically so checkDeskOrientation stops being tautological
+// ("matches whatever layout.ts's own computePersonaWallSlots already
+// claims for this slot"). A desk sitting on the room's old DIAGONAL (the
+// DESK-RING/DESK-ROWS corner model, e.g. radius 3.8 at 45deg) computes a
+// nearest-wall yaw 45deg off its own real placement angle and must FAIL;
+// a desk on one of the new axis-aligned wall slots computes a nearest-wall
+// yaw that matches its own real yaw exactly and must PASS.
+test("nearestHubWallYaw + checkDeskOrientation: a 45deg-diagonal desk (the OLD corner model) FAILs against the independently-derived nearest-wall yaw", () => {
+  const diagonalRadius = 3.8;
+  const angle = Math.PI / 4; // 45deg -- the room's own corner, not a real wall
+  const position: [number, number, number] = [Math.cos(angle) * diagonalRadius, 0, Math.sin(angle) * diagonalRadius];
+  const actualYaw = Math.PI / 2 - angle; // the OLD computePersonaWallSlots's own formula for this point
+  const targetYaw = nearestHubWallYaw(position);
+  const result = checkDeskOrientation([{ id: "diagonal", actualYaw, targetYaw }], 10);
+  assert.equal(result.verdict, "FAIL", "a diagonal desk must fail the independent wall-parallel check");
+});
+
+test("nearestHubWallYaw + checkDeskOrientation: an axis-aligned wall-backed desk (the NEW slot model) PASSes against the independently-derived nearest-wall yaw", () => {
+  const wallRadius = 5.1;
+  const lateralOffset = 4.6;
+  // wall 0 (+X, armAngle=0), lateral side +1 -- layout.ts's own
+  // computePersonaWallSlots formula, reproduced here (not imported, this
+  // file's own no-SetKit.tsx-import constraint per its header).
+  const wallAngle = 0;
+  const wallNormalPoint: [number, number, number] = [Math.cos(wallAngle) * wallRadius, 0, Math.sin(wallAngle) * wallRadius];
+  const rotationY = Math.PI / 2 - wallAngle;
+  const tangentX = Math.cos(rotationY);
+  const tangentZ = -Math.sin(rotationY);
+  const position: [number, number, number] = [wallNormalPoint[0] + lateralOffset * tangentX, 0, wallNormalPoint[2] + lateralOffset * tangentZ];
+  const targetYaw = nearestHubWallYaw(position);
+  const result = checkDeskOrientation([{ id: "wall-desk", actualYaw: rotationY, targetYaw }], 10);
+  assert.equal(result.verdict, "PASS", "an axis-aligned wall-backed desk must pass the independent wall-parallel check");
+});
+
+test("checkDeskClearance: back-wall band mode PASSes a desk 0.35u from its own wall but FAILs one flush inside it or floating 2u away", () => {
+  const slabs = buildHubSlabs();
+  const band = { min: 0.2, max: 0.6 };
+  // +X wall inner face at 7.35 (HUB_HALF_EXTENT 7.5 - WALL_THICKNESS 0.3/2).
+  // z=[3,3.6] clears the door gap (|z|<=1.575) -- a real wall segment, same
+  // spot the existing "closer than min wall clearance" test above uses. A
+  // desk whose back edge sits at x=7.0 clears 0.35u -- inside the band.
+  const backed = checkDeskClearance(
+    [{ id: "d1", label: "desk", aabb: { min: [6.4, 0, 3], max: [7.0, 1, 3.6] } }],
+    slabs, [], 1.0, band,
+  );
+  assert.equal(backed.verdict, "PASS");
+  const insideWall = checkDeskClearance(
+    [{ id: "d2", label: "desk", aabb: { min: [7.2, 0, 3], max: [7.4, 1, 3.6] } }],
+    slabs, [], 1.0, band,
+  );
+  assert.equal(insideWall.verdict, "FAIL", "closer than the band's own minimum must FAIL (reads as inside the wall)");
+  const floating = checkDeskClearance(
+    [{ id: "d3", label: "desk", aabb: { min: [4.0, 0, 3], max: [4.6, 1, 3.6] } }],
+    slabs, [], 1.0, band,
+  );
+  assert.equal(floating.verdict, "FAIL", "further than the band's own maximum must FAIL (reads as floating, not backed against the wall)");
 });
 
 // ═══ REGRESSION PIN 1 ═══════════════════════════════════════════════════
