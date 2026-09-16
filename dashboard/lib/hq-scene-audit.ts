@@ -528,6 +528,29 @@ export const SEATED_Y_TOL_U = 0.1;
  * 0.550 * 2.0 * 0.42 = 0.462. */
 export const SEATED_SEAT_HEIGHT_U = 0.462;
 
+/** SEATED-BODIES fix (2026-09-16): pure sit-down/stand-up Y ease shared by
+ * Agent.tsx's "resting" (sit) and "toHub" (stand) position branches, so the
+ * two directions can never drift out of sync and so this arithmetic stays
+ * unit-testable without a React/Three context (same rationale as every
+ * other pure helper in this file's own header). `elapsedSinceTransition` is
+ * seconds since the relevant phase transition (entering "resting" for a
+ * sit, leaving it for a stand); `easeS` is the ease window. Returns
+ * `floorY` at `elapsedSinceTransition <= 0`, `floorY + seatHeightU` once
+ * `elapsedSinceTransition >= easeS`, linear between. `direction: "sit"`
+ * ramps UP toward the seat; `"stand"` ramps DOWN toward the floor -- same
+ * linear fraction, just applied inverted. */
+export function seatEaseY(
+  elapsedSinceTransition: number,
+  floorY: number,
+  seatHeightU: number,
+  easeS: number,
+  direction: "sit" | "stand",
+): number {
+  const frac = Math.min(1, Math.max(0, elapsedSinceTransition / easeS));
+  const seatFrac = direction === "sit" ? frac : 1 - frac;
+  return floorY + seatHeightU * seatFrac;
+}
+
 /** Pure per-sample seated-pose verdict for ONE persona -- steady-state
  * aggregation (>=4/5 like every other check_* in this file's Python
  * sibling) is hq_probe_lib.py's own job, not this function's; this judges

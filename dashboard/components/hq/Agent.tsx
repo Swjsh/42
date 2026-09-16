@@ -10,6 +10,14 @@ import { isRegularTradingHours, makeMatcapTexture, nowEtDayOfWeek, nowEtMinutes,
 import { ALERT_PACE_SPEED, CLIP_TABLE, IDLE_VARIANTS, KitAgentBody, NATIVE_WALK_CLIP_MPS, WALK_SPEED, WORKING_VARIANTS, clipCadenceRatio, type KitAnimState } from "./KitAgent";
 import { CHARACTER_SCALE, CHARACTER_TARGET_HEIGHT } from "./SetKit";
 import { recordAgentSample } from "@/lib/hq-motion-diag";
+// SEATED-BODIES fix (2026-09-16): the seat-pan height is the audit's own
+// constant (lib/hq-scene-audit.ts#SEATED_SEAT_HEIGHT_U, derived from
+// chair.glb's raw AABB * SetKit.tsx's FURNITURE_SCALE) -- imported, never
+// re-derived here, so the rendered scene and the audit that checks it can
+// never drift apart the way the pre-fix "body Y stays at 0 while resting"
+// bug did (audit expected 0.462, render gave 0.00 -- see that pass's own
+// SEATED_SEAT_HEIGHT_U doc comment for the 0.550*2.0*0.42 derivation).
+import { SEATED_SEAT_HEIGHT_U, seatEaseY } from "@/lib/hq-scene-audit";
 // MOTION-2 V2 (2026-09-14): type-only -- LAYOUT's own walk-graph contract
 // (see that interface's own doc comment in types.ts). Never a value import
 // (types.ts re-exports several other modules' types but no runtime code of
@@ -282,6 +290,11 @@ const MIN_WALK_LEG_S = 0.8;
 // arriving at rest never feels like it snaps into the (now slower) cruise
 // speed instantly.
 const WALK_EASE_S = 0.4;
+// SEATED-BODIES fix (2026-09-16): short sit-down/stand-up Y ease so the
+// body never pops between floor height and the chair's seat pan
+// (SEATED_SEAT_HEIGHT_U) -- deliberately shorter than WALK_EASE_S above
+// (a vertical hop reads fine much faster than a horizontal start/stop).
+const SEAT_EASE_S = 0.35;
 // MOTION-2: TV-tier procedural capsule-body leg-swing base rate, tuned at
 // NATIVE_WALK_CLIP_MPS (1.4 u/s, KitAgent.tsx's own reference pace) --
 // scaled by the SAME clipCadenceRatio formula that file's CLIP_TABLE uses
@@ -578,6 +591,17 @@ export default function Agent({
 
   const phase = useRef<WalkPhase>("resting");
   const phaseStart = useRef(0);
+  // SEATED-BODIES fix: timestamps for the sit-down/stand-up Y ease -- see
+  // the "resting" and "toHub" branches of the position useFrame below.
+  // restEnterT marks the moment `phase.current` most recently became
+  // "resting" (sit-down starts easing UP from the floor toward the seat
+  // pan); restExitT marks the moment a walk most recently LEFT "resting"
+  // (stand-up starts easing DOWN from the seat pan toward the floor).
+  // Both default to 0 so the character's first-ever render (mounts already
+  // seated, phase.current === "resting" from its initial value above) is
+  // fully eased in by the time anything is visible -- no pop on load.
+  const restEnterT = useRef(0);
+  const restExitT = useRef(-SEAT_EASE_S);
   // World-2 MOTION-FIX, updated MOTION-2 V2: computed ONCE at walk-start
   // (see the pendingWalk consumption block below) -- toHub and toHome always
   // cover the SAME total path distance (the same waypoints, reversed -- see
@@ -934,6 +958,11 @@ export default function Agent({
         const startPhase = pendingWalk.current === "arrival" ? "arriving" : "toHub";
         phase.current = startPhase;
         phaseStart.current = t;
+        // SEATED-BODIES fix: only "toHub" walks actually stand UP from a
+        // chair (they start at `home`, seated); "arrival" walks start at
+        // the hub, already on their feet, and ease into the seat via
+        // restEnterT once they land in "resting" instead.
+        if (startPhase === "toHub") restExitT.current = t;
         pendingWalk.current = null;
         setWalking(true);
         setDwelling(null);
@@ -987,6 +1016,7 @@ export default function Agent({
     if (phase.current === "arriving") {
       if (t - phaseStart.current >= walkLegDuration.current) {
         phase.current = "resting"; setWalking(false); setActivePurpose(null);
+        restEnterT.current = t; // SEATED-BODIES fix: start the sit-down ease
       }
     } else if (phase.current === "toHub") {
       if (t - phaseStart.current >= walkLegDuration.current) {
@@ -1031,6 +1061,7 @@ export default function Agent({
     } else if (phase.current === "toHome") {
       if (t - phaseStart.current >= walkLegDuration.current) {
         phase.current = "resting";
+        restEnterT.current = t; // SEATED-BODIES fix: start the sit-down ease
         activeTarget.current = null;
         activePlan.current = null;
         setActivePurpose(null);
@@ -1130,7 +1161,14 @@ export default function Agent({
       const p = easedWalkProgress(t - phaseStart.current, walkLegDuration.current, WALK_EASE_S);
       const pose = resolvePathPose(outboundPath.current, p, WALK_SPEED);
       g.rotation.y = pose.facing;
-      g.position.set(...pose.position);
+      // SEATED-BODIES fix: this leg starts FROM the chair (seated) -- ease
+      // the body DOWN from the seat pan to the floor over SEAT_EASE_S
+      // rather than snapping straight to pose.position[1] (floor height),
+      // which would pop the body through the seat instantly on the first
+      // walking frame. Fully floor-height (matches pose.position[1] exactly)
+      // once the ease completes, so there is no discontinuity at the join.
+      const standY = seatEaseY(t - restExitT.current, pose.position[1], SEATED_SEAT_HEIGHT_U, SEAT_EASE_S, "stand");
+      g.position.set(pose.position[0], standY, pose.position[2]);
     } else if (phase.current === "atHub") {
       const pathEnd = outboundPath.current[outboundPath.current.length - 1] ?? approach;
       g.position.set(...pathEnd);
@@ -1161,7 +1199,19 @@ export default function Agent({
       // resting -- bob (working = brisker, idle = slower/shallower)
       const bobAmp = behavior === "working" ? 0.05 : 0.025;
       const bobSpeed = behavior === "working" ? 4 : 1.4;
-      g.position.set(home[0], home[1] + Math.sin(t * bobSpeed) * bobAmp, home[2]);
+      // SEATED-BODIES fix (2026-09-16, Objective A): every "resting"
+      // animState is a seated clip (CLIP_TABLE's resting-* rows -- "sit",
+      // "interact-right"/"-left" -- see KitAgent.tsx), so the body root
+      // belongs at the chair's seat-pan height, not the floor. Root cause
+      // of the seated_pose audit FAIL (commit 35ae90d4, live probe
+      // GfjXgDZ0Z24KXZgzTocSm): this branch set Y to `home[1]` (floor,
+      // ~0.00) unconditionally, so "seated" only ever moved the character
+      // to the seat's XZ point and left it standing/floating there instead
+      // of lifting it onto the chair. seatEase (sit-down) mirrors the
+      // toHub branch's standEase (stand-up) above so entering/leaving the
+      // chair never pops.
+      const seatY = seatEaseY(t - restEnterT.current, home[1], SEATED_SEAT_HEIGHT_U, SEAT_EASE_S, "sit");
+      g.position.set(home[0], seatY + Math.sin(t * bobSpeed) * bobAmp, home[2]);
       // World-4 fix (P6, 2026-09-14, J: "the bottom bays show characters not
       // facing their desks"): see the original fix's own comment (git
       // history) -- desk-facing is `atan2(hub-home) + PI`, never a leftover

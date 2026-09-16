@@ -40,6 +40,7 @@ import {
   rectOverlapFractionOfScreen,
   checkLabelScreenOverlap,
   checkSeatedPose,
+  seatEaseY,
   SEATED_POS_TOL_U,
   SEATED_Y_TOL_U,
   SEATED_SEAT_HEIGHT_U,
@@ -484,4 +485,37 @@ test("checkSeatedPose: NO-DATA (not FAIL) when there is no position sample this 
 
 test("checkSeatedPose: NO-DATA with zero samples supplied", () => {
   assert.equal(checkSeatedPose([], scoutExpected).verdict, "NO-DATA");
+});
+
+// SEATED-BODIES fix (2026-09-16): regression pin for seatEaseY, the pure
+// sit-down/stand-up Y ease Agent.tsx's "resting" (sit) and "toHub" (stand)
+// branches both call -- see that function's own doc comment. Root cause of
+// the seated_pose audit FAIL this fix addresses: Agent.tsx used to set the
+// resting body's Y straight to `home[1]` (floor) with no seat-height term
+// at all, so XZ landed on the seat (0.00 error) while Y sat ~0.51u short of
+// SEATED_SEAT_HEIGHT_U.
+test("seatEaseY: sit direction ramps floor -> seat over easeS, holds after", () => {
+  assert.equal(seatEaseY(0, 0, SEATED_SEAT_HEIGHT_U, 0.35, "sit"), 0);
+  assert.equal(seatEaseY(0.35, 0, SEATED_SEAT_HEIGHT_U, 0.35, "sit"), SEATED_SEAT_HEIGHT_U);
+  assert.equal(seatEaseY(10, 0, SEATED_SEAT_HEIGHT_U, 0.35, "sit"), SEATED_SEAT_HEIGHT_U);
+  const mid = seatEaseY(0.175, 0, SEATED_SEAT_HEIGHT_U, 0.35, "sit");
+  assert.ok(Math.abs(mid - SEATED_SEAT_HEIGHT_U / 2) < 1e-9);
+});
+
+test("seatEaseY: stand direction ramps seat -> floor over easeS, holds after", () => {
+  assert.equal(seatEaseY(0, 0, SEATED_SEAT_HEIGHT_U, 0.35, "stand"), SEATED_SEAT_HEIGHT_U);
+  assert.equal(seatEaseY(0.35, 0, SEATED_SEAT_HEIGHT_U, 0.35, "stand"), 0);
+  assert.equal(seatEaseY(10, 0, SEATED_SEAT_HEIGHT_U, 0.35, "stand"), 0);
+});
+
+test("seatEaseY: never overshoots past [floorY, floorY+seatHeightU] for negative or beyond-easeS elapsed", () => {
+  assert.equal(seatEaseY(-5, 1.0, SEATED_SEAT_HEIGHT_U, 0.35, "sit"), 1.0);
+  assert.equal(seatEaseY(-5, 1.0, SEATED_SEAT_HEIGHT_U, 0.35, "stand"), 1.0 + SEATED_SEAT_HEIGHT_U);
+});
+
+test("seatEaseY: a fully-seated steady-state sample matches the seated_pose audit's own expected height", () => {
+  // This is exactly the value checkSeatedPose compares against (seatHeightU
+  // default SEATED_SEAT_HEIGHT_U) -- pins the render and the audit together.
+  const y = seatEaseY(999, 0, SEATED_SEAT_HEIGHT_U, 0.35, "sit");
+  assert.ok(Math.abs(y - SEATED_SEAT_HEIGHT_U) < SEATED_Y_TOL_U);
 });
