@@ -1319,7 +1319,12 @@ export default function Agent({
     },
     [bubbleY],
   );
-  const { wrapperRef: declutterRef, measureRef: declutterMeasureRef } = useLabelDeclutter(declutterId, bubblePriority, declutterWorldPos);
+  // U5-LEGIBLE-LABELS follow-up (2026-09-16, orchestrator): a persona/lane
+  // head label is answer-bearing (usability U4: "what is each persona doing
+  // right now?"), same as Gamma's and the live agents' (008990d8) -- it must
+  // nudge clear of the twin monitors, never fade. See labelDeclutter.ts's
+  // own `LabelRect.mustStayLegible` header.
+  const { wrapperRef: declutterRef, measureRef: declutterMeasureRef } = useLabelDeclutter(declutterId, bubblePriority, declutterWorldPos, undefined, true);
 
   return (
     <group ref={group}>
