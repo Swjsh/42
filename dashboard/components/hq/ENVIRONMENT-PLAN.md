@@ -596,3 +596,177 @@ orbit camera and the top-down preset J asked for at once).
 ### Head-label pass references (LABELS worker, 2026-09-15 18:59 ET)
 Implemented the compact head label from this section's part C (name + dot + model-tier
 glyph; action/status text moved to hover/click) -- see `headLabelModel.ts`/`HeadLabel.tsx`.
+
+## Command-center pass 2026-09-16 -- references (RESEARCH-2 worker)
+
+Timestamp: 2026-09-15 23:59:33 ET (et_clock.py; market_hours=False). Answers J's feedback
+("command center is sick, chart is dope, not laid out cleanly; make the two floating
+monitors a bit bigger; make it look like people are actually working; maybe add a few
+more things"). Read `final-topdown-2100.png` + `final-hub-2100.png` first: current hub is
+an orange-floored square, table+HoloChart near center, TwinMonitors visible bottom-left
+of the hub camera view labeled DASHBOARD / FLEET P&L (GROSS) but small relative to the
+room, cable runs and overlapping price-level labels create visual clutter, and no
+persona is shown seated/typing in either capture -- confirms "not laid out cleanly" and
+"make it look like people are actually working" are both real, current-state gaps, not
+just taste.
+
+### A. Command-center layout references (5 sources)
+
+- [Evolution of Space Mission Control Rooms](https://socks-studio.com/2011/07/21/evolution-of-space-mission-control-rooms/) -- Apollo MOCR: tiered rows of consoles facing ONE focal wall (the big board), supervisor/flight-director tier at the BACK (highest), room deeper than wide.
+- [From NASA to NORAD: iconic control rooms](https://www.sustema.com/post/from-nasa-to-norad-what-we-can-learn-from-the-world-s-most-iconic-control-rooms) -- confirms the focal-wall + tiered-rows-behind-it convention repeats across NASA/NORAD; supervisor sits where they can see EVERY operator AND the wall.
+- [NOC Design & Layout key elements](https://www.extnoc.com/network-operations-center/noc-design-and-layout/) and [SOC control room console planning](https://www.kesinoconsoles.com/post/soc-control-room-layout-how-to-plan-analyst-workstations-displays-and-collaboration-areas) -- modern convention: desks angled 5-15 deg off dead-on to the video wall (peripheral visibility while still working the console), video-wall bottom edge at roughly 4ft/1.2m (matches our TwinMonitors' existing 1.2u bottom exactly), huddle/collaboration space kept SEPARATE from console rows so it never blocks sightlines.
+- [A New Perspective on Trading Floors (IA)](https://interiorarchitects.com/a-new-perspective-on-trading-floors/) and [Which layout is right for your trading floor (Saraval)](https://www.saravalindustries.com/which-layout-is-right-for-your-trading-floor/) -- open-plan, no cubicle walls (sightlines and instant communication is the point), desks in clusters/pods with low partitions, never rows-of-cubes.
+
+Proposed ONE hub plan (15x15u room, wall half-extent 7.5u, doors at +-X/+-Z):
+
+1. Focal wall = KEEP the 45 deg corner for the twin monitors -- every MCC/NOC/SOC source has ONE wall the room orients toward; relocating would put the focal wall behind a door axis.
+2. Round table + HoloChart stay center-ish but nudge inward to r2.0-2.2 (from current r2.5), so the chart's normal points along the ~38.7 deg camera azimuth -- the room's own "big board" reads as a second focal point right in front of the monitor wall from the default camera (table-then-monitors reads front-to-back, like an operator row then the video wall).
+3. BrainCore stays at the origin (0,0,0) -- every source organizes around ONE fixed reference point; moving it fights the chart's own centrality.
+4. Gamma's desk = the supervisor position: keep it off-center (currently ~61 deg r3.4) but verify it keeps an unblocked sightline to both the table/chart and the monitor corner at once (the NOC/SOC "sees everything" convention) -- roughly already true, just don't let a new prop cross that line.
+5. 6 wall desks stay backed against walls flanking doors (unchanged, commit 31cc19b5) -- already matches the open-plan/low-partition trading-floor convention; the real fix needed there is occupancy and animation (section C), not repositioning.
+6. 1.5u aisle grid: keep a clear 1.5u radial aisle from each door to the table (reuses PLAZA_APRON=1.5, already the one aisle unit used campus-wide) -- this is what actually fixes "not laid out cleanly," since the clutter in the captures is overlapping DATA LABELS, not furniture collisions.
+
+What moves: table/chart radius 2.5 -> ~2.1. What stays: monitor corner, BrainCore, Gamma desk angle, 6 wall desks, cable positions.
+
+### B. Monitor size math
+
+Camera facts given: distance 45u, azimuth ~38.7 deg, elevation ~35 deg, looking into the
+room from outside the 45 deg corner -- so line-of-sight distance from camera to the
+monitor stand (r5.6, near that same corner) is materially less than the full 45u to
+room-center. Approximation used: camera-to-monitor distance D ~= 45 - 5.6 ~= 42u (stated
+assumption -- the camera orbits, isn't fixed exactly on that radius).
+
+Stated assumption per instructions: 2560px-wide viewport, ~50 deg VERTICAL FOV (three.js
+PerspectiveCamera convention), aspect 16:9 (2560x1440) => horizontal FOV =
+2*atan(tan(25 deg) * 16/9) ~= 79.3 deg. Projected width formula:
+px = (2*atan((W/2)/D) / horizontalFOV) * 2560.
+
+| Candidate | W x H | Gap | Stand radius | Bottom edge | Top edge | Fits under 3.19u ceiling? | Projected width @ D=42u |
+|---|---|---|---|---|---|---|---|
+| 1 | 3.6 x 2.0 | 0.25 | 5.6 (unchanged) | 1.0 | 3.0 | YES (0.19u clearance) | ~158px |
+| 2 | 4.0 x 2.25 | 0.25 | 5.6 (unchanged) | 1.0 | 3.25 | NO -- 0.06u over ceiling (dropping bottom to 0.94u to fit leaves zero clearance) | ~176px |
+
+Recommend Candidate 1 (3.6 x 2.0), and ALSO drop the existing bottom edge from 1.2u to
+1.0u -- at bottom=1.2u this candidate's top would sit at 3.2u, 0.01u over the 3.19u
+ceiling fact given, so the bottom-edge change is required alongside the resize, not
+optional. Candidate 2 reads about 11% wider on screen but fails the ceiling constraint
+outright at the stated bottom-edge floor -- it is not a valid "bit bigger," it clips. If
+J wants bigger than Candidate 1 without ceiling risk, widen ONLY (e.g. 4.2 x 2.0,
+projected ~184px) since height, not width, is the binding constraint.
+
+### C. "People actually working" conventions (4 sources) -- checklist
+
+- Idle-animation practice generally (Two Point Hospital-style sims apply this): [Idle Animation for Games: Design Guide (MoCap Online)](https://mocaponline.com/blogs/mocap-news/idle-animation-game-dev-guide) -- convention is ONE base loop plus 2-4 secondary variations firing at random intervals, never a single frozen pose (a frozen pose reads as broken, not idle).
+- Prison Architect staff behavior: [Guard -- Prison Architect Wiki](https://prisonarchitect.paradoxwikis.com/Guard) and [Staff -- Prison Architect Wiki](https://prisonarchitect.paradoxwikis.com/Staff) -- idle staff go to a designated idle zone and can interact with OTHER staff while idle (the pairs-chatting convention) rather than idling in place at their post.
+- Software Inc.: [Software Inc. -- Steam](https://store.steampowered.com/app/362620/Software_Inc/) and [Software Inc Wiki](https://softwareinc.fandom.com/wiki/Software_Inc) -- desk dressing (monitors/screens visibly "on") is the primary "working" signal in these sims; multi-monitor desks read as more active than bare desks.
+- Trading-floor precedent reused from section A: [IA -- trading floors](https://interiorarchitects.com/a-new-perspective-on-trading-floors/) -- even a "busy" floor keeps clear sightlines; busy is not the same as cluttered.
+
+Checklist for our scene (maps directly onto the existing `KitAgent.tsx` CLIP_TABLE -- no
+new clips needed, this is a STATE-WIRING task, not an asset task):
+- GREEN persona -> `resting-working` / `resting-working-type` / `resting-working-type-alt`
+  (sit + interact-left/right already exist in CLIP_TABLE) at that persona's own wall desk.
+- IDLE (YELLOW) persona -> `resting-idle` base loop + `resting-idle-look` /
+  `resting-idle-nod` (emote-no/emote-yes) as random secondary variations --
+  `IDLE_VARIANTS` already exports exactly this array in KitAgent.tsx; verify it is
+  actually rolled on a timer rather than defaulting to index 0.
+- RED persona -> standing at the door (walk/alert clip), per Scene.tsx's existing
+  status-to-animation mapping -- no change needed, already correct per that file's own
+  comment about an empty desk being an honest depiction of idle.
+- Desk dressing per desk: at least one lit computer-screen/computer prop (section D)
+  visibly present even at IDLE desks -- an idle persona at an undressed desk reads as
+  "nobody works here," not "on a break."
+- ONE huddle pair at the round table when 2+ personas are simultaneously GREEN: walk both
+  to the table, face each other, hold an idle/talk pose -- this is NEW behavior, not in
+  CLIP_TABLE's state machine yet; scope as a follow-up rather than building blind.
+- What must NOT loop: per the HQ face rule already in project memory ("motion = real
+  events," `feedback_hq_face_rules_tv_never_wakes_motion_means_events_2026_09_13`) --
+  none of the above should manufacture fake events. Idle variation and desk dressing are
+  cosmetic state, not new activity claims; only real GREEN/YELLOW/RED transitions already
+  computed in Scene.tsx should ever drive the huddle-pair trigger.
+
+### D. Prop shortlist from bundled kits (no downloads)
+
+Inventory: 47 total GLBs under `dashboard/public/hq-assets/**` (find), 9 referenced by
+`.tsx` (grep), 38 unreferenced. Of the unreferenced set, these dress an ops room (bounds
+via `node dashboard/scripts/glb_extents.mjs <path>`, this session):
+
+| Asset | Size (X x Y x Z, u) | Proposed placement (x,z,yaw,scale) | Primitives |
+|---|---|---|---|
+| `kenney-space-station-kit/computer-screen.glb` | 0.80 x 0.66 x 0.44 | one per wall desk (6x), on desk surface, yaw facing seated persona, scale 1.0 | 1 mesh each |
+| `kenney-space-station-kit/computer.glb` | 0.40 x 0.66 x 0.26 | pair with computer-screen on 3-4 busiest desks, scale 1.0 | 1 mesh each |
+| `kenney-space-station-kit/display-wall.glb` | 0.40 x 0.46 x 0.38 | 1x on the wall segment opposite the monitor corner, as a 3rd small display (not a TwinMonitors replacement) | 1 mesh |
+| `kenney-space-station-kit/chair.glb` | 0.30 x 0.55 x 0.35 | supplement wall desks lacking a chair mesh today, scale 1.0 | 1 mesh |
+| `kenney-space-station-kit/structure-panel.glb` | 0.85 x 0.125 x 0.85 | 1-2x as a low console/counter accent near the monitor stand base, yaw 0, scale 1.0 | 1 mesh |
+| `kenney-furniture-kit/plant-small.glb` | 0.095 x 0.14 x 0.095 (note: TINY raw bounds -- needs ~4-6x scale or clustering to read as a plant) | 2x flanking the table (a second plant pair -- direct answer to "a few more things"), scale ~4.0 | 2 meshes |
+
+Totals: ~10-12 placements (6 screens + 2 chairs + 1 display-wall + 1 structure-panel +
+2 plants), roughly 13 draw calls as separate meshes -- well under the 30 budget; batching
+identical screens into one instanced draw would cut this further but is not required.
+
+Not found in the bundled kits: a proper multi-monitor "trader desk" prop, or a large
+wall-mounted flat-panel array distinct from `display-wall.glb`'s small screen. If J wants
+a THIRD large display beyond TwinMonitors, the bundled kits don't have one -- flagging
+only, no new CC0 pack evaluated here per the no-download scope of this pass.
+
+### E. Kenney Blocky Characters -- integration facts
+
+Currently in use is NOT Blocky Characters -- `SetKit.tsx` wires `kenney-mini-characters`
+(`character-male-a.glb`, `character-female-a.glb`, `character-male-b.glb`, raw heights
+0.6613-0.7755u pre-scale, normalized to the project's 1.8u figure via
+`CHARACTER_TARGET_HEIGHT`). `KitAgent.tsx`'s CLIP_TABLE already maps every state the
+brief asked about to Mini Characters' own real clip names, confirmed present on
+`character-male-b` per that file's own comment: `walk`, `idle`, `sit` (the ONLY seated
+pose -- no dedicated "type" clip exists), `interact-left`/`interact-right` (reused for
+both "thinking" and "working-type" states), `emote-no`/`emote-yes` (head shake/nod,
+reused as idle-look/idle-nod secondary variations). This mapping is COMPLETE for Mini
+Characters today -- there is no clip gap to fill on the current pack.
+
+For Blocky Characters specifically (https://kenney.nl/assets/blocky-characters, per its
+own product page and X announcement): "18 characters with 27 animations." License quoted
+verbatim from the asset page: "Creative Commons CC0." UNVERIFIED this session: exact
+per-clip animation NAMES, whether each character ships as a separate GLB/GLTF or a
+shared-skeleton/atlas setup, and precise character height in meters -- the product page
+itself does not list a spec sheet, and the OpenGameArt mirror page failed to load
+(connection refused) so its listing could not be cross-checked either. Do not assume
+clip-name parity with Mini Characters until the downloaded pack's own file list is opened
+and read directly -- the CLIP_TABLE substitution mapping (walk/idle/sit/interact-left/
+interact-right/emote-yes/emote-no) can only be redone once real clip names are confirmed.
+
+Recommendation given this gap: since Mini Characters already has a COMPLETE, already-
+wired clip mapping and Blocky Characters' clip names are unverified, a pack swap is
+optional/cosmetic (matches this doc's own earlier note to WAIT for J's pack pick before
+swapping) -- not a blocker for the layout/monitor/prop work above, which uses the
+existing character pack as-is.
+
+### F. BUILD ORDER
+
+1. Move table+HoloChart radius 2.5 -> 2.1 (section A.2). Mechanical.
+2. Drop TwinMonitors bottom edge 1.2u -> 1.0u, resize to 3.6 x 2.0 x 0.25 gap (section B,
+   Candidate 1). Mechanical to implement; whether it now reads "big enough" once rendered
+   is a J taste call.
+3. Verify Gamma-desk sightline to table+monitor corner stays unobstructed after step 1's
+   table move (section A.4). Mechanical (geometry check).
+4. Wire GREEN/IDLE/RED -> CLIP_TABLE state transitions per section C's checklist -- mostly
+   already correct per Scene.tsx's own comments; confirm `IDLE_VARIANTS` actually
+   randomizes on a timer rather than assuming it does. Mechanical.
+5. Add a lit computer-screen/computer prop to every wall desk currently missing one
+   (section D table). Mechanical.
+6. Add display-wall.glb to the wall segment opposite the monitor corner (section D). J
+   taste call -- confirm the placement reads right before treating it as permanent.
+7. Encode the 1.5u radial aisle explicitly in layout constants so future props can't be
+   placed inside it (section A.6). Mechanical.
+8. Scope (don't build yet) the huddle-pair behavior from section C as a follow-up --
+   it's new state-machine surface, not a prop/position change. J taste call whether it
+   ships this pass or later.
+9. Leave the Blocky Characters pack-swap PARKED pending J's pick plus a real spec-sheet
+   read of the downloaded pack (section E gap). J taste call which pack, gated on a
+   mechanical verification step once chosen.
+10. Re-capture `final-topdown` and `final-hub` screenshots after steps 1/2/3/5/6/7 land
+    and diff against this session's captures before calling the pass done (OP-33
+    verify-before-claim).
+
+---
+
+**Look-direction references (2026-09-16):** three cited external visual-direction options
+(diorama/ops-room/showroom) with reference images + cost/tradeoff table for J to pick from —
+[`markdown/planning/HQ-LOOK-REFERENCES-2026-09-16.md`](../../markdown/planning/HQ-LOOK-REFERENCES-2026-09-16.md).
