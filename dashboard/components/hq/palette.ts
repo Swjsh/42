@@ -331,6 +331,33 @@ export function computePurposefulWalk(
   return { active, destination, reason, bucketKey: `${personaName}:${bucketIndex}` };
 }
 
+// CREW-WORKING pass (2026-09-15/16, worker: HQ crew-working build, per
+// ENVIRONMENT-PLAN.md's "People actually working" checklist + project
+// memory feedback_hq_face_rules_tv_never_wakes_motion_means_events_2026_09_13:
+// "motion = real events"): `computePurposefulWalk`'s own `bucketKey` above
+// changes on a fixed 6-10min CLOCK regardless of whether anything real
+// happened to this persona -- exactly a fabricated event, the thing that
+// rule bans. `computePurposefulWalk` itself is UNCHANGED (still the right
+// place to pick WHERE/WHY a real walk goes, since a real trigger can land
+// in any time-bucket) -- this is a SEPARATE trigger key Scene.tsx now wires
+// to Agent.tsx's `purposefulWalkEventKey` prop instead of `bucketKey`. It
+// only changes when THIS persona's own `lastFireISO` or `status` genuinely
+// changed since the last poll that produced a different value -- Agent.tsx's
+// existing seen-value-diff convention (every other trigger channel in that
+// file already works this way) turns a real change into exactly one walk,
+// and an unchanged key into none. Returns null for a persona with no
+// `lastFireISO` yet (never fired) -- Agent.tsx's own null/undefined guard on
+// `walkEventKey`-shaped props already treats that as "no trigger", never a
+// fabricated one.
+export function purposefulWalkTriggerKey(
+  personaName: string,
+  lastFireISO: string | null,
+  status: string,
+): string | null {
+  if (!lastFireISO) return null;
+  return `${personaName}:${lastFireISO}:${status}`;
+}
+
 /** Parses a "YYYY-MM-DD HH:MM:SS ET" / "YYYY-MM-DDTHH:MM:SS..." string into a
  * comparable epoch-like number (Date.UTC of its own digits, NOT a real UTC
  * conversion -- both this and `nowEtMinutes` below are built the same way, so

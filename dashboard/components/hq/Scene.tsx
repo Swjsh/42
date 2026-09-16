@@ -26,7 +26,7 @@ import { reportAutoOrbitResumed } from "@/lib/hq-camera-mode";
 // mechanism/index-agreement writeup (index 0 = Gamma, 1-6 = innerPersonas
 // 0-5, the SAME fixed order cameraPresets below already uses).
 import { getHoveredPersonaIndex, subscribeHoveredPersonaIndex } from "@/lib/hq-hover-persona";
-import type { HqApiResponse, SectorRow, CoreDecisionRow } from "./types";
+import type { HqApiResponse, SectorRow, CoreDecisionRow, WalkPlan } from "./types";
 import { formatPositionClause, type AccountPositions } from "@/lib/hq-positions-pure";
 // HQ-TRADE-MOMENTS (2026-09-15): "the world visibly REACTS to real trade
 // events" -- Pilot's desk screen (the one existing "speech bubble" surface
@@ -63,7 +63,7 @@ import LabelDeclutterManager from "./LabelDeclutterManager";
 import { PRIORITY } from "./labelDeclutter";
 import { laneBubbleAction, personaBubbleAction } from "./bubbleText";
 import { liveAgentIdentity } from "./liveAgentIdentity";
-import { computePurposefulWalk, dayNightFactor, healthColor, hhmmFromEtIso, isParkedState, isRegularTradingHours, lerp, localToWorld, minutesSinceEvidence, nowEtDayOfWeek, nowEtMinutes, PALETTE, personaStatusColor, scheduleOnShift, truncateOneLine, type ScreenLine } from "./palette";
+import { computePurposefulWalk, dayNightFactor, healthColor, hhmmFromEtIso, isParkedState, isRegularTradingHours, lerp, localToWorld, minutesSinceEvidence, nowEtDayOfWeek, nowEtMinutes, PALETTE, personaStatusColor, purposefulWalkTriggerKey, scheduleOnShift, truncateOneLine, type ScreenLine } from "./palette";
 import { BAY_DESK_OFFSET_Z, BAY_SEAT_LOCAL, BAY_SEAT_LOCAL_BAY, CampusGate, CHARACTER_SCALE, CHARACTER_TARGET_HEIGHT, CorridorRun, DeskCluster, HubRoom, HUB_WALL_RADIUS, Plaza, TJunction } from "./SetKit";
 // LAYOUT builder pass (2026-09-14, campus-cross rebuild): pure geometry/math
 // module (no React/Three deps) shared with SetKit.tsx -- see that module's
@@ -71,9 +71,14 @@ import { BAY_DESK_OFFSET_Z, BAY_SEAT_LOCAL, BAY_SEAT_LOCAL_BAY, CampusGate, CHAR
 // SetKit.tsx's raw-kit constants), never the reverse.
 import {
   ARM_HALF_WIDTH, ARM_LEN, armAngle, buildWalkGraph, CAMPUS_GATE_POSITION, CAMPUS_GATE_ROTATION_Y, CAMPUS_GATE_SCALE,
-  computeAllBaySlots, computeArmLayout, computePersonaWallSlots, findWalkPath, MONITOR_MOUNT, PLAZA_APRON, PLAZA_CENTER_RADIUS,
+  computeAllBaySlots, computeArmLayout, computePersonaWallSlots, findWalkPath, HUB_TABLE_RADIUS, MONITOR_MOUNT, PLAZA_APRON, PLAZA_CENTER_RADIUS,
+  toWalkPlan,
   type ArmLayout, type WalkGraph,
 } from "./layout";
+// CREW-WORKING pass (2026-09-15/16): pure huddle-pair helpers -- see that
+// module's own header for why they live outside this .tsx file (node --test
+// importability, same reason liveAgentWalk.ts/liveAgentIdentity.ts do).
+import { detectHuddleTrigger, huddleStandPoints, type HuddleCandidate } from "./crewWorking";
 // World-2 coordinator review (2026-09-14, "GAMMA'S BUBBLE... must derive it
 // from the same truth as the panel"): the SAME pure function Hud.tsx's own
 // crew-panel "next:" line already uses for Gamma, reused here (not
@@ -1052,6 +1057,17 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
   // render inside the persona map below, same convention as every other
   // *Ref in this file.
   const personaGreetingSinceRef = useRef<Map<PersonaId, { agentId: string; sinceMs: number }>>(new Map());
+  // CREW-WORKING pass (2026-09-15/16): huddle-pair state, same "plain ref,
+  // mutated in render-time code, read the same render" convention as
+  // `personaGreetingSinceRef` immediately above (a room-wide fact detected
+  // ONCE per poll here, never duplicated per-persona the way Agent.tsx's own
+  // seen-value-diff triggers are). `prevGreenCountRef` is the count from the
+  // LAST render (crewWorking.ts#detectHuddleTrigger only fires on a genuine
+  // <2 -> >=2 crossing); `activeHuddleRef` holds the currently (or most
+  // recently) triggered pair + its own unique key, which Agent.tsx's
+  // existing `walkPlanKey` seen-value-diff turns into exactly one walk.
+  const prevGreenCountRef = useRef(0);
+  const activeHuddleRef = useRef<{ key: string; pair: [string, string] } | null>(null);
   // INTERACT-2 (I2 f, 2026-09-14): "the day's FIRST core-decisions row at/
   // after 15:55 ET" -- a monotonic ref (never React state; mutated in plain
   // render-time code below, not an effect, matching this file's own
@@ -1372,6 +1388,18 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
   // a fresh array every render but numerically constant, so its two scalar
   // components -- not the array reference -- are the dependency, same
   // convention BaySign.tsx's own worldPosVec memo already uses).
+  // CREW-WORKING pass (2026-09-15/16): the round table's real world center --
+  // SAME derivation as computeMonitorMount above (the table sits at the
+  // brain wall's own 45deg segment-center angle, HUB_TABLE_RADIUS out from
+  // HUB, per layout.ts#HUB_TABLE_RADIUS's own header) -- and the SAME value
+  // HubInterior.tsx#TABLE_CENTER derives (that file is off-limits to this
+  // pass; this reproduces its formula from the two constants that already
+  // live here, never a re-typed literal position).
+  const tableCenter: [number, number, number] = useMemo(() => {
+    const segCenterAngle = armAngle(BRAIN_WALL_ARM_INDEX) + Math.PI / 4;
+    return [Math.cos(segCenterAngle) * HUB_TABLE_RADIUS, 0, Math.sin(segCenterAngle) * HUB_TABLE_RADIUS];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // BRAIN_WALL_ARM_INDEX/HUB_TABLE_RADIUS are both module-level constants
   const walkGraph = useMemo(
     () =>
       buildWalkGraph({
@@ -1381,6 +1409,7 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
           position: (personaGeometry[i] ?? personaGeometry[0]).agentHome,
         })),
         gammaDeskPos: gammaHubMeet,
+        tableCenterPos: tableCenter,
         // TWIN-MONITORS pass (2026-09-15): the "smart-board" walk-graph node
         // (lib/hq-agents.ts#ZONE_NODE_ID's "build" zone target) used to sit
         // at WALL_POS itself (y=3.4 -- a point up on the wall, not a floor
@@ -1629,6 +1658,26 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
     }
   }
   const ideasCount = data?.ideas.cards.length ?? 0;
+  // CREW-WORKING pass (2026-09-15/16, item 4): huddle pair -- fires ONLY on
+  // a real <2 -> >=2 GREEN transition (crewWorking.ts#detectHuddleTrigger),
+  // never a timer. `prevGreenCountRef`/`activeHuddleRef` are mutated here,
+  // in plain render-time code, the SAME convention `personaGreetingSinceRef`
+  // above already uses (never a useEffect -- this file has no per-frame
+  // hook of its own to defer into, and every other cross-render diff in
+  // this component already works this way).
+  const greenNow: HuddleCandidate[] = innerPersonas
+    .filter((p) => p.status === "GREEN")
+    .map((p) => ({ name: p.name, lastFireISO: p.lastFireISO }));
+  const huddleTrigger = detectHuddleTrigger(greenNow, prevGreenCountRef.current, nowMsForWalks);
+  prevGreenCountRef.current = greenNow.length;
+  if (huddleTrigger.key && huddleTrigger.pair) {
+    activeHuddleRef.current = { key: huddleTrigger.key, pair: huddleTrigger.pair };
+  }
+  const activeHuddle = activeHuddleRef.current;
+  // 1.2u apart (task spec) straddling the table's near (hub-facing) side,
+  // HUB_TABLE_RADIUS(2.1) minus 1.0 so the pair stands just inside the
+  // table's own radius, not out in the open room.
+  const huddleSpots = activeHuddle ? huddleStandPoints(tableCenter, HUB, HUB_TABLE_RADIUS - 1.0, 1.2) : null;
   const purposefulWalks = innerPersonas.map((persona, i) => {
     const neighbor = innerPersonas.length > 1 ? innerPersonas[(i + 1) % innerPersonas.length] : null;
     const walk = computePurposefulWalk(persona.name, nowMsForWalks, ideasCount, persona.lastFireISO, neighbor?.name ?? null);
@@ -2135,6 +2184,31 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
         // Item 2b (LIVE-1): this persona's own purposeful-walk decision,
         // computed once above alongside every other inner persona's.
         const purposeful = purposefulWalks[i];
+        // CREW-WORKING pass (item 4): this persona's own huddle waypoints,
+        // routed through the real walk graph's new "hub-table" node
+        // (layout.ts#buildWalkGraph) -- undefined for the 4+ personas NOT in
+        // `activeHuddle.pair` this poll (Agent.tsx's own null/undefined
+        // guard on `walkPlanKey` already treats that as zero behavior
+        // change). `huddleWalkPlanKey` is the pair's SHARED trigger value
+        // (crewWorking.ts#detectHuddleTrigger's own unique key) -- both
+        // agents queue their own walk off the exact same real transition.
+        const isHuddleA = activeHuddle?.pair[0] === persona.name;
+        const isHuddleB = activeHuddle?.pair[1] === persona.name;
+        const huddleWalkPlanKey = activeHuddle && (isHuddleA || isHuddleB) ? activeHuddle.key : undefined;
+        let huddleWalkPlan: WalkPlan | undefined;
+        if (activeHuddle && huddleSpots && (isHuddleA || isHuddleB)) {
+          const mySpot = isHuddleA ? huddleSpots.a : huddleSpots.b;
+          const myYaw = isHuddleA ? huddleSpots.faceYawA : huddleSpots.faceYawB;
+          const path = findWalkPath(walkGraph, `persona-${persona.name}`, "hub-table");
+          const plan = toWalkPlan(
+            path && path.length > 0 ? [...path.slice(0, -1), mySpot] : null,
+            mySpot,
+            `huddle · ${activeHuddle.pair[0]} + ${activeHuddle.pair[1]}`,
+            60,
+            "idle",
+          );
+          huddleWalkPlan = { ...plan, faceYaw: myYaw };
+        }
         const safeDecision = isPilot ? (data?.trading?.core.safe ?? null) : null;
         const boldDecision = isPilot ? (data?.trading?.core.bold ?? null) : null;
         // HQ-POSITION-TRUTH (2026-09-15): the LIVE exit-state.json truth,
@@ -2317,9 +2391,18 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
                 // poll -- independent of each persona's own arrival trigger
                 // above (see Agent.tsx's own comment on the two channels).
                 allHandsEventKey={data?.brief.mtime_ms != null ? String(data.brief.mtime_ms) : null}
-                // Item 2b (LIVE-1): "every persona takes one named walk
-                // every 6-10 min" -- see palette.ts#computePurposefulWalk.
-                purposefulWalkEventKey={purposeful.walk.bucketKey}
+                // Item 2b (LIVE-1), re-gated CREW-WORKING pass (2026-09-15/16,
+                // per the HQ face rule "motion = real events"):
+                // `purposeful.walk.bucketKey` used to fire this trigger on a
+                // fixed 6-10min CLOCK regardless of whether anything real
+                // happened to this persona -- a fabricated event. Replaced
+                // with palette.ts#purposefulWalkTriggerKey, which only
+                // changes on a genuine lastFireISO/status change (Agent.tsx's
+                // existing seen-value-diff convention does the rest); when it
+                // DOES fire, `computePurposefulWalk`'s own destination/reason
+                // (`purposeful.target`/`purposefulReasonFinal` below) still
+                // pick WHERE/WHY, unchanged.
+                purposefulWalkEventKey={purposefulWalkTriggerKey(persona.name, persona.lastFireISO, persona.status)}
                 purposefulTarget={purposeful.target}
                 purposefulReason={purposefulReasonFinal}
                 // INTERACT-2 (I2 a-f): Chef/Coach -> Gamma at the hub on a
@@ -2368,6 +2451,11 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
                 // No `alertPacePoint` override -- personas never go
                 // "alert" (only lane bays derive that behavior).
                 walkGraph={walkGraph}
+                // CREW-WORKING pass (item 4): undefined for every persona not
+                // in `activeHuddle.pair` this poll -- zero behavior change
+                // (Agent.tsx's own null/undefined guard on `walkPlanKey`).
+                walkPlanKey={huddleWalkPlanKey}
+                walkPlan={huddleWalkPlan}
               />
             )}
             {/* Item 2c (LIVE-1): Pilot's desk pulse -- RTH-only (CLAUDE.md's
