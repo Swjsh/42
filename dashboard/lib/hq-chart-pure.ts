@@ -206,23 +206,40 @@ export function deriveTradeArmLabel(account: string | null, note: string | null)
 export interface GroupableTrade {
   barIndex: number | null;
   side: "entry" | "exit";
+  /** Optional -- CHART-MARKER-GROUPS (2026-09-15) folds direction into the
+   * grouping key so a bar that somehow carried both a put AND a call on the
+   * same side never gets silently merged into one glyph/plaque (never
+   * observed in real trades.csv, but the marker layer -- one arrow cone per
+   * group -- must not assume it can't happen). Omitted entirely (older
+   * callers, e.g. this file's own pre-existing unit tests that group plain
+   * `{barIndex, side}` fixtures) behaves exactly as before: every item
+   * shares the same `undefined` direction slot, so grouping stays bar+side
+   * only -- fully backward compatible. */
+  direction?: "call" | "put";
 }
 
-/** Groups trades sharing the same (barIndex, side) -- the same real-world
- * "N accounts filled the identical setup in the same 5-minute bar" shape
- * dedupeTradeMarkers already merges identical (side,direction,price,minute,
- * account) rows for, one level up: DIFFERENT accounts/prices in the same bar
- * stay as distinct rows (never silently merged/lost, see dedupeTradeMarkers'
- * own header) but now share one display group. `barIndex === null` (a trade
- * that couldn't be anchored to a visible bar) is excluded -- nothing to
- * group by. Order-preserving: each group's array keeps the input's own
- * relative order, and groups appear in first-occurrence order. */
+/** Groups trades sharing the same (barIndex, side[, direction]) -- the same
+ * real-world "N accounts filled the identical setup in the same 5-minute
+ * bar" shape dedupeTradeMarkers already merges identical (side,direction,
+ * price,minute,account) rows for, one level up: DIFFERENT accounts/prices in
+ * the same bar stay as distinct rows (never silently merged/lost, see
+ * dedupeTradeMarkers' own header) but now share one display group.
+ * `barIndex === null` (a trade that couldn't be anchored to a visible bar)
+ * is excluded -- nothing to group by. Order-preserving: each group's array
+ * keeps the input's own relative order, and groups appear in
+ * first-occurrence order.
+ *
+ * Reused by TWO consumers with the SAME key so they never disagree about
+ * what counts as "one group": the plaque (per-arm detail lines, HoloChart's
+ * GroupedTradeMarkerLabel) and the marker geometry (one arrow cone per
+ * group, HoloChart's TradeMarkers -- see CHART-MARKER-GROUPS' header there
+ * for the column-of-arrows bug this consolidation fixes). */
 export function groupTradesByBarAndSide<T extends GroupableTrade>(trades: readonly T[]): Array<{ key: string; items: T[] }> {
   const groups = new Map<string, T[]>();
   const order: string[] = [];
   for (const t of trades) {
     if (t.barIndex === null) continue;
-    const key = `${t.barIndex}:${t.side}`;
+    const key = `${t.barIndex}:${t.side}:${t.direction ?? ""}`;
     const existing = groups.get(key);
     if (existing) {
       existing.push(t);
@@ -287,13 +304,22 @@ export function formatGroupedTradeLabel(
 // account+price+P&L content as formatGroupedTradeLabel (nothing dropped),
 // just laid out vertically instead of horizontally -- see this function's
 // own unit tests for the exact line shapes.
+//
+// CHART-MARKER-GROUPS (2026-09-15): the header line now also carries a
+// "x{count}" badge for a real multi-fill group (a person reading "ENTER put"
+// atop 5 account lines has to count the lines themselves to know how many
+// fills that was -- the same count that used to also justify a whole column
+// of stacked arrow cones underneath, per this fix's own HoloChart.tsx
+// header). A single-item group renders NO badge (`items.length > 1` guard)
+// since "x1" states nothing a lone marker's own plaque doesn't already say.
 export function formatGroupedTradeLines(
   side: "entry" | "exit",
   direction: "call" | "put",
   items: readonly GroupLabelItem[],
 ): string[] {
   const verb = side === "entry" ? "ENTER" : "EXIT";
-  const lines = [`${verb} ${direction}`];
+  const countBadge = items.length > 1 ? ` ×${items.length}` : "";
+  const lines = [`${verb} ${direction}${countBadge}`];
   for (const it of items) {
     const arm = deriveTradeArmLabel(it.account, it.note);
     const pnlStr = it.pnl !== null ? ` (${it.pnl >= 0 ? "+" : ""}${it.pnl.toFixed(0)})` : "";

@@ -495,9 +495,13 @@ test("groupTradesByBarAndSide: groups same-bar/same-side trades, keeps a lone tr
     { barIndex: 27, side: "exit", label: "safe" },
   ];
   const groups = groupTradesByBarAndSide(trades);
-  const entryGroup = groups.find((g) => g.key === "14:entry")!;
-  const exit17Group = groups.find((g) => g.key === "17:exit")!;
-  const exit27Group = groups.find((g) => g.key === "27:exit")!;
+  // CHART-MARKER-GROUPS (2026-09-15): the key now carries a trailing
+  // ":<direction>" segment (empty here -- these fixtures carry no
+  // `direction` field at all) -- match by prefix so this test stays about
+  // bar+side grouping, not the exact key string.
+  const entryGroup = groups.find((g) => g.key.startsWith("14:entry:"))!;
+  const exit17Group = groups.find((g) => g.key.startsWith("17:exit:"))!;
+  const exit27Group = groups.find((g) => g.key.startsWith("27:exit:"))!;
   assert.equal(entryGroup.items.length, 5, "all 5 bar-14 entries must group together");
   assert.equal(exit17Group.items.length, 1, "the lone bar-17 exit stays its own group");
   assert.equal(exit27Group.items.length, 4, "all 4 bar-27 exits must group together");
@@ -511,6 +515,64 @@ test("groupTradesByBarAndSide: a trade with barIndex null is excluded, never cra
   assert.equal(groups.length, 1);
   assert.equal(groups[0].items.length, 1);
   assert.equal(groups[0].items[0].label, "y");
+});
+
+// ─── direction-aware grouping (CHART-MARKER-GROUPS, 2026-09-15) -- the
+// marker-cone layer groups by (barIndex, side, direction), not just
+// (barIndex, side), so a same-bar/same-side group can never silently mix a
+// put fill and a call fill into one arrow/count. ───────────────────────────
+
+interface TestTradeWithDirection extends TestTrade {
+  direction: "call" | "put";
+}
+
+test("groupTradesByBarAndSide: 5 same-bar ENTER put fills collapse to one group of 5", () => {
+  const trades: TestTradeWithDirection[] = [
+    { barIndex: 3, side: "entry", direction: "put", label: "safe-2" },
+    { barIndex: 3, side: "entry", direction: "put", label: "bold-2" },
+    { barIndex: 3, side: "entry", direction: "put", label: "safe-3" },
+    { barIndex: 3, side: "entry", direction: "put", label: "risky-1" },
+    { barIndex: 3, side: "entry", direction: "put", label: "risky-3" },
+  ];
+  const groups = groupTradesByBarAndSide(trades);
+  assert.equal(groups.length, 1);
+  assert.equal(groups[0].items.length, 5);
+});
+
+test("groupTradesByBarAndSide: ENTER and EXIT on the same bar stay separate groups", () => {
+  const trades: TestTradeWithDirection[] = [
+    { barIndex: 9, side: "entry", direction: "call", label: "safe-2" },
+    { barIndex: 9, side: "exit", direction: "call", label: "bold-2" },
+  ];
+  const groups = groupTradesByBarAndSide(trades);
+  assert.equal(groups.length, 2);
+  assert.equal(groups.find((g) => g.key.includes(":entry:"))!.items.length, 1);
+  assert.equal(groups.find((g) => g.key.includes(":exit:"))!.items.length, 1);
+});
+
+test("groupTradesByBarAndSide: same bar and side but different direction stay separate groups", () => {
+  const trades: TestTradeWithDirection[] = [
+    { barIndex: 9, side: "entry", direction: "call", label: "a" },
+    { barIndex: 9, side: "entry", direction: "put", label: "b" },
+  ];
+  const groups = groupTradesByBarAndSide(trades);
+  assert.equal(groups.length, 2);
+});
+
+test("groupTradesByBarAndSide: different bars never group together", () => {
+  const trades: TestTradeWithDirection[] = [
+    { barIndex: 3, side: "entry", direction: "put", label: "a" },
+    { barIndex: 4, side: "entry", direction: "put", label: "b" },
+  ];
+  const groups = groupTradesByBarAndSide(trades);
+  assert.equal(groups.length, 2);
+});
+
+test("groupTradesByBarAndSide: a single fill is its own group of 1 (count 1, no badge downstream)", () => {
+  const trades: TestTradeWithDirection[] = [{ barIndex: 12, side: "exit", direction: "call", label: "solo" }];
+  const groups = groupTradesByBarAndSide(trades);
+  assert.equal(groups.length, 1);
+  assert.equal(groups[0].items.length, 1);
 });
 
 test("formatGroupedTradeLabel: matches this task's own real-shape example verbatim", () => {
@@ -554,8 +616,10 @@ test("formatGroupedTradeLines: header line + one line per account, matches this 
     { account: "risky-1", note: null, price: 1.13, pnl: null },
     { account: "risky-3", note: null, price: 1.12, pnl: null },
   ]);
+  // CHART-MARKER-GROUPS (2026-09-15): header now carries a "x{count}" badge
+  // -- see formatGroupedTradeLines' own updated header for why.
   assert.deepEqual(lines, [
-    "ENTER put",
+    "ENTER put ×5",
     "safe-2 1.08",
     "bold-2 0.47",
     "safe-3 1.12",

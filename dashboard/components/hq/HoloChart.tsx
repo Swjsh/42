@@ -548,18 +548,19 @@ function LevelLabels({
 }
 
 const MAX_TRADES = 24; // headroom above any realistic single-session trade-marker count
-// MARKER-COLLIDE fix (2026-09-15): world-Y step applied to the 2nd+ marker
-// sharing the same (barIndex, side) bucket -- see `positioned`'s own
-// comment for why two different accounts trading the same setup in the
-// same 5-minute bar previously landed on the EXACT same cone position (y
-// was a function of the bar's own high/low, never the individual trade),
-// not just an unlucky label overlap. 0.1 world units is comfortably more
-// than the label's own subsequent screen-space declutter nudge needs to
-// start from a non-identical position (the shared resolver still runs on
-// top of this and is what GUARANTEES the final on-screen legibility --
-// this stacking step is the geometry-level half of the fix, not a
-// substitute for it).
-const TRADE_STACK_STEP = 0.1;
+// CHART-MARKER-GROUPS cone scale (2026-09-15): a grouped marker (>=2 real
+// fills sharing one bar/side/direction) renders as ONE cone, 25% larger than
+// a lone fill's -- the same "one glyph + a count/size cue" convention real
+// charting platforms use for same-bar order clusters (TradingView and
+// thinkorswim both collapse multiple same-bar orders into a single marker
+// with a count badge rather than stacking one glyph per fill -- verified via
+// WebSearch this session: TradingView's strategy-tester trade markers and
+// thinkorswim's "OrderStation" fill markers both render ONE shape per
+// bar/side, with per-fill detail surfaced in a tooltip/panel, never a
+// vertical stack of shapes). The per-arm detail stays fully readable in the
+// plaque (formatGroupedTradeLines), so nothing is lost -- only the
+// PREVIOUSLY MISLEADING "column of arrows" geometry is gone.
+const GROUPED_CONE_SCALE = 1.25;
 
 interface PositionedTrade {
   trade: HoloTradeMarker;
@@ -573,97 +574,88 @@ interface PositionedTrade {
  * "never one mesh per bar" for the ribbon and the identical principle
  * applies here: a per-trade `<mesh>` was fine at today's 2-marker count but
  * would scale linearly on a heavier trading day. Html tooltips stay
- * per-marker (DOM, zero WebGL draw-call cost either way). */
+ * per-marker (DOM, zero WebGL draw-call cost either way).
+ *
+ * CHART-MARKER-GROUPS fix (2026-09-15): a real capture (monitors-close-1957
+ * .png, hub close-up) showed today's 5 same-bar/same-side ENTER put fills
+ * rendering as FIVE separate cones stacked vertically beneath the already-
+ * grouped plaque -- a column of red arrows a person reads as a rendering
+ * glitch, not "5 arms entered on this bar". Root cause: the OLDER
+ * MARKER-COLLIDE fix (2026-09-14) de-overlapped the LABELS by stacking each
+ * fill's cone `TRADE_STACK_STEP` further from the bar's own high/low, one
+ * cone per raw fill, and the later MARKER-MISSING fix (2026-09-15, same
+ * session) grouped the LABELS into one plaque but never touched the cone
+ * geometry underneath -- so the plaque got fixed while the column of arrows
+ * it now sits ON TOP OF did not. This function groups the RAW TRADES first
+ * (by barIndex+side+direction, the same GroupableTrade key the plaque
+ * already uses -- see groupTradesByBarAndSide's own header in
+ * lib/hq-chart-pure.ts) and derives BOTH the one-cone-per-group geometry AND
+ * the per-group label from that single grouping, so the two consumers can
+ * never disagree about what counts as "one group" again. */
 function TradeMarkers({
   trades, bars, domain, dimFactor, origin, facingYaw,
 }: { trades: HoloTradeMarker[]; bars: ChartBar[]; domain: { low: number; high: number }; dimFactor: number; origin: [number, number, number]; facingYaw: number }) {
   const meshRef = useRef<THREE.InstancedMesh>(null);
   const geo = useMemo(() => new THREE.ConeGeometry(0.045, 0.11, 5), []);
 
-  const positioned: PositionedTrade[] = useMemo(() => {
-    // MARKER-COLLIDE fix: real capture evidence (2026-09-15 16:37 ET) --
-    // safe-2's ENTER $1.08 and bold-2's ENTER $0.47 both fell in the SAME
-    // 5-minute bar; `y` was `yForPrice(bar.high/low, domain) + a fixed
-    // offset`, a function of the BAR alone, never each trade's own price or
-    // account -- so both markers rendered at the literal same (x,y),
-    // producing one visible pin for two real fills. Bucket by
-    // (barIndex, side) and stack the 2nd+ occupant `TRADE_STACK_STEP`
-    // further from the bar's own high/low, in the same direction its side
-    // already offsets (up for entries, down for exits) -- keeps every
-    // marker individually clickable/hoverable and gives the label
-    // declutter pass below a genuinely distinct starting position per
-    // trade instead of an identical one.
-    const stackCount = new Map<string, number>();
-    return trades
+  // Group the raw trades FIRST -- one group per (barIndex, side, direction),
+  // the same key formatGroupedTradeLines' plaque already renders per-arm
+  // detail for. Trades that can't be anchored to a visible bar are dropped
+  // (groupTradesByBarAndSide's own `barIndex === null` exclusion) exactly as
+  // the pre-fix code already did via its `.filter`.
+  const groups = useMemo(() => {
+    const groupable = trades
       .filter((t) => t.barIndex !== null && bars[t.barIndex])
-      .map((t) => {
-        const bar = bars[t.barIndex as number];
-        const x = xForBarIndex(t.barIndex as number, bars.length);
-        const bucketKey = `${t.barIndex}:${t.side}`;
-        const stackIndex = stackCount.get(bucketKey) ?? 0;
-        stackCount.set(bucketKey, stackIndex + 1);
-        const baseY = yForPrice(t.side === "entry" ? bar.high : bar.low, domain) + (t.side === "entry" ? 0.14 : -0.1);
-        const y = baseY + (t.side === "entry" ? 1 : -1) * stackIndex * TRADE_STACK_STEP;
-        return { trade: t, x, y };
-      });
-  }, [trades, bars, domain]);
+      .map((t) => ({ trade: t, barIndex: t.barIndex, side: t.side, direction: t.direction }));
+    return groupTradesByBarAndSide(groupable);
+  }, [trades, bars]);
+
+  // ONE world position per GROUP (not per raw fill) -- the bar's own
+  // high (entries) / low (exits) plus the existing fixed offset, no stack.
+  // This is the geometry-level half of the column-of-arrows fix: every fill
+  // in a group now shares the exact same cone position instead of each
+  // being nudged TRADE_STACK_STEP further away.
+  const groupGeoms = useMemo(() => {
+    return groups.map(({ key, items }) => {
+      const first = items[0].trade;
+      const bar = bars[items[0].barIndex as number];
+      const x = xForBarIndex(items[0].barIndex as number, bars.length);
+      const y = yForPrice(first.side === "entry" ? bar.high : bar.low, domain) + (first.side === "entry" ? 0.14 : -0.1);
+      return { key, side: first.side, direction: first.direction, x, y, count: items.length };
+    });
+  }, [groups, bars, domain]);
 
   useEffect(() => {
     const mesh = meshRef.current;
     if (!mesh) return;
-    mesh.count = positioned.length;
-    positioned.forEach((p, i) => {
-      _pos.set(p.x, p.y, 0);
-      _euler.set(p.trade.side === "entry" ? Math.PI : 0, 0, 0);
+    mesh.count = groupGeoms.length;
+    groupGeoms.forEach((g, i) => {
+      _pos.set(g.x, g.y, 0);
+      _euler.set(g.side === "entry" ? Math.PI : 0, 0, 0);
       _quat.setFromEuler(_euler);
-      _matrix.compose(_pos, _quat, _scale.set(1, 1, 1));
+      const s = g.count > 1 ? GROUPED_CONE_SCALE : 1;
+      _matrix.compose(_pos, _quat, _scale.set(s, s, s));
       mesh.setMatrixAt(i, _matrix);
-      mesh.setColorAt(i, p.trade.direction === "call" ? COLOR_UP : COLOR_DOWN);
+      mesh.setColorAt(i, g.direction === "call" ? COLOR_UP : COLOR_DOWN);
     });
     mesh.instanceMatrix.needsUpdate = true;
     if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
-  }, [positioned]);
-
-  // MARKER-MISSING fix (HQ-CHART-MARKERS, 2026-09-15): a real capture
-  // (hq-close-1653.png) showed only 4 of today's 10 real trade-marker labels
-  // -- the other 6 (5 bar-14 entries + the lone bar-17 bold exit, all
-  // nearly co-located on screen since they share bar x-positions a
-  // TRADE_STACK_STEP world-Y spread apart) never cleared the shared
-  // declutter resolver's nudge cap and faded to near-invisible against this
-  // scene's dark background. See groupTradesByBarAndSide's own header in
-  // lib/hq-chart-pure.ts for the full root-cause writeup. Grouping same-bar/
-  // same-side markers into ONE plaque (rather than one per trade) removes
-  // the crowding at its source -- every real fill stays listed (never
-  // dropped, see formatGroupedTradeLabel), just combined into fewer labels
-  // competing for screen space. The label's own anchor position is the
-  // OUTERMOST stacked marker in the group (last in `positioned`'s own
-  // stacking order, see `positioned`'s comment) so the plaque sits clear of
-  // the ribbon/cones rather than on top of the innermost one.
-  const labelGroups = useMemo(() => {
-    // groupTradesByBarAndSide needs barIndex/side directly on each item
-    // (its own GroupableTrade contract) -- PositionedTrade nests them under
-    // `.trade`, so this thin per-item wrapper exposes them without losing
-    // anything (`...p` keeps `trade`/`x`/`y` intact for every consumer
-    // below). Reuses the SAME unit-tested grouping key (lib/hq-chart-pure.ts)
-    // the real-fills evidence in this fix's own header was verified against,
-    // rather than a second, untested reimplementation of "${barIndex}:
-    // ${side}" here.
-    const withKeys = positioned.map((p) => ({ ...p, barIndex: p.trade.barIndex, side: p.trade.side }));
-    return groupTradesByBarAndSide(withKeys).map(({ key, items }) => [key, items] as [string, PositionedTrade[]]);
-  }, [positioned]);
+  }, [groupGeoms]);
 
   return (
     <>
       <instancedMesh ref={meshRef} args={[geo, undefined, MAX_TRADES]} frustumCulled={false}>
         <meshBasicMaterial toneMapped={false} transparent opacity={0.95 * dimFactor} />
       </instancedMesh>
-      {labelGroups.map(([key, group]) =>
-        group.length === 1 ? (
-          <TradeMarkerLabel key={key} positioned={group[0]} dimFactor={dimFactor} origin={origin} facingYaw={facingYaw} />
+      {groups.map(({ key, items }, i) => {
+        const geom = groupGeoms[i];
+        const positioned: PositionedTrade[] = items.map((it) => ({ trade: it.trade, x: geom.x, y: geom.y }));
+        return positioned.length === 1 ? (
+          <TradeMarkerLabel key={key} positioned={positioned[0]} dimFactor={dimFactor} origin={origin} facingYaw={facingYaw} />
         ) : (
-          <GroupedTradeMarkerLabel key={key} groupKey={key} group={group} dimFactor={dimFactor} origin={origin} facingYaw={facingYaw} />
-        ),
-      )}
+          <GroupedTradeMarkerLabel key={key} groupKey={key} group={positioned} dimFactor={dimFactor} origin={origin} facingYaw={facingYaw} />
+        );
+      })}
     </>
   );
 }
@@ -724,7 +716,7 @@ function TradeMarkerLabel({
 }
 
 /** ONE combined plaque for a same-bar/same-side group of >=2 real trades --
- * see TradeMarkers' own `labelGroups` comment for the root cause this fixes
+ * see TradeMarkers' own header comment for the root cause this fixes
  * (crowded same-priority labels fading past the declutter resolver's nudge
  * cap). MARKER-OFFSCREEN follow-up (2026-09-15, same session): a first
  * version joined every account onto ONE line via formatGroupedTradeLabel --
