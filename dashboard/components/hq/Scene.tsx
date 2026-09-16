@@ -13,6 +13,7 @@ import { recordCameraSample } from "@/lib/hq-motion-diag";
 // own former FREE_CAM_MIN_DISTANCE/FREE_CAM_MAX_DISTANCE literals below (one
 // source of truth for the clamp, shared with the unit-testable parser).
 import { CAM_DIST_MAX, CAM_DIST_MIN, parseCameraParams, shouldParkTourAtOverview } from "@/lib/hq-camera-params";
+import { computeDeskFacingCameraPose } from "@/lib/hq-desk-preset-pure";
 // UX-1 U5 (2026-09-14): reports the exact frame the cinematic auto-orbit
 // resumes after FREE_CAM_IDLE_RESUME_S of user idle -- Hud.tsx (outside
 // <Canvas>) subscribes to this SAME external store to show a brief "camera
@@ -1461,14 +1462,35 @@ function Scene({ data, reducedMotion, tier = "tv" }: SceneProps) {
   // const).
   const cameraPresets: CameraPreset[] = (() => {
     const headOffset = CHARACTER_TARGET_HEIGHT * CHARACTER_SCALE * 0.95;
-    const deskPositions: [number, number, number][] = [];
-    if (allPersonas[0]) deskPositions.push(gammaDeskCenter);
+    // DESK-PRESETS pass (2026-09-15): each entry now also carries the
+    // desk's own facing `rotationY` where one exists (every persona desk --
+    // `null` for Gamma's own desk, whose preset math below is UNCHANGED,
+    // per this pass' own scope: only the persona-wall-slot desks moved in
+    // commit 31cc19b5, Gamma's desk did not). Carrying rotationY alongside
+    // the position (instead of re-deriving it from `pos` further down) is
+    // the whole fix -- see lib/hq-desk-preset-pure.ts's own header for why
+    // `pos - HUB` stopped being a valid stand-in for "the desk's own facing
+    // direction" once persona desks moved off the ring.
+    const deskEntries: Array<{ pos: [number, number, number]; rotationY: number | null }> = [];
+    if (allPersonas[0]) deskEntries.push({ pos: gammaDeskCenter, rotationY: null });
     innerPersonas.forEach((_, i) => {
       const slot = personaGeometry[i] ?? personaGeometry[0];
-      deskPositions.push(slot.agentHome);
+      deskEntries.push({ pos: slot.agentHome, rotationY: slot.rotationY });
     });
-    return deskPositions.map((pos): CameraPreset => {
+    return deskEntries.map(({ pos, rotationY }): CameraPreset => {
       const headPos: [number, number, number] = [pos[0], pos[1] + headOffset, pos[2]];
+      if (rotationY !== null) {
+        // Persona wall-slot desk -- derive the pose from the desk's OWN
+        // facing normal (see lib/hq-desk-preset-pure.ts), not the hub
+        // radial the Gamma-desk branch below still uses.
+        return computeDeskFacingCameraPose({
+          deskPos: pos,
+          rotationY,
+          headPos,
+          roomHalfExtent: HUB_WALL_RADIUS - 0.8,
+          standPositionXZ: [MONITOR_MOUNT.standPosition[0], MONITOR_MOUNT.standPosition[2]],
+        });
+      }
       const deskRadius = Math.hypot(pos[0] - HUB[0], pos[2] - HUB[2]);
       const dirX = deskRadius > 0.001 ? (pos[0] - HUB[0]) / deskRadius : 0;
       const dirZ = deskRadius > 0.001 ? (pos[2] - HUB[2]) / deskRadius : 1;
