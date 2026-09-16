@@ -401,7 +401,32 @@ def compute_plausibility_verdicts(page: Any, seconds: float, scene_ready: bool) 
             )
         except Exception:  # noqa: BLE001
             rects = []
-        label_samples.append({"label_rects": rects})
+        # SCREEN-KEEP-OUT PER-TICK FIX (2026-09-16, root cause: this loop's
+        # own screen_viewport_rects used to be captured ONCE, outside this
+        # loop, from the single static_report snapshot above -- correct
+        # only when the camera never moves (the `?tour=0` static overview
+        # this worker's own --plausibility check happened to run against),
+        # wrong for the REAL full-probe camera, which auto-orbits/drifts the
+        # whole run. hq-scene-audit.ts#computeScreenViewportRectsReport is
+        # the same screen-only projection, callable per tick (cheap -- a
+        # handful of screens, not the full wall/desk/furniture traversal),
+        # so this now captures THIS tick's own screen rects to pair with
+        # THIS tick's label rects. Falls back to `None` (check_label_screen
+        # _overlap then uses the caller-supplied static list) on any build
+        # that predates the `window.__hqSceneAuditScreens` hook, or on any
+        # per-tick eval failure -- never a hard failure of the whole run.
+        try:
+            screens_report = page.evaluate(
+                "async () => (window.__hqSceneAuditScreens ? await window.__hqSceneAuditScreens() : null)"
+            )
+            tick_screen_rects = (
+                screens_report.get("screenViewportRects")
+                if isinstance(screens_report, dict) and screens_report.get("ok")
+                else None
+            )
+        except Exception:  # noqa: BLE001
+            tick_screen_rects = None
+        label_samples.append({"label_rects": rects, "screen_rects": tick_screen_rects})
         elapsed = time.time() - tick_t0
         time.sleep(max(0.0, PLAUSIBILITY_SAMPLE_INTERVAL_S - elapsed))
 

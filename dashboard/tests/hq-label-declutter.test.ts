@@ -228,8 +228,12 @@ test("the real hub crowd (9 labels) at post-OVERVIEW-FLOOR-fix size: height-only
 // resolver must nudge labels off of, without ever moving the obstacle
 // itself or disturbing label-vs-label priority order. ────────────────────
 
-function obstacle(id: string, x: number, y: number, w: number, h: number): ObstacleRect {
-  return { id, x, y, width: w, height: h };
+function obstacle(id: string, x: number, y: number, w: number, h: number, isScreen = false): ObstacleRect {
+  return { id, x, y, width: w, height: h, isScreen };
+}
+
+function screenObstacle(id: string, x: number, y: number, w: number, h: number): ObstacleRect {
+  return obstacle(id, x, y, w, h, true);
 }
 
 test("a label overlapping a fixed obstacle moves off it", () => {
@@ -327,8 +331,8 @@ test("ndcCornersToViewportRect: returns null for a zero-area viewport or a non-f
   assert.equal(ndcCornersToViewportRect([], 1000, 800), null);
 });
 
-test("screen keep-out: a label rect CENTRED on a keep-out rect resolves fully outside it (or fades to 0) -- the twin-monitor-33/34 FAIL shape, both Gamma-tier and a live-agent label", () => {
-  const screen = obstacle("screen-twin-monitor-0", 700, 400, 260, 150);
+test("screen keep-out: a label rect CENTRED on a keep-out rect resolves fully outside it, or fades to FULL 0 (never a partial fadeOpacity) -- the twin-monitor-33/34 FAIL shape, both Gamma-tier and a live-agent label", () => {
+  const screen = screenObstacle("screen-twin-monitor-0", 700, 400, 260, 150);
   const centerX = screen.x + screen.width / 2;
   const centerY = screen.y + screen.height / 2;
 
@@ -348,17 +352,54 @@ test("screen keep-out: a label rect CENTRED on a keep-out rect resolves fully ou
     const stillOverlapsScreen =
       finalX < screen.x + screen.width && finalX + label.width > screen.x &&
       finalY < screen.y + screen.height && finalY + label.height > screen.y;
+    // SCREEN-KEEP-OUT HARDENING (2026-09-16): a screen is strictly worse to
+    // occlude than another label -- hq_probe_lib.py's own
+    // check_label_screen_overlap only excludes a label below opacity 0.05,
+    // so the generic fadeOpacity (0.35) a label-vs-label collision uses is
+    // NOT an acceptable outcome here; only a full clear or a full (0)
+    // fade counts.
     assert.ok(
-      !stillOverlapsScreen || o.opacity === 0 || o.opacity === DEFAULT_FADE_OPACITY,
-      `${label.id}: must resolve fully outside the screen's own rect, or fade, regardless of top priority -- got dx=${o.dx} dy=${o.dy} opacity=${o.opacity}`,
+      !stillOverlapsScreen || o.opacity === 0,
+      `${label.id}: must resolve fully outside the screen's own rect, or fade FULLY to 0, regardless of top priority -- got dx=${o.dx} dy=${o.dy} opacity=${o.opacity}`,
     );
-    // The core requirement, stated exactly as the brief names it: unless
-    // faded, the resolved rect is FULLY outside the keep-out rect -- not
-    // just "moved a little".
-    if (o.opacity === 1) {
-      assert.ok(!stillOverlapsScreen, `${label.id}: at full opacity the resolved rect must not intersect the screen's own rect at all`);
+    if (o.opacity !== 0) {
+      assert.ok(!stillOverlapsScreen, `${label.id}: at non-zero opacity the resolved rect must not intersect the screen's own rect at all`);
     }
   }
+});
+
+test("SCREEN-KEEP-OUT HARDENING: real probe FAIL geometry (twin-monitor-101/102, overlapFrac 0.19/0.30) -- a label pinned against a screen mesh bigger than the default nudge cap fades fully to 0, never the generic fadeOpacity", () => {
+  // A real monitor's projected AABB rect at a close/moving camera pose can
+  // easily exceed the default 60px nudge budget in both directions -- this
+  // reproduces that shape directly (screen half-extents far bigger than
+  // DEFAULT_MAX_NUDGE_PX on both axes) rather than guessing at exact
+  // probe-run pixel values the raw per-tick geometry was never persisted
+  // for (see hq_live_probe.py's own per-tick screen_rects fix).
+  const screen = screenObstacle("screen-twin-monitor-101", 500, 300, 400, 300);
+  const centerX = screen.x + screen.width / 2;
+  const centerY = screen.y + screen.height / 2;
+  const coach = rect("persona:Coach", PRIORITY.PERSONA, 8, centerX - 40, centerY - 12, 80, 24);
+
+  const out = resolveLabelOffsets([coach], DEFAULT_MAX_NUDGE_PX, DEFAULT_FADE_OPACITY, [screen]);
+  const o = out.get(coach.id)!;
+  const finalX = coach.x + o.dx;
+  const finalY = coach.y + o.dy;
+  const stillOverlapsScreen =
+    finalX < screen.x + screen.width && finalX + coach.width > screen.x &&
+    finalY < screen.y + screen.height && finalY + coach.height > screen.y;
+
+  assert.ok(stillOverlapsScreen, "test setup sanity: this screen must be too big for the default cap to clear");
+  assert.equal(o.opacity, 0, "a label that cannot clear a screen within the cap must fade FULLY to 0, not the generic fadeOpacity");
+});
+
+test("SCREEN-KEEP-OUT HARDENING does not regress the generic HUD-obstacle fade (non-screen obstacle past the cap still fades to fadeOpacity, not 0)", () => {
+  const maxNudge = 10;
+  const fade = 0.35;
+  const hudPanel = obstacle("title-block", -50, -50, 300, 300); // isScreen defaults false
+  const label = rect("lane:safe2", PRIORITY.LANE, 10, 0, 0, 120, 24);
+  const out = resolveLabelOffsets([label], maxNudge, fade, [hudPanel]);
+  const o = out.get(label.id)!;
+  assert.equal(o.opacity, fade, "a non-screen obstacle must keep the original generic fadeOpacity behavior");
 });
 
 test("stable order across frames: identical input always yields identical output (no jitter)", () => {

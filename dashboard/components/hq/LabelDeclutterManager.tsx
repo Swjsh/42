@@ -132,7 +132,7 @@ function readScreenObstacleRects(scene: THREE.Object3D, camera: THREE.Camera, vi
       return [screenNdcVec.x, screenNdcVec.y];
     });
     const rect = ndcCornersToViewportRect(ndc, viewportW, viewportH);
-    if (rect) out.push({ id: `screen-${userData.hqLabel ?? "unknown"}-${counter++}`, ...rect });
+    if (rect) out.push({ id: `screen-${userData.hqLabel ?? "unknown"}-${counter++}`, ...rect, isScreen: true });
   });
   return out;
 }

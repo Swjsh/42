@@ -25,6 +25,7 @@ from hq_probe_lib import (  # noqa: E402
     check_bubbles,
     check_label_legibility,
     check_label_overlap,
+    check_label_screen_overlap,
     check_page_api_parity,
     check_perf,
     check_pose_jump,
@@ -1983,6 +1984,58 @@ def test_check_label_legibility_opacity_just_above_the_min_still_counts_as_visib
     samples = [_s(0, label_rects=[{"h": LABEL_MIN_HEIGHT_PX - 1, "text": "dim-but-not-faded", "visible": True, "opacity": above_floor_opacity}])]
     result = check_label_legibility(samples)
     assert result["verdict"] == "FAIL", "opacity above the legibility-faded floor must not exempt a genuinely too-short label"
+
+
+# SCREEN-KEEP-OUT PER-TICK FIX (2026-09-16, root cause of probe
+# 20260916T012329Z's label_vs_screen_overlap FAIL under a MOVING camera):
+# check_label_screen_overlap now prefers a sample's OWN `screen_rects`
+# (captured the SAME tick as that sample's `label_rects`) over the
+# caller-supplied global `screen_rects`, which used to be one static
+# snapshot compared against every tick regardless of camera movement.
+
+def _screen(id_, x, y, w, h, readable=True):
+    return {"id": id_, "label": id_, "x": x, "y": y, "width": w, "height": h, "readable": readable}
+
+
+def test_label_screen_overlap_uses_per_tick_screen_rects_when_present():
+    # The screen MOVES between tick 0 and tick 1 (camera orbiting). Tick 0's
+    # label sits on top of tick 0's own screen position (a real violation);
+    # tick 1's label (same on-screen coords) no longer overlaps tick 1's
+    # OWN (moved) screen position. Using per-tick screens, only tick 0
+    # should register as a violation -- if the OLD single-static-snapshot
+    # behavior were still active (always comparing against tick 0's screen)
+    # the overlap fraction would be identical at every tick, which this
+    # test's own worst-case fraction would not distinguish, so the real
+    # assertion is on overlapFrac magnitude staying tied to tick 0's own
+    # (bigger) overlap, not an inflated/averaged value from mixing ticks.
+    samples = [
+        {"label_rects": [_label("Coach", 100, 100, 80, 20)], "screen_rects": [_screen("s1", 90, 90, 100, 100)]},
+        {"label_rects": [_label("Coach", 100, 100, 80, 20)], "screen_rects": [_screen("s1", 400, 400, 100, 100)]},
+    ]
+    result = check_label_screen_overlap(samples, [])
+    assert result["verdict"] == "FAIL", result
+    # Only tick 0's overlap should be reflected -- tick 1 contributes zero
+    # overlap for this screen once it has moved away.
+    violations = result["detail"]["violations"]
+    assert len(violations) == 1
+    assert violations[0]["screenId"] == "s1"
+
+
+def test_label_screen_overlap_falls_back_to_global_screen_rects_when_sample_lacks_per_tick_data():
+    # An older *.samples.json.gz (captured before this fix) or a tick whose
+    # in-page screens eval failed carries no `screen_rects` key at all --
+    # must fall back to the caller-supplied global list, never silently
+    # drop to NO-DATA/PASS just because one field is missing.
+    samples = [{"label_rects": [_label("Coach", 100, 100, 80, 20)]}]
+    result = check_label_screen_overlap(samples, [_screen("s1", 90, 90, 100, 100)])
+    assert result["verdict"] == "FAIL", result
+    assert result["detail"]["violations"][0]["screenId"] == "s1"
+
+
+def test_label_screen_overlap_no_data_when_neither_per_tick_nor_global_screens_exist():
+    samples = [{"label_rects": [_label("Coach", 100, 100, 80, 20)]}]
+    result = check_label_screen_overlap(samples, [])
+    assert result["verdict"] == "NO-DATA", result
 
 
 if __name__ == "__main__":

@@ -1493,15 +1493,42 @@ def check_label_screen_overlap(samples: List[Dict[str, Any]], screen_rects: List
     monitors, bay signs -- are reported but never gate this verdict, same
     convention screen_facing already uses). NO-DATA if no screens were
     captured this run (e.g. TwinMonitors not yet mounted / ?diag=1 missing)
-    or no labels were ever sampled -- never a false PASS on zero evidence."""
-    readable_screens = [s for s in screen_rects if s.get("readable")]
-    if not screen_rects:
-        return {"verdict": "NO-DATA", "detail": {"reason": "no screens captured this run (window.__hqSceneAudit() returned none)"}}
+    or no labels were ever sampled -- never a false PASS on zero evidence.
+
+    PER-TICK SCREEN FIX (2026-09-16, root cause: under a MOVING camera --
+    the real full-probe run, which does not pass `?tour=0` -- a screen's
+    PROJECTED viewport rect moves every tick right along with the camera,
+    even though its world geometry is static. `screen_rects` used to be one
+    snapshot taken before the whole label-sampling loop ran, so a label
+    captured many ticks later was being checked against a screen position
+    from a different, earlier camera pose -- comparing two ticks that were
+    never simultaneous. Each `samples[i]` may now carry its OWN
+    `screen_rects` (hq_live_probe.py's own per-tick
+    `window.__hqSceneAuditScreens()` call, same tick as that sample's
+    `label_rects`) -- when present and non-empty, THAT tick's own screens
+    are used instead of the caller-supplied global `screen_rects`, so every
+    comparison is same-tick. Falls back to the global list for a sample
+    with no `screen_rects` key (older *.samples.json.gz captured before
+    this fix, or a per-tick eval that failed) -- never a false NO-DATA/PASS
+    from a single dropped tick when the rest of the run has real per-tick
+    data."""
+    if not screen_rects and not any(s.get("screen_rects") for s in samples):
+        return {"verdict": "NO-DATA", "detail": {"reason": "no screens captured this run (window.__hqSceneAudit()/__hqSceneAuditScreens() returned none)"}}
+
+    fallback_readable_screens = [s for s in screen_rects if s.get("readable")]
 
     worst_by_screen: Dict[str, float] = {}
     worst_label_by_screen: Dict[str, Optional[str]] = {}
+    seen_screen_ids: set = set()
+    seen_readable_screen_ids: set = set()
     any_label_sampled = False
     for s in samples:
+        tick_screens = s.get("screen_rects")
+        readable_screens = [sc for sc in tick_screens if sc.get("readable")] if tick_screens else fallback_readable_screens
+        for sc in (tick_screens if tick_screens else screen_rects):
+            seen_screen_ids.add(sc.get("id"))
+            if sc.get("readable"):
+                seen_readable_screen_ids.add(sc.get("id"))
         for r in s.get("label_rects") or []:
             if not r.get("visible", True):
                 continue
@@ -1528,8 +1555,8 @@ def check_label_screen_overlap(samples: List[Dict[str, Any]], screen_rects: List
         "verdict": "FAIL" if violations else "PASS",
         "detail": {
             "maxFrac": LABEL_VS_SCREEN_OVERLAP_MAX_FRAC,
-            "readableScreenCount": len(readable_screens),
-            "screenCount": len(screen_rects),
+            "readableScreenCount": len(seen_readable_screen_ids),
+            "screenCount": len(seen_screen_ids),
             "violations": violations,
             "note": "informational screens (readable:false) are counted in screenCount but never gate this verdict",
         },

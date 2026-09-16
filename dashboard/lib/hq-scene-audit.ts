@@ -678,6 +678,75 @@ function projectAabbToViewportRect(
   return { x: pxMin, y: pyMin, width: pxMax - pxMin, height: pyMax - pyMin };
 }
 
+/** SCREEN-KEEP-OUT PER-TICK FIX (2026-09-16, probe 20260916T012329Z
+ * label_vs_screen_overlap FAIL under a MOVING camera, twin-monitor-101/102
+ * at overlapFrac 0.19/0.30). ROOT CAUSE (confirmed by reading
+ * hq_live_probe.py's own compute_plausibility_verdicts, not a runtime
+ * declutter bug): screenViewportRects is computed exactly ONCE, from a
+ * single `window.__hqSceneAudit()` call BEFORE the label-sampling loop
+ * begins -- that function's own docstring says "the static scene geometry
+ * doesn't change tick-to-tick, so one snapshot is sufficient", which is
+ * true of the screens' WORLD position but false of their PROJECTED
+ * VIEWPORT RECT: the full probe run does not pass `?tour=0`, so the camera
+ * auto-orbits/drifts for the whole run, and a screen's on-screen position
+ * moves every tick right along with it. Labels are sampled at 4x/s across
+ * the whole window, so by the time a later tick's label rect is compared
+ * against the FIRST tick's screen rect, the two are checking two different
+ * camera poses against each other -- exactly the kind of stale-obstacle
+ * mismatch the runtime keep-out (LabelDeclutterManager.tsx's own
+ * `readScreenObstacleRects`, which re-reads screens fresh every tick)
+ * never has, because it always acts on the CURRENT frame.
+ *
+ * FIX: this lightweight sibling of computeSceneAuditReport does ONLY the
+ * screen-projection half of that function (screens are a small, fixed-size
+ * set -- 2 readable TwinMonitors + a handful of informational desk/bay
+ * screens -- so re-running this every plausibility tick is cheap, unlike
+ * re-running the full wall/desk/furniture traversal), so
+ * hq_live_probe.py's own per-tick label-sampling loop can pair each tick's
+ * label rects with that SAME tick's screen rects instead of one frozen
+ * snapshot. Exposed as `window.__hqSceneAuditScreens` (installed alongside
+ * the existing hooks, same `?diag=1` gate) -- a build that predates this
+ * fix simply lacks the hook, and the Python side falls back to the old
+ * one-shot `screenViewportRects` from `__hqSceneAudit()` in that case
+ * (never a hard failure, see hq_live_probe.py's own comment at the call
+ * site). Zero change to `computeSceneAuditReport`'s own screen traversal
+ * logic -- this is the same projection math, just callable on its own. */
+function computeScreenViewportRectsSync(
+  THREE: typeof import("three"),
+  scene: TaggedObject3D,
+  camera: unknown,
+  viewportW: number,
+  viewportH: number,
+): ScreenViewportRect[] {
+  const screenViewportRects: ScreenViewportRect[] = [];
+  const box3 = new THREE.Box3();
+  let counter = 0;
+  scene.traverse((obj) => {
+    if (obj.userData?.hqKind !== "screen") return;
+    const label = obj.userData?.hqLabel ?? "screen";
+    obj.updateWorldMatrix?.(true, false);
+    box3.setFromObject(obj as unknown as InstanceType<typeof THREE.Object3D>);
+    if (box3.isEmpty()) return;
+    const aabb: AABB = { min: [box3.min.x, box3.min.y, box3.min.z], max: [box3.max.x, box3.max.y, box3.max.z] };
+    const id = `${label}-${counter++}`;
+    const readable = !obj.userData?.hqInformational;
+    const rect = projectAabbToViewportRect(THREE, aabb, camera, viewportW, viewportH);
+    if (rect) screenViewportRects.push({ id, label, readable, ...rect });
+  });
+  return screenViewportRects;
+}
+
+async function computeScreenViewportRectsReport(): Promise<Record<string, unknown>> {
+  const scene = (window as unknown as { __hqScene?: TaggedObject3D }).__hqScene;
+  const camera = (window as unknown as { __hqCamera?: unknown }).__hqCamera;
+  const gl = (window as unknown as { __hqGl?: { domElement?: { clientWidth?: number; clientHeight?: number } } }).__hqGl;
+  if (!scene) return { ok: false, reason: "window.__hqScene is not set -- ?diag=1 missing or scene not mounted yet" };
+  const THREE = await loadThree();
+  const viewportW = gl?.domElement?.clientWidth || (typeof window !== "undefined" ? window.innerWidth : 0);
+  const viewportH = gl?.domElement?.clientHeight || (typeof window !== "undefined" ? window.innerHeight : 0);
+  return { ok: true, screenViewportRects: computeScreenViewportRectsSync(THREE, scene, camera, viewportW, viewportH) };
+}
+
 async function computeSceneAuditReport(): Promise<Record<string, unknown>> {
   const scene = (window as unknown as { __hqScene?: TaggedObject3D }).__hqScene;
   const camera = (window as unknown as { __hqCamera?: { position?: { x: number; y: number; z: number } } }).__hqCamera;
@@ -926,4 +995,8 @@ export function installSceneAuditHooks(): void {
   (window as unknown as { __hqSceneAudit?: () => Promise<Record<string, unknown>> }).__hqSceneAudit = computeSceneAuditReport;
   (window as unknown as { __hqSceneAuditWalkers?: () => Record<string, unknown> }).__hqSceneAuditWalkers = computeWalkerSnapshot;
   (window as unknown as { __hqSceneAuditWalkerCheck?: (tracks: WalkerTrack[]) => Promise<CheckResult> }).__hqSceneAuditWalkerCheck = computeWalkerWallCrossReport;
+  // SCREEN-KEEP-OUT PER-TICK FIX -- see computeScreenViewportRectsReport's
+  // own header. Cheap enough to call every plausibility tick (4x/s), unlike
+  // __hqSceneAudit's full wall/desk/furniture traversal.
+  (window as unknown as { __hqSceneAuditScreens?: () => Promise<Record<string, unknown>> }).__hqSceneAuditScreens = computeScreenViewportRectsReport;
 }

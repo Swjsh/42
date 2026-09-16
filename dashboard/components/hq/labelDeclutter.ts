@@ -97,6 +97,28 @@ export interface ObstacleRect {
   y: number;
   width: number;
   height: number;
+  /** SCREEN-KEEP-OUT HARDENING (2026-09-16, real probe FAIL:
+   * label_vs_screen_overlap on twin-monitor-101/102, worst labels "Coach"
+   * and "Claude (you)" at overlapFrac 0.19/0.30). ROOT CAUSE: a label that
+   * cannot fully clear an obstacle within `maxNudgePx` fades to the
+   * generic `fadeOpacity` (0.35 default) -- fine for two COLLIDING LABELS
+   * (a deprioritized bubble staying dimly visible is the intended look),
+   * but hq_probe_lib.py's own check_label_screen_overlap only excludes a
+   * label below LABEL_LEGIBILITY_MIN_OPACITY (0.05): 0.35 is well above
+   * that floor, so a capped-nudge label pinned against a big/close screen
+   * mesh (a real monitor's projected rect is often far larger than the
+   * default 60px cap can clear in one axis -- see this file's own
+   * DEFAULT_MAX_NUDGE_PX) stays a counted violation even though the
+   * resolver "did its best". Screens are strictly worse to occlude than
+   * another bubble (they're the readable content this whole pass exists
+   * to protect), so this flag makes resolveLabelOffsets fade a
+   * still-colliding label to opacity 0 instead of `fadeOpacity` -- but
+   * ONLY when the obstacle it failed to clear is a screen, never for a
+   * generic HUD panel (`[data-hq-obstacle]`), which keeps the pre-existing
+   * "pinned against an obstacle past the cap fades to fadeOpacity" test
+   * and behavior unchanged for that case. Set by
+   * LabelDeclutterManager.tsx's `readScreenObstacleRects` only. */
+  isScreen?: boolean;
 }
 
 export interface LabelOffset {
@@ -357,6 +379,12 @@ interface PlacedLabel {
   rect: LabelRect;
   dx: number;
   dy: number;
+  /** True only for a placed entry seeded from an `ObstacleRect` whose own
+   * `isScreen` was set -- see `ObstacleRect.isScreen`'s own comment for why
+   * this makes resolveLabelOffsets fade a still-colliding label fully to 0
+   * rather than the generic `fadeOpacity`. False for every real label and
+   * every non-screen (HUD) obstacle. */
+  isScreenObstacle?: boolean;
 }
 
 function overlapsAnyPlaced(
@@ -420,6 +448,7 @@ export function resolveLabelOffsets(
     rect: { id: o.id, priority: -1, distance: 0, x: o.x, y: o.y, width: o.width, height: o.height },
     dx: 0,
     dy: 0,
+    isScreenObstacle: o.isScreen === true,
   }));
   const out = new Map<string, LabelOffset>();
 
@@ -448,7 +477,24 @@ export function resolveLabelOffsets(
     const dx = axis === "x" ? chosen.value : 0;
     const dy = axis === "y" ? chosen.value : 0;
     placed.push({ rect, dx, dy });
-    out.set(rect.id, { dx, dy, opacity: chosen.cleared ? 1 : fadeOpacity });
+    // SCREEN-KEEP-OUT HARDENING (see ObstacleRect.isScreen's own header):
+    // a label that is STILL colliding with a screen specifically after the
+    // capped nudge fades all the way to 0, never the generic fadeOpacity --
+    // partial-opacity clutter sitting on a readable monitor face is still a
+    // counted violation downstream (hq_probe_lib.py's opacity>=0.05 floor),
+    // so "did its best" is not good enough for THIS obstacle kind. A label
+    // that only failed to clear another LABEL, or a non-screen (HUD)
+    // obstacle, keeps the original fadeOpacity behavior unchanged.
+    let opacity = 1;
+    if (!chosen.cleared) {
+      const stillOverlapsScreen = placed.some(
+        (p) =>
+          p.isScreenObstacle &&
+          rectsOverlap(rect.x + dx, rect.y + dy, rect.width, rect.height, p.rect.x + p.dx, p.rect.y + p.dy, p.rect.width, p.rect.height),
+      );
+      opacity = stillOverlapsScreen ? 0 : fadeOpacity;
+    }
+    out.set(rect.id, { dx, dy, opacity });
   }
 
   enforceGroupOrder(rects, out);
