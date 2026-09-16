@@ -770,7 +770,11 @@ export function DepartmentBayShell({ position, rotationY }: { position: [number,
   // Reproduced explicitly here since the pooled instance now renders from
   // HubRoom, a sibling elsewhere in the tree.
   const ceilingLightWorldPos = useMemo(
-    () => localToWorld(position, rotationY, [0, BAY_CEILING_Y, BAY_DESK_OFFSET_Z * 0.5]),
+    // DESK-ROWS pass: this ceiling light belongs to DepartmentBayShell, the
+    // bay-only room shell (StationModule.tsx's own 8 real bays) -- moves
+    // with the bay desk's own new offset (BAY_DESK_OFFSET_Z_BAY), not the
+    // shared hub-side constant.
+    () => localToWorld(position, rotationY, [0, BAY_CEILING_Y, BAY_DESK_OFFSET_Z_BAY * 0.5]),
     [position, rotationY],
   );
   const ceilingLightQuat = useMemo(() => ceilingLightWorldQuaternion(rotationY), [rotationY]);
@@ -876,6 +880,15 @@ interface DeskClusterProps {
    * their screen exactly as before this pass. */
   screenTitle?: string | null;
   screenLines?: ScreenLine[];
+  /** DESK-ROWS pass (2026-09-15, BUILD worker): overrides the table/chair's
+   * own local-+Z mount offset (default `BAY_DESK_OFFSET_Z`, unchanged for
+   * every existing caller that omits this -- persona wall desks/Gamma's own
+   * desk sit in the hub, a room over 2x the radius of a bay, so their
+   * original clearance was never the audit's complaint). Bay desks
+   * (StationModule.tsx, the 8 real lane bays) pass `BAY_DESK_OFFSET_Z_BAY`
+   * instead -- see that constant's own comment for the wall-clearance
+   * derivation this fixes (audit `desk_clearance: 8 violation(s)`). */
+  deskOffsetZ?: number;
 }
 
 const DESK_TOP_HEIGHT = 0.4 * FURNITURE_SCALE; // table.glb raw height 0.4
@@ -893,6 +906,40 @@ export const DESK_SEAT_LOCAL: [number, number, number] = [0, 0, -0.35 * FURNITUR
 export const BAY_DESK_OFFSET_Z = 0.8;
 export const BAY_SEAT_LOCAL: [number, number, number] = [0, 0, BAY_DESK_OFFSET_Z + DESK_SEAT_LOCAL[2]];
 
+// DESK-ROWS pass (2026-09-15, BUILD worker): audit `desk_clearance` FAILed
+// on all 8 real bay desks (StationModule.tsx/BayInterior.tsx) -- table back
+// edge only ~0.55u clear of the bay's own wall. Root cause: BAY_DESK_OFFSET_Z
+// (0.8) was tuned once, long before the bay room's real 12x12 footprint
+// (BAY_HALF_DEPTH=2.7 half-extent, ARCHITECTURE_SCALE_BAY) existed as a hard
+// constraint here -- it's also shared by the hub-side Gamma desk and persona
+// wall desks (GammaCharacter.tsx, Scene.tsx), whose room (HUB_WALL_RADIUS
+// 7.5, more than 2x the bay's) never had a clearance problem, so this pass
+// does NOT touch the shared constant (that would silently move Gamma's own
+// desk and every persona desk with it) -- only the 8 real bay desks get
+// their own offset, via DeskCluster's new `deskOffsetZ` prop.
+//
+// Derivation (mirrors lib/hq-scene-audit.ts's own real check --
+// checkDeskClearance -- so this is pinned against the SAME numbers that
+// audit computes from actual scene AABBs, not a separate estimate):
+// bay half-extent 2.7, wall thickness 0.3 -> inner wall face at
+// 2.7 - 0.3/2 = 2.55. Table half-depth (raw table.glb Z=0.6 *
+// FURNITURE_SCALE=2.0)/2 = 0.6. Table local-Z center =
+// BAY_DESK_OFFSET_Z_BAY + 0.3*FURNITURE_SCALE(0.6); back edge = center +
+// 0.6. Clearance to the inner wall face = 2.55 - (offset+0.6) - 0.6 =
+// 1.35 - offset. Old offset 0.8 -> clearance 0.55 (matches the audit's own
+// measured ~0.55u exactly, confirming this derivation). New offset 0.15 ->
+// clearance 1.20 -- clears the audit's own 1.0u `minClearanceU` with a real
+// 0.2u margin (not shaved to exactly 1.0, since the audit's AABB comes from
+// the real mesh, not this estimate). Door-side clearance (the OTHER stated
+// requirement, >=1.2u chair-to-door-wall): chair local Z =
+// offset + DESK_SEAT_LOCAL[2] = 0.15 + (-0.7) = -0.55; distance to the
+// near-wall (door side) inner face at -2.55 is 2.00u -- comfortably clear
+// (this pass moves the desk TOWARD room-center/away from the far wall,
+// which moves the chair further FROM the near/door wall too, so this
+// number can only improve versus the old 0.8 offset's own 2.65u).
+export const BAY_DESK_OFFSET_Z_BAY = 0.15;
+export const BAY_SEAT_LOCAL_BAY: [number, number, number] = [0, 0, BAY_DESK_OFFSET_Z_BAY + DESK_SEAT_LOCAL[2]];
+
 /** Table + chair + desk terminal + wall-mounted screen, arranged along one
  * local-Z axis: chair (near side, faces +Z toward the table) -> table ->
  * standing computer console (beside the table) -> computer-screen (mounted
@@ -900,7 +947,7 @@ export const BAY_SEAT_LOCAL: [number, number, number] = [0, 0, BAY_DESK_OFFSET_Z
  * (which way the character/screen actually face) is a COSMETIC assumption,
  * not yet confirmed against a render -- see HQ-SCENE-PLAN.md; flip the
  * `Math.PI` on computer-screen/chair if a screenshot shows it backwards. */
-export function DeskCluster({ position, rotationY, accentColor, screenTitle, screenLines }: DeskClusterProps) {
+export function DeskCluster({ position, rotationY, accentColor, screenTitle, screenLines, deskOffsetZ = BAY_DESK_OFFSET_Z }: DeskClusterProps) {
   const SCREEN_POSITION: [number, number, number] = [0, DESK_TOP_HEIGHT, 0.55 * FURNITURE_SCALE];
   const instanceIdBase = useId();
 
@@ -920,22 +967,22 @@ export function DeskCluster({ position, rotationY, accentColor, screenTitle, scr
   const tablePlacements = useMemo(
     () => [{
       id: `${instanceIdBase}-table`,
-      position: localToWorld(position, rotationY, [0, 0, BAY_DESK_OFFSET_Z + 0.3 * FURNITURE_SCALE]),
+      position: localToWorld(position, rotationY, [0, 0, deskOffsetZ + 0.3 * FURNITURE_SCALE]),
       rotation: [0, rotationY, 0] as [number, number, number],
       scale: FURNITURE_SCALE,
     }],
-    [instanceIdBase, position, rotationY],
+    [instanceIdBase, position, rotationY, deskOffsetZ],
   );
   usePooledKitProps(KIT_PATHS.furniture.table, "native", tablePlacements);
 
   const chairPlacements = useMemo(
     () => [{
       id: `${instanceIdBase}-chair`,
-      position: localToWorld(position, rotationY, [DESK_SEAT_LOCAL[0], DESK_SEAT_LOCAL[1], BAY_DESK_OFFSET_Z + DESK_SEAT_LOCAL[2]]),
+      position: localToWorld(position, rotationY, [DESK_SEAT_LOCAL[0], DESK_SEAT_LOCAL[1], deskOffsetZ + DESK_SEAT_LOCAL[2]]),
       rotation: [0, rotationY + Math.PI, 0] as [number, number, number],
       scale: FURNITURE_SCALE,
     }],
-    [instanceIdBase, position, rotationY],
+    [instanceIdBase, position, rotationY, deskOffsetZ],
   );
   usePooledKitProps(KIT_PATHS.furniture.chair, "native", chairPlacements);
 

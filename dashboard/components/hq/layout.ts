@@ -348,33 +348,104 @@ export function minClearRadius(azimuth: number, margin: number): number {
 // roster order collectCompany() already guarantees (so a persona never
 // jumps segments between polls).
 
-// DESK-RING pass (2026-09-15, BUILD worker, J top-down feedback -- "desks
-// sit inside the walls"): PERSONA_WALL_RADIUS is the persona SLOT/chair-side
-// point (where Scene.tsx's personaGeometry places the seated agent, seat
-// offset BAY_SEAT_LOCAL applied on top of this), NOT the visible table's own
-// center -- SetKit.tsx#DeskCluster mounts the table a further
-// `BAY_DESK_OFFSET_Z + 0.3*FURNITURE_SCALE` = 0.8 + 0.6 = 1.4u outward along
-// the slot's own radial-facing axis (verified by reading DeskCluster's
-// tablePlacements localToWorld call directly, not assumed from
-// ENVIRONMENT-PLAN.md's own coarser "5.5 - BAY_DESK_OFFSET_Z" estimate,
-// which only subtracted the outer 0.8 and missed DeskCluster's own inner
-// 0.6). Target (ENVIRONMENT-PLAN.md Design pass 2026-09-15, Option 1): table
-// CENTER at radius 5.5 -- so PERSONA_WALL_RADIUS = 5.5 - 1.4 = 4.1. Table
-// raw footprint (kenney-space-station-kit/table.glb, parsed directly via
-// scripts/glb_extents.mjs this pass) is X=1.100/Z=0.600 at FURNITURE_SCALE=2
-// -> world 2.2w x 1.2d; back edge (the +Z-outward face, half-depth 0.6
-// beyond center) then sits at radius 5.5+0.6=6.1, 1.4u clear of
-// HUB_WALL_RADIUS=7.5 (>= the 1.0u minimum this pass's own clearance rule
-// requires) -- see tests/hq-hub-layout.test.ts for the corner-radius
-// assertion this derivation is pinned against. Persona desks only ever
-// occupy segments 1-3 (BRAIN_WALL_ARM_INDEX's own segment 0 is reserved,
-// see this file's header above) -- segment 0 is the ONLY segment carrying
-// fixed hub furniture (BrainCore r2.24, meeting table+chairs r<=~4.0 at
-// 45deg, Gamma's desk r3.4 at ~61deg, cables r5.5 at 12/28/78deg -- see
-// HubInterior.tsx), so this radius change cannot collide with any of it by
-// construction, regardless of the exact number chosen here.
-export const PERSONA_WALL_RADIUS = 4.1;
-const WALL_SEGMENT_SPREAD = (18 * Math.PI) / 180; // +-18deg off a segment's own center -- clear of both flanking doorways (each segment spans 90deg)
+// DESK-ROWS pass (2026-09-15, BUILD worker, J top-down feedback: "no
+// intentional layout... rotated radially at 6 different angles... needs
+// consistent orientation, clear aisles"). Supersedes the DESK-RING pass's
+// own PERSONA_WALL_RADIUS=4.1 derivation below -- both the radius AND the
+// per-desk placement model changed this pass, for two SEPARATE reasons:
+//
+// 1. Orientation: DESK-RING placed each desk at its OWN point on the ring
+//    (angle = segCenterAngle +- an 18deg spread) with
+//    rotationY = rotationYFacing(THAT desk's own position, HUB) -- the two
+//    desks in a segment landed 18deg apart in yaw, 6 desks total, 6 DIFFERENT
+//    angles, reading as scattered even though every one was individually
+//    wall-clear. Fix: both desks of a segment now share exactly ONE yaw
+//    (computed once, at the segment's own wall-normal point, not at each
+//    desk's own position) and sit side by side along the TANGENT to that
+//    normal -- a real mirrored, wall-parallel row.
+//
+// 2. Radius: DESK-RING's own 4.1 assumed the hub's real wall geometry was a
+//    flat plane perpendicular to each segment's own radial bisector (an
+//    OCTAGON-like room). Re-reading lib/hq-scene-audit.ts#buildHubSlabs this
+//    pass (the SAME geometry hq_live_probe.py's own desk_clearance/
+//    wall_penetration checks run against) shows the hub is modeled as a
+//    plain AXIS-ALIGNED SQUARE (4 walls at world x=+-HUB_WALL_RADIUS and
+//    z=+-HUB_WALL_RADIUS, doors cut into each -- buildRoomWallSlabs's own
+//    header calls this "exact, not an approximation" for a room that's
+//    never itself rotated, which HubRoom never is). A segment between two
+//    doors is therefore a real ROOM CORNER, not a flat diagonal wall -- the
+//    nearest wall to a point sitting on the diagonal bisector is whichever
+//    of the two flanking (cardinal) walls is closer in plain |x| or |z|
+//    terms, a Chebyshev distance, not the dot-product-against-one-normal
+//    math the old comment used. That old math UNDER-counted how close the
+//    real desk sat to the nearest wall once this pass's own tangential
+//    per-desk offset (item 1 above) pushed one desk of each pair further
+//    into the corner than the segment's own center point.
+//
+// Combined derivation (table.glb raw footprint X=1.100/Z=0.600 at
+// FURNITURE_SCALE=2 -> world 2.2w x 1.2d, TABLE_HALF_X=1.1/TABLE_HALF_Z=0.6;
+// TABLE_LOCAL_Z_OFFSET = BAY_DESK_OFFSET_Z(0.8) + 0.3*FURNITURE_SCALE(0.6)
+// = 1.4, unchanged -- persona desks never touch that hub-wide constant, see
+// SetKit.tsx#BAY_DESK_OFFSET_Z_BAY's own header for why the BAY-only offset
+// is a separate constant):
+//
+//   - Two 45deg-rotated tables offset along their own shared tangent don't
+//     overlap as OBB rectangles at any real gap >0, but their AXIS-ALIGNED
+//     bounding boxes (what checkDeskClearance actually compares) inflate to
+//     a (TABLE_HALF_X+TABLE_HALF_Z)*sqrt2 ~= 2.404u-wide square at exactly
+//     45deg -- the audit's own first live-probe run this pass FAILed 6/6
+//     persona desks as "overlaps" at the old 1.4 half-separation, which
+//     confirmed this exactly (the math: needs
+//     half-separation > TABLE_HALF_X + TABLE_HALF_Z = 1.7 for the two boxes
+//     to clear on at least one axis -- an exact identity at a 45deg rotation
+//     since the cos45 factor cancels on both sides).
+//   - The hub's real inner wall face sits at HUB_WALL_RADIUS - WALL_THICKNESS/2
+//     = 7.5 - 0.15 = 7.35 (lib/hq-scene-audit.ts's own WALL_THICKNESS=0.3).
+//     Desk-clearance needs every table corner's own max(|x|,|z|) <= 7.35 -
+//     1.0 = 6.35.
+//   - The door-to-core aisle (this task's own >=1.5u ask, not itself a
+//     hq_live_probe check -- no literal aisle check exists there, this is a
+//     design goal verified by this repo's own tests/hq-hub-layout.test.ts)
+//     needs every corner's own min(|x|,|z|) >= 1.5.
+//
+// These three pulls (no-overlap needs half-separation >1.7; wall-clearance
+// wants a SMALLER radius; door-aisle wants a LARGER radius) don't all fully
+// satisfy at once at any (radius, half-separation) pair this pass searched
+// (script run this session, sampled radius 2.5..4.5 / half-sep 1.75..3.0) --
+// the two REAL, audit-enforced constraints (no-overlap, wall-clearance) are
+// non-negotiable; the aisle number is a softer design target. Chosen point,
+// PERSONA_WALL_RADIUS=3.8 / DESK_TANGENT_HALF_SEPARATION=1.8, gives real
+// wall clearance 1.198u (audit's own >=1.0u bar, real margin) and no-overlap
+// margin 0.1u over the 1.7 minimum, while landing the aisle number at 1.20u
+// (short of the 1.5u ask by 0.30u, but walker_wall_cross -- the ACTUAL
+// walked-path check -- passes at 0/480 violations regardless, since no walk
+// edge routes diagonally through this exact spot; see this file's own
+// buildWalkGraph, persona nodes hang straight off hub-center). Persona desks
+// only ever occupy segments 1-3 (BRAIN_WALL_ARM_INDEX's own segment 0 is
+// reserved, see this file's header above) -- segment 0 is the ONLY segment
+// carrying fixed hub furniture (BrainCore r2.24, meeting table+chairs
+// r<=~4.0 at 45deg, Gamma's desk r3.4 at ~61deg, cables r5.5 at 12/28/78deg
+// -- see HubInterior.tsx), so this radius change cannot collide with any of
+// it by construction, regardless of the exact number chosen here.
+export const PERSONA_WALL_RADIUS = 3.8;
+
+// DESK_TANGENT_HALF_SEPARATION -- see this section's own combined-derivation
+// comment above for the full no-overlap/wall-clearance/aisle trade-off this
+// number (and PERSONA_WALL_RADIUS above) were jointly chosen to balance.
+// `wallPoint` below sits at PERSONA_WALL_RADIUS on the segment's own radial
+// bisector. `rotationY = rotationYFacing(wallPoint, HUB)` is evaluated ONCE
+// per segment (not per desk) -- this is the shared yaw: local -Z points at
+// the hub (perpendicular to the segment's own radial bisector, "facing the
+// room" per the task), local +Z is the outward mount direction DeskCluster
+// already uses to place the visible table (BAY_DESK_OFFSET_Z +
+// 0.3*FURNITURE_SCALE = 1.4u, unchanged by this pass), and local +X (the
+// table's own long/width axis) is exactly tangent to that bisector at that
+// point -- both desks are placed at wallPoint +- this tangent unit vector
+// (local (1,0,0) rotates to world (cos Y, 0, -sin Y), three.js Y-rotation
+// convention, matching rotationYFacing's own derivation) scaled by
+// DESK_TANGENT_HALF_SEPARATION, so they stay mirror-symmetric about (and at
+// the same radial distance as) the segment's own center line.
+const DESK_TANGENT_HALF_SEPARATION = 1.8;
 
 // ─── Brain wall mount (2026-09-14, MODELS builder, coordinator-authorized
 // edit -- LAYOUT's ownership of this file is released) ─────────────────────
@@ -583,11 +654,23 @@ export function computePersonaWallSlots(count: number, brainWallArmIndex: number
     const segment = otherSegments[Math.floor(i / 2) % otherSegments.length];
     const side = i % 2 === 0 ? -1 : 1;
     const segCenterAngle = armAngle(segment) + Math.PI / 4;
-    const angle = segCenterAngle + side * WALL_SEGMENT_SPREAD;
-    const position: [number, number, number] = [
-      Math.cos(angle) * PERSONA_WALL_RADIUS, 0, Math.sin(angle) * PERSONA_WALL_RADIUS,
+    // The segment's own wall-normal point (unchanged radius from the
+    // DESK-RING pass) -- ONE reference point per segment, not per desk.
+    const wallPoint: [number, number, number] = [
+      Math.cos(segCenterAngle) * PERSONA_WALL_RADIUS, 0, Math.sin(segCenterAngle) * PERSONA_WALL_RADIUS,
     ];
-    out.push({ position, rotationY: rotationYFacing(position, HUB) });
+    // Shared yaw for BOTH desks in this segment -- see this section's own
+    // header for why this must be evaluated once here, not per desk.
+    const rotationY = rotationYFacing(wallPoint, HUB);
+    // Tangent-to-the-wall unit direction for that yaw (local +X -> world).
+    const tangentX = Math.cos(rotationY);
+    const tangentZ = -Math.sin(rotationY);
+    const position: [number, number, number] = [
+      wallPoint[0] + side * DESK_TANGENT_HALF_SEPARATION * tangentX,
+      0,
+      wallPoint[2] + side * DESK_TANGENT_HALF_SEPARATION * tangentZ,
+    ];
+    out.push({ position, rotationY });
   }
   return out;
 }

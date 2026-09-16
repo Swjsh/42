@@ -542,6 +542,17 @@ async function computeSceneAuditReport(): Promise<Record<string, unknown>> {
   });
 
   const baySlots = layout.computeAllBaySlots(8);
+  // DESK-ROWS pass (2026-09-15): the 6 persona wall slots, SAME
+  // brainWallArmIndex=0 convention BRAIN_WALL_MOUNT/MONITOR_MOUNT already
+  // hardcode as their own "today's BRAIN_WALL_ARM_INDEX" convenience const
+  // (Scene.tsx's real BRAIN_WALL_ARM_INDEX is a runtime value derived from
+  // ARC_CENTER that this pure/dynamic-import module has no access to --
+  // same constraint those two consts document). Needed below so a persona
+  // desk's expected yaw is the segment's own SHARED wall-facing direction,
+  // not a per-desk radial-facing guess computed from that one desk's own
+  // (now tangentially offset) position -- see this section's own updated
+  // comment for why the old per-position guess broke under DESK-ROWS.
+  const personaSlots = layout.computePersonaWallSlots(6, 0);
   const slabs: WallSlab[] = [
     ...buildHubSlabs(),
     ...baySlots.flatMap((slot) => buildBaySlabs(`bay-${slot.index}`, [slot.position[0], slot.position[2]], slot.rotationY)),
@@ -550,11 +561,14 @@ async function computeSceneAuditReport(): Promise<Record<string, unknown>> {
   // Desk-orientation pairing: classify each desk as belonging to whichever
   // bay's own agentHome-ish area it's nearest to (within a generous 2.2u --
   // DeskCluster mounts a bay's table ~1.4u outward from its own seat slot,
-  // per layout.ts#PERSONA_WALL_RADIUS's own header), else treat it as a hub
-  // desk (persona wall slot or Gamma's own desk) expected to face toward or
-  // away from hub center. This mirrors the live geometry without requiring
-  // a THIRD tagging pass (per-slot ids) on top of the coarse
-  // furniture/desk tag already added -- see this file's own header.
+  // per layout.ts#PERSONA_WALL_RADIUS's own header), else whichever persona
+  // wall slot it's nearest to (DESK-ROWS pass, same 2.2u band -- a persona
+  // table sits ~1.4-1.75u from its own slot's seat point, tangential
+  // row-offset included), else fall back to the old "faces toward or away
+  // from hub center" heuristic for anything neither (Gamma's own hub desk).
+  // This mirrors the live geometry without requiring a THIRD tagging pass
+  // (per-slot ids) on top of the coarse furniture/desk tag already added --
+  // see this file's own header.
   const deskOrientationInput = deskCandidates.map((d) => {
     let nearestBay: { dist: number; rotationY: number } | null = null;
     for (const slot of baySlots) {
@@ -563,6 +577,14 @@ async function computeSceneAuditReport(): Promise<Record<string, unknown>> {
     }
     if (nearestBay && nearestBay.dist < 2.2) {
       return { id: d.id, actualYaw: d.yaw, targetYaw: nearestBay.rotationY };
+    }
+    let nearestPersona: { dist: number; rotationY: number } | null = null;
+    for (const slot of personaSlots) {
+      const dist = Math.hypot(d.position[0] - slot.position[0], d.position[2] - slot.position[2]);
+      if (!nearestPersona || dist < nearestPersona.dist) nearestPersona = { dist, rotationY: slot.rotationY };
+    }
+    if (nearestPersona && nearestPersona.dist < 2.2) {
+      return { id: d.id, actualYaw: d.yaw, targetYaw: nearestPersona.rotationY };
     }
     const towardHub = layout.rotationYFacing(d.position, layout.HUB);
     const diffToward = Math.abs(wrapAngleRad(d.yaw - towardHub));

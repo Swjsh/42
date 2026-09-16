@@ -8,7 +8,7 @@ import * as THREE from "three";
 import type { SectorRow } from "./types";
 import type { AgentBehavior } from "./Agent";
 import { healthColor, isParkedState, lerp, makeToonGradientTexture, PALETTE, truncateOneLine, type ScreenLine } from "./palette";
-import { BAY_CEILING_Y, BAY_DESK_OFFSET_Z, BAY_HALF_DEPTH, DepartmentBayShell, DeskCluster } from "./SetKit";
+import { BAY_CEILING_Y, BAY_DESK_OFFSET_Z_BAY, BAY_HALF_DEPTH, DepartmentBayShell, DeskCluster } from "./SetKit";
 import BaySign from "./BaySign";
 import BayInterior from "./BayInterior";
 
@@ -162,8 +162,8 @@ export default function StationModule({
               still-loading bay never unmounts anything outside itself. */}
           <Suspense fallback={null}>
             <DepartmentBayShell position={position} rotationY={rotationY} />
-            <group position={[0, 0, BAY_DESK_OFFSET_Z]}>
-              <DeskCluster position={position} rotationY={rotationY} accentColor={color} screenTitle={row.lane} screenLines={screenLines} />
+            <group position={[0, 0, BAY_DESK_OFFSET_Z_BAY]}>
+              <DeskCluster position={position} rotationY={rotationY} accentColor={color} screenTitle={row.lane} screenLines={screenLines} deskOffsetZ={BAY_DESK_OFFSET_Z_BAY} />
             </group>
             {/* S3 bay-interiors pass (2026-09-14, MODELS builder): 2nd
                 chair+screen, container corner, interior lane sign, floor mat
@@ -197,7 +197,7 @@ export default function StationModule({
               strip (unfaded, both already health-tinted) carry that same
               signal against plenty of ambient light instead. */}
           <pointLight
-            position={[0, 1.1, BAY_DESK_OFFSET_Z * 0.4]}
+            position={[0, 1.1, BAY_DESK_OFFSET_Z_BAY * 0.4]}
             color={color}
             intensity={2.2 * lampFactor}
             distance={4.5}
@@ -206,7 +206,7 @@ export default function StationModule({
           {/* Warm-white ceiling pointLight -- "lit like a set", one per bay
               (~8 total, well within a 5080's budget). Distance-limited so
               8 bays' lights never bleed heavily into each other or the hub. */}
-          <pointLight position={[0, BAY_CEILING_Y, BAY_DESK_OFFSET_Z * 0.5]} color="#ffe9c2" intensity={3.5 * lampFactor} distance={6} decay={2} />
+          <pointLight position={[0, BAY_CEILING_Y, BAY_DESK_OFFSET_Z_BAY * 0.5]} color="#ffe9c2" intensity={3.5 * lampFactor} distance={6} decay={2} />
         </>
       )}
 

@@ -4,7 +4,7 @@ import { useEffect, useId, useMemo } from "react";
 import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import type { SectorRow } from "./types";
-import { KIT_PATHS, KitProp, FURNITURE_SCALE, BAY_DESK_OFFSET_Z, BAY_HALF_DEPTH, BAY_SEAT_LOCAL, usePooledKitProps } from "./SetKit";
+import { KIT_PATHS, KitProp, FURNITURE_SCALE, BAY_DESK_OFFSET_Z_BAY, BAY_HALF_DEPTH, BAY_SEAT_LOCAL_BAY, usePooledKitProps } from "./SetKit";
 import { localToWorld } from "./palette";
 
 // W2 (2026-09-14, WORLD-6 builder): plant-small.glb (Kenney Furniture Kit,
@@ -179,7 +179,7 @@ export default function BayInterior({ accentColor, laneName, row, position, rota
   }, [signCanvas, signTexture, laneName, accentColor]);
   useEffect(() => () => signTexture.dispose(), [signTexture]);
 
-  // Second chair -- beside the existing one (BAY_SEAT_LOCAL), same facing.
+  // Second chair -- beside the existing one (BAY_SEAT_LOCAL_BAY), same facing.
   // PERF-3 (2026-09-15): routed through the existing cross-tree chair pool
   // (SetKit.tsx#usePooledKitProps, "native" variant -- same pool key
   // DeskCluster's own chair already registers into, rendered by HubRoom's
@@ -188,7 +188,7 @@ export default function BayInterior({ accentColor, laneName, row, position, rota
   // already-pooled chair (evidence: "chair_1 x14" == 8 bay second-chairs +
   // 6 HubInterior.tsx hub chairs, the other un-pooled chair source).
   const seatId = useId();
-  const secondSeat: [number, number, number] = [BAY_SEAT_LOCAL[0] + 0.9, BAY_SEAT_LOCAL[1], BAY_SEAT_LOCAL[2]];
+  const secondSeat: [number, number, number] = [BAY_SEAT_LOCAL_BAY[0] + 0.9, BAY_SEAT_LOCAL_BAY[1], BAY_SEAT_LOCAL_BAY[2]];
   const chairPlacements = useMemo(
     () => [{
       id: `bay-2nd-chair-${seatId}`,
@@ -213,7 +213,7 @@ export default function BayInterior({ accentColor, laneName, row, position, rota
   // GLB's own local origin sits at ITS bottom (raw Y min 0, same convention
   // as every other kit piece), so this places its base on the table surface
   // whatever its own scale is; only the model's own proportions shrink.
-  const secondScreenPos: [number, number, number] = [1.15, DESK_TOP_HEIGHT, BAY_DESK_OFFSET_Z + 0.55 * FURNITURE_SCALE];
+  const secondScreenPos: [number, number, number] = [1.15, DESK_TOP_HEIGHT, BAY_DESK_OFFSET_Z_BAY + 0.55 * FURNITURE_SCALE];
   // Container corner -- back-left of the room, clear of the door (-Z) and
   // the desk cluster; room half-extent is BAY_HALF_DEPTH (2.7), 1.9 offset
   // leaves margin on both axes.
@@ -221,7 +221,7 @@ export default function BayInterior({ accentColor, laneName, row, position, rota
   // Interior wall sign -- side wall (local +X, flush against it, facing
   // -X back into the room), naming the lane; BaySign.tsx itself keeps the
   // hub-facing (-Z) exterior sign unchanged.
-  const wallSignPos: [number, number, number] = [BAY_HALF_DEPTH - 0.05, 1.7, BAY_DESK_OFFSET_Z * 0.6];
+  const wallSignPos: [number, number, number] = [BAY_HALF_DEPTH - 0.05, 1.7, BAY_DESK_OFFSET_Z_BAY * 0.6];
 
   return (
     <>
@@ -252,11 +252,11 @@ export default function BayInterior({ accentColor, laneName, row, position, rota
 
       {/* Floor mat -- under the desk/chair footprint, a subtle accent-tinted
           rectangle + ring just above the real floor. */}
-      <mesh position={[0, 0.006, BAY_DESK_OFFSET_Z]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+      <mesh position={[0, 0.006, BAY_DESK_OFFSET_Z_BAY]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
         <planeGeometry args={[2.6, 2.2]} />
         <meshBasicMaterial color={accentColor} transparent opacity={0.1} toneMapped={false} />
       </mesh>
-      <mesh position={[0, 0.007, BAY_DESK_OFFSET_Z]} rotation={[-Math.PI / 2, 0, 0]}>
+      <mesh position={[0, 0.007, BAY_DESK_OFFSET_Z_BAY]} rotation={[-Math.PI / 2, 0, 0]}>
         <ringGeometry args={[1.32, 1.36, 32]} />
         <meshBasicMaterial color={accentColor} transparent opacity={0.25} toneMapped={false} />
       </mesh>
